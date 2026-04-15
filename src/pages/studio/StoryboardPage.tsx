@@ -178,9 +178,9 @@ export function StoryboardPage() {
   };
 
   const visualSuggestions = [
-    "Medium shot", "Close-up", "Dutch tilt", "Wide shot", 
-    "Dimly lit", "High contrast", "Neon glow",
-    "Light catching dust particles", "Dynamic motion blur"
+    "Medium shot", "Extreme close-up", "Dutch tilt", "Wide establishing shot", "Low angle", "High angle",
+    "Dimly lit", "High contrast", "Neon glow", "Golden hour", "Harsh shadows",
+    "Light catching dust particles", "Dynamic motion blur", "Slow dramatic pan", "Handheld camera shake"
   ];
 
   return (
@@ -384,7 +384,7 @@ export function StoryboardPage() {
                                   </div>
                                   <div className="space-y-1.5">
                                     <div className="flex items-center justify-between">
-                                      <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">Visual Direction</label>
+                                      <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">Visual/Scene Description</label>
                                       <Button 
                                         variant="ghost" 
                                         size="sm" 
@@ -456,7 +456,7 @@ export function StoryboardPage() {
                                   
                                   <div className="space-y-1.5 bg-black/20 p-3 rounded-lg border border-white/5">
                                     <h4 className="text-[9px] font-bold text-purple-400/80 uppercase tracking-widest flex items-center gap-1.5">
-                                      <ImageIcon className="w-3 h-3" /> Visual Direction
+                                      <ImageIcon className="w-3 h-3" /> Visual/Scene Description
                                     </h4>
                                     <p className="text-xs text-zinc-400 font-mono leading-relaxed line-clamp-2">{scene.visuals}</p>
                                   </div>
