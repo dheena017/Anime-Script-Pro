@@ -30,6 +30,7 @@ export function StoryboardPage() {
   const [editForm, setEditForm] = useState<Partial<Scene>>({});
   const [isEnhancing, setIsEnhancing] = useState(false);
   const [isEnhancingAll, setIsEnhancingAll] = useState(false);
+  const lastScriptRef = React.useRef<string | null>(null);
 
   const parseStoryboard = (script: string | null): Scene[] => {
     if (!script) return [];
@@ -40,7 +41,7 @@ export function StoryboardPage() {
     return tableLines.slice(1).map((row, idx) => {
       const cells = row.split('|').filter(cell => cell.trim() !== "").map(cell => cell.trim());
       return {
-        id: `scene-${idx}`,
+        id: `scene-${Math.random().toString(36).substring(2, 9)}-${idx}`,
         originalIndex: idx,
         section: cells[0] || '',
         narration: cells[1] || '',
@@ -51,7 +52,10 @@ export function StoryboardPage() {
   };
 
   useEffect(() => {
-    setScenes(parseStoryboard(generatedScript));
+    if (generatedScript !== lastScriptRef.current) {
+      setScenes(parseStoryboard(generatedScript));
+      lastScriptRef.current = generatedScript;
+    }
   }, [generatedScript]);
 
   const handleDragEnd = (result: DropResult) => {
@@ -85,6 +89,7 @@ export function StoryboardPage() {
         );
         
         const newScript = [...preTable, ...newTableRows, ...postTable].join('\n');
+        lastScriptRef.current = newScript;
         setGeneratedScript(newScript);
       }
     }
