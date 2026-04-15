@@ -378,7 +378,7 @@ export function StoryboardPage() {
                                     <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">Narration</label>
                                     <Textarea 
                                       value={editForm.narration || ''} 
-                                      onChange={(e) => setEditForm({...editForm, narration: e.target.value})}
+                                      onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setEditForm({...editForm, narration: e.target.value})}
                                       className="min-h-[60px] text-sm font-serif bg-black/50 border-white/10 resize-none focus-visible:ring-red-500/50 leading-relaxed"
                                     />
                                   </div>
