@@ -1,4 +1,6 @@
+import * as React from "react"
 import { Tooltip as TooltipPrimitive } from "@base-ui/react/tooltip"
+import { Slot } from "@radix-ui/react-slot"
 
 import { cn } from "@/lib/utils"
 
@@ -19,8 +21,11 @@ function Tooltip({ ...props }: TooltipPrimitive.Root.Props) {
   return <TooltipPrimitive.Root data-slot="tooltip" {...props} />
 }
 
-function TooltipTrigger({ ...props }: TooltipPrimitive.Trigger.Props) {
-  return <TooltipPrimitive.Trigger data-slot="tooltip-trigger" {...props} />
+/**
+ * Proper implementation for Base UI using the 'as' prop which supports Radix Slot.
+ */
+function TooltipTrigger({ asChild, ...props }: TooltipPrimitive.Trigger.Props & { asChild?: boolean }) {
+  return <TooltipPrimitive.Trigger data-slot="tooltip-trigger" {...(props as any)} as={asChild ? Slot : "button"} />
 }
 
 function TooltipContent({

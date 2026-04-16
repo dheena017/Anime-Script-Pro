@@ -1,29 +1,14 @@
 import React from 'react';
-import { Outlet, useNavigate } from 'react-router-dom';
-import { motion } from 'motion/react';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { 
   Sparkles, 
   Cpu, 
   Settings2, 
-  Send, 
-  UserPlus, 
-  Layers, 
   History, 
-  Edit3,
   Info,
   Users,
-  Zap,
-  Sword,
-  Globe,
-  Ghost,
-  Brain,
   Hash,
   Clapperboard,
-  Layout as LayoutIcon,
-  Search,
-  Image as ImageIcon,
-  ScrollText,
-  LayoutGrid
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -35,6 +20,8 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
+  SelectGroup,
+  SelectLabel
 } from "@/components/ui/select";
 import {
   Tooltip,
@@ -42,55 +29,27 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useGenerator } from '@/contexts/GeneratorContext';
-import { generateAnimeScript, generateCharacters, generateSeriesPlan } from '@/services/geminiService';
+import { 
+  generateAnimeScript, 
+  generateCharacters, 
+  generateSeriesPlan,
+  MODEL_GROUPS 
+} from '@/services/geminiService';
 import { auth } from '@/firebase';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { collection, addDoc, serverTimestamp, updateDoc, doc } from 'firebase/firestore';
 import { db } from '@/firebase';
 import { handleFirestoreError, OperationType } from '@/lib/error-utils';
 import { cn } from '@/lib/utils';
-
-const QUICK_TEMPLATES = [
-  { 
-    id: 'shonen', 
-    label: 'Shonen Battle', 
-    icon: Sword, 
-    prompt: 'A high-stakes tournament where fighters use elemental powers to determine the next emperor.',
-    color: 'text-orange-500'
-  },
-  { 
-    id: 'isekai', 
-    label: 'Dark Isekai', 
-    icon: Globe, 
-    prompt: 'A programmer is reborn in a cruel fantasy world as a minor villain destined to be defeated.',
-    color: 'text-purple-500'
-  },
-  { 
-    id: 'cyberpunk', 
-    label: 'Cyberpunk', 
-    icon: Zap, 
-    prompt: 'A street racer in a neon-lit megacity uncovering a corporate conspiracy involving digital souls.',
-    color: 'text-cyan-500'
-  },
-  { 
-    id: 'slice', 
-    label: 'Slice of Life', 
-    icon: Ghost, 
-    prompt: 'A group of high school students starting an occult research club in a genuinely haunted school.',
-    color: 'text-green-500'
-  },
-  { 
-    id: 'psych', 
-    label: 'Psychological', 
-    icon: Brain, 
-    prompt: 'A detective who can enter the dreams of suspects to find the truth behind a series of impossible crimes.',
-    color: 'text-blue-500'
-  },
-];
+import { QUICK_TEMPLATES } from '@/data/studio/quickTemplates';
+import { StudioToolPanels } from '@/components/studio/StudioToolPanels';
 
 export function StudioLayout() {
+  const lastSelectionRef = React.useRef<{ session: string; episode: string } | null>(null);
+
   const [user] = useAuthState(auth);
   const navigate = useNavigate();
+  const location = useLocation();
   const {
     prompt, setPrompt,
     setGeneratedScript,
@@ -144,10 +103,10 @@ export function StudioLayout() {
   };
 
   const handleGenerate = async () => {
-    if (!prompt.trim()) return;
+    if (!prompt.trim() || isLoading) return;
     setIsLoading(true);
     navigate('/studio/script');
-    const script = await generateAnimeScript(prompt, tone, audience, selectedModel);
+    const script = await generateAnimeScript(prompt, tone, audience, selectedModel, session, episode);
     setGeneratedScript(script);
     setCurrentScriptId(null);
     setIsLoading(false);
@@ -172,6 +131,24 @@ export function StudioLayout() {
     }
   };
 
+  React.useEffect(() => {
+    if (!lastSelectionRef.current) {
+      lastSelectionRef.current = { session, episode };
+      return;
+    }
+
+    const changed =
+      lastSelectionRef.current.session !== session ||
+      lastSelectionRef.current.episode !== episode;
+
+    lastSelectionRef.current = { session, episode };
+
+    if (!changed) return;
+    if (!prompt.trim()) return;
+
+    void handleGenerate();
+  }, [session, episode, prompt, handleGenerate]);
+
   const handleGenerateCharacters = async () => {
     if (!prompt.trim()) return;
     setIsGeneratingCharacters(true);
@@ -189,6 +166,33 @@ export function StudioLayout() {
     setGeneratedSeriesPlan(plan);
     setIsGeneratingSeries(false);
   };
+
+  const selectedTool: 'script' | 'cast' | 'series' | 'storyboard' | 'seo' | 'prompts' | 'example' | 'template' | 'framework' | 'whatif' | 'audio' | 'export' | undefined =
+    location.pathname.includes('/studio/script')
+      ? 'script'
+      : location.pathname.includes('/studio/cast')
+      ? 'cast'
+      : location.pathname.includes('/studio/series')
+      ? 'series'
+      : location.pathname.includes('/studio/storyboard')
+      ? 'storyboard'
+      : location.pathname.includes('/studio/seo')
+      ? 'seo'
+      : location.pathname.includes('/studio/prompts')
+      ? 'prompts'
+      : location.pathname.includes('/studio/example')
+      ? 'example'
+      : location.pathname.includes('/studio/template')
+      ? 'template'
+      : location.pathname.includes('/studio/framework')
+      ? 'framework'
+      : location.pathname.includes('/studio/whatif')
+      ? 'whatif'
+      : location.pathname.includes('/studio/audio')
+      ? 'audio'
+      : location.pathname.includes('/studio/export')
+      ? 'export'
+      : undefined;
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-10 grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -210,14 +214,24 @@ export function StudioLayout() {
                 <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Quick Templates</label>
                 <div className="grid grid-cols-2 gap-2">
                   {QUICK_TEMPLATES.map((template) => (
-                    <button
+                    <Button
                       key={template.id}
+                      variant="outline"
+                      size="sm"
                       onClick={() => setPrompt(template.prompt)}
-                      className="flex items-center gap-2 px-3 py-2 bg-black/40 hover:bg-zinc-800 border border-zinc-800 rounded-md transition-all group text-left"
+                      className={cn(
+                        'h-9 w-full justify-start gap-2 rounded-md border-zinc-800 bg-zinc-950/60 px-3 text-left text-xs font-semibold text-zinc-300 transition-colors hover:border-zinc-700 hover:bg-zinc-900',
+                        prompt === template.prompt && 'border-red-500 bg-red-600/90 text-white hover:border-red-500 hover:bg-red-600'
+                      )}
                     >
-                      <template.icon className={cn("w-3 h-3 transition-transform group-hover:scale-110", template.color)} />
-                      <span className="text-[10px] font-medium text-zinc-400 group-hover:text-zinc-200">{template.label}</span>
-                    </button>
+                      <template.icon
+                        className={cn(
+                          'h-3.5 w-3.5 transition-transform group-hover/button:scale-110',
+                          prompt === template.prompt ? 'text-white' : template.color
+                        )}
+                      />
+                      <span className="truncate">{template.label}</span>
+                    </Button>
                   ))}
                 </div>
               </div>
@@ -232,12 +246,23 @@ export function StudioLayout() {
                     Clear
                   </button>
                 </div>
-                <Textarea 
-                  placeholder="e.g., A dark fantasy about a vessel for a monster king..."
-                  className="min-h-[120px] bg-black/50 border-zinc-800 focus:border-red-500/50 focus:ring-red-500/20 resize-none text-zinc-200"
-                  value={prompt}
-                  onChange={(e) => setPrompt(e.target.value)}
-                />
+                <div className="relative">
+                  <Textarea 
+                    placeholder="e.g., A dark fantasy about a vessel for a monster king..."
+                    className="min-h-[120px] bg-black/50 border-zinc-800 focus:border-red-500/50 focus:ring-red-500/20 resize-none text-zinc-200 pr-16"
+                    value={prompt}
+                    onChange={(e) => setPrompt(e.target.value)}
+                  />
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={handleGenerate}
+                    disabled={!prompt.trim() || isLoading}
+                    className="absolute bottom-2 right-2 h-6 px-2 text-[10px] font-bold uppercase tracking-wide bg-red-600 hover:bg-red-500 text-white"
+                  >
+                    {isLoading ? '...' : 'Gen'}
+                  </Button>
+                </div>
               </div>
 
               <div className="space-y-2">
@@ -266,9 +291,19 @@ export function StudioLayout() {
                     <SelectValue placeholder="Select Model" />
                   </SelectTrigger>
                   <SelectContent className="bg-zinc-900 border-zinc-800 text-zinc-300">
-                    <SelectItem value="gemini-3-flash-preview">Gemini 3 Flash (Fast)</SelectItem>
-                    <SelectItem value="gemini-3.1-pro-preview">Gemini 3.1 Pro (Smart)</SelectItem>
-                    <SelectItem value="gpt-4o">GPT-4o (OpenAI)</SelectItem>
+                    {MODEL_GROUPS.map((group) => (
+                      <SelectGroup key={group.name} className="py-2">
+                        <SelectLabel className="text-[10px] text-red-500/50 uppercase tracking-widest px-2 py-1">{group.name}</SelectLabel>
+                        {group.models.map((m) => (
+                          <SelectItem key={m.id} value={m.id} className="text-xs">
+                            <div className="flex flex-col gap-0.5">
+                              <span>{m.name}</span>
+                              <span className="text-[9px] text-zinc-500 font-normal">{m.description}</span>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
@@ -340,102 +375,25 @@ export function StudioLayout() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-3 gap-2 pt-2">
-                <Button 
-                  className="bg-red-600 hover:bg-red-700 text-white border-none shadow-[0_0_15px_rgba(220,38,38,0.2)] text-xs h-9"
-                  onClick={handleGenerate}
-                  disabled={isLoading || !prompt.trim()}
-                >
-                  {isLoading ? (
-                    <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  ) : (
-                    <div className="flex items-center gap-1.5">
-                      <Send className="w-3 h-3" />
-                      Script
-                    </div>
-                  )}
-                </Button>
-                <Button 
-                  variant="outline"
-                  className="border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 text-zinc-300 text-xs h-9"
-                  onClick={handleGenerateCharacters}
-                  disabled={isGeneratingCharacters || !prompt.trim()}
-                >
-                  {isGeneratingCharacters ? (
-                    <div className="w-3 h-3 border-2 border-red-500/30 border-t-red-500 rounded-full animate-spin" />
-                  ) : (
-                    <div className="flex items-center gap-1.5">
-                      <UserPlus className="w-3 h-3" />
-                      Cast
-                    </div>
-                  )}
-                </Button>
-                <Button 
-                  variant="outline"
-                  className="border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 text-zinc-300 text-xs h-9"
-                  onClick={handleGenerateSeriesPlan}
-                  disabled={isGeneratingSeries || !prompt.trim()}
-                >
-                  {isGeneratingSeries ? (
-                    <div className="w-3 h-3 border-2 border-red-500/30 border-t-red-500 rounded-full animate-spin" />
-                  ) : (
-                    <div className="flex items-center gap-1.5">
-                      <Layers className="w-3 h-3" />
-                      Series
-                    </div>
-                  )}
-                </Button>
-                <Button 
-                  variant="outline"
-                  className="border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 text-zinc-300 text-xs h-9"
-                  onClick={() => navigate('/studio/storyboard')}
-                >
-                  <div className="flex items-center gap-1.5">
-                    <LayoutIcon className="w-3 h-3" />
-                    Storyboard
-                  </div>
-                </Button>
-                <Button 
-                  variant="outline"
-                  className="border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 text-zinc-300 text-xs h-9"
-                  onClick={() => navigate('/studio/seo')}
-                >
-                  <div className="flex items-center gap-1.5">
-                    <Search className="w-3 h-3" />
-                    SEO
-                  </div>
-                </Button>
-                <Button 
-                  variant="outline"
-                  className="border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 text-zinc-300 text-xs h-9"
-                  onClick={() => navigate('/studio/prompts')}
-                >
-                  <div className="flex items-center gap-1.5">
-                    <ImageIcon className="w-3 h-3" />
-                    Prompts
-                  </div>
-                </Button>
-                <Button 
-                  variant="outline"
-                  className="border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 text-zinc-300 text-xs h-9"
-                  onClick={() => navigate('/studio/template')}
-                >
-                  <div className="flex items-center gap-1.5">
-                    <ScrollText className="w-3 h-3" />
-                    Template
-                  </div>
-                </Button>
-                <Button 
-                  variant="outline"
-                  className="border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 text-zinc-300 text-xs h-9"
-                  onClick={() => navigate('/studio/framework')}
-                >
-                  <div className="flex items-center gap-1.5">
-                    <LayoutGrid className="w-3 h-3" />
-                    Framework
-                  </div>
-                </Button>
-              </div>
+              <StudioToolPanels
+                selectedTool={selectedTool}
+                canGenerate={Boolean(prompt.trim())}
+                isGeneratingScript={isLoading}
+                isGeneratingCast={isGeneratingCharacters}
+                isGeneratingSeries={isGeneratingSeries}
+                onGenerateScript={handleGenerate}
+                onGenerateCast={handleGenerateCharacters}
+                onGenerateSeries={handleGenerateSeriesPlan}
+                onOpenStoryboard={() => navigate('/studio/storyboard')}
+                onOpenSeo={() => navigate('/studio/seo')}
+                onOpenPrompts={() => navigate('/studio/prompts')}
+                onOpenExample={() => navigate('/studio/example')}
+                onOpenTemplate={() => navigate('/studio/template')}
+                onOpenFramework={() => navigate('/studio/framework')}
+                onOpenWhatIf={() => navigate('/studio/whatif')}
+                onOpenAudio={() => navigate('/studio/audio')}
+                onOpenExport={() => navigate('/studio/export')}
+              />
 
               {generatedScript && (
                 <Button 
@@ -452,36 +410,6 @@ export function StudioLayout() {
                 </Button>
               )}
             </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-zinc-900/50 border-zinc-800 border-l-2 border-l-red-500/50">
-          <CardHeader>
-            <CardTitle className="text-sm font-semibold uppercase tracking-wider text-zinc-200 flex items-center gap-2">
-              <Users className="w-4 h-4 text-red-500" /> Character Studio
-            </CardTitle>
-            <CardDescription className="text-[10px] text-zinc-500">
-              Design professional character sheets.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <Button 
-              className="w-full bg-red-600 hover:bg-red-700 text-white border-none shadow-[0_0_15px_rgba(220,38,38,0.2)]"
-              onClick={handleGenerateCharacters}
-              disabled={isGeneratingCharacters || !prompt.trim()}
-            >
-              {isGeneratingCharacters ? (
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  <span>Designing...</span>
-                </div>
-              ) : (
-                <div className="flex items-center gap-2">
-                  <UserPlus className="w-4 h-4" />
-                  <span>Generate Detailed Cast</span>
-                </div>
-              )}
-            </Button>
           </CardContent>
         </Card>
 

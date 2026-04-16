@@ -6,7 +6,7 @@ import { CommunityPage } from './pages/Community';
 import { DiscoverPage } from './pages/DiscoverPage';
 import { SettingsPage } from './pages/Settings';
 import { TutorialsPage } from './pages/Tutorials';
-import { ErrorBoundary } from './lib/error-utils';
+import { ErrorBoundary, SystemErrorPanel } from './lib/error-utils';
 import { TooltipProvider } from './components/ui/tooltip';
 import { GeneratorProvider } from './contexts/GeneratorContext';
 import { StudioLayout } from './pages/studio/StudioLayout';
@@ -19,10 +19,14 @@ import { PromptsPage } from './pages/studio/PromptsPage';
 import { ExamplePage } from './pages/studio/ExamplePage';
 import { TemplatePage } from './pages/studio/TemplatePage';
 import { FrameworkPage } from './pages/studio/FrameworkPage';
+import { WhatIfPage } from './pages/studio/WhatIfPage';
+import { AudioBayPage } from './pages/studio/AudioBayPage';
+import { ExportPage } from './pages/studio/ExportPage';
 
 export default function App() {
   return (
     <ErrorBoundary>
+      <SystemErrorPanel />
       <GeneratorProvider>
         <TooltipProvider>
           <Router>
@@ -39,6 +43,9 @@ export default function App() {
                   <Route path="studio/example" element={<ExamplePage />} />
                   <Route path="studio/template" element={<TemplatePage />} />
                   <Route path="studio/framework" element={<FrameworkPage />} />
+                  <Route path="studio/whatif" element={<WhatIfPage />} />
+                  <Route path="studio/audio" element={<AudioBayPage />} />
+                  <Route path="studio/export" element={<ExportPage />} />
                 </Route>
                 <Route path="/library" element={<LibraryPage />} />
                 <Route path="/discover" element={<DiscoverPage />} />
