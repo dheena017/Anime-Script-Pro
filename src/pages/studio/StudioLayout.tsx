@@ -42,94 +42,31 @@ import { db } from '@/firebase';
 import { handleFirestoreError, OperationType } from '@/lib/error-utils';
 import { cn } from '@/lib/utils';
 import { StudioInputPanel } from '@/components/studio/StudioInputPanel';
-import { StudioToolPanels } from '@/components/studio/StudioToolPanels';
+import { useStudioActions } from '@/hooks/useStudioActions';
+import { RecentScriptsPanel } from '@/components/studio/RecentScriptsPanel';
 
 export function StudioLayout() {
   const lastSelectionRef = React.useRef<{ session: string; episode: string } | null>(null);
 
-  const [user] = useAuthState(auth);
   const navigate = useNavigate();
   const location = useLocation();
+  const generator = useGenerator();
+  
   const {
-    prompt, setPrompt,
-    setGeneratedScript,
-    setGeneratedCharacters,
-    setGeneratedSeriesPlan,
-    tone, setTone,
-    audience, setAudience,
-    episode, setEpisode,
-    session, setSession,
-    selectedModel, setSelectedModel,
-    isLoading, setIsLoading,
-    isGeneratingCharacters, setIsGeneratingCharacters,
-    isGeneratingSeries, setIsGeneratingSeries,
-    generatedScript,
-    isSaving, setIsSaving,
-    setCurrentScriptId,
-    currentScriptId,
-    history
-  } = useGenerator();
+    prompt, setPrompt, setGeneratedScript, tone, setTone,
+    audience, setAudience, episode, setEpisode,
+    session, setSession, selectedModel, setSelectedModel,
+    isLoading, isGeneratingCharacters, isGeneratingSeries,
+    generatedScript, isSaving, setCurrentScriptId,
+    currentScriptId, history
+  } = generator;
 
-  const handleSaveCurrent = async () => {
-    if (!generatedScript || !user) return;
-    setIsSaving(true);
-    try {
-      if (currentScriptId) {
-        await updateDoc(doc(db, 'scripts', currentScriptId), {
-          script: generatedScript,
-          episode: episode,
-          session: session,
-          updatedAt: serverTimestamp()
-        });
-      } else {
-        const docRef = await addDoc(collection(db, 'scripts'), {
-          uid: user.uid,
-          prompt: prompt || "Untitled Script",
-          script: generatedScript,
-          tone: tone,
-          audience: audience,
-          episode: episode,
-          session: session,
-          model: selectedModel,
-          createdAt: serverTimestamp()
-        });
-        setCurrentScriptId(docRef.id);
-      }
-    } catch (error) {
-      handleFirestoreError(error, OperationType.WRITE, 'scripts');
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  const handleGenerate = async () => {
-    if (!prompt.trim() || isLoading) return;
-    setIsLoading(true);
-    navigate('/studio/script');
-    const script = await generateAnimeScript(prompt, tone, audience, selectedModel, session, episode);
-    setGeneratedScript(script);
-    setCurrentScriptId(null);
-    setIsLoading(false);
-
-    if (user) {
-      try {
-        const docRef = await addDoc(collection(db, 'scripts'), {
-          uid: user.uid,
-          prompt: prompt,
-          script: script,
-          tone: tone,
-          audience: audience,
-          episode: episode,
-          session: session,
-          model: selectedModel,
-          createdAt: serverTimestamp()
-        });
-        setCurrentScriptId(docRef.id);
-      } catch (error) {
-        handleFirestoreError(error, OperationType.CREATE, 'scripts');
-      }
-    }
-  };
+  const {
+    handleSaveCurrent,
+    handleGenerate,
+    handleGenerateCharacters,
+    handleGenerateSeriesPlan
+  } = useStudioActions();
 
   React.useEffect(() => {
     if (!lastSelectionRef.current) {
@@ -148,24 +85,6 @@ export function StudioLayout() {
 
     void handleGenerate();
   }, [session, episode, prompt, handleGenerate]);
-
-  const handleGenerateCharacters = async () => {
-    if (!prompt.trim()) return;
-    setIsGeneratingCharacters(true);
-    navigate('/studio/cast');
-    const characters = await generateCharacters(prompt, selectedModel);
-    setGeneratedCharacters(characters);
-    setIsGeneratingCharacters(false);
-  };
-
-  const handleGenerateSeriesPlan = async () => {
-    if (!prompt.trim()) return;
-    setIsGeneratingSeries(true);
-    navigate('/studio/series');
-    const plan = await generateSeriesPlan(prompt, selectedModel);
-    setGeneratedSeriesPlan(plan);
-    setIsGeneratingSeries(false);
-  };
 
   const selectedTool: 'script' | 'cast' | 'series' | 'storyboard' | 'seo' | 'prompts' | 'example' | 'template' | 'framework' | 'whatif' | 'audio' | 'export' | undefined =
     location.pathname.includes('/studio/script')
@@ -226,40 +145,14 @@ export function StudioLayout() {
           onToolNavigate={(path) => navigate(path)}
         />
 
-        <Card className="bg-zinc-900/50 border-zinc-800">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-semibold uppercase tracking-wider text-zinc-400 flex items-center gap-2">
-              <History className="w-4 h-4" /> Recent Scripts
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-0">
-            <ScrollArea className="h-[200px] px-6 py-4">
-              {history.length > 0 ? (
-                <div className="space-y-3">
-                  {history.map((item, idx) => (
-                    <button 
-                      key={idx}
-                      className="w-full text-left group"
-                      onClick={() => {
-                        setGeneratedScript(item.script);
-                        setCurrentScriptId(item.id);
-                        navigate('/studio/script');
-                      }}
-                    >
-                      <p className="text-xs font-medium text-zinc-300 group-hover:text-red-400 transition-colors line-clamp-1">{item.title}</p>
-                      <p className="text-[10px] text-zinc-600">{item.date}</p>
-                    </button>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-8 text-zinc-600">
-                  <History className="w-8 h-8 mx-auto mb-2 opacity-20" />
-                  <p className="text-[10px]">No history yet.</p>
-                </div>
-              )}
-            </ScrollArea>
-          </CardContent>
-        </Card>
+        <RecentScriptsPanel 
+          history={history}
+          onSelect={(item) => {
+            setGeneratedScript(item.script);
+            setCurrentScriptId(item.id);
+            navigate('/studio/script');
+          }}
+        />
       </div>
 
       {/* Right Column: Content */}
