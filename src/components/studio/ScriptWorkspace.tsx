@@ -580,15 +580,15 @@ export function ScriptWorkspace() {
             }
           />
 
-          <Card className="bg-zinc-900/50 border-zinc-800 overflow-hidden">
-            <div className="p-4 border-b border-zinc-800 bg-zinc-900/80 flex items-center justify-between">
+          <Card className="studio-panel">
+            <div className="studio-panel-header flex items-center justify-between">
               <div className="flex items-center gap-6">
                 <div className="flex items-center gap-2 text-red-500">
                   <Sparkles className="w-4 h-4" />
-                  <span className="text-xs font-bold uppercase tracking-widest">Production Hub</span>
+                  <span className="text-xs font-black uppercase tracking-widest">Production Hub</span>
                 </div>
-                <div className="h-4 w-px bg-zinc-800" />
-                <div className="flex items-center gap-2 text-emerald-500 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">
+                <div className="h-4 w-px bg-white/5" />
+                <div className="flex items-center gap-2 text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">
                   <Clock className="w-3.5 h-3.5" />
                   <span className="text-[10px] font-black uppercase tracking-widest">EST. RUNTIME: {calculateDuration(generatedScript)}</span>
                 </div>
@@ -610,9 +610,9 @@ export function ScriptWorkspace() {
               </div>
             </div>
 
-            <div className="bg-black/20 border-b border-zinc-800/50 p-3 flex items-center justify-between">
+            <div className="bg-red-500/5 border-y border-white/5 p-3 flex items-center justify-between">
                <AmbientController currentLine={generatedScript?.split('\n')[activeLineIndex] || ''} />
-               <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest italic pr-4">
+               <div className="text-[10px] text-red-500/50 font-black uppercase tracking-[0.3em] italic pr-4">
                   Neural Ambience System Active
                </div>
             </div>

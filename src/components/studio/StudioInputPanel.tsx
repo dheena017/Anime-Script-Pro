@@ -90,27 +90,27 @@ export function StudioInputPanel({
   onToolNavigate
 }: StudioInputPanelProps) {
   return (
-    <Card className="overflow-hidden border-zinc-800/80 bg-zinc-950/70 shadow-[0_20px_60px_rgba(0,0,0,0.25)] backdrop-blur-xl rounded-[32px] group">
-      <div className="h-1.5 w-full bg-zinc-900 overflow-hidden">
+    <Card className="studio-panel group">
+      <div className="h-1.5 w-full bg-white/5 overflow-hidden">
         <motion.div 
           initial={{ width: 0 }}
           animate={{ width: isLoading ? '70%' : '100%' }}
-          className="h-full bg-gradient-to-r from-red-600 via-red-500 to-red-600 shadow-[0_0_10px_rgba(220,38,38,0.5)]"
+          className="h-full bg-gradient-to-r from-red-600 via-red-500 to-red-600 shadow-[0_0_15px_rgba(220,38,38,0.4)]"
         />
       </div>
       <CardHeader className="p-8 pb-4">
         <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-red-600/10 border border-red-500/20 flex items-center justify-center text-red-500 shadow-2xl">
-                    <Wand2 className="w-5 h-5" />
+            <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-red-600/10 border border-red-500/20 flex items-center justify-center text-red-500 shadow-[0_0_30px_rgba(220,38,38,0.1)] group-hover:scale-110 transition-transform duration-500">
+                    <Wand2 className="w-6 h-6" />
                 </div>
                 <div>
-                   <CardTitle className="text-xl font-black tracking-tighter uppercase italic">ENGINE CONTROL</CardTitle>
-                   <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest pl-0.5">Neural Generation Terminal</p>
+                   <CardTitle className="text-2xl font-black tracking-tighter uppercase italic">ENGINE CONTROL</CardTitle>
+                   <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em] pl-0.5">Neural Generation Terminal</p>
                 </div>
             </div>
-            <div className="px-2 py-1 rounded-lg bg-red-600/10 border border-red-500/20 text-[8px] font-black text-red-500 uppercase tracking-widest animate-pulse">
-                System Ready
+            <div className="px-3 py-1.5 rounded-full bg-red-600/10 border border-red-500/20 text-[9px] font-black text-red-500 uppercase tracking-widest animate-pulse shadow-[0_0_20px_rgba(220,38,38,0.1)]">
+                System Active
             </div>
         </div>
       </CardHeader>

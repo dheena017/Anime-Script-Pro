@@ -41,7 +41,7 @@ import { collection, addDoc, serverTimestamp, updateDoc, doc } from 'firebase/fi
 import { db } from '@/firebase';
 import { handleFirestoreError, OperationType } from '@/lib/error-utils';
 import { cn } from '@/lib/utils';
-import { QUICK_TEMPLATES } from '@/data/studio/quickTemplates';
+import { StudioInputPanel } from '@/components/studio/StudioInputPanel';
 import { StudioToolPanels } from '@/components/studio/StudioToolPanels';
 
 export function StudioLayout() {
@@ -197,221 +197,34 @@ export function StudioLayout() {
   return (
     <div className="max-w-7xl mx-auto px-6 py-10 grid grid-cols-1 lg:grid-cols-12 gap-8">
       {/* Left Column: Input */}
-      <div className="lg:col-span-4 space-y-6">
-        <Card className="bg-zinc-900/50 border-zinc-800 backdrop-blur-sm">
-          <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-red-500" />
-              Script Generator
-            </CardTitle>
-            <CardDescription className="text-zinc-500">
-              Describe your anime or concept to generate professional content.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Quick Templates</label>
-                <div className="grid grid-cols-2 gap-2">
-                  {QUICK_TEMPLATES.map((template) => (
-                    <Button
-                      key={template.id}
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setPrompt(template.prompt)}
-                      className={cn(
-                        'h-9 w-full justify-start gap-2 rounded-md border-zinc-800 bg-zinc-950/60 px-3 text-left text-xs font-semibold text-zinc-300 transition-colors hover:border-zinc-700 hover:bg-zinc-900',
-                        prompt === template.prompt && 'border-red-500 bg-red-600/90 text-white hover:border-red-500 hover:bg-red-600'
-                      )}
-                    >
-                      <template.icon
-                        className={cn(
-                          'h-3.5 w-3.5 transition-transform group-hover/button:scale-110',
-                          prompt === template.prompt ? 'text-white' : template.color
-                        )}
-                      />
-                      <span className="truncate">{template.label}</span>
-                    </Button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Concept / Theme</label>
-                  <button 
-                    onClick={() => setPrompt('')}
-                    className="text-[10px] text-zinc-600 hover:text-red-500 transition-colors"
-                  >
-                    Clear
-                  </button>
-                </div>
-                <div className="relative">
-                  <Textarea 
-                    placeholder="e.g., A dark fantasy about a vessel for a monster king..."
-                    className="min-h-[120px] bg-black/50 border-zinc-800 focus:border-red-500/50 focus:ring-red-500/20 resize-none text-zinc-200 pr-16"
-                    value={prompt}
-                    onChange={(e) => setPrompt(e.target.value)}
-                  />
-                  <Button
-                    type="button"
-                    size="sm"
-                    onClick={handleGenerate}
-                    disabled={!prompt.trim() || isLoading}
-                    className="absolute bottom-2 right-2 h-6 px-2 text-[10px] font-bold uppercase tracking-wide bg-red-600 hover:bg-red-500 text-white"
-                  >
-                    {isLoading ? '...' : 'Gen'}
-                  </Button>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider flex items-center gap-1">
-                    <Cpu className="w-3 h-3" /> AI Model
-                  </label>
-                  <Tooltip>
-                    <TooltipTrigger className="text-zinc-500 hover:text-zinc-300 transition-colors">
-                      <Info className="w-3 h-3" />
-                    </TooltipTrigger>
-                    <TooltipContent side="right" className="bg-zinc-900 border-zinc-800 text-zinc-300 p-4 max-w-xs space-y-3">
-                      <div className="space-y-1">
-                        <p className="font-bold text-red-500 text-xs">Gemini 3 Flash</p>
-                        <p className="text-[10px] leading-relaxed">Fastest model. Best for quick drafts.</p>
-                      </div>
-                      <div className="space-y-1">
-                        <p className="font-bold text-red-500 text-xs">Gemini 3.1 Pro</p>
-                        <p className="text-[10px] leading-relaxed">Highly intelligent. Best for complex narratives.</p>
-                      </div>
-                    </TooltipContent>
-                  </Tooltip>
-                </div>
-                <Select value={selectedModel} onValueChange={setSelectedModel}>
-                  <SelectTrigger className="bg-black/50 border-zinc-800 text-zinc-300">
-                    <SelectValue placeholder="Select Model" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-zinc-900 border-zinc-800 text-zinc-300">
-                    {MODEL_GROUPS.map((group) => (
-                      <SelectGroup key={group.name} className="py-2">
-                        <SelectLabel className="text-[10px] text-red-500/50 uppercase tracking-widest px-2 py-1">{group.name}</SelectLabel>
-                        {group.models.map((m) => (
-                          <SelectItem key={m.id} value={m.id} className="text-xs">
-                            <div className="flex flex-col gap-0.5">
-                              <span>{m.name}</span>
-                              <span className="text-[9px] text-zinc-500 font-normal">{m.description}</span>
-                            </div>
-                          </SelectItem>
-                        ))}
-                      </SelectGroup>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider flex items-center gap-1">
-                    <Clapperboard className="w-3 h-3" /> Session
-                  </label>
-                  <Select value={session} onValueChange={setSession}>
-                    <SelectTrigger className="bg-black/50 border-zinc-800 text-zinc-300">
-                      <SelectValue placeholder="Session" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-zinc-900 border-zinc-800 text-zinc-300">
-                      {[1, 2, 3, 4, 5].map(n => (
-                        <SelectItem key={n} value={n.toString()}>Session {n}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider flex items-center gap-1">
-                    <Hash className="w-3 h-3" /> Episode
-                  </label>
-                  <Select value={episode} onValueChange={setEpisode}>
-                    <SelectTrigger className="bg-black/50 border-zinc-800 text-zinc-300">
-                      <SelectValue placeholder="Episode" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-zinc-900 border-zinc-800 text-zinc-300">
-                      {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(n => (
-                        <SelectItem key={n} value={n.toString()}>Episode {n}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider flex items-center gap-1">
-                    <Settings2 className="w-3 h-3" /> Tone
-                  </label>
-                  <Select value={tone} onValueChange={setTone}>
-                    <SelectTrigger className="bg-black/50 border-zinc-800 text-zinc-300">
-                      <SelectValue placeholder="Select Tone" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-zinc-900 border-zinc-800 text-zinc-300">
-                      <SelectItem value="Hype/Energetic">Hype/Energetic</SelectItem>
-                      <SelectItem value="Dark/Gritty">Dark/Gritty</SelectItem>
-                      <SelectItem value="Emotional/Sad">Emotional/Sad</SelectItem>
-                      <SelectItem value="Funny/Satirical">Funny/Satirical</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider flex items-center gap-1">
-                    <Users className="w-3 h-3" /> Audience
-                  </label>
-                  <Select value={audience} onValueChange={setAudience}>
-                    <SelectTrigger className="bg-black/50 border-zinc-800 text-zinc-300">
-                      <SelectValue placeholder="Select Audience" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-zinc-900 border-zinc-800 text-zinc-300">
-                      <SelectItem value="General Fans">General Fans</SelectItem>
-                      <SelectItem value="Hardcore Weebs">Hardcore Weebs</SelectItem>
-                      <SelectItem value="Newcomers">Newcomers</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              <StudioToolPanels
-                selectedTool={selectedTool}
-                canGenerate={Boolean(prompt.trim())}
-                isGeneratingScript={isLoading}
-                isGeneratingCast={isGeneratingCharacters}
-                isGeneratingSeries={isGeneratingSeries}
-                onGenerateScript={handleGenerate}
-                onGenerateCast={handleGenerateCharacters}
-                onGenerateSeries={handleGenerateSeriesPlan}
-                onOpenStoryboard={() => navigate('/studio/storyboard')}
-                onOpenSeo={() => navigate('/studio/seo')}
-                onOpenPrompts={() => navigate('/studio/prompts')}
-                onOpenExample={() => navigate('/studio/example')}
-                onOpenTemplate={() => navigate('/studio/template')}
-                onOpenFramework={() => navigate('/studio/framework')}
-                onOpenWhatIf={() => navigate('/studio/whatif')}
-                onOpenAudio={() => navigate('/studio/audio')}
-                onOpenExport={() => navigate('/studio/export')}
-              />
-
-              {generatedScript && (
-                <Button 
-                  className="w-full bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border border-zinc-700"
-                  onClick={handleSaveCurrent}
-                  disabled={isSaving || !user}
-                >
-                  {isSaving ? (
-                    <div className="w-4 h-4 border-2 border-zinc-400 border-t-white rounded-full animate-spin mr-2" />
-                  ) : (
-                    <History className="w-4 h-4 mr-2" />
-                  )}
-                  {isSaving ? 'Saving...' : (currentScriptId ? 'Update Script' : 'Save to Library')}
-                </Button>
-              )}
-            </div>
-          </CardContent>
-        </Card>
+      <div className="lg:col-span-4 space-y-8">
+        <StudioInputPanel
+          prompt={prompt}
+          setPrompt={setPrompt}
+          tone={tone}
+          setTone={setTone}
+          audience={audience}
+          setAudience={setAudience}
+          session={session}
+          setSession={setSession}
+          episode={episode}
+          setEpisode={setEpisode}
+          selectedModel={selectedModel}
+          setSelectedModel={setSelectedModel}
+          isLoading={isLoading}
+          isGeneratingCast={isGeneratingCharacters}
+          isGeneratingSeries={isGeneratingSeries}
+          canGenerate={Boolean(prompt.trim())}
+          onGenerateScript={handleGenerate}
+          onGenerateCast={handleGenerateCharacters}
+          onGenerateSeries={handleGenerateSeriesPlan}
+          onSaveCurrent={handleSaveCurrent}
+          isSaving={isSaving}
+          hasGeneratedScript={Boolean(generatedScript)}
+          currentScriptId={currentScriptId}
+          selectedTool={selectedTool}
+          onToolNavigate={(path) => navigate(path)}
+        />
 
         <Card className="bg-zinc-900/50 border-zinc-800">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
