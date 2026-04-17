@@ -22,31 +22,42 @@ import { FrameworkPage } from './pages/studio/FrameworkPage';
 import { WhatIfPage } from './pages/studio/WhatIfPage';
 import { AudioBayPage } from './pages/studio/AudioBayPage';
 import { ExportPage } from './pages/studio/ExportPage';
+import { LandingPage } from './pages/LandingPage';
+import { DashboardPage } from './pages/DashboardPage';
+import { LoginPage } from './pages/Auth/LoginPage';
+import { RegisterPage } from './pages/Auth/RegisterPage';
 
 export default function App() {
   return (
-    <div className="theme-noir min-h-screen">
+    <div className="theme-noir min-h-screen font-sans">
       <ErrorBoundary>
         <SystemErrorPanel />
         <GeneratorProvider>
           <TooltipProvider>
             <Router>
               <Routes>
+                {/* Public Marketing Routes */}
+                <Route path="/" element={<LandingPage />} />
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/register" element={<RegisterPage />} />
+
+                {/* Main App Workspace */}
                 <Route element={<Layout />}>
-                  <Route path="/" element={<StudioLayout />}>
+                  <Route path="/dashboard" element={<DashboardPage />} />
+                  <Route path="/studio" element={<StudioLayout />}>
                     <Route index element={<ScriptPage />} />
-                    <Route path="studio/script" element={<ScriptPage />} />
-                    <Route path="studio/cast" element={<CastPage />} />
-                    <Route path="studio/series" element={<SeriesPage />} />
-                    <Route path="studio/storyboard" element={<StoryboardPage />} />
-                    <Route path="studio/seo" element={<SEOPage />} />
-                    <Route path="studio/prompts" element={<PromptsPage />} />
-                    <Route path="studio/example" element={<ExamplePage />} />
-                    <Route path="studio/template" element={<TemplatePage />} />
-                    <Route path="studio/framework" element={<FrameworkPage />} />
-                    <Route path="studio/whatif" element={<WhatIfPage />} />
-                    <Route path="studio/audio" element={<AudioBayPage />} />
-                    <Route path="studio/export" element={<ExportPage />} />
+                    <Route path="script" element={<ScriptPage />} />
+                    <Route path="cast" element={<CastPage />} />
+                    <Route path="series" element={<SeriesPage />} />
+                    <Route path="storyboard" element={<StoryboardPage />} />
+                    <Route path="seo" element={<SEOPage />} />
+                    <Route path="prompts" element={<PromptsPage />} />
+                    <Route path="example" element={<ExamplePage />} />
+                    <Route path="template" element={<TemplatePage />} />
+                    <Route path="framework" element={<FrameworkPage />} />
+                    <Route path="whatif" element={<WhatIfPage />} />
+                    <Route path="audio" element={<AudioBayPage />} />
+                    <Route path="export" element={<ExportPage />} />
                   </Route>
                   <Route path="/library" element={<LibraryPage />} />
                   <Route path="/discover" element={<DiscoverPage />} />

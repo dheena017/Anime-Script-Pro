@@ -1,17 +1,17 @@
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
-  Mic, 
-  Play, 
-  Square, 
-  Download, 
-  Music, 
-  Volume2, 
-  Waves,
-  Sparkles,
-  Scissors,
-  Repeat
+   Mic, 
+   Play, 
+   Square, 
+   Music, 
+   Volume2, 
+   Waves,
+   Sparkles,
+   Scissors,
+   Repeat
 } from 'lucide-react';
+import { SfxArchiveItem } from '@/components/studio/audio/SfxArchiveItem';
 import { useGenerator } from '@/contexts/GeneratorContext';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -199,11 +199,4 @@ export function AudioBayPage() {
   );
 }
 
-function SfxArchiveItem({ label }: { label: string }) {
-   return (
-      <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-3 flex items-center justify-between group">
-         <span className="text-[10px] font-mono text-zinc-600 group-hover:text-zinc-400 transition-colors truncate max-w-[120px]">{label}</span>
-         <Download className="w-3 h-3 text-zinc-800 group-hover:text-red-500 transition-colors cursor-pointer" />
-      </div>
-   );
-}
+// SfxArchiveItem is now imported from components/studio/audio/SfxArchiveItem

@@ -26,7 +26,7 @@ import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
 
 const mainNav = [
-  { icon: LayoutDashboard, label: 'Generator', path: '/' },
+  { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard' },
   { icon: History, label: 'My Library', path: '/library' },
   { icon: Compass, label: 'Discover', path: '/discover' },
   { icon: Users, label: 'Community', path: '/community' },
