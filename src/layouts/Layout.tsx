@@ -43,7 +43,7 @@ export function Layout() {
   };
 
   return (
-    <div className="min-h-screen bg-[#050505] text-zinc-100 flex font-sans selection:bg-red-500/30 overflow-hidden">
+    <div className="min-h-screen bg-[#050505] text-zinc-100 flex font-sans selection:bg-red-500/30">
       {/* Background Accents - High-End Noir */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
         <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] bg-[radial-gradient(circle_at_center,rgba(220,38,38,0.06)_0%,transparent_70%)] blur-[120px] rounded-full" />
@@ -52,7 +52,7 @@ export function Layout() {
 
       <Sidebar />
 
-      <div className="flex-1 flex flex-col min-w-0 relative z-10">
+      <div className="flex-1 lg:pl-72 flex flex-col min-w-0 relative z-10">
         <header className="border-b border-white/5 bg-black/40 backdrop-blur-2xl sticky top-0 z-50 h-20 flex items-center">
           <div className="w-full max-w-[1600px] mx-auto px-8 flex items-center justify-between">
             <div className="flex items-center gap-6">
@@ -112,7 +112,7 @@ export function Layout() {
           </div>
         </header>
 
-        <main className="relative z-10 flex-1 overflow-y-auto">
+        <main className="relative z-10 flex-1">
           <Outlet />
         </main>
 

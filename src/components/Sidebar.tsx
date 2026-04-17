@@ -50,7 +50,7 @@ export function Sidebar() {
   const location = useLocation();
 
   return (
-    <aside className="relative hidden h-screen w-72 flex-col overflow-hidden border-r border-zinc-900 bg-black lg:flex sticky top-0 shadow-2xl">
+    <aside className="fixed left-0 top-0 bottom-0 z-50 w-72 hidden flex-col overflow-hidden border-r border-zinc-900 bg-black lg:flex shadow-2xl">
       {/* Dynamic Aura */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_0%,_rgba(220,38,38,0.08)_0%,_transparent_50%)]" />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_100%,_rgba(37,99,235,0.05)_0%,_transparent_50%)]" />
