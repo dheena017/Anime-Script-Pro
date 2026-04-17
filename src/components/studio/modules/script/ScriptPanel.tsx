@@ -13,28 +13,28 @@ import { Card } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { jsPDF } from "jspdf";
 import { SectionHeading } from '@/components/page/PageShell';
-import { ScriptQuickActions } from '@/components/studio/ScriptQuickActions';
-import { ScriptFocusMode } from '@/components/studio/ScriptFocusMode';
-import { ScriptReadOnlyView } from '@/components/studio/ScriptReadOnlyView';
+import { ScriptQuickActions } from '@/components/studio/core/ScriptQuickActions';
+import { ScriptFocusMode } from '@/components/studio/core/ScriptFocusMode';
+import { ScriptReadOnlyView } from '@/components/studio/core/ScriptReadOnlyView';
 import { 
   getHighlightKind,
-} from '@/components/studio/scriptWorkspaceUtils';
+} from '@/components/studio/modules/script/scriptWorkspaceUtils';
 
 // Modular Components
-import { WritingAssist } from './workspace/WritingAssist';
-import { SnapshotManager } from './workspace/SnapshotManager';
-import { EditorSection } from './workspace/EditorSection';
-import { PreviewSection } from './workspace/PreviewSection';
-import { DialogueContextMenu } from './workspace/DialogueContextMenu';
-import { PacingIssues } from './workspace/PacingIssues';
-import { SentimentHeatmap } from './workspace/SentimentHeatmap';
-import { AmbientController } from './workspace/AmbientController';
+import { WritingAssist } from './WritingAssist';
+import { SnapshotManager } from './SnapshotManager';
+import { EditorSection } from './EditorSection';
+import { PreviewSection } from './PreviewSection';
+import { DialogueContextMenu } from './DialogueContextMenu';
+import { PacingIssues } from './PacingIssues';
+import { SentimentHeatmap } from './SentimentHeatmap';
+import { AmbientController } from './AmbientController';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { useScriptWorkspace } from '@/hooks/useScriptWorkspace';
-import { ScriptAnalytics } from './workspace/ScriptAnalytics';
+import { ScriptAnalytics } from './ScriptAnalytics';
 
-export function ScriptWorkspace() {
+export function ScriptPanel() {
   const {
     textareaRef, editorScrollRef, previewScrollRef,
     generatedScript, setGeneratedScript,

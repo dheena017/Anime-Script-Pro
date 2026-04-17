@@ -1,19 +1,13 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Layout, X } from 'lucide-react';
-import { Card } from '@/components/ui/card';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Button } from '@/components/ui/button';
+import { X } from 'lucide-react';
 import { TooltipProvider } from '@/components/ui/tooltip';
+import { Button } from '@/components/ui/button';
 import { useGenerator } from '@/contexts/GeneratorContext';
-import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
-import { SectionHeading } from '@/components/page/PageShell';
-import { StoryboardToolbar } from '@/components/studio/storyboard/StoryboardToolbar';
-import { StoryboardSceneCard } from '@/components/studio/storyboard/StoryboardSceneCard';
 import { AnimaticPlayer } from '@/components/studio/storyboard/AnimaticPlayer';
-import { StoryboardEmptyState } from '@/components/studio/storyboard/StoryboardEmptyState';
-import { StoryboardScriptView } from '@/components/studio/storyboard/StoryboardScriptView';
 import { useStoryboardState } from '@/hooks/useStoryboardState';
+import { StoryboardTopBar } from '@/components/studio/modules/storyboard/StoryboardTopBar';
+import { StoryboardPanel } from '@/components/studio/modules/storyboard/StoryboardPanel';
 
 export function StoryboardPage() {
   const { generatedScript, setGeneratedScript, selectedModel } = useGenerator();
@@ -64,89 +58,46 @@ export function StoryboardPage() {
 
   return (
     <TooltipProvider>
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-8">
-        <SectionHeading
-          title="Storyboard"
-          icon={<Layout className="w-5 h-5 text-red-500" />}
+      <StoryboardTopBar>
+        <StoryboardPanel
+          scenes={scenes}
+          viewMode={viewMode}
+          setViewMode={setViewMode}
+          onUndo={undo}
+          onRedo={redo}
+          canUndo={pastScripts.length > 0}
+          canRedo={futureScripts.length > 0}
+          totalRuntime={totalRuntime}
+          isContinuing={isContinuing}
+          onContinue={handleGenerateNext}
+          onPlay={handlePlayAnimatic}
+          onExport={handleExport}
+          onDragEnd={onDragEnd}
+          visualData={visualData}
+          sceneStatus={sceneStatus}
+          directorsNotes={directorsNotes}
+          alternateTakes={alternateTakes}
+          editingSceneId={editingSceneId}
+          editForm={editForm}
+          playingAudioId={playingAudioId}
+          calculateDuration={calculateDuration}
+          getStatusColor={getStatusColor}
+          highlightNarrative={highlightNarrative}
+          onGenerateVisual={handleGenerateVisual}
+          onGenerateBGM={handleGenerateBGM}
+          onSetSelectedImage={setSelectedImage}
+          onDeleteScene={deleteScene}
+          onStartEditing={startEditing}
+          onStatusChange={(sceneId, status) => setSceneStatus((prev: any) => ({ ...prev, [sceneId]: status }))}
+          onAddAlternateTake={handleAddAlternateTake}
+          onSwapAlternateTake={handleSwapAlternateTake}
+          onEditFormChange={setEditForm}
+          onDirectorsNoteChange={(sceneId, note) => setDirectorsNotes((prev: any) => ({ ...prev, [sceneId]: note }))}
+          onCancelEditing={cancelEditing}
+          onSaveSceneEdits={saveSceneEdits}
+          onPlayAudio={handlePlayAudio}
+          onAddScene={addScene}
         />
-
-        <Card className="studio-panel">
-          <StoryboardToolbar
-            viewMode={viewMode}
-            onSetViewMode={setViewMode}
-            canUndo={pastScripts.length > 0}
-            canRedo={futureScripts.length > 0}
-            onUndo={undo}
-            onRedo={redo}
-            totalRuntime={totalRuntime}
-            isContinuing={isContinuing}
-            onContinue={handleGenerateNext}
-            onPlay={handlePlayAnimatic}
-            onExport={handleExport}
-          />
-
-          <ScrollArea className="h-[760px] w-full p-6">
-          {scenes.length > 0 ? (
-            viewMode === 'script' ? (
-              <StoryboardScriptView
-                scenes={scenes}
-                calculateDuration={calculateDuration}
-                highlightNarrative={highlightNarrative}
-              />
-            ) : (
-              <DragDropContext onDragEnd={onDragEnd}>
-                <Droppable droppableId="storyboard" direction="vertical">
-                  {(provided) => (
-                    <div {...provided.droppableProps} ref={provided.innerRef} className={`${viewMode === 'grid' ? 'grid grid-cols-1 xl:grid-cols-2 gap-10' : 'space-y-16'} pb-32 pt-4 px-2`}>
-                      {scenes.map((scene, idx) => (
-                        <Draggable key={scene.id} draggableId={scene.id} index={idx}>
-                          {(provided, snapshot) => (
-                            <div ref={provided.innerRef} {...provided.draggableProps}>
-                              <StoryboardSceneCard
-                                scene={scene}
-                                idx={idx}
-                                viewMode={viewMode}
-                                isDragging={snapshot.isDragging}
-                                dragHandleProps={provided.dragHandleProps}
-                                visualData={visualData}
-                                sceneStatus={sceneStatus}
-                                directorsNotes={directorsNotes}
-                                alternateTakes={alternateTakes}
-                                editingSceneId={editingSceneId}
-                                editForm={editForm}
-                                playingAudioId={playingAudioId}
-                                calculateDuration={calculateDuration}
-                                getStatusColor={getStatusColor}
-                                highlightNarrative={highlightNarrative}
-                                onGenerateVisual={handleGenerateVisual}
-                                onGenerateBGM={handleGenerateBGM}
-                                onSetSelectedImage={setSelectedImage}
-                                onDeleteScene={deleteScene}
-                                onStartEditing={startEditing}
-                                onStatusChange={(sceneId, status) => setSceneStatus((prev) => ({ ...prev, [sceneId]: status }))}
-                                onAddAlternateTake={handleAddAlternateTake}
-                                onSwapAlternateTake={handleSwapAlternateTake}
-                                onEditFormChange={setEditForm}
-                                onDirectorsNoteChange={(sceneId, note) => setDirectorsNotes((prev) => ({ ...prev, [sceneId]: note }))}
-                                onCancelEditing={cancelEditing}
-                                onSaveSceneEdits={saveSceneEdits}
-                                onPlayAudio={handlePlayAudio}
-                                onAddScene={addScene}
-                              />
-                            </div>
-                          )}
-                        </Draggable>
-                      ))}
-                    </div>
-                  )}
-                </Droppable>
-              </DragDropContext>
-            )
-          ) : (
-            <StoryboardEmptyState />
-          )}
-          </ScrollArea>
-        </Card>
 
         {/* Global Overlays */}
         <AnimatePresence>
@@ -167,7 +118,7 @@ export function StoryboardPage() {
             />
           )}
         </AnimatePresence>
-      </motion.div>
+      </StoryboardTopBar>
     </TooltipProvider>
   );
 }

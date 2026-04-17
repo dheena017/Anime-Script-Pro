@@ -21,8 +21,9 @@ import {
   detectBeats, 
   extractLoreCandidates,
   calculateDuration,
-  Beat
-} from '@/components/studio/scriptWorkspaceUtils';
+  Beat,
+  getHighlightKind,
+} from '@/components/studio/modules/script/scriptWorkspaceUtils';
 
 export function useScriptWorkspace() {
   const [user] = useAuthState(auth);

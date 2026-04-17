@@ -3,7 +3,7 @@ import { motion } from 'motion/react';
 import { HelpCircle, Sparkles } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { SectionHeading } from '@/components/page/PageShell';
-import { WhatIfGenerator } from '@/components/studio/WhatIfGenerator';
+import { WhatIfGenerator } from '@/components/studio/core/WhatIfGenerator';
 import { useGenerator } from '@/contexts/GeneratorContext';
 
 export function WhatIfPage() {

@@ -1,5 +1,10 @@
-import { ScriptWorkspace } from '@/components/studio/ScriptWorkspace';
+import { ScriptTopBar } from '@/components/studio/modules/script/ScriptTopBar';
+import { ScriptPanel } from '@/components/studio/modules/script/ScriptPanel';
 
 export function ScriptPage() {
-  return <ScriptWorkspace />;
+  return (
+    <ScriptTopBar>
+      <ScriptPanel />
+    </ScriptTopBar>
+  );
 }

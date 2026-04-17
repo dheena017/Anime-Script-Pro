@@ -41,9 +41,9 @@ import { collection, addDoc, serverTimestamp, updateDoc, doc } from 'firebase/fi
 import { db } from '@/firebase';
 import { handleFirestoreError, OperationType } from '@/lib/error-utils';
 import { cn } from '@/lib/utils';
-import { StudioInputPanel } from '@/components/studio/StudioInputPanel';
+import { StudioInputPanel } from '@/components/studio/core/StudioInputPanel';
 import { useStudioActions } from '@/hooks/useStudioActions';
-import { RecentScriptsPanel } from '@/components/studio/RecentScriptsPanel';
+import { RecentScriptsPanel } from '@/components/studio/core/RecentScriptsPanel';
 
 export function StudioLayout() {
   const lastSelectionRef = React.useRef<{ session: string; episode: string } | null>(null);

@@ -12,9 +12,9 @@ import {
   Target,
   Wand2
 } from 'lucide-react';
-import { Button } from '../ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../ui/card';
-import { Textarea } from '../ui/textarea';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Textarea } from '@/components/ui/textarea';
 import { 
   Select,
   SelectContent,
@@ -23,13 +23,13 @@ import {
   SelectValue,
   SelectGroup,
   SelectLabel
-} from "../ui/select";
+} from "@/components/ui/select";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
   TooltipProvider,
-} from "../ui/tooltip";
+} from "@/components/ui/tooltip";
 import { cn } from '@/lib/utils';
 import { QUICK_TEMPLATES } from '@/data/studio/quickTemplates';
 import { StudioToolPanels } from './StudioToolPanels';
