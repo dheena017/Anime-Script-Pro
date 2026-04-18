@@ -95,11 +95,10 @@ export function StudioLayout({ type }: { type?: string }) {
     }
   };
 
-  const initialMount = React.useRef(true);
+  // Existing effect for initial mount and contentType
   React.useEffect(() => {
-    if (initialMount.current) { initialMount.current = false; return; }
-    if (prompt.trim()) handleGenerate();
-  }, [session, episode, contentType]);
+    if (type) setContentType(type);
+  }, [type, setContentType]);
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-10 grid grid-cols-1 lg:grid-cols-12 gap-8">
