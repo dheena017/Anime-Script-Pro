@@ -1,0 +1,68 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: scripts
+    // Document ID: auto-generated
+    // Fields:
+    //   - uid: string (required) - The user ID of the creator.
+    //   - prompt: string (required) - The prompt used to generate the script.
+    //   - script: string (required) - The generated script content.
+    //   - tone: string (optional) - The tone of the script.
+    //   - audience: string (optional) - The target audience.
+    //   - createdAt: timestamp (required) - When the script was generated.
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isValidScript(data) {
+      return data.keys().hasAll(['uid', 'prompt', 'script', 'createdAt']) &&
+             data.uid is string &&
+             data.prompt is string && data.prompt.size() > 0 && data.prompt.size() < 1000 &&
+             data.script is string && data.script.size() > 0 && data.script.size() < 50000 &&
+             data.createdAt is timestamp;
+    }
+
+    function isValidScriptVersion(data) {
+      return data.keys().hasAll(['uid', 'scriptId', 'script', 'createdAt']) &&
+             data.uid is string &&
+             data.scriptId is string &&
+             data.script is string &&
+             data.createdAt is timestamp;
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    match /scripts/{scriptId} {
+      allow read: if isOwner(resource.data.uid);
+      allow create: if isOwner(request.resource.data.uid) && isValidScript(request.resource.data);
+      allow update: if isOwner(resource.data.uid) && 
+                       isOwner(request.resource.data.uid) && 
+                       isValidScript(request.resource.data) &&
+                       request.resource.data.createdAt == resource.data.createdAt;
+      allow delete: if isOwner(resource.data.uid);
+    }
+
+    match /script_versions/{versionId} {
+      allow read: if isOwner(resource.data.uid);
+      allow create: if isOwner(request.resource.data.uid) && isValidScriptVersion(request.resource.data);
+      allow delete: if isOwner(resource.data.uid);
+    }
+  }
+}

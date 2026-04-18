@@ -2,37 +2,46 @@ import React from 'react';
 import { 
   History, 
   Search, 
+  Filter, 
+  MoreVertical, 
+  Play, 
+  Download, 
+  Trash2,
   FileText,
-  LayoutGrid,
+  Clock,
+  Calendar,
   Sparkles,
-  ArrowRight
+  GitCommit
 } from 'lucide-react';
-import { db, auth, collection, query, where, orderBy, onSnapshot, deleteDoc, doc, updateDoc, useAuthState } from '@/lib/storage';
-import { motion, AnimatePresence } from 'motion/react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/card';
+import { Button } from '../components/ui/button';
+import { Input } from '../components/ui/input';
+import { ScrollArea } from '../components/ui/scroll-area';
+import { 
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "../components/ui/dialog";
+import { db, auth } from '../firebase';
+import { collection, query, where, orderBy, onSnapshot, Timestamp, deleteDoc, doc, getDocs, updateDoc, addDoc } from 'firebase/firestore';
+import { cn } from '@/lib/utils';
+import { useAuthState } from 'react-firebase-hooks/auth';
+import { motion } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
-import { PageHeader, PageShell } from '@/components/page/PageShell';
-import { Button } from '@/components/ui/button';
-import { handleFirestoreError, OperationType } from '@/lib/error-utils';
-
-// New Components
-import { LibraryStats } from '@/components/library/LibraryStats';
-import { ScriptCard } from '@/components/library/ScriptCard';
-import { ScriptListItem } from '@/components/library/ScriptListItem';
-import { LibraryFilters } from '@/components/library/LibraryFilters';
-import { LibrarySidebar } from '@/components/library/LibrarySidebar';
-import { LibraryQuickView } from '@/components/library/LibraryQuickView';
-import { LibraryCollections } from '@/components/library/LibraryCollections';
-import { LibraryBulkActions } from '@/components/library/LibraryBulkActions';
 
 export function LibraryPage() {
   const [user] = useAuthState(auth);
   const [scripts, setScripts] = React.useState<any[]>([]);
   const [searchTerm, setSearchTerm] = React.useState('');
-  const [sortBy, setSortBy] = React.useState('newest');
-  const [viewMode, setViewMode] = React.useState<'grid' | 'list'>('grid');
-  const [currentFilter, setCurrentFilter] = React.useState('all');
-  const [selectedScript, setSelectedScript] = React.useState<any | null>(null);
-  const [selectedIds, setSelectedIds] = React.useState<string[]>([]);
+  
+  // Versions state
+  const [selectedScriptForVersions, setSelectedScriptForVersions] = React.useState<any | null>(null);
+  const [scriptVersions, setScriptVersions] = React.useState<any[]>([]);
+  const [isVersionsModalOpen, setIsVersionsModalOpen] = React.useState(false);
+  const [isLoadingVersions, setIsLoadingVersions] = React.useState(false);
+
   const navigate = useNavigate();
 
   React.useEffect(() => {
@@ -50,239 +59,277 @@ export function LibraryPage() {
         ...doc.data()
       }));
       setScripts(docs);
-    }, (error) => {
-      handleFirestoreError(error, OperationType.LIST, 'scripts');
     });
 
     return () => unsubscribe();
   }, [user]);
 
+  const fetchVersions = async (scriptId: string) => {
+    setIsLoadingVersions(true);
+    try {
+      const q = query(
+        collection(db, 'script_versions'), 
+        where('scriptId', '==', scriptId), 
+        orderBy('createdAt', 'desc')
+      );
+      const snapshot = await getDocs(q);
+      const versions = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setScriptVersions(versions);
+    } catch (error) {
+      console.error("Fetch versions error:", error);
+    } finally {
+      setIsLoadingVersions(false);
+    }
+  };
+
+  const handleOpenVersions = (script: any) => {
+    setSelectedScriptForVersions(script);
+    setIsVersionsModalOpen(true);
+    fetchVersions(script.id);
+  };
+
+  const handleRevertVersion = async (version: any) => {
+    if (!selectedScriptForVersions) return;
+    if (window.confirm('Are you sure you want to revert to this version?')) {
+      try {
+        await updateDoc(doc(db, 'scripts', selectedScriptForVersions.id), {
+          script: version.script,
+          updatedAt: Timestamp.now()
+        });
+        
+        // Also add a new snapshot for the revert action
+        await addDoc(collection(db, 'script_versions'), {
+          uid: user?.uid,
+          scriptId: selectedScriptForVersions.id,
+          script: version.script,
+          createdAt: Timestamp.now()
+        });
+
+        setIsVersionsModalOpen(false);
+      } catch (error) {
+        console.error("Revert error:", error);
+      }
+    }
+  };
+
   const handleDelete = async (id: string) => {
-    if (window.confirm('Are you sure you want to delete this script? This action cannot be undone.')) {
+    if (window.confirm('Are you sure you want to delete this script?')) {
       try {
         await deleteDoc(doc(db, 'scripts', id));
-        setSelectedIds(prev => prev.filter(selectedId => selectedId !== id));
       } catch (error) {
-        handleFirestoreError(error, OperationType.DELETE, `scripts/${id}`);
+        console.error("Delete error:", error);
       }
     }
   };
 
-  const handleBulkDelete = async () => {
-    if (window.confirm(`Are you sure you want to delete ${selectedIds.length} scripts?`)) {
-      try {
-        await Promise.all(selectedIds.map(id => deleteDoc(doc(db, 'scripts', id))));
-        setSelectedIds([]);
-      } catch (error) {
-        handleFirestoreError(error, OperationType.DELETE, 'scripts-bulk');
-      }
-    }
-  };
-
-  const handleSelect = (id: string, selected: boolean) => {
-    setSelectedIds(prev => 
-      selected ? [...prev, id] : prev.filter(item => item !== id)
-    );
-  };
-
-  const handleFavorite = async (id: string, isFavorite: boolean) => {
-    try {
-      await updateDoc(doc(db, 'scripts', id), { isFavorite });
-    } catch (error) {
-      handleFirestoreError(error, OperationType.UPDATE, `scripts/${id}`);
-    }
-  };
-
-  const handleView = (script: any) => {
-    navigate('/', { state: { scriptId: script.id, script: script.script } });
-  };
-
-  const filteredAndSortedScripts = React.useMemo(() => {
-    let result = scripts.filter(s => 
-      s.prompt?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      s.script?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      s.tone?.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-
-    // Apply sidebar filters
-    if (currentFilter === 'favorites') {
-      result = result.filter(s => s.isFavorite);
-    } else if (currentFilter === 'recents') {
-      const oneDayAgo = new Date();
-      oneDayAgo.setDate(oneDayAgo.getDate() - 1);
-      result = result.filter(s => (s.createdAt?.toDate?.() || new Date(s.createdAt)) > oneDayAgo);
-    }
-
-    switch (sortBy) {
-      case 'oldest':
-        result.sort((a, b) => (a.createdAt?.toMillis?.() || 0) - (b.createdAt?.toMillis?.() || 0));
-        break;
-      case 'az':
-        result.sort((a, b) => (a.prompt || '').localeCompare(b.prompt || ''));
-        break;
-      case 'length':
-        result.sort((a, b) => (b.script?.length || 0) - (a.script?.length || 0));
-        break;
-      case 'newest':
-      default:
-        result.sort((a, b) => (b.createdAt?.toMillis?.() || 0) - (a.createdAt?.toMillis?.() || 0));
-        break;
-    }
-
-    return result;
-  }, [scripts, searchTerm, sortBy, currentFilter]);
+  const filteredScripts = scripts.filter(s => 
+    s.prompt?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    s.script?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   if (!user) {
     return (
-      <div className="min-h-[80vh] flex flex-col items-center justify-center text-center p-6 bg-zinc-950">
-        <div className="w-20 h-20 bg-zinc-900 rounded-2xl flex items-center justify-center mb-6 border border-zinc-800 shadow-2xl">
-          <History className="w-10 h-10 text-red-500" />
-        </div>
-        <h2 className="text-3xl font-black mb-4 tracking-tighter">AUTHENTICATION REQUIRED</h2>
-        <p className="text-zinc-500 max-w-sm mb-8 font-medium leading-relaxed">
-          Your creative workspace and production history are protected. Sign in to access your scripts.
+      <div className="h-[60vh] flex flex-col items-center justify-center text-center p-6">
+        <History className="w-16 h-16 text-zinc-800 mb-4" />
+        <h2 className="text-2xl font-bold mb-2">Sign in to view your library</h2>
+        <p className="text-zinc-500 max-w-md">
+          Your saved scripts and production history will appear here once you're logged in.
         </p>
-        <Button 
-          onClick={() => navigate('/login')}
-          className="bg-red-600 hover:bg-red-700 h-12 px-8 font-bold rounded-xl"
-        >
-          Access Library
-          <ArrowRight className="w-4 h-4 ml-2" />
-        </Button>
       </div>
     );
   }
 
   return (
-    <PageShell className="space-y-10 pb-40">
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-        <PageHeader
-          title="Creative Library"
-          subtitle="Manage your AI-powered anime productions and script archives."
-          titleClassName="text-4xl font-black tracking-tighter uppercase"
-          className="p-0 border-none bg-transparent"
-        />
+    <div className="p-8 max-w-7xl mx-auto space-y-8">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-black tracking-tight mb-2 uppercase text-cyan-50 drop-shadow-[0_0_15px_rgba(6,182,212,0.8)]">My Library</h1>
+          <p className="text-cyan-500/60 font-bold uppercase tracking-widest text-xs">Manage and organize your generated anime scripts.</p>
+        </div>
         <div className="flex items-center gap-3">
-          <Button 
-            className="bg-red-600 hover:bg-red-700 text-white font-bold h-11 px-6 rounded-xl shadow-lg shadow-red-600/20"
-            onClick={() => navigate('/')}
-          >
-            <Sparkles className="w-4 h-4 mr-2" />
-            New Production
+          <div className="relative w-64">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-cyan-500" />
+            <Input 
+              placeholder="Search scripts..." 
+              className="pl-10 bg-[#0a0a0a] border-cyan-500/30 text-cyan-100 placeholder:text-cyan-700 focus-visible:ring-cyan-500/50 rounded-full h-10 shadow-[inner_0_2px_10px_rgba(0,0,0,0.8)]"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+          <Button variant="outline" className="border-cyan-500/30 bg-[#0a0a0a] text-cyan-400 hover:bg-cyan-900/30 hover:text-cyan-300 rounded-full">
+            <Filter className="w-4 h-4 mr-2" />
+            Filter
           </Button>
         </div>
       </div>
 
-      <LibraryStats scripts={scripts} />
-
-      <div className="flex flex-col lg:flex-row gap-10">
-        <LibrarySidebar 
-          currentFilter={currentFilter}
-          onFilterChange={setCurrentFilter}
-        />
-
-        <div className="flex-1 space-y-10">
-          <LibraryCollections />
-
-          <div className="space-y-6">
-            <LibraryFilters 
-              searchTerm={searchTerm}
-              onSearchChange={setSearchTerm}
-              sortBy={sortBy}
-              onSortChange={setSortBy}
-              viewMode={viewMode}
-              onViewModeChange={setViewMode}
-            />
-
-            <AnimatePresence mode="popLayout">
-              <motion.div 
-                layout
-                className={
-                  viewMode === 'grid' 
-                    ? "grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-6"
-                    : "flex flex-col gap-4"
-                }
-              >
-                {filteredAndSortedScripts.map((script) => (
-                  <motion.div
-                    layout
-                    key={script.id}
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    {viewMode === 'grid' ? (
-                      <ScriptCard 
-                        script={script}
-                        onView={handleView}
-                        onDelete={handleDelete}
-                        onFavorite={handleFavorite}
-                        onQuickView={setSelectedScript}
-                        isSelected={selectedIds.includes(script.id)}
-                        onSelect={handleSelect}
-                      />
-                    ) : (
-                      <ScriptListItem 
-                        script={script}
-                        onView={handleView}
-                        onDelete={handleDelete}
-                        isSelected={selectedIds.includes(script.id)}
-                        onSelect={handleSelect}
-                      />
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        {filteredScripts.map((script, idx) => (
+          <motion.div
+            key={script.id}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: idx * 0.05 }}
+          >
+            <Card className="bg-gradient-to-br from-[#111318] to-[#0a0b0e] border-zinc-800 hover:border-cyan-500/50 hover:shadow-[0_0_25px_rgba(6,182,212,0.2)] transition-all group overflow-hidden h-full flex flex-col rounded-2xl relative">
+              <div className="absolute inset-0 opacity-[0.03] bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:10px_10px] pointer-events-none z-0" />
+              
+              <div className="aspect-video bg-[#0a0a0a] relative overflow-hidden z-10 border-b border-zinc-800/50">
+                <img 
+                  src={`https://picsum.photos/seed/${script.id}/600/400`} 
+                  alt="Preview" 
+                  className="w-full h-full object-cover opacity-30 group-hover:opacity-50 group-hover:scale-105 transition-all duration-700 mix-blend-luminosity"
+                  referrerPolicy="no-referrer"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#0a0b0e] via-[#0a0b0e]/40 to-transparent" />
+                <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="px-2.5 py-1 bg-purple-500/10 text-purple-400 text-[10px] font-black uppercase tracking-widest rounded-full border border-purple-500/30 shadow-[0_0_10px_rgba(168,85,247,0.2)]">
+                      {script.tone || 'Action'}
+                    </span>
+                    {(script.session || script.episode) && (
+                      <span className="px-2.5 py-1 bg-[#0a0a0a]/80 text-cyan-400 text-[10px] font-black uppercase tracking-widest rounded-full border border-cyan-500/30 backdrop-blur-md shadow-[0_0_10px_rgba(6,182,212,0.15)] flex gap-1.5 items-center">
+                        {script.session && <span><span className="text-zinc-500">S</span>{script.session}</span>} 
+                        {script.episode && <span><span className="text-zinc-500">E</span>{script.episode}</span>}
+                      </span>
                     )}
-                  </motion.div>
-                ))}
-              </motion.div>
-            </AnimatePresence>
-
-            {filteredAndSortedScripts.length === 0 && (
-              <motion.div 
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="py-32 text-center bg-zinc-900/20 border border-dashed border-zinc-800 rounded-3xl"
-              >
-                <div className="w-16 h-16 bg-zinc-900 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <FileText className="w-8 h-8 text-zinc-700" />
+                  </div>
+                  <div className="flex items-center gap-1.5 text-[10px] text-zinc-500 font-mono tracking-widest bg-black/50 px-2 py-1 rounded-full backdrop-blur-md border border-zinc-800">
+                    <Clock className="w-3 h-3 text-cyan-500" />
+                    5:00
+                  </div>
                 </div>
-                <h3 className="text-xl font-bold mb-2">No scripts found</h3>
-                <p className="text-zinc-500 max-w-xs mx-auto text-sm">
-                  {searchTerm 
-                    ? `We couldn't find any results for "${searchTerm}". Try a different search term.` 
-                    : "You haven't generated any scripts yet. Start your first production today!"}
+              </div>
+              
+              <CardHeader className="p-5 pb-2 z-10 relative">
+                <CardTitle className="text-lg line-clamp-1 group-hover:text-cyan-400 transition-colors font-bold text-zinc-100 drop-shadow-md">
+                  {script.prompt?.slice(0, 40) || 'Untitled Script'}
+                </CardTitle>
+                <CardDescription className="flex items-center gap-1.5 text-[10px] uppercase tracking-widest font-bold text-zinc-500">
+                  <Calendar className="w-3 h-3 text-zinc-600" />
+                  {script.createdAt instanceof Timestamp ? script.createdAt.toDate().toLocaleDateString() : 'Recent'}
+                </CardDescription>
+              </CardHeader>
+              
+              <CardContent className="p-5 pt-0 flex-1 flex flex-col justify-between z-10 relative">
+                <p className="text-[11px] text-zinc-400 line-clamp-3 mb-6 leading-relaxed font-medium">
+                  {script.script?.replace(/[#|*-]/g, '').slice(0, 150)}...
                 </p>
-                {!searchTerm && (
+                
+                <div className="flex items-center justify-between pt-4 border-t border-zinc-800/80">
+                  <div className="flex items-center gap-1">
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="h-8 w-8 text-zinc-500 hover:text-cyan-400 hover:bg-cyan-500/10 rounded-full transition-colors"
+                      onClick={() => navigate('/', { state: { scriptId: script.id, script: script.script } })}
+                    >
+                      <FileText className="w-4 h-4" />
+                    </Button>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-zinc-500 hover:text-cyan-400 hover:bg-cyan-500/10 rounded-full transition-colors">
+                      <Download className="w-4 h-4" />
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="h-8 w-8 text-zinc-500 hover:text-orange-400 hover:bg-orange-500/10 rounded-full transition-colors"
+                      title="Version History"
+                      onClick={() => handleOpenVersions(script)}
+                    >
+                      <GitCommit className="w-4 h-4" />
+                    </Button>
+                  </div>
                   <Button 
-                    variant="outline" 
-                    className="mt-8 border-zinc-800 hover:bg-zinc-800"
-                    onClick={() => navigate('/')}
+                    variant="ghost" 
+                    size="icon" 
+                    className="h-8 w-8 text-zinc-500 hover:text-red-500 hover:bg-red-500/10 rounded-full transition-colors"
+                    onClick={() => handleDelete(script.id)}
                   >
-                    Start Generating
+                    <Trash2 className="w-4 h-4" />
                   </Button>
-                )}
-              </motion.div>
-            )}
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        ))}
+
+        {filteredScripts.length === 0 && (
+          <div className="col-span-full py-20 text-center">
+            <FileText className="w-12 h-12 text-zinc-800 mx-auto mb-4" />
+            <p className="text-zinc-500">No scripts found matching your search.</p>
           </div>
-        </div>
+        )}
       </div>
 
-      <LibraryQuickView 
-        script={selectedScript}
-        isOpen={!!selectedScript}
-        onClose={() => setSelectedScript(null)}
-        onOpenInStudio={handleView}
-      />
-
-      <LibraryBulkActions 
-        selectedCount={selectedIds.length}
-        onClear={() => setSelectedIds([])}
-        onDelete={handleBulkDelete}
-        onMove={() => alert('Moving to folder...')}
-        onExport={() => alert('Batch exporting...')}
-      />
-    </PageShell>
+      <Dialog open={isVersionsModalOpen} onOpenChange={setIsVersionsModalOpen}>
+        <DialogContent className="bg-gradient-to-br from-[#111318] to-[#0a0b0e] border border-cyan-500/20 text-zinc-200 max-w-2xl max-h-[80vh] overflow-hidden flex flex-col rounded-2xl shadow-[0_0_50px_rgba(0,0,0,0.8)]">
+          <div className="absolute inset-0 opacity-[0.03] bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:10px_10px] pointer-events-none" />
+          
+          <DialogHeader className="relative z-10 border-b border-zinc-800/50 pb-4">
+            <DialogTitle className="text-xl font-black uppercase tracking-widest flex items-center gap-3 text-cyan-100">
+              <History className="w-6 h-6 text-orange-500 drop-shadow-[0_0_10px_rgba(249,115,22,0.8)]" />
+              Version History
+            </DialogTitle>
+            <DialogDescription className="text-cyan-500/60 font-bold uppercase tracking-widest text-[10px]">
+              {selectedScriptForVersions?.prompt?.slice(0, 50)}...
+            </DialogDescription>
+          </DialogHeader>
+          
+          <ScrollArea className="flex-1 relative z-10 pr-4 mt-4">
+            {isLoadingVersions ? (
+              <div className="flex justify-center py-12">
+                <div className="w-8 h-8 border-4 border-orange-500/30 border-t-orange-500 rounded-full animate-spin drop-shadow-[0_0_10px_rgba(249,115,22,0.5)]" />
+              </div>
+            ) : scriptVersions.length === 0 ? (
+              <div className="text-center py-12 text-zinc-600 font-bold uppercase tracking-widest text-xs">
+                No previous versions found.
+              </div>
+            ) : (
+              <div className="flex flex-col gap-4 pb-4">
+                {scriptVersions.map((version, idx) => (
+                  <Card key={version.id} className="bg-[#0a0a0a]/50 border-zinc-800/60 relative overflow-hidden group hover:border-orange-500/30 transition-all rounded-xl backdrop-blur-md">
+                    <CardContent className="p-5 flex gap-5">
+                      <div className="flex flex-col items-center justify-start pt-1">
+                        <div className={cn("w-3 h-3 rounded-full transition-all drop-shadow-md border", idx === 0 ? "bg-orange-500 border-orange-400 shadow-[0_0_10px_rgba(249,115,22,0.6)]" : "bg-zinc-800 border-zinc-700 group-hover:bg-zinc-600")} />
+                        {idx !== scriptVersions.length - 1 && (
+                          <div className="w-[1px] h-full bg-gradient-to-b from-orange-500/20 via-zinc-800 to-zinc-800 mt-2" />
+                        )}
+                      </div>
+                      <div className="flex-1 space-y-3">
+                        <div className="flex items-center justify-between">
+                          <p className="text-xs font-black tracking-widest uppercase text-zinc-300">
+                            {version.createdAt instanceof Timestamp ? version.createdAt.toDate().toLocaleString() : 'Unknown Time'}
+                          </p>
+                          {idx === 0 && (
+                             <span className="text-[9px] bg-orange-500/20 text-orange-400 px-2 py-0.5 rounded-full font-bold uppercase tracking-[0.2em] border border-orange-500/30 shadow-[0_0_10px_rgba(249,115,22,0.2)]">Latest Origin</span>
+                          )}
+                        </div>
+                        <div className="bg-[#050505] rounded-lg p-3 border border-zinc-800/50 shadow-inner">
+                          <p className="text-xs text-zinc-400 line-clamp-3 font-medium leading-relaxed italic">
+                            {version.script?.replace(/[#|*-]/g, '').slice(0, 200)}...
+                          </p>
+                        </div>
+                        {idx !== 0 && (
+                          <div className="pt-1">
+                            <Button 
+                              size="sm" 
+                              variant="outline" 
+                              className="h-8 rounded-full text-[10px] font-bold uppercase tracking-[0.1em] border-orange-500/30 text-orange-400 hover:bg-orange-500/20 hover:text-orange-300 hover:border-orange-400 transition-all shadow-[0_0_10px_rgba(249,115,22,0.05)]"
+                              onClick={() => handleRevertVersion(version)}
+                            >
+                              <History className="w-3 h-3 mr-2" /> Revert Configuration
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </ScrollArea>
+        </DialogContent>
+      </Dialog>
+    </div>
   );
 }
-
-
-

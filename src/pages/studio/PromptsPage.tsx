@@ -1,12 +1,16 @@
 import React from 'react';
-import { Eye, Zap, Sparkles } from 'lucide-react';
+import { motion } from 'motion/react';
+import ReactMarkdown from 'react-markdown';
+import { Image as ImageIcon, Sparkles, Heart } from 'lucide-react';
+import { Card } from '@/components/ui/card';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Button } from '@/components/ui/button';
 import { useGenerator } from '@/contexts/GeneratorContext';
 import { generateImagePrompts } from '@/services/geminiService';
-import { handleFirestoreError, OperationType } from '@/lib/error-utils';
-import { PromptsTopBar } from '@/components/studio/modules/prompts/PromptsTopBar';
-import { PromptsPanel } from '@/components/studio/modules/prompts/PromptsPanel';
+import { cn } from '@/lib/utils';
 
 export function PromptsPage() {
+  const [isLiked, setIsLiked] = React.useState(false);
   const { 
     generatedImagePrompts, 
     setGeneratedImagePrompts, 
@@ -19,45 +23,84 @@ export function PromptsPage() {
   const handleGenerate = async () => {
     if (!generatedScript) return;
     setIsGeneratingImagePrompts(true);
-    try {
-      const prompts = await generateImagePrompts(generatedScript, selectedModel);
-      setGeneratedImagePrompts(prompts);
-    } catch (error) {
-      handleFirestoreError(error, OperationType.WRITE, 'image-prompts');
-    } finally {
-      setIsGeneratingImagePrompts(false);
-    }
+    const prompts = await generateImagePrompts(generatedScript, selectedModel);
+    setGeneratedImagePrompts(prompts);
+    setIsGeneratingImagePrompts(false);
   };
 
   return (
-    <PromptsTopBar
-      onGenerate={handleGenerate}
-      isLoading={isGeneratingImagePrompts}
-      disabled={!generatedScript}
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="space-y-4"
     >
-      <div className="grid grid-cols-1 gap-8">
-        <PromptsPanel generatedImagePrompts={generatedImagePrompts} />
+      <div className="flex flex-col gap-2">
+        <h2 className="text-2xl font-black uppercase tracking-[0.15em] flex items-center gap-3 text-cyan-50 drop-shadow-[0_0_10px_rgba(6,182,212,0.5)]">
+          <ImageIcon className="w-6 h-6 text-cyan-400" />
+          AI Image Prompts
+        </h2>
+        <p className="text-cyan-500/60 font-bold uppercase tracking-widest text-xs">
+          Generate Midjourney & Stable Diffusion prompts from your script frames.
+        </p>
       </div>
 
-      {generatedImagePrompts && (
-         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-10">
-            <AspectCard icon={Eye} title="Compositional Logic" description="Optimized camera angles and framing metadata." color="text-purple-500" />
-            <AspectCard icon={Zap} title="Lighting Specs" description="Detailed atmospheric and technical lighting data." color="text-amber-500" />
-            <AspectCard icon={Sparkles} title="Visual Continuity" description="Ensuring consistent style across all production scenes." color="text-blue-500" />
-         </div>
-      )}
-    </PromptsTopBar>
+      <div className="flex items-center justify-end border-b border-zinc-800/50 pb-4">
+        <Button 
+          variant="outline" 
+          size="sm" 
+          className="border-zinc-800 bg-[#0a0a0a]/50 hover:bg-cyan-500/10 hover:border-cyan-500/30 text-zinc-400 uppercase tracking-wider text-[10px] font-bold h-9 transition-colors shadow-[0_0_15px_rgba(6,182,212,0.1)]"
+          onClick={handleGenerate}
+          disabled={isGeneratingImagePrompts || !generatedScript}
+        >
+          {isGeneratingImagePrompts ? (
+            <div className="w-3.5 h-3.5 border-2 border-cyan-500/30 border-t-cyan-500 rounded-full animate-spin mr-2" />
+          ) : (
+            <Sparkles className="w-3.5 h-3.5 mr-2" />
+          )}
+          {isGeneratingImagePrompts ? 'Visualizing...' : 'Regenerate Prompts'}
+        </Button>
+      </div>
+
+      <Card className="bg-gradient-to-br from-[#111318] to-[#0a0b0e] border-cyan-500/20 overflow-hidden shadow-[0_0_25px_rgba(6,182,212,0.1)] relative">
+        <div className="absolute inset-0 opacity-[0.03] bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:10px_10px] pointer-events-none z-0" />
+        
+        <div className="p-4 border-b border-cyan-500/20 bg-[#0a0a0a]/80 backdrop-blur-md flex items-center justify-between relative z-10">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 text-cyan-500 shadow-sm shadow-cyan-500/20 bg-cyan-500/10 px-3 py-1.5 rounded-full border border-cyan-500/30">
+              <ImageIcon className="w-4 h-4" />
+              <span className="text-[10px] font-black uppercase tracking-widest">Midjourney & SD Prompts</span>
+            </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              className={cn(
+                "h-8 w-8 rounded-full transition-all duration-300 border border-transparent flex-shrink-0",
+                isLiked ? "text-cyan-400 bg-cyan-500/10 border-cyan-500/30 shadow-[0_0_10px_rgba(6,182,212,0.2)]" : "text-zinc-600 hover:text-cyan-400 hover:bg-zinc-800/50"
+              )}
+              onClick={() => setIsLiked(!isLiked)}
+            >
+              <Heart className={cn("w-4 h-4", isLiked && "fill-current")} />
+            </Button>
+          </div>
+        </div>
+        <ScrollArea className="h-[600px] w-full p-6 relative z-10 bg-[#050505]/50">
+          <div className="prose prose-invert prose-cyan max-w-none prose-headings:font-black prose-headings:uppercase prose-headings:tracking-widest prose-h1:text-cyan-500 prose-h2:text-cyan-400/80 prose-a:text-cyan-400">
+            {isGeneratingImagePrompts ? (
+              <div className="flex flex-col items-center justify-center h-[400px] text-cyan-700">
+                <div className="w-10 h-10 border-2 border-cyan-500/30 border-t-cyan-500 rounded-full animate-spin mb-4" />
+                <p className="uppercase tracking-widest text-xs font-bold shadow-[0_0_10px_rgba(6,182,212,0.5)]">Generating visual prompts...</p>
+              </div>
+            ) : generatedImagePrompts ? (
+              <ReactMarkdown>{generatedImagePrompts}</ReactMarkdown>
+            ) : (
+              <div className="flex flex-col items-center justify-center h-[400px] text-zinc-600">
+                <ImageIcon className="w-16 h-16 mb-4 opacity-20 text-cyan-900" />
+                <p className="uppercase tracking-widest text-xs font-bold">Generate image prompts to see them here.</p>
+              </div>
+            )}
+          </div>
+        </ScrollArea>
+      </Card>
+    </motion.div>
   );
-}
-
-function AspectCard({ icon: Icon, title, description, color }: { icon: any; title: string, description: string, color: string }) {
-   return (
-      <div className="p-8 rounded-[32px] bg-zinc-950 border border-white/5 group hover:border-purple-600/20 transition-all shadow-xl">
-         <div className={`w-12 h-12 rounded-2xl bg-zinc-900 border border-white/5 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shadow-inner ${color}`}>
-            <Icon className="w-6 h-6" />
-         </div>
-         <h4 className="text-[12px] font-black uppercase tracking-widest text-zinc-200 mb-3 italic">{title}</h4>
-         <p className="text-[11px] text-zinc-500 font-medium italic leading-relaxed">{description}</p>
-      </div>
-   );
 }

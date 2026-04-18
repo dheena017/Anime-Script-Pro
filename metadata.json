@@ -1,6 +1,6 @@
 {
-  "name": "Anime Script Pro",
-  "description": "A comprehensive multi-page platform for anime content creators. Features multi-model AI script generation (Gemini, GPT, Claude, Llama), cloud library management, community discovery, and professional production tools.",
+  "name": "Creator Studio Pro",
+  "description": "A comprehensive multi-page platform for recap creators (Anime, Manhwa, Comic). Features multi-model AI script generation, cloud library management, community discovery, and professional production tools.",
   "requestFramePermissions": [],
   "majorCapabilities": []
 }

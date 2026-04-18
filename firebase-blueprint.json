@@ -1,0 +1,47 @@
+{
+  "entities": {
+    "AnimeScript": {
+      "title": "Anime Script",
+      "description": "A generated anime script for YouTube.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "description": "The user ID of the creator."
+        },
+        "prompt": {
+          "type": "string",
+          "description": "The prompt used to generate the script."
+        },
+        "script": {
+          "type": "string",
+          "description": "The generated script content in markdown."
+        },
+        "tone": {
+          "type": "string",
+          "description": "The tone of the script."
+        },
+        "audience": {
+          "type": "string",
+          "description": "The target audience."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When the script was generated."
+        }
+      },
+      "required": ["uid", "prompt", "script", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/scripts/{scriptId}": {
+      "schema": "AnimeScript",
+      "description": "Collection of generated anime scripts."
+    },
+    "/script_versions/{versionId}": {
+      "schema": "AnimeScript",
+      "description": "History snapshots of generated scripts."
+    }
+  }
+}

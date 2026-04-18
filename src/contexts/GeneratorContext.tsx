@@ -1,5 +1,14 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { auth, db, useAuthState, collection, query, where, orderBy, onSnapshot, Timestamp } from '@/lib/storage';
+import { auth, db } from '../firebase';
+import { useAuthState } from 'react-firebase-hooks/auth';
+import { 
+  collection, 
+  query, 
+  where, 
+  orderBy, 
+  onSnapshot, 
+  Timestamp 
+} from 'firebase/firestore';
 import { handleFirestoreError, OperationType } from '../lib/error-utils';
 
 interface GeneratorContextType {
@@ -17,6 +26,14 @@ interface GeneratorContextType {
   setGeneratedSeriesPlan: (s: string | null) => void;
   generatedDescription: string | null;
   setGeneratedDescription: (d: string | null) => void;
+  visualData: Record<number, string>;
+  setVisualData: React.Dispatch<React.SetStateAction<Record<number, string>>>;
+  narrativeBeats: string | null;
+  setNarrativeBeats: (b: string | null) => void;
+  recapperPersona: string;
+  setRecapperPersona: (p: string) => void;
+  characterRelationships: string | null;
+  setCharacterRelationships: (r: string | null) => void;
   tone: string;
   setTone: (t: string) => void;
   audience: string;
@@ -25,6 +42,10 @@ interface GeneratorContextType {
   setEpisode: (e: string) => void;
   session: string;
   setSession: (s: string) => void;
+  numScenes: string;
+  setNumScenes: (n: string) => void;
+  contentType: string;
+  setContentType: (t: string) => void;
   selectedModel: string;
   setSelectedModel: (m: string) => void;
   isLoading: boolean;
@@ -61,10 +82,16 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
   const [generatedImagePrompts, setGeneratedImagePrompts] = useState<string | null>(null);
   const [generatedSeriesPlan, setGeneratedSeriesPlan] = useState<string | null>(null);
   const [generatedDescription, setGeneratedDescription] = useState<string | null>(null);
+  const [visualData, setVisualData] = useState<Record<number, string>>({});
+  const [narrativeBeats, setNarrativeBeats] = useState<string | null>(null);
+  const [recapperPersona, setRecapperPersona] = useState('Dynamic/Hype');
+  const [characterRelationships, setCharacterRelationships] = useState<string | null>(null);
   const [tone, setTone] = useState('Hype/Energetic');
   const [audience, setAudience] = useState('General Fans');
   const [episode, setEpisode] = useState('1');
   const [session, setSession] = useState('1');
+  const [numScenes, setNumScenes] = useState('6');
+  const [contentType, setContentType] = useState('Anime');
   const [selectedModel, setSelectedModel] = useState('gemini-3-flash-preview');
   const [isLoading, setIsLoading] = useState(false);
   const [isGeneratingCharacters, setIsGeneratingCharacters] = useState(false);
@@ -95,9 +122,16 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
         const data = doc.data();
         return {
           id: doc.id,
-          title: data.prompt.slice(0, 30) + (data.prompt.length > 30 ? '...' : ''),
+          title: data.prompt ? (data.prompt.slice(0, 30) + (data.prompt.length > 30 ? '...' : '')) : 'Untitled',
           date: data.createdAt instanceof Timestamp ? data.createdAt.toDate().toLocaleDateString() : 'Just now',
-          script: data.script
+          script: data.script,
+          prompt: data.prompt,
+          tone: data.tone,
+          audience: data.audience,
+          episode: data.episode,
+          session: data.session,
+          contentType: data.contentType,
+          model: data.model
         };
       });
       setHistory(docs);
@@ -117,10 +151,15 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
       generatedImagePrompts, setGeneratedImagePrompts,
       generatedSeriesPlan, setGeneratedSeriesPlan,
       generatedDescription, setGeneratedDescription,
+      narrativeBeats, setNarrativeBeats,
+      recapperPersona, setRecapperPersona,
+      characterRelationships, setCharacterRelationships,
       tone, setTone,
       audience, setAudience,
       episode, setEpisode,
       session, setSession,
+      numScenes, setNumScenes,
+      contentType, setContentType,
       selectedModel, setSelectedModel,
       isLoading, setIsLoading,
       isGeneratingCharacters, setIsGeneratingCharacters,
@@ -132,7 +171,8 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
       isSaving, setIsSaving,
       isContinuingScript, setIsContinuingScript,
       currentScriptId, setCurrentScriptId,
-      history
+      history,
+      visualData, setVisualData
     }}>
       {children}
     </GeneratorContext.Provider>

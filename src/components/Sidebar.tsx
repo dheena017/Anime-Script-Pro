@@ -1,5 +1,4 @@
-import React from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
+import { useLocation, NavLink } from 'react-router-dom';
 import { 
   ScrollText, 
   History, 
@@ -17,16 +16,16 @@ import {
   LayoutGrid,
   Play,
   UserPlus,
-  Box,
-  Cpu,
+  X,
+  Clapperboard,
   Zap,
-  ChevronRight
+  Sword,
+  Shield
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
 
-const mainNav = [
-  { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard' },
+const navItems = [
   { icon: History, label: 'My Library', path: '/library' },
   { icon: Compass, label: 'Discover', path: '/discover' },
   { icon: Users, label: 'Community', path: '/community' },
@@ -34,132 +33,184 @@ const mainNav = [
   { icon: Settings2, label: 'Settings', path: '/settings' },
 ];
 
-const studioNav = [
-  { icon: FileText, label: 'Script', path: '/studio/script' },
-  { icon: UserPlus, label: 'Cast', path: '/studio/cast' },
-  { icon: Layers, label: 'Series', path: '/studio/series' },
-  { icon: LayoutIcon, label: 'Storyboard', path: '/studio/storyboard' },
-  { icon: Search, label: 'SEO', path: '/studio/seo' },
-  { icon: ImageIcon, label: 'Prompts', path: '/studio/prompts' },
-  { icon: Play, label: 'Example', path: '/studio/example' },
-  { icon: ScrollText, label: 'Template', path: '/studio/template' },
-  { icon: LayoutGrid, label: 'Framework', path: '/studio/framework' },
+const modeItems = [
+  { icon: Sword, label: 'Anime Studio', path: '/anime', color: 'text-red-500' },
+  { icon: Clapperboard, label: 'Manhwa Studio', path: '/manhwa', color: 'text-blue-500' },
+  { icon: FileText, label: 'Comic Studio', path: '/comic', color: 'text-green-500' },
 ];
 
-export function Sidebar() {
-  const location = useLocation();
+const studioItems = [
+  { icon: FileText, label: 'Script', path: 'script' },
+  { icon: UserPlus, label: 'Cast', path: 'cast' },
+  { icon: Layers, label: 'Series', path: 'series' },
+  { icon: LayoutIcon, label: 'Storyboard', path: 'storyboard' },
+  { icon: Search, label: 'SEO', path: 'seo' },
+  { icon: ImageIcon, label: 'Prompts', path: 'prompts' },
+  { icon: Play, label: 'Example', path: 'example' },
+  { icon: ScrollText, label: 'Template', path: 'template' },
+  { icon: LayoutGrid, label: 'Framework', path: 'framework' },
+];
 
-  return (
-    <aside className="fixed left-0 top-0 bottom-0 z-50 w-72 hidden flex-col overflow-hidden border-r border-zinc-900 bg-black lg:flex shadow-2xl">
-      {/* Dynamic Aura */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_0%,_rgba(220,38,38,0.08)_0%,_transparent_50%)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_100%,_rgba(37,99,235,0.05)_0%,_transparent_50%)]" />
-      
-      {/* Brand Header */}
-      <div className="relative border-b border-zinc-900 px-7 py-8">
-        <div className="flex items-center gap-4">
-          <div className="relative group">
-            <div className="absolute -inset-2 bg-red-600/20 rounded-2xl blur-xl group-hover:bg-red-600/40 transition-all" />
-            <div className="relative flex h-11 w-11 items-center justify-center rounded-2xl border border-red-500/30 bg-gradient-to-br from-red-600 to-red-900 shadow-2xl">
-                <ScrollText className="h-6 w-6 text-white" />
-            </div>
-          </div>
-          <div className="flex flex-col">
-            <span className="text-xs font-black tracking-[0.3em] text-white uppercase italic leading-none">ANIME SCRIPT</span>
-            <span className="text-[10px] font-black tracking-[0.6em] text-red-600 mt-1 uppercase">PRO UNIT</span>
-          </div>
-        </div>
-      </div>
-      
-      {/* Navigation Space */}
-      <div className="relative flex-1 overflow-y-auto no-scrollbar py-8 px-4 space-y-10">
-        {/* Main Sector */}
-        <section className="space-y-3">
-          <div className="flex items-center gap-3 mb-2 px-3">
-             <Box className="w-3.5 h-3.5 text-zinc-700" />
-             <h3 className="text-[9px] font-black uppercase tracking-[0.25em] text-zinc-600">Operations</h3>
-          </div>
-          <div className="space-y-1">
-            {mainNav.map((item) => (
-               <NavItem key={item.path} item={item} isActive={location.pathname === item.path} />
-            ))}
-          </div>
-        </section>
-
-        {/* Studio Sector */}
-        <section className="space-y-3">
-          <div className="flex items-center gap-3 mb-2 px-3">
-             <Cpu className="w-3.5 h-3.5 text-zinc-700" />
-             <h3 className="text-[9px] font-black uppercase tracking-[0.25em] text-zinc-600">Production Studio</h3>
-          </div>
-          <div className="space-y-1">
-            {studioNav.map((item) => (
-               <NavItem key={item.path} item={item} isActive={location.pathname === item.path} />
-            ))}
-          </div>
-        </section>
-      </div>
-
-      {/* Pro Footer */}
-      <div className="relative p-6 border-t border-zinc-900">
-        <div className="p-5 rounded-[24px] bg-gradient-to-br from-zinc-900/50 to-black border border-zinc-800/50 relative overflow-hidden group/pro">
-           <div className="absolute -top-6 -right-6 w-24 h-24 bg-red-600/5 rounded-full blur-2xl group-hover/pro:bg-red-600/10 transition-all duration-1000" />
-           <div className="relative z-10 space-y-4">
-              <div className="flex items-center gap-2">
-                 <div className="w-6 h-6 rounded-lg bg-amber-500/10 flex items-center justify-center border border-amber-500/20">
-                    <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-                 </div>
-                 <span className="text-[10px] font-black uppercase tracking-widest text-zinc-200 font-mono">Archive Active</span>
-              </div>
-              <p className="text-[10px] text-zinc-500 font-medium italic leading-relaxed">
-                 Unlimited neural processing and high-priority studio rendering.
-              </p>
-              <button className="w-full h-10 rounded-xl bg-white text-black text-[9px] font-black uppercase tracking-widest hover:bg-zinc-200 transition-all shadow-xl shadow-white/5 active:scale-95">
-                 Expand Terminal
-              </button>
-           </div>
-        </div>
-      </div>
-    </aside>
-  );
+interface SidebarProps {
+  isOpen?: boolean;
+  onClose?: () => void;
 }
 
-function NavItem({ item, isActive }: { item: any; isActive: boolean }) {
-  return (
-    <NavLink
-      to={item.path}
-      className={cn(
-        "group relative flex items-center justify-between rounded-xl px-4 py-3 text-sm font-medium transition-all duration-300",
-        isActive 
-          ? "bg-red-600/10 text-white shadow-inner" 
-          : "text-zinc-500 hover:text-white hover:bg-zinc-900/50"
-      )}
-    >
-      <div className="flex items-center gap-3">
-        <item.icon className={cn(
-          "h-4 w-4 transition-all duration-500",
-          isActive ? "text-red-500 scale-110 rotate-3" : "text-zinc-600 group-hover:text-white"
-        )} />
-        <span className={cn(
-           "text-[10px] font-black uppercase tracking-widest transition-all duration-300",
-           isActive ? "translate-x-1" : ""
-        )}>
-           {item.label}
-        </span>
+export function Sidebar({ isOpen, onClose }: SidebarProps) {
+  const location = useLocation();
+  
+  // Determine current mode prefix
+  const getPrefix = () => {
+    if (location.pathname.startsWith('/anime')) return '/anime';
+    if (location.pathname.startsWith('/manhwa')) return '/manhwa';
+    if (location.pathname.startsWith('/comic')) return '/comic';
+    return '/anime'; // Default
+  };
+
+  const prefix = getPrefix();
+
+  const content = (
+    <div className="flex flex-col h-full">
+      <div className="p-6 border-b border-zinc-800/50 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 bg-red-600 rounded flex items-center justify-center shadow-[0_0_15px_rgba(220,38,38,0.3)]">
+            <ScrollText className="text-white w-5 h-5" />
+          </div>
+          <span className="font-bold tracking-tight text-sm">CREATOR STUDIO <span className="text-red-500">PRO</span></span>
+        </div>
+        {onClose && (
+          <button onClick={onClose} className="lg:hidden text-zinc-500 hover:text-white">
+            <X className="w-5 h-5" />
+          </button>
+        )}
       </div>
       
+      <div className="flex-1 overflow-y-auto">
+        <nav className="p-4 space-y-8">
+          <div className="space-y-1">
+            <p className="px-4 text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">Modes</p>
+            {modeItems.map((item) => (
+              <NavLink
+                key={item.path}
+                to={item.path}
+                onClick={onClose}
+                className={({ isActive }) => cn(
+                  "flex items-center gap-3 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 group",
+                  isActive 
+                    ? "bg-zinc-800 text-zinc-100 border border-zinc-700" 
+                    : "text-zinc-500 hover:text-zinc-100 hover:bg-zinc-800/50"
+                )}
+              >
+                <item.icon className={cn(
+                  "w-4 h-4",
+                  item.color,
+                  "group-hover:scale-110 transition-transform"
+                )} />
+                {item.label}
+              </NavLink>
+            ))}
+          </div>
+
+          <div className="space-y-1">
+            <p className="px-4 text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">Studio Tools</p>
+            {studioItems.map((item) => {
+              const fullPath = `${prefix}/${item.path}`;
+              const isActive = location.pathname === fullPath || (location.pathname === prefix && item.path === 'script');
+              
+              return (
+                <NavLink
+                  key={item.path}
+                  to={fullPath}
+                  onClick={onClose}
+                  className={cn(
+                    "flex items-center gap-3 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 group",
+                    isActive 
+                      ? "bg-red-600/10 text-red-500 border border-red-500/20" 
+                      : "text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800/50"
+                  )}
+                >
+                  <item.icon className={cn(
+                    "w-4 h-4",
+                    "group-hover:scale-110 transition-transform"
+                  )} />
+                  {item.label}
+                </NavLink>
+              );
+            })}
+          </div>
+
+          <div className="space-y-1">
+            <p className="px-4 text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">Global</p>
+            {navItems.map((item) => (
+              <NavLink
+                key={item.path}
+                to={item.path}
+                onClick={onClose}
+                className={({ isActive }) => cn(
+                  "flex items-center gap-3 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 group",
+                  isActive 
+                    ? "bg-red-600/10 text-red-500 border border-red-500/20" 
+                    : "text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800/50"
+                )}
+              >
+                <item.icon className={cn(
+                  "w-4 h-4",
+                  "group-hover:scale-110 transition-transform"
+                )} />
+                {item.label}
+              </NavLink>
+            ))}
+          </div>
+        </nav>
+      </div>
+
+      <div className="p-4 border-t border-zinc-800/50">
+        <div className="bg-zinc-900/50 rounded-xl p-4 border border-zinc-800">
+          <div className="flex items-center gap-2 mb-2">
+            <Sparkles className="w-4 h-4 text-yellow-500" />
+            <span className="text-xs font-bold uppercase tracking-widest text-zinc-300">Pro Plan</span>
+          </div>
+          <p className="text-[10px] text-zinc-500 leading-relaxed mb-3">
+            Unlock advanced AI models and unlimited cloud storage.
+          </p>
+          <button className="w-full py-2 bg-zinc-800 hover:bg-zinc-700 text-white text-[10px] font-bold rounded-lg transition-colors">
+            UPGRADE NOW
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
+  return (
+    <>
+      {/* Desktop Sidebar */}
+      <aside className="w-64 border-r border-zinc-800 bg-black/40 backdrop-blur-xl hidden lg:flex flex-col h-screen sticky top-0 shrink-0">
+        {content}
+      </aside>
+
+      {/* Mobile Sidebar */}
       <AnimatePresence>
-        {isActive && (
-           <motion.div 
-             layoutId="active-indicator"
-             className="w-1 h-3 rounded-full bg-red-600 shadow-[0_0_8px_rgba(220,38,38,0.8)]"
-             initial={{ opacity: 0, x: -5 }}
-             animate={{ opacity: 1, x: 0 }}
-             exit={{ opacity: 0, x: -5 }}
-           />
+        {isOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={onClose}
+              className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 lg:hidden"
+            />
+            <motion.aside
+              initial={{ x: '-100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '-100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+              className="fixed inset-y-0 left-0 w-72 bg-zinc-950 border-r border-zinc-800 z-[60] lg:hidden"
+            >
+              {content}
+            </motion.aside>
+          </>
         )}
       </AnimatePresence>
-    </NavLink>
+    </>
   );
 }
-

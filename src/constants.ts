@@ -1,3 +1,9 @@
+export const NARRATIVE_TEMPLATES = {
+  "3-Act Structure": "I. Hook: Establish the central problem or goal.\nII. Rising Action: Three escalating trials/conflicts.\nIII. Climax: The ultimate test.\nIV. Resolution: The aftermath and change.",
+  "Hero's Journey": "I. Departure: The call to adventure.\nII. Initiation: Going through tests, allies, and enemies.\nIII. Return: Returning with the elixir/knowledge.",
+  "Mystery/Thriller": "I. The Crime/Hook: Something goes wrong.\nII. Investigation: Gathering clues and raising stakes.\nIII. Twist: A major change in understanding.\nIV. Confrontation: The truth is revealed."
+};
+
 export const SCRIPT_TEMPLATE = `
 | Section | Voiceover Narration | Visual/Scene Description | Sound Effect/BGM Cues |
 | :--- | :--- | :--- | :--- |
