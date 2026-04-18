@@ -54,9 +54,9 @@ export function Layout() {
       <Sidebar isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
 
       <div className="flex-1 flex flex-col min-w-0">
-        <header className="relative z-20 border-b border-white/5 bg-black/40 backdrop-blur-xl sticky top-0">
-          <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-            <div className="flex items-center gap-4">
+        <header className="relative z-20 border-b border-white/5 bg-black/40 backdrop-blur-xl sticky top-0 w-full">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex flex-col md:flex-row items-center justify-between gap-4 md:gap-0">
+            <div className="flex items-center gap-4 w-full md:w-auto justify-between md:justify-start">
               <button 
                 className="lg:hidden text-zinc-400 hover:text-white transition-colors"
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -70,8 +70,7 @@ export function Layout() {
                 <span className="font-bold tracking-widest text-xs uppercase">Creator Studio <span className="text-red-500">Pro</span></span>
               </div>
             </div>
-
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 w-full md:w-auto justify-end">
               {user ? (
                 <div className="flex items-center gap-3">
                   <div className="text-right hidden sm:block">
@@ -111,12 +110,12 @@ export function Layout() {
           </div>
         </header>
 
-        <main className="relative z-10 flex-1 overflow-y-auto">
+        <main className="relative z-10 flex-1 overflow-y-auto min-w-0">
           <Outlet />
         </main>
 
-        <footer className="relative z-10 border-t border-white/5 bg-black/20 backdrop-blur-md py-8 mt-auto">
-          <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
+        <footer className="relative z-10 border-t border-white/5 bg-black/20 backdrop-blur-md py-8 mt-auto w-full">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="text-zinc-500 text-xs tracking-widest uppercase font-medium">
               © 2026 Creator Studio Pro. Built for creators.
             </div>
