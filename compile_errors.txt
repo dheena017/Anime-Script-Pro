@@ -1,0 +1,137 @@
+src/components/studio/core/StudioPanelSection.tsx(3,35): error TS2307: Cannot find module '@/components/studio/StudioOutputPanel' or its corresponding type declarations.
+src/components/studio/core/StudioRecentHistory.tsx(3,58): error TS2307: Cannot find module '../ui/card' or its corresponding type declarations.
+src/components/studio/core/StudioRecentHistory.tsx(4,28): error TS2307: Cannot find module '../ui/scroll-area' or its corresponding type declarations.
+src/components/studio/modules/cast/RelationshipMap.tsx(3,27): error TS2307: Cannot find module '../castUtils' or its corresponding type declarations.
+src/components/studio/modules/export/ExportTopBar.tsx(17,7): error TS2322: Type '{ children: ReactNode; title: string; subtitle: string; description: string; icon: Element; actions: Element; }' is not assignable to type 'IntrinsicAttributes & StudioModuleWrapperProps'.
+  Property 'actions' does not exist on type 'IntrinsicAttributes & StudioModuleWrapperProps'.
+src/components/studio/modules/reference/ReferenceHeader.tsx(2,37): error TS2307: Cannot find module '@/components/studio/StudioModuleWrapper' or its corresponding type declarations.
+src/components/studio/modules/reference/ReferencePanel.tsx(5,35): error TS2307: Cannot find module '@/components/studio/StudioModulePanel' or its corresponding type declarations.
+src/components/studio/modules/script/ScriptAnalytics.tsx(5,22): error TS2307: Cannot find module '../scriptWorkspaceUtils' or its corresponding type declarations.
+src/components/studio/modules/script/WritingAssist.tsx(112,24): error TS2304: Cannot find name 'onTranslate'.
+src/components/studio/modules/script/WritingAssist.tsx(113,33): error TS2304: Cannot find name 'isTranslating'.
+src/components/studio/modules/script/WritingAssist.tsx(116,10): error TS2304: Cannot find name 'isTranslating'.
+src/components/studio/modules/script/WritingAssist.tsx(122,18): error TS2304: Cannot find name 'onExportNotes'.
+src/components/studio/modules/series/LocationGallery.tsx(5,31): error TS2307: Cannot find module '../bibleUtils' or its corresponding type declarations.
+src/components/studio/modules/series/LoreEntryCard.tsx(4,27): error TS2307: Cannot find module '../bibleUtils' or its corresponding type declarations.
+src/components/studio/modules/storyboard/StoryboardPanel.tsx(97,11): error TS2322: Type '"script" | "grid" | "list"' is not assignable to type 'ViewMode'.
+  Type '"list"' is not assignable to type 'ViewMode'.
+src/components/studio/modules/storyboard/StoryboardPanel.tsx(98,11): error TS2322: Type '(mode: "script" | "grid" | "list") => void' is not assignable to type '(mode: ViewMode) => void'.
+  Types of parameters 'mode' and 'mode' are incompatible.
+    Type 'ViewMode' is not assignable to type '"script" | "grid" | "list"'.
+      Type '"present"' is not assignable to type '"script" | "grid" | "list"'.
+src/components/studio/modules/storyboard/StoryboardPanel.tsx(103,11): error TS2322: Type 'string' is not assignable to type 'number'.
+src/components/studio/modules/storyboard/StoryboardPanel.tsx(116,15): error TS2322: Type '(text: string) => string' is not assignable to type '(narration: string) => number'.
+  Type 'string' is not assignable to type 'number'.
+src/components/studio/modules/storyboard/StoryboardPanel.tsx(131,31): error TS2322: Type '"grid" | "list"' is not assignable to type 'ViewMode'.
+  Type '"list"' is not assignable to type 'ViewMode'.
+src/components/studio/modules/storyboard/StoryboardPanel.tsx(141,31): error TS2322: Type '(text: string) => string' is not assignable to type '(narration: string) => number'.
+  Type 'string' is not assignable to type 'number'.
+src/components/studio/modules/storyboard/StoryboardPanel.tsx(150,31): error TS2322: Type '(sceneId: string, take: string) => void' is not assignable to type '(sceneId: string) => void'.
+  Target signature provides too few arguments. Expected 2 or more, but got 1.
+src/components/studio/modules/storyboard/StoryboardPanel.tsx(156,31): error TS2322: Type '(sceneId: string, url: string) => void' is not assignable to type '(scene: Scene) => void'.
+  Target signature provides too few arguments. Expected 2 or more, but got 1.
+src/components/studio/modules/whatif/WhatIfTopBar.tsx(16,7): error TS2322: Type '{ children: ReactNode; title: string; subtitle: string; description: string; icon: Element; actions: Element; }' is not assignable to type 'IntrinsicAttributes & StudioModuleWrapperProps'.
+  Property 'actions' does not exist on type 'IntrinsicAttributes & StudioModuleWrapperProps'.
+src/contexts/GeneratorContext.tsx(104,8): error TS2554: Expected 2 arguments, but got 3.
+src/hooks/useScriptWorkspace.ts(212,20): error TS2304: Cannot find name 'getCharacterStats'.
+src/hooks/useScriptWorkspace.ts(213,23): error TS2304: Cannot find name 'analyzeSentimentMap'.
+src/layouts/Layout.tsx(28,16): error TS2339: Property 'setCustomParameters' does not exist on type 'GoogleAuthProvider'.
+src/pages/LandingPage.tsx(112,27): error TS2322: Type '{ hidden: { y: number; opacity: number; }; visible: { y: number; opacity: number; transition: { duration: number; ease: number[]; }; }; }' is not assignable to type 'Variants'.
+  Property 'visible' is incompatible with index signature.
+    Type '{ y: number; opacity: number; transition: { duration: number; ease: number[]; }; }' is not assignable to type 'Variant'.
+      Type '{ y: number; opacity: number; transition: { duration: number; ease: number[]; }; }' is not assignable to type 'TargetAndTransition'.
+        Type '{ y: number; opacity: number; transition: { duration: number; ease: number[]; }; }' is not assignable to type '{ transition?: Transition<any>; transitionEnd?: ResolvedValues$1; }'.
+          Types of property 'transition' are incompatible.
+            Type '{ duration: number; ease: number[]; }' is not assignable to type 'Transition<any>'.
+              Type '{ duration: number; ease: number[]; }' is not assignable to type 'TransitionWithValueOverrides<any>'.
+                Type '{ duration: number; ease: number[]; }' is not assignable to type 'ValueAnimationTransition<any>'.
+                  Types of property 'ease' are incompatible.
+                    Type 'number[]' is not assignable to type 'Easing | Easing[]'.
+                      Type 'number[]' is not assignable to type 'EasingFunction | Easing[]'.
+                        Type 'number[]' is not assignable to type 'Easing[]'.
+                          Type 'number' is not assignable to type 'Easing'.
+src/pages/LandingPage.tsx(117,26): error TS2322: Type '{ hidden: { y: number; opacity: number; }; visible: { y: number; opacity: number; transition: { duration: number; ease: number[]; }; }; }' is not assignable to type 'Variants'.
+  Property 'visible' is incompatible with index signature.
+    Type '{ y: number; opacity: number; transition: { duration: number; ease: number[]; }; }' is not assignable to type 'Variant'.
+      Type '{ y: number; opacity: number; transition: { duration: number; ease: number[]; }; }' is not assignable to type 'TargetAndTransition'.
+        Type '{ y: number; opacity: number; transition: { duration: number; ease: number[]; }; }' is not assignable to type '{ transition?: Transition<any>; transitionEnd?: ResolvedValues$1; }'.
+          Types of property 'transition' are incompatible.
+            Type '{ duration: number; ease: number[]; }' is not assignable to type 'Transition<any>'.
+              Type '{ duration: number; ease: number[]; }' is not assignable to type 'TransitionWithValueOverrides<any>'.
+                Type '{ duration: number; ease: number[]; }' is not assignable to type 'ValueAnimationTransition<any>'.
+                  Types of property 'ease' are incompatible.
+                    Type 'number[]' is not assignable to type 'Easing | Easing[]'.
+                      Type 'number[]' is not assignable to type 'EasingFunction | Easing[]'.
+                        Type 'number[]' is not assignable to type 'Easing[]'.
+                          Type 'number' is not assignable to type 'Easing'.
+src/pages/LandingPage.tsx(122,25): error TS2322: Type '{ hidden: { y: number; opacity: number; }; visible: { y: number; opacity: number; transition: { duration: number; ease: number[]; }; }; }' is not assignable to type 'Variants'.
+  Property 'visible' is incompatible with index signature.
+    Type '{ y: number; opacity: number; transition: { duration: number; ease: number[]; }; }' is not assignable to type 'Variant'.
+      Type '{ y: number; opacity: number; transition: { duration: number; ease: number[]; }; }' is not assignable to type 'TargetAndTransition'.
+        Type '{ y: number; opacity: number; transition: { duration: number; ease: number[]; }; }' is not assignable to type '{ transition?: Transition<any>; transitionEnd?: ResolvedValues$1; }'.
+          Types of property 'transition' are incompatible.
+            Type '{ duration: number; ease: number[]; }' is not assignable to type 'Transition<any>'.
+              Type '{ duration: number; ease: number[]; }' is not assignable to type 'TransitionWithValueOverrides<any>'.
+                Type '{ duration: number; ease: number[]; }' is not assignable to type 'ValueAnimationTransition<any>'.
+                  Types of property 'ease' are incompatible.
+                    Type 'number[]' is not assignable to type 'Easing | Easing[]'.
+                      Type 'number[]' is not assignable to type 'EasingFunction | Easing[]'.
+                        Type 'number[]' is not assignable to type 'Easing[]'.
+                          Type 'number' is not assignable to type 'Easing'.
+src/pages/LandingPage.tsx(126,27): error TS2322: Type '{ hidden: { y: number; opacity: number; }; visible: { y: number; opacity: number; transition: { duration: number; ease: number[]; }; }; }' is not assignable to type 'Variants'.
+  Property 'visible' is incompatible with index signature.
+    Type '{ y: number; opacity: number; transition: { duration: number; ease: number[]; }; }' is not assignable to type 'Variant'.
+      Type '{ y: number; opacity: number; transition: { duration: number; ease: number[]; }; }' is not assignable to type 'TargetAndTransition'.
+        Type '{ y: number; opacity: number; transition: { duration: number; ease: number[]; }; }' is not assignable to type '{ transition?: Transition<any>; transitionEnd?: ResolvedValues$1; }'.
+          Types of property 'transition' are incompatible.
+            Type '{ duration: number; ease: number[]; }' is not assignable to type 'Transition<any>'.
+              Type '{ duration: number; ease: number[]; }' is not assignable to type 'TransitionWithValueOverrides<any>'.
+                Type '{ duration: number; ease: number[]; }' is not assignable to type 'ValueAnimationTransition<any>'.
+                  Types of property 'ease' are incompatible.
+                    Type 'number[]' is not assignable to type 'Easing | Easing[]'.
+                      Type 'number[]' is not assignable to type 'EasingFunction | Easing[]'.
+                        Type 'number[]' is not assignable to type 'Easing[]'.
+                          Type 'number' is not assignable to type 'Easing'.
+src/pages/LandingPage.tsx(146,27): error TS2322: Type '{ hidden: { y: number; opacity: number; }; visible: { y: number; opacity: number; transition: { duration: number; ease: number[]; }; }; }' is not assignable to type 'Variants'.
+  Property 'visible' is incompatible with index signature.
+    Type '{ y: number; opacity: number; transition: { duration: number; ease: number[]; }; }' is not assignable to type 'Variant'.
+      Type '{ y: number; opacity: number; transition: { duration: number; ease: number[]; }; }' is not assignable to type 'TargetAndTransition'.
+        Type '{ y: number; opacity: number; transition: { duration: number; ease: number[]; }; }' is not assignable to type '{ transition?: Transition<any>; transitionEnd?: ResolvedValues$1; }'.
+          Types of property 'transition' are incompatible.
+            Type '{ duration: number; ease: number[]; }' is not assignable to type 'Transition<any>'.
+              Type '{ duration: number; ease: number[]; }' is not assignable to type 'TransitionWithValueOverrides<any>'.
+                Type '{ duration: number; ease: number[]; }' is not assignable to type 'ValueAnimationTransition<any>'.
+                  Types of property 'ease' are incompatible.
+                    Type 'number[]' is not assignable to type 'Easing | Easing[]'.
+                      Type 'number[]' is not assignable to type 'EasingFunction | Easing[]'.
+                        Type 'number[]' is not assignable to type 'Easing[]'.
+                          Type 'number' is not assignable to type 'Easing'.
+src/pages/LandingPage.tsx(161,15): error TS2322: Type '{ hidden: { y: number; opacity: number; }; visible: { y: number; opacity: number; transition: { duration: number; ease: number[]; }; }; }' is not assignable to type 'Variants'.
+  Property 'visible' is incompatible with index signature.
+    Type '{ y: number; opacity: number; transition: { duration: number; ease: number[]; }; }' is not assignable to type 'Variant'.
+      Type '{ y: number; opacity: number; transition: { duration: number; ease: number[]; }; }' is not assignable to type 'TargetAndTransition'.
+        Type '{ y: number; opacity: number; transition: { duration: number; ease: number[]; }; }' is not assignable to type '{ transition?: Transition<any>; transitionEnd?: ResolvedValues$1; }'.
+          Types of property 'transition' are incompatible.
+            Type '{ duration: number; ease: number[]; }' is not assignable to type 'Transition<any>'.
+              Type '{ duration: number; ease: number[]; }' is not assignable to type 'TransitionWithValueOverrides<any>'.
+                Type '{ duration: number; ease: number[]; }' is not assignable to type 'ValueAnimationTransition<any>'.
+                  Types of property 'ease' are incompatible.
+                    Type 'number[]' is not assignable to type 'Easing | Easing[]'.
+                      Type 'number[]' is not assignable to type 'EasingFunction | Easing[]'.
+                        Type 'number[]' is not assignable to type 'Easing[]'.
+                          Type 'number' is not assignable to type 'Easing'.
+src/pages/Library.tsx(53,8): error TS2554: Expected 2 arguments, but got 3.
+src/pages/studio/StoryboardPage.tsx(64,11): error TS2322: Type 'ViewMode' is not assignable to type '"script" | "grid" | "list"'.
+  Type '"present"' is not assignable to type '"script" | "grid" | "list"'.
+src/pages/studio/StoryboardPage.tsx(65,11): error TS2322: Type 'Dispatch<SetStateAction<ViewMode>>' is not assignable to type '(mode: "script" | "grid" | "list") => void'.
+  Types of parameters 'value' and 'mode' are incompatible.
+    Type '"script" | "grid" | "list"' is not assignable to type 'SetStateAction<ViewMode>'.
+      Type '"list"' is not assignable to type 'SetStateAction<ViewMode>'.
+src/pages/studio/StoryboardPage.tsx(70,11): error TS2322: Type 'number' is not assignable to type 'string'.
+src/pages/studio/StoryboardPage.tsx(83,11): error TS2322: Type '(narration: string) => number' is not assignable to type '(text: string) => string'.
+  Type 'number' is not assignable to type 'string'.
+src/pages/studio/StoryboardPage.tsx(93,11): error TS2322: Type '(sceneId: string, takeIndex: number, sceneIndex: number) => void' is not assignable to type '(sceneId: string, idx: number) => void'.
+  Target signature provides too few arguments. Expected 3 or more, but got 2.
+src/pages/studio/StoryboardPage.tsx(98,11): error TS2322: Type '(scene: Scene) => void' is not assignable to type '(sceneId: string, url: string) => void'.
+  Types of parameters 'scene' and 'sceneId' are incompatible.
+    Type 'string' is not assignable to type 'Scene'.

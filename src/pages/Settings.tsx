@@ -8,8 +8,7 @@ import {
   ChevronRight
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { auth } from '@/firebase';
-import { useAuthState } from 'react-firebase-hooks/auth';
+import { auth, useAuthState, signOut } from '@/lib/storage';
 import { PageHeader, PageShell } from '@/components/page/PageShell';
 import { AnimatePresence } from 'motion/react';
 
@@ -153,7 +152,7 @@ export function SettingsPage() {
         <SettingsSidebar 
           activeTab={activeTab} 
           onTabChange={setActiveTab} 
-          onSignOut={() => auth.signOut()} 
+          onSignOut={() => signOut(auth)} 
         />
 
         <div className="lg:col-span-3">

@@ -13,8 +13,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
-import { auth } from '@/firebase';
-import { useAuthState } from 'react-firebase-hooks/auth';
+import { auth, useAuthState } from '@/lib/storage';
 
 export function LandingPage() {
   const navigate = useNavigate();
@@ -31,7 +30,7 @@ export function LandingPage() {
     },
   };
 
-  const itemVariants = {
+  const itemVariants: any = {
     hidden: { y: 20, opacity: 0 },
     visible: {
       y: 0,

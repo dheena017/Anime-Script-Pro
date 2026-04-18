@@ -1,14 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { auth, db } from '../firebase';
-import { useAuthState } from 'react-firebase-hooks/auth';
-import {
-  collection,
-  query,
-  where,
-  orderBy,
-  onSnapshot,
-  Timestamp
-} from 'firebase/firestore';
+import { auth, db, useAuthState, collection, query, where, orderBy, onSnapshot, Timestamp } from '@/lib/storage';
 import { handleFirestoreError, OperationType } from '../lib/error-utils';
 
 interface GeneratorContextType {

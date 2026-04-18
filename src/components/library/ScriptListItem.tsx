@@ -12,7 +12,7 @@ import {
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
 import { motion } from 'motion/react';
-import { Timestamp } from 'firebase/firestore';
+import { Timestamp } from '@/lib/storage';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 
 interface ScriptListItemProps {

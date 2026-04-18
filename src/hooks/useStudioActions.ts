@@ -1,8 +1,6 @@
 import { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { auth, db } from '@/firebase';
-import { useAuthState } from 'react-firebase-hooks/auth';
-import { collection, addDoc, serverTimestamp, updateDoc, doc } from 'firebase/firestore';
+import { auth, db, useAuthState, collection, addDoc, serverTimestamp, updateDoc, doc } from '@/lib/storage';
 import { handleFirestoreError, OperationType } from '@/lib/error-utils';
 import { useGenerator } from '@/contexts/GeneratorContext';
 import { 

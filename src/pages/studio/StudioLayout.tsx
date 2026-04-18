@@ -35,10 +35,7 @@ import {
   generateSeriesPlan,
   MODEL_GROUPS 
 } from '@/services/geminiService';
-import { auth } from '@/firebase';
-import { useAuthState } from 'react-firebase-hooks/auth';
-import { collection, addDoc, serverTimestamp, updateDoc, doc } from 'firebase/firestore';
-import { db } from '@/firebase';
+import { auth, db, useAuthState, collection, addDoc, serverTimestamp, updateDoc, doc } from '@/lib/storage';
 import { handleFirestoreError, OperationType } from '@/lib/error-utils';
 import { cn } from '@/lib/utils';
 import { StudioInputPanel } from '@/components/studio/core/StudioInputPanel';

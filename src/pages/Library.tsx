@@ -7,9 +7,7 @@ import {
   Sparkles,
   ArrowRight
 } from 'lucide-react';
-import { db, auth } from '../firebase';
-import { collection, query, where, orderBy, onSnapshot, deleteDoc, doc, updateDoc } from 'firebase/firestore';
-import { useAuthState } from 'react-firebase-hooks/auth';
+import { db, auth, collection, query, where, orderBy, onSnapshot, deleteDoc, doc, updateDoc, useAuthState } from '@/lib/storage';
 import { motion, AnimatePresence } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
 import { PageHeader, PageShell } from '@/components/page/PageShell';

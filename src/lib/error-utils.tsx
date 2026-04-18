@@ -1,5 +1,5 @@
 import React from 'react';
-import { auth } from '../firebase';
+import { auth, getStoredUser } from './storage';
 import { AlertCircle, RefreshCcw, X, Terminal } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/card';
 import { Button } from '../components/ui/button';
@@ -69,14 +69,15 @@ class ErrorRegistry {
 export const errorRegistry = new ErrorRegistry();
 
 export function handleFirestoreError(error: unknown, operationType: OperationType, path: string | null) {
+  const currentUser = getStoredUser();
   const errInfo = {
     error: error instanceof Error ? error.message : String(error),
     authInfo: {
-      userId: auth.currentUser?.uid,
-      email: auth.currentUser?.email,
-      emailVerified: auth.currentUser?.emailVerified,
-      isAnonymous: auth.currentUser?.isAnonymous,
-      tenantId: auth.currentUser?.tenantId,
+      userId: currentUser?.uid,
+      email: currentUser?.email,
+      emailVerified: true,
+      isAnonymous: false,
+      tenantId: null,
     },
     operationType,
     path

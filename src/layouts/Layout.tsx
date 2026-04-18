@@ -1,5 +1,5 @@
 import React from 'react';
-import { Outlet } from 'react-router-dom';
+import { useNavigate, Outlet } from 'react-router-dom';
 import { Sidebar } from '../components/Sidebar';
 import { 
   ScrollText, 
@@ -9,38 +9,13 @@ import {
   X
 } from 'lucide-react';
 import { Button } from '../components/ui/button';
-import { auth } from '../firebase';
-import { useAuthState } from 'react-firebase-hooks/auth';
-import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { auth, useAuthState, signOut } from '@/lib/storage';
 
 export function Layout() {
-  const [user] = useAuthState(auth);
+  const navigate = useNavigate();
+  const [user] = useAuthState();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
 
-  const [isLoggingIn, setIsLoggingIn] = React.useState(false);
-
-  const handleLogin = async () => {
-    if (isLoggingIn || user) return;
-    
-    setIsLoggingIn(true);
-    try {
-      const provider = new GoogleAuthProvider();
-      // Force select account to avoid some auto-login issues in iframes
-      provider.setCustomParameters({ prompt: 'select_account' });
-      await signInWithPopup(auth, provider);
-    } catch (error: any) {
-      // Handle user cancellation silently
-      if (error.code === 'auth/popup-closed-by-user') {
-        console.log("User cancelled login popup.");
-      } else if (error.code === 'auth/cancelled-popup-request') {
-        console.log("Popup request cancelled by a newer request.");
-      } else {
-        console.error("Login error:", error);
-      }
-    } finally {
-      setIsLoggingIn(false);
-    }
-  };
 
   return (
     <div className="min-h-screen bg-[#050505] text-zinc-100 flex font-sans selection:bg-red-500/30">
@@ -80,7 +55,7 @@ export function Layout() {
                   <div className="text-right hidden sm:block">
                     <p className="text-[11px] font-black uppercase tracking-widest text-zinc-200 group-hover:text-red-500 transition-colors">{user.displayName || 'Creator'}</p>
                     <button 
-                      onClick={() => auth.signOut()}
+                      onClick={() => signOut(auth)}
                       className="text-[9px] font-black uppercase tracking-[0.2em] text-zinc-600 hover:text-white transition-colors mt-0.5"
                     >
                       Disconnect

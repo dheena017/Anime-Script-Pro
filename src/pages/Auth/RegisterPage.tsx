@@ -12,8 +12,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useNavigate, Link } from 'react-router-dom';
-import { auth } from '@/firebase';
-import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import { auth, createUserWithEmailAndPassword, updateProfile } from '@/lib/storage';
 
 export function RegisterPage() {
   const navigate = useNavigate();

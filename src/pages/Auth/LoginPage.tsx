@@ -5,15 +5,12 @@ import {
   Mail, 
   Lock, 
   ArrowRight, 
-  Github, 
-  Chrome,
   AlertCircle
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useNavigate, Link } from 'react-router-dom';
-import { auth } from '@/firebase';
-import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { auth, signInWithEmailAndPassword } from '@/lib/storage';
 
 export function LoginPage() {
   const navigate = useNavigate();
@@ -36,19 +33,6 @@ export function LoginPage() {
     }
   };
 
-  const handleGoogleLogin = async () => {
-    setIsLoading(true);
-    setError('');
-    try {
-      const provider = new GoogleAuthProvider();
-      await signInWithPopup(auth, provider);
-      navigate('/studio/script');
-    } catch (err: any) {
-      setError(err.message || 'Google authentication failed.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   return (
     <div className="min-h-screen bg-[#050505] flex items-center justify-center p-6 selection:bg-red-500/30">
@@ -126,30 +110,6 @@ export function LoginPage() {
             </Button>
           </form>
 
-          <div className="relative my-10">
-            <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-white/5"></div></div>
-            <div className="relative flex justify-center text-[9px] uppercase tracking-widest font-black text-zinc-700"><span className="bg-zinc-950 px-4 italic">Neural Bridge</span></div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <Button 
-              variant="outline" 
-              onClick={handleGoogleLogin}
-              disabled={isLoading}
-              className="h-14 rounded-2xl border-zinc-900 bg-black/20 text-zinc-400 hover:text-white hover:bg-zinc-900"
-            >
-              <Chrome className="w-4 h-4 mr-2" />
-              Google
-            </Button>
-            <Button 
-              variant="outline" 
-              className="h-14 rounded-2xl border-zinc-900 bg-black/20 text-zinc-400 hover:text-white hover:bg-zinc-900"
-              disabled={isLoading}
-            >
-              <Github className="w-4 h-4 mr-2" />
-              Github
-            </Button>
-          </div>
 
           <p className="text-center mt-10 text-[10px] font-bold text-zinc-600 uppercase tracking-widest">
             New here? <Link to="/register" className="text-red-500 hover:underline">Request Access</Link>
