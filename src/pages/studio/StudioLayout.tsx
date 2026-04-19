@@ -1,7 +1,7 @@
 import React from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 import { useGenerator } from '@/contexts/GeneratorContext';
-import { generateScript, generateCharacters, generateSeriesPlan } from '@/services/geminiService';
+import { generateScript, generateCharacters, generateSeriesPlan, generateWorld, generateNarrativeBeats } from '@/services/geminiService';
 import { auth } from '@/firebase';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { collection, addDoc, serverTimestamp, updateDoc, doc } from 'firebase/firestore';
@@ -40,7 +40,7 @@ export function StudioLayout({ type }: { type?: string }) {
     recapperPersona, setRecapperPersona,
     characterRelationships, setCharacterRelationships,
     visualData, numScenes, setNumScenes,
-    generatedWorld, generatedCharacters
+    generatedWorld, setGeneratedWorld, generatedCharacters
   } = useGenerator();
 
   React.useEffect(() => {
@@ -72,6 +72,43 @@ export function StudioLayout({ type }: { type?: string }) {
       handleFirestoreError(error, OperationType.WRITE, 'scripts');
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleMasterGenerate = async () => {
+    if (!prompt.trim()) return;
+    setIsLoading(true);
+    try {
+      // 1. Generate World Lore
+      const worldPromise = generateWorld(prompt, selectedModel, contentType);
+      // 2. Generate Cast Profiles
+      const castPromise = generateCharacters(prompt, selectedModel, contentType);
+      // 3. Generate Narrative Beats
+      const beatsPromise = generateNarrativeBeats(prompt, selectedModel, contentType);
+      // 4. Generate Series Plan
+      const seriesPromise = generateSeriesPlan(prompt, selectedModel, contentType);
+
+      const [world, cast, beats, series] = await Promise.all([
+        worldPromise, castPromise, beatsPromise, seriesPromise
+      ]);
+
+      if (world) setGeneratedWorld(world);
+      if (cast) setGeneratedCharacters(cast);
+      if (beats && Array.isArray(beats)) {
+        const formattedBeats = beats.map((b: any, i: number) => `${i + 1}. ${b.label} (${b.duration}): ${b.description}`).join('\n');
+        setNarrativeBeats(formattedBeats);
+      }
+      if (series && Array.isArray(series)) {
+        const formattedSeries = series.map((s: any) => `${s.episode}: ${s.title}\n${s.hook}`).join('\n\n');
+        setGeneratedSeriesPlan(formattedSeries);
+      }
+
+      // Success feedback or redirect
+      navigate(`${basePath}/script`);
+    } catch (error) {
+       console.error("Master Generation Failed:", error);
+    } finally {
+       setIsLoading(false);
     }
   };
 
@@ -115,7 +152,12 @@ export function StudioLayout({ type }: { type?: string }) {
           recapperPersona={recapperPersona} setRecapperPersona={setRecapperPersona}
           narrativeBeats={narrativeBeats} setNarrativeBeats={setNarrativeBeats}
           characterRelationships={characterRelationships} setCharacterRelationships={setCharacterRelationships}
+          worldBuilding={generatedWorld || ''}
+          setWorldBuilding={setGeneratedWorld}
+          castProfiles={generatedCharacters || ''}
+          setCastProfiles={setGeneratedCharacters}
           handleGenerate={handleGenerate}
+          handleMasterGenerate={handleMasterGenerate}
           handleSaveCurrent={handleSaveCurrent}
           isLoading={isLoading}
           isSaving={isSaving}

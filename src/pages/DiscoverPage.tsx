@@ -7,12 +7,14 @@ import {
   Play, 
   Star, 
   Clock,
-  Flame
+  Flame,
+  ArrowUpRight
 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
 
 const categories = ["All", "Shonen", "Isekai", "Cyberpunk", "Horror", "Romance", "Mecha"];
 
@@ -25,7 +27,7 @@ const featuredScripts = [
     views: "12k", 
     duration: "4:30",
     tags: ["Cyberpunk", "Action"],
-    image: "https://picsum.photos/seed/anime1/800/450"
+    image: "https://images.unsplash.com/photo-1560972550-aba3456b5564?q=80&w=800&auto=format&fit=crop"
   },
   { 
     id: 2, 
@@ -35,7 +37,7 @@ const featuredScripts = [
     views: "8.5k", 
     duration: "5:15",
     tags: ["Fantasy", "Mystery"],
-    image: "https://picsum.photos/seed/anime2/800/450"
+    image: "https://images.unsplash.com/photo-1516979187457-637abb4f9353?q=80&w=800&auto=format&fit=crop"
   },
   { 
     id: 3, 
@@ -45,101 +47,111 @@ const featuredScripts = [
     views: "15k", 
     duration: "3:45",
     tags: ["Horror", "Comedy"],
-    image: "https://picsum.photos/seed/anime3/800/450"
+    image: "https://images.unsplash.com/photo-1509248961158-e54f6934749c?q=80&w=800&auto=format&fit=crop"
   }
 ];
 
 export function DiscoverPage() {
   return (
-    <div className="p-8 max-w-7xl mx-auto space-y-10">
-      <div className="space-y-4">
-        <h1 className="text-4xl font-black tracking-tighter flex items-center gap-3">
-          <Compass className="w-10 h-10 text-red-600" />
-          DISCOVER
-        </h1>
-        <p className="text-zinc-500 text-lg">Find your next inspiration from the community's best scripts.</p>
-      </div>
-
-      <div className="flex flex-col md:flex-row gap-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
-          <Input 
-            placeholder="Search scripts, authors, or genres..." 
-            className="pl-10 bg-zinc-900/50 border-zinc-800 focus:border-red-500/50"
-          />
+    <div className="p-10 max-w-7xl mx-auto space-y-12">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div className="space-y-2">
+          <h1 className="text-5xl font-black uppercase tracking-tighter flex items-center gap-4 text-white drop-shadow-[0_0_15px_rgba(6,182,212,0.3)]">
+            <Compass className="w-12 h-12 text-cyan-500" />
+            Discover
+          </h1>
+          <p className="text-zinc-500 font-bold uppercase tracking-widest text-xs pl-1">
+            Explore the latest high-engagement recaps from the community.
+          </p>
         </div>
-        <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
+        <div className="p-1 bg-[#0a0a0a] rounded-full border border-zinc-800 flex gap-2 shadow-2xl">
           {categories.map((cat) => (
-            <Badge 
-              key={cat} 
-              variant="outline" 
-              className="cursor-pointer hover:bg-zinc-800 border-zinc-800 text-zinc-400 whitespace-nowrap"
-            >
-              {cat}
-            </Badge>
+             <button 
+               key={cat} 
+               className={cn(
+                 "px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all",
+                 cat === "All" ? "bg-cyan-500 text-black shadow-[0_0_15px_rgba(6,182,212,0.4)]" : "text-zinc-500 hover:text-white"
+               )}
+             >
+               {cat}
+             </button>
           ))}
         </div>
-        <Button variant="outline" className="border-zinc-800 bg-zinc-900/50">
-          <Filter className="w-4 h-4 mr-2" /> Filter
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+        <div className="md:col-span-9 relative group">
+          <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-cyan-700 group-hover:text-cyan-400 transition-colors" />
+          <Input 
+            placeholder="Search the neural network for scripts, authors, or genres..." 
+            className="pl-14 h-14 bg-[#050505] border-zinc-800 focus:border-cyan-500/50 text-[13px] rounded-2xl shadow-inner font-bold uppercase tracking-wider"
+          />
+        </div>
+        <Button className="md:col-span-3 h-14 bg-[#0a0a0a] border border-zinc-800 text-zinc-400 hover:text-white hover:border-cyan-500/30 font-black uppercase tracking-widest text-xs rounded-2xl shadow-xl transition-all">
+          <Filter className="w-4 h-4 mr-3" /> Filter Matrix
         </Button>
       </div>
 
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-bold flex items-center gap-2">
-            <Flame className="w-5 h-5 text-orange-500" />
-            Featured Recaps
+      <div className="space-y-8">
+        <div className="flex items-center justify-between border-b border-zinc-900 pb-6">
+          <h2 className="text-xl font-black uppercase tracking-[0.2em] flex items-center gap-3 text-white">
+            <Flame className="w-6 h-6 text-orange-500 animate-pulse" />
+            Featured Protocols
           </h2>
-          <Button variant="link" className="text-red-500">View All</Button>
+          <Button variant="ghost" className="text-cyan-500 text-[10px] font-black uppercase tracking-widest hover:text-cyan-400">
+            Expand Library <ArrowUpRight className="w-4 h-4 ml-2" />
+          </Button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {featuredScripts.map((script) => (
             <motion.div
               key={script.id}
-              whileHover={{ y: -5 }}
+              whileHover={{ y: -8 }}
               className="group"
             >
-              <Card className="bg-zinc-900/50 border-zinc-800 overflow-hidden cursor-pointer hover:border-red-500/30 transition-all">
-                <div className="aspect-video bg-zinc-950 relative">
+              <Card className="bg-[#050505]/50 border-zinc-900 overflow-hidden cursor-pointer hover:border-cyan-500/40 transition-all shadow-2xl relative">
+                <div className="absolute inset-0 opacity-[0.03] bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:10px_10px] pointer-events-none" />
+                <div className="aspect-video bg-zinc-950 relative overflow-hidden group-hover:scale-[1.02] transition-transform duration-700">
                   <img 
                     src={script.image} 
                     alt={script.title}
-                    className="w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity"
+                    className="w-full h-full object-cover opacity-40 group-hover:opacity-60 transition-opacity grayscale group-hover:grayscale-0"
                     referrerPolicy="no-referrer"
                   />
-                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                    <div className="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center shadow-xl">
-                      <Play className="w-6 h-6 fill-white text-white ml-1" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-transparent" />
+                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-500 translate-y-4 group-hover:translate-y-0">
+                    <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-[0_0_30px_rgba(255,255,255,0.4)]">
+                      <Play className="w-8 h-8 fill-black text-black ml-1.5" />
                     </div>
                   </div>
-                  <div className="absolute bottom-2 right-2 px-2 py-1 bg-black/80 backdrop-blur-md rounded text-[10px] font-mono text-white">
+                  <div className="absolute bottom-4 right-4 px-3 py-1.5 bg-cyan-500 text-black rounded-full text-[10px] font-black uppercase tracking-widest shadow-xl">
                     {script.duration}
                   </div>
                 </div>
-                <CardHeader className="p-4">
-                  <div className="flex gap-2 mb-2">
+                <div className="p-6 space-y-4 relative z-10">
+                  <div className="flex gap-2">
                     {script.tags.map(tag => (
-                      <span key={tag} className="text-[8px] font-bold uppercase tracking-widest bg-zinc-800 text-zinc-400 px-1.5 py-0.5 rounded">
+                      <span key={tag} className="text-[8px] font-black uppercase tracking-[0.2em] bg-cyan-500/10 text-cyan-400 px-2 py-1 rounded-full border border-cyan-500/20">
                         {tag}
                       </span>
                     ))}
                   </div>
-                  <CardTitle className="text-base line-clamp-1">{script.title}</CardTitle>
-                  <div className="flex items-center justify-between mt-2">
-                    <span className="text-[10px] text-zinc-500">by {script.author}</span>
-                    <div className="flex items-center gap-3 text-[10px] text-zinc-400">
-                      <span className="flex items-center gap-1">
-                        <Star className="w-3 h-3 text-yellow-500 fill-yellow-500" />
+                  <CardTitle className="text-lg font-black uppercase tracking-tighter text-white group-hover:text-cyan-400 transition-colors">{script.title}</CardTitle>
+                  <div className="flex items-center justify-between pt-4 border-t border-zinc-900">
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Node: {script.author}</span>
+                    <div className="flex items-center gap-4 text-[10px] font-bold text-zinc-400">
+                      <span className="flex items-center gap-1.5 bg-yellow-500/10 text-yellow-500 px-2 py-0.5 rounded-full border border-yellow-500/20">
+                        <Star className="w-3.5 h-3.5 fill-current" />
                         {script.rating}
                       </span>
-                      <span className="flex items-center gap-1">
-                        <Clock className="w-3 h-3" />
+                      <span className="flex items-center gap-1.5 text-zinc-600">
+                        <Clock className="w-3.5 h-3.5" />
                         {script.views}
                       </span>
                     </div>
                   </div>
-                </CardHeader>
+                </div>
               </Card>
             </motion.div>
           ))}

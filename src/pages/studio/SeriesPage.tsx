@@ -30,25 +30,20 @@ export function SeriesPage() {
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="space-y-4"
-    >
+    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold flex items-center gap-2">
-          <Layers className="w-5 h-5 text-red-500" />
+        <h2 className="text-xl font-black uppercase tracking-[0.2em] flex items-center gap-2 text-cyan-50 drop-shadow-[0_0_15px_rgba(6,182,212,0.4)]">
+          <Layers className="w-6 h-6 text-cyan-400" />
           Series Plan
         </h2>
         <Button 
-          variant="outline" 
-          size="sm" 
-          className="border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 text-zinc-400"
+          variant="outline" size="sm" 
+          className="border-zinc-800 bg-[#0a0a0a]/50 hover:bg-cyan-500/10 hover:text-cyan-400 text-zinc-400 h-8 font-black uppercase tracking-widest text-[9px]"
           onClick={handleGenerate}
           disabled={isGeneratingSeries || !prompt.trim()}
         >
           {isGeneratingSeries ? (
-            <div className="w-4 h-4 border-2 border-red-500/30 border-t-red-500 rounded-full animate-spin mr-2" />
+            <div className="w-4 h-4 border-2 border-cyan-500/30 border-t-cyan-500 rounded-full animate-spin mr-2" />
           ) : (
             <Sparkles className="w-4 h-4 mr-2" />
           )}
@@ -56,8 +51,8 @@ export function SeriesPage() {
         </Button>
       </div>
 
-      <Card className="bg-zinc-900/30 border-zinc-900 backdrop-blur-xl shadow-2xl overflow-hidden min-h-[700px]">
-        <div className="p-4 border-b border-zinc-800 bg-zinc-900/40 flex items-center justify-between backdrop-blur-md">
+      <Card className="bg-[#050505]/50 border border-cyan-500/10 backdrop-blur-xl shadow-2xl overflow-hidden min-h-[700px]">
+        <div className="p-4 border-b border-cyan-500/10 bg-[#0a0a0a]/80 flex items-center justify-between backdrop-blur-md">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2 text-zinc-500">
               <Layers className="w-4 h-4" />
@@ -69,7 +64,7 @@ export function SeriesPage() {
               size="icon"
               className={cn(
                 "h-7 w-7 rounded-full transition-all duration-300",
-                isLiked ? "text-red-500 bg-red-500/10 shadow-[0_0_10px_rgba(239,68,68,0.2)]" : "text-zinc-600 hover:text-red-400 hover:bg-zinc-800"
+                isLiked ? "text-cyan-400 bg-cyan-500/10 shadow-[0_0_10px_rgba(6,182,212,0.2)]" : "text-zinc-600 hover:text-cyan-400 hover:bg-[#0a0a0a]"
               )}
               onClick={() => setIsLiked(!isLiked)}
             >
@@ -77,44 +72,44 @@ export function SeriesPage() {
             </Button>
           </div>
         </div>
-        <ScrollArea className="h-[700px] w-full p-0">
+        <ScrollArea className="h-[750px] w-full p-0">
           <div className="p-12 max-w-4xl mx-auto">
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
               {isGeneratingSeries ? (
-                <div className="flex flex-col items-center justify-center h-[500px] text-zinc-600">
-                  <div className="w-10 h-10 border-2 border-red-500/30 border-t-red-500 rounded-full animate-spin mb-6" />
-                  <p className="font-serif italic text-lg text-zinc-400">Architecting narrative arcs...</p>
+                <div className="flex flex-col items-center justify-center h-[500px] text-cyan-600">
+                  <div className="w-10 h-10 border-2 border-cyan-500/30 border-t-cyan-400 rounded-full animate-spin mb-6 shadow-[0_0_15px_rgba(6,182,212,0.5)]" />
+                  <p className="font-sans font-medium uppercase tracking-[0.2em] text-[10px]">Architecting narrative arcs...</p>
                 </div>
               ) : generatedSeriesPlan ? (
                 <div className="space-y-12">
-                  <div className="border-b border-zinc-800 pb-12 mb-12 text-center space-y-4">
-                    <div className="inline-block px-3 py-1 bg-zinc-800/30 border border-zinc-700/50 rounded-full text-[10px] uppercase tracking-[0.3em] text-zinc-400 font-bold mb-4">
+                  <div className="border-b border-cyan-500/20 pb-12 mb-12 text-center space-y-4">
+                    <div className="inline-block px-3 py-1 bg-cyan-500/10 border border-cyan-500/30 rounded-full text-[10px] uppercase tracking-[0.3em] text-cyan-400 font-bold shadow-[0_0_15px_rgba(6,182,212,0.2)]">
                       Narrative Blueprint
                     </div>
-                    <h1 className="text-5xl font-serif italic text-zinc-100 leading-tight">
+                    <h1 className="text-5xl font-black text-white uppercase tracking-widest leading-tight drop-shadow-[0_0_15px_rgba(6,182,212,0.3)]">
                       3-Part Series Plan
                     </h1>
-                    <p className="text-zinc-500 italic max-w-lg mx-auto">
+                    <p className="text-zinc-500 italic max-w-lg mx-auto font-medium">
                       Developing long-term character progression and seasonal climax structures.
                     </p>
                   </div>
 
-                  <div className="prose prose-invert prose-red max-w-none">
+                  <div className="prose prose-invert prose-cyan max-w-none prose-h1:text-cyan-400 prose-strong:text-cyan-300">
                     <ReactMarkdown>{generatedSeriesPlan}</ReactMarkdown>
                   </div>
 
-                  <div className="mt-24 pt-12 border-t border-zinc-900 text-center">
-                    <p className="text-[10px] text-zinc-600 uppercase tracking-[0.5em] font-bold">
+                  <div className="mt-24 pt-12 border-t border-cyan-500/10 text-center">
+                    <p className="text-[10px] text-cyan-500/50 uppercase tracking-[0.5em] font-bold">
                       End of Blueprint
                     </p>
                   </div>
                 </div>
               ) : (
                 <div className="flex flex-col items-center justify-center h-[500px] text-zinc-600">
-                  <Layers className="w-16 h-16 mb-6 opacity-20" />
-                  <p className="mb-8 font-serif italic text-lg">Plan your series arc to see it here.</p>
+                  <Layers className="w-16 h-16 mb-6 opacity-10" />
+                  <p className="mb-8 font-sans font-bold uppercase tracking-widest text-[10px]">Plan your series arc to see it here.</p>
                   <Button 
-                    className="bg-red-600 hover:bg-red-700 text-white border-none shadow-[0_0_20px_rgba(220,38,38,0.3)] font-bold tracking-[0.2em] uppercase text-xs h-12 px-8 rounded-full transition-all hover:scale-105 active:scale-95"
+                    className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white border-none shadow-[0_0_20px_rgba(6,182,212,0.4)] font-bold tracking-[0.2em] uppercase text-xs h-12 px-8 rounded-full transition-all hover:scale-105 active:scale-95"
                     onClick={handleGenerate}
                     disabled={isGeneratingSeries || !prompt.trim()}
                   >

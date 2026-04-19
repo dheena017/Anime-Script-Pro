@@ -16,6 +16,9 @@ import { StoryboardHeader } from './components/Storyboard/StoryboardHeader';
 import { PlanningGuide } from './components/Storyboard/PlanningGuide';
 import { SceneCard } from './components/Storyboard/SceneCard';
 import { EmptyState } from './components/Storyboard/EmptyState';
+import { Moodboard } from './components/Moodboard/Moodboard';
+import { SceneTimeline } from './components/Timeline/SceneTimeline';
+import { SoundscapeLibrary } from './components/Audio/SoundscapeLibrary';
 
 interface Scene {
   id: string;
@@ -273,46 +276,56 @@ export function StoryboardPage() {
         {isGuideOpen && <PlanningGuide />}
       </AnimatePresence>
 
-      <ScrollArea className="h-[700px] w-full pr-4">
+      <ScrollArea className="h-[750px] w-full pr-4 pb-20">
         {scenes.length > 0 ? (
-          <DragDropContext onDragEnd={handleDragEnd}>
-            <Droppable droppableId="storyboard">
-              {(provided) => (
-                <div {...provided.droppableProps} ref={provided.innerRef} className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-10">
-                  {scenes.map((scene, idx) => (
-                    <Draggable key={scene.id} draggableId={scene.id} index={idx}>
-                      {(provided, snapshot) => (
-                        <SceneCard 
-                          scene={scene}
-                          index={idx}
-                          visualData={visualData}
-                          editingSceneId={editingSceneId}
-                          editForm={editForm}
-                          isEnhancingNarration={isEnhancingNarration}
-                          isEnhancing={isEnhancing}
-                          isRewritingTension={isRewritingTension}
-                          setEditForm={setEditForm}
-                          handleGenerateVisual={handleGenerateVisual}
-                          startEditing={startEditing}
-                          cancelEditing={() => { setEditingSceneId(null); setEditForm({}); }}
-                          saveSceneEdits={saveSceneEdits}
-                          handleEnhanceNarration={handleEnhanceNarration}
-                          handleEnhanceVisuals={handleEnhanceVisuals}
-                          handleRewriteTension={handleRewriteTension}
-                          suggestDuration={suggestDuration}
-                          dragHandleProps={provided.dragHandleProps}
-                          draggableProps={provided.draggableProps}
-                          innerRef={provided.innerRef}
-                          isDragging={snapshot.isDragging}
-                        />
-                      )}
-                    </Draggable>
-                  ))}
-                  {provided.placeholder}
-                </div>
-              )}
-            </Droppable>
-          </DragDropContext>
+          <div className="space-y-12">
+            <DragDropContext onDragEnd={handleDragEnd}>
+              <Droppable droppableId="storyboard">
+                {(provided) => (
+                  <div {...provided.droppableProps} ref={provided.innerRef} className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-10">
+                    {scenes.map((scene, idx) => (
+                      <Draggable key={scene.id} draggableId={scene.id} index={idx}>
+                        {(provided, snapshot) => (
+                          <SceneCard 
+                            scene={scene}
+                            index={idx}
+                            visualData={visualData}
+                            editingSceneId={editingSceneId}
+                            editForm={editForm}
+                            isEnhancingNarration={isEnhancingNarration}
+                            isEnhancing={isEnhancing}
+                            isRewritingTension={isRewritingTension}
+                            setEditForm={setEditForm}
+                            handleGenerateVisual={handleGenerateVisual}
+                            startEditing={startEditing}
+                            cancelEditing={() => { setEditingSceneId(null); setEditForm({}); }}
+                            saveSceneEdits={saveSceneEdits}
+                            handleEnhanceNarration={handleEnhanceNarration}
+                            handleEnhanceVisuals={handleEnhanceVisuals}
+                            handleRewriteTension={handleRewriteTension}
+                            suggestDuration={suggestDuration}
+                            dragHandleProps={provided.dragHandleProps}
+                            draggableProps={provided.draggableProps}
+                            innerRef={provided.innerRef}
+                            isDragging={snapshot.isDragging}
+                          />
+                        )}
+                      </Draggable>
+                    ))}
+                    {provided.placeholder}
+                  </div>
+                )}
+              </Droppable>
+            </DragDropContext>
+            
+            <div className="pt-10 space-y-12">
+              <SceneTimeline scenes={scenes} />
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 pt-6 border-t border-cyan-500/10">
+                <Moodboard />
+                <SoundscapeLibrary />
+              </div>
+            </div>
+          </div>
         ) : (
           <EmptyState handleAddScene={handleAddScene} handleLoadDemo={handleLoadDemo} />
         )}

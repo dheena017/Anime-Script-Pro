@@ -36,7 +36,8 @@ export function ScriptPage() {
     isSaving, setIsSaving,
     isContinuingScript, setIsContinuingScript,
     currentScriptId, setCurrentScriptId,
-    tone, audience, prompt, episode, session, contentType
+    tone, audience, prompt, episode, session, contentType, numScenes,
+    generatedWorld, generatedCharacters, narrativeBeats, characterRelationships
   } = useGenerator();
 
   const handleContinueScript = async () => {
@@ -57,11 +58,11 @@ export function ScriptPage() {
     if (!prompt.trim()) return;
     setIsLoading(true);
     try {
-      const script = await generateScript(prompt, tone, audience, session, episode, selectedModel, contentType);
+      const script = await generateScript(prompt, tone, audience, session, episode, numScenes, selectedModel, contentType, 'Dynamic/Hype', narrativeBeats, characterRelationships, generatedWorld, generatedCharacters);
       setGeneratedScript(script);
       setCurrentScriptId(null);
       if (user) {
-        await addDoc(collection(db, 'scripts'), { uid: user.uid, prompt, script, tone, audience, episode, session, contentType, model: selectedModel, createdAt: serverTimestamp() });
+        await addDoc(collection(db, 'scripts'), { uid: user.uid, prompt, script, tone, audience, episode, session, contentType, model: selectedModel, narrativeBeats, characterRelationships, generatedWorld, generatedCharacters, createdAt: serverTimestamp() });
       }
     } catch (error) {
       handleFirestoreError(error, OperationType.CREATE, 'scripts');
@@ -88,7 +89,7 @@ export function ScriptPage() {
     const tableLines = generatedScript.split('\n').filter(l => l.includes('|') && !l.includes('---'));
     if (tableLines.length > 2) {
       const body = tableLines.slice(1).map(row => row.split('|').filter(cell => cell.trim() !== "").map(cell => cell.trim()));
-      autoTable(doc, { startY: 40, head: [['Section', 'Character', 'Voiceover', 'Visuals', 'Sound']], body, theme: 'grid', headStyles: { fillColor: [220, 38, 38] } });
+      autoTable(doc, { startY: 40, head: [['Section', 'Character', 'Voiceover', 'Visuals', 'Sound']], body, theme: 'grid', headStyles: { fillColor: [6, 78, 94] } });
     } else {
       doc.text(generatedScript, 14, 40, { maxWidth: 180 });
     }

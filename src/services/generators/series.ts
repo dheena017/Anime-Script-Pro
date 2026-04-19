@@ -1,23 +1,44 @@
-import { callAI } from "./core";
+import { callAI, RateLimitError } from "./core";
+import { MOCK_SERIES_PLAN } from "./mockData";
 
 export async function generateSeriesPlan(prompt: string, model: string = "gemini-3-flash-preview", contentType: string = "Anime") {
   const systemInstruction = `
-    You are a YouTube Content Strategist.
-    Based on the provided ${contentType} concept, create a 3-part series plan (Part 1, Part 2, Part 3).
-    For each part, provide:
-    - **Catchy Title** (High-impact)
-    - **Dramatic Arc Summary** (Focus on conflict and tension)
-    - **Major Cliffhanger** (The hook for the next part)
-    - **Cinematic Link/Transition** (How does this set up the visual and narrative stakes for the next episode?)
+    You are a YouTube Content Strategist for ${contentType}.
+    Based on the provided concept, create a 5-episode production plan.
     
-    Format the output in clean, structured Markdown for a series arc.
+    Return ONLY a JSON array of objects:
+    [
+      {
+        "episode": "01",
+        "title": "High-Impact Catchy Title",
+        "hook": "The dramatic hook or cliffhanger for this episode"
+      }
+    ]
+    
+    Ensure the arc has a logical progression and high-stakes tension.
+    Return ONLY the raw JSON array.
   `;
 
   try {
-    const text = await callAI(model, `Generate a 3-part series plan for: ${prompt}`, systemInstruction);
-    return text || "Failed to generate series plan.";
-  } catch (error) {
+    const text = await callAI(model, `Generate a 5-episode production plan for: ${prompt}`, systemInstruction);
+    const cleanJson = text.replace(/```json|```/g, "").trim();
+    return JSON.parse(cleanJson);
+  } catch (error: any) {
+    const errorStr = error?.toString() || "";
+    const errorMsg = error?.message || "";
+    
+    const isRateLimit = error instanceof RateLimitError || 
+                       errorStr.includes("429") || 
+                       errorMsg.includes("429") ||
+                       errorStr.includes("RESOURCE_EXHAUSTED") ||
+                       errorMsg.includes("RESOURCE_EXHAUSTED") ||
+                       error?.status === 429;
+                       
+    if (isRateLimit) {
+      console.warn("[Series Lab] API Quota Exceeded. Injecting Local Synthesis Failover.");
+      return MOCK_SERIES_PLAN;
+    }
     console.error("Error generating series plan:", error);
-    return "Error: " + (error instanceof Error ? error.message : String(error));
+    return null;
   }
 }

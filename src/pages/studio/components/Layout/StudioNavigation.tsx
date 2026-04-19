@@ -11,19 +11,23 @@ import {
   ImageIcon, 
   BookOpen, 
   FileText, 
-  Play 
+  Play,
+  Globe,
+  Zap
 } from 'lucide-react';
 
 const STUDIO_NAV = [
-  { icon: ScrollText, label: 'Script', path: '/script' },
+  { icon: BookOpen, label: 'Template', path: '/template' },
+  { icon: FileText, label: 'Methods', path: '/framework' },
+  { icon: Globe, label: 'World', path: '/world' },
+  { icon: Zap, label: 'Beats', path: '/beats' },
   { icon: UserPlus, label: 'Cast', path: '/cast' },
+  { icon: Layers, label: 'Series', path: '/series' },
+  { icon: ScrollText, label: 'Script', path: '/script' },
   { icon: LayoutGrid, label: 'Storyboard', path: '/storyboard' },
-  { icon: Layers, label: 'Series ARC', path: '/series' },
   { icon: Search, label: 'SEO', path: '/seo' },
   { icon: ImageIcon, label: 'Prompts', path: '/prompts' },
-  { icon: BookOpen, label: 'Template', path: '/template' },
-  { icon: FileText, label: 'Framework', path: '/framework' },
-  { icon: Play, label: 'Example', path: '/example' },
+  { icon: Play, label: 'Screening', path: '/example' },
 ];
 
 export const StudioNavigation: React.FC<{ basePath: string }> = ({ basePath }) => {

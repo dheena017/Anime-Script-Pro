@@ -4,6 +4,93 @@ export const NARRATIVE_TEMPLATES = {
   "Mystery/Thriller": "I. The Crime/Hook: Something goes wrong.\nII. Investigation: Gathering clues and raising stakes.\nIII. Twist: A major change in understanding.\nIV. Confrontation: The truth is revealed."
 };
 
+export const COMPOUND_BEATS = {
+  "The World-Building Escalation": {
+    genre: "Sci-Fi / Fantasy",
+    intensity: 6,
+    thumbnail: "/cyberpunk_thumbnail_1776537282821.png",
+    beats: [
+      { label: "Mystery Hook", description: "Introduce a visual or narrative anomaly that defies world rules.", duration: "0:00 - 0:30", intensity: 8, vfx: "Particle distortion, lens flares", audio: "Low-frequency hum, glitch SFX" },
+      { label: "Global Stakes", description: "Establish how this anomaly threatens the world order.", duration: "0:30 - 1:30", intensity: 5, vfx: "Wide establishing shots, holographic maps", audio: "Driving orchestral pulse" },
+      { label: "Personal Impact", description: "Show how the protagonist is uniquely affected or connected.", duration: "1:30 - 2:30", intensity: 7, vfx: "Close-up micro-expressions, color shift", audio: "Heartbeat thud, muffled ambient" },
+      { label: "Lore Drop", description: "Provide a historical context that recontextualizes the threat.", duration: "2:30 - 3:30", intensity: 4, vfx: "Sepia filters, stylized scrolls/UI", audio: "Haunting solo instrument (violin/cello)" },
+      { label: "The Shift", description: "The anomaly evolves, leading to a cliffhanger climax.", duration: "3:30 - 5:00", intensity: 9, vfx: "Full-screen white-out, chromatic aberration", audio: "Silence followed by massive bass drop" }
+    ]
+  },
+  "Shonen Tournament Arc": {
+    genre: "Action",
+    intensity: 9,
+    thumbnail: "/shonen_battle_thumbnail_1776537245370.png",
+    beats: [
+      { label: "The Stakes", description: "Explain the reward and the cost of failure.", duration: "0:00 - 0:45", intensity: 6, vfx: "Trophy/Title reveal, crowd blur", audio: "Hype build-up, announcer voice" },
+      { label: "The Rival", description: "Introduce a psychological or physical mirror to the hero.", duration: "0:45 - 2:00", intensity: 7, vfx: "Split screen, aura clash", audio: "Electric guitar riffs, metallic clashing" },
+      { label: "Mechanical Struggle", description: "The hero faces an ability that seems impossible to counter.", duration: "2:00 - 3:30", intensity: 8, vfx: "Slow-motion impacts, negative color flashes", audio: "Dissonant strings, rhythmic impact SFX" },
+      { label: "The Breakthrough", description: "A flashback or realization unlocks a secret technique.", duration: "3:30 - 4:30", intensity: 10, vfx: "Blinding light, energy particles/lightning", audio: "Orchestral climax, thematic leitmotif" },
+      { label: "The Aftermath", description: "Victory or loss with an emotional hook for the next fight.", duration: "4:30 - 5:00", intensity: 5, vfx: "Slow pan to the sky, dust settling", audio: "Fading reverb, melancholic piano" }
+    ]
+  },
+  "Psychological Deconstruction": {
+    genre: "Horror / Drama",
+    intensity: 8,
+    thumbnail: "/dream_detective_thumbnail_1776537317644.png",
+    beats: [
+      { label: "False Normalcy", description: "Establish a slice-of-life vibe with subtle, uncanny details.", duration: "0:00 - 1:00", intensity: 2, vfx: "Warm lighting, static camera", audio: "Cheerful but slightly out-of-tune BGM" },
+      { label: "The Crack", description: "A single event shatters the illusion of reality.", duration: "1:00 - 2:00", intensity: 7, vfx: "Jittery camera, mirror glitches", audio: "High-pitched ringing, sudden silence" },
+      { label: "Mental Labyrinth", description: "Protagonist's internal monologue begins to override reality.", duration: "2:00 - 3:30", intensity: 8, vfx: "Surreal geometry, perspective shifts", audio: "Layered whispers, reversed audio" },
+      { label: "The Void", description: "The core truth is revealed, often tragic or surreal.", duration: "3:30 - 4:30", intensity: 9, vfx: "Void/Black background, single spotlight", audio: "Sub-bass rumble, distorted scream" },
+      { label: "Acceptance/Collapse", description: "The protagonist is changed forever, ending in ambiguity.", duration: "4:30 - 5:00", intensity: 6, vfx: "Slow zoom on eye, fade to gray", audio: "Single sustained note, wind noise" }
+    ]
+  },
+  "Isekai Progression": {
+    genre: "Fantasy",
+    intensity: 7,
+    thumbnail: "/dark_isekai_thumbnail_1776537262155.png",
+    beats: [
+      { label: "System Arrival", description: "The protagonist learns the 'rules' of the new world.", duration: "0:00 - 0:45", intensity: 4, vfx: "Blue floating UI screens, magical dust", audio: "Video game UI sounds (clicks/pings)" },
+      { label: "Grind Phase", description: "Montage of adaptation and overcoming initial hurdles.", duration: "0:45 - 2:00", intensity: 5, vfx: "Training montage cuts, stat bars rising", audio: "Upbeat synth-pop or lo-fi beats" },
+      { label: "The Anomaly", description: "Protag encounters something their 'system' can't explain.", duration: "2:00 - 3.15", intensity: 7, vfx: "Dark energy, screen glitches/error signs", audio: "Low synth drone, alarm sound" },
+      { label: "Dominance", description: "Applying 'earth logic' to bypass local fantasy limitations.", duration: "3:15 - 4:15", intensity: 9, vfx: "Explosive magic, massive scale shots", audio: "Epic brass-heavy orchestral" },
+      { label: "Political Hook", description: "The local powers take notice, escalating the stakes.", duration: "4:15 - 5:00", intensity: 8, vfx: "Shadowy council reveal, looming castle", audio: "Ominous choir, heavy drums" }
+    ]
+  },
+  "High-School Romance": {
+    genre: "Romance / Slice of Life",
+    intensity: 4,
+    thumbnail: "/supernatural_school_thumbnail_1776537301525.png",
+    beats: [
+      { label: "Ordinary Day", description: "Establish the mundane routine and the protagonist's yearning.", duration: "0:00 - 1:00", intensity: 2, vfx: "Soft sun flares, cherry blossom petals", audio: "Lofi piano, ambient school noise" },
+      { label: "The Inciting Encounter", description: "A chance meeting that disrupts the daily rhythm.", duration: "1:00 - 1:45", intensity: 5, vfx: "Slow-motion close-ups, depth of field shift", audio: "Sudden chime, heartbeat skip" },
+      { label: "The Misunderstanding", description: "A social complication that builds emotional distance.", duration: "1:45 - 3:00", intensity: 6, vfx: "Cool color grading, rain or overcast sky", audio: "Melancholic strings, distant thunder" },
+      { label: "The Truth", description: "A vulnerable moment where the mask slips and honesty emerges.", duration: "3:00 - 4:15", intensity: 8, vfx: "Golden hour glow, fireworks or heavy rain", audio: "Uplifting orchestral swell" },
+      { label: "New Connection", description: "A status quo shift that leaves the audience wanting more.", duration: "4:15 - 5:00", intensity: 3, vfx: "Fading soft focus, character silhouettes", audio: "Sweet, acoustic guitar melody" }
+    ]
+  },
+  "Noir Mystery": {
+    genre: "Crime / Thriller",
+    intensity: 7,
+    thumbnail: "/detective_noir_thumbnail_1776537665824.png",
+    beats: [
+      { label: "The Discovery", description: "A crime scene or an impossible clue is revealed.", duration: "0:00 - 0:45", intensity: 7, vfx: "Desaturated colors, high contrast shadows", audio: "Low brass notes, dripping water SFX" },
+      { label: "Shadowy Interviews", description: "Gathering intel while uncovering the rot in society.", duration: "0:45 - 2:00", intensity: 4, vfx: "Cigarette smoke, blinds casting bars of light", audio: "Slow jazz saxophone, muffled traffic" },
+      { label: "The Red Herring", description: "A confrontation with the wrong suspect raises the stakes.", duration: "2:00 - 3:30", intensity: 8, vfx: "Fast cuts, tilted camera angles", audio: "Tense violin staccato, heavy breathing" },
+      { label: "The Revelation", description: "The pieces fall into place, revealing a shocking truth.", duration: "3:30 - 4:30", intensity: 9, vfx: "Flickering neon lights, zoom on evidence", audio: "Sudden electronic pulse, silence" },
+      { label: "The Compromise", description: "Justice is served, but at a moral cost to the detective.", duration: "4:30 - 5:00", intensity: 6, vfx: "Rainy street, fading to black", audio: "Low, somber piano theme" }
+    ]
+  },
+  "Battle Royale": {
+    genre: "Death Game / Action",
+    intensity: 10,
+    thumbnail: "/survival_game_thumbnail_1776537679688.png",
+    beats: [
+      { label: "The Drop", description: "Characters are introduced as they enter the kill zone.", duration: "0:00 - 0:30", intensity: 9, vfx: "Glitchy HUD overlay, fast tracking shots", audio: "Sirens, industrial techno beat" },
+      { label: "First Contact", description: "The initial purge begins, demonstrating the lethality.", duration: "0:30 - 1:30", intensity: 8, vfx: "Impact flashes, blood splatters (stylized)", audio: "Gunshots, metallic clanging, screams" },
+      { label: "Uneasy Alliance", description: "Forced cooperation under the threat of immediate death.", duration: "1:30 - 3:00", intensity: 5, vfx: "Close-ups on eyes, campfire lighting", audio: "Suspenseful synth drone, crackling fire" },
+      { label: "The Betrayal", description: "A sudden turn as the countdown forces hands.", duration: "3:00 - 4:15", intensity: 10, vfx: "Shattering glass, extreme high angle", audio: "Sharp orchestral sting, bass impact" },
+      { label: "The Lone Survivor", description: "One stands among the ruins, scarred and changed.", duration: "4:15 - 5:00", intensity: 7, vfx: "Wide desolate shot, dust and ash", audio: "Distant wind, fading choir" }
+    ]
+  }
+};
+
 export const SCRIPT_TEMPLATE = `
 | Section | Voiceover Narration | Visual/Scene Description | Sound Effect/BGM Cues |
 | :--- | :--- | :--- | :--- |

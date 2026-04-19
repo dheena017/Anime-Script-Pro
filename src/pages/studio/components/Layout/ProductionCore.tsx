@@ -67,7 +67,12 @@ interface ProductionCoreProps {
   setNarrativeBeats: (b: string) => void;
   characterRelationships: string;
   setCharacterRelationships: (r: string) => void;
+  worldBuilding: string;
+  setWorldBuilding?: (w: string) => void;
+  castProfiles: string;
+  setCastProfiles?: (c: string) => void;
   handleGenerate: () => void;
+  handleMasterGenerate: () => void;
   handleSaveCurrent: () => void;
   isLoading: boolean;
   isSaving: boolean;
@@ -89,7 +94,10 @@ export const ProductionCore: React.FC<ProductionCoreProps> = ({
   recapperPersona, setRecapperPersona,
   narrativeBeats, setNarrativeBeats,
   characterRelationships, setCharacterRelationships,
+  worldBuilding, setWorldBuilding,
+  castProfiles, setCastProfiles,
   handleGenerate,
+  handleMasterGenerate,
   handleSaveCurrent,
   isLoading,
   isSaving,
@@ -127,8 +135,10 @@ export const ProductionCore: React.FC<ProductionCoreProps> = ({
             </button>
           </div>
           <Select onValueChange={(value) => {
-            const template = QUICK_TEMPLATES.find(t => t.id === value);
-            if (template) setPrompt(template.prompt);
+            if (typeof value === 'string') {
+              const template = QUICK_TEMPLATES.find(t => t.id === value);
+              if (template) setPrompt(template.prompt);
+            }
           }}>
             <SelectTrigger className="w-full h-10 rounded-xl bg-[#050505] border-cyan-500/20 text-cyan-100 hover:border-cyan-400/50 shadow-[0_4px_10px_rgba(0,0,0,0.5)] focus:ring-1 focus:ring-cyan-500/50 transition-all text-xs font-bold uppercase tracking-widest">
               <SelectValue placeholder="Select a template..." />
@@ -152,12 +162,21 @@ export const ProductionCore: React.FC<ProductionCoreProps> = ({
               <Target className="w-3 h-3 text-cyan-500 animate-pulse" />
               Concept / Theme
             </label>
-            <button 
-              onClick={() => setPrompt('')}
-              className="text-[10px] text-zinc-500 hover:text-cyan-400 transition-colors uppercase font-bold tracking-[0.2em] flex items-center gap-1"
-            >
-              <X className="w-3 h-3" /> Clear
-            </button>
+            <div className="flex gap-4">
+              <button 
+                onClick={handleMasterGenerate}
+                disabled={isLoading || !prompt.trim()}
+                className="text-[9px] text-orange-400 hover:text-orange-300 transition-all uppercase font-black tracking-widest flex items-center gap-1.5 bg-orange-500/10 px-2 py-0.5 rounded border border-orange-500/20 hover:border-orange-500/50 hover:scale-105 active:scale-95 disabled:opacity-50 disabled:grayscale"
+              >
+                <Brain className="w-3 h-3" /> Neural Sync
+              </button>
+              <button 
+                onClick={() => setPrompt('')}
+                className="text-[10px] text-zinc-500 hover:text-cyan-400 transition-colors uppercase font-bold tracking-[0.2em] flex items-center gap-1"
+              >
+                <X className="w-3 h-3" /> Clear
+              </button>
+            </div>
           </div>
           <Textarea 
             placeholder="e.g., A dark fantasy about a vessel for a monster king..."
@@ -167,7 +186,7 @@ export const ProductionCore: React.FC<ProductionCoreProps> = ({
           />
         </div>
 
-        <div className="relative rounded-2xl bg-[#050505]/50 border border-cyan-500/10 p-5 shadow-[inset_0_1px_3px_rgba(255,255,255,0.05),0_8px_32px_rgba(0,0,0,0.5)] overflow-hidden space-y-5">
+      <div className="relative rounded-2xl bg-[#050505]/50 border border-cyan-500/10 p-5 shadow-[inset_0_1px_3px_rgba(255,255,255,0.05),0_8px_32px_rgba(0,0,0,0.5)] overflow-hidden space-y-5">
           <div className="absolute inset-0 opacity-[0.03] bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:10px_10px] pointer-events-none" />
           
           <div className="absolute top-4 right-4 z-20">
@@ -189,26 +208,17 @@ export const ProductionCore: React.FC<ProductionCoreProps> = ({
           </div>
 
           <div className="relative z-10 flex flex-col gap-4">
+            {/* 1. NARRATIVE ARCHITECTURE */}
             <div className="space-y-2">
-               <label className="text-[11px] font-bold text-zinc-200 uppercase tracking-widest flex items-center gap-1.5 drop-shadow-[0_2px_2px_rgba(0,0,0,1)]">
-                 <Brain className="w-4 h-4 text-zinc-300 drop-shadow-md" /> PERSONA
-               </label>
-               <Select value={recapperPersona} onValueChange={setRecapperPersona}>
-                 <SelectTrigger className="h-10 w-full rounded-full bg-[#0a0a0a]/80 border-fuchsia-500/30 text-fuchsia-300 shadow-[0_0_15px_rgba(217,70,239,0.1)] hover:shadow-[0_0_20px_rgba(217,70,239,0.3)] focus:ring-1 focus:ring-fuchsia-500/50 transition-all font-semibold tracking-wide text-xs">
-                   <SelectValue placeholder="Select Persona" />
-                 </SelectTrigger>
-                 <SelectContent className="bg-zinc-950/95 border-fuchsia-500/20 text-fuchsia-200">
-                   {['Dynamic/Hype', 'Noir/Gritty', 'Analytical/Deep Dive', 'Somber/Reflective'].map(p => (
-                      <SelectItem key={p} value={p}>{p}</SelectItem>
-                   ))}
-                 </SelectContent>
-               </Select>
-            </div>
-
-            <div className="space-y-2">
-               <label className="text-[11px] font-bold text-zinc-200 uppercase tracking-widest flex items-center gap-1.5 drop-shadow-[0_2px_2px_rgba(0,0,0,1)]">
-                 <ScrollText className="w-4 h-4 text-zinc-300 drop-shadow-md" /> NARRATIVE BEATS
-               </label>
+                <label className="text-[11px] font-bold text-zinc-200 uppercase tracking-widest flex items-center justify-between drop-shadow-[0_2px_2px_rgba(0,0,0,1)]">
+                  <span className="flex items-center gap-1.5"><ScrollText className="w-4 h-4 text-zinc-300 drop-shadow-md" /> NARRATIVE BEATS</span>
+                  <button 
+                    onClick={() => navigate(`${basePath}/beats`)}
+                    className="text-[9px] text-cyan-500 hover:text-cyan-300 transition-colors uppercase font-black tracking-widest bg-cyan-950/30 px-2 py-0.5 rounded border border-cyan-500/20"
+                  >
+                    Browse Beats
+                  </button>
+                </label>
                <div className="flex gap-1 flex-wrap">
                  {Object.entries(NARRATIVE_TEMPLATES).map(([name, template]) => (
                    <Button
@@ -231,78 +241,83 @@ export const ProductionCore: React.FC<ProductionCoreProps> = ({
             </div>
 
             <div className="space-y-2">
+               <label className="text-[11px] font-bold text-zinc-200 uppercase tracking-widest flex items-center justify-between drop-shadow-[0_2px_2px_rgba(0,0,0,1)]">
+                 <span className="flex items-center gap-1.5"><Globe className="w-4 h-4 text-zinc-300 drop-shadow-md" /> WORLD BUILDING</span>
+                 <button 
+                   onClick={() => navigate(`${basePath}/world`)}
+                   className="text-[9px] text-cyan-500 hover:text-cyan-300 transition-colors uppercase font-black tracking-widest bg-cyan-950/30 px-2 py-0.5 rounded border border-cyan-500/20"
+                 >
+                   Lore Matrix
+                 </button>
+               </label>
+               <Textarea 
+                 placeholder="e.g., A world where magic is powered by memories..."
+                 className="min-h-[80px] bg-[#020202] border border-zinc-500/10 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/50 resize-none text-zinc-300 rounded-xl font-medium text-[12px] p-3"
+                 value={worldBuilding || ''}
+                 onChange={(e) => setWorldBuilding?.(e.target.value)}
+               />
+            </div>
+
+            <div className="space-y-2">
+               <label className="text-[11px] font-bold text-zinc-200 uppercase tracking-widest flex items-center justify-between drop-shadow-[0_2px_2px_rgba(0,0,0,1)]">
+                 <span className="flex items-center gap-1.5"><Users className="w-4 h-4 text-zinc-300 drop-shadow-md" /> CAST PROFILES</span>
+                 <button 
+                   onClick={() => navigate(`${basePath}/cast`)}
+                   className="text-[9px] text-cyan-500 hover:text-cyan-300 transition-colors uppercase font-black tracking-widest bg-cyan-950/30 px-2 py-0.5 rounded border border-cyan-500/20"
+                 >
+                   Lab
+                 </button>
+               </label>
+               <Textarea 
+                 placeholder="e.g., Kael: Cursed hero, Elara: Tech specialist"
+                 className="min-h-[80px] bg-[#020202] border border-zinc-500/10 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/50 resize-none text-zinc-300 rounded-xl font-medium text-[12px] p-3"
+                 value={castProfiles || ''}
+                 onChange={(e) => setCastProfiles?.(e.target.value)}
+               />
+            </div>
+
+            <div className="space-y-2">
                <label className="text-[11px] font-bold text-zinc-200 uppercase tracking-widest flex items-center gap-1.5 drop-shadow-[0_2px_2px_rgba(0,0,0,1)]">
                  <Users className="w-4 h-4 text-zinc-300 drop-shadow-md" /> RELATIONSHIPS
                </label>
                <Textarea 
                  placeholder="e.g., A fears B, C is secretly in love with A"
-                 className="min-h-[80px] bg-[#020202] border border-zinc-500/10 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/50 resize-none text-zinc-300 rounded-xl font-medium text-[12px] p-3"
+                 className="min-h-[60px] bg-[#020202] border border-zinc-500/10 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/50 resize-none text-zinc-300 rounded-xl font-medium text-[12px] p-3"
                  value={characterRelationships || ''}
                  onChange={(e) => setCharacterRelationships(e.target.value)}
                />
             </div>
 
-            <div className="space-y-2 pr-10">
-               <label className="text-[11px] font-bold text-zinc-200 uppercase tracking-widest flex items-center gap-1.5 drop-shadow-[0_2px_2px_rgba(0,0,0,1)] whitespace-nowrap">
-                 <Settings className="w-4 h-4 text-zinc-300 drop-shadow-md" /> AI MODEL
-               </label>
-               <Select value={selectedModel} onValueChange={setSelectedModel}>
-                 <SelectTrigger className="h-10 w-full rounded-full bg-[#0a0a0a]/80 border-cyan-500/50 text-cyan-300 shadow-[0_0_15px_rgba(6,182,212,0.2)] hover:shadow-[0_0_20px_rgba(6,182,212,0.3)] focus:ring-cyan-500/50 transition-all font-semibold tracking-wide text-xs">
-                   <SelectValue placeholder="Select Model" />
-                 </SelectTrigger>
-                 <SelectContent className="bg-zinc-900 border-zinc-800 text-cyan-300">
-                   <SelectItem value="gemini-3-flash-preview">gemini-3-flash-preview</SelectItem>
-                   <SelectItem value="gemini-3.1-pro-preview">gemini-3.1-pro-preview</SelectItem>
-                   <SelectItem value="gpt-4o">gpt-4o</SelectItem>
-                 </SelectContent>
-               </Select>
-            </div>
-
-            <div className="grid grid-cols-3 gap-2">
-              <div className="space-y-1 overflow-hidden">
-                 <label className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest flex items-center gap-1 drop-shadow-[0_2px_2px_rgba(0,0,0,1)] whitespace-nowrap">
-                   <Clapperboard className="w-3 h-3 shrink-0" /> <span className="truncate">SESS</span>
+            {/* 2. CORE AI CONFIG */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                 <label className="text-[11px] font-bold text-zinc-200 uppercase tracking-widest flex items-center gap-1.5 drop-shadow-[0_2px_2px_rgba(0,0,0,1)]">
+                   <Brain className="w-4 h-4 text-zinc-300 drop-shadow-md" /> PERSONA
                  </label>
-                 <Select value={session} onValueChange={setSession}>
-                   <SelectTrigger className="h-8 w-full rounded-lg bg-[#0a0a0a]/80 border-orange-500/30 text-orange-400 shadow-[0_0_10px_rgba(249,115,22,0.1)] hover:shadow-[0_0_15px_rgba(249,115,22,0.2)] focus:ring-orange-500/50 transition-all font-bold tracking-wide flex justify-center text-center text-[10px]">
-                     <SelectValue placeholder="1" />
+                 <Select value={recapperPersona} onValueChange={(value) => { if (typeof value === 'string') setRecapperPersona(value); }}>
+                   <SelectTrigger className="h-10 w-full rounded-full bg-[#0a0a0a]/80 border-fuchsia-500/30 text-fuchsia-300 shadow-[0_0_15px_rgba(217,70,239,0.1)] hover:shadow-[0_0_20px_rgba(217,70,239,0.3)] focus:ring-1 focus:ring-fuchsia-500/50 transition-all font-semibold tracking-wide text-xs">
+                     <SelectValue placeholder="Select Persona" />
                    </SelectTrigger>
-                   <SelectContent className="bg-zinc-900 border-zinc-800 text-orange-400">
-                     {[1, 2, 3, 4, 5].map(n => (
-                       <SelectItem key={n} value={n.toString()}>{n}</SelectItem>
+                   <SelectContent className="bg-zinc-950/95 border-fuchsia-500/20 text-fuchsia-200">
+                     {['Dynamic/Hype', 'Noir/Gritty', 'Analytical/Deep Dive', 'Somber/Reflective'].map(p => (
+                        <SelectItem key={p} value={p}>{p}</SelectItem>
                      ))}
                    </SelectContent>
                  </Select>
               </div>
 
-              <div className="space-y-1 overflow-hidden">
-                 <label className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest flex items-center gap-1 drop-shadow-[0_2px_2px_rgba(0,0,0,1)] whitespace-nowrap">
-                   <Disc className="w-3 h-3 shrink-0" /> <span className="truncate">EP</span>
+              <div className="space-y-2">
+                 <label className="text-[11px] font-bold text-zinc-200 uppercase tracking-widest flex items-center gap-1.5 drop-shadow-[0_2px_2px_rgba(0,0,0,1)] whitespace-nowrap">
+                   <Settings className="w-4 h-4 text-zinc-300 drop-shadow-md" /> MODEL
                  </label>
-                 <Select value={episode} onValueChange={setEpisode}>
-                   <SelectTrigger className="h-8 w-full rounded-lg bg-[#0a0a0a]/80 border-fuchsia-500/30 text-fuchsia-400 shadow-[0_0_10px_rgba(217,70,239,0.1)] hover:shadow-[0_0_15px_rgba(217,70,239,0.2)] focus:ring-fuchsia-500/50 transition-all font-bold tracking-wide flex justify-center text-center text-[10px]">
-                     <SelectValue placeholder="1" />
+                 <Select value={selectedModel} onValueChange={(value) => { if (typeof value === 'string') setSelectedModel(value); }}>
+                   <SelectTrigger className="h-10 w-full rounded-full bg-[#0a0a0a]/80 border-cyan-500/50 text-cyan-300 shadow-[0_0_15px_rgba(6,182,212,0.2)] hover:shadow-[0_0_20px_rgba(6,182,212,0.3)] focus:ring-cyan-500/50 transition-all font-semibold tracking-wide text-xs">
+                     <SelectValue placeholder="Select Model" />
                    </SelectTrigger>
-                   <SelectContent className="bg-zinc-900 border-zinc-800 text-fuchsia-400">
-                     {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(n => (
-                       <SelectItem key={n} value={n.toString()}>{n}</SelectItem>
-                     ))}
-                   </SelectContent>
-                 </Select>
-              </div>
-              
-              <div className="space-y-1 overflow-hidden">
-                 <label className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest flex items-center gap-1 drop-shadow-[0_2px_2px_rgba(0,0,0,1)] whitespace-nowrap">
-                   <LayoutGrid className="w-3 h-3 shrink-0" /> <span className="truncate">SCENES</span>
-                 </label>
-                 <Select value={numScenes} onValueChange={setNumScenes}>
-                   <SelectTrigger className="h-8 w-full rounded-lg bg-[#0a0a0a]/80 border-cyan-500/30 text-cyan-400 shadow-[0_0_10px_rgba(6,182,212,0.1)] hover:shadow-[0_0_15px_rgba(6,182,212,0.2)] focus:ring-cyan-500/50 transition-all font-bold tracking-wide flex justify-center text-center text-[10px]">
-                     <SelectValue placeholder="6" />
-                   </SelectTrigger>
-                   <SelectContent className="bg-zinc-900 border-zinc-800 text-cyan-400">
-                     {[4, 6, 8, 10, 12].map(n => (
-                       <SelectItem key={n} value={n.toString()}>{n}</SelectItem>
-                     ))}
+                   <SelectContent className="bg-zinc-900 border-zinc-800 text-cyan-300">
+                     <SelectItem value="gemini-3-flash-preview">gemini-3-flash-preview</SelectItem>
+                     <SelectItem value="gemini-3.1-pro-preview">gemini-3.1-pro-preview</SelectItem>
+                     <SelectItem value="gpt-4o">gpt-4o</SelectItem>
                    </SelectContent>
                  </Select>
               </div>
@@ -313,7 +328,7 @@ export const ProductionCore: React.FC<ProductionCoreProps> = ({
                  <label className="text-[11px] font-bold text-zinc-200 uppercase tracking-widest flex items-center gap-1.5 drop-shadow-[0_2px_2px_rgba(0,0,0,1)] whitespace-nowrap">
                    <SlidersHorizontal className="w-4 h-4 shrink-0 text-zinc-300 drop-shadow-md" /> <span className="truncate">TONE</span>
                  </label>
-                 <Select value={tone} onValueChange={setTone}>
+                 <Select value={tone} onValueChange={(value) => { if (typeof value === 'string') setTone(value); }}>
                    <SelectTrigger className="h-10 w-full rounded-full bg-[#0a0a0a]/80 border-purple-500/50 text-purple-400 shadow-[0_0_15px_rgba(168,85,247,0.2)] hover:shadow-[0_0_20px_rgba(168,85,247,0.3)] focus:ring-purple-500/50 transition-all font-bold tracking-wide text-xs">
                      <SelectValue placeholder="Select Tone" />
                    </SelectTrigger>
@@ -329,7 +344,7 @@ export const ProductionCore: React.FC<ProductionCoreProps> = ({
                  <label className="text-[11px] font-bold text-zinc-200 uppercase tracking-widest flex items-center gap-1.5 drop-shadow-[0_2px_2px_rgba(0,0,0,1)] whitespace-nowrap">
                    <Users className="w-4 h-4 shrink-0 text-zinc-300 drop-shadow-md" /> <span className="truncate">AUDIENCE</span>
                  </label>
-                 <Select value={audience} onValueChange={setAudience}>
+                 <Select value={audience} onValueChange={(value) => { if (typeof value === 'string') setAudience(value); }}>
                    <SelectTrigger className="h-10 w-full rounded-full bg-[#0a0a0a]/80 border-teal-500/50 text-teal-400 shadow-[0_0_15px_rgba(20,184,166,0.2)] hover:shadow-[0_0_20px_rgba(20,184,166,0.3)] focus:ring-teal-500/50 transition-all font-bold tracking-wide text-[10px] sm:text-xs">
                      <SelectValue placeholder="Select Audience" />
                    </SelectTrigger>
@@ -340,6 +355,57 @@ export const ProductionCore: React.FC<ProductionCoreProps> = ({
                    </SelectContent>
                  </Select>
                </div>
+            </div>
+
+            {/* 3. PRODUCTION SPECS */}
+            <div className="grid grid-cols-3 gap-2">
+              <div className="space-y-1 overflow-hidden">
+                 <label className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest flex items-center gap-1 drop-shadow-[0_2px_2px_rgba(0,0,0,1)] whitespace-nowrap">
+                   <Clapperboard className="w-3 h-3 shrink-0" /> <span className="truncate">SESS</span>
+                 </label>
+                 <Select value={session} onValueChange={(value) => { if (typeof value === 'string') setSession(value); }}>
+                   <SelectTrigger className="h-8 w-full rounded-lg bg-[#0a0a0a]/80 border-orange-500/30 text-orange-400 shadow-[0_0_10px_rgba(249,115,22,0.1)] hover:shadow-[0_0_15px_rgba(249,115,22,0.2)] focus:ring-orange-500/50 transition-all font-bold tracking-wide flex justify-center text-center text-[10px]">
+                     <SelectValue placeholder="1" />
+                   </SelectTrigger>
+                   <SelectContent className="bg-zinc-900 border-zinc-800 text-orange-400">
+                     {[1, 2, 3, 4, 5].map(n => (
+                       <SelectItem key={n} value={n.toString()}>{n}</SelectItem>
+                     ))}
+                   </SelectContent>
+                 </Select>
+              </div>
+
+              <div className="space-y-1 overflow-hidden">
+                 <label className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest flex items-center gap-1 drop-shadow-[0_2px_2px_rgba(0,0,0,1)] whitespace-nowrap">
+                   <Disc className="w-3 h-3 shrink-0" /> <span className="truncate">EP</span>
+                 </label>
+                 <Select value={episode} onValueChange={(value) => { if (typeof value === 'string') setEpisode(value); }}>
+                   <SelectTrigger className="h-8 w-full rounded-lg bg-[#0a0a0a]/80 border-fuchsia-500/30 text-fuchsia-400 shadow-[0_0_10px_rgba(217,70,239,0.1)] hover:shadow-[0_0_15px_rgba(217,70,239,0.2)] focus:ring-fuchsia-500/50 transition-all font-bold tracking-wide flex justify-center text-center text-[10px]">
+                     <SelectValue placeholder="1" />
+                   </SelectTrigger>
+                   <SelectContent className="bg-zinc-900 border-zinc-800 text-fuchsia-400">
+                     {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(n => (
+                       <SelectItem key={n} value={n.toString()}>{n}</SelectItem>
+                     ))}
+                   </SelectContent>
+                 </Select>
+              </div>
+              
+              <div className="space-y-1 overflow-hidden">
+                 <label className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest flex items-center gap-1 drop-shadow-[0_2px_2px_rgba(0,0,0,1)] whitespace-nowrap">
+                   <LayoutGrid className="w-3 h-3 shrink-0" /> <span className="truncate">SCENES</span>
+                 </label>
+                 <Select value={numScenes} onValueChange={(value) => { if (typeof value === 'string') setNumScenes(value); }}>
+                   <SelectTrigger className="h-8 w-full rounded-lg bg-[#0a0a0a]/80 border-cyan-500/30 text-cyan-400 shadow-[0_0_10px_rgba(6,182,212,0.1)] hover:shadow-[0_0_15px_rgba(6,182,212,0.2)] focus:ring-cyan-500/50 transition-all font-bold tracking-wide flex justify-center text-center text-[10px]">
+                     <SelectValue placeholder="6" />
+                   </SelectTrigger>
+                   <SelectContent className="bg-zinc-900 border-zinc-800 text-cyan-400">
+                     {[4, 6, 8, 10, 12].map(n => (
+                       <SelectItem key={n} value={n.toString()}>{n}</SelectItem>
+                     ))}
+                   </SelectContent>
+                 </Select>
+              </div>
             </div>
           </div>
 

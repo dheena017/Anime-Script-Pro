@@ -26,6 +26,8 @@ interface GeneratorContextType {
   setGeneratedSeriesPlan: (s: string | null) => void;
   generatedDescription: string | null;
   setGeneratedDescription: (d: string | null) => void;
+  generatedWorld: string | null;
+  setGeneratedWorld: (w: string | null) => void;
   visualData: Record<number, string>;
   setVisualData: React.Dispatch<React.SetStateAction<Record<number, string>>>;
   narrativeBeats: string | null;
@@ -60,6 +62,8 @@ interface GeneratorContextType {
   setIsGeneratingSeries: (l: boolean) => void;
   isGeneratingDescription: boolean;
   setIsGeneratingDescription: (l: boolean) => void;
+  isGeneratingWorld: boolean;
+  setIsGeneratingWorld: (l: boolean) => void;
   isEditing: boolean;
   setIsEditing: (e: boolean) => void;
   isSaving: boolean;
@@ -82,6 +86,7 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
   const [generatedImagePrompts, setGeneratedImagePrompts] = useState<string | null>(null);
   const [generatedSeriesPlan, setGeneratedSeriesPlan] = useState<string | null>(null);
   const [generatedDescription, setGeneratedDescription] = useState<string | null>(null);
+  const [generatedWorld, setGeneratedWorld] = useState<string | null>(null);
   const [visualData, setVisualData] = useState<Record<number, string>>({});
   const [narrativeBeats, setNarrativeBeats] = useState<string | null>(null);
   const [recapperPersona, setRecapperPersona] = useState('Dynamic/Hype');
@@ -99,6 +104,7 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
   const [isGeneratingImagePrompts, setIsGeneratingImagePrompts] = useState(false);
   const [isGeneratingSeries, setIsGeneratingSeries] = useState(false);
   const [isGeneratingDescription, setIsGeneratingDescription] = useState(false);
+  const [isGeneratingWorld, setIsGeneratingWorld] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isContinuingScript, setIsContinuingScript] = useState(false);
@@ -167,12 +173,14 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
       isGeneratingImagePrompts, setIsGeneratingImagePrompts,
       isGeneratingSeries, setIsGeneratingSeries,
       isGeneratingDescription, setIsGeneratingDescription,
+      isGeneratingWorld, setIsGeneratingWorld,
       isEditing, setIsEditing,
       isSaving, setIsSaving,
       isContinuingScript, setIsContinuingScript,
       currentScriptId, setCurrentScriptId,
       history,
-      visualData, setVisualData
+      visualData, setVisualData,
+      generatedWorld, setGeneratedWorld
     }}>
       {children}
     </GeneratorContext.Provider>

@@ -5,3 +5,5 @@ export * from "./generators/image";
 export * from "./generators/series";
 export * from "./generators/characters";
 export * from "./generators/utils";
+export * from "./generators/world";
+export * from "./generators/beats";

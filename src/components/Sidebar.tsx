@@ -27,6 +27,7 @@ import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
 
 const navItems = [
+  { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard' },
   { icon: History, label: 'My Library', path: '/library' },
   { icon: Compass, label: 'Discover', path: '/discover' },
   { icon: Users, label: 'Community', path: '/community' },
@@ -40,20 +41,6 @@ const modeItems = [
   { icon: FileText, label: 'Comic Studio', path: '/comic', color: 'text-green-500' },
 ];
 
-const studioItems = [
-  { icon: BookOpen, label: 'Template', path: 'template' },
-  { icon: FileText, label: 'Methods', path: 'framework' },
-  { icon: Globe, label: 'World Lore', path: 'world' },
-  { icon: Zap, label: 'Narrative Beats', path: 'beats' },
-  { icon: UserPlus, label: 'Cast', path: 'cast' },
-  { icon: Layers, label: 'Series', path: 'series' },
-  { icon: ScrollText, label: 'Script', path: 'script' },
-  { icon: LayoutIcon, label: 'Storyboard', path: 'storyboard' },
-  { icon: Search, label: 'SEO', path: 'seo' },
-  { icon: ImageIcon, label: 'Prompts', path: 'prompts' },
-  { icon: Play, label: 'Example', path: 'example' },
-];
-
 interface SidebarProps {
   isOpen?: boolean;
   onClose?: () => void;
@@ -62,12 +49,11 @@ interface SidebarProps {
 export function Sidebar({ isOpen, onClose }: SidebarProps) {
   const location = useLocation();
   
-  // Determine current mode prefix
   const getPrefix = () => {
     if (location.pathname.startsWith('/anime')) return '/anime';
     if (location.pathname.startsWith('/manhwa')) return '/manhwa';
     if (location.pathname.startsWith('/comic')) return '/comic';
-    return '/anime'; // Default
+    return '/anime';
   };
 
   const prefix = getPrefix();
@@ -92,17 +78,17 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
   const distributionItems = [
     { icon: Search, label: 'SEO', path: 'seo' },
     { icon: ImageIcon, label: 'Prompts', path: 'prompts' },
-    { icon: Play, label: 'Example', path: 'example' },
+    { icon: Play, label: 'Screening Room', path: 'example' },
   ];
 
-  const renderNavGroup = (items: typeof foundationItems, title: string) => (
+  const renderNavGroup = (items: any[], title: string) => (
     <div className="space-y-1 mt-6">
       <p className="px-4 text-[9px] font-black text-zinc-500 uppercase tracking-[0.2em] mb-3 flex items-center gap-2">
         <span className="w-4 h-[1px] bg-zinc-800" /> {title}
       </p>
       {items.map((item) => {
         const fullPath = `${prefix}/${item.path}`;
-        const isActive = location.pathname === fullPath || (location.pathname === prefix && item.path === 'script' && title === "Phase 3: Generation");
+        const isActive = location.pathname === fullPath || (location.pathname === prefix && item.path === 'script' && title.includes("GENERATION"));
         
         return (
           <NavLink
@@ -129,8 +115,8 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
   );
 
   const content = (
-    <div className="flex flex-col h-full">
-      <div className="p-6 border-b border-zinc-800/50 flex items-center justify-between">
+    <div className="flex flex-col h-full bg-[#050505]">
+      <div className="p-6 border-b border-zinc-800/50 flex items-center justify-between bg-black/40 backdrop-blur-xl">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 bg-black border border-red-600/50 rounded flex items-center justify-center shadow-[0_0_15px_rgba(220,38,38,0.2)]">
             <ScrollText className="text-red-600 w-5 h-5" />
@@ -145,7 +131,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
       </div>
       
       <div className="flex-1 overflow-y-auto no-scrollbar pb-10">
-        <nav className="p-4 space-y-2">
+        <nav className="p-4">
           <div className="space-y-1 mb-8">
             <p className="px-4 text-[9px] font-black text-zinc-600 uppercase tracking-widest mb-3">Core Hub</p>
             {navItems.map((item) => (
@@ -202,17 +188,17 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
         </nav>
       </div>
 
-      <div className="p-4 border-t border-zinc-800/50">
-        <div className="bg-zinc-900/50 rounded-xl p-4 border border-zinc-800">
+      <div className="p-4 border-t border-zinc-800/50 bg-black/40">
+        <div className="bg-zinc-950 rounded-xl p-4 border border-zinc-800 shadow-[0_0_20px_rgba(0,0,0,0.5)]">
           <div className="flex items-center gap-2 mb-2">
             <Sparkles className="w-4 h-4 text-yellow-500" />
-            <span className="text-xs font-bold uppercase tracking-widest text-zinc-300">Pro Plan</span>
+            <span className="text-[10px] font-black uppercase tracking-widest text-zinc-300">Pro Pipeline</span>
           </div>
-          <p className="text-[10px] text-zinc-500 leading-relaxed mb-3">
-            Unlock advanced AI models and unlimited cloud storage.
+          <p className="text-[9px] text-zinc-500 leading-relaxed mb-3">
+            Advanced AI models & Multi-Session persistence enabled.
           </p>
-          <button className="w-full py-2 bg-zinc-800 hover:bg-zinc-700 text-white text-[10px] font-bold rounded-lg transition-colors">
-            UPGRADE NOW
+          <button className="w-full py-2 bg-red-600/10 border border-red-600/30 hover:bg-red-600/20 text-red-500 text-[10px] font-black rounded-lg transition-all tracking-widest">
+            UPGRADE ACCESS
           </button>
         </div>
       </div>
@@ -221,14 +207,10 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
 
   return (
     <>
-      {/* Desktop Sidebar (collapsible) */}
-      {isOpen && (
-        <aside className="w-64 border-r border-zinc-800 bg-black/40 backdrop-blur-xl flex flex-col h-screen sticky top-0 shrink-0 z-40">
-          {content}
-        </aside>
-      )}
+      <aside className="w-64 border-r border-zinc-800 bg-[#050505] hidden lg:flex flex-col h-screen sticky top-0 shrink-0 z-50">
+        {content}
+      </aside>
 
-      {/* Mobile Sidebar (animated) */}
       <AnimatePresence>
         {isOpen && (
           <>
@@ -237,14 +219,14 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={onClose}
-              className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 lg:hidden"
+              className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] lg:hidden"
             />
             <motion.aside
               initial={{ x: '-100%' }}
               animate={{ x: 0 }}
               exit={{ x: '-100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="fixed inset-y-0 left-0 w-72 bg-zinc-950 border-r border-zinc-800 z-[60] lg:hidden"
+              className="fixed inset-y-0 left-0 w-72 bg-[#050505] border-r border-zinc-800 z-[70] lg:hidden"
             >
               {content}
             </motion.aside>
