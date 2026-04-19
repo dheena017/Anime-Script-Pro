@@ -26,7 +26,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({ handleAddScene, handleLo
           className="text-zinc-400 hover:text-white hover:bg-white/5 border border-white/5"
           onClick={handleLoadDemo}
         >
-          <Sparkles className="w-4 h-4 mr-2 text-cyan-400" />
+          <Sparkles className="w-4 h-4 mr-2 text-studio" />
           Load Example Scene
         </Button>
       </div>

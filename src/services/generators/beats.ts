@@ -1,16 +1,25 @@
 import { callAI, RateLimitError } from "./core";
 import { MOCK_NARRATIVE_BEATS } from "./mockData";
 
-export async function generateNarrativeBeats(prompt: string, model: string = "gemini-3-flash-preview", contentType: string = "Anime") {
+export async function generateNarrativeBeats(
+  prompt: string, 
+  model: string = "gemini-3-flash-preview", 
+  contentType: string = "Anime",
+  worldBuilding: string | null = null,
+  castProfiles: string | null = null
+) {
   const systemInstruction = `
     You are an expert ${contentType} Script Doctor and Pacing Specialist.
     Your task is to create a set of 5-6 compelling narrative beats for a 5-minute recap script based on the user's concept.
+    
+    WORLD LORE: ${worldBuilding || 'Standard genre rules.'}
+    CAST PROFILES: ${castProfiles || 'Generic archetypes.'}
     
     Return a JSON array of objects with the following structure:
     [
       {
         "label": "Short Action-Oriented Title",
-        "description": "Detailed description of what happens and the narrative purpose.",
+        "description": "Detailed description of what happens and the narrative purpose. Reference the world lore and characters if provided.",
         "duration": "Time range (e.g., 0:00 - 0:45)",
         "intensity": 1-10 (Numeric value for tension level),
         "vfx": "Cinematic/Visual directive for this scene",
@@ -21,13 +30,14 @@ export async function generateNarrativeBeats(prompt: string, model: string = "ge
     Guidelines:
     - Ensure logical progression (Hook -> Setup -> Rising Action -> Climax -> Cliffhanger).
     - Match the tone of ${contentType}.
+    - Integrity: THE BEATS MUST RESPECT THE WORLD LORE AND CHARACTER PROFILES PROVIDED.
     - Intensity must vary to create a dynamic pacing wave.
     - VFX/Audio should be professional studio-grade directives.
     - Return ONLY the JSON array.
   `;
 
   try {
-    const text = await callAI(model, `Create narrative beats for: ${prompt}`, systemInstruction);
+    const text = await callAI(model, `Create narrative beats for: ${prompt}. Incorporate lore and cast where appropriate.`, systemInstruction);
     // Clean JSON if needed
     const cleanJson = text.replace(/```json|```/g, "").trim();
     return JSON.parse(cleanJson);

@@ -10,6 +10,7 @@ import {
   Timestamp 
 } from 'firebase/firestore';
 import { handleFirestoreError, OperationType } from '../lib/error-utils';
+import { ProductionUnit } from '../lib/sequence-utils';
 
 interface GeneratorContextType {
   prompt: string;
@@ -22,8 +23,8 @@ interface GeneratorContextType {
   setGeneratedMetadata: (m: string | null) => void;
   generatedImagePrompts: string | null;
   setGeneratedImagePrompts: (p: string | null) => void;
-  generatedSeriesPlan: string | null;
-  setGeneratedSeriesPlan: (s: string | null) => void;
+  generatedSeriesPlan: any[] | null;
+  setGeneratedSeriesPlan: (s: any[] | null) => void;
   generatedDescription: string | null;
   setGeneratedDescription: (d: string | null) => void;
   generatedWorld: string | null;
@@ -73,6 +74,8 @@ interface GeneratorContextType {
   currentScriptId: string | null;
   setCurrentScriptId: (id: string | null) => void;
   history: any[];
+  productionSequence: ProductionUnit[];
+  setProductionSequence: (s: ProductionUnit[]) => void;
 }
 
 const GeneratorContext = createContext<GeneratorContextType | undefined>(undefined);
@@ -84,7 +87,7 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
   const [generatedCharacters, setGeneratedCharacters] = useState<string | null>(null);
   const [generatedMetadata, setGeneratedMetadata] = useState<string | null>(null);
   const [generatedImagePrompts, setGeneratedImagePrompts] = useState<string | null>(null);
-  const [generatedSeriesPlan, setGeneratedSeriesPlan] = useState<string | null>(null);
+  const [generatedSeriesPlan, setGeneratedSeriesPlan] = useState<any[] | null>(null);
   const [generatedDescription, setGeneratedDescription] = useState<string | null>(null);
   const [generatedWorld, setGeneratedWorld] = useState<string | null>(null);
   const [visualData, setVisualData] = useState<Record<number, string>>({});
@@ -110,6 +113,7 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
   const [isContinuingScript, setIsContinuingScript] = useState(false);
   const [currentScriptId, setCurrentScriptId] = useState<string | null>(null);
   const [history, setHistory] = useState<any[]>([]);
+  const [productionSequence, setProductionSequence] = useState<ProductionUnit[]>([]);
 
   useEffect(() => {
     if (!user) {
@@ -179,6 +183,7 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
       isContinuingScript, setIsContinuingScript,
       currentScriptId, setCurrentScriptId,
       history,
+      productionSequence, setProductionSequence,
       visualData, setVisualData,
       generatedWorld, setGeneratedWorld
     }}>

@@ -19,7 +19,8 @@ import {
   Volume2,
   CheckCircle2,
   Lock,
-  Trash2
+  Trash2,
+  Box
 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -33,7 +34,11 @@ export function NarrativeBeatsPage() {
   const { 
     narrativeBeats, setNarrativeBeats, 
     prompt, selectedModel, contentType, 
-    setGeneratedScript 
+    setGeneratedScript,
+    session,
+    episode,
+    generatedWorld,
+    generatedCharacters
   } = useGenerator();
   
   const navigate = useNavigate();
@@ -67,7 +72,7 @@ export function NarrativeBeatsPage() {
   const handleGenerateAIBeats = async () => {
     if (!prompt.trim()) return;
     setIsGenerating(true);
-    const beats = await generateNarrativeBeats(prompt, selectedModel, contentType);
+    const beats = await generateNarrativeBeats(prompt, selectedModel, contentType, generatedWorld, generatedCharacters);
     if (beats) {
       setAiBeats(beats);
       setSelectedBeatKey('AI_GENERATED');
@@ -104,10 +109,26 @@ export function NarrativeBeatsPage() {
     <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="space-y-8 pb-20">
       <div className="flex flex-col lg:flex-row items-center justify-between gap-6">
         <div className="space-y-1">
-          <h2 className="text-3xl font-black uppercase tracking-[0.2em] flex items-center gap-3 text-cyan-50 drop-shadow-[0_0_15px_rgba(6,182,212,0.4)]">
-            <ScrollText className="w-8 h-8 text-cyan-400" /> Narrative Architect
-          </h2>
-          <p className="text-cyan-500/60 text-[10px] font-black uppercase tracking-[0.3em] pl-11">
+          <div className="flex items-center gap-6">
+            <h2 className="text-3xl font-black uppercase tracking-[0.2em] flex items-center gap-3 text-studio text-shadow-studio">
+              <ScrollText className="w-8 h-8 text-studio" /> Narrative Architect
+            </h2>
+            <div className="hidden sm:flex items-center gap-2 px-3 py-1 bg-studio/5 border border-studio/20 rounded-lg">
+              <Box className="w-3 h-3 text-studio/50" />
+              <span className="text-[10px] font-black text-studio/60 uppercase tracking-tighter">Unit</span>
+              <span className="text-xs font-black text-white font-mono">S{session}-E{episode}</span>
+            </div>
+            <div className={cn(
+              "hidden md:flex items-center gap-2 px-3 py-1 rounded-lg border transition-all duration-500",
+              generatedWorld && generatedCharacters ? "bg-emerald-500/5 border-emerald-500/20 text-emerald-500" : "bg-zinc-500/5 border-zinc-500/20 text-zinc-500"
+            )}>
+              <Activity className="w-3 h-3" />
+              <span className="text-[10px] font-black uppercase tracking-tighter">
+                {generatedWorld && generatedCharacters ? "Context Locked" : "Context Pending"}
+              </span>
+            </div>
+          </div>
+          <p className="text-studio/60 text-[10px] font-black uppercase tracking-[0.3em] pl-11">
             Structural Intelligence & Pacing Simulation Module
           </p>
         </div>
@@ -121,7 +142,7 @@ export function NarrativeBeatsPage() {
                  onClick={() => setViewMode(mode)}
                  className={cn(
                    "h-8 px-4 text-[9px] font-black uppercase tracking-widest transition-all",
-                   viewMode === mode ? "bg-cyan-500 text-black hover:bg-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.5)]" : "text-zinc-500 hover:text-cyan-400"
+                   viewMode === mode ? "bg-studio text-black hover:bg-studio/90 shadow-studio" : "text-zinc-500 hover:text-studio"
                  )}
                >
                  {mode}
@@ -132,10 +153,11 @@ export function NarrativeBeatsPage() {
            <Button
              onClick={handleGenerateAIBeats}
              disabled={isGenerating || !prompt.trim()}
-             className="bg-orange-600 hover:bg-orange-500 text-white font-black uppercase tracking-[0.2em] text-[10px] h-10 px-6 shadow-[0_0_20px_rgba(249,115,22,0.3)] group transition-all"
+             className="bg-studio hover:bg-studio/80 text-white font-black tracking-widest uppercase text-xs h-9 px-6 shadow-studio"
+             size="sm"
            >
-             {isGenerating ? <RefreshCw className="w-4 h-4 mr-2 animate-spin" /> : <Wand2 className="w-4 h-4 mr-2 group-hover:rotate-12 transition-transform" />}
-             AI Brain Simulation
+             {isGenerating ? <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" /> : <Sparkles className="w-3 h-3 mr-2" />}
+             {isGenerating ? 'Generating...' : 'Generate'}
            </Button>
          </div>
       </div>
@@ -179,8 +201,8 @@ export function NarrativeBeatsPage() {
                   setViewMode('timeline');
                 }}
                 className={cn(
-                  "group relative overflow-hidden cursor-pointer transition-all duration-500 border border-zinc-800 bg-[#050505]/50 hover:border-cyan-500/50",
-                  isSelected && "border-cyan-500 ring-1 ring-cyan-500/30 shadow-[0_0_30px_rgba(6,182,212,0.2)] scale-[1.02]"
+                  "group relative overflow-hidden cursor-pointer transition-all duration-500 border border-zinc-800 bg-[#050505]/50 hover:border-studio/50",
+                  isSelected && "border-studio ring-1 ring-studio/30 shadow-studio scale-[1.02]"
                 )}
               >
                 {data.thumbnail && (
@@ -195,18 +217,18 @@ export function NarrativeBeatsPage() {
                 )}
                 
                 <div className="absolute top-4 right-4 p-4 opacity-[0.03] group-hover:opacity-10 transition-all group-hover:scale-125 z-20">
-                  <Icon className="w-24 h-24 text-cyan-50" />
+                  <Icon className="w-24 h-24 text-studio/50" />
                 </div>
                 
                 <div className="p-6 space-y-5 relative z-10">
                   <div className="flex items-center gap-4">
-                    <div className="w-14 h-14 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center group-hover:border-cyan-500/50 transition-all shadow-xl">
-                      <Icon className="w-7 h-7 text-cyan-400" />
+                    <div className="w-14 h-14 rounded-2xl bg-studio/10 border border-studio/20 flex items-center justify-center group-hover:border-studio/50 transition-all shadow-xl">
+                      <Icon className="w-7 h-7 text-studio" />
                     </div>
                     <div>
                       <h3 className="font-black uppercase tracking-widest text-[13px] text-zinc-100">{key}</h3>
                       <div className="flex items-center gap-3 mt-1.5">
-                        <span className="text-[9px] font-black text-cyan-400 bg-cyan-500/10 px-2 py-0.5 rounded-full border border-cyan-500/30 uppercase tracking-[0.2em] shadow-[0_0_10px_rgba(6,182,212,0.1)]">{data.genre}</span>
+                        <span className="text-[9px] font-black text-studio bg-studio/10 px-2 py-0.5 rounded-full border border-studio/30 uppercase tracking-[0.2em] shadow-studio/20">{data.genre}</span>
                         <div className="flex gap-1">
                           {[...Array(5)].map((_, i) => (
                              <div key={i} className={cn("w-1 h-3 rounded-full", i < (data.intensity/2) ? "bg-orange-500 shadow-[0_0_10px_rgba(249,115,22,0.5)]" : "bg-zinc-800")} />
@@ -228,9 +250,9 @@ export function NarrativeBeatsPage() {
                   <div className="pt-4 flex items-center justify-between border-t border-zinc-800/50">
                     <span className="text-[10px] text-zinc-600 font-black uppercase tracking-[0.2em]">{data.beats.length} Sequential Segments</span>
                     {isSelected ? (
-                      <CheckCircle2 className="w-5 h-5 text-cyan-500 animate-in zoom-in" />
+                      <CheckCircle2 className="w-5 h-5 text-studio animate-in zoom-in" />
                     ) : (
-                      <ChevronRight className="w-5 h-5 text-zinc-800 group-hover:text-cyan-500 transition-colors" />
+                      <ChevronRight className="w-5 h-5 text-zinc-800 group-hover:text-studio transition-colors" />
                     )}
                   </div>
                 </div>
@@ -327,7 +349,7 @@ export function NarrativeBeatsPage() {
                     <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Emotional Peak</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <div className="w-2.5 h-2.5 rounded-full bg-cyan-500 shadow-[0_0_15px_rgba(6,182,212,0.8)]" />
+                    <div className="w-2.5 h-2.5 rounded-full bg-studio shadow-studio" />
                     <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Pacing Flow</span>
                   </div>
                 </div>
@@ -337,13 +359,13 @@ export function NarrativeBeatsPage() {
                  <svg className="w-full h-full overflow-visible" preserveAspectRatio="none">
                     <defs>
                       <linearGradient id="waveGradient" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="#f97316" stopOpacity="0.4" />
-                        <stop offset="100%" stopColor="#f97316" stopOpacity="0" />
+                        <stop offset="0%" stopColor="var(--studio-primary)" stopOpacity="0.4" />
+                        <stop offset="100%" stopColor="var(--studio-primary)" stopOpacity="0" />
                       </linearGradient>
                       <linearGradient id="lineGradient" x1="0" y1="0" x2="1" y2="0">
-                        <stop offset="0%" stopColor="#06b6d4" />
+                        <stop offset="0%" stopColor="var(--studio-primary)" />
                         <stop offset="50%" stopColor="#f97316" />
-                        <stop offset="100%" stopColor="#06b6d4" />
+                        <stop offset="100%" stopColor="var(--studio-primary)" />
                       </linearGradient>
                     </defs>
                     <path
@@ -370,15 +392,15 @@ export function NarrativeBeatsPage() {
                             cy={`${y}%`} 
                             r="8" 
                             fill="#000" 
-                            stroke={activeBeatIndex === i ? "#06b6d4" : "#f97316"} 
+                            stroke={activeBeatIndex === i ? "var(--studio-primary)" : "#f97316"} 
                             strokeWidth="3" 
-                            className={cn("transition-all group-hover/dot:scale-150 shadow-2xl", activeBeatIndex === i && "shadow-[0_0_20px_rgba(6,182,212,0.5)]")}
+                            className={cn("transition-all group-hover/dot:scale-150 shadow-2xl", activeBeatIndex === i && "shadow-studio")}
                           />
                           <text 
                             x={`${x}%`} 
                             y={`${y - 20}%`} 
                             textAnchor="middle" 
-                            className="text-[10px] font-black fill-cyan-400 opacity-0 group-hover/dot:opacity-100 transition-opacity uppercase tracking-widest drop-shadow-md"
+                            className="text-[10px] font-black fill-studio opacity-0 group-hover/dot:opacity-100 transition-opacity uppercase tracking-widest drop-shadow-md"
                           >
                             {b.label}
                           </text>
@@ -402,7 +424,7 @@ export function NarrativeBeatsPage() {
                        <span className={cn("text-[10px] font-black uppercase tracking-widest", activeBeatIndex === idx ? "text-cyan-400" : "text-zinc-600")}>Phase 0{idx+1}</span>
                        <span className="text-[9px] font-mono text-zinc-700 font-bold">{beat.duration}</span>
                      </div>
-                     <h5 className="text-[12px] font-black uppercase tracking-wide text-zinc-300 group-hover/card:text-cyan-50 transition-colors truncate relative z-10">{beat.label}</h5>
+                     <h5 className="text-[12px] font-black uppercase tracking-wide text-zinc-300 group-hover/card:text-studio/90 transition-colors truncate relative z-10">{beat.label}</h5>
                      <div className={cn("absolute bottom-0 left-0 h-1 bg-orange-500 transition-all duration-500", activeBeatIndex === idx ? "w-full opacity-100" : "w-0 opacity-0")} style={{ width: `${beat.intensity * 10}%` }} />
                    </div>
                  ))}
@@ -424,8 +446,8 @@ export function NarrativeBeatsPage() {
               <div className="lg:col-span-3 space-y-6">
                  <div className="flex items-center justify-between px-4">
                     <div className="flex items-center gap-3">
-                       <Layers className="w-6 h-6 text-cyan-400" />
-                       <h4 className="text-lg font-black uppercase tracking-[0.25em] text-zinc-50 drop-shadow-[0_0_10px_rgba(6,182,212,0.3)]">Component Architecture</h4>
+                       <Layers className="w-6 h-6 text-studio" />
+                       <h4 className="text-lg font-black uppercase tracking-[0.25em] text-zinc-50 text-shadow-studio">Component Architecture</h4>
                     </div>
                     <div className="flex gap-4">
                       <Button
@@ -438,7 +460,7 @@ export function NarrativeBeatsPage() {
                       </Button>
                       <Button
                         size="sm"
-                        className="bg-cyan-600 hover:bg-cyan-500 text-black font-black uppercase tracking-[0.2em] text-[10px] shadow-[0_8px_20px_rgba(6,182,212,0.3)] h-10 px-8 rounded-xl active:scale-95 transition-all"
+                        className="bg-studio hover:bg-studio/80 text-white font-black uppercase tracking-widest text-xs h-10 px-8 rounded-xl shadow-studio active:scale-95 transition-all"
                         onClick={() => handleApplyBeat(currentBeats)}
                       >
                         <Zap className="w-4 h-4 mr-2" />
@@ -449,14 +471,14 @@ export function NarrativeBeatsPage() {
 
                  <div className="grid grid-cols-1 gap-6">
                     {currentBeats.map((beat: any, idx: number) => (
-                      <Card 
-                        key={idx} 
-                        onClick={() => setActiveBeatIndex(idx)}
-                        className={cn(
-                          "relative overflow-hidden transition-all duration-500 border border-zinc-900 group/beat",
-                          activeBeatIndex === idx ? "bg-[#0a0a0a] border-cyan-500/40 ring-1 ring-cyan-500/10 shadow-[0_0_40px_rgba(0,0,0,0.5)] scale-[1.01]" : "bg-[#050505]/40 hover:bg-[#070707] border-transparent"
-                        )}
-                      >
+             <Card 
+               key={idx} 
+               onClick={() => setActiveBeatIndex(idx)}
+               className={cn(
+                 "relative overflow-hidden transition-all duration-500 border border-zinc-900 group/beat",
+                 activeBeatIndex === idx ? "bg-[#0a0a0a] border-studio/40 ring-1 ring-studio/10 shadow-studio/20 scale-[1.01]" : "bg-[#050505]/40 hover:bg-[#070707] border-transparent"
+               )}
+             >
                         <div className="flex flex-col md:flex-row p-8 gap-8">
                            <div className="flex flex-col items-center gap-3">
                               <div className={cn(
@@ -484,7 +506,7 @@ export function NarrativeBeatsPage() {
                                  <div className="flex gap-3">
                                     <Button 
                                       size="sm" 
-                                      className="bg-cyan-500/10 hover:bg-cyan-500 text-cyan-400 hover:text-black font-black uppercase tracking-[0.2em] text-[9px] h-10 px-6 rounded-xl border border-cyan-500/30 transition-all font-bold"
+                                      className="bg-studio/10 hover:bg-studio text-studio hover:text-black font-black uppercase tracking-[0.2em] text-[9px] h-10 px-6 rounded-xl border border-studio/30 transition-all shadow-studio/20"
                                       onClick={() => {
                                         setGeneratedScript(null); // Clear old script to force new one
                                         navigate('/studio/script');
@@ -546,7 +568,7 @@ export function NarrativeBeatsPage() {
 
                               <p className="text-[13px] text-zinc-400 leading-relaxed font-medium italic border-l-2 border-cyan-500/10 pl-6 py-1">"{beat.description}"</p>
 
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t border-cyan-500/5">
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t border-studio/5">
                                  <div className="flex gap-4">
                                     <div className="w-10 h-10 rounded-2xl bg-fuchsia-500/10 border border-fuchsia-500/20 flex items-center justify-center shrink-0 shadow-lg">
                                        <Camera className="w-5 h-5 text-fuchsia-400" />
@@ -575,13 +597,13 @@ export function NarrativeBeatsPage() {
 
               <div className="space-y-8">
                  <div className="p-8 rounded-[2.5rem] bg-[#050505]/80 border border-zinc-800/50 space-y-8 shadow-2xl relative overflow-hidden group/panel">
-                    <div className="absolute -top-20 -right-20 w-60 h-60 bg-cyan-500/10 blur-[100px] rounded-full pointer-events-none group-hover/panel:bg-orange-500/10 transition-colors duration-1000" />
+                    <div className="absolute -top-20 -right-20 w-60 h-60 bg-studio/10 blur-[100px] rounded-full pointer-events-none group-hover/panel:bg-orange-500/10 transition-colors duration-1000" />
                     
                     <div className="space-y-3">
-                       <h5 className="text-[11px] font-black uppercase tracking-[0.25em] text-cyan-400 flex items-center gap-3">
+                       <h5 className="text-[11px] font-black uppercase tracking-[0.25em] text-studio flex items-center gap-3">
                           <Wand2 className="w-5 h-5" /> Visual Intelligence
                        </h5>
-                       <div className="p-5 rounded-2xl bg-black/60 border border-cyan-500/10 text-[11px] text-zinc-500 leading-relaxed font-mono shadow-inner group-hover/panel:border-cyan-500/30 transition-all">
+                       <div className="p-5 rounded-2xl bg-black/60 border border-studio/10 text-[11px] text-zinc-500 leading-relaxed font-mono shadow-inner group-hover/panel:border-studio/30 transition-all">
                           {activeBeatIndex != null ? (
                              `Anime Cinematics, ${currentBeats[activeBeatIndex].label}, direction by Master Architect, ${currentBeats[activeBeatIndex].vfx}, intensity scale ${currentBeats[activeBeatIndex].intensity}, 8k ultra-noir, atmospheric fog --niji 6 --ar 21:9`
                           ) : (
@@ -616,7 +638,7 @@ export function NarrativeBeatsPage() {
                           Neural Synthesis: All Scenes
                        </Button>
                        <Button 
-                          className="w-full bg-cyan-600 hover:bg-cyan-500 text-black font-black uppercase tracking-[0.3em] text-[11px] h-14 rounded-2xl shadow-[0_10px_30px_rgba(6,182,212,0.2)] active:scale-95 transition-all"
+                          className="w-full bg-studio hover:bg-studio/80 text-white font-black uppercase tracking-[0.3em] text-[11px] h-14 rounded-2xl shadow-studio active:scale-95 transition-all"
                           onClick={() => handleApplyBeat(currentBeats)}
                        >
                           Deploy Schema to Production

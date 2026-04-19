@@ -35,6 +35,8 @@ export default function Dashboard() {
 
   const totalScripts = history.length;
   const latestSave = history.length > 0 ? history[0] : null;
+  const lastStudio = latestSave?.contentType?.toLowerCase() || 'anime';
+  const basePath = `/${lastStudio}`;
 
   return (
     <div className="min-h-screen bg-[#030303] text-zinc-100 p-6 space-y-8 max-w-[1600px] mx-auto">
@@ -97,6 +99,39 @@ export default function Dashboard() {
          </Card>
       </div>
 
+      {/* 2.1 STUDIO SELECTOR */}
+      <div className="space-y-4">
+        <div className="flex items-center gap-3">
+           <LayoutGrid className="w-4 h-4 text-zinc-500" />
+           <h3 className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em]">Enter Production Studio</h3>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {[
+            { name: 'Anime Studio', type: 'Anime', path: '/anime', color: 'border-orange-500/20 text-orange-400 bg-orange-500/5 hover:border-orange-500/50', desc: 'Classic animation recaps & storyboards.' },
+            { name: 'Manhwa Studio', type: 'Manhwa', path: '/manhwa', color: 'border-emerald-500/20 text-emerald-400 bg-emerald-500/5 hover:border-emerald-500/50', desc: 'Vertical-scroll webtoon production suite.' },
+            { name: 'Comic Studio', type: 'Comic', path: '/comic', color: 'border-blue-500/20 text-blue-400 bg-blue-500/5 hover:border-blue-500/50', desc: 'Western comic & graphic novel production.' },
+          ].map((studio) => (
+            <button
+              key={studio.type}
+              onClick={() => navigate(studio.path)}
+              className={cn(
+                "p-8 rounded-[2rem] border transition-all text-left group hover:scale-[1.02] active:scale-95 relative overflow-hidden",
+                studio.color
+              )}
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-white/[0.02] to-transparent pointer-events-none" />
+              <div className="flex items-center justify-between mb-3 relative z-10">
+                <span className="text-lg font-black uppercase tracking-tighter">{studio.name}</span>
+                <div className="w-8 h-8 rounded-full bg-black/40 border border-white/10 flex items-center justify-center group-hover:bg-white/10 transition-colors">
+                  <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                </div>
+              </div>
+              <p className="text-[10px] opacity-60 font-medium leading-relaxed uppercase tracking-widest relative z-10">{studio.desc}</p>
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* 3. MAIN WORKSPACE SECTION */}
       <div className="grid grid-cols-1 xl:grid-cols-4 gap-8 h-full">
          <div className="xl:col-span-3 space-y-8">
@@ -109,9 +144,9 @@ export default function Dashboard() {
             {/* Quick Action Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                {[
-                 { title: 'Start Script', desc: 'Open the script workspace and generate a new episode draft.', icon: ScrollText, color: 'text-red-500', path: '/anime/script' },
-                 { title: 'Build Cast', desc: 'Generate and refine character details for your next production.', icon: Users, color: 'text-purple-500', path: '/anime/cast' },
-                 { title: 'Open Templates', desc: 'Use quick templates to jump-start ideas and script structure.', icon: LayoutGrid, color: 'text-orange-500', path: '/anime/template' },
+                 { title: 'Start Script', desc: 'Open the script workspace and generate a new episode draft.', icon: ScrollText, color: 'text-red-500', path: `${basePath}/script` },
+                 { title: 'Build Cast', desc: 'Generate and refine character details for your next production.', icon: Users, color: 'text-purple-500', path: `${basePath}/cast` },
+                 { title: 'Open Templates', desc: 'Use quick templates to jump-start ideas and script structure.', icon: LayoutGrid, color: 'text-orange-500', path: `${basePath}/template` },
                ].map((item, idx) => (
                  <motion.button 
                    key={idx}
@@ -160,9 +195,9 @@ export default function Dashboard() {
                   <h3 className="text-sm font-black uppercase tracking-[0.2em] text-zinc-400">Studio Pipeline</h3>
                   <div className="space-y-3">
                     {[
-                      { num: '1', label: 'Concept', path: '/anime/world' },
-                      { num: '2', label: 'Cast', path: '/anime/cast' },
-                      { num: '3', label: 'Storyboard', path: '/anime/storyboard' },
+                      { num: '1', label: 'Concept', path: `${basePath}/world` },
+                      { num: '2', label: 'Cast', path: `${basePath}/cast` },
+                      { num: '3', label: 'Storyboard', path: `${basePath}/storyboard` },
                       { num: '4', label: 'Export', path: '/library' },
                     ].map((step, idx) => (
                       <button 
@@ -193,10 +228,10 @@ export default function Dashboard() {
 
                <div className="w-full space-y-3">
                  {[
-                   { label: 'Script Workspace', icon: ScrollText, path: '/anime/script' },
-                   { label: 'Cast Builder', icon: Users, path: '/anime/cast' },
-                   { label: 'Series Planner', icon: Layers, path: '/anime/series' },
-                   { label: 'Storyboard View', icon: LayoutGrid, path: '/anime/storyboard' },
+                   { label: 'Script Workspace', icon: ScrollText, path: `${basePath}/script` },
+                   { label: 'Cast Builder', icon: Users, path: `${basePath}/cast` },
+                   { label: 'Series Planner', icon: Layers, path: `${basePath}/series` },
+                   { label: 'Storyboard View', icon: LayoutGrid, path: `${basePath}/storyboard` },
                  ].map((link, idx) => (
                    <Button 
                      key={idx}
@@ -246,7 +281,7 @@ export default function Dashboard() {
         <div className="flex items-center gap-4">
            <Button 
              variant="ghost"
-             onClick={() => navigate('/anime/storyboard')}
+             onClick={() => navigate(`${basePath}/storyboard`)}
              className="h-12 px-8 rounded-2xl bg-zinc-900/50 border border-zinc-800 text-zinc-400 hover:text-white font-black tracking-widest text-[11px]"
            >
              <LayoutGrid className="w-4 h-4 mr-3" /> STORYBOARD

@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import ReactMarkdown from 'react-markdown';
-import { Search, Sparkles, FileText, Youtube, Heart } from 'lucide-react';
+import { Search, Sparkles, FileText, Youtube, Heart, Box } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
@@ -22,7 +22,9 @@ export function SEOPage() {
     isGeneratingDescription,
     setIsGeneratingDescription,
     generatedScript,
-    selectedModel
+    selectedModel,
+    session,
+    episode
   } = useGenerator();
 
   const handleGenerateMetadata = async () => {
@@ -44,10 +46,17 @@ export function SEOPage() {
   return (
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-8">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-black uppercase tracking-[0.2em] flex items-center gap-3 text-cyan-50 drop-shadow-[0_0_15px_rgba(6,182,212,0.4)]">
-          <Search className="w-6 h-6 text-cyan-400" />
-          YouTube SEO & Metadata
-        </h2>
+        <div className="flex items-center gap-6">
+          <h2 className="text-xl font-black uppercase tracking-widest flex items-center gap-3 text-studio text-shadow-studio">
+            <Search className="w-6 h-6 text-studio" />
+            YouTube SEO & Metadata
+          </h2>
+          <div className="hidden sm:flex items-center gap-2 px-3 py-1 bg-studio/5 border border-studio/20 rounded-lg">
+            <Box className="w-3 h-3 text-studio/50" />
+            <span className="text-[10px] font-black text-studio/60 uppercase tracking-tighter">Unit</span>
+            <span className="text-xs font-black text-white font-mono">S{session}-E{episode}</span>
+          </div>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -63,40 +72,40 @@ export function SEOPage() {
                 size="icon"
                 className={cn(
                   "h-7 w-7 rounded-full transition-all duration-300",
-                  isLikedMeta ? "text-cyan-400 bg-cyan-500/10 shadow-[0_0_10px_rgba(6,182,212,0.2)]" : "text-zinc-600 hover:text-cyan-400 hover:bg-[#0a0a0a]"
+                  isLikedMeta ? "text-studio bg-studio/10 shadow-studio" : "text-zinc-600 hover:text-studio hover:bg-[#0a0a0a]"
                 )}
                 onClick={() => setIsLikedMeta(!isLikedMeta)}
               >
                 <Heart className={cn("w-4 h-4", isLikedMeta && "fill-current")} />
               </Button>
               <Button 
-                variant="outline" size="sm" 
-                className="h-8 text-[10px] font-black uppercase tracking-widest border-zinc-800 bg-[#0a0a0a]/50 hover:bg-cyan-500/10 hover:text-cyan-400"
+                size="sm" 
+                className="bg-studio hover:bg-studio/80 text-white font-black tracking-widest uppercase text-xs h-9 px-6 shadow-studio"
                 onClick={handleGenerateMetadata}
                 disabled={isGeneratingMetadata || !generatedScript}
               >
                 {isGeneratingMetadata ? (
-                  <div className="w-3 h-3 border-2 border-cyan-500/30 border-t-cyan-500 rounded-full animate-spin mr-2" />
+                  <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
                 ) : (
                   <Sparkles className="w-3 h-3 mr-2" />
                 )}
-                {isGeneratingMetadata ? 'Optimizing...' : 'Generate SEO'}
+                {isGeneratingMetadata ? 'Generating...' : 'Generate'}
               </Button>
             </div>
           </div>
-          <Card className="bg-[#050505]/50 border border-cyan-500/10 backdrop-blur-xl shadow-2xl overflow-hidden relative">
+          <Card className="bg-[#050505]/50 border border-studio backdrop-blur-xl shadow-studio overflow-hidden relative">
             <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
-              <FileText className="w-24 h-24 text-cyan-500" />
+              <FileText className="w-24 h-24 text-studio" />
             </div>
-            <ScrollArea className="h-[550px] w-full p-0">
+            <div className="w-full p-0">
               <div className="p-8">
                 {isGeneratingMetadata ? (
-                  <div className="flex flex-col items-center justify-center h-[400px] text-cyan-700">
-                    <div className="w-8 h-8 border-2 border-cyan-500/30 border-t-cyan-500 rounded-full animate-spin mb-4 shadow-[0_0_15px_rgba(6,182,212,0.5)]" />
-                    <p className="font-sans font-medium uppercase tracking-[0.2em] text-[10px]">Optimizing for YouTube...</p>
+                  <div className="flex flex-col items-center justify-center h-[400px] text-studio">
+                    <div className="w-8 h-8 border-2 border-studio/30 border-t-studio rounded-full animate-spin mb-4 shadow-studio" />
+                    <p className="font-sans font-medium uppercase tracking-[0.2em] text-[10px] text-shadow-studio">Optimizing for YouTube...</p>
                   </div>
                 ) : generatedMetadata ? (
-                  <div className="prose prose-invert prose-cyan max-w-none animate-in fade-in duration-700 prose-h1:text-cyan-400 prose-strong:text-cyan-300">
+                  <div className="prose prose-invert max-w-none animate-in fade-in duration-700 prose-h1:text-studio prose-strong:text-studio">
                     <ReactMarkdown>{generatedMetadata}</ReactMarkdown>
                   </div>
                 ) : (
@@ -106,7 +115,7 @@ export function SEOPage() {
                   </div>
                 )}
               </div>
-            </ScrollArea>
+            </div>
           </Card>
         </div>
 
@@ -129,17 +138,17 @@ export function SEOPage() {
                 <Heart className={cn("w-4 h-4", isLikedDesc && "fill-current")} />
               </Button>
               <Button 
-                variant="outline" size="sm" 
-                className="h-8 text-[10px] font-black uppercase tracking-widest border-zinc-800 bg-[#0a0a0a]/50 hover:bg-fuchsia-500/10 hover:text-fuchsia-400"
+                size="sm" 
+                className="bg-fuchsia-600 hover:bg-fuchsia-500 text-white font-black tracking-widest uppercase text-xs h-9 px-6 shadow-[0_0_20px_rgba(192,38,211,0.3)]"
                 onClick={handleGenerateDescription}
                 disabled={isGeneratingDescription || !generatedScript}
               >
                 {isGeneratingDescription ? (
-                  <div className="w-3 h-3 border-2 border-fuchsia-500/30 border-t-fuchsia-500 rounded-full animate-spin mr-2" />
+                  <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
                 ) : (
                   <Sparkles className="w-3 h-3 mr-2" />
                 )}
-                {isGeneratingDescription ? 'Writing...' : 'Generate Description'}
+                {isGeneratingDescription ? 'Generating...' : 'Generate'}
               </Button>
             </div>
           </div>
@@ -147,7 +156,7 @@ export function SEOPage() {
             <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
               <Youtube className="w-24 h-24 text-fuchsia-500" />
             </div>
-            <ScrollArea className="h-[550px] w-full p-0">
+            <div className="w-full p-0">
               <div className="p-8">
                 {isGeneratingDescription ? (
                   <div className="flex flex-col items-center justify-center h-[400px] text-fuchsia-700">
@@ -165,7 +174,7 @@ export function SEOPage() {
                   </div>
                 )}
               </div>
-            </ScrollArea>
+            </div>
           </Card>
         </div>
       </div>

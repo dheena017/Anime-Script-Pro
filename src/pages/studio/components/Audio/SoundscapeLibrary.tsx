@@ -16,19 +16,19 @@ export const SoundscapeLibrary: React.FC = () => {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 flex items-center gap-2">
-          <Music className="w-4 h-4 text-fuchsia-500" />
+          <Music className="w-4 h-4 text-studio" />
           AI Soundscape Curation
         </h3>
-        <Badge variant="outline" className="text-[8px] border-fuchsia-500/20 text-fuchsia-400 bg-fuchsia-500/5">
+        <Badge variant="outline" className="text-[8px] border-studio/20 text-studio bg-studio/5">
            Beta: Audio Engine v1
         </Badge>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {MOCK_TRACKS.map((track) => (
-          <Card key={track.name} className="bg-[#050505] border-zinc-800 p-3 hover:border-fuchsia-500/30 transition-all group cursor-pointer relative overflow-hidden">
+          <Card key={track.name} className="bg-[#050505] border-zinc-800 p-3 hover:border-studio/30 transition-all group cursor-pointer relative overflow-hidden shadow-sm hover:shadow-studio/5">
             <div className="flex items-center gap-4 relative z-10">
-               <div className="w-10 h-10 rounded-lg bg-zinc-900 flex items-center justify-center text-zinc-600 group-hover:text-fuchsia-400 transition-colors">
+               <div className="w-10 h-10 rounded-lg bg-zinc-900 flex items-center justify-center text-zinc-600 group-hover:text-studio transition-colors">
                   <Play className="w-4 h-4 fill-current" />
                </div>
                <div className="flex-1">
@@ -49,7 +49,7 @@ export const SoundscapeLibrary: React.FC = () => {
         ))}
       </div>
       
-      <Button className="w-full h-10 bg-[#0a0a0a] border border-fuchsia-500/10 text-[9px] font-black uppercase tracking-widest text-fuchsia-500 hover:bg-fuchsia-500/10 hover:border-fuchsia-500/30 transition-all">
+      <Button className="w-full h-10 bg-[#0a0a0a] border border-studio/10 text-[9px] font-black uppercase tracking-widest text-studio hover:bg-studio/10 hover:border-studio/30 transition-all">
          Refresh AI Curation <Sparkles className="w-3 h-3 ml-2" />
       </Button>
     </div>

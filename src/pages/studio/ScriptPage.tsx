@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { Sparkles } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Textarea } from '@/components/ui/textarea';
@@ -36,6 +37,7 @@ export function ScriptPage() {
     isSaving, setIsSaving,
     isContinuingScript, setIsContinuingScript,
     currentScriptId, setCurrentScriptId,
+    setEpisode, setSession, setVisualData,
     tone, audience, prompt, episode, session, contentType, numScenes,
     generatedWorld, generatedCharacters, narrativeBeats, characterRelationships
   } = useGenerator();
@@ -45,12 +47,57 @@ export function ScriptPage() {
     setIsContinuingScript(true);
     try {
       const nextScenes = await continueScript(generatedScript, selectedModel, contentType);
-      const lines = nextScenes.split('\n').filter(l => l.includes('|') && !l.includes('---') && !l.toLowerCase().includes('section'));
+      const lines = nextScenes.split('\n').filter(l => l.includes('|') && !l.includes('---') && !l.toLowerCase().includes('scene') && !l.toLowerCase().includes('section'));
       setGeneratedScript(generatedScript + '\n' + lines.join('\n'));
     } catch (error) {
       console.error(error);
     } finally {
       setIsContinuingScript(false);
+    }
+  };
+
+  const handleNextEpisode = async () => {
+    // 1. Calculate next episode/session
+    let nextEp = parseInt(episode) + 1;
+    let nextSess = parseInt(session);
+    
+    // Assume 12 episodes per session as a standard threshold for rollover
+    if (nextEp > 12) {
+      nextEp = 1;
+      nextSess += 1;
+    }
+
+    // 2. Update state
+    setEpisode(nextEp.toString());
+    setSession(nextSess.toString());
+    setGeneratedScript(null);
+    setCurrentScriptId(null);
+    setVisualData({});
+
+    // 3. Trigger generation for the new unit
+    setIsLoading(true);
+    try {
+      const script = await generateScript(
+        prompt, tone, audience, 
+        nextSess.toString(), nextEp.toString(), 
+        numScenes, selectedModel, contentType, 
+        'Dynamic/Hype', narrativeBeats, 
+        characterRelationships, generatedWorld, generatedCharacters
+      );
+      setGeneratedScript(script);
+      if (user) {
+        await addDoc(collection(db, 'scripts'), { 
+          uid: user.uid, prompt, script, tone, audience, 
+          episode: nextEp.toString(), session: nextSess.toString(), 
+          contentType, model: selectedModel, narrativeBeats, 
+          characterRelationships, generatedWorld, generatedCharacters, 
+          createdAt: serverTimestamp() 
+        });
+      }
+    } catch (error) {
+      handleFirestoreError(error, OperationType.CREATE, 'scripts');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -83,17 +130,23 @@ export function ScriptPage() {
     if (!generatedScript) return;
     const doc = new jsPDF();
     doc.setFontSize(20);
-    doc.text("Anime Script Pro - Production Script", 14, 22);
+    doc.text(`${contentType} Script Pro - Production Script`, 14, 22);
     doc.setFontSize(10);
     doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 30);
     const tableLines = generatedScript.split('\n').filter(l => l.includes('|') && !l.includes('---'));
     if (tableLines.length > 2) {
       const body = tableLines.slice(1).map(row => row.split('|').filter(cell => cell.trim() !== "").map(cell => cell.trim()));
-      autoTable(doc, { startY: 40, head: [['Section', 'Character', 'Voiceover', 'Visuals', 'Sound']], body, theme: 'grid', headStyles: { fillColor: [6, 78, 94] } });
+      autoTable(doc, { 
+        startY: 40, 
+        head: [['Scene #', 'Section', 'Character', 'Voiceover', 'Visuals', 'Sound']], 
+        body, 
+        theme: 'grid', 
+        headStyles: { fillColor: [6, 78, 94] } 
+      });
     } else {
       doc.text(generatedScript, 14, 40, { maxWidth: 180 });
     }
-    doc.save("anime-script.pdf");
+    doc.save(`${contentType.toLowerCase()}-script.pdf`);
   };
 
   const handleSaveScript = async () => {
@@ -141,20 +194,22 @@ export function ScriptPage() {
   return (
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <h2 className="text-xl font-bold flex items-center gap-2 text-cyan-100 drop-shadow-[0_0_8px_rgba(6,182,212,0.3)]">
-          <Sparkles className="w-5 h-5 text-cyan-400" /> Production Script
+        <h2 className="text-xl font-bold flex items-center gap-2 text-studio text-shadow-studio">
+          <Sparkles className="w-5 h-5 text-studio" /> Production Script
         </h2>
-        <ScriptToolbar 
-          generatedScript={generatedScript}
-          exportToPDF={exportToPDF}
-          isEditing={isEditing}
-          setIsEditing={setIsEditing}
-          isSaving={isSaving}
-          handleSaveScript={handleSaveScript}
-        />
+        <div className="flex items-center gap-2">
+          <ScriptToolbar 
+            generatedScript={generatedScript}
+            exportToPDF={exportToPDF}
+            isEditing={isEditing}
+            setIsEditing={setIsEditing}
+            isSaving={isSaving}
+            handleSaveScript={handleSaveScript}
+          />
+        </div>
       </div>
 
-      <Card className="bg-[#050505]/50 border border-cyan-500/10 shadow-[inset_0_1px_3px_rgba(255,255,255,0.05),0_8px_32px_rgba(0,0,0,0.5)] overflow-hidden">
+      <Card className="bg-[#050505]/50 border border-studio shadow-studio overflow-hidden">
         <ScriptHeaderInfo 
           isLiked={isLiked} setIsLiked={setIsLiked}
           generatedScript={generatedScript}
@@ -164,13 +219,17 @@ export function ScriptPage() {
           prompt={prompt}
           handleContinueScript={handleContinueScript}
           isContinuingScript={isContinuingScript}
+          handleNextEpisode={handleNextEpisode}
           handleGenerateMetadata={handleGenerateMetadata}
           isGeneratingMetadata={isGeneratingMetadata}
           handleGenerateImagePrompts={handleGenerateImagePrompts}
           isGeneratingImagePrompts={isGeneratingImagePrompts}
           playVoiceover={playVoiceover}
+          session={session}
+          episode={episode}
+          narrativeBeats={narrativeBeats}
         />
-        <ScrollArea className="h-[700px] w-full p-0">
+        <div className="w-full p-0">
           <div className="p-12 max-w-4xl mx-auto">
             {isEditing ? (
               <Textarea 
@@ -181,9 +240,9 @@ export function ScriptPage() {
             ) : (
               <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
                 {isLoading ? (
-                  <div className="flex flex-col items-center justify-center h-[500px] text-cyan-600">
-                    <div className="w-10 h-10 border-2 border-cyan-500/30 border-t-cyan-400 rounded-full animate-spin mb-6 shadow-[0_0_15px_rgba(6,182,212,0.5)]" />
-                    <p className="font-sans font-medium tracking-widest text-xs uppercase drop-shadow-[0_0_8px_rgba(6,182,212,0.5)]">Initializing Production Core...</p>
+                  <div className="flex flex-col items-center justify-center h-[500px] text-studio">
+                    <div className="w-10 h-10 border-2 border-studio/30 border-t-studio rounded-full animate-spin mb-6 shadow-studio" />
+                    <p className="font-sans font-medium tracking-widest text-xs uppercase text-shadow-studio">Initializing Production Core...</p>
                   </div>
                 ) : generatedScript ? (
                   <ScriptView 
@@ -203,7 +262,7 @@ export function ScriptPage() {
               </div>
             )}
           </div>
-        </ScrollArea>
+        </div>
       </Card>
     </motion.div>
   );

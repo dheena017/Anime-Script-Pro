@@ -82,12 +82,20 @@ export function FrameworkPage() {
               <Heart className={cn("w-4 h-4", isLiked && "fill-current")} />
             </Button>
           </div>
+          
+          <Button 
+            className="bg-cyan-600 hover:bg-cyan-500 text-white font-bold tracking-widest uppercase text-[10px]"
+            size="sm"
+          >
+            <Sparkles className="w-3 h-3 mr-2" />
+            Generate
+          </Button>
         </div>
-        <ScrollArea className="h-[750px] w-full p-8 bg-[#050505]/50">
+        <div className="w-full p-8 bg-[#050505]/50">
           <div className="prose prose-invert prose-cyan max-w-none prose-h1:text-cyan-400 prose-headings:font-black prose-headings:uppercase prose-headings:tracking-widest">
             <ReactMarkdown remarkPlugins={[remarkGfm]}>{frameworkMarkdown}</ReactMarkdown>
           </div>
-        </ScrollArea>
+        </div>
       </Card>
     </motion.div>
   );

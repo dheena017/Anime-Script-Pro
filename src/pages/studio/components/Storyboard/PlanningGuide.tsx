@@ -12,15 +12,15 @@ export const PlanningGuide: React.FC = () => {
       className="overflow-hidden"
     >
       <Card className="bg-black/40 backdrop-blur-xl border-white/5 p-8 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-cyan-500/5 blur-[100px] rounded-full pointer-events-none" />
-        <h3 className="text-xl font-serif font-bold text-white mb-6 flex items-center gap-2">
-          <span className="w-8 h-[1px] bg-cyan-500"></span>
+        <div className="absolute top-0 right-0 w-64 h-64 bg-studio/5 blur-[100px] rounded-full pointer-events-none" />
+        <h3 className="text-xl font-black text-white mb-6 flex items-center gap-3 uppercase tracking-widest">
+          <span className="w-8 h-[1px] bg-studio"></span>
           Step-by-Step Scene Planning
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <div className="space-y-2">
-            <div className="flex items-center gap-2 text-cyan-400 font-semibold">
-              <MapPin className="w-4 h-4" /> Setting
+            <div className="flex items-center gap-2 text-studio font-black tracking-widest uppercase text-[10px]">
+              <MapPin className="w-4 h-4 text-studio" /> Setting
             </div>
             <p className="text-sm text-zinc-400 leading-relaxed">
               Define the environment, time of day, and atmosphere. How does the location reflect the scene's tone?

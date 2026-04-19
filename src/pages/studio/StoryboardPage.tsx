@@ -276,7 +276,7 @@ export function StoryboardPage() {
         {isGuideOpen && <PlanningGuide />}
       </AnimatePresence>
 
-      <ScrollArea className="h-[750px] w-full pr-4 pb-20">
+      <div className="w-full pr-4 pb-20">
         {scenes.length > 0 ? (
           <div className="space-y-12">
             <DragDropContext onDragEnd={handleDragEnd}>
@@ -320,7 +320,7 @@ export function StoryboardPage() {
             
             <div className="pt-10 space-y-12">
               <SceneTimeline scenes={scenes} />
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 pt-6 border-t border-cyan-500/10">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 pt-6 border-t border-studio/10">
                 <Moodboard />
                 <SoundscapeLibrary />
               </div>
@@ -329,7 +329,7 @@ export function StoryboardPage() {
         ) : (
           <EmptyState handleAddScene={handleAddScene} handleLoadDemo={handleLoadDemo} />
         )}
-      </ScrollArea>
+      </div>
     </motion.div>
   );
 }

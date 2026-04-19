@@ -21,6 +21,9 @@ import { TemplatePage } from './pages/studio/TemplatePage';
 import { FrameworkPage } from './pages/studio/FrameworkPage';
 import { NarrativeBeatsPage } from './pages/studio/NarrativeBeatsPage';
 import { WorldPage } from './pages/studio/WorldPage';
+import ManhwaPortal from './pages/studio/ManhwaPortal';
+import AnimePortal from './pages/studio/AnimePortal';
+import ComicPortal from './pages/studio/ComicPortal';
 
 import Dashboard from './pages/Dashboard';
 
@@ -49,7 +52,7 @@ export default function App() {
                 </Route>
 
                 <Route path="/anime" element={<StudioLayout type="Anime" />}>
-                  <Route index element={<ScriptPage />} />
+                  <Route index element={<AnimePortal />} />
                   <Route path="script" element={<ScriptPage />} />
                   <Route path="cast" element={<CastPage />} />
                   <Route path="series" element={<SeriesPage />} />
@@ -64,7 +67,7 @@ export default function App() {
                 </Route>
 
                 <Route path="/manhwa" element={<StudioLayout type="Manhwa" />}>
-                  <Route index element={<ScriptPage />} />
+                  <Route index element={<ManhwaPortal />} />
                   <Route path="script" element={<ScriptPage />} />
                   <Route path="cast" element={<CastPage />} />
                   <Route path="series" element={<SeriesPage />} />
@@ -79,7 +82,7 @@ export default function App() {
                 </Route>
 
                 <Route path="/comic" element={<StudioLayout type="Comic" />}>
-                  <Route index element={<ScriptPage />} />
+                  <Route index element={<ComicPortal />} />
                   <Route path="script" element={<ScriptPage />} />
                   <Route path="cast" element={<CastPage />} />
                   <Route path="series" element={<SeriesPage />} />

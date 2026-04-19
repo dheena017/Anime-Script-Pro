@@ -1,10 +1,10 @@
 import { callAI, RateLimitError } from "./core";
 import { MOCK_SERIES_PLAN } from "./mockData";
 
-export async function generateSeriesPlan(prompt: string, model: string = "gemini-3-flash-preview", contentType: string = "Anime") {
+export async function generateSeriesPlan(prompt: string, model: string = "gemini-3-flash-preview", contentType: string = "Anime", episodeCount: number = 5) {
   const systemInstruction = `
     You are a YouTube Content Strategist for ${contentType}.
-    Based on the provided concept, create a 5-episode production plan.
+    Based on the provided concept, create a ${episodeCount}-episode production plan.
     
     Return ONLY a JSON array of objects:
     [
@@ -15,12 +15,12 @@ export async function generateSeriesPlan(prompt: string, model: string = "gemini
       }
     ]
     
-    Ensure the arc has a logical progression and high-stakes tension.
+    Ensure the arc has a logical progression and high-stakes tension across all ${episodeCount} episodes.
     Return ONLY the raw JSON array.
   `;
 
   try {
-    const text = await callAI(model, `Generate a 5-episode production plan for: ${prompt}`, systemInstruction);
+    const text = await callAI(model, `Generate a ${episodeCount}-episode production plan for: ${prompt}`, systemInstruction);
     const cleanJson = text.replace(/```json|```/g, "").trim();
     return JSON.parse(cleanJson);
   } catch (error: any) {

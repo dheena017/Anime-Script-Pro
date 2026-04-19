@@ -1,6 +1,7 @@
 import React from 'react';
-import { Users, UserPlus } from 'lucide-react';
+import { Users, UserPlus, Sparkles, Box } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useGenerator } from '@/contexts/GeneratorContext';
 
 interface CastHeaderProps {
   isGeneratingCharacters: boolean;
@@ -13,25 +14,33 @@ export const CastHeader: React.FC<CastHeaderProps> = ({
   handleGenerate,
   prompt
 }) => {
+  const { session, episode } = useGenerator();
+
   return (
     <div className="flex items-center justify-between">
-      <h2 className="text-xl font-bold flex items-center gap-2 text-cyan-100 drop-shadow-[0_0_8px_rgba(6,182,212,0.3)]">
-        <Users className="w-5 h-5 text-cyan-400" />
-        Character Cast
-      </h2>
+      <div className="flex items-center gap-6">
+        <h2 className="text-xl font-black uppercase tracking-widest flex items-center gap-3 text-studio text-shadow-studio">
+          <Users className="w-5 h-5 text-studio" />
+          Character Cast
+        </h2>
+        <div className="hidden sm:flex items-center gap-2 px-3 py-1 bg-studio/5 border border-studio/20 rounded-lg">
+          <Box className="w-3 h-3 text-studio/50" />
+          <span className="text-[10px] font-black text-studio/60 uppercase tracking-tighter">Unit</span>
+          <span className="text-xs font-black text-white font-mono">S{session}-E{episode}</span>
+        </div>
+      </div>
       <Button 
-        variant="outline" 
         size="sm" 
-        className="border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 text-zinc-400 h-8 px-3"
+        className="bg-studio hover:bg-studio/80 text-white font-black tracking-widest uppercase text-xs h-9 px-6 shadow-studio"
         onClick={handleGenerate}
         disabled={isGeneratingCharacters || !prompt.trim()}
       >
         {isGeneratingCharacters ? (
-          <div className="w-4 h-4 border-2 border-cyan-500/30 border-t-cyan-500 rounded-full animate-spin mr-2" />
+          <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
         ) : (
-          <UserPlus className="w-4 h-4 mr-2" />
+          <Sparkles className="w-3 h-3 mr-2" />
         )}
-        {isGeneratingCharacters ? 'Designing...' : 'Regenerate Cast'}
+        {isGeneratingCharacters ? 'Sketching...' : 'Generate'}
       </Button>
     </div>
   );

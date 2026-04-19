@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ScrollText, Search } from 'lucide-react';
+import { ScrollText, Search, Sparkles } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
@@ -44,29 +45,31 @@ export function TemplatePage() {
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div className="space-y-2">
-          <h2 className="text-3xl font-black uppercase tracking-[0.2em] flex items-center gap-3 text-cyan-50 drop-shadow-[0_0_15px_rgba(6,182,212,0.6)]">
-            <ScrollText className="w-8 h-8 text-cyan-400" /> Forge Library
+          <h2 className="text-3xl font-black uppercase tracking-[0.2em] flex items-center gap-3 text-studio text-shadow-studio">
+            <ScrollText className="w-8 h-8 text-studio" /> Forge Library
           </h2>
-          <p className="text-cyan-500/60 font-bold uppercase tracking-[0.2em] text-[10px] bg-cyan-950/30 px-3 py-1 rounded-full border border-cyan-500/20 inline-block">
+          <p className="text-studio/60 font-bold uppercase tracking-[0.2em] text-[10px] bg-studio/10 px-3 py-1 rounded-full border border-studio/20 inline-block">
             Production-Ready Frameworks & Blueprints
           </p>
         </div>
         
-        <div className="flex items-center gap-2 p-1 bg-[#0a0a0a] rounded-full border border-zinc-800 shadow-[0_0_20px_rgba(0,0,0,0.5)]">
-          {(['prompts', 'structure', 'custom'] as const).map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={cn(
-                "px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all",
-                activeTab === tab 
-                  ? `${tab === 'prompts' ? 'bg-cyan-500' : tab === 'structure' ? 'bg-orange-500' : 'bg-purple-500'} text-white shadow-[0_0_15px_rgba(0,0,0,0.4)]` 
-                  : "text-zinc-500 hover:text-white"
-              )}
-            >
-              {tab === 'prompts' ? 'Blueprints' : tab === 'structure' ? 'Standard' : 'Vault'}
-            </button>
-          ))}
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 p-1 bg-[#0a0a0a] rounded-full border border-zinc-800 shadow-[0_0_20px_rgba(0,0,0,0.5)]">
+            {(['prompts', 'structure', 'custom'] as const).map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={cn(
+                  "px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all",
+                  activeTab === tab 
+                    ? `${tab === 'prompts' ? 'bg-studio' : tab === 'structure' ? 'bg-orange-500' : 'bg-studio shadow-studio'} text-white shadow-[0_0_15px_rgba(0,0,0,0.4)]` 
+                    : "text-zinc-500 hover:text-white"
+                )}
+              >
+                {tab === 'prompts' ? 'Blueprints' : tab === 'structure' ? 'Standard' : 'Vault'}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -80,7 +83,7 @@ export function TemplatePage() {
                   variant="outline"
                   className={cn(
                     "cursor-pointer px-3 py-1 text-[9px] uppercase tracking-widest font-bold transition-all border-zinc-800",
-                    selectedCategory === cat ? "bg-cyan-500/20 text-cyan-400 border-cyan-500/50" : "text-zinc-500 hover:text-cyan-400"
+                    selectedCategory === cat ? "bg-studio/20 text-studio border-studio/50" : "text-zinc-500 hover:text-studio"
                   )}
                   onClick={() => setSelectedCategory(cat)}
                 >
@@ -88,14 +91,24 @@ export function TemplatePage() {
                 </Badge>
               ))}
             </div>
-            <div className="relative w-full md:w-64">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-cyan-600" />
-              <Input 
-                placeholder="Find Blueprint..."
-                className="pl-10 h-9 bg-black/40 border-cyan-500/10 focus:border-cyan-500/40 text-[11px] rounded-full"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
+            
+            <div className="flex items-center gap-4">
+              <Button 
+                size="sm" 
+                className="bg-studio hover:bg-studio/80 text-white font-black tracking-widest uppercase text-xs h-9 px-6 shadow-studio"
+              >
+                <Sparkles className="w-3 h-3 mr-2" />
+                 Generate
+              </Button>
+              <div className="relative w-full md:w-64">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-studio/60" />
+                <Input 
+                  placeholder="Find Blueprint..."
+                  className="pl-10 h-9 bg-black/40 border-studio/10 focus:border-studio/40 text-[11px] rounded-full"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
             </div>
           </div>
 

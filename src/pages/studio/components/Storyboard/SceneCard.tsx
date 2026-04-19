@@ -84,8 +84,8 @@ export const SceneCard: React.FC<SceneCardProps> = ({
       <Card className={cn(
         "bg-gradient-to-br from-[#111318] to-[#0a0b0e] border transition-all duration-500 overflow-hidden group hover:scale-[1.02]",
         isDragging 
-          ? "border-cyan-500 shadow-[0_0_40px_rgba(6,182,212,0.3)] scale-[1.02] z-50 relative" 
-          : "border-zinc-800 hover:border-cyan-500/50 hover:shadow-[0_0_25px_rgba(6,182,212,0.15)]"
+          ? "border-studio shadow-studio scale-[1.02] z-50 relative" 
+          : "border-zinc-800 hover:border-studio/50 hover:shadow-studio/20"
       )}>
         <div className="absolute inset-0 opacity-[0.02] bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:10px_10px] pointer-events-none" />
         
@@ -93,8 +93,8 @@ export const SceneCard: React.FC<SceneCardProps> = ({
         <div className="aspect-video bg-zinc-950/50 flex items-center justify-center border-b border-white/5 relative overflow-hidden z-10">
           {visualData[scene.originalIndex] === 'loading' ? (
             <div className="flex flex-col items-center gap-3">
-              <div className="w-8 h-8 border-2 border-cyan-500/30 border-t-cyan-500 rounded-full animate-spin" />
-              <p className="text-[9px] text-cyan-400 uppercase tracking-widest font-medium">Generating Frame...</p>
+              <div className="w-8 h-8 border-2 border-studio/30 border-t-studio rounded-full animate-spin" />
+              <p className="text-[9px] text-studio uppercase tracking-widest font-black">Generating Frame...</p>
             </div>
           ) : visualData[scene.originalIndex] ? (
             <img 
@@ -110,7 +110,7 @@ export const SceneCard: React.FC<SceneCardProps> = ({
               <Button 
                 variant="ghost" 
                 size="sm" 
-                className="mt-4 h-8 text-[10px] text-cyan-500 hover:text-cyan-400 hover:bg-cyan-500/10 uppercase tracking-wider font-semibold transition-all"
+                className="mt-4 h-8 text-[10px] text-studio hover:text-studio/80 hover:bg-studio/10 uppercase tracking-widest font-black transition-all"
                 onClick={() => handleGenerateVisual(scene.originalIndex, scene.visuals)}
               >
                 <Sparkles className="w-3.5 h-3.5 mr-1.5" />
@@ -120,9 +120,9 @@ export const SceneCard: React.FC<SceneCardProps> = ({
           )}
 
           {/* Scene Label & Drag Handle */}
-          <div className="absolute top-3 left-3 bg-black/60 backdrop-blur-md border border-cyan-500/30 text-cyan-100 text-[9px] font-bold px-2.5 py-1.5 rounded shadow-[0_0_10px_rgba(6,182,212,0.2)] flex items-center gap-1.5 uppercase tracking-widest">
+          <div className="absolute top-3 left-3 bg-black/60 backdrop-blur-md border border-studio/30 text-zinc-100 text-[9px] font-black px-2.5 py-1.5 rounded shadow-studio flex items-center gap-1.5 uppercase tracking-widest">
             <div {...dragHandleProps} className="cursor-grab active:cursor-grabbing mr-1">
-              <GripVertical className="w-3.5 h-3.5 opacity-70 hover:opacity-100 transition-opacity text-cyan-400" />
+              <GripVertical className="w-3.5 h-3.5 opacity-70 hover:opacity-100 transition-opacity text-studio" />
             </div>
             Scene {String(index + 1).padStart(2, '0')}
           </div>
@@ -130,7 +130,7 @@ export const SceneCard: React.FC<SceneCardProps> = ({
           {visualData[scene.originalIndex] && visualData[scene.originalIndex] !== 'loading' && (
             <button 
               onClick={() => handleGenerateVisual(scene.originalIndex, scene.visuals)}
-              className="absolute top-3 right-3 p-2 bg-black/60 backdrop-blur-md border border-cyan-500/30 hover:bg-cyan-600 hover:border-cyan-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0 shadow-[0_0_15px_rgba(6,182,212,0.3)]"
+              className="absolute top-3 right-3 p-2 bg-black/60 backdrop-blur-md border border-studio/30 hover:bg-studio hover:border-studio text-black rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0 shadow-studio"
               title="Regenerate Visual"
             >
               <Wand2 className="w-3.5 h-3.5" />
@@ -151,7 +151,7 @@ export const SceneCard: React.FC<SceneCardProps> = ({
                 <Input 
                   value={editForm.section || ''} 
                   onChange={(e) => setEditForm({...editForm, section: e.target.value})}
-                  className="h-8 text-xs bg-black/50 border-white/10 focus-visible:ring-cyan-500/50"
+                  className="h-8 text-xs bg-black/50 border-white/10 focus-visible:ring-studio/50"
                 />
               </div>
               <div className="space-y-1.5">
@@ -160,12 +160,12 @@ export const SceneCard: React.FC<SceneCardProps> = ({
                   <Button 
                     variant="ghost" 
                     size="sm" 
-                    className="h-6 px-2.5 text-[9px] text-cyan-400 hover:text-cyan-300 hover:bg-cyan-400/10 uppercase tracking-wider font-bold"
+                    className="h-6 px-2.5 text-[9px] text-studio hover:text-studio/80 hover:bg-studio/10 uppercase tracking-widest font-black"
                     onClick={handleEnhanceNarration}
                     disabled={isEnhancingNarration}
                   >
                     {isEnhancingNarration ? (
-                      <div className="w-3 h-3 border-2 border-cyan-500/30 border-t-cyan-500 rounded-full animate-spin mr-1.5" />
+                      <div className="w-3 h-3 border-2 border-studio/30 border-t-studio rounded-full animate-spin mr-1.5" />
                     ) : (
                       <Sparkles className="w-3 h-3 mr-1.5" />
                     )}
@@ -175,7 +175,7 @@ export const SceneCard: React.FC<SceneCardProps> = ({
                 <Textarea 
                   value={editForm.narration || ''} 
                   onChange={(e) => setEditForm({...editForm, narration: e.target.value})}
-                  className="min-h-[60px] text-sm font-serif bg-black/50 border-white/10 resize-none focus-visible:ring-cyan-500/50 leading-relaxed"
+                  className="min-h-[60px] text-sm font-serif bg-black/50 border-white/10 resize-none focus-visible:ring-studio/50 leading-relaxed"
                 />
               </div>
               <div className="space-y-1.5">
@@ -252,7 +252,7 @@ export const SceneCard: React.FC<SceneCardProps> = ({
                 <Button variant="ghost" size="sm" onClick={cancelEditing} className="h-8 text-[10px] uppercase tracking-wider font-bold hover:bg-white/5">
                   <X className="w-3.5 h-3.5 mr-1.5" /> Cancel
                 </Button>
-                <Button variant="default" size="sm" onClick={saveSceneEdits} className="h-8 text-[10px] uppercase tracking-wider font-bold bg-cyan-600 hover:bg-cyan-500 text-white shadow-[0_0_15px_rgba(6,182,212,0.3)]">
+                <Button variant="default" size="sm" onClick={saveSceneEdits} className="h-8 text-[10px] uppercase tracking-widest font-black bg-studio hover:bg-studio/80 text-black shadow-studio">
                   <Save className="w-3.5 h-3.5 mr-1.5" /> Save
                 </Button>
               </div>
@@ -289,7 +289,7 @@ export const SceneCard: React.FC<SceneCardProps> = ({
               </div>
               <div className="text-[10px] text-zinc-500 font-mono flex items-center gap-1.5 mt-2">
                 <span className="opacity-70">Duration:</span>
-                <span className="text-cyan-400">{scene.duration}</span>
+                <span className="text-studio">{scene.duration}</span>
               </div>
             </>
           )}

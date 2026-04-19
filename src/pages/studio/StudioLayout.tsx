@@ -1,5 +1,6 @@
 import React from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
+import { cn } from '@/lib/utils';
 import { useGenerator } from '@/contexts/GeneratorContext';
 import { generateScript, generateCharacters, generateSeriesPlan, generateWorld, generateNarrativeBeats } from '@/services/geminiService';
 import { auth } from '@/firebase';
@@ -83,24 +84,23 @@ export function StudioLayout({ type }: { type?: string }) {
       const worldPromise = generateWorld(prompt, selectedModel, contentType);
       // 2. Generate Cast Profiles
       const castPromise = generateCharacters(prompt, selectedModel, contentType);
-      // 3. Generate Narrative Beats
-      const beatsPromise = generateNarrativeBeats(prompt, selectedModel, contentType);
-      // 4. Generate Series Plan
-      const seriesPromise = generateSeriesPlan(prompt, selectedModel, contentType);
-
-      const [world, cast, beats, series] = await Promise.all([
-        worldPromise, castPromise, beatsPromise, seriesPromise
-      ]);
-
+      
+      const [world, cast] = await Promise.all([worldPromise, castPromise]);
+      
       if (world) setGeneratedWorld(world);
       if (cast) setGeneratedCharacters(cast);
+
+      // 3. Generate Narrative Beats (using established world and cast)
+      const beats = await generateNarrativeBeats(prompt, selectedModel, contentType, world, cast);
+      // 4. Generate Series Plan
+      const series = await generateSeriesPlan(prompt, selectedModel, contentType);
+
       if (beats && Array.isArray(beats)) {
         const formattedBeats = beats.map((b: any, i: number) => `${i + 1}. ${b.label} (${b.duration}): ${b.description}`).join('\n');
         setNarrativeBeats(formattedBeats);
       }
       if (series && Array.isArray(series)) {
-        const formattedSeries = series.map((s: any) => `${s.episode}: ${s.title}\n${s.hook}`).join('\n\n');
-        setGeneratedSeriesPlan(formattedSeries);
+        setGeneratedSeriesPlan(series);
       }
 
       // Success feedback or redirect
@@ -139,8 +139,12 @@ export function StudioLayout({ type }: { type?: string }) {
   }, [type, setContentType]);
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-10 grid grid-cols-1 lg:grid-cols-12 gap-8">
-      <div className="lg:col-span-4 space-y-6">
+    <div className={cn(
+      "w-full min-h-screen transition-colors duration-500",
+      type === 'Manhwa' ? 'theme-manhwa' : type === 'Comic' ? 'theme-comic' : 'theme-anime'
+    )}>
+      <div className="w-full max-w-[1800px] mx-auto px-4 sm:px-6 py-6 lg:py-10 grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
+        <div className="lg:col-span-4 xl:col-span-3 space-y-6">
         <ProductionCore 
           prompt={prompt} setPrompt={setPrompt}
           tone={tone} setTone={setTone}
@@ -166,14 +170,15 @@ export function StudioLayout({ type }: { type?: string }) {
           user={user}
           basePath={basePath}
           navigate={navigate}
+          contentType={contentType}
         />
       </div>
 
-      <div className="lg:col-span-8 flex flex-col gap-6 overflow-y-auto max-h-[90vh] pr-2">
-        <StudioNavigation basePath={basePath} />
-        <div className="flex-1 min-h-[800px] bg-gradient-to-br from-[#111318] to-[#0a0b0e] border border-zinc-800 shadow-[0_8px_32px_rgba(0,0,0,0.4)] rounded-2xl overflow-auto relative">
+      <div className="lg:col-span-8 xl:col-span-9 flex flex-col gap-6 lg:overflow-y-auto lg:max-h-[calc(100vh-160px)] pr-0 lg:pr-2">
+        <StudioNavigation basePath={basePath} handleGenerate={handleGenerate} isLoading={isLoading} />
+        <div className="flex-1 min-h-[500px] lg:min-h-[850px] bg-gradient-to-br from-[#111318] to-[#0a0b0e] border border-zinc-800 shadow-[0_8px_32px_rgba(0,0,0,0.4)] rounded-3xl overflow-auto relative">
           <div className="absolute inset-0 opacity-[0.02] bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:20px_20px] pointer-events-none" />
-          <div className="relative z-10 w-full h-full p-2">
+          <div className="relative z-10 w-full h-full p-2 lg:p-4">
             <Outlet />
           </div>
         </div>
@@ -191,6 +196,7 @@ export function StudioLayout({ type }: { type?: string }) {
           setSelectedModel={setSelectedModel}
           setGeneratedMetadata={setGeneratedMetadata}
         />
+      </div>
       </div>
     </div>
   );

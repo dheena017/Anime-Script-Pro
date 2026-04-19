@@ -56,12 +56,13 @@ export async function generateScript(
     - Instead of "Scary music": Describe the soundscape (e.g., "Dissonant, screeching violins that suddenly cut to a low, vibrating hum").
     - Instead of "Sword clash": Describe the resonance (e.g., "A high-frequency metallic ring that echoes through the stone hall").
     
-    The script MUST be formatted as a Markdown table with exactly 5 columns in this STRICT ORDER, and contain exactly ${numScenes} rows of content:
-    1. Section (e.g., Hook, Intro, Rising Action, Climax, Conclusion, Outro)
-    2. Character/Protagonist (Who is the focus?)
-    3. Voiceover Narration (The spoken lines, with (delivery details) in parentheses)
-    4. Visual/Cinematic Direction (MANDATORY: Evocative details. Specify EXACT Camera Angle, Lighting Mood, Environmental Reaction, and Character Micro-Action.)
-    5. Audio Landscape (MANDATORY: Layered design. Specific sound effects, BGM instruments, and audio textures/reverb.)
+    The script MUST be formatted as a Markdown table with exactly 6 columns in this STRICT ORDER, and contain exactly ${numScenes} rows of content:
+    1. Scene # (e.g., 1, 2, 3...)
+    2. Section (e.g., Hook, Intro, Rising Action, Climax, Conclusion, Outro)
+    3. Character/Protagonist (Who is the focus?)
+    4. Voiceover Narration (The spoken lines, with (delivery details) in parentheses)
+    5. Visual/Cinematic Direction (MANDATORY: Evocative details. Specify EXACT Camera Angle, Lighting Mood, Environmental Reaction, and Character Micro-Action.)
+    6. Audio Landscape (MANDATORY: Layered design. Specific sound effects, BGM instruments, and audio textures/reverb.)
     
     Ensure the hook is exactly 15 seconds and gripping.
     The total script should cover approximately 5 minutes of content.
@@ -101,12 +102,13 @@ export async function continueScript(currentScript: string, model: string = "gem
     2. Scene Creation: Title, Setting, Characters, Action & Dialogue, Inner Thoughts, and Closing Frame.
     
     Maintain the same tone and character consistency.
-    Format the output as a Markdown table with exactly 5 columns in this STRICT ORDER:
-    1. Section
-    2. Character/Protagonist
-    3. Voiceover Narration (with (delivery details))
-    4. Visual/Cinematic Direction (MANDATORY: Exact Camera Angle, Lighting Mood, Environmental Reaction, and Character Micro-Action)
-    5. Audio Landscape (MANDATORY: Layered design, specific effects, BGM instruments)
+    Format the output as a Markdown table with exactly 6 columns in this STRICT ORDER:
+    1. Scene #
+    2. Section
+    3. Character/Protagonist
+    4. Voiceover Narration (with (delivery details))
+    5. Visual/Cinematic Direction (MANDATORY: Exact Camera Angle, Lighting Mood, Environmental Reaction, and Character Micro-Action)
+    6. Audio Landscape (MANDATORY: Layered design, specific effects, BGM instruments)
     
     Return ONLY the markdown table for the NEW scenes.
   `;

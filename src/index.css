@@ -10,6 +10,21 @@
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-serif: "Playfair Display", ui-serif, Georgia, serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  
+  --color-studio: var(--studio-primary);
+  --color-studio-glow: var(--studio-glow);
+}
+
+@utility shadow-studio {
+  box-shadow: 0 0 15px var(--studio-glow);
+}
+
+@utility text-shadow-studio {
+  text-shadow: 0 0 8px var(--studio-glow);
+}
+
+@utility border-studio {
+  border-color: color-mix(in srgb, var(--studio-primary), transparent 80%);
 }
 
 @layer base {
@@ -176,6 +191,31 @@
     --sidebar-accent-foreground: oklch(0.6 0.25 250);
     --sidebar-border: oklch(1 0 0 / 10%);
     --sidebar-ring: oklch(0.6 0.25 250);
+
+    /* Studio Specifics */
+    --studio-primary: oklch(0.6 0.25 250);
+    --studio-glow: rgba(6, 182, 212, 0.5);
+}
+
+.theme-manhwa {
+    --studio-primary: oklch(0.75 0.25 150); /* Webtoon Green */
+    --studio-glow: rgba(34, 197, 94, 0.5);
+    --primary: oklch(0.75 0.25 150);
+    --ring: oklch(0.75 0.25 150);
+}
+
+.theme-comic {
+    --studio-primary: oklch(0.6 0.25 25); /* Superhero Red */
+    --studio-glow: rgba(220, 38, 38, 0.5);
+    --primary: oklch(0.6 0.25 25);
+    --ring: oklch(0.6 0.25 25);
+}
+
+.theme-anime {
+    --studio-primary: oklch(0.6 0.25 250);
+    --studio-glow: rgba(6, 182, 212, 0.5);
+    --primary: oklch(0.6 0.25 250);
+    --ring: oklch(0.6 0.25 250);
 }
 
 .dark {

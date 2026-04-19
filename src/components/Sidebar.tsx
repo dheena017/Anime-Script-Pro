@@ -207,9 +207,21 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
 
   return (
     <>
-      <aside className="w-64 border-r border-zinc-800 bg-[#050505] hidden lg:flex flex-col h-screen sticky top-0 shrink-0 z-50">
-        {content}
-      </aside>
+      <AnimatePresence initial={false}>
+        {isOpen && (
+          <motion.aside 
+            initial={{ width: 0, opacity: 0 }}
+            animate={{ width: 256, opacity: 1 }}
+            exit={{ width: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="border-r border-zinc-800 bg-[#050505] hidden lg:flex flex-col h-screen sticky top-0 shrink-0 z-50 overflow-hidden"
+          >
+            <div className="w-64 h-full shrink-0">
+              {content}
+            </div>
+          </motion.aside>
+        )}
+      </AnimatePresence>
 
       <AnimatePresence>
         {isOpen && (

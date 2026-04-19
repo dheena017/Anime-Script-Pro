@@ -6,6 +6,14 @@ import OpenAI from "openai";
 import Anthropic from "@anthropic-ai/sdk";
 import Groq from "groq-sdk";
 import dotenv from "dotenv";
+import pg from "pg";
+
+dotenv.config();
+
+const { Pool } = pg;
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+});
 
 dotenv.config();
 
@@ -78,6 +86,32 @@ async function startServer() {
     } catch (error) {
       console.error("Generation error:", error);
       res.status(500).json({ error: error instanceof Error ? error.message : "Internal Server Error" });
+    }
+  });
+
+  // Database Assets Endpoints
+  app.get("/api/categories", async (req, res) => {
+    try {
+      const result = await pool.query("SELECT * FROM categories ORDER BY name ASC");
+      res.json(result.rows);
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+      res.status(500).json({ error: "Failed to fetch categories" });
+    }
+  });
+
+  app.get("/api/templates", async (req, res) => {
+    try {
+      const result = await pool.query(`
+        SELECT t.*, c.name as category_name, c.color as category_color 
+        FROM production_templates t 
+        LEFT JOIN categories c ON t.category_id = c.id 
+        ORDER BY t.created_at DESC
+      `);
+      res.json(result.rows);
+    } catch (error) {
+      console.error("Error fetching templates:", error);
+      res.status(500).json({ error: "Failed to fetch templates" });
     }
   });
 

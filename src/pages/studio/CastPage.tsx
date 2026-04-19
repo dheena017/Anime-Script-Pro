@@ -47,7 +47,7 @@ export function CastPage() {
               onClick={() => setActiveTab('profiles')}
               className={cn(
                 "px-8 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
-                activeTab === 'profiles' ? "bg-cyan-600 text-white shadow-lg" : "text-zinc-500 hover:text-zinc-300"
+                activeTab === 'profiles' ? "bg-studio text-white shadow-studio" : "text-zinc-500 hover:text-studio"
               )}
             >
               Character Profiles
@@ -56,7 +56,7 @@ export function CastPage() {
               onClick={() => setActiveTab('relationships')}
               className={cn(
                 "px-8 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
-                activeTab === 'relationships' ? "bg-fuchsia-600 text-white shadow-lg" : "text-zinc-500 hover:text-zinc-300"
+                activeTab === 'relationships' ? "bg-fuchsia-600 text-white shadow-[0_0_15px_rgba(192,38,211,0.3)]" : "text-zinc-500 hover:text-fuchsia-400"
               )}
             >
               Relationship Matrix
@@ -64,16 +64,16 @@ export function CastPage() {
          </div>
       </div>
 
-      <Card className="bg-[#050505]/50 border border-cyan-500/10 shadow-[inset_0_1px_3px_rgba(255,255,255,0.05),0_8px_32px_rgba(0,0,0,0.5)] overflow-hidden min-h-[700px]">
-        <ScrollArea className="h-[750px] w-full p-0">
+      <Card className="bg-[#050505]/50 border border-studio shadow-studio overflow-hidden min-h-[700px]">
+        <div className="w-full p-0">
           <div className="p-12 max-w-5xl mx-auto">
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
               {activeTab === 'relationships' ? (
                 <RelationshipLab />
               ) : isGeneratingCharacters ? (
-                <div className="flex flex-col items-center justify-center h-[500px] text-cyan-600">
-                  <div className="w-10 h-10 border-2 border-cyan-500/30 border-t-cyan-400 rounded-full animate-spin mb-6 shadow-[0_0_15px_rgba(6,182,212,0.5)]" />
-                  <p className="font-sans font-medium tracking-widest text-xs uppercase drop-shadow-[0_0_8px_rgba(6,182,212,0.5)]">Sketching character souls...</p>
+                <div className="flex flex-col items-center justify-center h-[500px] text-studio">
+                  <div className="w-10 h-10 border-2 border-studio/30 border-t-studio rounded-full animate-spin mb-6 shadow-studio" />
+                  <p className="font-sans font-medium tracking-widest text-xs uppercase text-shadow-studio">Sketching character souls...</p>
                 </div>
               ) : generatedCharacters ? (
                 <CastView 
@@ -90,7 +90,7 @@ export function CastPage() {
               )}
             </div>
           </div>
-        </ScrollArea>
+        </div>
       </Card>
     </motion.div>
   );
