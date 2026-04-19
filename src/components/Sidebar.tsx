@@ -20,7 +20,8 @@ import {
   Clapperboard,
   Zap,
   Sword,
-  Shield
+  Shield,
+  Globe
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
@@ -40,15 +41,17 @@ const modeItems = [
 ];
 
 const studioItems = [
-  { icon: FileText, label: 'Script', path: 'script' },
+  { icon: BookOpen, label: 'Template', path: 'template' },
+  { icon: FileText, label: 'Methods', path: 'framework' },
+  { icon: Globe, label: 'World Lore', path: 'world' },
+  { icon: Zap, label: 'Narrative Beats', path: 'beats' },
   { icon: UserPlus, label: 'Cast', path: 'cast' },
   { icon: Layers, label: 'Series', path: 'series' },
+  { icon: ScrollText, label: 'Script', path: 'script' },
   { icon: LayoutIcon, label: 'Storyboard', path: 'storyboard' },
   { icon: Search, label: 'SEO', path: 'seo' },
   { icon: ImageIcon, label: 'Prompts', path: 'prompts' },
   { icon: Play, label: 'Example', path: 'example' },
-  { icon: ScrollText, label: 'Template', path: 'template' },
-  { icon: LayoutGrid, label: 'Framework', path: 'framework' },
 ];
 
 interface SidebarProps {
@@ -69,14 +72,70 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
 
   const prefix = getPrefix();
 
+  const foundationItems = [
+    { icon: BookOpen, label: 'Template', path: 'template' },
+    { icon: FileText, label: 'Methods', path: 'framework' },
+    { icon: Globe, label: 'World Lore', path: 'world' },
+  ];
+
+  const architectureItems = [
+    { icon: Zap, label: 'Narrative Beats', path: 'beats' },
+    { icon: UserPlus, label: 'Cast', path: 'cast' },
+    { icon: Layers, label: 'Series', path: 'series' },
+  ];
+
+  const generationItems = [
+    { icon: ScrollText, label: 'Script', path: 'script' },
+    { icon: LayoutIcon, label: 'Storyboard', path: 'storyboard' },
+  ];
+
+  const distributionItems = [
+    { icon: Search, label: 'SEO', path: 'seo' },
+    { icon: ImageIcon, label: 'Prompts', path: 'prompts' },
+    { icon: Play, label: 'Example', path: 'example' },
+  ];
+
+  const renderNavGroup = (items: typeof foundationItems, title: string) => (
+    <div className="space-y-1 mt-6">
+      <p className="px-4 text-[9px] font-black text-zinc-500 uppercase tracking-[0.2em] mb-3 flex items-center gap-2">
+        <span className="w-4 h-[1px] bg-zinc-800" /> {title}
+      </p>
+      {items.map((item) => {
+        const fullPath = `${prefix}/${item.path}`;
+        const isActive = location.pathname === fullPath || (location.pathname === prefix && item.path === 'script' && title === "Phase 3: Generation");
+        
+        return (
+          <NavLink
+            key={item.path}
+            to={fullPath}
+            onClick={onClose}
+            className={cn(
+              "flex items-center gap-3 px-4 py-2 rounded-lg text-xs font-bold transition-all duration-200 group uppercase tracking-widest",
+              isActive 
+                ? "bg-red-600/10 text-red-500 border border-red-500/20 shadow-[0_0_15px_rgba(220,38,38,0.1)]" 
+                : "text-zinc-500 hover:text-zinc-100 hover:bg-zinc-800/50"
+            )}
+          >
+            <item.icon className={cn(
+              "w-4 h-4",
+              isActive ? "text-red-500" : "text-zinc-600 group-hover:text-zinc-300",
+              "group-hover:scale-110 transition-transform"
+            )} />
+            {item.label}
+          </NavLink>
+        );
+      })}
+    </div>
+  );
+
   const content = (
     <div className="flex flex-col h-full">
       <div className="p-6 border-b border-zinc-800/50 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-red-600 rounded flex items-center justify-center shadow-[0_0_15px_rgba(220,38,38,0.3)]">
-            <ScrollText className="text-white w-5 h-5" />
+          <div className="w-8 h-8 bg-black border border-red-600/50 rounded flex items-center justify-center shadow-[0_0_15px_rgba(220,38,38,0.2)]">
+            <ScrollText className="text-red-600 w-5 h-5" />
           </div>
-          <span className="font-bold tracking-tight text-sm">CREATOR STUDIO <span className="text-red-500">PRO</span></span>
+          <span className="font-black tracking-tighter text-sm uppercase">Studio <span className="text-red-600">Architect</span></span>
         </div>
         {onClose && (
           <button onClick={onClose} className="lg:hidden text-zinc-500 hover:text-white">
@@ -85,19 +144,42 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
         )}
       </div>
       
-      <div className="flex-1 overflow-y-auto">
-        <nav className="p-4 space-y-8">
-          <div className="space-y-1">
-            <p className="px-4 text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">Modes</p>
+      <div className="flex-1 overflow-y-auto no-scrollbar pb-10">
+        <nav className="p-4 space-y-2">
+          <div className="space-y-1 mb-8">
+            <p className="px-4 text-[9px] font-black text-zinc-600 uppercase tracking-widest mb-3">Core Hub</p>
+            {navItems.map((item) => (
+              <NavLink
+                key={item.path}
+                to={item.path}
+                onClick={onClose}
+                className={({ isActive }) => cn(
+                  "flex items-center gap-3 px-4 py-2 rounded-lg text-xs font-bold transition-all duration-200 group uppercase tracking-widest",
+                  isActive 
+                    ? "bg-zinc-800 text-zinc-100 border border-zinc-700" 
+                    : "text-zinc-500 hover:text-zinc-100 hover:bg-zinc-800/50"
+                )}
+              >
+                <item.icon className={cn(
+                  "w-4 h-4 text-zinc-600 group-hover:text-zinc-200",
+                  "group-hover:scale-110 transition-transform"
+                )} />
+                {item.label}
+              </NavLink>
+            ))}
+          </div>
+
+          <div className="space-y-1 mb-8">
+            <p className="px-4 text-[9px] font-black text-zinc-600 uppercase tracking-widest mb-3">Live Modes</p>
             {modeItems.map((item) => (
               <NavLink
                 key={item.path}
                 to={item.path}
                 onClick={onClose}
                 className={({ isActive }) => cn(
-                  "flex items-center gap-3 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 group",
+                  "flex items-center gap-3 px-4 py-2 rounded-lg text-xs font-bold transition-all duration-200 group uppercase tracking-widest",
                   isActive 
-                    ? "bg-zinc-800 text-zinc-100 border border-zinc-700" 
+                    ? "bg-zinc-800 text-zinc-100 border border-zinc-700 shadow-[0_5px_15px_rgba(0,0,0,0.5)]" 
                     : "text-zinc-500 hover:text-zinc-100 hover:bg-zinc-800/50"
                 )}
               >
@@ -111,56 +193,12 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
             ))}
           </div>
 
-          <div className="space-y-1">
-            <p className="px-4 text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">Studio Tools</p>
-            {studioItems.map((item) => {
-              const fullPath = `${prefix}/${item.path}`;
-              const isActive = location.pathname === fullPath || (location.pathname === prefix && item.path === 'script');
-              
-              return (
-                <NavLink
-                  key={item.path}
-                  to={fullPath}
-                  onClick={onClose}
-                  className={cn(
-                    "flex items-center gap-3 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 group",
-                    isActive 
-                      ? "bg-red-600/10 text-red-500 border border-red-500/20" 
-                      : "text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800/50"
-                  )}
-                >
-                  <item.icon className={cn(
-                    "w-4 h-4",
-                    "group-hover:scale-110 transition-transform"
-                  )} />
-                  {item.label}
-                </NavLink>
-              );
-            })}
-          </div>
+          <div className="h-[1px] bg-zinc-900 mx-4 my-6" />
 
-          <div className="space-y-1">
-            <p className="px-4 text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">Global</p>
-            {navItems.map((item) => (
-              <NavLink
-                key={item.path}
-                to={item.path}
-                onClick={onClose}
-                className={({ isActive }) => cn(
-                  "flex items-center gap-3 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 group",
-                  isActive 
-                    ? "bg-red-600/10 text-red-500 border border-red-500/20" 
-                    : "text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800/50"
-                )}
-              >
-                <item.icon className={cn(
-                  "w-4 h-4",
-                  "group-hover:scale-110 transition-transform"
-                )} />
-                {item.label}
-              </NavLink>
-            ))}
-          </div>
+          {renderNavGroup(foundationItems, "PHASE 1: FOUNDATION")}
+          {renderNavGroup(architectureItems, "PHASE 2: ARCHITECTURE")}
+          {renderNavGroup(generationItems, "PHASE 3: GENERATION")}
+          {renderNavGroup(distributionItems, "PHASE 4: DISTRIBUTION")}
         </nav>
       </div>
 
@@ -183,12 +221,14 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
 
   return (
     <>
-      {/* Desktop Sidebar */}
-      <aside className="w-64 border-r border-zinc-800 bg-black/40 backdrop-blur-xl hidden lg:flex flex-col h-screen sticky top-0 shrink-0">
-        {content}
-      </aside>
+      {/* Desktop Sidebar (collapsible) */}
+      {isOpen && (
+        <aside className="w-64 border-r border-zinc-800 bg-black/40 backdrop-blur-xl flex flex-col h-screen sticky top-0 shrink-0 z-40">
+          {content}
+        </aside>
+      )}
 
-      {/* Mobile Sidebar */}
+      {/* Mobile Sidebar (animated) */}
       <AnimatePresence>
         {isOpen && (
           <>
