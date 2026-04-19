@@ -39,7 +39,8 @@ export function StudioLayout({ type }: { type?: string }) {
     narrativeBeats, setNarrativeBeats,
     recapperPersona, setRecapperPersona,
     characterRelationships, setCharacterRelationships,
-    visualData, numScenes, setNumScenes
+    visualData, numScenes, setNumScenes,
+    generatedWorld, generatedCharacters
   } = useGenerator();
 
   React.useEffect(() => {
@@ -78,14 +79,14 @@ export function StudioLayout({ type }: { type?: string }) {
     if (!prompt.trim()) return;
     setIsLoading(true);
     navigate(`${basePath}/script`);
-    const script = await generateScript(prompt, tone, audience, session, episode, numScenes, selectedModel, contentType, recapperPersona, narrativeBeats, characterRelationships);
+    const script = await generateScript(prompt, tone, audience, session, episode, numScenes, selectedModel, contentType, recapperPersona, narrativeBeats, characterRelationships, generatedWorld, generatedCharacters);
     setGeneratedScript(script);
     setCurrentScriptId(null);
     setIsLoading(false);
     if (user) {
       try {
         const docRef = await addDoc(collection(db, 'scripts'), {
-          uid: user.uid, prompt, script, tone, audience, episode, session, contentType, model: selectedModel, recapperPersona, narrativeBeats, characterRelationships, createdAt: serverTimestamp()
+          uid: user.uid, prompt, script, tone, audience, episode, session, contentType, model: selectedModel, recapperPersona, narrativeBeats, characterRelationships, generatedWorld, generatedCharacters, createdAt: serverTimestamp()
         });
         setCurrentScriptId(docRef.id);
         await addDoc(collection(db, 'script_versions'), { uid: user.uid, scriptId: docRef.id, script, createdAt: serverTimestamp() });
@@ -126,9 +127,9 @@ export function StudioLayout({ type }: { type?: string }) {
         />
       </div>
 
-      <div className="lg:col-span-8 flex flex-col gap-6">
+      <div className="lg:col-span-8 flex flex-col gap-6 overflow-y-auto max-h-[90vh] pr-2">
         <StudioNavigation basePath={basePath} />
-        <div className="flex-1 min-h-[800px] bg-gradient-to-br from-[#111318] to-[#0a0b0e] border border-zinc-800 shadow-[0_8px_32px_rgba(0,0,0,0.4)] rounded-2xl overflow-hidden relative">
+        <div className="flex-1 min-h-[800px] bg-gradient-to-br from-[#111318] to-[#0a0b0e] border border-zinc-800 shadow-[0_8px_32px_rgba(0,0,0,0.4)] rounded-2xl overflow-auto relative">
           <div className="absolute inset-0 opacity-[0.02] bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:20px_20px] pointer-events-none" />
           <div className="relative z-10 w-full h-full p-2">
             <Outlet />
