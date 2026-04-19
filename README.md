@@ -10,11 +10,32 @@ View your app in AI Studio: https://ai.studio/apps/57cb8537-d0d7-40e7-a8d0-9e692
 
 ## Run Locally
 
-**Prerequisites:**  Node.js
-
+### Frontend (AI Studio App)
+**Prerequisites:** Node.js
 
 1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+   ```
+   npm install
+   ```
+2. Set the `GEMINI_API_KEY` in `.env.local` to your Gemini API key
+3. Start the frontend:
+   ```
+   npm run dev
+   ```
+
+### Backend
+If you have a backend in the `backend/` folder, provide details or scripts for running it. (Currently, the folder is empty.)
+
+### Database & Mathesar (Postgres Admin UI)
+**Prerequisites:** Docker & Docker Compose
+
+1. Navigate to the `mathesar` directory:
+   ```
+   cd mathesar
+   ```
+2. Start Mathesar and the database:
+   ```
+   docker compose -f docker-compose.yml up
+   ```
+   - This will start Mathesar, Postgres, and the Caddy reverse proxy.
+   - Access Mathesar at http://localhost.
