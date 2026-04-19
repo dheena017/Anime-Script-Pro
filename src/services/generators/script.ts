@@ -1,4 +1,5 @@
-import { callAI } from "./core";
+import { callAI, RateLimitError } from "./core";
+import { MOCK_SCRIPT } from "./mockData";
 
 export async function generateScript(
     prompt: string, 
@@ -11,7 +12,9 @@ export async function generateScript(
     contentType: string = "Anime",
     recapperPersona: string = "Dynamic/Hype",
     narrativeBeats: string | null = null,
-    characterRelationships: string | null = null
+    characterRelationships: string | null = null,
+    worldBuilding: string | null = null,
+    castProfiles: string | null = null
 ) {
     const systemInstruction = `
     You are an expert ${contentType} Scriptwriter and Content Strategist. 
@@ -20,6 +23,8 @@ export async function generateScript(
     
     SERIES CONCEPT/THEME: ${prompt}
     CONTENT TYPE: ${contentType}
+    WORLD LORE & RULES: ${worldBuilding || 'Standard genre rules.'}
+    CAST PROFILES: ${castProfiles || 'Generic archetypes.'}
     TONE: ${tone}
     TARGET AUDIENCE: ${audience}
     SESSION: ${session}
@@ -34,6 +39,7 @@ export async function generateScript(
     Use the ${recapperPersona} persona for your voiceover narration delivery.
     Follow these NARRATIVE BEATS if provided: ${narrativeBeats || 'N/A'}
     Ensure character dialogues reflect these relationships: ${characterRelationships || 'N/A'}
+    Respect the WORLD LORE and CAST PROFILES provided above.
     
     FORBIDDEN TERMS:
     - "Action sequence"
@@ -50,12 +56,13 @@ export async function generateScript(
     - Instead of "Scary music": Describe the soundscape (e.g., "Dissonant, screeching violins that suddenly cut to a low, vibrating hum").
     - Instead of "Sword clash": Describe the resonance (e.g., "A high-frequency metallic ring that echoes through the stone hall").
     
-    The script MUST be formatted as a Markdown table with exactly 5 columns in this STRICT ORDER, and contain exactly ${numScenes} rows of content:
-    1. Section (e.g., Hook, Intro, Rising Action, Climax, Conclusion, Outro)
-    2. Character/Protagonist (Who is the focus?)
-    3. Voiceover Narration (The spoken lines, with (delivery details) in parentheses)
-    4. Visual/Cinematic Direction (MANDATORY: Evocative details. Specify EXACT Camera Angle, Lighting Mood, Environmental Reaction, and Character Micro-Action.)
-    5. Audio Landscape (MANDATORY: Layered design. Specific sound effects, BGM instruments, and audio textures/reverb.)
+    The script MUST be formatted as a Markdown table with exactly 6 columns in this STRICT ORDER, and contain exactly ${numScenes} rows of content:
+    1. Scene # (e.g., 1, 2, 3...)
+    2. Section (e.g., Hook, Intro, Rising Action, Climax, Conclusion, Outro)
+    3. Character/Protagonist (Who is the focus?)
+    4. Voiceover Narration (The spoken lines, with (delivery details) in parentheses)
+    5. Visual/Cinematic Direction (MANDATORY: Evocative details. Specify EXACT Camera Angle, Lighting Mood, Environmental Reaction, and Character Micro-Action.)
+    6. Audio Landscape (MANDATORY: Layered design. Specific sound effects, BGM instruments, and audio textures/reverb.)
     
     Ensure the hook is exactly 15 seconds and gripping.
     The total script should cover approximately 5 minutes of content.
@@ -66,7 +73,21 @@ export async function generateScript(
   try {
     const text = await callAI(model, prompt, systemInstruction);
     return text || "Failed to generate script.";
-  } catch (error) {
+  } catch (error: any) {
+    const errorStr = error?.toString() || "";
+    const errorMsg = error?.message || "";
+    
+    const isRateLimit = error instanceof RateLimitError || 
+                       errorStr.includes("429") || 
+                       errorMsg.includes("429") ||
+                       errorStr.includes("RESOURCE_EXHAUSTED") ||
+                       errorMsg.includes("RESOURCE_EXHAUSTED") ||
+                       error?.status === 429;
+                       
+    if (isRateLimit) {
+      console.warn("[Script Lab] API Quota Exceeded. Injecting Local Synthesis Failover.");
+      return MOCK_SCRIPT;
+    }
     console.error("Error generating script:", error);
     return "Error: " + (error instanceof Error ? error.message : String(error));
   }
@@ -81,12 +102,13 @@ export async function continueScript(currentScript: string, model: string = "gem
     2. Scene Creation: Title, Setting, Characters, Action & Dialogue, Inner Thoughts, and Closing Frame.
     
     Maintain the same tone and character consistency.
-    Format the output as a Markdown table with exactly 5 columns in this STRICT ORDER:
-    1. Section
-    2. Character/Protagonist
-    3. Voiceover Narration (with (delivery details))
-    4. Visual/Cinematic Direction (MANDATORY: Exact Camera Angle, Lighting Mood, Environmental Reaction, and Character Micro-Action)
-    5. Audio Landscape (MANDATORY: Layered design, specific effects, BGM instruments)
+    Format the output as a Markdown table with exactly 6 columns in this STRICT ORDER:
+    1. Scene #
+    2. Section
+    3. Character/Protagonist
+    4. Voiceover Narration (with (delivery details))
+    5. Visual/Cinematic Direction (MANDATORY: Exact Camera Angle, Lighting Mood, Environmental Reaction, and Character Micro-Action)
+    6. Audio Landscape (MANDATORY: Layered design, specific effects, BGM instruments)
     
     Return ONLY the markdown table for the NEW scenes.
   `;

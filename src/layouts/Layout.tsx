@@ -15,21 +15,17 @@ import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 
 export function Layout() {
   const [user] = useAuthState(auth);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
-
+  const [isSidebarOpen, setIsSidebarOpen] = React.useState(true); // Sidebar open for all screens
   const [isLoggingIn, setIsLoggingIn] = React.useState(false);
 
   const handleLogin = async () => {
     if (isLoggingIn || user) return;
-    
     setIsLoggingIn(true);
     try {
       const provider = new GoogleAuthProvider();
-      // Force select account to avoid some auto-login issues in iframes
       provider.setCustomParameters({ prompt: 'select_account' });
       await signInWithPopup(auth, provider);
     } catch (error: any) {
-      // Handle user cancellation silently
       if (error.code === 'auth/popup-closed-by-user') {
         console.log("User cancelled login popup.");
       } else if (error.code === 'auth/cancelled-popup-request') {
@@ -51,32 +47,33 @@ export function Layout() {
         <div className="absolute top-[40%] left-[60%] w-[30%] h-[30%] bg-[radial-gradient(circle_at_center,rgba(239,68,68,0.03)_0%,transparent_70%)] blur-[80px] rounded-full mix-blend-screen" />
       </div>
 
-      <Sidebar isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
+      {/* Sidebar: show/hide on all screens */}
+      <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
 
       <div className="flex-1 flex flex-col min-w-0">
-        <header className="relative z-20 border-b border-white/5 bg-black/40 backdrop-blur-xl sticky top-0">
-          <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+        <header className="relative z-20 border-b border-zinc-800/50 bg-black/40 backdrop-blur-xl sticky top-0 w-full">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between w-full h-[60px]">
             <div className="flex items-center gap-4">
-              <button 
-                className="lg:hidden text-zinc-400 hover:text-white transition-colors"
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              <button
+                className="text-zinc-400 hover:text-white transition-colors"
+                onClick={() => setIsSidebarOpen((open) => !open)}
+                aria-label={isSidebarOpen ? 'Close sidebar' : 'Open sidebar'}
               >
-                {isMobileMenuOpen ? <X /> : <Menu />}
+                {isSidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </button>
-              <div className="lg:hidden flex items-center gap-3">
-                <div className="w-8 h-8 bg-gradient-to-br from-red-600 to-red-800 rounded flex items-center justify-center shadow-[0_0_15px_rgba(220,38,38,0.3)]">
-                  <ScrollText className="text-white w-4 h-4" />
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 bg-gradient-to-br from-red-600 to-red-800 rounded flex flex-shrink-0 items-center justify-center shadow-[0_0_15px_rgba(220,38,38,0.3)]">
+                  <ScrollText className="text-white w-3 h-3" />
                 </div>
-                <span className="font-bold tracking-widest text-xs uppercase">Creator Studio <span className="text-red-500">Pro</span></span>
+                <span className="font-bold tracking-widest text-[10px] hidden sm:block uppercase">Creator Studio <span className="text-red-500">Pro</span></span>
               </div>
             </div>
-
             <div className="flex items-center gap-4">
               {user ? (
                 <div className="flex items-center gap-3">
                   <div className="text-right hidden sm:block">
                     <p className="text-xs font-medium text-zinc-200">{user.displayName}</p>
-                    <button 
+                    <button
                       onClick={() => auth.signOut()}
                       className="text-[10px] text-zinc-500 hover:text-red-400 transition-colors"
                     >
@@ -92,9 +89,9 @@ export function Layout() {
                   )}
                 </div>
               ) : (
-                <Button 
-                  variant="outline" 
-                  size="sm" 
+                <Button
+                  variant="outline"
+                  size="sm"
                   className="border-zinc-700 bg-zinc-900/50 hover:bg-zinc-800 text-zinc-300"
                   onClick={handleLogin}
                   disabled={isLoggingIn}
@@ -111,12 +108,12 @@ export function Layout() {
           </div>
         </header>
 
-        <main className="relative z-10 flex-1 overflow-y-auto">
+        <main className="relative z-10 flex-1 overflow-y-auto min-w-0 overflow-x-hidden">
           <Outlet />
         </main>
 
-        <footer className="relative z-10 border-t border-white/5 bg-black/20 backdrop-blur-md py-8 mt-auto">
-          <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
+        <footer className="relative z-10 border-t border-white/5 bg-black/20 backdrop-blur-md py-8 mt-auto w-full">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="text-zinc-500 text-xs tracking-widest uppercase font-medium">
               © 2026 Creator Studio Pro. Built for creators.
             </div>

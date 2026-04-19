@@ -19,6 +19,13 @@ import { PromptsPage } from './pages/studio/PromptsPage';
 import { ExamplePage } from './pages/studio/ExamplePage';
 import { TemplatePage } from './pages/studio/TemplatePage';
 import { FrameworkPage } from './pages/studio/FrameworkPage';
+import { NarrativeBeatsPage } from './pages/studio/NarrativeBeatsPage';
+import { WorldPage } from './pages/studio/WorldPage';
+import ManhwaPortal from './pages/studio/ManhwaPortal';
+import AnimePortal from './pages/studio/AnimePortal';
+import ComicPortal from './pages/studio/ComicPortal';
+
+import Dashboard from './pages/Dashboard';
 
 export default function App() {
   return (
@@ -40,10 +47,12 @@ export default function App() {
                   <Route path="example" element={<ExamplePage />} />
                   <Route path="template" element={<TemplatePage />} />
                   <Route path="framework" element={<FrameworkPage />} />
+                  <Route path="beats" element={<NarrativeBeatsPage />} />
+                  <Route path="world" element={<WorldPage />} />
                 </Route>
 
                 <Route path="/anime" element={<StudioLayout type="Anime" />}>
-                  <Route index element={<ScriptPage />} />
+                  <Route index element={<AnimePortal />} />
                   <Route path="script" element={<ScriptPage />} />
                   <Route path="cast" element={<CastPage />} />
                   <Route path="series" element={<SeriesPage />} />
@@ -53,10 +62,12 @@ export default function App() {
                   <Route path="example" element={<ExamplePage />} />
                   <Route path="template" element={<TemplatePage />} />
                   <Route path="framework" element={<FrameworkPage />} />
+                  <Route path="beats" element={<NarrativeBeatsPage />} />
+                  <Route path="world" element={<WorldPage />} />
                 </Route>
 
                 <Route path="/manhwa" element={<StudioLayout type="Manhwa" />}>
-                  <Route index element={<ScriptPage />} />
+                  <Route index element={<ManhwaPortal />} />
                   <Route path="script" element={<ScriptPage />} />
                   <Route path="cast" element={<CastPage />} />
                   <Route path="series" element={<SeriesPage />} />
@@ -66,10 +77,12 @@ export default function App() {
                   <Route path="example" element={<ExamplePage />} />
                   <Route path="template" element={<TemplatePage />} />
                   <Route path="framework" element={<FrameworkPage />} />
+                  <Route path="beats" element={<NarrativeBeatsPage />} />
+                  <Route path="world" element={<WorldPage />} />
                 </Route>
 
                 <Route path="/comic" element={<StudioLayout type="Comic" />}>
-                  <Route index element={<ScriptPage />} />
+                  <Route index element={<ComicPortal />} />
                   <Route path="script" element={<ScriptPage />} />
                   <Route path="cast" element={<CastPage />} />
                   <Route path="series" element={<SeriesPage />} />
@@ -79,8 +92,11 @@ export default function App() {
                   <Route path="example" element={<ExamplePage />} />
                   <Route path="template" element={<TemplatePage />} />
                   <Route path="framework" element={<FrameworkPage />} />
+                  <Route path="beats" element={<NarrativeBeatsPage />} />
+                  <Route path="world" element={<WorldPage />} />
                 </Route>
 
+                <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/library" element={<LibraryPage />} />
                 <Route path="/discover" element={<DiscoverPage />} />
                 <Route path="/community" element={<CommunityPage />} />

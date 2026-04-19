@@ -1,4 +1,5 @@
-import { callAI } from "./core";
+import { callAI, RateLimitError } from "./core";
+import { MOCK_CHARACTERS } from "./mockData";
 
 export async function generateCharacters(genre: string, model: string = "gemini-3-flash-preview", contentType: string = "Anime") {
   const systemInstruction = `
@@ -20,7 +21,21 @@ export async function generateCharacters(genre: string, model: string = "gemini-
   try {
     const text = await callAI(model, `Generate characters for the genre: ${genre}`, systemInstruction);
     return text || "Failed to generate characters.";
-  } catch (error) {
+  } catch (error: any) {
+    const errorStr = error?.toString() || "";
+    const errorMsg = error?.message || "";
+    
+    const isRateLimit = error instanceof RateLimitError || 
+                       errorStr.includes("429") || 
+                       errorMsg.includes("429") ||
+                       errorStr.includes("RESOURCE_EXHAUSTED") ||
+                       errorMsg.includes("RESOURCE_EXHAUSTED") ||
+                       error?.status === 429;
+                       
+    if (isRateLimit) {
+      console.warn("[Cast Lab] API Quota Exceeded. Injecting Local Synthesis Failover.");
+      return MOCK_CHARACTERS;
+    }
     console.error("Error generating characters:", error);
     return "Error: " + (error instanceof Error ? error.message : String(error));
   }

@@ -1,0 +1,478 @@
+import React from 'react';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from "@/components/ui/select";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { 
+  Sparkles, 
+  Target, 
+  X, 
+  Info, 
+  Brain, 
+  ScrollText, 
+  Users, 
+  Settings, 
+  Clapperboard, 
+  Disc, 
+  LayoutGrid, 
+  SlidersHorizontal, 
+  Send, 
+  History,
+  ArrowRight,
+  Sword,
+  Globe,
+  Zap,
+  Ghost,
+  BookOpen,
+  FileText,
+  Layers,
+  LayoutIcon,
+  Search,
+  Image,
+  Play,
+  Heart
+} from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { NARRATIVE_TEMPLATES } from '@/constants';
+
+const ANIME_TEMPLATES = [
+  { id: 'shonen', label: 'Shonen Battle', icon: Sword, prompt: 'A high-stakes tournament where fighters use elemental powers to determine the next emperor.', color: 'text-orange-500' },
+  { id: 'isekai', label: 'Dark Isekai', icon: Globe, prompt: 'A programmer is reborn in a cruel fantasy world as a minor villain destined to be defeated.', color: 'text-purple-500' },
+  { id: 'cyberpunk', label: 'Cyberpunk', icon: Zap, prompt: 'A street racer in a neon-lit megacity uncovering a corporate conspiracy involving digital souls.', color: 'text-cyan-500' },
+  { id: 'slice', label: 'Slice of Life', icon: Ghost, prompt: 'A group of high school students starting an occult research club in a genuinely haunted school.', color: 'text-green-500' },
+  { id: 'psych', label: 'Psychological', icon: Brain, prompt: 'A detective who can enter the dreams of suspects to find the truth behind a series of impossible crimes.', color: 'text-blue-500' },
+];
+
+const MANHWA_TEMPLATES = [
+  { id: 'leveling', label: 'S-Rank Returner', icon: Zap, prompt: 'The world\'s weakest hunter regresses 10 years with a unique system that lets him steal the skills of monsters.', color: 'text-green-400' },
+  { id: 'tower', label: 'Tower of Trials', icon: Layers, prompt: 'A young man enters an infinite tower to save his sister, facing 100 floors of deadly challenges and cosmic entities.', color: 'text-blue-400' },
+  { id: 'murim', label: 'Murim Rebirth', icon: Sword, prompt: 'A legendary master is poisoned and reborn as the frail son of a bankrupt noble family in the martial arts world.', color: 'text-red-400' },
+  { id: 'otome', label: 'Villainess Life', icon: Heart, prompt: 'Waking up as the antagonist of a popular romance novel, she must change the plot to avoid her execution.', color: 'text-fuchsia-400' },
+];
+
+const COMIC_TEMPLATES = [
+  { id: 'golden', label: 'Golden Age Hero', icon: Shield, prompt: 'An optimistic vigilante in a 1940s metropolis fighting a secret society of supervillains and corporate spies.', color: 'text-blue-500' },
+  { id: 'vigilante', label: 'Dark Vigilante', icon: Ghost, prompt: 'A tech-reliant billionaire takes to the streets to cleanse a decaying city of its underworld corruption.', color: 'text-zinc-600' },
+  { id: 'space', label: 'Galactic Corps', icon: Globe, prompt: 'A ragtag group of outlaws are recruited by a cosmic guardian to protect the galaxy from a black hole deity.', color: 'text-indigo-400' },
+  { id: 'noir', label: 'Neon Noir', icon: Search, prompt: 'A grizzled private eye in a rainy megacity investigates a series of murders linked to an AI cult.', color: 'text-yellow-600' },
+];
+
+import { Shield } from 'lucide-react';
+
+interface ProductionCoreProps {
+  prompt: string;
+  setPrompt: (p: string) => void;
+  tone: string;
+  setTone: (t: string) => void;
+  audience: string;
+  setAudience: (a: string) => void;
+  session: string;
+  setSession: (s: string) => void;
+  episode: string;
+  setEpisode: (e: string) => void;
+  numScenes: string;
+  setNumScenes: (n: string) => void;
+  selectedModel: string;
+  setSelectedModel: (m: string) => void;
+  recapperPersona: string;
+  setRecapperPersona: (p: string) => void;
+  narrativeBeats: string;
+  setNarrativeBeats: (b: string) => void;
+  characterRelationships: string;
+  setCharacterRelationships: (r: string) => void;
+  worldBuilding: string;
+  setWorldBuilding?: (w: string) => void;
+  castProfiles: string;
+  setCastProfiles?: (c: string) => void;
+  handleGenerate: () => void;
+  handleMasterGenerate: () => void;
+  handleSaveCurrent: () => void;
+  isLoading: boolean;
+  isSaving: boolean;
+  generatedScript: string | null;
+  currentScriptId: string | null;
+  user: any;
+  basePath: string;
+  navigate: (path: string) => void;
+  contentType: string;
+}
+
+export const ProductionCore: React.FC<ProductionCoreProps> = ({
+  prompt, setPrompt,
+  tone, setTone,
+  audience, setAudience,
+  session, setSession,
+  episode, setEpisode,
+  numScenes, setNumScenes,
+  selectedModel, setSelectedModel,
+  recapperPersona, setRecapperPersona,
+  narrativeBeats, setNarrativeBeats,
+  characterRelationships, setCharacterRelationships,
+  worldBuilding, setWorldBuilding,
+  castProfiles, setCastProfiles,
+  handleGenerate,
+  handleMasterGenerate,
+  handleSaveCurrent,
+  isLoading,
+  isSaving,
+  generatedScript,
+  currentScriptId,
+  user,
+  basePath,
+  navigate,
+  contentType
+}) => {
+  const templates = contentType === 'Manhwa' ? MANHWA_TEMPLATES : contentType === 'Comic' ? COMIC_TEMPLATES : ANIME_TEMPLATES;
+
+  return (
+    <Card className="bg-gradient-to-br from-[#111318] to-[#0a0b0e] border-studio shadow-studio relative overflow-hidden group">
+      <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-studio to-transparent opacity-30 group-hover:opacity-100 transition-opacity" />
+      <div className="absolute inset-0 opacity-[0.02] bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:10px_10px] pointer-events-none" />
+      <CardHeader className="pb-4 relative z-10">
+        <CardTitle className="text-base font-black uppercase tracking-[0.15em] flex items-center gap-3 text-studio/10 text-shadow-studio">
+          <div className="w-2 h-2 rounded-full bg-studio animate-pulse shadow-studio" />
+          Production Core
+        </CardTitle>
+        <CardDescription className="text-studio text-[10px] uppercase tracking-wider font-bold opacity-60">
+          Mission Control / Series Config
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4 relative z-10">
+        <div className="space-y-2">
+          <div className="flex items-center justify-between mb-3">
+            <label className="text-[11px] font-black text-studio uppercase tracking-[0.2em] text-shadow-studio flex items-center gap-2">
+              <Sparkles className="w-3 h-3 text-studio animate-pulse" />
+              Quick Templates
+            </label>
+            <button 
+              onClick={() => navigate(`${basePath}/template`)}
+              className="text-[10px] text-studio hover:text-studio/80 flex items-center gap-1 transition-colors uppercase tracking-widest font-bold bg-studio/10 px-2 py-1 rounded border border-studio/20 hover:border-studio/50"
+            >
+              Browse Library <ArrowRight className="w-3 h-3" />
+            </button>
+          </div>
+          <Select onValueChange={(value) => {
+            if (typeof value === 'string') {
+              const template = templates.find(t => t.id === value);
+              if (template) setPrompt(template.prompt);
+            }
+          }}>
+            <SelectTrigger className="w-full h-10 rounded-xl bg-[#050505] border-studio/20 text-studio hover:border-studio/50 shadow-[0_4px_10px_rgba(0,0,0,0.5)] focus:ring-1 focus:ring-studio transition-all text-xs font-bold uppercase tracking-widest">
+              <SelectValue placeholder="Select a template..." />
+            </SelectTrigger>
+            <SelectContent className="bg-zinc-950/95 backdrop-blur-2xl border-studio/30 text-studio">
+              {templates.map((template) => (
+                <SelectItem key={template.id} value={template.id} className="focus:bg-studio/40 focus:text-white cursor-pointer">
+                  <div className="flex items-center gap-3">
+                    <template.icon className={cn("w-3.5 h-3.5", template.color)} />
+                    <span className="text-xs font-bold uppercase tracking-wider">{template.label}</span>
+                  </div>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <label className="text-[11px] font-black text-studio uppercase tracking-[0.2em] text-shadow-studio flex items-center gap-2">
+              <Target className="w-3 h-3 text-studio animate-pulse" />
+              Concept / Theme
+            </label>
+            <div className="flex gap-4">
+              <button 
+                onClick={handleMasterGenerate}
+                disabled={isLoading || !prompt.trim()}
+                className="text-[9px] text-orange-400 hover:text-orange-300 transition-all uppercase font-black tracking-widest flex items-center gap-1.5 bg-orange-500/10 px-2 py-0.5 rounded border border-orange-500/20 hover:border-orange-500/50 hover:scale-105 active:scale-95 disabled:opacity-50 disabled:grayscale"
+              >
+                <Brain className="w-3 h-3" /> Neural Sync
+              </button>
+              <button 
+                onClick={() => setPrompt('')}
+                className="text-[10px] text-zinc-500 hover:text-studio transition-colors uppercase font-bold tracking-[0.2em] flex items-center gap-1"
+              >
+                <X className="w-3 h-3" /> Clear
+              </button>
+            </div>
+          </div>
+          <Textarea 
+            placeholder="e.g., A dark fantasy about a vessel for a monster king..."
+            className="min-h-[140px] bg-[#020202] border border-studio focus:border-studio/80 focus:ring-1 focus:ring-studio/50 shadow-inner p-4"
+            value={prompt}
+            onChange={(e) => setPrompt(e.target.value)}
+          />
+        </div>
+
+      <div className="relative rounded-2xl bg-[#050505]/50 border border-studio p-5 shadow-[inset_0_1px_3px_rgba(255,255,255,0.05),0_8px_32px_rgba(0,0,0,0.5)] overflow-hidden space-y-5">
+          <div className="absolute inset-0 opacity-[0.03] bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:10px_10px] pointer-events-none" />
+          
+          <div className="absolute top-4 right-4 z-20">
+            <Tooltip>
+              <TooltipTrigger className="flex items-center justify-center w-6 h-6 rounded-full bg-studio/10 border border-studio text-studio hover:bg-studio/20 transition-colors shadow-studio">
+                <Info className="w-3 h-3" />
+              </TooltipTrigger>
+              <TooltipContent side="left" className="bg-zinc-900 border-zinc-800 text-zinc-300 p-4 max-w-xs space-y-3 z-50">
+                <div className="space-y-1">
+                  <p className="font-bold text-cyan-400 text-xs">Gemini 3 Flash</p>
+                  <p className="text-[10px] leading-relaxed">Fastest model. Best for quick drafts.</p>
+                </div>
+                <div className="space-y-1">
+                  <p className="font-bold text-cyan-400 text-xs">Gemini 3.1 Pro</p>
+                  <p className="text-[10px] leading-relaxed">Highly intelligent. Best for complex narratives.</p>
+                </div>
+              </TooltipContent>
+            </Tooltip>
+          </div>
+
+          <div className="relative z-10 flex flex-col gap-4">
+            {/* 1. NARRATIVE ARCHITECTURE */}
+            <div className="space-y-2">
+                <label className="text-[11px] font-bold text-zinc-200 uppercase tracking-widest flex items-center justify-between drop-shadow-[0_2px_2px_rgba(0,0,0,1)]">
+                  <span className="flex items-center gap-1.5"><ScrollText className="w-4 h-4 text-zinc-300 drop-shadow-md" /> NARRATIVE BEATS</span>
+                  <button 
+                    onClick={() => navigate(`${basePath}/beats`)}
+                    className="text-[9px] text-studio hover:text-studio/80 transition-colors uppercase font-black tracking-widest bg-studio/10 px-2 py-0.5 rounded border border-studio"
+                  >
+                    Browse Beats
+                  </button>
+                </label>
+               <div className="flex gap-1 flex-wrap">
+                 {Object.entries(NARRATIVE_TEMPLATES).map(([name, template]) => (
+                   <Button
+                     key={name}
+                     variant="outline"
+                     size="sm"
+                     className="text-[10px] h-6 px-2 bg-zinc-800 border-zinc-700 hover:bg-studio hover:border-studio hover:text-white"
+                     onClick={() => setNarrativeBeats(template)}
+                   >
+                     {name}
+                   </Button>
+                 ))}
+               </div>
+               <Textarea 
+                 placeholder="e.g., Hook -> Backstory -> Climax -> Cliffhanger"
+                 className="min-h-[80px] bg-[#020202] border border-studio focus:border-studio/80 focus:ring-1 focus:ring-studio/50 resize-none text-zinc-300 rounded-xl font-medium text-[12px] p-3"
+                 value={narrativeBeats || ''}
+                 onChange={(e) => setNarrativeBeats(e.target.value)}
+               />
+            </div>
+
+            <div className="space-y-2">
+               <label className="text-[11px] font-bold text-zinc-200 uppercase tracking-widest flex items-center justify-between drop-shadow-[0_2px_2px_rgba(0,0,0,1)]">
+                 <span className="flex items-center gap-1.5"><Globe className="w-4 h-4 text-zinc-300 drop-shadow-md" /> WORLD BUILDING</span>
+                 <button 
+                   onClick={() => navigate(`${basePath}/world`)}
+                   className="text-[9px] text-studio hover:text-studio/80 transition-colors uppercase font-black tracking-widest bg-studio/10 px-2 py-0.5 rounded border border-studio"
+                 >
+                   Lore Matrix
+                 </button>
+               </label>
+               <Textarea 
+                 placeholder="e.g., A world where magic is powered by memories..."
+                 className="min-h-[80px] bg-[#020202] border border-studio focus:border-studio/80 focus:ring-1 focus:ring-studio/50 resize-none text-zinc-300 rounded-xl font-medium text-[12px] p-3"
+                 value={worldBuilding || ''}
+                 onChange={(e) => setWorldBuilding?.(e.target.value)}
+               />
+            </div>
+
+            <div className="space-y-2">
+               <label className="text-[11px] font-bold text-zinc-200 uppercase tracking-widest flex items-center justify-between drop-shadow-[0_2px_2px_rgba(0,0,0,1)]">
+                 <span className="flex items-center gap-1.5"><Users className="w-4 h-4 text-zinc-300 drop-shadow-md" /> CAST PROFILES</span>
+                 <button 
+                   onClick={() => navigate(`${basePath}/cast`)}
+                   className="text-[9px] text-studio hover:text-studio/80 transition-colors uppercase font-black tracking-widest bg-studio/10 px-2 py-0.5 rounded border border-studio"
+                 >
+                   Lab
+                 </button>
+               </label>
+               <Textarea 
+                 placeholder="e.g., Kael: Cursed hero, Elara: Tech specialist"
+                 className="min-h-[80px] bg-[#020202] border border-studio focus:border-studio/80 focus:ring-1 focus:ring-studio/50 resize-none text-zinc-300 rounded-xl font-medium text-[12px] p-3"
+                 value={castProfiles || ''}
+                 onChange={(e) => setCastProfiles?.(e.target.value)}
+               />
+            </div>
+
+            <div className="space-y-2">
+               <label className="text-[11px] font-bold text-zinc-200 uppercase tracking-widest flex items-center gap-1.5 drop-shadow-[0_2px_2px_rgba(0,0,0,1)]">
+                 <Users className="w-4 h-4 text-zinc-300 drop-shadow-md" /> RELATIONSHIPS
+               </label>
+               <Textarea 
+                 placeholder="e.g., A fears B, C is secretly in love with A"
+                 className="min-h-[60px] bg-[#020202] border border-studio focus:border-studio/80 focus:ring-1 focus:ring-studio/50 resize-none text-zinc-300 rounded-xl font-medium text-[12px] p-3"
+                 value={characterRelationships || ''}
+                 onChange={(e) => setCharacterRelationships(e.target.value)}
+               />
+            </div>
+
+            {/* 2. CORE AI CONFIG */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                 <label className="text-[11px] font-bold text-zinc-200 uppercase tracking-widest flex items-center gap-1.5 drop-shadow-[0_2px_2px_rgba(0,0,0,1)]">
+                   <Brain className="w-4 h-4 text-zinc-300 drop-shadow-md" /> PERSONA
+                 </label>
+                 <Select value={recapperPersona} onValueChange={(value) => { if (typeof value === 'string') setRecapperPersona(value); }}>
+                   <SelectTrigger className="h-10 w-full rounded-full bg-[#0a0a0a]/80 border-fuchsia-500/30 text-fuchsia-300 shadow-[0_0_15px_rgba(217,70,239,0.1)] hover:shadow-[0_0_20px_rgba(217,70,239,0.3)] focus:ring-1 focus:ring-fuchsia-500/50 transition-all font-semibold tracking-wide text-xs">
+                     <SelectValue placeholder="Select Persona" />
+                   </SelectTrigger>
+                   <SelectContent className="bg-zinc-950/95 border-fuchsia-500/20 text-fuchsia-200">
+                     {['Dynamic/Hype', 'Noir/Gritty', 'Analytical/Deep Dive', 'Somber/Reflective'].map(p => (
+                        <SelectItem key={p} value={p}>{p}</SelectItem>
+                     ))}
+                   </SelectContent>
+                 </Select>
+              </div>
+
+              <div className="space-y-2">
+                 <label className="text-[11px] font-bold text-zinc-200 uppercase tracking-widest flex items-center gap-1.5 drop-shadow-[0_2px_2px_rgba(0,0,0,1)] whitespace-nowrap">
+                   <Settings className="w-4 h-4 text-zinc-300 drop-shadow-md" /> MODEL
+                 </label>
+                 <Select value={selectedModel} onValueChange={(value) => { if (typeof value === 'string') setSelectedModel(value); }}>
+                   <SelectTrigger className="h-10 w-full rounded-full bg-[#0a0a0a]/80 border-studio text-studio shadow-studio hover:shadow-studio focus:ring-studio/50 transition-all font-semibold tracking-wide text-xs">
+                     <SelectValue placeholder="Select Model" />
+                   </SelectTrigger>
+                   <SelectContent className="bg-zinc-900 border-zinc-800 text-studio">
+                     <SelectItem value="gemini-3-flash-preview">gemini-3-flash-preview</SelectItem>
+                     <SelectItem value="gemini-3.1-pro-preview">gemini-3.1-pro-preview</SelectItem>
+                     <SelectItem value="gpt-4o">gpt-4o</SelectItem>
+                   </SelectContent>
+                 </Select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+               <div className="space-y-2 overflow-hidden">
+                 <label className="text-[11px] font-bold text-zinc-200 uppercase tracking-widest flex items-center gap-1.5 drop-shadow-[0_2px_2px_rgba(0,0,0,1)] whitespace-nowrap">
+                   <SlidersHorizontal className="w-4 h-4 shrink-0 text-zinc-300 drop-shadow-md" /> <span className="truncate">TONE</span>
+                 </label>
+                 <Select value={tone} onValueChange={(value) => { if (typeof value === 'string') setTone(value); }}>
+                   <SelectTrigger className="h-10 w-full rounded-full bg-[#0a0a0a]/80 border-purple-500/50 text-purple-400 shadow-[0_0_15px_rgba(168,85,247,0.2)] hover:shadow-[0_0_20px_rgba(168,85,247,0.3)] focus:ring-purple-500/50 transition-all font-bold tracking-wide text-xs">
+                     <SelectValue placeholder="Select Tone" />
+                   </SelectTrigger>
+                   <SelectContent className="bg-zinc-900 border-zinc-800 text-purple-400">
+                     <SelectItem value="Hype/Energetic">Hype/Energetic</SelectItem>
+                     <SelectItem value="Dark/Gritty">Dark/Gritty</SelectItem>
+                     <SelectItem value="Emotional/Sad">Emotional/Sad</SelectItem>
+                     <SelectItem value="Funny/Satirical">Funny/Satirical</SelectItem>
+                   </SelectContent>
+                 </Select>
+               </div>
+               <div className="space-y-2 overflow-hidden">
+                 <label className="text-[11px] font-bold text-zinc-200 uppercase tracking-widest flex items-center gap-1.5 drop-shadow-[0_2px_2px_rgba(0,0,0,1)] whitespace-nowrap">
+                   <Users className="w-4 h-4 shrink-0 text-zinc-300 drop-shadow-md" /> <span className="truncate">AUDIENCE</span>
+                 </label>
+                 <Select value={audience} onValueChange={(value) => { if (typeof value === 'string') setAudience(value); }}>
+                   <SelectTrigger className="h-10 w-full rounded-full bg-[#0a0a0a]/80 border-teal-500/50 text-teal-400 shadow-[0_0_15px_rgba(20,184,166,0.2)] hover:shadow-[0_0_20px_rgba(20,184,166,0.3)] focus:ring-teal-500/50 transition-all font-bold tracking-wide text-[10px] sm:text-xs">
+                     <SelectValue placeholder="Select Audience" />
+                   </SelectTrigger>
+                   <SelectContent className="bg-zinc-900 border-zinc-800 text-teal-400">
+                     <SelectItem value="General Fans">General Fans</SelectItem>
+                     <SelectItem value="Hardcore Weebs">Hardcore Weebs</SelectItem>
+                     <SelectItem value="Newcomers">Newcomers</SelectItem>
+                   </SelectContent>
+                 </Select>
+               </div>
+            </div>
+
+            {/* 3. PRODUCTION SPECS */}
+            <div className="grid grid-cols-3 gap-2">
+              <div className="space-y-1 overflow-hidden">
+                 <label className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest flex items-center gap-1 drop-shadow-[0_2px_2px_rgba(0,0,0,1)] whitespace-nowrap">
+                   <Clapperboard className="w-3 h-3 shrink-0" /> <span className="truncate">SESS</span>
+                 </label>
+                 <Select value={session} onValueChange={(value) => { if (typeof value === 'string') setSession(value); }}>
+                   <SelectTrigger className="h-8 w-full rounded-lg bg-[#0a0a0a]/80 border-orange-500/30 text-orange-400 shadow-[0_0_10px_rgba(249,115,22,0.1)] hover:shadow-[0_0_15px_rgba(249,115,22,0.2)] focus:ring-orange-500/50 transition-all font-bold tracking-wide flex justify-center text-center text-[10px]">
+                     <SelectValue placeholder="1" />
+                   </SelectTrigger>
+                   <SelectContent className="bg-zinc-900 border-zinc-800 text-orange-400">
+                     {[1, 2, 3, 4, 5].map(n => (
+                       <SelectItem key={n} value={n.toString()}>{n}</SelectItem>
+                     ))}
+                   </SelectContent>
+                 </Select>
+              </div>
+
+              <div className="space-y-1 overflow-hidden">
+                 <label className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest flex items-center gap-1 drop-shadow-[0_2px_2px_rgba(0,0,0,1)] whitespace-nowrap">
+                   <Disc className="w-3 h-3 shrink-0" /> <span className="truncate">EP</span>
+                 </label>
+                 <Select value={episode} onValueChange={(value) => { if (typeof value === 'string') setEpisode(value); }}>
+                   <SelectTrigger className="h-8 w-full rounded-lg bg-[#0a0a0a]/80 border-fuchsia-500/30 text-fuchsia-400 shadow-[0_0_10px_rgba(217,70,239,0.1)] hover:shadow-[0_0_15px_rgba(217,70,239,0.2)] focus:ring-fuchsia-500/50 transition-all font-bold tracking-wide flex justify-center text-center text-[10px]">
+                     <SelectValue placeholder="1" />
+                   </SelectTrigger>
+                   <SelectContent className="bg-zinc-900 border-zinc-800 text-fuchsia-400">
+                     {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(n => (
+                       <SelectItem key={n} value={n.toString()}>{n}</SelectItem>
+                     ))}
+                   </SelectContent>
+                 </Select>
+              </div>
+              
+               <div className="space-y-1 overflow-hidden">
+                 <label className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest flex items-center gap-1 drop-shadow-[0_2px_2px_rgba(0,0,0,1)] whitespace-nowrap">
+                   <LayoutGrid className="w-3 h-3 shrink-0" /> <span className="truncate">SCENES</span>
+                 </label>
+                 <Select value={numScenes} onValueChange={(value) => { if (typeof value === 'string') setNumScenes(value); }}>
+                   <SelectTrigger className="h-8 w-full rounded-lg bg-[#0a0a0a]/80 border-studio/30 text-studio shadow-studio/20 hover:shadow-studio/40 focus:ring-studio/50 transition-all font-bold tracking-wide flex justify-center text-center text-[10px]">
+                     <SelectValue placeholder="6" />
+                   </SelectTrigger>
+                   <SelectContent className="bg-zinc-900 border-zinc-800 text-studio">
+                     {[4, 6, 8, 10, 12].map(n => (
+                       <SelectItem key={n} value={n.toString()}>{n}</SelectItem>
+                     ))}
+                   </SelectContent>
+                 </Select>
+              </div>
+            </div>
+          </div>
+
+          <div className="pt-4 relative z-10">
+            <Button 
+              className="w-full bg-studio hover:bg-studio/80 text-white border-none shadow-studio font-black tracking-widest uppercase text-xs h-11 transition-all"
+              onClick={handleGenerate}
+              disabled={isLoading || !prompt.trim()}
+            >
+              {isLoading ? (
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  <span>Generating...</span>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <Send className="w-4 h-4" />
+                  Generate Production Script
+                </div>
+              )}
+            </Button>
+          </div>
+
+          {generatedScript && (
+            <Button 
+              className="w-full relative z-10 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border border-zinc-700 h-10 text-xs font-bold tracking-widest uppercase"
+              onClick={handleSaveCurrent}
+              disabled={isSaving || !user}
+            >
+              {isSaving ? (
+                <div className="w-4 h-4 border-2 border-zinc-400 border-t-white rounded-full animate-spin mr-2" />
+              ) : (
+                <History className="w-4 h-4 mr-2" />
+              )}
+              {isSaving ? 'Saving...' : (currentScriptId ? 'Update Script' : 'Save to Library')}
+            </Button>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
