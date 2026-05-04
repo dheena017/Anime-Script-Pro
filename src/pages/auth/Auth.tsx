@@ -38,7 +38,7 @@ export default function AuthPage() {
   const getErrorMessage = (err: any) => {
     const message = err.message?.toLowerCase() || '';
     if (message.includes('invalid login credentials')) return 'Authentication Failed: Invalid Node Identity or Key.';
-    if (message.includes('email not confirmed')) return 'Access Denied: Neural Identity requires email verification.';
+    if (message.includes('email not confirmed')) return 'Access Denied: Please verify your email first.';
     if (message.includes('user already registered')) return 'Identity Conflict: This node is already registered in the matrix.';
     if (message.includes('password is too short')) return 'Security Violation: Cryptographic key must be at least 6 characters.';
     return err.message || 'System Error: Unexpected disruption in neural link.';
@@ -122,12 +122,13 @@ export default function AuthPage() {
 
             <div className="space-y-2">
               <CardTitle className="text-4xl font-black tracking-tighter text-white uppercase italic">
-                {mode === 'signin' ? 'Access' : 'Initialize'} <span className="text-[#bd4a4a]">Node</span>
+                {mode === 'signin' ? 'Access' : 'Registration'} <span className="text-[#bd4a4a]">Portal</span>
               </CardTitle>
               <div className="flex items-center justify-center gap-2">
                 <span className="h-[1px] w-8 bg-zinc-800" />
                 <CardDescription className="text-zinc-500 font-black uppercase tracking-[0.3em] text-[10px]">
-                  {mode === 'signin' ? 'Protocol Authorization' : 'Neural Framework Setup'}
+                  {mode === 'signin' ? 'Secure Login' : 'Setup your account'}
+                  With high precision.
                 </CardDescription>
                 <span className="h-[1px] w-8 bg-zinc-800" />
               </div>
@@ -148,10 +149,10 @@ export default function AuthPage() {
                     <MailCheck className="w-8 h-8 text-emerald-500" />
                   </div>
                   <div className="space-y-2">
-                    <h3 className="text-xl font-bold text-white uppercase tracking-widest">Transmission Successful</h3>
+                    <h3 className="text-xl font-bold text-white uppercase tracking-widest">Email Sent</h3>
                     <p className="text-sm text-zinc-400 leading-relaxed">
-                      Verification data sent to your inbox. <br />
-                      Confirm the link to activate your neural node.
+                      Verification email sent to your inbox. <br />
+                      Confirm the link to activate your account.
                     </p>
                   </div>
                   <Button
@@ -244,7 +245,7 @@ export default function AuthPage() {
                         </>
                       ) : (
                         <>
-                          {mode === 'signin' ? 'Establish Neural Link' : 'Initialize Node'} <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                          {mode === 'signin' ? 'Log In' : 'Create Account'} <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                         </>
                       )}
                     </span>

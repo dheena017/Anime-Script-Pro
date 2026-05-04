@@ -56,7 +56,7 @@ export const ScriptHeader: React.FC<ScriptHeaderProps> = ({
               </div>
               <div className="flex items-center gap-2 mt-2">
                 <Cpu className="w-3.5 h-3.5 text-blue-500/40 shrink-0" />
-                <p className="text-[8px] md:text-[9px] font-black text-blue-500/40 uppercase tracking-[0.2em] md:tracking-[0.4em]">S{session} // EP{episode} // Neural Screenplay Synthesizer V6.2</p>
+                <p className="text-[8px] md:text-[9px] font-black text-blue-500/40 uppercase tracking-[0.2em] md:tracking-[0.4em]">S{session} // EP{episode} // AI Script Engine</p>
               </div>
             </div>
           </div>
@@ -99,7 +99,7 @@ export const ScriptHeader: React.FC<ScriptHeaderProps> = ({
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="top">
-                  <p className="font-black uppercase tracking-widest text-[9px]">Synthesize Neural Screenplay</p>
+                  <p className="font-black uppercase tracking-widest text-[9px]">Generate AI Script</p>
                 </TooltipContent>
               </Tooltip>
 

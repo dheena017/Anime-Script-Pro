@@ -6,10 +6,10 @@ import {
   SlidersHorizontal,
   Bell,
   Cpu,
-  Menu,
-  Grid
+  Menu
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { studioTopbarOuterClass } from '@/components/layout/topbarStyles';
 import { Button } from '@/components/ui/button';
 
 interface AnimeStudioTopBarProps {
@@ -26,8 +26,6 @@ export const AnimeStudioTopBar = React.memo<AnimeStudioTopBarProps>(({
   isEngineOpen,
   onToggleSidebar,
   isSidebarCollapsed,
-  onToggleGlobalSidebar,
-  isGlobalSidebarOpen
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -38,26 +36,12 @@ export const AnimeStudioTopBar = React.memo<AnimeStudioTopBarProps>(({
 
   return (
     <header className={cn(
-      "h-[70px] bg-black/60 border-b border-zinc-800/50 flex items-center justify-between px-4 md:px-8 sticky top-0 z-30 transition-all duration-500",
-      isEngineOpen ? "backdrop-blur-2xl border-studio/20" : "backdrop-blur-md"
+      studioTopbarOuterClass,
+      isEngineOpen ? "border-studio/20" : ""
     )}>
       {/* Left: Branding & Sidebars Toggle */}
       <div className="flex items-center gap-4">
-        {/* Global Hub Toggle */}
-        <button
-          onClick={onToggleGlobalSidebar}
-          className={cn(
-            "w-10 h-10 flex items-center justify-center rounded-xl transition-all duration-300",
-            !isGlobalSidebarOpen 
-              ? "text-zinc-500 hover:text-white hover:bg-white/5" 
-              : "text-red-500 bg-red-500/10 border border-red-500/20 shadow-[0_0_15px_rgba(239,68,68,0.2)]"
-          )}
-          title="Global Hub"
-        >
-          <Grid className="w-5 h-5" />
-        </button>
-
-        {/* Studio Sidebar Toggle */}
+        {/* (Removed Global Hub and Studio Sidebar toggles) */}
         <button
           onClick={onToggleSidebar}
           className={cn(

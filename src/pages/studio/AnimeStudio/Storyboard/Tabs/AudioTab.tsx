@@ -15,15 +15,15 @@ interface AudioTabProps {
 
 export const AudioTab: React.FC<AudioTabProps> = ({ scenes = [] }) => {
   return (
-    <div className="py-10 space-y-12">
+    <div className="storyboard-tab-content">
       {/* Header */}
-      <div className="flex items-center gap-6 border-b border-white/5 pb-10">
-        <div className="w-16 h-16 rounded-[2rem] bg-blue-500/10 border border-blue-500/20 flex items-center justify-center shadow-[0_0_30px_rgba(59,130,246,0.1)]">
+      <div className="tab-section-header">
+        <div className="tab-header-icon-box bg-blue-500/10 border-blue-500/20 shadow-blue-500/10">
           <Music className="w-8 h-8 text-blue-400" />
         </div>
         <div>
-          <h2 className="text-3xl font-black text-white uppercase tracking-tighter">Audio Sync</h2>
-          <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-[0.3em] mt-1">
+          <h2 className="tab-section-title">Audio Sync</h2>
+          <p className="tab-section-subtitle">
             BGM cues, SFX manifests, and soundscape orchestration
           </p>
         </div>
@@ -32,7 +32,7 @@ export const AudioTab: React.FC<AudioTabProps> = ({ scenes = [] }) => {
       {/* Per-scene sound cues */}
       {scenes.length > 0 && (
         <div className="space-y-6">
-          <h3 className="text-[10px] font-black text-zinc-500 uppercase tracking-widest flex items-center gap-2">
+          <h3 className="tab-grid-title">
             <Music className="w-3 h-3" /> Scene Sound Manifest
           </h3>
           <div className="space-y-3">
@@ -72,6 +72,7 @@ export const AudioTab: React.FC<AudioTabProps> = ({ scenes = [] }) => {
     </div>
   );
 };
+
 
 
 

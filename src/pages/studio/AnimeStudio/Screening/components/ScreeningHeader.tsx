@@ -60,7 +60,7 @@ export const ScreeningHeader: React.FC<ScreeningHeaderProps> = ({
               </div>
               <div className="flex items-center gap-2 mt-2">
                 <Cpu className="w-3.5 h-3.5 text-studio/40 shrink-0" />
-                <p className="text-[8px] md:text-[9px] font-black text-studio/40 uppercase tracking-[0.2em] md:tracking-[0.4em]">S{session} // EP{episode} // Neural Synthesis Engine V2.1</p>
+                <p className="text-[8px] md:text-[9px] font-black text-studio/40 uppercase tracking-[0.2em] md:tracking-[0.4em]">S{session} // EP{episode} // AI Video Engine</p>
               </div>
             </div>
           </div>

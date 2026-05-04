@@ -6,13 +6,27 @@ export interface WorldLore {
   id?: number;
   user_id: string;
   project_id?: number;
-  architecture: string | null;
-  atlas: string | null;
-  history: string | null;
-  systems: string | null;
-  culture: string | null;
-  full_lore_blob: string | null;
+  full_lore_blob: string | null; // Manifest
+  powers_blob?: string | null;    // Power System
+  factions_blob?: string | null;  // Faction Politics 
+  history_blob?: string | null;   // Detailed Lore/Timeline
   updated_at?: string;
+  
+  // Modular Prompts (Neural Seeds)
+  prompt_lore?: string | null;
+  prompt_powers?: string | null;
+  prompt_factions?: string | null;
+  prompt_architecture?: string | null;
+  prompt_atlas?: string | null;
+  prompt_culture?: string | null;
+  prompt_systems?: string | null;
+
+  // Legacy fields (optional for DB compatibility)
+  architecture?: string | null;
+  atlas?: string | null;
+  history?: string | null;
+  systems?: string | null;
+  culture?: string | null;
 }
 
 export const worldApi = {

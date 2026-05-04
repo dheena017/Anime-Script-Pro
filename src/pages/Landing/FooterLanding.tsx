@@ -53,21 +53,19 @@ export const FooterLanding: React.FC = () => {
                   ANIME<span className="text-studio">SCRIPT</span> PRO
                 </span>
               </a>
-              <p className="text-zinc-500 text-sm leading-relaxed font-medium uppercase tracking-tight">
-                The world's first autonomous production engine for anime and manga. Engineered for the architects of the new digital age.
-              </p>
+                The world's first advanced AI platform for anime and manga. Built for the creators of tomorrow.
             </div>
 
             {/* NEURAL UPDATES MODULE */}
             <div className="space-y-4">
-              <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-studio">Neural Updates</h4>
+              <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-studio">Stay Updated</h4>
               <form onSubmit={handleSubscribe} className="relative group">
                  <div className="absolute -inset-1 bg-gradient-to-r from-studio/50 to-transparent rounded-2xl blur opacity-0 group-focus-within:opacity-20 transition duration-500" />
                  <div className="relative flex gap-2">
                     <Input 
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      placeholder="ARCHITECT@STUDIO.IO"
+                      placeholder="YOUR@EMAIL.COM"
                       className="bg-zinc-900/50 border-zinc-800 rounded-xl h-14 font-black uppercase tracking-widest text-[10px] focus:border-studio/50 transition-all pl-6"
                     />
                     <Button 
@@ -86,7 +84,7 @@ export const FooterLanding: React.FC = () => {
                  <AnimatePresence>
                    {subStatus === 'success' && (
                      <div className="mt-4 flex items-center gap-2 text-emerald-500 text-[9px] font-black uppercase tracking-[0.2em] animate-in fade-in slide-in-from-top-1">
-                        <CheckCircle2 className="w-3.5 h-3.5" /> Neural Link Established
+                        <CheckCircle2 className="w-3.5 h-3.5" /> Subscription Successful
                      </div>
                    )}
                    {subStatus === 'error' && (
@@ -114,12 +112,12 @@ export const FooterLanding: React.FC = () => {
           {/* 2. NAVIGATION GRIDS */}
           <div className="lg:col-span-8 grid grid-cols-2 md:grid-cols-3 gap-12">
             <div className="space-y-8">
-              <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-white">Platform Nodes</h4>
+              <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-white">Platform</h4>
               <ul className="space-y-4">
-                <li><a href="/anime" className="text-zinc-600 hover:text-studio text-[11px] font-black uppercase tracking-widest transition-all no-underline">God Mode Engine</a></li>
-                <li><a href="/pricing" className="text-zinc-600 hover:text-studio text-[11px] font-black uppercase tracking-widest transition-all no-underline">Pricing Protocol</a></li>
-                <li><a href="/community" className="text-zinc-600 hover:text-studio text-[11px] font-black uppercase tracking-widest transition-all no-underline">Social Hub</a></li>
-                <li><a href="/library" className="text-zinc-600 hover:text-studio text-[11px] font-black uppercase tracking-widest transition-all no-underline">Asset Archives</a></li>
+                <li><a href="/anime" className="text-zinc-600 hover:text-studio text-[11px] font-black uppercase tracking-widest transition-all no-underline">Anime Studio</a></li>
+                <li><a href="/pricing" className="text-zinc-600 hover:text-studio text-[11px] font-black uppercase tracking-widest transition-all no-underline">Pricing Plans</a></li>
+                <li><a href="/community" className="text-zinc-600 hover:text-studio text-[11px] font-black uppercase tracking-widest transition-all no-underline">Community</a></li>
+                <li><a href="/library" className="text-zinc-600 hover:text-studio text-[11px] font-black uppercase tracking-widest transition-all no-underline">Asset Library</a></li>
               </ul>
             </div>
 
@@ -134,12 +132,12 @@ export const FooterLanding: React.FC = () => {
             </div>
 
             <div className="space-y-8">
-              <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-white">Support Node</h4>
+              <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-white">Support</h4>
               <ul className="space-y-4">
-                <li><a href="/contact" className="text-zinc-600 hover:text-studio text-[11px] font-black uppercase tracking-widest transition-all no-underline">Terminal Support</a></li>
-                <li><a href="/help" className="text-zinc-600 hover:text-studio text-[11px] font-black uppercase tracking-widest transition-all no-underline">Neural Help</a></li>
+                <li><a href="/contact" className="text-zinc-600 hover:text-studio text-[11px] font-black uppercase tracking-widest transition-all no-underline">Contact Support</a></li>
+                <li><a href="/help" className="text-zinc-600 hover:text-studio text-[11px] font-black uppercase tracking-widest transition-all no-underline">Help Center</a></li>
                 <li><a href="/system/status" className="text-zinc-600 hover:text-studio text-[11px] font-black uppercase tracking-widest transition-all no-underline">System Status</a></li>
-                <li><a href="/terms" className="text-zinc-600 hover:text-studio text-[11px] font-black uppercase tracking-widest transition-all no-underline">Terms of Protocol</a></li>
+                <li><a href="/terms" className="text-zinc-600 hover:text-studio text-[11px] font-black uppercase tracking-widest transition-all no-underline">Terms of Service</a></li>
               </ul>
             </div>
           </div>
@@ -166,7 +164,7 @@ export const FooterLanding: React.FC = () => {
               onClick={() => navigate('/login')} 
               className="h-14 px-10 rounded-2xl bg-white text-black font-black uppercase tracking-[0.2em] text-[10px] hover:bg-studio hover:scale-105 transition-all shadow-3xl"
             >
-              Initialize Sync
+              Initialize
             </Button>
           </div>
         </div>

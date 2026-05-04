@@ -150,7 +150,7 @@ export default function PricingPage() {
                Production <span className="text-studio">Power.</span>
              </h1>
              <p className="max-w-2xl mx-auto text-zinc-500 font-bold uppercase tracking-[0.2em] text-[11px] leading-relaxed">
-               Scalable neural resources for solo architects and full-scale production studios. Distributed node architecture.
+               Scalable resources for solo creators and full-scale production studios.
              </p>
           </div>
         </div>
@@ -167,7 +167,7 @@ export default function PricingPage() {
             onSelect={() => navigate('/login')}
             features={[
               "1 Active Project Shard",
-              "Basic Neural Synthesis",
+              "Standard AI Generation",
               "Global Community Link",
               "720p Protocol Exports",
               "Standard Rendering Latency"
@@ -204,7 +204,7 @@ export default function PricingPage() {
               "White-label Protocol Exports",
               "Direct API Node Interface",
               "Dedicated Sub-agent Cluster",
-              "24/7 Priority Neural Support",
+              "24/7 Priority Support",
               "Zero-Latency Synthesis"
             ]}
           />

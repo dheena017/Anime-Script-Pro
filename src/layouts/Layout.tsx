@@ -3,6 +3,7 @@ import { Outlet, Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { StudioSideBar as Sidebar } from '@/pages/studio/components/studio/layout/StudioSideBar';
 import { cn } from '@/lib/utils';
+import { topbarOuterClass, topbarInnerClass } from '@/components/layout/topbarStyles';
 import {
   User,
   HelpCircle,
@@ -34,8 +35,10 @@ export function Layout() {
     )}>
 
 
-      {/* Unified Sidebar */}
-      <Sidebar collapsed={!isSidebarOpen} setCollapsed={(val) => setIsSidebarOpen(!val)} />
+      {/* Unified Sidebar (hidden on studio-mode-less routes like /anime) */}
+      {!isStudioMode && (
+        <Sidebar collapsed={!isSidebarOpen} setCollapsed={(val) => setIsSidebarOpen(!val)} />
+      )}
 
       {/* Content Backdrop / Blur when Sidebar is open */}
       <AnimatePresence>
@@ -54,15 +57,12 @@ export function Layout() {
       <div
         className="flex-1 flex flex-col min-w-0 bg-[#050505] transition-all duration-300 overflow-hidden"
       >
-        <header
-          className="sticky top-0 z-[400] border-b border-zinc-800/50 bg-black/40 backdrop-blur-md shrink-0 transition-all duration-300"
-        >
-          <div className="max-w-full mx-auto px-4 sm:px-6 py-3 flex items-center justify-between w-full h-[60px]">
+        <header className={topbarOuterClass}>
+          <div className={topbarInnerClass}>
             <div className="flex items-center gap-4">
               {/* Project Selector - Studio Only */}
               {isStudioMode && (
-                <Link to="/library" className={cn("hidden lg:flex items-center gap-2 px-4 py-1.5 bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 transition-colors cursor-pointer group no-underline")}>
-                  <FolderGit2 className="w-4 h-4 text-[#bd4a4a]" />
+                <Link to="/library" className={cn("hidden lg:flex items-center gap-2 px-4 py-1.5 bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 transition-colors cursor-pointer group no-underline") }>
                   <div className="flex flex-col">
                     <span className="text-[10px] text-zinc-500 uppercase font-black tracking-widest leading-none">Architect</span>
                     <span className="text-xs font-bold text-white leading-tight">{currentProject?.title || 'Production'}</span>

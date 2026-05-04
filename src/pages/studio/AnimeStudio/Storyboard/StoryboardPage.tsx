@@ -215,7 +215,7 @@ export function StoryboardPage() {
   }, [selectedModel, storyboardDispatch]);
 
   const handleGenerateAll = React.useCallback(async () => {
-    addLog("STORYBOARD", "PROCESSING", `Initiating bulk neural synthesis for ${scenes.length} production units.`);
+    addLog("STORYBOARD", "PROCESSING", `Starting AI generation for ${scenes.length} scenes.`);
     storyboardDispatch({ type: 'SET_GENERATING', payload: true });
 
     for (let i = 0; i < scenes.length; i++) {
@@ -236,7 +236,7 @@ export function StoryboardPage() {
       }
     }
     storyboardDispatch({ type: 'SET_GENERATING', payload: false });
-    addLog("STORYBOARD", "COMPLETED", "Neural synthesis cycle concluded. Visual DNA manifests updated.");
+    addLog("STORYBOARD", "COMPLETED", "AI generation finished. Storyboard is ready.");
   }, [scenes, visualData, selectedModel, addLog, storyboardDispatch]);
 
   const handleFullProductionLoop = React.useCallback(async () => {
@@ -319,7 +319,7 @@ export function StoryboardPage() {
     if (!scene) return;
 
     setIsManifestingSceneId(sceneId);
-    addLog("STORYBOARD", "PROCESSING", `Manifesting full neural data for Scene: ${scene.section}`);
+    addLog("STORYBOARD", "PROCESSING", `Generating AI data for Scene: ${scene.section}`);
 
     try {
       const result = await generateScene(
@@ -487,13 +487,13 @@ export function StoryboardPage() {
   };
 
   return (
-    <div data-testid="marker-visual-storyboard">
+    <div data-testid="marker-visual-storyboard" className="storyboard-container">
       <AnimatePresence>
         {isGuideOpen && <PlanningGuide />}
       </AnimatePresence>
 
       <Card className={cn(
-        "bg-[#030303]/40 backdrop-blur-md overflow-hidden rounded-3xl relative group/card transition-all duration-700",
+        "bg-[#030303]/40 backdrop-blur-md overflow-hidden rounded-[3rem] relative group/card transition-all duration-700",
         activeTab === 'frames'
           ? "border-fuchsia-500/20 shadow-[0_0_50px_rgba(217,70,239,0.15)] hover:border-fuchsia-500/40"
           : "border-zinc-800/30 hover:border-zinc-700"
@@ -527,6 +527,7 @@ export function StoryboardPage() {
         </div>
       </Card>
     </div>
+
   );
 }
 

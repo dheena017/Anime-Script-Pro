@@ -85,12 +85,7 @@ export const StudioSideBar = React.memo<StudioSideBarProps>(({ collapsed, setCol
               key={item.path}
               initial={collapsed ? { opacity: 0, x: -20 } : { opacity: 0, x: -20 }}
               animate={!collapsed ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
-              transition={{ 
-                type: "spring", 
-                stiffness: 500, 
-                damping: 35,
-                delay: 0.05 + (idx * 0.02) 
-              }}
+                transition={{ duration: 0 }} 
             >
               <NavLink
                 to={fullPath}
@@ -133,13 +128,9 @@ export const StudioSideBar = React.memo<StudioSideBarProps>(({ collapsed, setCol
         opacity: 1
       }}
       onClick={() => collapsed && setCollapsed(false)}
-      transition={{ 
-        type: "tween",
-        duration: 0.22,
-        ease: [0.22, 1, 0.36, 1]
-      }}
+      transition={{ duration: 0 }}
       className={cn(
-        "fixed top-0 left-0 h-full w-[340px] border-r border-zinc-800/30 bg-black/95 backdrop-blur-sm flex flex-col z-[500] shadow-[20px_0_80px_rgba(0,0,0,1)] overflow-hidden transition-colors duration-300 will-change-transform",
+        "fixed top-0 left-0 h-full w-[340px] border-r border-zinc-800/30 bg-black flex flex-col z-[500] shadow-[20px_0_80px_rgba(0,0,0,1)] overflow-hidden transition-colors duration-300 will-change-transform",
         collapsed ? "cursor-pointer hover:bg-red-500/10 border-red-500/20" : "cursor-default"
       )}
     >
@@ -149,8 +140,8 @@ export const StudioSideBar = React.memo<StudioSideBarProps>(({ collapsed, setCol
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            transition={{ delay: 0.1, duration: 0.4 }}
-            className="flex items-center gap-4 px-6 h-[80px] border-b border-zinc-800/50 shrink-0 bg-black/50"
+            transition={{ duration: 0 }}
+            className="flex items-center gap-4 px-6 h-[80px] border-b border-zinc-800/50 shrink-0 bg-black"
           >
             <div className="w-10 h-10 bg-black border border-red-500/30 rounded-xl flex items-center justify-center shadow-[0_0_25px_rgba(239,68,68,0.2)]">
               <ScrollText className="text-red-500 w-6 h-6" />
@@ -218,7 +209,7 @@ export const StudioSideBar = React.memo<StudioSideBarProps>(({ collapsed, setCol
       </div>
 
       {!collapsed && (
-        <div className="p-6 border-t border-zinc-800/40 bg-black/60 backdrop-blur-md">
+        <div className="p-6 border-t border-zinc-800/40 bg-black">
           <div className="bg-gradient-to-br from-zinc-900 to-black rounded-3xl p-5 border border-zinc-800 shadow-[0_10px_30px_rgba(0,0,0,0.5)] group relative overflow-hidden">
             <div className="absolute top-0 right-0 w-24 h-24 bg-cyan-500/5 blur-[40px] -z-10 group-hover:bg-cyan-500/10 transition-colors" />
             <div className="flex items-center gap-3 mb-3">

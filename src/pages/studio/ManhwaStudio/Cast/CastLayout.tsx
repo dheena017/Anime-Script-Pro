@@ -20,7 +20,7 @@ export default function CastLayout() {
           animate={{ opacity: 1, y: 0 }}
           className="p-8 rounded-[2rem] bg-black/40 border border-violet-500/10 h-64 flex flex-col items-center justify-center text-center space-y-4"
         >
-          <p className="text-zinc-600 text-[10px] font-black uppercase tracking-[0.3em]">Neural Scaffold Active</p>
+          <p className="text-zinc-600 text-[10px] font-black uppercase tracking-[0.3em]">System Ready</p>
           <h3 className="text-zinc-400 text-xs font-bold px-8">The Manhwa Cast module is initializing. Synthesize your characters to populate the registry.</h3>
         </motion.div>
       </div>

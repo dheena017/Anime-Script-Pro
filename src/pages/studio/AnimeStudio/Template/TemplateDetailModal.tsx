@@ -40,25 +40,25 @@ export const TemplateDetailModal: React.FC<TemplateDetailModalProps> = ({
         animate={{ opacity: 1 }} 
         exit={{ opacity: 0 }}
         onClick={onClose}
-        className="absolute inset-0 bg-black/90 backdrop-blur-md"
+        className="modal-overlay"
       />
       <motion.div
         layoutId={`modal-${template.id}`}
         initial={{ opacity: 0, scale: 0.9, y: 30 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.9, y: 30 }}
-        className="relative w-full max-w-4xl bg-[#0a0b0e] border border-studio/30 rounded-[2.5rem] overflow-hidden shadow-studio/40 grid grid-cols-1 lg:grid-cols-2"
+        className="modal-content"
       >
         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-studio to-transparent" />
         <button 
           onClick={onClose}
-          className="absolute top-8 right-8 z-[110] text-zinc-500 hover:text-white transition-all hover:rotate-90 bg-black/40 p-2 rounded-full border border-white/10"
+          className="modal-close-btn"
         >
           <X className="w-6 h-6" />
         </button>
 
         {/* Visual Preview Side */}
-        <div className="relative h-64 lg:h-full overflow-hidden border-r border-studio/10">
+        <div className="modal-visual-side">
           <img 
             src={template.thumbnail} 
             alt={template.label} 
@@ -81,23 +81,23 @@ export const TemplateDetailModal: React.FC<TemplateDetailModalProps> = ({
         </div>
 
         {/* Content Side */}
-        <div className="p-10 space-y-10 overflow-y-auto max-h-[80vh] lg:max-h-none no-scrollbar">
+        <div className="modal-content-side">
           <div className="space-y-6">
-            <h4 className="text-[11px] font-black text-zinc-500 uppercase tracking-[0.3em] flex items-center gap-2">
+            <h4 className="modal-section-title">
                <Database className="w-4 h-4 text-studio" /> Analytical Meta-Data
             </h4>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-               <div className="p-4 bg-black/40 rounded-2xl border border-white/5 space-y-1">
+               <div className="modal-info-card">
                  <p className="text-[9px] text-zinc-600 font-bold uppercase">Usage</p>
                  <p className="text-sm text-zinc-200 font-mono font-bold">{template.stats?.deployed}</p>
                  <TrendingUp className="w-3 h-3 text-studio/50" />
                </div>
-               <div className="p-4 bg-black/40 rounded-2xl border border-white/5 space-y-1">
+               <div className="modal-info-card">
                  <p className="text-[9px] text-zinc-600 font-bold uppercase">Success</p>
                  <p className="text-sm text-green-400 font-mono font-bold">{template.stats?.success}</p>
                  <CheckCircle className="w-3 h-3 text-green-500/50" />
                </div>
-               <div className="p-4 bg-black/40 rounded-2xl border border-white/5 space-y-1">
+               <div className="modal-info-card">
                  <p className="text-[9px] text-zinc-600 font-bold uppercase">Logic</p>
                  <p className={cn("text-sm font-mono font-bold", template.color)}>{template.stats?.complexity}</p>
                  <Cpu className={cn("w-3 h-3 opacity-50", template.color)} />
@@ -111,11 +111,11 @@ export const TemplateDetailModal: React.FC<TemplateDetailModalProps> = ({
                  <Layout className="w-4 h-4 text-studio" /> Technical Style
               </h4>
               <div className="space-y-2">
-                 <div className="flex items-center justify-between p-3 bg-white/[0.02] rounded-xl border border-white/5 hover:border-white/10 transition-colors">
+                 <div className="modal-detail-row">
                    <span className="text-[10px] text-zinc-500 font-bold uppercase">Contrast</span>
                    <span className="text-xs text-white font-mono">High/Noir</span>
                  </div>
-                 <div className="flex items-center justify-between p-3 bg-white/[0.02] rounded-xl border border-white/5 hover:border-white/10 transition-colors">
+                 <div className="modal-detail-row">
                    <span className="text-[10px] text-zinc-500 font-bold uppercase">Focus</span>
                    <span className="text-xs text-white font-mono">Character-Centric</span>
                  </div>
@@ -126,11 +126,11 @@ export const TemplateDetailModal: React.FC<TemplateDetailModalProps> = ({
                  <Music className="w-4 h-4 text-studio" /> Audio Matrix
               </h4>
               <div className="space-y-2">
-                 <div className="flex items-center justify-between p-3 bg-white/[0.02] rounded-xl border border-white/5 hover:border-white/10 transition-colors">
+                 <div className="modal-detail-row">
                    <span className="text-[10px] text-zinc-500 font-bold uppercase">BGM</span>
                    <span className="text-xs text-white font-mono">Hybrid Synths</span>
                  </div>
-                 <div className="flex items-center justify-between p-3 bg-white/[0.02] rounded-xl border border-white/5 hover:border-white/10 transition-colors">
+                 <div className="modal-detail-row">
                    <span className="text-[10px] text-zinc-500 font-bold uppercase">Mix</span>
                    <span className="text-xs text-white font-mono">Bass-Driven</span>
                  </div>
@@ -142,8 +142,8 @@ export const TemplateDetailModal: React.FC<TemplateDetailModalProps> = ({
             <h4 className="text-[11px] font-black text-white uppercase tracking-[0.2em] flex items-center gap-2">
                <Code className="w-4 h-4 text-orange-500" /> Embedded Directive
             </h4>
-            <div className="p-8 bg-[#020202] rounded-3xl border border-zinc-800 shadow-inner group hover:border-studio/30 transition-all">
-              <p className="text-[13px] text-zinc-400 font-serif italic leading-relaxed group-hover:text-studio/90 transition-colors duration-500">"{template.prompt}"</p>
+            <div className="modal-prompt-box group">
+              <p className="modal-prompt-text">"{template.prompt}"</p>
             </div>
           </div>
 
@@ -160,6 +160,7 @@ export const TemplateDetailModal: React.FC<TemplateDetailModalProps> = ({
     </div>
   );
 };
+
 
 
 

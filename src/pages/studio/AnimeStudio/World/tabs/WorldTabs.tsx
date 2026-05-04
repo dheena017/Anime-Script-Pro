@@ -1,15 +1,17 @@
 import React from 'react';
-import { 
-  Building2, 
-  Map as MapIcon, 
-  History, 
-  Settings2, 
-  Globe2 
+import {
+  History,
+  Zap,
+  Users,
+  ScrollText,
+  Building2,
+  Map,
+  Cpu,
+  Globe
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { motion } from 'framer-motion';
 
-export type WorldTab = 'architecture' | 'atlas' | 'history' | 'systems' | 'culture';
+export type WorldTab = 'manifest' | 'lore' | 'factions' | 'powers' | 'architecture' | 'atlas' | 'culture' | 'systems';
 
 interface WorldTabsProps {
   activeTab: WorldTab;
@@ -21,46 +23,42 @@ export const WorldTabs: React.FC<WorldTabsProps> = ({
   setActiveTab
 }) => {
   const tabs: { id: WorldTab; label: string; icon: any; color: string }[] = [
-    { id: 'architecture', label: 'Architecture', icon: Building2, color: 'text-studio' },
-    { id: 'atlas', label: 'Atlas', icon: MapIcon, color: 'text-amber-400' },
-    { id: 'history', label: 'History', icon: History, color: 'text-fuchsia-400' },
-    { id: 'systems', label: 'Systems', icon: Settings2, color: 'text-emerald-400' },
-    { id: 'culture', label: 'Culture', icon: Globe2, color: 'text-blue-400' },
+    { id: 'manifest', label: 'Manifest', icon: ScrollText, color: 'text-zinc-400' },
+    { id: 'lore', label: 'History', icon: History, color: 'text-fuchsia-400' },
+    { id: 'factions', label: 'Factions', icon: Users, color: 'text-blue-400' },
+    { id: 'powers', label: 'Powers', icon: Zap, color: 'text-amber-400' },
+    { id: 'architecture', label: 'Architecture', icon: Building2, color: 'text-orange-400' },
+    { id: 'atlas', label: 'Atlas', icon: Map, color: 'text-cyan-400' },
+    { id: 'culture', label: 'Culture', icon: Globe, color: 'text-rose-400' },
+    { id: 'systems', label: 'Systems', icon: Cpu, color: 'text-emerald-400' },
   ];
 
   return (
-    <div className="flex items-center gap-2 p-1.5 bg-[#080808]/60 border border-white/5 rounded-[1.5rem] backdrop-blur-md relative overflow-x-auto no-scrollbar group">
+    <div className="tabs-nav-container">
       <div className="absolute inset-0 bg-gradient-to-r from-studio/5 via-transparent to-amber-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
-      
+
       {tabs.map((tab) => (
         <button
           key={tab.id}
           onClick={() => setActiveTab(tab.id)}
           className={cn(
-            "relative px-5 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all duration-500 flex items-center gap-3 group/tab shrink-0 whitespace-nowrap",
-            activeTab === tab.id ? tab.color : "text-zinc-500 hover:text-zinc-300"
+            "tabs-nav-button transition-all duration-200",
+            activeTab === tab.id 
+              ? `${tab.color} bg-white/5 shadow-[0_0_15px_rgba(255,255,255,0.03)]` 
+              : "text-zinc-500 hover:text-zinc-300 hover:bg-white/[0.02]"
           )}
         >
-          {activeTab === tab.id && (
-            <motion.div
-              layoutId="world-tab-glow"
-              className="absolute inset-0 bg-white/5 border border-white/10 rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.05)]"
-              transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            />
-          )}
-          <tab.icon className={cn("w-3.5 h-3.5 transition-transform duration-300 group-hover/tab:scale-110", activeTab === tab.id ? "opacity-100" : "opacity-40")} />
+          <tab.icon className={cn("w-3.5 h-3.5 transition-transform duration-300", activeTab === tab.id ? "opacity-100 scale-110" : "opacity-40")} />
           <span className="relative z-10">{tab.label}</span>
           {activeTab === tab.id && (
-            <motion.div 
-              layoutId="world-tab-underline"
-              className="absolute -bottom-1 left-4 right-4 h-0.5 bg-current rounded-full opacity-50"
-            />
+            <div className="absolute -bottom-1 left-4 right-4 h-0.5 bg-current rounded-full opacity-40 shadow-[0_0_10px_currentColor]" />
           )}
         </button>
       ))}
     </div>
   );
 };
+
 
 
 

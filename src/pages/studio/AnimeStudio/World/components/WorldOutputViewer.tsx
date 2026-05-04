@@ -1,9 +1,8 @@
+import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import { motion } from 'framer-motion';
 import { Zap } from 'lucide-react';
-import { WORLD_VIEWER_PROSE_CLASSES } from './ViewerStyles';
 import { TableOfContents } from './TableOfContents';
-import React from 'react';
 
 interface WorldOutputViewerProps {
   isEditing: boolean;
@@ -16,7 +15,7 @@ export const WorldOutputViewer = React.memo(({ isEditing, content, prompt, onCon
   if (isEditing) {
     return (
       <textarea
-        className="w-full h-[800px] bg-black/40 border border-studio/20 rounded-[2.5rem] p-10 text-zinc-300 font-mono text-sm leading-loose focus:outline-none focus:ring-2 focus:ring-studio/30 transition-all resize-none shadow-inner custom-scrollbar"
+        className="world-textarea"
         value={content || ''}
         onChange={(e) => onContentChange(e.target.value)}
         placeholder="Manually architect your world lore here..."
@@ -61,17 +60,16 @@ export const WorldOutputViewer = React.memo(({ isEditing, content, prompt, onCon
   }), []);
 
   return (
-    <div className="grid grid-cols-1 xl:grid-cols-4 gap-12 relative group">
+    <div className="world-content-area">
       {/* Main Content Area */}
-      <div className="xl:col-span-3 relative">
-        
-        <div className={WORLD_VIEWER_PROSE_CLASSES}>
+      <div className="world-main-column">
+        <div className="world-prose">
           <ReactMarkdown components={customComponents}>{content}</ReactMarkdown>
         </div>
       </div>
       
       {/* Sidebar (Manifest + TOC) */}
-      <div className="hidden xl:block xl:col-span-1 space-y-8">
+      <div className="world-sidebar">
         {/* Lore Manifest */}
         <div className="p-6 bg-studio/5 border border-studio/10 rounded-[2rem] space-y-6">
           <h4 className="text-[10px] font-black text-studio uppercase tracking-widest flex items-center gap-2">
@@ -117,6 +115,8 @@ export const WorldOutputViewer = React.memo(({ isEditing, content, prompt, onCon
     </div>
   );
 });
+
+
 
 
 

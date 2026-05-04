@@ -1,4 +1,4 @@
-import { Suspense, lazy } from 'react';
+import React, { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ProtectedRoute } from '@/pages/auth/components/ProtectedRoute';
 import { ErrorBoundary } from '@/lib/error-utils';

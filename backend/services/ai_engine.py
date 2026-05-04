@@ -68,18 +68,19 @@ class AIEngine:
 
         return build_genai_client(api_key=api_key)
 
-    async def generate_lore(self, title: str, description: str, user_id: str = None):
+    async def generate_lore(self, title: str, description: str, tone: str = "Standard", content_type: str = "Anime", user_id: str = None):
         prompt = f"""
-        Role: Master World Architect
+        Role: Master World Architect for {content_type}
         Task: Initialize World Lore for a new production.
         Title: {title}
         Core Concept: {description}
+        Narrative Tone: {tone}
 
         Generate a detailed world setting including:
         1. Setting Name
-        2. Era/Tone
+        2. Era/Tone (Strictly following: {tone})
         3. Core Conflict
-        4. Unique World Mechanics
+        4. Unique World Mechanics compatible with {content_type} production.
 
         Return only a JSON object.
         """
@@ -100,17 +101,18 @@ class AIEngine:
         
         return response.text
 
-    async def generate_characters(self, lore: str, count=3, user_id: str = None):
+    async def generate_characters(self, lore: str, count=3, tone: str = "Standard", content_type: str = "Anime", user_id: str = None):
         prompt = f"""
-        Role: Lead Character Designer
+        Role: Lead Character Designer for {content_type}
         Task: Create {count} core characters for this world.
         World Lore: {lore}
+        Tone: {tone}
 
         For each character, provide:
         - Name
         - Role (Main, Rival, Support)
-        - Archetype
-        - Visual DNA (detailed prompt)
+        - Archetype (Aligned with {tone} {content_type} tropes)
+        - Visual DNA (detailed prompt for {content_type} style)
         - Core Motivation
         - Secret
 
@@ -132,18 +134,19 @@ class AIEngine:
         
         return response.text
 
-    async def generate_script_beats(self, title: str, lore: str, characters: str, user_id: str = None):
+    async def generate_script_beats(self, title: str, lore: str, characters: str, tone: str = "Standard", content_type: str = "Anime", user_id: str = None):
         prompt = f"""
-        Role: Narrative Director
+        Role: Narrative Director for {content_type}
         Task: Outline the first 10 narrative beats for the pilot episode.
         Series: {title}
         World: {lore}
         Cast: {characters}
+        Tone: {tone}
 
         For each beat, provide:
         - Label
-        - Description
-        - Visual Cue
+        - Description (Maintain {tone} pacing)
+        - Visual Cue ({content_type} cinematic language)
         - Est. Duration
 
         Return only a JSON array of objects.

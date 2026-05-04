@@ -90,7 +90,7 @@ export default function Dashboard() {
       )}
 
       <div className={cn("space-y-12 pt-16 pb-20 px-6 transition-opacity duration-200", showFullscreenLoader ? "opacity-0 pointer-events-none" : "opacity-100")}>
-        {/* 1. TOP HEADER / NEURAL STATUS */}
+        {/* 1. TOP HEADER / SYSTEM STATUS */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 border-b border-white/5 pb-16 relative">
           <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
 
@@ -323,7 +323,7 @@ export default function Dashboard() {
               </div>
             </Card>
 
-            {/* NEURAL FEED (SYSTEM LOGS) */}
+            {/* SYSTEM FEED (SYSTEM LOGS) */}
             <Card className={cn(lightweightCardClass, "rounded-[3rem] p-10 space-y-8")}>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -361,7 +361,7 @@ export default function Dashboard() {
                     ))
                   ) : (
                     <div className="p-8 rounded-2xl border border-dashed border-white/5 text-center">
-                      <p className="text-[10px] font-black text-zinc-700 uppercase tracking-widest">Neural stream quiet.</p>
+                      <p className="text-[10px] font-black text-zinc-700 uppercase tracking-widest">System is quiet.</p>
                     </div>
                   )}
                 </div>

@@ -53,6 +53,3 @@ export const CompositionTab: React.FC<CompositionTabProps> = ({ scenes }) => {
     </div>
   );
 };
-
-
-

@@ -21,15 +21,15 @@ const angles = [
 
 export const AnglesTab: React.FC = () => {
   return (
-    <div className="py-10 space-y-16">
+    <div className="storyboard-tab-content">
       {/* Header */}
-      <div className="flex items-center gap-6 border-b border-white/5 pb-10">
-        <div className="w-16 h-16 rounded-[2rem] bg-studio/10 border border-studio/20 flex items-center justify-center shadow-[0_0_30px_rgba(6,182,212,0.1)]">
+      <div className="tab-section-header">
+        <div className="tab-header-icon-box bg-studio/10 border-studio/20 shadow-studio/10">
           <Camera className="w-8 h-8 text-studio" />
         </div>
         <div>
-          <h2 className="text-3xl font-black text-white uppercase tracking-tighter">Shot Angles</h2>
-          <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-[0.3em] mt-1">
+          <h2 className="tab-section-title">Shot Angles</h2>
+          <p className="tab-section-subtitle">
             Camera blocking, lens selection, and cinematic framing guides
           </p>
         </div>
@@ -37,7 +37,7 @@ export const AnglesTab: React.FC = () => {
 
       {/* Shot Types */}
       <div className="space-y-6">
-        <h3 className="text-[10px] font-black text-zinc-500 uppercase tracking-widest flex items-center gap-2">
+        <h3 className="tab-grid-title">
           <Camera className="w-3 h-3" /> Shot Type Reference Matrix
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -45,13 +45,13 @@ export const AnglesTab: React.FC = () => {
             <div
               key={shot.code}
               className={cn(
-                "p-6 rounded-[2rem] bg-gradient-to-br border space-y-3 hover:scale-[1.02] transition-all duration-300 cursor-default group",
+                "shot-type-card",
                 shot.color, shot.border
               )}
             >
               <div className="flex items-center justify-between">
                 <span className="text-2xl">{shot.icon}</span>
-                <span className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.3em] px-2 py-0.5 bg-black/30 rounded-full">
+                <span className="shot-code-badge">
                   {shot.code}
                 </span>
               </div>
@@ -64,16 +64,16 @@ export const AnglesTab: React.FC = () => {
 
       {/* Camera Angles */}
       <div className="space-y-6">
-        <h3 className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">
+        <h3 className="tab-grid-title uppercase">
           Angle Diagnostics
         </h3>
         <div className="space-y-3 max-w-3xl">
           {angles.map((angle, i) => (
             <div
               key={i}
-              className="flex items-center gap-5 p-5 bg-white/5 border border-white/5 rounded-2xl hover:border-studio/20 transition-all group"
+              className="angle-diagnostic-item"
             >
-              <div className="w-10 h-10 rounded-xl bg-studio/10 border border-studio/20 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+              <div className="angle-icon-box">
                 <angle.icon className="w-5 h-5 text-studio" />
               </div>
               <div>
@@ -87,6 +87,3 @@ export const AnglesTab: React.FC = () => {
     </div>
   );
 };
-
-
-

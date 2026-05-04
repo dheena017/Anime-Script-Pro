@@ -264,15 +264,33 @@ async def initialize_god_mode(project_id: int, user_id: str = Depends(get_auth_u
 
         try:
             # Phase 1: Neural Lore Architecture
-            lore_raw = await ai_engine.generate_lore(project.title, project.description or "A new creative production.", user_id=user_id)
+            lore_raw = await ai_engine.generate_lore(
+                project.title, 
+                project.description or "A new creative production.",
+                tone=project.vibe or "Standard",
+                content_type=project.content_type or "Anime",
+                user_id=user_id
+            )
             project.prod_metadata["world_lore"] = lore_raw
             
             # Phase 2: Character DNA Synthesis
-            cast_raw = await ai_engine.generate_characters(lore_raw, user_id=user_id)
+            cast_raw = await ai_engine.generate_characters(
+                lore_raw, 
+                tone=project.vibe or "Standard",
+                content_type=project.content_type or "Anime",
+                user_id=user_id
+            )
             project.prod_metadata["cast_dna"] = cast_raw
             
             # Phase 3: Narrative Beat Scaffolding
-            beats_raw = await ai_engine.generate_script_beats(project.title, lore_raw, cast_raw, user_id=user_id)
+            beats_raw = await ai_engine.generate_script_beats(
+                project.title, 
+                lore_raw, 
+                cast_raw, 
+                tone=project.vibe or "Standard",
+                content_type=project.content_type or "Anime",
+                user_id=user_id
+            )
             project.prod_metadata["narrative_scaffolding"] = beats_raw
 
             

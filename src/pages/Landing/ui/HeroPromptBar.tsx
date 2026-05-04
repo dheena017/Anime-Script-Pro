@@ -151,7 +151,7 @@ export const HeroPromptBar: React.FC<HeroPromptBarProps> = ({
            </div>
            <div className="flex items-center gap-2 text-zinc-600">
               <Info className="w-3.5 h-3.5" />
-              <span className="text-[9px] font-black uppercase tracking-widest">Select Neural Node</span>
+              <span className="text-[9px] font-black uppercase tracking-widest">Select AI Style</span>
            </div>
         </div>
         

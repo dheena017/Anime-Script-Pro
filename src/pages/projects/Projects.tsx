@@ -271,7 +271,7 @@ export default function ProjectsPage() {
                       </div>
                       <div className="flex flex-col">
                         <span className="text-[8px] font-black text-zinc-700 uppercase tracking-widest">Synthesis Model</span>
-                        <span className="text-[10px] font-black text-white uppercase tracking-widest">{project.model_used || 'Neural-Flash-2.0'}</span>
+                        <span className="text-[10px] font-black text-white uppercase tracking-widest">{project.model_used || 'Flash-AI-2.0'}</span>
                       </div>
                     </div>
                   </div>

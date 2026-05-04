@@ -6,6 +6,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { EngineHeader } from './components/EngineHeader';
 import { EngineToolbar } from './components/EngineToolbar';
 import { EngineTab } from './tabs/EngineTabs';
+import '../Template/templateStyles/Template.css';
 
 export const EngineContext = React.createContext<{
   setHandlers: React.Dispatch<React.SetStateAction<any>>;

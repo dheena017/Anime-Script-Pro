@@ -92,10 +92,11 @@ export const FramesTab = React.memo<FramesTabProps>(({
             {...provided.droppableProps}
             ref={provided.innerRef}
             className={cn(
-              "gap-12 pb-10",
+              "frames-grid",
               viewMode === 'grid' ? "grid grid-cols-1 lg:grid-cols-2" : "grid grid-cols-1"
             )}
           >
+
             {scenes.map((scene, idx) => (
               <Draggable key={scene.id} draggableId={scene.id} index={idx}>
                 {(provided, snapshot) => (

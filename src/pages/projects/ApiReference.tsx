@@ -57,7 +57,7 @@ export function ApiReferencePage() {
               </h1>
               <p className="text-zinc-500 max-w-2xl mx-auto uppercase text-[11px] font-bold tracking-[0.2em] leading-relaxed">
                 Build high-fidelity integrations with the AnimeScript Pro engine. <br />
-                Real-time neural synthesis at your fingertips.
+                Real-time AI generation at your fingertips.
               </p>
            </div>
 

@@ -93,12 +93,7 @@ export const AnimeStudioSideBar = React.memo<AnimeStudioSideBarProps>(({
               key={item.path}
               initial={collapsed ? { opacity: 0, x: -20 } : { opacity: 0, x: -20 }}
               animate={!collapsed ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
-              transition={{ 
-                type: "spring", 
-                stiffness: 400, 
-                damping: 40,
-                delay: 0.05 + (idx * 0.02) 
-              }}
+                transition={{ duration: 0 }} 
             >
               <NavLink
                 to={fullPath}
@@ -136,9 +131,9 @@ export const AnimeStudioSideBar = React.memo<AnimeStudioSideBarProps>(({
         width: collapsed ? 16 : 340,
         opacity: 1
       }}
-      transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+      transition={{ duration: 0 }}
       className={cn(
-        "fixed top-0 left-0 h-full bg-black/60 backdrop-blur-md flex flex-col z-[500] overflow-hidden transition-all duration-300",
+        "fixed top-0 left-0 h-full bg-black flex flex-col z-[500] overflow-hidden transition-all duration-300",
         collapsed ? "cursor-pointer hover:bg-cyan-500/10" : "cursor-default"
       )}
       onClick={() => collapsed && onToggleCollapse?.()}
@@ -149,8 +144,8 @@ export const AnimeStudioSideBar = React.memo<AnimeStudioSideBarProps>(({
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            transition={{ delay: 0.1, duration: 0.4 }}
-            className="flex items-center gap-4 px-6 h-[80px] shrink-0 bg-black/50"
+            transition={{ duration: 0 }}
+            className="flex items-center gap-4 px-6 h-[80px] shrink-0 bg-black"
           >
             <div className="w-10 h-10 bg-black border border-cyan-500/30 rounded-xl flex items-center justify-center shadow-[0_0_25px_rgba(6,182,212,0.2)]">
               <Zap className="text-cyan-500 w-6 h-6" />
@@ -191,7 +186,7 @@ export const AnimeStudioSideBar = React.memo<AnimeStudioSideBarProps>(({
       </div>
 
       {!collapsed && (
-        <div className="p-6 bg-black/60 backdrop-blur-md space-y-4">
+        <div className="p-6 bg-black space-y-4">
           <div className="bg-gradient-to-br from-zinc-900 to-black rounded-3xl p-5 border border-zinc-800 shadow-[0_10px_30px_rgba(0,0,0,0.5)] group relative overflow-hidden">
             <div className="absolute top-0 right-0 w-24 h-24 bg-cyan-500/5 blur-[40px] -z-10 group-hover:bg-cyan-500/10 transition-colors" />
             <div className="flex items-center gap-3 mb-3">

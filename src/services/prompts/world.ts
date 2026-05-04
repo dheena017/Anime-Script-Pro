@@ -710,7 +710,10 @@ DETAILED INSTRUCTIONS:
   - What mysteries reward careful viewing?
 
 
-Your response MUST be **10,000-15,000+ words** MINIMUM. This is a professional world bible, not a summary. Each of the 34 sections above must receive substantial elaboration:
+### MASTER MANIFEST FORMAT (UNIFIED):
+Your response MUST be a single, cohesive **Master Manifest** document. Do not provide separate summaries for tabs; instead, build an interconnected, encyclopedic world bible.
+
+Your response MUST be **15,000-20,000+ words** MINIMUM. This is a professional world bible, not a summary. Each of the 34 sections above must receive substantial elaboration:
 
 ### For EACH Main Section (1-34):
 - Provide 300-450 words of content per section
@@ -1148,7 +1151,121 @@ For each era specify:
 Return ONLY the comprehensive lore and history in professional Markdown format with clear timelines and narrative flow.
 `
 );
+/**
+ * Generates an architectural and visual design prompt
+ * @param contentType - Type of content
+ * @returns Detailed prompt for architectural design
+ */
+export const ARCHITECTURE_GENERATION_PROMPT = (contentType: string) => `
+You are an expert Architectural Designer, Visual Director, and Cinematographer specializing in ${contentType.trim()} world-building.
 
+TASK: Design the Comprehensive Visual Architecture and Aesthetic Identity for this ${contentType.trim()} world.
 
+DETAILED SPECIFICATIONS:
 
+## 1. Architectural Signature
+- **Settlement Styles**: Define 3-5 distinct architectural styles based on region or faction.
+- **Structural Philosophy**: How do people build? (Organic, brutalist, gothic, high-tech, nomadic?)
+- **Material Language**: What materials define the world? (Obsidian, neon-glass, carved bone, floating stone?)
+- **Scale & Verticality**: Are settlements sprawling, towering, subterranean, or aerial?
 
+## 2. Visual Aesthetic & Cinematography
+- **Color Palette**: Dominant color schemes and their psychological impact.
+- **Lighting Mood**: Ambient light sources and dramatic contrast signatures.
+- **Camera Language**: How should this world be "filmed"? (Grand wide shots, claustrophobic intimacy, dynamic action?)
+- **Visual Motifs**: Recurring symbols, shapes, and patterns in design.
+
+## 3. Interior & Living Spaces
+- **Domestic Design**: What do ordinary homes look like?
+- **Elite Architecture**: How do the powerful manifest their status visually?
+- **Public Spaces**: Markets, forums, and temples—how is social space designed?
+
+Return ONLY the architectural and visual specification in professional Markdown format.
+`;
+
+/**
+ * Generates a geographic and environmental design prompt
+ * @param contentType - Type of content
+ * @returns Detailed prompt for atlas and geography
+ */
+export const ATLAS_GENERATION_PROMPT = (contentType: string) => `
+You are an expert Geographic Cartographer, Climate Scientist, and Environmental Storyteller specializing in ${contentType.trim()} settings.
+
+TASK: Design the Comprehensive Physical Geography and Climate System for this ${contentType.trim()} world.
+
+DETAILED SPECIFICATIONS:
+
+## 1. Global Topology
+- **Primary Continents/Regions**: Names, shapes, and geological origins.
+- **Notable Landmarks**: 5-10 iconic natural features (mountains, rivers, rifts).
+- **Subterranean & Aerial Geography**: If relevant, what lies above or below the surface?
+
+## 2. Climate & Environment
+- **Weather Patterns**: Unique weather phenomena (mana storms, crystal rain, eternal twilight).
+- **Seasonal Cycles**: How do seasons change the physical world?
+- **Environmental Hazards**: Regions that are naturally dangerous or uninhabitable.
+
+## 3. Resource Distribution
+- **Strategic Resources**: Where are rare materials found?
+- **Geography of Conflict**: How does terrain force political friction or trade routes?
+
+Return ONLY the geographic atlas specification in professional Markdown format.
+`;
+
+/**
+ * Generates a cultural and societal design prompt
+ * @param contentType - Type of content
+ * @returns Detailed prompt for culture and daily life
+ */
+export const CULTURE_GENERATION_PROMPT = (contentType: string) => `
+You are an expert Cultural Anthropologist, Sociologist, and Lore Master specializing in ${contentType.trim()} narratives.
+
+TASK: Design the Comprehensive Cultural Ethos and Societal Norms for this ${contentType.trim()} world.
+
+DETAILED SPECIFICATIONS:
+
+## 1. Societal Structure
+- **Class & Hierarchy**: How is society layered? (Caste systems, meritocracies, tribal units?)
+- **Family & Identity**: How are lineage, gender, and personal identity perceived?
+- **Education & Knowledge**: How is wisdom passed down? (Oral tradition, elite academies, neural imprints?)
+
+## 2. Rituals & Daily Life
+- **Daily Routines**: What does a "day in the life" look like for different classes?
+- **Rites of Passage**: Birth, adulthood, marriage, and death customs.
+- **Festivals & Celebrations**: Major cultural events and their symbolic meanings.
+
+## 3. Beliefs & Values
+- **Moral Framework**: What is considered honorable vs. shameful?
+- **Religion & Myth**: Common belief systems and their influence on law/society.
+
+Return ONLY the cultural and societal specification in professional Markdown format.
+`;
+
+/**
+ * Generates a systems and ecosystem design prompt
+ * @param contentType - Type of content
+ * @returns Detailed prompt for world systems and technology
+ */
+export const SYSTEMS_GENERATION_PROMPT = (contentType: string) => `
+You are an expert Systems Architect, Xenobiologist, and Tech Theorist specializing in ${contentType.trim()} world-building.
+
+TASK: Design the Mechanical Logic, Ecosystem, and Technology for this ${contentType.trim()} world.
+
+DETAILED SPECIFICATIONS:
+
+## 1. Biological Ecosystem
+- **Unique Flora**: 5-10 signature plants and their properties.
+- **Unique Fauna**: Apex predators, companion animals, and ecosystem anchors.
+- **Bio-Logic**: How do magic/power systems affect biology?
+
+## 2. Technological Infrastructure
+- **Tech Level**: Define the world's advancement (Clockwork-punk, Cyber-magic, Ancient-tech).
+- **Communication & Transport**: How do news and people move across the world?
+- **Infrastructure Maintenance**: Who keeps the world running and how?
+
+## 3. Economic & Mechanical Systems
+- **Currency & Exchange**: Physical, digital, or spiritual trade systems.
+- **The "Rule of the World"**: One unique system rule that creates conflict (e.g., "Air must be bought").
+
+Return ONLY the systems and ecosystem specification in professional Markdown format.
+`;

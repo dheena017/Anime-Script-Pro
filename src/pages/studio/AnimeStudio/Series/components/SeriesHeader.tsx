@@ -56,7 +56,7 @@ export const SeriesHeader: React.FC<SeriesHeaderProps> = ({
               </div>
               <div className="flex items-center gap-2 mt-2">
                 <Cpu className="w-3.5 h-3.5 text-emerald-500/40 shrink-0" />
-                <p className="text-[8px] md:text-[9px] font-black text-emerald-500/40 uppercase tracking-[0.2em] md:tracking-[0.4em]">S{session} // EP{episode} // Neural Narrative Architect V2.8</p>
+                <p className="text-[8px] md:text-[9px] font-black text-emerald-500/40 uppercase tracking-[0.2em] md:tracking-[0.4em]">S{session} // EP{episode} // AI Story Planner</p>
               </div>
             </div>
           </div>
@@ -99,7 +99,7 @@ export const SeriesHeader: React.FC<SeriesHeaderProps> = ({
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="top">
-                  <p className="font-black uppercase tracking-widest text-[9px]">Architect Neural Narrative Roadmap</p>
+                  <p className="font-black uppercase tracking-widest text-[9px]">Generate AI Roadmap</p>
                 </TooltipContent>
               </Tooltip>
 

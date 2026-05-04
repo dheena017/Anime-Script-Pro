@@ -1,47 +1,41 @@
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import { motion } from 'framer-motion';
-import { Zap, Building2, Castle, Ruler, Layers } from 'lucide-react';
-
-const WORLD_VIEWER_PROSE_CLASSES = `
-  prose prose-invert max-w-none 
-  prose-h1:text-transparent prose-h1:bg-clip-text prose-h1:bg-gradient-to-r prose-h1:from-white prose-h1:to-white/50 prose-h1:font-black prose-h1:uppercase prose-h1:tracking-[0.3em] prose-h1:text-3xl prose-h1:mb-16
-  prose-h2:text-white prose-h2:font-black prose-h2:uppercase prose-h2:tracking-[0.2em] prose-h2:text-sm 
-  prose-h2:bg-gradient-to-r prose-h2:from-white/5 prose-h2:to-transparent prose-h2:p-6 prose-h2:rounded-2xl prose-h2:border prose-h2:border-white/10 
-  prose-h2:border-l-4 prose-h2:border-l-studio
-  prose-h2:mt-32 prose-h2:mb-10 prose-h2:relative prose-h2:shadow-2xl
-  prose-h2:before:content-[''] prose-h2:before:absolute prose-h2:before:-top-16 prose-h2:before:left-[5%] prose-h2:before:w-[90%] prose-h2:before:h-[1px] prose-h2:before:bg-gradient-to-r prose-h2:before:from-transparent prose-h2:before:via-white/10 prose-h2:before:to-transparent
-  prose-h3:text-zinc-300 prose-h3:font-bold prose-h3:uppercase prose-h3:tracking-[0.15em] prose-h3:text-xs prose-h3:mt-12 prose-h3:mb-6 prose-h3:border-b prose-h3:border-white/5 prose-h3:pb-4
-  prose-p:text-zinc-400 prose-p:leading-loose prose-p:text-[15px] prose-p:mb-8 prose-p:font-medium
-  prose-strong:text-studio prose-strong:font-black prose-strong:drop-shadow-[0_0_8px_rgba(6,182,212,0.3)]
-  prose-ul:border-l-2 prose-ul:border-white/5 prose-ul:pl-8 prose-ul:space-y-4 prose-ul:mb-12
-  prose-li:text-[14px] prose-li:text-zinc-400 prose-li:leading-relaxed prose-li:marker:text-studio
-  prose-blockquote:border-l-4 prose-blockquote:border-studio prose-blockquote:bg-studio/5 prose-blockquote:py-6 prose-blockquote:px-8 prose-blockquote:rounded-r-2xl prose-blockquote:text-zinc-300 prose-blockquote:font-mono prose-blockquote:text-[13px] prose-blockquote:italic prose-blockquote:shadow-inner prose-blockquote:my-12
-  prose-code:bg-studio/10 prose-code:text-studio prose-code:px-2 prose-code:py-1 prose-code:rounded-lg prose-code:font-mono prose-code:text-[12px] prose-code:before:content-none prose-code:after:content-none
-  prose-hr:border-white/10 prose-hr:my-24
-`.replace(/\s+/g, ' ').trim();
+import { Building2, Castle, Ruler, Layers, Sparkles, ClipboardList, Download, Zap } from 'lucide-react';
+import { TableOfContents } from '../components/TableOfContents';
 
 interface ArchitectureTabProps {
   isEditing: boolean;
   content: string;
-  prompt: string;
   onContentChange: (content: string) => void;
+  onGenerate?: () => void;
+  isGenerating?: boolean;
+  prompt?: string;
+  onPromptChange?: (p: string) => void;
 }
 
 export const ArchitectureTab: React.FC<ArchitectureTabProps> = ({
   isEditing,
   content,
+  onContentChange,
+  onGenerate,
+  isGenerating,
   prompt,
-  onContentChange
+  onPromptChange
 }) => {
-  const headings = React.useMemo(() => {
-    return content.split('\n')
-      .filter((line) => line.startsWith('## '))
-      .map((line) => {
-        const text = line.replace(/#/g, '').replace(/\*/g, '').replace(/_/g, '').trim();
-        const id = text.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '');
-        return { text, id };
-      });
+  const sectionContent = content;
+
+  const stats = React.useMemo(() => {
+    const findVal = (regex: RegExp, fallback: string) => {
+      const match = content?.match(regex);
+      return match ? match[1].trim() : fallback;
+    };
+
+    return [
+      { label: 'Settlement Style', icon: Castle, val: findVal(/(?:Settlement Style|Style):\s*(.*)/i, 'Gothic-Futurism') },
+      { label: 'Building Material', icon: Layers, val: findVal(/(?:Building Material|Material):\s*(.*)/i, 'Obsidian / Neon') },
+      { label: 'Scale Factor', icon: Ruler, val: findVal(/(?:Scale Factor|Scale):\s*(.*)/i, 'Mega-Metropolis') },
+    ];
   }, [content]);
 
   const customComponents = React.useMemo(() => ({
@@ -56,129 +50,137 @@ export const ArchitectureTab: React.FC<ArchitectureTabProps> = ({
     )
   }), []);
 
-  const handleScroll = (event: React.MouseEvent<HTMLAnchorElement>, id: string) => {
-    event.preventDefault();
-    const element = document.getElementById(id);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  };
-
   return (
-    <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-1000">
-      {/* Premium Header */}
-      <div className="flex items-center justify-between border-b border-white/5 pb-10">
-        <div className="space-y-3">
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-amber-500/10 border border-amber-500/20 rounded-full">
-            <Building2 className="w-3 h-3 text-amber-500" />
-            <span className="text-[9px] font-black text-amber-500 uppercase tracking-[0.2em]">Structural Architect</span>
+    <div className="world-container">
+      <div className="world-header">
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8">
+          <div className="space-y-3">
+            <div className="world-badge bg-orange-500/10 border-orange-500/20">
+              <Building2 className="w-3 h-3 text-orange-500" />
+              <span className="world-badge-text text-orange-500">Structural Architect</span>
+            </div>
+            <h1 className="world-header-title">
+              VISUAL <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-amber-500 to-orange-400">STRUCTURES</span>
+            </h1>
           </div>
-          <h1 className="text-6xl font-black text-white uppercase tracking-tighter leading-none">
-            URBAN <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-orange-500 to-amber-400">STRUCTURES</span>
-          </h1>
+
+          <div className="flex items-center gap-3">
+            {onGenerate && (
+              <button 
+                onClick={onGenerate}
+                disabled={isGenerating}
+                className="flex items-center gap-2 px-5 py-2.5 bg-white text-black hover:bg-zinc-200 rounded-full transition-all group disabled:opacity-50"
+              >
+                {isGenerating ? (
+                  <div className="w-3.5 h-3.5 border-2 border-black/20 border-t-black rounded-full animate-spin" />
+                ) : (
+                  <Sparkles className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
+                )}
+                <span className="text-[10px] font-black uppercase tracking-widest">Synthesize</span>
+              </button>
+            )}
+
+            <button 
+              onClick={() => {
+                navigator.clipboard.writeText(content);
+                alert('Architecture Manifest copied!');
+              }}
+              className="flex items-center gap-2 px-5 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-full transition-all group"
+            >
+              <ClipboardList className="w-3.5 h-3.5 text-zinc-400 group-hover:text-white transition-colors" />
+              <span className="text-[10px] font-black text-zinc-400 group-hover:text-white uppercase tracking-widest">Copy</span>
+            </button>
+            
+            <button 
+              onClick={() => {
+                const element = document.createElement("a");
+                const file = new Blob([content], { type: 'text/markdown' });
+                element.href = URL.createObjectURL(file);
+                element.download = "Architecture_Manifest.md";
+                document.body.appendChild(element);
+                element.click();
+              }}
+              className="flex items-center gap-2 px-5 py-2.5 bg-orange-500/10 hover:bg-orange-500/20 border border-orange-500/20 rounded-full transition-all group"
+            >
+              <Download className="w-3.5 h-3.5 text-orange-500 group-hover:scale-110 transition-transform" />
+              <span className="text-[10px] font-black text-orange-500 uppercase tracking-widest">Download</span>
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Quick Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        {[
-          { label: 'Settlement Style', icon: Castle, val: 'Gothic-Futurism' },
-          { label: 'Building Material', icon: Layers, val: 'Obsidian / Neon' },
-          { label: 'Scale Factor', icon: Ruler, val: 'Mega-Metropolis' },
-        ].map((stat, i) => (
-          <motion.div 
-            key={stat.label}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.1 }}
-            className="p-8 bg-zinc-950/50 border border-white/5 rounded-[2rem] relative group overflow-hidden hover:border-amber-500/30 transition-all"
-          >
-            <div className="absolute top-0 right-0 w-24 h-24 bg-amber-500/5 blur-[40px] pointer-events-none" />
-            <div className="w-12 h-12 rounded-2xl bg-white/[0.03] border border-white/10 flex items-center justify-center mb-6 text-amber-400 group-hover:scale-110 transition-transform">
-              <stat.icon className="w-6 h-6" />
-            </div>
-            <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">{stat.label}</span>
-            <div className="mt-2">
-              <span className="text-2xl font-black text-white uppercase tracking-tighter">{stat.val}</span>
-            </div>
-          </motion.div>
-        ))}
-      </div>
-
-      {/* Main Content (Editor or Markdown) */}
       {isEditing ? (
         <textarea
-          className="w-full h-[800px] bg-black/40 border border-studio/20 rounded-[2.5rem] p-10 text-zinc-300 font-mono text-sm leading-loose focus:outline-none focus:ring-2 focus:ring-studio/30 transition-all resize-none shadow-inner custom-scrollbar"
+          className="world-textarea"
           value={content || ''}
-          onChange={(event) => onContentChange(event.target.value)}
-          placeholder="Manually architect your world lore here..."
+          onChange={(e) => onContentChange(e.target.value)}
+          placeholder="Define your world's architectural style and aesthetic design here..."
         />
       ) : (
-        <div className="grid grid-cols-1 xl:grid-cols-4 gap-12 relative group">
-          <div className="xl:col-span-3 relative">
-            <div className={WORLD_VIEWER_PROSE_CLASSES}>
-              <ReactMarkdown components={customComponents}>{content}</ReactMarkdown>
+        <div className="world-content-area">
+          <div className="world-main-column">
+            <div className="world-prose" style={{ '--prose-accent-color': '#f59e0b' } as React.CSSProperties}>
+              <ReactMarkdown components={customComponents}>{sectionContent}</ReactMarkdown>
             </div>
           </div>
 
-          <div className="hidden xl:block xl:col-span-1 space-y-8">
-            <div className="p-6 bg-studio/5 border border-studio/10 rounded-[2rem] space-y-6">
-              <h4 className="text-[10px] font-black text-studio uppercase tracking-widest flex items-center gap-2">
-                <Zap className="w-3 h-3" /> Lore Manifest
-              </h4>
-              <div className="space-y-4">
-                {[
-                  { label: 'Geography', val: 'Rendered' },
-                  { label: 'Metaphysics', val: 'Active' },
-                  { label: 'Timeline', val: 'Synced' },
-                  { label: 'Sociology', val: 'Archived' }
-                ].map((item, idx) => (
-                  <div key={idx} className="flex items-center justify-between">
-                    <span className="text-[10px] font-bold text-zinc-500 uppercase">{item.label}</span>
-                    <span className="text-[10px] font-black text-white uppercase tracking-tighter">{item.val}</span>
+          <div className="world-sidebar space-y-8">
+            <div className="p-6 bg-[#050505] border border-white/5 rounded-[2rem] space-y-4 relative overflow-hidden group">
+              <div className="absolute inset-0 bg-orange-500/5 blur-[40px] pointer-events-none group-hover:bg-orange-500/10 transition-all duration-700" />
+              <div className="relative z-10 space-y-4">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-[10px] font-black text-zinc-500 uppercase tracking-widest flex items-center gap-2">
+                    <Sparkles className="w-3 h-3 text-orange-500" /> Neural Seed
+                  </h4>
+                  {isEditing && <span className="text-[8px] font-bold text-orange-500/50 uppercase">Modular Prompt</span>}
+                </div>
+                
+                {isEditing ? (
+                  <textarea
+                    className="w-full bg-black/40 border border-white/5 rounded-xl p-3 text-[10px] font-medium text-zinc-300 placeholder:text-zinc-700 focus:outline-none focus:border-orange-500/30 transition-colors min-h-[100px] resize-none"
+                    value={prompt || ''}
+                    onChange={(e) => onPromptChange?.(e.target.value)}
+                    placeholder="Refine the architectural style with specific instructions..."
+                  />
+                ) : (
+                  <div className="p-4 bg-black/40 border border-white/5 rounded-xl">
+                    <p className="text-[9px] font-medium text-zinc-500 leading-relaxed italic">
+                      {prompt ? `"${prompt.substring(0, 120)}${prompt.length > 120 ? '...' : ''}"` : 'Using global project seed for synthesis.'}
+                    </p>
                   </div>
-                ))}
-              </div>
-              <div className="pt-4 border-t border-studio/10">
-                <p className="text-[9px] text-zinc-600 font-medium leading-relaxed uppercase">
-                  World data is now locked as the "Source of Truth" for all subsequent Script and Beat generation.
+                )}
+                
+                <p className="text-[8px] text-zinc-600 font-bold uppercase tracking-tighter leading-relaxed">
+                  Refine the visual aesthetic by defining key motifs, lighting moods, or cultural influences.
                 </p>
               </div>
             </div>
 
-            {prompt && (
-              <div className="p-6 bg-black/40 border border-white/5 rounded-[2rem] space-y-4">
-                <h4 className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Neural Seed</h4>
-                <div className="p-3 bg-zinc-950 rounded-xl border border-white/5">
-                  <p className="text-[9px] font-mono text-studio/70 break-all leading-relaxed">
-                    {prompt.substring(0, 150)}...
-                  </p>
-                </div>
-              </div>
-            )}
+            <div className="space-y-6">
+              {stats.map((stat, i) => (
+                <motion.div 
+                  key={i}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.1 }}
+                  className="p-6 bg-[#050505] border border-white/5 rounded-[2rem] space-y-4 relative group overflow-hidden hover:border-orange-500/30 transition-all"
+                >
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-orange-500/5 blur-[40px] pointer-events-none" />
+                  <div className="w-10 h-10 rounded-xl bg-white/[0.03] border border-white/10 flex items-center justify-center text-orange-400 group-hover:scale-110 transition-transform">
+                    <stat.icon className="w-5 h-5" />
+                  </div>
+                  <div className="space-y-1">
+                    <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">{stat.label}</span>
+                    <h3 className="text-sm font-black text-white uppercase tracking-tighter line-clamp-1">{stat.val}</h3>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
 
-            {headings.length > 0 && (
-              <div className="sticky top-10 p-6 bg-black/40 border border-white/5 rounded-[2rem] space-y-6 shadow-2xl backdrop-blur-md">
-                <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2 border-b border-white/5 pb-4">
-                  <Zap className="w-4 h-4 text-studio" /> Quick Navigation
-                </h4>
-                <ul className="space-y-1 relative before:absolute before:inset-y-0 before:left-[5px] before:w-[1px] before:bg-white/5">
-                  {headings.map((heading, index) => (
-                    <li key={index} className="relative group">
-                      <div className="absolute left-[3px] top-1/2 -translate-y-1/2 w-[5px] h-[5px] rounded-full bg-white/10 group-hover:bg-studio group-hover:shadow-[0_0_8px_var(--studio-glow)] transition-all duration-300 z-10" />
-                      <a
-                        href={`#${heading.id}`}
-                        onClick={(event) => handleScroll(event, heading.id)}
-                        className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest group-hover:text-studio transition-all duration-300 block py-2 pl-6 group-hover:translate-x-1 group-hover:bg-studio/5 rounded-r-lg"
-                      >
-                        {heading.text}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
+            <div className="pt-2">
+              <TableOfContents content={content} />
+            </div>
           </div>
         </div>
       )}

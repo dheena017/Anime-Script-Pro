@@ -8,6 +8,7 @@ import { generateImagePrompts } from '@/services/api/gemini';
 import { StoryboardHeader } from './components/StoryboardHeader';
 import { StoryboardToolbar } from './components/StoryboardToolbar';
 import { StoryboardTab } from './Tabs/StoryboardTabs';
+import './storyboardStyles/Storyboard.css';
 
 export const StoryboardContext = React.createContext<{
   setHandlers: (handlers: any) => void;

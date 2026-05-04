@@ -56,7 +56,7 @@ export const SEOHeader: React.FC<SEOHeaderProps> = ({
               </div>
               <div className="flex items-center gap-2 mt-2">
                 <Cpu className="w-3.5 h-3.5 text-yellow-500/40 shrink-0" />
-                <p className="text-[8px] md:text-[9px] font-black text-yellow-500/40 uppercase tracking-[0.2em] md:tracking-[0.4em]">S{session} // EP{episode} // Neural Content Optimization Engine V1.8</p>
+                <p className="text-[8px] md:text-[9px] font-black text-yellow-500/40 uppercase tracking-[0.2em] md:tracking-[0.4em]">S{session} // EP{episode} // AI Content Optimization</p>
               </div>
             </div>
           </div>
@@ -99,7 +99,7 @@ export const SEOHeader: React.FC<SEOHeaderProps> = ({
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="top">
-                  <p className="font-black uppercase tracking-widest text-[9px]">Synthesize Neural Metadata Archive</p>
+                  <p className="font-black uppercase tracking-widest text-[9px]">Generate AI Metadata</p>
                 </TooltipContent>
               </Tooltip>
 

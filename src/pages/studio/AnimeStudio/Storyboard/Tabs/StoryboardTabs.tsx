@@ -27,7 +27,7 @@ export const StoryboardTabs: React.FC<StoryboardTabsProps> = ({ activeTab, setAc
           key={tab.id}
           onClick={() => setActiveTab(tab.id)}
           className={cn(
-            "relative px-5 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all duration-500 flex items-center gap-3 group/tab shrink-0 whitespace-nowrap",
+            "storyboard-tab-btn relative",
             activeTab === tab.id ? tab.color : "text-zinc-500 hover:text-zinc-300"
           )}
         >
@@ -48,6 +48,3 @@ export const StoryboardTabs: React.FC<StoryboardTabsProps> = ({ activeTab, setAc
     </div>
   );
 };
-
-
-

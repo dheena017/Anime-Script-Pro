@@ -1,31 +1,27 @@
 import { useContext, useEffect, useState } from 'react';
-import { useOutletContext, useNavigate, useSearchParams } from 'react-router-dom';
+import { useOutletContext, useSearchParams } from 'react-router-dom';
 import {
-  Sparkles, Brain, Target, Settings, Clapperboard,
-  Cpu, Layout as LayoutGrid
+  Settings, 
+  Cpu, Layout as LayoutGrid, Activity, Zap, Search,
+  RefreshCw
 } from 'lucide-react';
-import { useTemplates, getIconComponent } from '@/hooks/useTemplates';
+import { getIconComponent, useTemplates, Template } from '@/hooks/useTemplates';
 import { cn } from '@/lib/utils';
 import { useGenerator } from '@/hooks/useGenerator';
 import { useEngineState, useEngineDispatch } from '@/contexts/generator';
 import { useAuth } from '@/hooks/useAuth';
-import TextareaAutosize from 'react-textarea-autosize';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from "@/components/ui/select";
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-
+import { generateEpisodeAssets } from '@/services/generators/episodePipeline';
 // Context
 import { EngineContext } from './EngineLayout';
 
 // Components
 import { TemplateCard } from '../Template/TemplateCard';
 import { VaultView } from '../Template/VaultView';
+import { StudioSelector } from '../../components/selectors/StudioSelector';
+import { EngineSelector } from '../../components/selectors/EngineSelector';
+import { ToneSelector } from '../../components/selectors/ToneSelector';
 
 // Tabs
 import { EngineTab } from './tabs/EngineTabs';
@@ -37,7 +33,6 @@ import { EngineLogs } from './tabs/EngineLogs';
 export function EnginePage() {
   const { activeTab } = useOutletContext<{ activeTab: EngineTab }>();
   const { setHandlers } = useContext(EngineContext);
-  const navigate = useNavigate();
   const [, setSearchParams] = useSearchParams();
   const { user } = useAuth();
 
@@ -46,8 +41,10 @@ export function EnginePage() {
     generatedScript,
     setCurrentScriptId,
     prompt: globalPrompt,
-    setGlobalPrompt,
-    setGlobalContentType,
+    setPrompt: setGlobalPrompt,
+    setGeneratedScript,
+    setGeneratedImagePrompts,
+    setIsGeneratingSeries,
     isGeneratingCharacters,
     isGeneratingMetadata,
     isGeneratingImagePrompts,
@@ -55,14 +52,13 @@ export function EnginePage() {
     isGeneratingDescription,
     isGeneratingWorld,
     isGeneratingVisuals,
-    activeModelAttempt,
   } = useGenerator();
 
   const { tone, selectedModel, contentType: localContentType } = useEngineState();
+  const { templates, loading: loadingTemplates } = useTemplates();
   const { setTone, setSelectedModel, setContentType: setLocalContentType } = useEngineDispatch();
 
   const [prompt, setPrompt] = useState(globalPrompt || '');
-  const { templates } = useTemplates();
 
   const isGeneratingScript = isGeneratingCharacters || isGeneratingMetadata || isGeneratingImagePrompts || isGeneratingSeries || isGeneratingDescription || isGeneratingWorld || isGeneratingVisuals;
 
@@ -94,24 +90,24 @@ export function EnginePage() {
   };
 
   useEffect(() => {
-    setHandlers({ handleSaveCurrent });
-  }, [generatedScript, user, prompt, tone, selectedModel]);
+    setHandlers({ handleSaveCurrent, isGenerating: isGeneratingScript });
+  }, [generatedScript, user, prompt, tone, selectedModel, isGeneratingScript]);
 
   const [selectedTemplateId, setSelectedTemplateId] = useState<number | null>(null);
 
-  const selectedTemplate = templates.find(t => t.id === selectedTemplateId);
+  const selectedTemplate = templates.find((t: Template) => t.id === selectedTemplateId);
 
   const renderTabContent = () => {
     if (isGeneratingScript) {
       return (
-        <div className="flex flex-col items-center justify-center h-[500px] space-y-8">
+        <div className="flex flex-col items-center justify-center h-[600px] space-y-8">
           <div className="relative">
-            <div className="w-16 h-16 border-2 border-studio/20 border-t-studio rounded-full animate-spin shadow-[0_0_30px_rgba(6,182,212,0.3)]" />
-            <Cpu className="absolute inset-0 m-auto w-6 h-6 text-studio animate-pulse" />
+            <div className="w-20 h-20 border-2 border-studio/20 border-t-studio rounded-full animate-spin shadow-[0_0_50px_rgba(6,182,212,0.3)]" />
+            <Cpu className="absolute inset-0 m-auto w-8 h-8 text-studio animate-pulse" />
           </div>
-          <div className="text-center space-y-2">
-            <p className="font-black tracking-[0.3em] text-[10px] uppercase text-studio animate-pulse">Running Neural Synthesis...</p>
-            <p className="text-[8px] font-bold text-zinc-600 uppercase tracking-widest">Generating cinematic narrative weights</p>
+          <div className="text-center space-y-3">
+            <p className="font-black tracking-[0.4em] text-xs uppercase text-studio animate-pulse">Running Neural Synthesis</p>
+            <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest">Compiling cinematic narrative vectors...</p>
           </div>
         </div>
       );
@@ -119,215 +115,274 @@ export function EnginePage() {
 
     switch (activeTab) {
       case 'status':
+        async function handleGenerate() {
+          if (!prompt.trim()) return;
+          
+          setIsGeneratingSeries(true);
+          setGlobalPrompt(prompt);
+          
+          try {
+            const res = await generateEpisodeAssets({
+              prompt,
+              tone,
+              model: selectedModel,
+              contentType: localContentType
+            });
+            
+            if (res) {
+              setGeneratedScript(res.script);
+              if (res.episodeImagePrompts) {
+                setGeneratedImagePrompts(res.episodeImagePrompts);
+              }
+              // Successfully synthesized
+            }
+          } catch (error) {
+            console.error("Synthesis failed:", error);
+          } finally {
+            setIsGeneratingSeries(false);
+          }
+        }
+
         return (
-          <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 space-y-10">
-            {/* 1. Header Section - Compact */}
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-white/5 pb-8">
-              <div className="space-y-3">
-                <div className="inline-flex items-center gap-2 px-3 py-1 bg-studio/10 border border-studio/20 rounded-full">
-                  <Sparkles className="w-3 h-3 text-studio" />
-                  <span className="text-[9px] font-black text-studio uppercase tracking-[0.2em]">Master Engine Configuration</span>
-                </div>
-                <h1 className="text-5xl font-black text-white uppercase tracking-tighter leading-none">
-                  PRODUCTION <span className="text-transparent bg-clip-text bg-gradient-to-r from-studio via-fuchsia-500 to-studio">BLUEPRINT</span>
-                </h1>
-              </div>
-
-              {/* Real-time Pipeline Status - Now in Header */}
-              <div className="flex flex-col items-end gap-3 min-w-[200px]">
-                <div className="flex items-center gap-4">
-                  {[
-                    { label: 'Engine', status: prompt ? 'active' : 'standby' },
-                    { label: 'World', status: useGenerator().worldLore ? 'active' : 'standby' },
-                    { label: 'Cast', status: useGenerator().castProfiles ? 'active' : 'standby' },
-                    { label: 'Series', status: useGenerator().seriesPlan ? 'active' : 'standby' },
-                  ].map((stage) => (
-                    <div key={stage.label} className="flex flex-col items-center gap-1.5" title={stage.label}>
-                      <div className={cn(
-                        "w-1.5 h-1.5 rounded-full transition-all duration-500",
-                        stage.status === 'active' ? "bg-studio shadow-[0_0_8px_rgba(6,182,212,0.8)]" : "bg-zinc-800"
-                      )} />
-                    </div>
-                  ))}
-                </div>
-                <div className="flex flex-col items-end">
-                  <span className="text-[8px] font-black text-studio uppercase tracking-widest animate-pulse">
-                    {activeModelAttempt ? activeModelAttempt : 'Neural Link Stable'}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* 2. Main Work Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-              {/* Left Column: Configuration (4 cols) */}
-              <div className="lg:col-span-4 space-y-8">
-                <div className="p-8 bg-white/[0.02] border border-white/5 rounded-[2rem] space-y-8">
-                  <div className="space-y-4">
-                    <label className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] flex items-center gap-2">
-                      <Clapperboard className="w-3 h-3" /> STUDIO
-                    </label>
-                    <Select value={localContentType} onValueChange={(val) => setLocalContentType(val || 'Anime')}>
-                      <SelectTrigger className="h-12 bg-black border-zinc-800 text-cyan-100 rounded-xl focus:border-studio/50 transition-all text-xs">
-                        <SelectValue placeholder="Anime" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-zinc-950 border-zinc-800">
-                        <SelectItem value="Anime">Anime Studio</SelectItem>
-                        <SelectItem value="Manhwa">Manhwa Studio</SelectItem>
-                        <SelectItem value="Comic">Comic Studio</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-4">
-                    <label className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] flex items-center gap-2">
-                      <Settings className="w-3 h-3" /> ENGINE
-                    </label>
-                    <Select value={selectedModel} onValueChange={(val) => setSelectedModel(val || 'Gemini-2.5-Flash')}>
-                      <SelectTrigger className="h-12 bg-black border-zinc-800 text-cyan-100 rounded-xl focus:border-studio/50 transition-all text-xs">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent className="bg-zinc-950 border-zinc-800">
-                        <SelectItem value="gemini-3.1-pro" className="text-fuchsia-400 font-bold">G3.1 Pro (Ultra-Gen)</SelectItem>
-                        <SelectItem value="gemini-3.1-flash" className="text-cyan-400 font-bold">G3.1 Flash (Speed)</SelectItem>
-                        <SelectItem value="gemini-3-pro" className="text-fuchsia-300">G3.0 Pro (Advanced)</SelectItem>
-                        <SelectItem value="Gemini-2.5-Flash" className="text-zinc-400">G2.5 Flash (Default)</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-4">
-                    <label className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] flex items-center gap-2">
-                      <Brain className="w-3 h-3" /> TONE
-                    </label>
-                    <Select value={tone} onValueChange={(val) => setTone(val || 'Hype/Energetic')}>
-                      <SelectTrigger className="h-12 bg-black border-zinc-800 text-cyan-100 rounded-xl focus:border-studio/50 transition-all text-xs">
-                        <SelectValue placeholder="Hype/Energetic" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-zinc-950 border-zinc-800">
-                        <SelectItem value="Hype/Energetic">Hype / Action</SelectItem>
-                        <SelectItem value="Dark/Gritty">Dark / Seinen</SelectItem>
-                        <SelectItem value="Emotional/Sad">Emotional / Drama</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="pt-4">
-                    <Button
-                      onClick={() => {
-                        setGlobalPrompt(prompt);
-                        setGlobalContentType(localContentType);
-                        navigate('/anime/world');
-                      }}
-                      disabled={!prompt}
-                      className={cn(
-                        "btn-genesis w-full h-14 text-[10px]",
-                        !prompt && "opacity-20 grayscale pointer-events-none"
-                      )}
-                    >
-                      <Sparkles className="w-4 h-4 mr-2" />
-                      LAUNCH GENESIS
-                    </Button>
-                  </div>
-                </div>
-
-                {/* Vertical Blueprints Sidebar */}
-                <div className="space-y-4 px-2">
-                  <div className="flex items-center justify-between">
-                    <h4 className="text-[9px] font-black text-zinc-600 uppercase tracking-[0.3em]">DNA Blueprints</h4>
-                  </div>
-                  <div className="grid grid-cols-1 gap-2 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
-                    {templates.slice(0, 6).map((t) => {
-                      const isActive = prompt === t.prompt;
-                      const Icon = getIconComponent(t.icon);
-                      return (
-                        <button
-                          key={t.id}
-                          onClick={() => setPrompt(t.prompt)}
-                          className={cn(
-                            "flex items-center gap-3 p-3 rounded-xl transition-all duration-300 text-left border",
-                            isActive
-                              ? "bg-studio/10 border-studio/30 shadow-[0_0_15px_rgba(6,182,212,0.1)]"
-                              : "bg-transparent border-transparent hover:bg-white/[0.03] hover:border-white/5"
-                          )}
-                        >
-                          <Icon className={cn("w-3.5 h-3.5", isActive ? "text-studio" : "text-zinc-600")} />
-                          <span className={cn("text-[9px] font-black uppercase tracking-widest truncate", isActive ? "text-white" : "text-zinc-500")}>
-                            {t.name}
-                          </span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              </div>
-
-              {/* Right Column: Narrative Canvas (8 cols) */}
-              <div className="lg:col-span-8 space-y-6">
-                <div className="flex items-center justify-between px-2">
-                  <label className="text-[11px] font-black text-cyan-400 uppercase tracking-[0.3em] flex items-center gap-2">
-                    <Target className="w-4 h-4" />
-                    CORE NARRATIVE CONCEPT
-                  </label>
-                  {prompt && (
-                    <button
-                      onClick={() => setPrompt('')}
-                      className="text-[8px] font-black text-zinc-600 hover:text-red-500 uppercase tracking-widest transition-colors"
-                    >
-                      Clear Canvas
-                    </button>
-                  )}
-                </div>
-                
-                <div className="bg-[#050505] border border-white/5 rounded-[2.5rem] overflow-hidden group/textarea transition-all hover:border-white/10 shadow-2xl min-h-[550px] flex flex-col">
-                  <div className="p-10 flex-1">
-                    <TextareaAutosize
-                      placeholder="Describe your core narrative vision, setting, and structural requirements..."
-                      className="w-full bg-transparent border-none focus:ring-0 text-cyan-100 text-2xl font-medium resize-none transition-all leading-relaxed placeholder:text-zinc-800"
-                      value={prompt}
-                      onChange={(e) => setPrompt(e.target.value)}
-                    />
-                  </div>
+          <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
+            {/* Unified Dashboard Grid */}
+            <div className="flex flex-col space-y-12 max-w-7xl mx-auto px-4">
+               {/* Phase 1: Technical Configuration */}
+               <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 px-10 py-8 bg-[#050505] border border-white/5 rounded-[3rem] shadow-2xl relative overflow-hidden group">
+                  <div className="absolute inset-0 bg-gradient-to-r from-studio/5 via-transparent to-studio/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
                   
-                  {/* Visual Hint Section */}
-                  <div className="p-8 bg-white/[0.01] border-t border-white/5 flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                       <div className="flex -space-x-2">
-                          {[1,2,3].map(i => (
-                            <div key={i} className="w-6 h-6 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center">
-                               <Sparkles className="w-3 h-3 text-zinc-700" />
-                            </div>
-                          ))}
-                       </div>
-                       <span className="text-[8px] font-bold text-zinc-600 uppercase tracking-widest">Awaiting prompt parameters</span>
+                  <StudioSelector 
+                    value={localContentType} 
+                    onChange={(val) => setLocalContentType(val || 'Anime')} 
+                  />
+
+                  <div className="hidden md:block w-px h-16 bg-white/5 relative z-10" />
+
+                  <EngineSelector 
+                    value={selectedModel} 
+                    onChange={(val) => setSelectedModel(val || 'Gemini-2.5-Flash')} 
+                  />
+
+                  <div className="hidden md:block w-px h-16 bg-white/5 relative z-10" />
+
+                  <ToneSelector 
+                    value={tone} 
+                    onChange={(val) => setTone(val || 'Hype/Energetic')} 
+                  />
+               </div>
+
+               {/* Phase 2: DNA Blueprint Matrix (High-Fidelity Cards) */}
+               <div className="space-y-8">
+                 <div className="flex items-center justify-between px-8">
+                    <div className="space-y-1">
+                       <h4 className="text-[10px] font-black text-white uppercase tracking-[0.4em]">Blueprint_Matrix</h4>
+                       <p className="text-[8px] font-bold text-zinc-600 uppercase tracking-widest">Select your narrative foundation</p>
                     </div>
-                    <div className="flex items-center gap-2">
-                       <span className="text-[8px] font-black text-studio/40 uppercase tracking-[0.2em]">Neural Capacity: 100%</span>
-                    </div>
+                    <LayoutGrid className="w-4 h-4 text-zinc-800" />
+                 </div>
+                 
+                 <div className="flex items-center gap-8 overflow-x-auto pb-12 px-8 hide-scrollbar scroll-smooth snap-x">
+                     {loadingTemplates ? (
+                        [1,2,3,4,5].map(i => (
+                          <div key={i} className="min-w-[340px] h-[580px] rounded-[2.5rem] bg-white/[0.02] border border-white/5 animate-pulse" />
+                        ))
+                     ) : (
+                       templates.map((t: Template) => {
+                         const isActive = prompt === t.prompt;
+                         const Icon = getIconComponent(t.icon);
+                         // Real-time data mapping from DB
+                         const displayImage = t.thumbnail || 'https://images.unsplash.com/photo-1614728894747-a83421e2b9c9?q=80&w=1000&auto=format&fit=crop';
+                         const displaySubtitle = t.vibe || t.category || 'STRUCTURAL_BLUEPRINT';
+                         const displayTags = t.elements?.slice(0, 3) || ['NEURAL_DATA', 'STRUCTURAL'];
+                         const displayLogic = t.stats?.complexity || 'STABLE';
+                         const displayStability = t.stats?.success || '95%';
+
+                         return (
+                           <div
+                             key={t.id}
+                             className={cn(
+                               "group/card relative min-w-[340px] bg-[#080808] border border-white/5 rounded-[2.5rem] transition-all duration-700 overflow-hidden snap-start flex flex-col shadow-2xl",
+                               isActive && "border-studio/30 ring-1 ring-studio/20 shadow-[0_0_60px_rgba(6,182,212,0.15)] scale-[1.02]"
+                             )}
+                           >
+                             {/* Card Visual Header */}
+                             <div className="h-48 relative overflow-hidden">
+                                <img 
+                                  src={displayImage} 
+                                  alt={t.name}
+                                  className="w-full h-full object-cover opacity-60 group-hover/card:scale-110 transition-transform duration-[2s]"
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-t from-[#080808] via-[#080808]/40 to-transparent" />
+                                
+                                <div className="absolute top-6 left-6 flex items-center gap-2">
+                                   <div className="px-3 py-1.5 bg-black/60 backdrop-blur-md border border-white/10 rounded-full">
+                                      <span className="text-[7px] font-black text-amber-500 uppercase tracking-[0.2em]">{t.category?.toUpperCase() || 'CORE'}</span>
+                                   </div>
+                                </div>
+                                
+                                <div className="absolute bottom-4 left-8 flex items-center gap-2">
+                                   <div className="w-1.5 h-1.5 rounded-full bg-studio animate-pulse shadow-[0_0_8px_rgba(6,182,212,0.8)]" />
+                                   <span className="text-[8px] font-black text-white uppercase tracking-[0.2em] opacity-60">DATABASE_SYNC: READY</span>
+                                </div>
+                             </div>
+                             
+                             {/* Card Body */}
+                             <div className="p-10 space-y-8">
+                                <div className="flex items-start justify-between">
+                                   <div className={cn(
+                                     "w-16 h-16 rounded-full border flex items-center justify-center transition-all duration-700",
+                                     isActive ? "bg-studio/10 border-studio/30 text-studio shadow-[0_0_20px_rgba(6,182,212,0.2)]" : "bg-white/5 border-white/5 text-zinc-700"
+                                   )}>
+                                      <Icon className="w-7 h-7" />
+                                   </div>
+                                   <div className="text-right">
+                                      <span className="text-[8px] font-black text-zinc-700 uppercase tracking-[0.2em] block leading-none">ARCHITECTURE</span>
+                                      <span className="text-sm font-black text-zinc-400 mt-1 block">V{t.id}.0</span>
+                                   </div>
+                                </div>
+                                
+                                <div className="space-y-3">
+                                   <h4 className={cn(
+                                     "text-2xl font-black uppercase tracking-tighter leading-none transition-colors duration-500",
+                                     isActive ? "text-studio" : "text-white"
+                                   )}>
+                                      {t.name}
+                                   </h4>
+                                   <p className="text-[9px] font-bold text-zinc-600 uppercase tracking-widest">{displaySubtitle}</p>
+                                </div>
+                                
+                                <div className="flex flex-wrap gap-2">
+                                   {displayTags.map((tag: string) => (
+                                     <div key={tag} className="px-3 py-1.5 bg-studio/5 border border-studio/20 rounded-full">
+                                        <span className="text-[7px] font-black text-studio italic uppercase tracking-widest">{tag}</span>
+                                     </div>
+                                   ))}
+                                </div>
+                                
+                                <div className="grid grid-cols-2 gap-4">
+                                   <div className="p-4 bg-white/[0.02] border border-white/5 rounded-2xl">
+                                      <div className="flex items-center gap-2 mb-2">
+                                         <LayoutGrid className="w-3 h-3 text-studio/60" />
+                                         <span className="text-[7px] font-black text-zinc-700 uppercase tracking-widest">LOGIC</span>
+                                      </div>
+                                      <span className="text-[10px] font-black text-white uppercase tracking-widest">{displayLogic}</span>
+                                   </div>
+                                   <div className="p-4 bg-white/[0.02] border border-white/5 rounded-2xl">
+                                      <div className="flex items-center gap-2 mb-2">
+                                         <Activity className="w-3 h-3 text-studio/60" />
+                                         <span className="text-[7px] font-black text-zinc-700 uppercase tracking-widest">STABILITY</span>
+                                      </div>
+                                      <span className="text-[10px] font-black text-white uppercase tracking-widest">{displayStability}</span>
+                                   </div>
+                                </div>
+                                
+                                <button 
+                                  onClick={() => setPrompt(t.prompt)}
+                                  className={cn(
+                                    "w-full h-14 rounded-2xl flex items-center justify-center gap-3 transition-all duration-500",
+                                    isActive 
+                                      ? "bg-white text-black font-black uppercase tracking-[0.2em] text-[10px] shadow-2xl" 
+                                      : "bg-white/5 hover:bg-white/10 text-zinc-500 hover:text-white border border-white/5 font-black uppercase tracking-[0.2em] text-[10px]"
+                                  )}
+                                >
+                                   <Zap className={cn("w-3.5 h-3.5", isActive ? "text-studio" : "text-zinc-700")} />
+                                   DEPLOY BLUEPRINT
+                                </button>
+                                
+                                <div className="text-center">
+                                   <span className="text-[7px] font-black text-zinc-800 uppercase tracking-[0.3em] hover:text-zinc-600 cursor-pointer transition-colors">EXAMINE_TECHNICAL_SPECS</span>
+                                </div>
+                             </div>
+                           </div>
+                         );
+                       })
+                     )}
+                 </div>
+               </div>
+
+               {/* Phase 3: Narrative Architecture */}
+               <div className="space-y-6">
+                  <div className="flex items-center justify-between px-8">
+                     <span className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.4em]">Neural_Narrative_Architecture</span>
                   </div>
-                </div>
-              </div>
+                  <div className="p-12 bg-[#050505] border border-white/5 rounded-[4rem] shadow-2xl transition-all hover:border-white/10 group/canvas min-h-[550px] max-h-[550px] flex flex-col relative overflow-hidden">
+                     <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.01)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.01)_1px,transparent_1px)] bg-[size:60px_60px] pointer-events-none" />
+                     
+                     <div className="relative z-10 flex-1 overflow-y-auto hide-scrollbar pr-4">
+                        <textarea
+                          placeholder="Architect the detailed story arcs, world rules, and cinematic sequences..."
+                          className="w-full bg-transparent border-none focus:ring-0 text-white text-xl font-medium resize-none leading-relaxed placeholder:text-zinc-900 tracking-tight min-h-[450px]"
+                          value={prompt}
+                          onChange={(e) => setPrompt(e.target.value)}
+                        />
+                     </div>
+                  </div>
+               </div>
+
+               {/* Phase 4: System Initialization */}
+               <div className="flex flex-col items-center gap-8 pt-10 pb-32">
+                  <button 
+                     onClick={() => handleGenerate()}
+                     disabled={isGeneratingScript || !prompt.trim()}
+                     className="group/launch relative w-full max-w-3xl h-24 bg-studio rounded-[3rem] flex items-center justify-center gap-6 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:grayscale shadow-[0_0_60px_rgba(6,182,212,0.2)]"
+                  >
+                     <div className="absolute inset-0 bg-gradient-to-r from-white/30 via-transparent to-white/30 opacity-0 group-hover/launch:opacity-100 transition-opacity duration-1000 rounded-[3rem]" />
+                     <div className="relative z-10 flex items-center gap-6">
+                        {isGeneratingScript ? (
+                           <RefreshCw className="w-6 h-6 text-black animate-spin" />
+                        ) : (
+                           <Zap className="w-6 h-6 text-black group-hover/launch:scale-125 transition-transform duration-700" />
+                        )}
+                        <div className="text-left">
+                           <span className="text-[10px] font-black text-black/60 uppercase tracking-[0.4em] block leading-none mb-1">System Launch Protocol</span>
+                           <span className="text-xl font-black text-black uppercase tracking-[0.3em] italic leading-none">Initiate Neural Synthesis</span>
+                        </div>
+                     </div>
+                  </button>
+                  
+                  <div className="flex items-center gap-10 opacity-30">
+                     <div className="flex items-center gap-2">
+                        <div className="w-1.5 h-1.5 rounded-full bg-studio" />
+                        <span className="text-[8px] font-black text-white uppercase tracking-widest">Link: Stable</span>
+                     </div>
+                     <div className="flex items-center gap-2">
+                        <div className="w-1.5 h-1.5 rounded-full bg-studio" />
+                        <span className="text-[8px] font-black text-white uppercase tracking-widest">Core: Active</span>
+                     </div>
+                     <div className="flex items-center gap-2">
+                        <div className="w-1.5 h-1.5 rounded-full bg-studio" />
+                        <span className="text-[8px] font-black text-white uppercase tracking-widest">Buffer: Clear</span>
+                     </div>
+                  </div>
+               </div>
             </div>
           </div>
         );
       case 'template':
         return (
-          <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
-            <div className="flex items-center justify-between border-b border-white/5 pb-10">
-              <div className="space-y-3">
-                <div className="inline-flex items-center gap-2 px-3 py-1 bg-fuchsia-500/10 border border-fuchsia-500/20 rounded-full">
-                  <LayoutGrid className="w-3 h-3 text-fuchsia-400" />
-                  <span className="text-[9px] font-black text-fuchsia-400 uppercase tracking-[0.2em]">Blueprint Repository</span>
-                </div>
-                <h1 className="text-6xl font-black text-white uppercase tracking-tighter leading-none">
-                  TEMPLATE <br />
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-500 via-studio to-fuchsia-500">MATRIX</span>
-                </h1>
-              </div>
+          <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 space-y-12">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 px-4">
+               <div className="flex items-center gap-6">
+                  <div className="w-14 h-14 rounded-2xl bg-fuchsia-500/10 border border-fuchsia-500/20 flex items-center justify-center shadow-lg">
+                    <LayoutGrid className="w-6 h-6 text-fuchsia-500" />
+                  </div>
+                  <div>
+                    <h2 className="text-3xl font-black text-white uppercase tracking-tighter italic leading-none">Blueprint Matrix</h2>
+                    <p className="text-zinc-600 text-[9px] font-black uppercase tracking-[0.3em] mt-2">Neural_Assets // Structural_Library</p>
+                  </div>
+               </div>
+               <div className="relative w-full md:w-80 group">
+                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-zinc-600 group-focus-within:text-studio transition-colors" />
+                  <input 
+                    type="text" 
+                    placeholder="Search Narrative DNA..." 
+                    className="w-full h-11 bg-[#050505] border border-white/5 rounded-xl pl-12 pr-4 text-[10px] font-black uppercase tracking-widest text-white focus:outline-none focus:border-studio/30 transition-all placeholder:text-zinc-800"
+                  />
+               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {templates.map((t, idx) => (
+            <div className="template-grid">
+              {templates.map((t: Template, idx: number) => (
                 <TemplateCard
                   key={`${t.id}-${idx}`}
                   template={t as any}
@@ -385,7 +440,7 @@ export function EnginePage() {
                         <div className="space-y-4">
                           <h4 className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em]">Neural Elements</h4>
                           <div className="flex flex-wrap gap-3">
-                            {selectedTemplate.elements.map(el => (
+                            {selectedTemplate.elements.map((el: string) => (
                               <span key={el} className="px-5 py-3 bg-studio/10 border border-studio/20 text-studio text-[10px] font-black uppercase tracking-widest rounded-xl">
                                 {el}
                               </span>
@@ -440,13 +495,11 @@ export function EnginePage() {
   return (
     <div data-testid="marker-engine-config">
       <Card className={cn(
-        "bg-[#030303] overflow-hidden rounded-[2.5rem] relative group/card transition-all duration-700",
-        "border-studio/20 shadow-[0_0_40px_rgba(6,182,212,0.08)] hover:border-studio/40"
+        "bg-[#030303] overflow-visible rounded-[3rem] relative group/card transition-all duration-700",
+        "border-white/5 shadow-[0_0_40px_rgba(0,0,0,0.5)]"
       )}>
-        <div className="absolute inset-0 border-[1px] border-white/5 rounded-[2.5rem] pointer-events-none group-hover/card:border-white/10 transition-colors duration-700" />
-
         <div className="w-full p-0">
-          <div className="p-12 max-w-[1500px] mx-auto animate-in fade-in slide-in-from-bottom-4 duration-700">
+          <div className="p-8 md:p-12 max-w-[1600px] mx-auto">
             {renderTabContent()}
           </div>
         </div>
@@ -454,7 +507,3 @@ export function EnginePage() {
     </div>
   );
 }
-
-
-
-

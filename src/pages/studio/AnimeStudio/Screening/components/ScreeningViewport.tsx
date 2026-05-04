@@ -88,7 +88,7 @@ export const ScreeningViewport: React.FC<ScreeningViewportProps> = ({
                 <Hash className="w-4 h-4 text-white" />
               </div>
               <div className="flex flex-col">
-                <span className="text-[10px] font-black text-white uppercase tracking-widest leading-none">Neural Unit-01</span>
+                <span className="text-[10px] font-black text-white uppercase tracking-widest leading-none">Video Unit-01</span>
                 <span className="text-[8px] font-bold text-studio/60 uppercase tracking-widest mt-1">Status: Masterpiece Premiere</span>
               </div>
             </div>
@@ -108,7 +108,7 @@ export const ScreeningViewport: React.FC<ScreeningViewportProps> = ({
                       </div>
                       <div className="absolute -inset-4 border border-studio/10 rounded-full animate-ping" />
                     </div>
-                    <p className="text-studio font-black uppercase tracking-[0.5em] text-xs animate-pulse">Neural Assembly Active</p>
+                    <p className="text-studio font-black uppercase tracking-[0.5em] text-xs animate-pulse">AI Video Assembly Active</p>
                   </div>
                   
                   <div className="space-y-3">
@@ -158,7 +158,7 @@ export const ScreeningViewport: React.FC<ScreeningViewportProps> = ({
                <span className="text-white font-black uppercase tracking-widest text-sm">Unit Preview Mode</span>
             </div>
             <div className="flex gap-4 text-zinc-400 text-[10px] font-bold uppercase tracking-widest">
-              <span className="flex items-center gap-1"><Cpu className="w-3 h-3 text-studio" /> 4K Neural</span>
+              <span className="flex items-center gap-1"><Cpu className="w-3 h-3 text-studio" /> 4K AI Video</span>
               <span>FPS: 24 (Cinematic)</span>
             </div>
           </div>

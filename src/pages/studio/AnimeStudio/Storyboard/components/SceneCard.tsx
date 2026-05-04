@@ -99,10 +99,8 @@ export const SceneCard = React.memo<SceneCardProps>(({
       className="relative"
     >
       <Card className={cn(
-        "bg-gradient-to-br from-[#0c0d11] to-[#050505] border transition-all duration-700 overflow-hidden group hover:scale-[1.02] rounded-[2rem] h-full flex flex-col",
-        isDragging
-          ? "border-studio shadow-[0_0_30px_rgba(6,182,212,0.3)] scale-[1.02] z-50 relative"
-          : "border-white/5 hover:border-studio/40 hover:shadow-[0_0_40px_rgba(6,182,212,0.1)]",
+        "scene-card group",
+        isDragging ? "scene-card-dragging" : "scene-card-normal",
         isBulkEnhancing && "border-studio/50 shadow-studio/10"
       )}>
         <div className="absolute inset-0 opacity-[0.03] bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:10px_10px] pointer-events-none" />
@@ -131,7 +129,7 @@ export const SceneCard = React.memo<SceneCardProps>(({
         )}
 
         {/* Scene Image Area */}
-        <div className="aspect-video bg-[#030303] flex items-center justify-center border-b border-white/5 relative overflow-hidden z-10">
+        <div className="scene-image-area">
           {videoData?.[scene.originalIndex] && videoData[scene.originalIndex] !== 'loading' ? (
             <div className="relative w-full h-full">
               <video
@@ -186,7 +184,7 @@ export const SceneCard = React.memo<SceneCardProps>(({
           )}
 
           {/* Scene Label & Drag Handle */}
-          <div className="absolute top-4 left-4 bg-[#050505]/80 backdrop-blur-md border border-white/10 text-zinc-100 text-[10px] font-black px-3.5 py-2 rounded-2xl shadow-2xl flex items-center gap-3 uppercase tracking-widest z-20 group-hover:border-studio/30 transition-all duration-700">
+          <div className="scene-label-badge">
             <div {...dragHandleProps} className="cursor-grab active:cursor-grabbing hover:scale-110 transition-transform">
               <GripVertical className="w-4 h-4 text-studio opacity-60 hover:opacity-100 transition-opacity" />
             </div>
@@ -195,7 +193,7 @@ export const SceneCard = React.memo<SceneCardProps>(({
           </div>
 
           {/* Action Overlay */}
-          <div className="absolute inset-0 bg-studio/10 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-all duration-500 z-10 flex items-center justify-center gap-3">
+          <div className="scene-action-overlay">
             <Button
               onClick={() => navigate(`scenes/${scene.originalIndex}`)}
               className="bg-white text-black hover:bg-studio hover:text-black font-black uppercase tracking-widest text-[9px] h-10 px-6 rounded-xl shadow-2xl transition-all transform translate-y-4 group-hover:translate-y-0"
@@ -226,7 +224,7 @@ export const SceneCard = React.memo<SceneCardProps>(({
         </div>
 
         {/* Scene Content Area */}
-        <div className="p-6 space-y-6 relative z-10 flex-1">
+        <div className="scene-content-area">
           {editingSceneId === scene.id ? (
             <div className="space-y-5 animate-in fade-in slide-in-from-bottom-2 duration-500">
               <div className="space-y-2">
@@ -384,9 +382,9 @@ export const SceneCard = React.memo<SceneCardProps>(({
           ) : (
             <div className="animate-in fade-in duration-700 space-y-4">
               <div className="flex justify-between items-start mb-5">
-                <div className="space-y-2 flex-1 pr-6">
+                <div className="scene-narration-box">
                   <h4 className="text-[9px] font-black text-zinc-600 uppercase tracking-[0.3em] ml-1">Narration Layer</h4>
-                  <p className="text-sm text-zinc-100 font-medium leading-relaxed tracking-wide">
+                  <p className="scene-narration-text">
                     <span className="text-studio/40 font-serif mr-2 text-lg">"</span>
                     {scene.narration}
                     <span className="text-studio/40 font-serif ml-1 text-lg">"</span>
@@ -395,7 +393,7 @@ export const SceneCard = React.memo<SceneCardProps>(({
               </div>
 
               <div className="space-y-4">
-                <div className="bg-white/[0.01] p-4 rounded-2xl border border-white/5 group/visual relative overflow-hidden">
+                <div className="scene-visual-blueprint group/visual">
                   <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-transparent opacity-0 group-hover/visual:opacity-100 transition-opacity duration-700" />
                   <div className="flex items-center justify-between mb-3 relative z-10">
                     <h4 className="text-[9px] font-black text-purple-400 uppercase tracking-[0.3em] flex items-center gap-2">
@@ -411,7 +409,7 @@ export const SceneCard = React.memo<SceneCardProps>(({
                       Generate
                     </Button>
                   </div>
-                  <p className="text-xs text-zinc-400 font-mono leading-relaxed relative z-10">{scene.visuals}</p>
+                  <p className="scene-visual-text">{scene.visuals}</p>
                   {scene.linkedPrompt && (
                     <div className="mt-4 pt-4 border-t border-white/5 space-y-2 relative z-10">
                       <span className="text-[9px] font-black text-studio uppercase tracking-[0.3em] block ml-1">Linked Neural DNA</span>
@@ -423,13 +421,13 @@ export const SceneCard = React.memo<SceneCardProps>(({
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-white/[0.01] p-4 rounded-2xl border border-white/5">
+                  <div className="scene-stat-box">
                     <h4 className="text-[9px] font-black text-blue-400 uppercase tracking-[0.3em] flex items-center gap-2 mb-3">
                       <Sparkles className="w-3.5 h-3.5" /> Audio Matrix
                     </h4>
                     <p className="text-xs text-zinc-400 font-mono leading-relaxed italic">{scene.sound || "No cues defined"}</p>
                   </div>
-                  <div className="bg-white/[0.01] p-4 rounded-2xl border border-white/5 flex flex-col justify-between">
+                  <div className="scene-stat-box flex flex-col justify-between">
                     <h4 className="text-[9px] font-black text-emerald-400 uppercase tracking-[0.3em] flex items-center gap-2 mb-3">
                       <Zap className="w-3.5 h-3.5" /> Temporal
                     </h4>
@@ -445,7 +443,7 @@ export const SceneCard = React.memo<SceneCardProps>(({
         </div>
 
         {/* Scene Card Footer - Action Hub */}
-        <div className="px-6 py-4 border-t border-white/5 bg-white/[0.01] flex items-center justify-between mt-auto z-10 relative">
+        <div className="scene-footer">
           <Button
             variant="ghost"
             size="sm"

@@ -36,10 +36,10 @@ export const ProfileSecurity: React.FC<ProfileSecurityProps> = ({ onDeactivate }
             <Card className="bg-red-500/5 border border-red-500/20 p-6 md:p-10 rounded-3xl md:rounded-[3rem] space-y-6 md:space-y-8 shadow-2xl">
                <CardHeader className="p-0">
                   <CardTitle className="text-xs font-black text-red-500 uppercase tracking-[0.3em] flex items-center gap-3 italic"><Trash2 className="w-4 h-4" /> Destructive Protocols</CardTitle>
-                  <CardDescription className="text-[8px] md:text-[9px] font-bold text-zinc-700 uppercase mt-2">Permanently purge your architect node from the neural network.</CardDescription>
+                  <CardDescription className="text-[8px] md:text-[9px] font-bold text-zinc-700 uppercase mt-2">Permanently delete your account and data.</CardDescription>
                </CardHeader>
                <CardContent className="p-0 space-y-4">
-                  <p className="text-[9px] md:text-[10px] text-zinc-500 font-bold uppercase tracking-widest leading-relaxed">Warning: Initiating node deletion will permanently purge all neural generation history, character DNA, and credit balances.</p>
+                  <p className="text-[9px] md:text-[10px] text-zinc-500 font-bold uppercase tracking-widest leading-relaxed">Warning: Deleting your account will permanently remove all generation history, character data, and credit balances.</p>
                   <Button onClick={onDeactivate} className="w-full h-12 md:h-14 bg-red-950/40 border border-red-900/50 text-red-500 font-black uppercase tracking-widest text-[9px] md:text-[10px] hover:bg-red-600 hover:text-white transition-all">Initiate Node Deletion</Button>
                </CardContent>
             </Card>
@@ -51,7 +51,7 @@ export const ProfileSecurity: React.FC<ProfileSecurityProps> = ({ onDeactivate }
                   <Lock className="w-5 h-5" />
                </div>
                <div>
-                  <p className="text-[10px] font-black text-white uppercase tracking-widest">Neural Encryption Active</p>
+                  <p className="text-[10px] font-black text-white uppercase tracking-widest">Security Encryption Active</p>
                   <p className="text-[8px] text-zinc-600 font-bold uppercase mt-1">All generation logs are encrypted with AES-256-GCM.</p>
                </div>
             </div>

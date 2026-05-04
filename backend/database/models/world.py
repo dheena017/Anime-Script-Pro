@@ -8,14 +8,28 @@ class WorldLore(SQLModel, table=True):
     project_id: Optional[int] = Field(default=None, index=True)
     
     # Modular Lore Data
+    full_lore_blob: Optional[str] = Field(default=None) # The Master Manifest
+    history_blob: Optional[str] = Field(default=None)   # Detailed Timeline
+    powers_blob: Optional[str] = Field(default=None)    # Power Systems
+    factions_blob: Optional[str] = Field(default=None)  # Factions & Politics
+    
+    # Modular Lore Data (Category Tabs)
     architecture: Optional[str] = Field(default=None)
     atlas: Optional[str] = Field(default=None)
-    history: Optional[str] = Field(default=None)
+    history: Optional[str] = Field(default=None)        # Legacy field
     systems: Optional[str] = Field(default=None)
     culture: Optional[str] = Field(default=None)
     
+    # Modular Prompts (Neural Seeds)
+    prompt_lore: Optional[str] = Field(default=None)
+    prompt_powers: Optional[str] = Field(default=None)
+    prompt_factions: Optional[str] = Field(default=None)
+    prompt_architecture: Optional[str] = Field(default=None)
+    prompt_atlas: Optional[str] = Field(default=None)
+    prompt_culture: Optional[str] = Field(default=None)
+    prompt_systems: Optional[str] = Field(default=None)
+
     # Metadata
-    full_lore_blob: Optional[str] = Field(default=None)
     lore_metadata: Dict[str, Any] = Field(default_factory=dict, sa_type=JSON)
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)

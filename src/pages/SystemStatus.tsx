@@ -107,7 +107,7 @@ export default function SystemStatus() {
             className="fixed top-8 right-8 z-[100] flex items-center gap-3 px-5 py-2.5 bg-studio/10 border border-studio/20 backdrop-blur-xl rounded-full shadow-[0_20px_50px_rgba(6,182,212,0.2)]"
           >
             <div className="w-2 h-2 rounded-full bg-studio animate-pulse" />
-            <span className="text-[9px] font-black uppercase tracking-[0.4em] text-studio">Neural Telemetry Sync Active</span>
+            <span className="text-[9px] font-black uppercase tracking-[0.4em] text-studio">System Sync Active</span>
           </motion.div>
         )}
       </AnimatePresence>
@@ -122,7 +122,7 @@ export default function SystemStatus() {
             SYSTEM <span className="text-transparent bg-clip-text bg-gradient-to-r from-studio via-fuchsia-500 to-studio">VITALITY</span>
           </h1>
           <p className="text-zinc-600 font-bold uppercase tracking-[0.4em] text-[10px] pl-1">
-            Real-time neural telemetry from the studio's sovereign infrastructure cores.
+            Real-time status updates from the studio's infrastructure cores.
           </p>
         </div>
 
@@ -246,7 +246,7 @@ export default function SystemStatus() {
           <div className="flex items-center justify-between px-2">
              <div className="flex items-center gap-4">
                 <Terminal className="w-5 h-5 text-fuchsia-500" />
-                <h2 className="text-xl font-black text-white uppercase italic tracking-tighter">Neural Incident Archive</h2>
+                <h2 className="text-xl font-black text-white uppercase italic tracking-tighter">System Incident Archive</h2>
              </div>
              <span className="text-[9px] font-black text-zinc-800 uppercase tracking-[0.4em]">SYNC: ACTIVE</span>
           </div>
@@ -287,7 +287,7 @@ export default function SystemStatus() {
                 ) : (
                   <div className="h-full flex flex-col items-center justify-center space-y-6 opacity-30 grayscale">
                     <Activity className="w-16 h-16 text-zinc-500 animate-pulse" />
-                    <p className="text-sm font-black text-zinc-500 uppercase tracking-[0.3em] text-center">Neural stream quiet.<br />No incidents recorded.</p>
+                    <p className="text-sm font-black text-zinc-500 uppercase tracking-[0.3em] text-center">System is quiet.<br />No incidents recorded.</p>
                   </div>
                 )}
              </CardContent>

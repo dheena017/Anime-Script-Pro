@@ -157,7 +157,7 @@ export function ManhwaStudioSideBar({
             </div>
             <div className="flex flex-col">
               <span className="font-black tracking-[0.2em] text-[12px] uppercase text-white leading-none italic">Manhwa <span className="text-violet-500">Studio</span></span>
-              <span className="text-[8px] font-bold text-zinc-600 uppercase tracking-[0.3em] mt-1.5">Neural Core v2.5</span>
+              <span className="text-[8px] font-bold text-zinc-600 uppercase tracking-[0.3em] mt-1.5">System Core</span>
             </div>
             <button
               onClick={(e) => {
@@ -177,7 +177,7 @@ export function ManhwaStudioSideBar({
           <div className="space-y-1 mb-8">
             {!collapsed && (
                <div className="px-5 mb-6">
-                  <p className="text-[8px] font-black text-violet-500 uppercase tracking-[0.5em]">Neural Environment</p>
+                  <p className="text-[8px] font-black text-violet-500 uppercase tracking-[0.5em]">Studio Environment</p>
                </div>
             )}
             
@@ -198,7 +198,7 @@ export function ManhwaStudioSideBar({
               <div className="p-2 bg-violet-500/10 rounded-xl border border-violet-500/20">
                 <Brain className="w-4 h-4 text-violet-500 animate-pulse" />
               </div>
-              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-200">Neural Engine</span>
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-200">AI Engine</span>
             </div>
             <p className="text-[9px] text-zinc-500 font-bold leading-relaxed mb-4 uppercase tracking-wider">
               Level 42 Sync Established. Multi-Session Persistence Online.

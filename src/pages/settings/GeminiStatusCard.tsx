@@ -100,7 +100,7 @@ export function GeminiStatusCard({ apiKey, onTest, isTesting, status, lastError,
             <div className="flex gap-3">
               <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
               <p className="text-[10px] text-emerald-400 font-bold leading-relaxed uppercase tracking-widest">
-                Neural link established. All Gemini 1.5 & 2.0 models ready for synthesis.
+                Connection established. All Gemini 1.5 & 2.0 models ready for generation.
               </p>
             </div>
           </motion.div>
@@ -118,7 +118,7 @@ export function GeminiStatusCard({ apiKey, onTest, isTesting, status, lastError,
           {isTesting ? (
             <>
               <Loader2 className="w-4 h-4 animate-spin" />
-              Verifying Neural Link...
+              Verifying Connection...
             </>
           ) : (
             <>
@@ -133,7 +133,7 @@ export function GeminiStatusCard({ apiKey, onTest, isTesting, status, lastError,
             onClick={onClear}
             className="w-full mt-2 text-[8px] font-black uppercase tracking-widest text-zinc-600 hover:text-red-500 transition-colors"
           >
-            Revoke Neural Link & Clear Credentials
+            Disconnect Account & Clear Credentials
           </button>
         )}
       </div>

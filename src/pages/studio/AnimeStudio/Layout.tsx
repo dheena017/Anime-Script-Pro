@@ -3,7 +3,6 @@ import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
 import { useAuth } from '@/hooks/useAuth';
 import { useApp } from '@/contexts/AppContext';
-import { motion, AnimatePresence } from 'framer-motion';
 
 // Local Studio Components
 import { ProductionCore } from '@/pages/studio/components/studio/core/ProductionCore';
@@ -14,7 +13,6 @@ import { AnimeStudioTopBar } from './components/layout/AnimeStudioTopBar';
 import { StudioFooter } from '@/pages/studio/components/studio/layout/StudioFooter';
 
 import '@/styles/creative-engine.css';
-import { generateScript } from '@/services/generators/script';
 import { StudioLoading } from '@/pages/studio/components/studio/StudioLoading';
 
 /**
@@ -29,7 +27,7 @@ export default function AnimeLayout() {
 
   // Sync Creative Engine state with URL query parameter
   const [sidebarOpen, setSidebarOpen] = React.useState(false); // Default closed
-  const [leftSidebarCollapsed, setLeftSidebarCollapsed] = React.useState(false);
+  const [leftSidebarCollapsed, setLeftSidebarCollapsed] = React.useState(true);
   const [globalSidebarCollapsed, setGlobalSidebarCollapsed] = React.useState(true); // Default closed
 
   const toggleLeftSidebar = () => setLeftSidebarCollapsed(!leftSidebarCollapsed);
@@ -46,8 +44,6 @@ export default function AnimeLayout() {
       document.body.style.overflow = 'unset';
     };
   }, [globalSidebarCollapsed, sidebarOpen]);
-
-
 
   // Update URL when sidebar state changes
   const toggleEngine = () => {
@@ -191,12 +187,42 @@ export default function AnimeLayout() {
       setIsLoading(false);
     }
   }, [prompt, user, selectedModel, tone, audience, numScenes, recapperPersona, characterRelationships, setGeneratedWorld, setGeneratedCharacters, setCastData, setCastList, setCharacterRelationships, setGeneratedSeriesPlan, setGeneratedScript, setGeneratedImagePrompts, setVisualData, setGeneratedMetadata, showNotification, addLog, navigate, basePath, setIsLoading]);
+ 
+  const handleWorldGenerate = useCallback(async () => {
+    if (!prompt.trim() || !user) {
+      showNotification?.('Please enter a story prompt first to generate the world.', 'error');
+      return;
+    }
+    setIsLoading(true);
+    addLog("WORLD", "INITIALIZED", "Synthesizing World Lore Source of Truth...");
+    
+    try {
+      const { generateWorld } = await import('@/services/generators/world');
+      const world = await generateWorld(prompt, selectedModel, 'Anime');
+      setGeneratedWorld(world);
+      addLog("WORLD", "COMPLETED", "Lore synchronized to core.");
+      showNotification?.('World Lore synthesized successfully!', 'success');
+    } catch (error: any) {
+      console.error("World Generation Failed:", error);
+      addLog("WORLD", "FAILURE", error.message || "Unknown error");
+      showNotification?.(`World Generation Failure: ${error.message}`, 'error');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [prompt, user, selectedModel, setGeneratedWorld, addLog, showNotification, setIsLoading]);
 
   useEffect(() => {
     const handleGenerateSignal = () => handleMasterGenerate();
+    const handleWorldSignal = () => handleWorldGenerate();
+
     window.addEventListener('studio-generate-all', handleGenerateSignal);
-    return () => window.removeEventListener('studio-generate-all', handleGenerateSignal);
-  }, [handleMasterGenerate]);
+    window.addEventListener('studio-generate-world', handleWorldSignal);
+
+    return () => {
+      window.removeEventListener('studio-generate-all', handleGenerateSignal);
+      window.removeEventListener('studio-generate-world', handleWorldSignal);
+    };
+  }, [handleMasterGenerate, handleWorldGenerate]);
 
 
   const handleGenerate = async () => {
@@ -208,6 +234,7 @@ export default function AnimeLayout() {
     navigate(`${basePath}/script`);
 
     try {
+      const { generateScript } = await import('@/services/api/gemini');
       const currentEpisodePlan = generatedSeriesPlan?.find((ep: any) => parseInt(ep.episode) === parseInt(episode));
       const script = await generateScript(prompt, tone, audience, session, episode, numScenes, selectedModel, 'Anime', recapperPersona, characterRelationships, generatedWorld, generatedCharacters, currentEpisodePlan ? JSON.stringify(currentEpisodePlan) : null);
       setGeneratedScript(script);
@@ -273,7 +300,7 @@ export default function AnimeLayout() {
   };
 
   return (
-    <div className="fixed inset-0 bg-[#020203] flex h-screen w-full overflow-hidden z-[1000] studio-engine-root">
+    <div className="fixed inset-0 bg-black flex h-screen w-full overflow-hidden z-[1000] studio-engine-root">
       {/* GLOBAL HUB SIDEBAR (Far Left) */}
       <div className="relative z-[501] border-r border-zinc-800/20">
         <StudioSideBar
@@ -294,44 +321,27 @@ export default function AnimeLayout() {
       />
 
       <div className="flex-1 flex flex-col min-w-0 h-full relative overflow-hidden">
-        {/* Backdrop Blur Overlays */}
-        <AnimatePresence>
-          {/* Global Hub Backdrop */}
-          {!globalSidebarCollapsed && (
-            <motion.div
-              initial={{ opacity: 0, backdropFilter: "blur(0px)" }}
-              animate={{ opacity: 1, backdropFilter: "blur(24px)" }}
-              exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
-              transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-              onClick={() => setGlobalSidebarCollapsed(true)}
-              className="fixed inset-0 bg-black/60 z-[490] cursor-pointer"
-            />
-          )}
+        {/* Backdrop Overlays (No Animation, Pure Black) */}
+        {!globalSidebarCollapsed && (
+          <div
+            onClick={() => setGlobalSidebarCollapsed(true)}
+            className="fixed inset-0 bg-black z-[490] cursor-pointer"
+          />
+        )}
 
-          {/* Engine Backdrop */}
-          {sidebarOpen && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.18, ease: 'linear' }}
-              onClick={toggleEngine}
-              className="absolute inset-0 bg-black/60 z-[40] cursor-pointer"
-            />
-          )}
+        {sidebarOpen && (
+          <div
+            onClick={toggleEngine}
+            className="absolute inset-0 bg-black z-[40] cursor-pointer"
+          />
+        )}
 
-          {/* Sidebar Backdrop */}
-          {!leftSidebarCollapsed && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.18, ease: 'linear' }}
-              onClick={toggleLeftSidebar}
-              className="absolute inset-0 bg-black/40 z-[40] cursor-pointer"
-            />
-          )}
-        </AnimatePresence>
+        {!leftSidebarCollapsed && (
+          <div
+            onClick={toggleLeftSidebar}
+            className="absolute inset-0 bg-black z-[40] cursor-pointer"
+          />
+        )}
 
         <AnimeStudioTopBar
           onToggleEngine={toggleEngine}
@@ -417,4 +427,3 @@ export default function AnimeLayout() {
     </div>
   );
 }
-

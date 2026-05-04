@@ -1,61 +1,161 @@
 import React from 'react';
-import { Map, Compass, Globe, Navigation } from 'lucide-react';
+import { Map, Compass, Globe, Navigation, Sparkles, ClipboardList, Download } from 'lucide-react';
 import { motion } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
-
-const ATLAS_PROSE_CLASSES = `
-  prose prose-invert max-w-none 
-  prose-h1:text-transparent prose-h1:bg-clip-text prose-h1:bg-gradient-to-r prose-h1:from-white prose-h1:to-white/50 prose-h1:font-black prose-h1:uppercase prose-h1:tracking-[0.3em] prose-h1:text-3xl prose-h1:mb-16
-  prose-h2:text-white prose-h2:font-black prose-h2:uppercase prose-h2:tracking-[0.2em] prose-h2:text-sm 
-  prose-h2:bg-gradient-to-r prose-h2:from-white/5 prose-h2:to-transparent prose-h2:p-6 prose-h2:rounded-2xl prose-h2:border prose-h2:border-white/10 
-  prose-h2:border-l-4 prose-h2:border-l-blue-500
-  prose-h2:mt-32 prose-h2:mb-10 prose-h2:relative prose-h2:shadow-2xl
-  prose-p:text-zinc-400 prose-p:leading-loose prose-p:text-[15px] prose-p:mb-8 prose-p:font-medium
-  prose-strong:text-blue-400 prose-strong:font-black
-`.replace(/\s+/g, ' ').trim();
+import { TableOfContents } from '../components/TableOfContents';
 
 interface AtlasTabProps {
   isEditing: boolean;
   content: string;
   onContentChange: (content: string) => void;
+  onGenerate?: () => void;
+  isGenerating?: boolean;
+  prompt?: string;
+  onPromptChange?: (p: string) => void;
 }
 
 export const AtlasTab: React.FC<AtlasTabProps> = ({
   isEditing,
   content,
-  onContentChange
+  onContentChange,
+  onGenerate,
+  isGenerating,
+  prompt,
+  onPromptChange
 }) => {
+  const sectionContent = content;
+
+  const stats = React.useMemo(() => {
+    const findVal = (regex: RegExp, fallback: string) => {
+      const match = content?.match(regex);
+      return match ? match[1].trim() : fallback;
+    };
+    return [
+      { label: 'Primary Continent', val: findVal(/(?:Primary Continent|Continent):\s*(.*)/i, 'Neo-Pangea'), icon: Compass },
+      { label: 'Climate Profile', val: findVal(/(?:Climate Profile|Climate):\s*(.*)/i, 'Bioluminescent Tropical'), icon: Navigation },
+      { label: 'Resource Density', val: findVal(/(?:Resource Density|Resources):\s*(.*)/i, 'High / Etheric'), icon: Map },
+    ];
+  }, [content]);
+
+  const customComponents = React.useMemo(() => ({
+    h2: ({ node, ...props }: any) => {
+      const text = React.Children.toArray(props.children)
+        .map((child) => (typeof child === 'string' ? child : '')).join('');
+      const id = text.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '');
+      return <motion.h2 id={id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-100px' }} transition={{ duration: 0.6, ease: 'easeOut' }} {...props} />;
+    },
+    p: ({ node, ...props }: any) => (
+      <motion.p initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5, delay: 0.1 }} {...props} />
+    )
+  }), []);
+
   return (
-    <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      <div className="flex items-center justify-between border-b border-white/5 pb-10">
-        <div className="space-y-3">
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-500/10 border border-blue-500/20 rounded-full">
-            <Map className="w-3 h-3 text-blue-500" />
-            <span className="text-[9px] font-black text-blue-500 uppercase tracking-[0.2em]">Geographic Cartographer</span>
+    <div className="world-container">
+      <div className="world-header">
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8">
+          <div className="space-y-3">
+            <div className="world-badge bg-blue-500/10 border-blue-500/20">
+              <Map className="w-3 h-3 text-blue-500" />
+              <span className="world-badge-text text-blue-500">Geographic Cartographer</span>
+            </div>
+            <h1 className="world-header-title">
+              REALM <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-cyan-500 to-blue-400">CARTOGRAPHY</span>
+            </h1>
           </div>
-          <h1 className="text-6xl font-black text-white uppercase tracking-tighter leading-none">
-            REALM <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-cyan-500 to-blue-400">CARTOGRAPHY</span>
-          </h1>
+
+          <div className="flex items-center gap-3">
+            {onGenerate && (
+              <button 
+                onClick={onGenerate}
+                disabled={isGenerating}
+                className="flex items-center gap-2 px-5 py-2.5 bg-white text-black hover:bg-zinc-200 rounded-full transition-all group disabled:opacity-50"
+              >
+                {isGenerating ? (
+                  <div className="w-3.5 h-3.5 border-2 border-black/20 border-t-black rounded-full animate-spin" />
+                ) : (
+                  <Sparkles className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
+                )}
+                <span className="text-[10px] font-black uppercase tracking-widest">Synthesize</span>
+              </button>
+            )}
+
+            <button 
+              onClick={() => {
+                navigator.clipboard.writeText(content);
+                alert('Atlas Manifest copied!');
+              }}
+              className="flex items-center gap-2 px-5 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-full transition-all group"
+            >
+              <ClipboardList className="w-3.5 h-3.5 text-zinc-400 group-hover:text-white transition-colors" />
+              <span className="text-[10px] font-black text-zinc-400 group-hover:text-white uppercase tracking-widest">Copy</span>
+            </button>
+            
+            <button 
+              onClick={() => {
+                const element = document.createElement("a");
+                const file = new Blob([content], { type: 'text/markdown' });
+                element.href = URL.createObjectURL(file);
+                element.download = "Atlas_Manifest.md";
+                document.body.appendChild(element);
+                element.click();
+              }}
+              className="flex items-center gap-2 px-5 py-2.5 bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/20 rounded-full transition-all group"
+            >
+              <Download className="w-3.5 h-3.5 text-blue-500 group-hover:scale-110 transition-transform" />
+              <span className="text-[10px] font-black text-blue-500 uppercase tracking-widest">Download</span>
+            </button>
+          </div>
         </div>
       </div>
 
       {isEditing ? (
         <textarea
-          className="w-full h-[600px] bg-black/40 border border-white/10 rounded-[2rem] p-8 text-zinc-300 font-mono text-sm leading-loose focus:outline-none focus:ring-2 focus:ring-blue-500/30 transition-all resize-none shadow-inner"
+          className="world-textarea"
           value={content || ''}
           onChange={(e) => onContentChange(e.target.value)}
           placeholder="Map out your world geography here..."
         />
       ) : (
-        <div className="grid grid-cols-1 xl:grid-cols-4 gap-12">
-          <div className="xl:col-span-3">
-            <div className={ATLAS_PROSE_CLASSES}>
-              <ReactMarkdown>{content}</ReactMarkdown>
+        <div className="world-content-area">
+          <div className="world-main-column">
+            <div className="world-prose" style={{ '--prose-accent-color': '#3b82f6' } as React.CSSProperties}>
+              <ReactMarkdown components={customComponents}>{sectionContent}</ReactMarkdown>
             </div>
           </div>
 
-          <div className="hidden xl:block xl:col-span-1 space-y-8">
+          <div className="world-sidebar space-y-8">
+            <div className="p-6 bg-[#050505] border border-white/5 rounded-[2rem] space-y-4 relative overflow-hidden group">
+              <div className="absolute inset-0 bg-blue-500/5 blur-[40px] pointer-events-none group-hover:bg-blue-500/10 transition-all duration-700" />
+              <div className="relative z-10 space-y-4">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-[10px] font-black text-zinc-500 uppercase tracking-widest flex items-center gap-2">
+                    <Sparkles className="w-3 h-3 text-blue-500" /> Neural Seed
+                  </h4>
+                  {isEditing && <span className="text-[8px] font-bold text-blue-500/50 uppercase">Modular Prompt</span>}
+                </div>
+                
+                {isEditing ? (
+                  <textarea
+                    className="w-full bg-black/40 border border-white/5 rounded-xl p-3 text-[10px] font-medium text-zinc-300 placeholder:text-zinc-700 focus:outline-none focus:border-blue-500/30 transition-colors min-h-[100px] resize-none"
+                    value={prompt || ''}
+                    onChange={(e) => onPromptChange?.(e.target.value)}
+                    placeholder="Refine the geographic synthesis with specific instructions..."
+                  />
+                ) : (
+                  <div className="p-4 bg-black/40 border border-white/5 rounded-xl">
+                    <p className="text-[9px] font-medium text-zinc-500 leading-relaxed italic">
+                      {prompt ? `"${prompt.substring(0, 120)}${prompt.length > 120 ? '...' : ''}"` : 'Using global project seed for synthesis.'}
+                    </p>
+                  </div>
+                )}
+                
+                <p className="text-[8px] text-zinc-600 font-bold uppercase tracking-tighter leading-relaxed">
+                  Focus the AI on specific biomes, landmark names, or environmental hazards unique to this world.
+                </p>
+              </div>
+            </div>
+
             <div className="p-10 bg-[#050505] border border-white/5 rounded-[2.5rem] flex items-center justify-center relative overflow-hidden group">
               <div className="absolute inset-0 bg-blue-500/5 blur-[100px] group-hover:bg-blue-500/10 transition-all duration-700" />
               <div className="relative z-10 text-center space-y-6">
@@ -70,27 +170,27 @@ export const AtlasTab: React.FC<AtlasTabProps> = ({
             </div>
 
             <div className="space-y-4">
-              {[
-                { label: 'Primary Continent', val: 'Neo-Pangea', icon: Compass },
-                { label: 'Climate Profile', val: 'Bioluminescent Tropical', icon: Navigation },
-                { label: 'Resource Density', val: 'High / Etheric', icon: Map },
-              ].map((item, i) => (
+              {stats.map((item, i) => (
                 <motion.div 
                   key={i} 
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: i * 0.1 }}
-                  className="p-6 bg-zinc-950/50 border border-white/5 rounded-[2rem] flex items-center gap-6 group hover:border-blue-500/30 transition-all"
+                  className="p-6 bg-[#050505] border border-white/5 rounded-[2rem] flex items-center gap-6 group hover:border-blue-500/30 transition-all"
                 >
                   <div className="w-10 h-10 rounded-2xl bg-white/[0.03] border border-white/10 flex items-center justify-center text-blue-400 group-hover:scale-110 transition-transform">
                     <item.icon className="w-5 h-5" />
                   </div>
                   <div>
                     <span className="text-[8px] font-black text-zinc-500 uppercase tracking-widest">{item.label}</span>
-                    <p className="text-sm font-black text-white uppercase tracking-tighter mt-1">{item.val}</p>
+                    <p className="text-sm font-black text-white uppercase tracking-tighter mt-1 line-clamp-1">{item.val}</p>
                   </div>
                 </motion.div>
               ))}
+            </div>
+
+            <div className="pt-2">
+              <TableOfContents content={content} />
             </div>
           </div>
         </div>

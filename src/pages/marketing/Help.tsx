@@ -103,7 +103,7 @@ export default function HelpPage() {
             <div className="flex items-center justify-center gap-3">
               <div className="px-4 py-1.5 bg-studio/5 rounded-full border border-studio/20 flex items-center gap-2">
                 <Database className="w-3.5 h-3.5 text-studio" />
-                <span className="text-[10px] font-black uppercase tracking-[0.4em] text-studio">Neural Archive V2.4</span>
+                <span className="text-[10px] font-black uppercase tracking-[0.4em] text-studio">Help Archive</span>
               </div>
             </div>
             <h1 className="text-5xl md:text-8xl font-black text-white uppercase italic tracking-tighter leading-none">
@@ -243,8 +243,8 @@ export default function HelpPage() {
                       <Mail className="w-10 h-10 text-studio" />
                       <div className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-500 rounded-full border-4 border-black animate-pulse" />
                     </div>
-                    <h3 className="text-2xl font-black text-white uppercase italic tracking-widest">Neural Direct</h3>
-                    <p className="text-[10px] text-zinc-600 font-black uppercase tracking-[0.2em]">Response Latency: &lt; 2 Neural Cycles</p>
+                    <h3 className="text-2xl font-black text-white uppercase italic tracking-widest">Priority Support</h3>
+                    <p className="text-[10px] text-zinc-600 font-black uppercase tracking-[0.2em]">Response Latency: &lt; 2 hours</p>
                   </div>
                   <Button className="w-full h-16 bg-studio text-black font-black uppercase tracking-[0.3em] text-[11px] rounded-[1.5rem] hover:bg-white transition-all shadow-2xl">
                     INITIATE CONTACT LINK
@@ -284,9 +284,9 @@ export default function HelpPage() {
               <span>Node: Global-Archive-Main</span>
            </div>
            <div className="flex items-center gap-12">
-              <a href="#" className="hover:text-studio transition-colors no-underline">Privacy Protocol</a>
-              <a href="#" className="hover:text-studio transition-colors no-underline">Neural Terms</a>
-              <a href="#" className="hover:text-studio transition-colors no-underline">Terminal Status</a>
+              <a href="#" className="hover:text-studio transition-colors no-underline">Privacy Policy</a>
+              <a href="#" className="hover:text-studio transition-colors no-underline">Terms of Service</a>
+              <a href="/system/status" className="hover:text-studio transition-colors no-underline">System Status</a>
            </div>
         </footer>
       </div>

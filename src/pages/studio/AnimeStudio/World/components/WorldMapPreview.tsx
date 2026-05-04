@@ -5,9 +5,9 @@ import { Button } from '@/components/ui/button';
 
 export const WorldMapPreview: React.FC = () => {
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 flex items-center gap-2">
+    <div className="map-preview-container">
+      <div className="map-preview-header">
+        <h3 className="map-preview-title">
           <Map className="w-4 h-4 text-emerald-500" />
           Cartographic Projection
         </h3>
@@ -21,33 +21,34 @@ export const WorldMapPreview: React.FC = () => {
         </div>
       </div>
 
-      <Card className="aspect-video bg-[#050505] border-zinc-800 relative overflow-hidden group">
+      <Card className="map-preview-card">
         <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]" />
         
         {/* Mock Map Lines */}
-        <div className="absolute inset-0 flex items-center justify-center opacity-20">
+        <div className="map-preview-grid">
            <div className="w-full h-[1px] bg-emerald-500/20" />
            <div className="h-full w-[1px] bg-emerald-500/20" />
         </div>
 
         {/* Mock Point */}
-        <div className="absolute top-[30%] left-[40%] group-hover:scale-125 transition-transform">
+        <div className="map-preview-point">
            <div className="relative">
               <MapPin className="w-5 h-5 text-emerald-500 fill-emerald-500/20" />
               <div className="absolute -top-1 -right-1 w-2 h-2 bg-emerald-500 rounded-full animate-ping" />
            </div>
-           <div className="absolute top-6 left-1/2 -translate-x-1/2 whitespace-nowrap px-2 py-0.5 bg-black/80 border border-emerald-500/30 rounded text-[7px] font-black uppercase text-emerald-400">
+           <div className="map-preview-label">
               The Citadel
            </div>
         </div>
 
-        <div className="absolute bottom-4 right-4 text-[7px] font-mono text-zinc-600 uppercase tracking-widest bg-black/60 px-2 py-1 rounded">
+        <div className="map-preview-coords">
            Grid: 42.1N 88.4W
         </div>
       </Card>
     </div>
   );
 };
+
 
 
 

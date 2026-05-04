@@ -27,16 +27,16 @@ export const AnimaticTab: React.FC<AnimaticTabProps> = ({ scenes, videoData }) =
   const hasVideos = Object.values(videoData).some(v => v && v !== 'loading');
 
   return (
-    <div className="py-10 space-y-16">
+    <div className="storyboard-tab-content">
       {/* Header */}
       <div className="flex items-center justify-between border-b border-white/5 pb-10">
         <div className="flex items-center gap-6">
-          <div className="w-16 h-16 rounded-[2rem] bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shadow-[0_0_30px_rgba(16,185,129,0.1)]">
+          <div className="tab-header-icon-box bg-emerald-500/10 border-emerald-500/20 shadow-emerald-500/10">
             <Film className="w-8 h-8 text-emerald-400" />
           </div>
           <div>
-            <h2 className="text-3xl font-black text-white uppercase tracking-tighter">Animatic Preview</h2>
-            <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-[0.3em] mt-1">
+            <h2 className="tab-section-title">Animatic Preview</h2>
+            <p className="tab-section-subtitle">
               Sequential frame sequencing with timing overlays
             </p>
           </div>
@@ -68,7 +68,7 @@ export const AnimaticTab: React.FC<AnimaticTabProps> = ({ scenes, videoData }) =
               <div
                 key={scene.id}
                 className={cn(
-                  "flex items-stretch gap-5 p-5 rounded-[2rem] border transition-all duration-300 group",
+                  "animatic-frame-row group",
                   isPlaying
                     ? "bg-emerald-500/5 border-emerald-500/30"
                     : "bg-white/5 border-white/5 hover:border-emerald-500/20"
@@ -82,7 +82,7 @@ export const AnimaticTab: React.FC<AnimaticTabProps> = ({ scenes, videoData }) =
                 </div>
 
                 {/* Video / Placeholder */}
-                <div className="w-36 h-20 rounded-xl overflow-hidden bg-black/60 border border-white/5 flex-shrink-0 relative">
+                <div className="animatic-video-box">
                   {hasVideo ? (
                     <video
                       src={videoUrl}

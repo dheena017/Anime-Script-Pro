@@ -22,7 +22,7 @@ const LORE_DATA = [
   { id: 'NODE-L2', title: 'The Void Walkers', type: 'Faction', desc: 'An ancient order capable of stepping between dimensions. Master architects of the spatial rifts.', items: 85, efficiency: '99.1%' },
   { id: 'NODE-L3', title: 'Aetherial Resonance', type: 'Magic System', desc: 'Using musical frequencies to manipulate elemental forces through rhythmic incantations.', items: 312, efficiency: '97.8%' },
   { id: 'NODE-L4', title: 'Project: OVERMIND', type: 'Lore Arc', desc: 'The timeline of events leading to the great AI awakening. A chronological breakdown of human obsolescence.', items: 56, efficiency: '99.9%' },
-  { id: 'NODE-L5', title: 'Starfall Academy', type: 'Location', desc: 'A floating school for gifted youths touched by meteor shards. Primary training hub for neural architects.', items: 420, efficiency: '96.5%' },
+  { id: 'NODE-L5', title: 'Starfall Academy', type: 'Location', desc: 'A floating school for gifted youths touched by meteor shards. Primary training hub for creators.', items: 420, efficiency: '96.5%' },
   { id: 'NODE-L6', title: 'Mecha-Beasts', type: 'Bestiary', desc: 'Catalog of biomechanical creatures roaming the wasteland. Detailed biological and mechanical schematics.', items: 890, efficiency: '95.2%' },
 ];
 
@@ -51,7 +51,7 @@ export function LoreDatabasePage() {
             <div className="flex items-center justify-center gap-3">
               <div className="px-4 py-1.5 bg-studio/5 rounded-full border border-studio/20 flex items-center gap-2">
                 <Database className="w-3.5 h-3.5 text-studio" />
-                <span className="text-[10px] font-black uppercase tracking-[0.4em] text-studio">Neural Lore Repository</span>
+                <span className="text-[10px] font-black uppercase tracking-[0.4em] text-studio">Lore Database</span>
               </div>
             </div>
             <h1 className="text-5xl md:text-8xl font-black text-white uppercase italic tracking-tighter leading-none">

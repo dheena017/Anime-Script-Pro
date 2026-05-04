@@ -26,6 +26,9 @@ import { cn } from '@/lib/utils';
 import TextareaAutosize from 'react-textarea-autosize';
 import { useGeneratorState } from '@/hooks/useGenerator';
 import { AlertCircle, RefreshCcw } from 'lucide-react';
+import { StudioSelector } from '../../selectors/StudioSelector';
+import { EngineSelector } from '../../selectors/EngineSelector';
+import { ToneSelector } from '../../selectors/ToneSelector';
 
 
 interface ProductionCoreProps {
@@ -220,22 +223,11 @@ export const ProductionCore = React.memo<ProductionCoreProps>((props) => {
               )}
 
               {/* SELECT STUDIO TYPE */}
-              <div className="space-y-2">
-                <label className={cn("text-[11px] font-black uppercase tracking-[0.2em] flex items-center gap-2 glow-text", colors.primary)}>
-                  <Clapperboard className="w-3.5 h-3.5" />
-                  SELECT STUDIO TYPE
-                </label>
-                <Select value={localContentType} onValueChange={(val) => { if (val) setLocalContentType(val); }}>
-                  <SelectTrigger className={cn("h-10 bg-black/40 text-zinc-200 hover:bg-white/5 transition-all font-bold tracking-widest text-xs uppercase rounded-xl neo-border", colors.border)}>
-                    <SelectValue placeholder="Anime" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-zinc-950 border-zinc-800">
-                    <SelectItem value="Anime">Anime</SelectItem>
-                    <SelectItem value="Manhwa">Manhwa</SelectItem>
-                    <SelectItem value="Comic">Comic</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+              <StudioSelector 
+                value={localContentType} 
+                onChange={(val) => { if (val) setLocalContentType(val); }}
+                className="mb-6"
+              />
 
               {/* QUICK TEMPLATES */}
               <div className="space-y-2">
@@ -294,39 +286,14 @@ export const ProductionCore = React.memo<ProductionCoreProps>((props) => {
 
               {/* ADVANCE CONFIGS */}
               <div className="pt-8 border-t border-zinc-800 grid grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <label className={cn("text-[9px] font-black uppercase tracking-[0.2em] flex items-center gap-2", colors.primary, "opacity-40")}>
-                    <Settings className="w-3 h-3" /> MODEL
-                  </label>
-                  <Select value={selectedModel} onValueChange={(val) => { if (val) setSelectedModel(val); }}>
-                    <SelectTrigger className={cn("h-9 bg-black border text-zinc-200 text-[10px] font-bold uppercase rounded-xl", colors.border)}>
-                      <SelectValue placeholder="Model" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-zinc-950 border-zinc-800">
-                      <SelectItem value="gemini-3.1-flash">G3.1 Flash (Hyper-Speed | 15 RPM)</SelectItem>
-                      <SelectItem value="gemini-2.5-flash-lite">G2.5 Lite (Standard | 10 RPM)</SelectItem>
-                      <SelectItem value="gemini-3.1-pro">G3.1 Pro (Ultra-Intelligence)</SelectItem>
-                      <SelectItem value="gemini-2.5-pro">G2.5 Pro (Elite Synthesis)</SelectItem>
-                      <SelectItem value="gemini-3-flash">G3.0 Flash (Rapid Mode)</SelectItem>
-                      <SelectItem value="gemini-1.5-pro">G1.5 Pro (Legacy Elite)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-1">
-                  <label className={cn("text-[9px] font-black uppercase tracking-[0.2em] flex items-center gap-2", colors.primary, "opacity-40")}>
-                    <SlidersHorizontal className="w-3 h-3" /> TONE
-                  </label>
-                  <Select value={tone} onValueChange={(val) => { if (val) setTone(val); }}>
-                    <SelectTrigger className={cn("h-9 bg-black border text-zinc-200 text-[10px] font-bold uppercase rounded-xl", colors.border)}>
-                      <SelectValue placeholder="Tone" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-zinc-950 border-zinc-800">
-                      <SelectItem value="Hype/Energetic">Hype</SelectItem>
-                      <SelectItem value="Dark/Gritty">Dark</SelectItem>
-                      <SelectItem value="Emotional/Sad">Emotional</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                <EngineSelector 
+                  value={selectedModel} 
+                  onChange={(val) => { if (val) setSelectedModel(val); }}
+                />
+                <ToneSelector 
+                  value={tone} 
+                  onChange={(val) => { if (val) setTone(val); }}
+                />
                 <div className="space-y-1 col-span-2">
                   <label className={cn("text-[9px] font-black uppercase tracking-[0.2em] flex items-center gap-2", colors.primary, "opacity-40")}>
                     <Users className="w-3 h-3" /> AUDIENCE

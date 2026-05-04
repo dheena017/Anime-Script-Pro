@@ -84,7 +84,7 @@ export function NotificationSettings() {
                </div>
                <div className="space-y-1">
                   <CardTitle className="text-3xl font-black text-white uppercase italic tracking-tighter">Communication Sync</CardTitle>
-                  <CardDescription className="text-zinc-600 text-[10px] font-black uppercase tracking-widest">Global Studio Transmissions & Neural Link Feedback</CardDescription>
+                  <CardDescription className="text-zinc-600 text-[10px] font-black uppercase tracking-widest">Global Studio Updates & Feedback</CardDescription>
                </div>
             </div>
             
@@ -117,7 +117,7 @@ export function NotificationSettings() {
                  icon: MonitorPlay, 
                  color: 'red-500', 
                  nodeId: 'NODE-N1',
-                 label: 'Neural Render Triggers', 
+                 label: 'Render Notifications', 
                  desc: 'Immediate feedback upon completion of AI frame synthesis.' 
                },
                { 

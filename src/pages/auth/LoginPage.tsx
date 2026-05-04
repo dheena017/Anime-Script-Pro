@@ -137,7 +137,7 @@ export function LoginPage() {
               >
                 <div className="h-[1px] w-12 bg-gradient-to-r from-studio/30 to-transparent" />
                 <p className="text-zinc-400 text-[10px] font-black uppercase tracking-[0.4em]">
-                  Neural Access Authorized
+                  Access Granted
                 </p>
               </motion.div>
             </div>
@@ -214,7 +214,7 @@ export function LoginPage() {
           </div>
 
           <AuthCard
-            title="NEURAL LOGIN"
+            title="USER LOGIN"
             description="Access the God Mode production suite"
           >
             <LoginForm />
@@ -240,7 +240,7 @@ export function LoginPage() {
               <div className="relative flex justify-center text-[10px] uppercase font-black tracking-widest">
                 <span className="bg-[#0A0A0B] px-4 text-zinc-600 flex items-center gap-2">
                   <Lock className="w-3 h-3" />
-                  Neural Link Authorization
+                  Secure Login Authorization
                   <Lock className="w-3 h-3" />
                 </span>
               </div>

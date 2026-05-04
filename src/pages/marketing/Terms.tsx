@@ -81,7 +81,7 @@ export function TermsPage() {
                    </div>
                    <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest leading-relaxed">
                       All protocols are binding under global digital production governance. 
-                      Neural link data is subject to encryption standards.
+                      Account data is subject to encryption standards.
                    </p>
                 </div>
              </div>
@@ -201,7 +201,7 @@ export function TermsPage() {
                    <span>Compliant with Global AI Standards</span>
                 </div>
                 <div className="flex items-center gap-8">
-                   <a href="#" className="hover:text-studio transition-colors no-underline">Privacy Policy</a>
+                   <a href="#" className="hover:text-studio transition-colors no-underline">Terms of Service</a>
                    <a href="#" className="hover:text-studio transition-colors no-underline">Cookie Protocol</a>
                 </div>
              </footer>

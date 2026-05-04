@@ -2,7 +2,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Cpu } from 'lucide-react';
 
-export function AuthCard({ children, title = "Architect Login", description = "Protocol Alpha / Neural Access" }) {
+export function AuthCard({ children, title = "Secure Login", description = "Enter your credentials below" }) {
   return (
     <Card className="bg-black/40 border-zinc-800/50 backdrop-blur-3xl shadow-[0_0_80px_rgba(0,0,0,0.5)] overflow-hidden rounded-[2.5rem]">
       {/* Top Scanner Line */}

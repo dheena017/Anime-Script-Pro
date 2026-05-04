@@ -41,7 +41,7 @@ export const Gallery: React.FC<GalleryProps> = ({
               <div className="w-1.5 h-1.5 rounded-full bg-studio" />
               <span className="text-[10px] font-black text-studio uppercase tracking-[0.4em]">Intelligence Layer</span>
            </div>
-           <h2 className="text-4xl md:text-6xl font-black text-white uppercase italic tracking-tighter">Neural Archives</h2>
+           <h2 className="text-4xl md:text-6xl font-black text-white uppercase italic tracking-tighter">Gallery Archive</h2>
            <p className="text-zinc-500 text-xs font-bold uppercase tracking-[0.2em] max-w-md leading-relaxed">
              A high-bandwidth feed of historical transmissions synthesized by global architects.
            </p>

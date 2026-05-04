@@ -104,7 +104,7 @@ export default function NotificationsPage() {
             BROADCAST <span className="text-[#bd4a4a]">HUB</span>
           </h1>
           <p className="text-zinc-500 max-w-xl uppercase text-[10px] tracking-[0.3em] font-bold leading-relaxed">
-            Status reports and neural transmissions for your Studio Architect node.
+            Status reports and updates for your account.
           </p>
         </div>
 
@@ -191,7 +191,7 @@ export default function NotificationsPage() {
                 <h2 className="text-2xl font-black text-white uppercase tracking-tighter">Transmission Standby</h2>
                 <p className="text-zinc-500 uppercase text-[10px] tracking-[0.3em] font-bold">No active broadcasts matching your current filter.</p>
               </div>
-              <Button onClick={() => setActiveFilter('all')} variant="outline" className="h-10 px-8 rounded-xl text-[9px] font-black uppercase tracking-widest border-zinc-800">Reset Neural Filters</Button>
+              <Button onClick={() => setActiveFilter('all')} variant="outline" className="h-10 px-8 rounded-xl text-[9px] font-black uppercase tracking-widest border-zinc-800">Reset Filters</Button>
             </motion.div>
           ) : (
             filteredNotifications.map((notif, index) => (

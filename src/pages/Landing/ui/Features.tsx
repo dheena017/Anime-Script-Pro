@@ -15,7 +15,9 @@ const iconMap = {
   Cpu: Cpu,
   Shield: Shield,
   Globe: Globe,
-  Zap: Zap
+  Zap: Zap,
+  Activity: Activity,
+  Layers: Layers
 };
 
 export const Features: React.FC = () => {

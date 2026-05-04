@@ -137,7 +137,7 @@ export const FAQ: React.FC = () => {
                                     </div>
                                     <div className="flex items-center gap-2">
                                        <Zap className="w-3.5 h-3.5 text-studio" />
-                                       <span className="text-[8px] font-black text-zinc-600 uppercase tracking-widest">Neural Link Active</span>
+                                       <span className="text-[8px] font-black text-zinc-600 uppercase tracking-widest">System Active</span>
                                     </div>
                                  </div>
                               </div>

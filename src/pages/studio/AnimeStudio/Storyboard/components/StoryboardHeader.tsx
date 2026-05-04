@@ -42,29 +42,22 @@ export const StoryboardHeader: React.FC<StoryboardHeaderProps> = ({
   return (
     <TooltipProvider>
       <div className="relative group">
-
-
-        <div className="relative flex flex-col lg:flex-row items-center justify-between p-4 md:p-5 bg-[#050505]/95 backdrop-blur-md border border-white/10 rounded-[2rem] shadow-2xl overflow-hidden gap-6 lg:gap-0">
-
+        <div className="storyboard-header-box">
           
           <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-8 z-10 w-full lg:w-auto">
-            <div className="relative shrink-0">
-              <div className="w-14 h-14 rounded-2xl bg-orange-500/10 border border-orange-500/30 flex items-center justify-center shadow-[0_0_20px_rgba(249,115,22,0.2)] group/icon overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-orange-500/20 to-transparent opacity-0 group-hover/icon:opacity-100 transition-opacity duration-500" />
-                <ImageIcon className="w-7 h-7 text-orange-500 relative z-10 animate-pulse-slow" />
-                <div className="absolute inset-0 border-2 border-orange-500/50 rounded-2xl animate-ping opacity-20" />
-              </div>
+            <div className="storyboard-icon-box">
+              <div className="absolute inset-0 bg-gradient-to-br from-orange-500/20 to-transparent opacity-0 group-hover/icon:opacity-100 transition-opacity duration-500" />
+              <ImageIcon className="w-7 h-7 text-orange-500 relative z-10 animate-pulse-slow" />
+              <div className="absolute inset-0 border-2 border-orange-500/50 rounded-2xl animate-ping opacity-20" />
             </div>
 
             <div className="flex flex-col items-center sm:items-start text-center sm:text-left">
-              <div className="flex items-center gap-3">
-                <h1 className="text-xl md:text-2xl font-black uppercase tracking-[0.2em] text-white italic leading-none bg-clip-text text-transparent bg-gradient-to-r from-white via-white to-zinc-400">
-                  Visual Storyboard
-                </h1>
-              </div>
-              <div className="flex items-center gap-2 mt-2">
+              <h1 className="storyboard-title">
+                Visual Storyboard
+              </h1>
+              <div className="storyboard-subtitle">
                 <Cpu className="w-3.5 h-3.5 text-orange-500/40 shrink-0" />
-                <p className="text-[8px] md:text-[9px] font-black text-orange-500/40 uppercase tracking-[0.2em] md:tracking-[0.4em]">S{session} // EP{episode} // Neural Image Prompt Generator V5.0</p>
+                <p>S{session} // EP{episode} // AI Image Prompt Generator</p>
               </div>
             </div>
           </div>
@@ -107,7 +100,7 @@ export const StoryboardHeader: React.FC<StoryboardHeaderProps> = ({
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="top">
-                  <p className="font-black uppercase tracking-widest text-[9px]">Synthesize Neural Storyboard Prompts</p>
+                  <p className="font-black uppercase tracking-widest text-[9px]">Generate AI Storyboard Prompts</p>
                 </TooltipContent>
               </Tooltip>
 
@@ -153,7 +146,3 @@ export const StoryboardHeader: React.FC<StoryboardHeaderProps> = ({
     </TooltipProvider>
   );
 };
-
-
-
-

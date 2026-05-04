@@ -33,7 +33,7 @@ export default function LandingPage() {
   const toggleMenu = (menu: string) => setActiveMenu(activeMenu === menu ? null : menu);
 
   return (
-    <div className="min-h-screen bg-[#030303] text-zinc-100 selection:bg-studio/30 selection:text-studio overflow-x-hidden">
+    <div className="min-h-screen w-full max-w-full bg-[#030303] text-zinc-100 selection:bg-studio/30 selection:text-studio">
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff03_1px,transparent_1px),linear-gradient(to_bottom,#ffffff03_1px,transparent_1px)] bg-[size:40px_40px]" />
         <div className="absolute top-[10%] left-[20%] w-[500px] h-[500px] bg-studio/10 rounded-full blur-[120px] animate-pulse" />
@@ -52,12 +52,12 @@ export default function LandingPage() {
 
             <div className="hidden lg:flex items-center gap-2">
               <NavItem label="Support" isOpen={activeMenu === 'support'} onClick={() => toggleMenu('support')}>
-                <DropdownLink icon={LifeBuoy} title="Contact support" description="Get help from our technical specialists." href="#" />
+                <DropdownLink icon={LifeBuoy} title="Contact support" description="Get help from our support team." href="#" />
                 <DropdownLink icon={Mail} title="Email us" description="Direct line to our support inbox." href="mailto:support@animescript.pro" />
               </NavItem>
 
               <NavItem label="Tutorials" isOpen={activeMenu === 'tutorials'} onClick={() => toggleMenu('tutorials')}>
-                <DropdownLink icon={BookOpen} title="Learn" description="Master the God Mode engine mechanics." href="/tutorials" />
+                <DropdownLink icon={BookOpen} title="Learn" description="Learn how to use the studio." href="/tutorials" />
                 <DropdownLink icon={Video} title="Youtube Channel" description="Visual guides and production workflows." href="https://youtube.com" />
                 <DropdownLink icon={Globe} title="Instagram Inspiration" description="Daily art and narrative snippets." href="https://instagram.com" />
               </NavItem>
@@ -79,7 +79,7 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto text-center space-y-12">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-studio/10 border border-studio/20 backdrop-blur-md">
             <Sparkles className="w-4 h-4 text-studio" />
-            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-studio-glow">Autonomous Production Engine v2.0</span>
+            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-studio-glow">Advanced AI Studio v2.0</span>
           </div>
 
           <h1 className="text-6xl md:text-8xl lg:text-9xl font-black italic tracking-tighter leading-[0.9] text-white relative">

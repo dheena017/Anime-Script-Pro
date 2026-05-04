@@ -30,7 +30,7 @@ export default function ComicLayout() {
   } = useGeneratorDispatch();
 
   const [sidebarOpen, setSidebarOpen] = React.useState(false); // Default closed
-  const [leftSidebarCollapsed, setLeftSidebarCollapsed] = React.useState(false);
+  const [leftSidebarCollapsed, setLeftSidebarCollapsed] = React.useState(true);
   const [globalSidebarCollapsed, setGlobalSidebarCollapsed] = React.useState(true); // Default closed
 
   const toggleLeftSidebar = () => setLeftSidebarCollapsed(!leftSidebarCollapsed);
@@ -78,7 +78,7 @@ export default function ComicLayout() {
   }, [prompt, user, setIsLoading, addLog, showNotification, navigate, basePath]);
 
   return (
-    <div className="fixed inset-0 bg-[#0d0a05] flex h-screen w-full overflow-hidden z-[1000] comic-studio-root">
+    <div className="fixed inset-0 bg-black flex h-screen w-full overflow-hidden z-[1000] comic-studio-root">
       {/* GLOBAL HUB SIDEBAR (Far Left) */}
       <div className="relative z-[501] border-r border-amber-500/20">
         <StudioSideBar

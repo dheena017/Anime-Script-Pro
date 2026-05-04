@@ -16,6 +16,7 @@
     "clean": "rm -rf dist",
     "start": "node dist/server.cjs",
     "test": "playwright test",
+    "test:unit": "vitest run",
     "test:ui": "playwright test --ui",
     "lint": "tsc --project tsconfig.json --noEmit",
     "lighthouse": "lighthouse http://localhost:5173 --config-path=./lighthouse.config.cjs --output-path=./lighthouse-report.html --chrome-flags=\"--no-sandbox --disable-setuid-sandbox\"",
@@ -77,6 +78,7 @@
     "autoprefixer": "^10.4.21",
     "concurrently": "^9.2.1",
     "lighthouse": "^12.1.0",
-    "tsx": "^4.21.0"
+    "tsx": "^4.21.0",
+    "vitest": "^4.1.5"
   }
 }

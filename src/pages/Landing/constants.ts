@@ -15,7 +15,7 @@ export const GALLERY_DATA: GalleryItem[] = [
 ];
 
 export const STYLE_OPTIONS = [
-  { label: 'Cyberpunk', desc: 'High-contrast neon, gritty textures, and rain-slicked surfaces.', color: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20 hover:bg-cyan-500/20', node: 'NEURAL-V3' },
+  { label: 'Cyberpunk', desc: 'High-contrast neon, gritty textures, and rain-slicked surfaces.', color: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20 hover:bg-cyan-500/20', node: 'SYSTEM-V3' },
   { label: '90s Cel-Shaded', desc: 'Classic hand-drawn look with thick lines and vibrant palettes.', color: 'bg-amber-500/10 text-amber-400 border-amber-500/20 hover:bg-amber-500/20', node: 'RETRO-X' },
   { label: 'Watercolor', desc: 'Soft, bleeding colors and traditional paper textures.', color: 'bg-pink-500/10 text-pink-400 border-pink-500/20 hover:bg-pink-500/20', node: 'ARTISAN-I' },
   { label: 'Studio Ghibli', desc: 'Lush environments, whimsical character designs, and painterly backgrounds.', color: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20 hover:bg-emerald-500/20', node: 'NATURE-H' },
@@ -27,22 +27,40 @@ export const STYLE_OPTIONS = [
 
 export const CORE_FEATURES = [
   {
-    category: 'Neural Layer',
-    title: 'Atomic Prompting',
-    desc: 'Our engine parses natural language into production-ready visual directives with 99% accuracy.',
-    icon: 'Cpu'
+    category: 'Phase 0: Orchestration',
+    title: 'Story Engine',
+    desc: 'Advanced narrative synthesis that generates production-ready templates and story beats with zero latency.',
+    icon: 'Zap'
   },
   {
-    category: 'Production Layer',
-    title: 'DNA Consistency',
-    desc: 'Lock character features and environmental seeds across multiple generations for serial production.',
+    category: 'Phase 1: Foundation',
+    title: 'World Architect',
+    desc: 'Bespoke 6-tab lore system covering Architecture, Atlas, History, Systems, Culture, and Manifest documentation.',
+    icon: 'Globe'
+  },
+  {
+    category: 'Phase 2: Architecture',
+    title: 'Cast Forge',
+    desc: 'DNA-based character creation with persistent visual consistency across multiple production episodes.',
     icon: 'Shield'
   },
   {
-    category: 'Architecture Layer',
-    title: 'Global Sync',
-    desc: 'Collaborate with your studio team in real-time. Share assets and directives instantly.',
-    icon: 'Globe'
+    category: 'Phase 3: Visualization',
+    title: 'Storyboard Unit',
+    desc: 'Automated scene-by-scene mapping and visual directives optimized for studio-quality production flows.',
+    icon: 'Layers'
+  },
+  {
+    category: 'Phase 4: Optimization',
+    title: 'SEO Master',
+    desc: 'Global distribution metadata and keyword optimization to ensure your story reaches the right audience.',
+    icon: 'Cpu'
+  },
+  {
+    category: 'Phase 5: Finalization',
+    title: 'Screening Room',
+    desc: 'Real-time production playback and review console for high-fidelity quality assurance.',
+    icon: 'Activity'
   }
 ];
 
@@ -67,8 +85,8 @@ export const FAQ_DATA = [
     a: 'Yes. All assets generated on the Pro and Enterprise plans include full commercial rights and royalty-free licensing.'
   },
   {
-    q: 'What is a "Neural Seed"?',
-    a: 'A Neural Seed is a unique identifier that allows you to recreate exact compositions and character traits across different prompts.'
+    q: 'What is an "AI Seed"?',
+    a: 'An AI Seed is a unique identifier that allows you to recreate exact compositions and character traits across different prompts.'
   },
   {
     q: 'Does it support team collaboration?',

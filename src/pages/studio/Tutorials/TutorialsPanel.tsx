@@ -6,25 +6,25 @@ import React from 'react';
 const fallbackLessons = [
   {
     id: 1,
-    title: "Intro to Neural Scripting",
+    title: "Introduction to AI Scripting",
     duration: "15 min",
     level: "Beginner",
     progress: 100,
     thumbnail: "https://images.unsplash.com/photo-1614741118887-7a4ee193a5fa?auto=format&fit=crop&q=80&w=800",
-    category: "FOUNDATIONS"
+    category: "BASICS"
   },
   {
     id: 2,
-    title: "Advanced DNA Sequencing",
+    title: "Character Style & Details",
     duration: "45 min",
     level: "Advanced",
     progress: 35,
     thumbnail: "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?auto=format&fit=crop&q=80&w=800",
-    category: "BIOMETRICS"
+    category: "CHARACTERS"
   },
   {
     id: 3,
-    title: "Cinematic Camera Protocols",
+    title: "Camera Angles & Movement",
     duration: "30 min",
     level: "Intermediate",
     progress: 0,
@@ -33,7 +33,7 @@ const fallbackLessons = [
   },
   {
     id: 4,
-    title: "Global Syndicate Networking",
+    title: "Sharing & Community",
     duration: "20 min",
     level: "Intermediate",
     progress: 0,
@@ -74,7 +74,7 @@ export const TutorialsPanel: React.FC = () => {
     return (
       <div className="flex flex-col items-center justify-center h-96 space-y-6">
         <div className="w-12 h-12 border-4 border-amber-500/20 border-t-amber-500 rounded-full animate-spin" />
-        <p className="text-[10px] font-black text-amber-500 uppercase tracking-[0.3em] animate-pulse">Syncing Academy Protocols...</p>
+        <p className="text-[10px] font-black text-amber-500 uppercase tracking-[0.3em] animate-pulse">Loading lessons...</p>
       </div>
     );
   }

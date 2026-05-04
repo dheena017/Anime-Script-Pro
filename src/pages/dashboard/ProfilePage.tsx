@@ -466,7 +466,7 @@ export function ProfilePage() {
                   </div>
                   <Card className="glass p-10 rounded-[3rem] border-white/5 space-y-8">
                      {[
-                        { title: 'Neural Pioneer', desc: 'First 10 transmissions', icon: Zap, color: 'text-studio', bg: 'bg-studio/10' },
+                        { title: 'Early Adopter', desc: 'First 10 creations', icon: Zap, color: 'text-studio', bg: 'bg-studio/10' },
                         { title: 'Master Architect', desc: 'Lvl 10 achieved', icon: Trophy, color: 'text-amber-500', bg: 'bg-amber-500/10' },
                         { title: 'Data Weaver', desc: '50 assets archived', icon: Command, color: 'text-fuchsia-500', bg: 'bg-fuchsia-500/10' },
                      ].map((badge, idx) => (
@@ -510,7 +510,7 @@ export function ProfilePage() {
                   <DialogTitle className="text-3xl font-black text-white uppercase italic tracking-tighter flex items-center gap-3">
                      <Command className="w-8 h-8 text-studio" /> Forge Blueprint
                   </DialogTitle>
-                  <DialogDescription className="text-xs font-black text-zinc-600 uppercase tracking-widest">Initialize a reusable neural transmission template.</DialogDescription>
+                  <DialogDescription className="text-xs font-black text-zinc-600 uppercase tracking-widest">Initialize a reusable project template.</DialogDescription>
                </DialogHeader>
                <div className="space-y-8 py-10">
                   <div className="space-y-3">
@@ -518,7 +518,7 @@ export function ProfilePage() {
                      <Input value={newPrompt.label} onChange={(e) => setNewPrompt({ ...newPrompt, label: e.target.value })} className="bg-zinc-900 border-zinc-800 rounded-2xl h-16 text-white font-bold px-6" placeholder="CYBERPUNK_NOIR_01" />
                   </div>
                   <div className="space-y-3">
-                     <Label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Directives (Neural Text)</Label>
+                     <Label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Directives (AI Text)</Label>
                      <textarea value={newPrompt.text} onChange={(e) => setNewPrompt({ ...newPrompt, text: e.target.value })} className="w-full bg-zinc-900 border-zinc-800 rounded-[2rem] p-8 text-white font-medium text-sm min-h-[180px] focus:outline-none focus:border-studio/50 transition-all" placeholder="Enter production directives..." />
                   </div>
                </div>
@@ -543,7 +543,7 @@ export function ProfilePage() {
                         <Input value={newDNA.name} onChange={(e) => setNewDNA({ ...newDNA, name: e.target.value })} className="bg-zinc-900 border-zinc-800 rounded-2xl h-16 text-white font-bold px-6" placeholder="PROTAGONIST_ALPHA" />
                      </div>
                      <div className="space-y-3">
-                        <Label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Neural Seed</Label>
+                        <Label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">AI Seed</Label>
                         <Input type="number" value={newDNA.seed} onChange={(e) => setNewDNA({ ...newDNA, seed: parseInt(e.target.value) })} className="bg-zinc-900 border-zinc-800 rounded-2xl h-16 text-white font-bold px-6" />
                      </div>
                   </div>
