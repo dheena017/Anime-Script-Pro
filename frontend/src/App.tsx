@@ -6,6 +6,8 @@ import { NavigationMonitor } from '@/pages/studio/components/studio/NavigationMo
 import { RootProviders } from '@/contexts/RootProviders';
 import { StudioLoading } from '@/pages/studio/components/studio/StudioLoading';
 import { StudioContextWrapper } from '@/components/layout/StudioContextWrapper';
+import ApiReferencePage from './pages/projects/ApiReference';
+import LoreDatabasePage from './pages/projects/LoreDatabase';
 
 function AuthRoute({ children }: { children: React.ReactNode }) {
   return <ProtectedRoute>{children}</ProtectedRoute>;
