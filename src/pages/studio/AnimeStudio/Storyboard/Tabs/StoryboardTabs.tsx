@@ -20,28 +20,56 @@ export const StoryboardTabs: React.FC<StoryboardTabsProps> = ({ activeTab, setAc
   ];
 
   return (
-    <div className="flex items-center gap-2 p-1.5 bg-[#080808]/60 border border-white/5 rounded-[1.5rem] backdrop-blur-md relative overflow-x-auto no-scrollbar group">
-      <div className="absolute inset-0 bg-gradient-to-r from-fuchsia-500/5 via-transparent to-studio/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
+    <div className="storyboard-tabs-nav">
       {tabs.map((tab) => (
         <button
           key={tab.id}
           onClick={() => setActiveTab(tab.id)}
           className={cn(
-            "storyboard-tab-btn relative",
-            activeTab === tab.id ? tab.color : "text-zinc-500 hover:text-zinc-300"
+            "storyboard-tab-btn group/tab relative overflow-hidden",
+            activeTab === tab.id 
+              ? "bg-white/[0.03] border border-white/10 shadow-[0_0_20px_rgba(255,255,255,0.02)]" 
+              : "text-zinc-500 hover:text-zinc-300 hover:bg-white/[0.01]"
           )}
         >
           {activeTab === tab.id && (
             <motion.div
-              layoutId="storyboard-tab-glow"
-              className="absolute inset-0 bg-white/5 border border-white/10 rounded-xl"
-              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+              layoutId="active-tab-glow"
+              className={cn(
+                "absolute inset-0 bg-gradient-to-br opacity-5",
+                tab.id === 'frames' && "from-fuchsia-500",
+                tab.id === 'angles' && "from-studio",
+                tab.id === 'composition' && "from-amber-400",
+                tab.id === 'animatic' && "from-emerald-400",
+                tab.id === 'audio' && "from-blue-400"
+              )}
             />
           )}
-          <tab.icon className={cn("w-3.5 h-3.5 transition-transform duration-300 group-hover/tab:scale-110", activeTab === tab.id ? "opacity-100" : "opacity-40")} />
-          <span className="relative z-10">{tab.label}</span>
+          
+          <tab.icon className={cn(
+            "w-4 h-4 transition-all duration-500",
+            activeTab === tab.id ? tab.color : "text-zinc-600 group-hover/tab:text-zinc-400"
+          )} />
+          
+          <span className={cn(
+            "relative z-10 transition-colors duration-500",
+            activeTab === tab.id ? "text-white" : "text-zinc-500 group-hover/tab:text-zinc-300"
+          )}>
+            {tab.label}
+          </span>
+
           {activeTab === tab.id && (
-            <motion.div layoutId="storyboard-tab-underline" className="absolute -bottom-1 left-4 right-4 h-0.5 bg-current rounded-full opacity-50" />
+            <motion.div 
+              layoutId="tab-indicator"
+              className={cn(
+                "absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r",
+                tab.id === 'frames' && "from-fuchsia-500/0 via-fuchsia-500 to-fuchsia-500/0",
+                tab.id === 'angles' && "from-studio/0 via-studio to-studio/0",
+                tab.id === 'composition' && "from-amber-400/0 via-amber-400 to-amber-400/0",
+                tab.id === 'animatic' && "from-emerald-400/0 via-emerald-400 to-emerald-400/0",
+                tab.id === 'audio' && "from-blue-400/0 via-blue-400 to-blue-400/0"
+              )}
+            />
           )}
         </button>
       ))}

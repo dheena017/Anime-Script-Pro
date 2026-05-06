@@ -17,7 +17,7 @@ export default function ScriptArchitect() {
     },
     {
       id: 'cont',
-      name: 'Neural Continuation',
+      name: 'AI Continuation',
       description: 'Extends existing narrative threads while maintaining quantum continuity and scene intensity.',
       content: SCRIPT_CONTINUATION_PROMPT,
       version: '1.2.1'

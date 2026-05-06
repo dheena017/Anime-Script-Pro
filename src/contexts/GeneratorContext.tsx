@@ -7,6 +7,7 @@ import { useApp } from '@/contexts/AppContext';
 import { engineApi } from '../services/api/engine';
 import { worldApi, WorldLore } from '../services/api/world';
 import { productionApi } from '../services/api/production';
+import { characterApi } from '../services/api/characters';
 import { AI_EVENTS } from '../services/generators/core';
 import { useLogs } from './LogContext';
 
@@ -97,6 +98,10 @@ interface GeneratorState {
   worldLore?: any | null;
   activeModelAttempt: string | null;
   fallbackHistory: string[];
+  castDNA?: any | null;
+  castDynamics?: any | null;
+  castIntegrity?: any | null;
+  isAnalyzingCast: boolean;
 }
 
 interface GeneratorDispatch {
@@ -178,6 +183,14 @@ interface GeneratorDispatch {
 
   setVisualData: (v: any) => void;
   setVideoData: (v: any) => void;
+  setCastDNA: (d: any | null) => void;
+  setCastDynamics: (d: any | null) => void;
+  setCastIntegrity: (i: any | null) => void;
+  setIsAnalyzingCast: (l: boolean) => void;
+
+  // Stop Generation
+  stopGeneration: () => void;
+  getSignal: () => AbortSignal;
 
   // Aliases for older APIs
   setGlobalPrompt: (p: string) => void;
@@ -242,15 +255,64 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
         full_lore_blob: fullBlob,
         history_blob: generatedWorldLore,
         powers_blob: generatedWorldPowers,
-        factions_blob: generatedWorldFactions
+        factions_blob: generatedWorldFactions,
+        architecture_blob: generatedWorldArchitecture,
+        atlas_blob: generatedWorldAtlas,
+        culture_blob: generatedWorldCulture,
+        systems_blob: generatedWorldSystems
       });
     } else {
       setGeneratedWorldContent(null);
     }
-  }, [user?.id, generatedWorldLore, generatedWorldPowers, generatedWorldFactions]);
+  }, [user?.id, generatedWorldLore, generatedWorldPowers, generatedWorldFactions, generatedWorldArchitecture, generatedWorldAtlas, generatedWorldCulture, generatedWorldSystems]);
 
   const [activeModelAttempt, setActiveModelAttempt] = useState<string | null>(null);
   const [fallbackHistory, setFallbackHistory] = useState<string[]>([]);
+  const [abortController, setAbortController] = useState<AbortController>(new AbortController());
+
+  // Refs to track initial project load and avoid overwriting new generations with stale query data
+  const hasLoadedProduction = React.useRef(false);
+  const hasLoadedWorld = React.useRef(false);
+  const hasLoadedCast = React.useRef(false);
+
+  // Reset load flags when user changes
+  useEffect(() => {
+    hasLoadedProduction.current = false;
+    hasLoadedWorld.current = false;
+    hasLoadedCast.current = false;
+  }, [user?.id]);
+
+  const getSignal = useCallback(() => {
+    if (abortController.signal.aborted) {
+      const newController = new AbortController();
+      setAbortController(newController);
+      return newController.signal;
+    }
+    return abortController.signal;
+  }, [abortController]);
+
+  const stopGeneration = useCallback(() => {
+    abortController.abort();
+    setIsGeneratingWorld(false);
+    setIsGeneratingLore(false);
+    setIsGeneratingPowers(false);
+    setIsGeneratingFactions(false);
+    setIsGeneratingArchitecture(false);
+    setIsGeneratingAtlas(false);
+    setIsGeneratingCulture(false);
+    setIsGeneratingSystems(false);
+    setIsGeneratingCharacters(false);
+    setIsGeneratingMetadata(false);
+    setIsGeneratingImagePrompts(false);
+    setIsGeneratingSeries(false);
+    setIsGeneratingDescription(false);
+    setIsGeneratingVisuals(false);
+    setIsGeneratingAltText(false);
+    setIsGeneratingGrowthStrategy(false);
+    setIsGeneratingDistribution(false);
+    showNotification("Generation stopped", "info");
+    setAbortController(new AbortController());
+  }, [abortController, rawShowNotification]);
 
   const showNotification = useCallback((message: string, type?: 'error' | 'success' | 'info') => {
     rawShowNotification(message, type);
@@ -279,6 +341,12 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     enabled: !!user?.id,
   });
 
+  const { data: castDataFromApi } = useQuery({
+    queryKey: ['characterCast', user?.id],
+    queryFn: () => characterApi.getCast(user!.id),
+    enabled: !!user?.id,
+  });
+
   const { data: projectHistory = [] } = useQuery({
     queryKey: ['projectHistory', user?.id],
     queryFn: async () => {
@@ -296,36 +364,6 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     },
     enabled: !!user?.id,
   });
-
-  useEffect(() => {
-    if (production) {
-      setGeneratedScript(production.script_content);
-      setGeneratedSeriesPlan(production.series_plan);
-      setGeneratedMetadata(production.seo_metadata);
-      setGeneratedGrowthStrategy(production.growth_strategy);
-      setGeneratedDistributionPlan(production.distribution_plan);
-    }
-  }, [production]);
-
-  useEffect(() => {
-    if (worldLore) {
-      setGeneratedWorldInternal(worldLore.full_lore_blob);
-      setGeneratedWorldLore(worldLore.history_blob || null);
-      setGeneratedWorldPowers(worldLore.powers_blob || null);
-      setGeneratedWorldFactions(worldLore.factions_blob || null);
-      
-      // Load modular prompts (Neural Seeds)
-      setPromptLore(worldLore.prompt_lore || '');
-      setPromptPowers(worldLore.prompt_powers || '');
-      setPromptFactions(worldLore.prompt_factions || '');
-      setPromptArchitecture(worldLore.prompt_architecture || '');
-      setPromptAtlas(worldLore.prompt_atlas || '');
-      setPromptCulture(worldLore.prompt_culture || '');
-      setPromptSystems(worldLore.prompt_systems || '');
-      
-      setGeneratedWorldContent(worldLore);
-    }
-  }, [worldLore]);
 
   const [episode, setEpisode] = useState('1');
   const [session, setSession] = useState('1');
@@ -348,6 +386,7 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
   const [isLiked, setIsLiked] = useState(false);
   const [productionSequence, setProductionSequence] = useState<ProductionUnit[]>([]);
 
+
   // Compatibility engine settings (kept local to avoid cross-context coupling)
   const [temperature, setTemperature] = useState(0.85);
   const [maxTokens, setMaxTokens] = useState(2048);
@@ -364,6 +403,70 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
   const [characterRelationships, setCharacterRelationships] = useState<string | null>('');
   const [visualData, setVisualData] = useState<any>([]);
   const [videoData, setVideoData] = useState<any>([]);
+  const [castDNA, setCastDNA] = useState<any | null>(null);
+  const [castDynamics, setCastDynamics] = useState<any | null>(null);
+  const [castIntegrity, setCastIntegrity] = useState<any | null>(null);
+  const [isAnalyzingCast, setIsAnalyzingCast] = useState(false);
+
+  // Sync logic moved after ALL state declarations to avoid "used before declaration" errors
+  useEffect(() => {
+    // Only sync from server on initial load or if local state is empty and we aren't currently generating
+    const canSync = !hasLoadedProduction.current || (!generatedScript && !isGeneratingSeries);
+    
+    if (production && canSync) {
+      if (production.script_content) setGeneratedScript(production.script_content);
+      if (production.series_plan) setGeneratedSeriesPlan(production.series_plan);
+      if (production.seo_metadata) setGeneratedMetadata(production.seo_metadata);
+      if (production.growth_strategy) setGeneratedGrowthStrategy(production.growth_strategy);
+      if (production.distribution_plan) setGeneratedDistributionPlan(production.distribution_plan);
+      hasLoadedProduction.current = true;
+    }
+  }, [production, generatedScript, isGeneratingSeries]);
+
+  useEffect(() => {
+    // Prevent overwriting active world building
+    const isGeneratingAnyWorld = isGeneratingWorld || isGeneratingLore || isGeneratingPowers || isGeneratingFactions || isGeneratingArchitecture || isGeneratingAtlas || isGeneratingCulture || isGeneratingSystems;
+    const canSync = !hasLoadedWorld.current || (!generatedWorld && !isGeneratingAnyWorld);
+
+    if (worldLore && canSync) {
+      setGeneratedWorldInternal(worldLore.full_lore_blob);
+      setGeneratedWorldLore(worldLore.history_blob || null);
+      setGeneratedWorldPowers(worldLore.powers_blob || null);
+      setGeneratedWorldFactions(worldLore.factions_blob || null);
+      setGeneratedWorldArchitecture(worldLore.architecture_blob || null);
+      setGeneratedWorldAtlas(worldLore.atlas_blob || null);
+      setGeneratedWorldCulture(worldLore.culture_blob || null);
+      setGeneratedWorldSystems(worldLore.systems_blob || null);
+      
+      setPromptLore(worldLore.prompt_lore || '');
+      setPromptPowers(worldLore.prompt_powers || '');
+      setPromptFactions(worldLore.prompt_factions || '');
+      setPromptArchitecture(worldLore.prompt_architecture || '');
+      setPromptAtlas(worldLore.prompt_atlas || '');
+      setPromptCulture(worldLore.prompt_culture || '');
+      setPromptSystems(worldLore.prompt_systems || '');
+      
+      setGeneratedWorldContent(worldLore);
+      hasLoadedWorld.current = true;
+    }
+  }, [worldLore, generatedWorld, isGeneratingWorld, isGeneratingLore, isGeneratingPowers, isGeneratingFactions, isGeneratingArchitecture, isGeneratingAtlas, isGeneratingCulture, isGeneratingSystems]);
+
+  useEffect(() => {
+    // Prevent overwriting active cast creation
+    const canSync = !hasLoadedCast.current || (castList.length === 0 && !isGeneratingCharacters);
+
+    if (castDataFromApi && canSync) {
+      if (castDataFromApi.cast_list_blob) {
+        try {
+          setCastList(JSON.parse(castDataFromApi.cast_list_blob));
+        } catch (e) {
+          console.error("Failed to parse cast list from API", e);
+        }
+      }
+      setCharacterRelationships(castDataFromApi.relationships_blob || '');
+      hasLoadedCast.current = true;
+    }
+  }, [castDataFromApi, castList.length, isGeneratingCharacters]);
 
   // Removed specialized modular auto-saves (Handled by smaller contexts)
 
@@ -388,6 +491,10 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
             history_blob: generatedWorldLore,
             powers_blob: generatedWorldPowers,
             factions_blob: generatedWorldFactions,
+            architecture_blob: generatedWorldArchitecture,
+            atlas_blob: generatedWorldAtlas,
+            culture_blob: generatedWorldCulture,
+            systems_blob: generatedWorldSystems,
             prompt_lore: promptLore,
             prompt_powers: promptPowers,
             prompt_factions: promptFactions,
@@ -402,6 +509,10 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
             history_blob: generatedWorldLore,
             powers_blob: generatedWorldPowers,
             factions_blob: generatedWorldFactions,
+            architecture_blob: generatedWorldArchitecture,
+            atlas_blob: generatedWorldAtlas,
+            culture_blob: generatedWorldCulture,
+            systems_blob: generatedWorldSystems,
             prompt_lore: promptLore,
             prompt_powers: promptPowers,
             prompt_factions: promptFactions,
@@ -411,82 +522,90 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
             prompt_systems: promptSystems
           });
         }
+
+        // Auto-save Cast Content
+        await characterApi.updateCast(user.id, {
+          cast_list_blob: castList ? JSON.stringify(castList) : null,
+          relationships_blob: characterRelationships,
+          prompt_cast: prompt, // Using global prompt as baseline for cast logic
+        });
       } catch (error) {
-        console.error("%c[System] %cFailed to sync production content:", 'color: #ef4444; font-weight: bold', 'color: #94a3b8', error);
+        console.error("%c[System] %cFailed to sync production/cast content:", 'color: #ef4444; font-weight: bold', 'color: #94a3b8', error);
       }
     }, 5000);
 
     return () => clearTimeout(timeout);
-  }, [user?.id, generatedScript, generatedSeriesPlan, generatedMetadata, generatedGrowthStrategy, generatedDistributionPlan, generatedWorld, generatedWorldLore, generatedWorldPowers, generatedWorldFactions, production]);
+  }, [user?.id, generatedScript, generatedSeriesPlan, generatedMetadata, generatedGrowthStrategy, generatedDistributionPlan, generatedWorld, generatedWorldLore, generatedWorldPowers, generatedWorldFactions, generatedWorldArchitecture, generatedWorldAtlas, generatedWorldCulture, generatedWorldSystems, production]);
 
   const { addLog } = useLogs();
 
   const syncCore = useCallback(async () => {
     if (!user?.id) {
-      showNotification("Authentication required for synchronization", "error");
+      showNotification("Please log in to save your work", "error");
       return;
     }
 
     setIsSaving(true);
-    addLog("SYNC", "INITIALIZED", "Initiating global state synchronization protocol...");
-    showNotification("Synchronizing Core Manifest...", "info");
+    addLog("SAVE", "START", "Starting project save...");
+    showNotification("Saving your project...", "info");
 
     try {
-      // PHASE 3: Production Asset Sync (Remaining global fields)
-      addLog("PRODUCTION", "SYNCING", "Persisting Script and Series manifests...");
+      // PHASE 1: Production Asset Sync
+      addLog("PRODUCTION", "SAVING", "Saving script, series, and storyboard data...");
       await productionApi.updateContent(user.id, {
         script_content: generatedScript,
         series_plan: generatedSeriesPlan,
         seo_metadata: generatedMetadata,
+        storyboard: generatedImagePrompts,
         growth_strategy: generatedGrowthStrategy,
-        distribution_plan: generatedDistributionPlan
+        distribution_plan: generatedDistributionPlan,
       });
 
-      if (generatedWorldContent) {
-        addLog("WORLD", "SYNCING", "Persisting Modular World Lore Manifest...");
+      // PHASE 2: World Lore Sync
+      if (generatedWorldContent || generatedWorld) {
+        addLog("WORLD", "SAVING", "Saving world data...");
         await worldApi.updateLore(user.id, {
-          ...generatedWorldContent,
+          ...(generatedWorldContent || {}),
           full_lore_blob: generatedWorld,
           history_blob: generatedWorldLore,
           powers_blob: generatedWorldPowers,
           factions_blob: generatedWorldFactions,
+          architecture_blob: generatedWorldArchitecture,
+          atlas_blob: generatedWorldAtlas,
+          culture_blob: generatedWorldCulture,
+          systems_blob: generatedWorldSystems,
           prompt_lore: promptLore,
           prompt_powers: promptPowers,
           prompt_factions: promptFactions,
           prompt_architecture: promptArchitecture,
           prompt_atlas: promptAtlas,
           prompt_culture: promptCulture,
-          prompt_systems: promptSystems
-        });
-      } else if (generatedWorld) {
-        addLog("WORLD", "SYNCING", "Persisting World Lore Manifest...");
-        await worldApi.updateLore(user.id, { 
-          full_lore_blob: generatedWorld,
-          history_blob: generatedWorldLore,
-          powers_blob: generatedWorldPowers,
-          factions_blob: generatedWorldFactions,
-          prompt_lore: promptLore,
-          prompt_powers: promptPowers,
-          prompt_factions: promptFactions,
-          prompt_architecture: promptArchitecture,
-          prompt_atlas: promptAtlas,
-          prompt_culture: promptCulture,
-          prompt_systems: promptSystems
+          prompt_systems: promptSystems,
         });
       }
 
-      addLog("PRODUCTION", "COMPLETED", "Global production fields synchronized.");
+      // PHASE 3: Cast Manifest Sync (full: characters + DNA + dynamics + integrity)
+      addLog("CAST", "SAVING", "Saving characters and relationships...");
+      await characterApi.updateCast(user.id, {
+        cast_list_blob: castList ? JSON.stringify(castList) : null,
+        relationships_blob: characterRelationships,
+        dna_config_blob: castDNA ? JSON.stringify(castDNA) : null,
+        dynamics_blob: castDynamics ? JSON.stringify(castDynamics) : null,
+        integrity_blob: castIntegrity ? JSON.stringify(castIntegrity) : null,
+        prompt_cast: prompt,
+      });
 
-      showNotification("CORE SYNCHRONIZED", "success");
-      addLog("CORE", "SUCCESS", "Full system state synchronized with central database.");
+      addLog("PRODUCTION", "SUCCESS", "All project data saved successfully.");
+      showNotification("Project saved successfully", "success");
+      addLog("PROJECT", "COMPLETE", "Project fully saved to cloud.");
     } catch (error: any) {
-      console.error("Core Sync Failed:", error);
-      showNotification("SYNCHRONIZATION FAILURE", "error");
-      addLog("CORE", "FAILURE", `Sync failed: ${error.message || 'Network error'}`);
+      console.error("Save Failed:", error);
+      showNotification("Failed to save — please try again", "error");
+      addLog("PROJECT", "ERROR", `Save failed: ${error.message || 'Network error'}`);
     } finally {
       setIsSaving(false);
     }
-  }, [user?.id, generatedScript, generatedSeriesPlan, generatedMetadata, generatedGrowthStrategy, generatedDistributionPlan, generatedWorld, generatedWorldLore, generatedWorldPowers, generatedWorldFactions, addLog, showNotification]);
+  }, [user?.id, generatedScript, generatedSeriesPlan, generatedMetadata, generatedImagePrompts, generatedGrowthStrategy, generatedDistributionPlan, generatedWorld, generatedWorldContent, generatedWorldLore, generatedWorldPowers, generatedWorldFactions, generatedWorldArchitecture, generatedWorldAtlas, generatedWorldCulture, generatedWorldSystems, promptLore, promptPowers, promptFactions, promptArchitecture, promptAtlas, promptCulture, promptSystems, castList, characterRelationships, castDNA, castDynamics, castIntegrity, prompt, addLog, showNotification]);
 
   // Neural Telemetry & Thinking Stream Log Sync
   useEffect(() => {
@@ -507,18 +626,18 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     };
 
     const handleStart = (e: any) => {
-      addLog("NEURAL_ENGINE", "INITIALIZED", `Activating ${e.detail.model} for synthesis...`);
+      addLog("AI_ENGINE", "STARTED", `Starting generation with ${e.detail.model}...`);
       setActiveModelAttempt(e.detail.model);
       setFallbackHistory([]);
     };
 
     const handleComplete = (e: any) => {
-      addLog("NEURAL_ENGINE", "COMPLETED", `Synthesis finished via ${e.detail.model} (${e.detail.latency.toFixed(0)}ms)`);
+      addLog("AI_ENGINE", "COMPLETED", `Generation complete via ${e.detail.model} (${e.detail.latency.toFixed(0)}ms)`);
       setActiveModelAttempt(null);
     };
 
     const handleFallback = (e: any) => {
-      addLog("NEURAL_ENGINE", "RETRYING", `Switching from ${e.detail.failedModel} to ${e.detail.nextModel} due to friction.`);
+      addLog("AI_ENGINE", "RETRYING", `Retrying with ${e.detail.nextModel} (${e.detail.failedModel} was unavailable)`);
       setActiveModelAttempt(e.detail.nextModel);
       setFallbackHistory(prev => [...prev, e.detail.failedModel]);
     };
@@ -623,7 +742,11 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     seriesPlan: generatedSeriesPlan,
     worldLore: null,
     activeModelAttempt,
-    fallbackHistory
+    fallbackHistory,
+    castDNA,
+    castDynamics,
+    castIntegrity,
+    isAnalyzingCast
   }), [
     prompt, promptLore, promptPowers, promptFactions, promptArchitecture, promptAtlas, promptCulture, promptSystems,
     theme, generatedScript, generatedCharacters, generatedMetadata, 
@@ -642,7 +765,7 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     generatedWorldArchitecture, generatedWorldAtlas, generatedWorldCulture, generatedWorldSystems
     , temperature, maxTokens, topP, topK, selectedModel, tone, audience,
     castData, castList, castProfiles, characterRelationships, visualData, videoData, generatedMetadata, generatedSeriesPlan,
-    activeModelAttempt, fallbackHistory
+    activeModelAttempt, fallbackHistory, castDNA, castDynamics, castIntegrity, isAnalyzingCast
   ]);
 
   const dispatch = useMemo<GeneratorDispatch>(() => ({
@@ -727,11 +850,16 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     // Visual setters
     setVisualData,
     setVideoData,
-
+    setCastDNA,
+    setCastDynamics,
+    setCastIntegrity,
+    setIsAnalyzingCast,
+    stopGeneration,
+    getSignal,
     // Aliases
     setGlobalPrompt: setPrompt,
     setGlobalContentType: setContentType,
-  }), [syncCore, addLog, showNotification, setGeneratedWorldLore, setGeneratedWorldPowers, setGeneratedWorldFactions, setGeneratedWorldArchitecture, setGeneratedWorldAtlas, setGeneratedWorldCulture, setGeneratedWorldSystems, setPromptLore, setPromptPowers, setPromptFactions, setPromptArchitecture, setPromptAtlas, setPromptCulture, setPromptSystems]);
+  }), [syncCore, addLog, showNotification, setGeneratedWorldLore, setGeneratedWorldPowers, setGeneratedWorldFactions, setGeneratedWorldArchitecture, setGeneratedWorldAtlas, setGeneratedWorldCulture, setGeneratedWorldSystems, setPromptLore, setPromptPowers, setPromptFactions, setPromptArchitecture, setPromptAtlas, setPromptCulture, setPromptSystems, stopGeneration, getSignal]);
 
   const fullValue = useMemo(() => ({
     ...state,

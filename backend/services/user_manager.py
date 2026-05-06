@@ -50,7 +50,7 @@ async def get_user_manager(user_db=Depends(get_user_db)):
 def get_jwt_strategy() -> JWTStrategy:
     return JWTStrategy(secret=SECRET_KEY, lifetime_seconds=3600)
 
-bearer_transport = BearerTransport(tokenUrl="auth/jwt/login")
+bearer_transport = BearerTransport(tokenUrl="/api/auth/token")
 
 auth_backend = AuthenticationBackend(
     name="jwt",

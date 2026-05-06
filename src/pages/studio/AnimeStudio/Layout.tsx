@@ -11,8 +11,10 @@ import { StudioSideBar } from '@/pages/studio/components/studio/layout/StudioSid
 import { AnimeStudioSideBar } from './components/layout/AnimeStudioSideBar';
 import { AnimeStudioTopBar } from './components/layout/AnimeStudioTopBar';
 import { StudioFooter } from '@/pages/studio/components/studio/layout/StudioFooter';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ProductionFlowBar } from '@/pages/studio/components/studio/layout/ProductionFlowBar';
+import { StudioIntelligenceHUD } from '@/pages/studio/components/studio/layout/StudioIntelligenceHUD';
 
-import '@/styles/creative-engine.css';
 import { StudioLoading } from '@/pages/studio/components/studio/StudioLoading';
 
 /**
@@ -93,7 +95,8 @@ export default function AnimeLayout() {
           name: prompt || "Untitled Anime Project",
           content_type: 'Anime',
           prompt: prompt,
-          vibe: tone
+          vibe: tone,
+          model_used: selectedModel
         })
       });
 
@@ -117,8 +120,8 @@ export default function AnimeLayout() {
       return;
     }
     setIsLoading(true);
-    addLog("GOD_MODE", "INITIALIZED", "Orchestrating Autonomous Production Cycle...");
-    showNotification?.('Master Generate Active — Generating all modules in sequence...', 'success');
+    addLog("MASTER_GENERATOR", "INITIALIZED", "Starting Full Production Cycle...");
+    showNotification?.('Full Production Active — Generating all modules in sequence...', 'success');
 
     try {
       // Dynamic imports to optimize initial bundle
@@ -127,14 +130,14 @@ export default function AnimeLayout() {
       const { generateSeriesPlan } = await import('@/services/generators/series');
       const { generateScript, generateImagePrompts, generateMetadata } = await import('@/services/api/gemini');
 
-      // PHASE 1: WORLD Lore
-      addLog("WORLD", "STARTING", "Synthesizing World Lore Source of Truth...");
+      // PHASE 1: WORLD Architecture
+      addLog("WORLD", "STARTING", "Building World Foundation and Setting...");
       const world = await generateWorld(prompt, selectedModel, 'Anime');
       setGeneratedWorld(world);
-      addLog("WORLD", "COMPLETED", "Lore synchronized to core.");
+      addLog("WORLD", "COMPLETED", "World foundation ready.");
 
-      // PHASE 2: Cast DNA
-      addLog("CAST", "STARTING", "Sequencing Character DNA...");
+      // PHASE 2: Character Creation
+      addLog("CAST", "STARTING", "Designing Character Profiles and Traits...");
       const castResult = await generateCharacters(prompt, selectedModel, 'Anime', world);
       if (typeof castResult === 'object' && castResult.characters) {
         setGeneratedCharacters(castResult.markdown);
@@ -148,54 +151,54 @@ export default function AnimeLayout() {
       }
       addLog("CAST", "COMPLETED", "Cast manifest generated.");
 
-      // PHASE 3: Series Architecture
-      addLog("SERIES", "STARTING", "Architecting Series Hierarchy...");
+      // PHASE 3: Series Structure
+      addLog("SERIES", "STARTING", "Designing Series Overall Structure...");
       const seriesPlan = await generateSeriesPlan(prompt, selectedModel, 'Anime', 12, world, typeof castResult === 'string' ? castResult : castResult.markdown);
       setGeneratedSeriesPlan(seriesPlan);
-      addLog("SERIES", "COMPLETED", "Series hierarchy mapped to beats.");
+      addLog("SERIES", "COMPLETED", "Series structure and beats mapped.");
 
-      // PHASE 4: Script Synthesis
-      addLog("SCRIPT", "STARTING", "Synthesizing Episode 1 Script...");
+      // PHASE 4: Script Writing
+      addLog("SCRIPT", "STARTING", "Generating Episode 1 Script...");
       const ep1Plan = seriesPlan?.find((ep: any) => parseInt(ep.episode) === 1);
       const script = await generateScript(
         prompt, tone, audience, "1", "1", numScenes, selectedModel, 'Anime',
         recapperPersona, characterRelationships, world, typeof castResult === 'string' ? castResult : castResult.markdown, ep1Plan ? JSON.stringify(ep1Plan) : null
       );
       setGeneratedScript(script);
-      addLog("SCRIPT", "COMPLETED", "Script synthesis successful.");
+      addLog("SCRIPT", "COMPLETED", "Script generated successfully.");
 
-      // PHASE 5: Visual DNA (Storyboard)
-      addLog("STORYBOARD", "STARTING", "Manifesting Visual DNA for Scenes...");
+      // PHASE 5: Visual Planning (Storyboard)
+      addLog("STORYBOARD", "STARTING", "Creating Visual Descriptions for Scenes...");
       const visualPrompts = await generateImagePrompts(script, selectedModel);
       setGeneratedImagePrompts(visualPrompts);
       setVisualData({ 0: ["pending"] });
-      addLog("STORYBOARD", "COMPLETED", "Visual prompts architected.");
+      addLog("STORYBOARD", "COMPLETED", "Visual prompts created.");
 
-      // PHASE 6: SEO Matrix
-      addLog("SEO", "STARTING", "Synchronizing SEO Metadata...");
+      // PHASE 6: Content Metadata
+      addLog("SEO", "STARTING", "Generating Content Metadata and Tags...");
       const seo = await generateMetadata(script, selectedModel);
       setGeneratedMetadata(seo);
-      addLog("SEO", "COMPLETED", "SEO Matrix online.");
+      addLog("SEO", "COMPLETED", "Metadata generation complete.");
 
-      showNotification?.('God Mode Synchronization Complete: Full Production Scaffolded', 'success');
+      showNotification?.('Production Process Complete: All Modules Prepared', 'success');
       navigate(`${basePath}/world`);
     } catch (error: any) {
-      console.error("Master Orchestration Failed:", error);
-      addLog("CORE", "FAILURE", error.message || "Unknown error during synthesis");
-      showNotification?.(`Master Loop Failure: ${error.message || 'Check logs'}`, 'error');
+      console.error("Production Failed:", error);
+      addLog("CORE", "FAILURE", error.message || "Unknown error during production");
+      showNotification?.(`Production Failure: ${error.message || 'Check logs'}`, 'error');
     } finally {
       setIsLoading(false);
     }
   }, [prompt, user, selectedModel, tone, audience, numScenes, recapperPersona, characterRelationships, setGeneratedWorld, setGeneratedCharacters, setCastData, setCastList, setCharacterRelationships, setGeneratedSeriesPlan, setGeneratedScript, setGeneratedImagePrompts, setVisualData, setGeneratedMetadata, showNotification, addLog, navigate, basePath, setIsLoading]);
- 
+
   const handleWorldGenerate = useCallback(async () => {
     if (!prompt.trim() || !user) {
       showNotification?.('Please enter a story prompt first to generate the world.', 'error');
       return;
     }
     setIsLoading(true);
-    addLog("WORLD", "INITIALIZED", "Synthesizing World Lore Source of Truth...");
-    
+    addLog("WORLD", "INITIALIZED", "Generating World Foundation...");
+
     try {
       const { generateWorld } = await import('@/services/generators/world');
       const world = await generateWorld(prompt, selectedModel, 'Anime');
@@ -251,7 +254,8 @@ export default function AnimeLayout() {
             name: prompt.slice(0, 30) || "Single Generation",
             content_type: 'Anime',
             prompt: prompt,
-            vibe: tone
+            vibe: tone,
+            model_used: selectedModel
           })
         });
 
@@ -301,6 +305,7 @@ export default function AnimeLayout() {
 
   return (
     <div className="fixed inset-0 bg-black flex h-screen w-full overflow-hidden z-[1000] studio-engine-root">
+      <StudioIntelligenceHUD />
       {/* GLOBAL HUB SIDEBAR (Far Left) */}
       <div className="relative z-[501] border-r border-zinc-800/20">
         <StudioSideBar
@@ -343,26 +348,42 @@ export default function AnimeLayout() {
           />
         )}
 
-        <AnimeStudioTopBar
-          onToggleEngine={toggleEngine}
-          isEngineOpen={sidebarOpen}
-          onToggleSidebar={toggleLeftSidebar}
-          isSidebarCollapsed={leftSidebarCollapsed}
-          onToggleGlobalSidebar={toggleGlobalSidebar}
-          isGlobalSidebarOpen={!globalSidebarCollapsed}
-        />
+        {!sidebarOpen && (
+          <AnimeStudioTopBar
+            onToggleEngine={toggleEngine}
+            isEngineOpen={sidebarOpen}
+            onToggleSidebar={toggleLeftSidebar}
+            isSidebarCollapsed={leftSidebarCollapsed}
+            onToggleGlobalSidebar={toggleGlobalSidebar}
+            isGlobalSidebarOpen={!globalSidebarCollapsed}
+          />
+        )}
+
+        {/* Production Flow Monitor */}
+        <ProductionFlowBar basePath={basePath} />
 
         {/* Main Production Workspace */}
-        <div className="flex-1 overflow-y-auto custom-scrollbar relative">
+        <div className="flex-1 overflow-y-auto no-scrollbar relative">
           <div className="min-h-full flex flex-col">
-            <div className="w-full max-w-7xl mx-auto px-4 sm:px-8 py-8 relative z-10 flex-1">
-              <div id="studio-content-area" className="w-full min-h-[calc(100vh-250px)] bg-black/60 backdrop-blur-xl border border-cyan-900/30 shadow-[0_20px_50px_rgba(0,0,0,0.5)] rounded-[2.5rem] relative overflow-hidden flex flex-col">
+            <div className="w-full max-w-7xl mx-auto px-0 sm:px-8 py-8 relative z-10 flex-1">
+              <div id="studio-content-area" className="w-full min-h-[calc(100vh-250px)] bg-black/60 backdrop-blur-xl border border-cyan-900/30 shadow-[0_20px_50px_rgba(0,0,0,0.5)] rounded-[2.5rem] relative flex flex-col">
                 <div className="relative z-10 w-full flex-1 flex flex-col">
-                  <React.Suspense fallback={<StudioLoading fullPage={false} message="Opening Anime Studio" submessage="Connecting to the studio..." />}>
-                    <div className="flex-1 flex flex-col justify-center">
-                      <Outlet />
-                    </div>
-                  </React.Suspense>
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={location.pathname}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ duration: 0.2, ease: "easeOut" }}
+                      className="flex-1 flex flex-col"
+                    >
+                      <React.Suspense fallback={<StudioLoading fullPage={false} message="Opening Anime Studio" submessage="Connecting to the studio..." />}>
+                        <div className="flex-1 flex flex-col">
+                          <Outlet />
+                        </div>
+                      </React.Suspense>
+                    </motion.div>
+                  </AnimatePresence>
                 </div>
               </div>
 

@@ -1,4 +1,4 @@
-import { callAI, RateLimitError } from "./core";
+import { callAI } from "./core";
 import { MOCK_WORLD } from "./mockData";
 import { 
   WORLD_GENERATION_PROMPT, 
@@ -10,6 +10,7 @@ import {
   CULTURE_GENERATION_PROMPT, 
   SYSTEMS_GENERATION_PROMPT 
 } from "../prompts";
+import { studioLog, studioGroup, studioEnd } from "@/lib/studio-logger";
 
 export async function generateArchitecture(prompt: string, model: string = "gemini-2.5-flash", contentType: string = "Anime", worldContext?: string): Promise<string> {
   validateWorldPrompt(prompt);
@@ -26,13 +27,27 @@ ${worldContext || 'No established rules.'}
 TASK:
 Design the architectural and visual language of this world. Ensure it connects logically to the geography and culture described in the context above.
 `;
+  studioGroup('WorldEngine', 'Architectural Synthesis', 'anime');
   try {
-    const text = await callAI(model, userPrompt, systemInstruction);
+    const text = await callAI(
+      model, 
+      userPrompt, 
+      systemInstruction,
+      0.85, // temperature
+      2048, // maxTokens
+      0.95, // topP
+      40,   // topK
+      180000, // timeoutMs
+      worldContext // worldLore
+    );
     if (!text) throw new Error("Architecture synthesis produced no data.");
+    studioLog('WorldEngine', 'Architectural language synthesized successfully.', 'success');
     return text;
   } catch (error: any) {
-    console.error("Error generating architecture:", error);
+    studioLog('WorldEngine', 'Failed to synthesize architecture.', 'error', error);
     throw error;
+  } finally {
+    studioEnd();
   }
 }
 
@@ -51,13 +66,27 @@ ${worldContext || 'No established rules.'}
 TASK:
 Map out the physical geography and environmental logic. The atlas must support the geopolitical tensions described in the world context above.
 `;
+  studioGroup('WorldEngine', 'Atlas Cartography', 'anime');
   try {
-    const text = await callAI(model, userPrompt, systemInstruction);
+    const text = await callAI(
+      model,
+      userPrompt,
+      systemInstruction,
+      0.85, // temperature
+      2048, // maxTokens
+      0.95, // topP
+      40,   // topK
+      180000, // timeoutMs
+      worldContext // worldLore
+    );
     if (!text) throw new Error("Atlas synthesis produced no data.");
+    studioLog('WorldEngine', 'Geographical atlas mapped successfully.', 'success');
     return text;
   } catch (error: any) {
-    console.error("Error generating atlas:", error);
+    studioLog('WorldEngine', 'Failed to map atlas.', 'error', error);
     throw error;
+  } finally {
+    studioEnd();
   }
 }
 
@@ -76,13 +105,27 @@ ${worldContext || 'No established rules.'}
 TASK:
 Design the rituals, daily life, and social hierarchies. Ensure the culture reflects the history and power systems established in the context above.
 `;
+  studioGroup('WorldEngine', 'Cultural Ethos Design', 'anime');
   try {
-    const text = await callAI(model, userPrompt, systemInstruction);
+    const text = await callAI(
+      model,
+      userPrompt,
+      systemInstruction,
+      0.85, // temperature
+      2048, // maxTokens
+      0.95, // topP
+      40,   // topK
+      180000, // timeoutMs
+      worldContext // worldLore
+    );
     if (!text) throw new Error("Culture synthesis produced no data.");
+    studioLog('WorldEngine', 'Societal ethos designed successfully.', 'success');
     return text;
   } catch (error: any) {
-    console.error("Error generating culture:", error);
+    studioLog('WorldEngine', 'Failed to design culture.', 'error', error);
     throw error;
+  } finally {
+    studioEnd();
   }
 }
 
@@ -102,7 +145,17 @@ TASK:
 Architect the mechanical logic and technological infrastructure. Ensure the technology level and biological rules align with the world manifest provided above.
 `;
   try {
-    const text = await callAI(model, userPrompt, systemInstruction);
+    const text = await callAI(
+      model,
+      userPrompt,
+      systemInstruction,
+      0.85, // temperature
+      2048, // maxTokens
+      0.95, // topP
+      40,   // topK
+      180000, // timeoutMs
+      worldContext // worldLore
+    );
     if (!text) throw new Error("Systems synthesis produced no data.");
     return text;
   } catch (error: any) {
@@ -176,7 +229,16 @@ export async function generateWorld(prompt: string, model: string = "gemini-2.5-
   const systemInstruction = WORLD_GENERATION_PROMPT(normalizedContentType);
 
   try {
-    const text = await callAI(model, enhancedPrompt, systemInstruction);
+    const text = await callAI(
+      model,
+      enhancedPrompt,
+      systemInstruction,
+      0.85, // temperature
+      2048, // maxTokens
+      0.95, // topP
+      40,   // topK
+      180000 // timeoutMs
+    );
     if (!text) throw new Error("Synthesis produced no data.");
     if (text.startsWith("ERROR:")) throw new Error(text);
     return text;
@@ -203,7 +265,17 @@ Design the power mechanics so they align perfectly with the established world co
 `;
   
   try {
-    const text = await callAI(model, userPrompt, systemInstruction);
+    const text = await callAI(
+      model,
+      userPrompt,
+      systemInstruction,
+      0.85, // temperature
+      2048, // maxTokens
+      0.95, // topP
+      40,   // topK
+      180000, // timeoutMs
+      worldContext // worldLore
+    );
     if (!text) throw new Error("Power synthesis produced no data.");
     return text;
   } catch (error: any) {
@@ -229,7 +301,17 @@ Create factions, ideologies, and political tensions that feel like a natural con
 `;
   
   try {
-    const text = await callAI(model, userPrompt, systemInstruction);
+    const text = await callAI(
+      model,
+      userPrompt,
+      systemInstruction,
+      0.85, // temperature
+      2048, // maxTokens
+      0.95, // topP
+      40,   // topK
+      180000, // timeoutMs
+      worldContext // worldLore
+    );
     if (!text) throw new Error("Faction synthesis produced no data.");
     return text;
   } catch (error: any) {
@@ -255,7 +337,17 @@ Establish the history and eras that led to the world described in the context ab
 `;
   
   try {
-    const text = await callAI(model, userPrompt, systemInstruction);
+    const text = await callAI(
+      model,
+      userPrompt,
+      systemInstruction,
+      0.85, // temperature
+      2048, // maxTokens
+      0.95, // topP
+      40,   // topK
+      180000, // timeoutMs
+      worldContext // worldLore
+    );
     if (!text) throw new Error("Lore synthesis produced no data.");
     return text;
   } catch (error: any) {

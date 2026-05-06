@@ -61,7 +61,16 @@ export async function generateMetadata(script: string, model: string = "gemini-1
   const systemInstruction = METADATA_GENERATION_PROMPT(script);
 
   try {
-    const text = await callAI(model, `Generate YouTube metadata for this script: ${script}`, systemInstruction);
+    const text = await callAI(
+      model,
+      `Generate YouTube metadata for this script: ${script}`,
+      systemInstruction,
+      0.85, // temperature
+      2048, // maxTokens
+      0.95, // topP
+      40,   // topK
+      180000 // timeoutMs
+    );
     return text || buildFallbackMetadata(script);
   } catch (error) {
     console.error("Error generating metadata:", error);
@@ -73,7 +82,16 @@ export async function generateYouTubeDescription(script: string, model: string =
   const systemInstruction = YOUTUBE_DESCRIPTION_GENERATION_PROMPT(contentType, script);
 
   try {
-    const text = await callAI(model, `Generate a YouTube description for this script: ${script}`, systemInstruction);
+    const text = await callAI(
+      model,
+      `Generate a YouTube description for this script: ${script}`,
+      systemInstruction,
+      0.85, // temperature
+      2048, // maxTokens
+      0.95, // topP
+      40,   // topK
+      180000 // timeoutMs
+    );
     return text || buildFallbackDescription(contentType, script);
   } catch (error) {
     console.error("Error generating description:", error);
@@ -85,7 +103,16 @@ export async function generateAltTexts(script: string, model: string = "gemini-1
   const systemInstruction = ALT_TEXT_GENERATION_PROMPT(script);
 
   try {
-    const text = await callAI(model, `Generate alt text captions for this script: ${script}`, systemInstruction);
+    const text = await callAI(
+      model,
+      `Generate alt text captions for this script: ${script}`,
+      systemInstruction,
+      0.85, // temperature
+      2048, // maxTokens
+      0.95, // topP
+      40,   // topK
+      180000 // timeoutMs
+    );
     return text || buildFallbackAltText(script);
   } catch (error) {
     console.error("Error generating alt text:", error);
@@ -98,7 +125,16 @@ export async function generateGrowthStrategy(script: string, model: string = "ge
   const systemInstruction = GROWTH_STRATEGY_PROMPT(contentType, script);
 
   try {
-    const text = await callAI(model, `Develop a comprehensive YouTube growth strategy for this script: ${script}`, systemInstruction);
+    const text = await callAI(
+      model,
+      `Develop a comprehensive YouTube growth strategy for this script: ${script}`,
+      systemInstruction,
+      0.85, // temperature
+      2048, // maxTokens
+      0.95, // topP
+      40,   // topK
+      180000 // timeoutMs
+    );
     return text || buildFallbackGrowthStrategy(script);
   } catch (error) {
     console.error("Error generating growth strategy:", error);
@@ -111,7 +147,16 @@ export async function generateDistributionStrategy(script: string, model: string
   const systemInstruction = REPURPOSE_MATRIX_PROMPT(script);
 
   try {
-    const text = await callAI(model, `Develop a cross-platform distribution matrix for this script: ${script}`, systemInstruction);
+    const text = await callAI(
+      model,
+      `Develop a cross-platform distribution matrix for this script: ${script}`,
+      systemInstruction,
+      0.85, // temperature
+      2048, // maxTokens
+      0.95, // topP
+      40,   // topK
+      180000 // timeoutMs
+    );
     return text || buildFallbackDistribution(script);
   } catch (error) {
     console.error("Error generating distribution strategy:", error);

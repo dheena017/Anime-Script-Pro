@@ -173,7 +173,18 @@ export async function generateSeriesPlan(
   const userPrompt = buildSeriesPrompt(prompt, contentType, episodeCount, worldFallback, castFallback);
 
   try {
-    const text = await callAI(model, userPrompt, systemInstruction);
+    const text = await callAI(
+      model,
+      userPrompt,
+      systemInstruction,
+      0.85, // temperature
+      2048, // maxTokens
+      0.95, // topP
+      40,   // topK
+      180000, // timeoutMs
+      worldLore, // worldLore
+      castProfiles // castDNA
+    );
     if (!text) {
       return buildSeriesFallback(episodeCount);
     }

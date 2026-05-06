@@ -1,6 +1,7 @@
 import React from 'react';
 import { WorldOutputViewer } from '../components/WorldOutputViewer';
 import { LucideIcon } from 'lucide-react';
+import { worldStyles as s } from '../worldStyles/worldStyles';
 
 interface GenericLoreTabProps {
   isEditing: boolean;
@@ -27,15 +28,15 @@ export const GenericLoreTab: React.FC<GenericLoreTabProps> = ({
   accentColor = '#06b6d4' // Default studio cyan
 }) => {
   return (
-    <div className="world-container">
+    <div className={s.container}>
       {/* Dynamic Header */}
-      <div className="world-header">
+      <div className={s.header}>
         <div className="space-y-3">
-          <div className="world-badge" style={{ backgroundColor: `${accentColor}10`, borderColor: `${accentColor}20` }}>
-            <Icon className="w-3 h-3" style={{ color: accentColor }} />
-            <span className="world-badge-text" style={{ color: accentColor }}>{label} Analyst</span>
+          <div className={s.badge} style={{ backgroundColor: `${accentColor}10`, borderColor: `${accentColor}20` }}>
+            <Icon className="w-3 h-3 child-path-fill" style={{ color: accentColor }} />
+            <span className={s.badgeText} style={{ color: accentColor }}>{label} Domain</span>
           </div>
-          <h1 className="world-header-title">
+          <h1 className={s.headerTitle}>
             {label.toUpperCase()} <br />
             <span 
               className="text-transparent bg-clip-text" 

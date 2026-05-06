@@ -20,7 +20,7 @@ export const ScreeningMetadata: React.FC<ScreeningMetadataProps> = ({
           <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
             <Tv className="w-12 h-12 text-studio" />
           </div>
-          <h4 className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-4">Neural Health</h4>
+          <h4 className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-4">System Health</h4>
           <div className="space-y-4">
             <div className="flex justify-between items-end">
               <span className="text-xs text-white font-bold tracking-tight">Sync Reliability</span>
@@ -104,7 +104,7 @@ export const ScreeningMetadata: React.FC<ScreeningMetadataProps> = ({
                  <p className="text-[10px] text-zinc-500 font-medium uppercase tracking-widest leading-relaxed">
                     {isRendering 
                       ? "Verifying cross-module data integrity and Lore consistency..." 
-                      : "All character Visual DNA, lore constraints, and world-building data have been successfully packaged."}
+                      : "All character profiles, story parameters, and world-building data have been successfully packaged."}
                  </p>
               </div>
               <Button variant="outline" disabled={isRendering} className="border-studio/30 text-studio hover:bg-studio/10 uppercase tracking-widest text-[9px] font-black px-6 rounded-xl">

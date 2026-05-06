@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { AnimatePresence } from 'framer-motion';
 import { 
   Video, 
   Globe, 
@@ -53,7 +54,9 @@ export const FooterLanding: React.FC = () => {
                   ANIME<span className="text-studio">SCRIPT</span> PRO
                 </span>
               </a>
+              <p className="text-zinc-500 text-[11px] font-medium leading-relaxed uppercase tracking-tight">
                 The world's first advanced AI platform for anime and manga. Built for the creators of tomorrow.
+              </p>
             </div>
 
             {/* NEURAL UPDATES MODULE */}
@@ -172,8 +175,6 @@ export const FooterLanding: React.FC = () => {
     </footer>
   );
 };
-
-import { AnimatePresence } from 'framer-motion';
 
 export default FooterLanding;
 

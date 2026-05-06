@@ -4,11 +4,10 @@ const getSafeConfig = () => {
   const url = process.env.VITE_SUPABASE_URL;
   const key = process.env.VITE_SUPABASE_ANON_KEY;
 
-  const isValid = url && typeof url === 'string' && url.startsWith('http');
 
   return {
-    url: isValid ? url : "https://placeholder-project.supabase.co",
-    key: key || "placeholder-key"
+    url: (url as string) || "",
+    key: (key as string) || ""
   };
 };
 
@@ -35,7 +34,7 @@ export const createClient = (req: any, res: any) => {
   } catch (error) {
     console.error("Supabase server initialization failed:", error);
     // Return a minimally functional client to avoid crashing the whole server
-    return createServerClient("https://placeholder-project.supabase.co", "placeholder-key", { cookies: { getAll() { return []; }, setAll() {} } });
+    return createServerClient("", "", { cookies: { getAll() { return []; }, setAll() {} } });
   }
 };
 

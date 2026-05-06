@@ -28,7 +28,7 @@ export function useTemplates() {
   const { data: templates = [], isLoading, error } = useQuery({
     queryKey: ['templates'],
     queryFn: async () => {
-      const data = await apiRequest<Template[]>('/api/templates');
+      const data = await apiRequest<Template[]>('/api/templates/');
       return data.map(t => ({
         ...t,
         label: t.name, // Ensure compatibility

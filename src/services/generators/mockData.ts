@@ -239,6 +239,27 @@ function formatScript(script: ScriptBeat[]): string {
 
 export const MOCK_CHARACTERS = formatCastArchive(MOCK_STORY_BIBLE.cast);
 
+export const MOCK_CAST_DATA: any = {
+    markdown: MOCK_CHARACTERS,
+    characters: MOCK_STORY_BIBLE.cast.map(c => ({
+        name: c.name,
+        archetype: c.archetype,
+        personality: c.psychology,
+        appearance: c.visuals,
+        visualPrompt: `Anime character design, ${c.name}, ${c.visuals}, high detail, professional concept art.`,
+        conflict: "Balancing personal morals with survival in a high-stakes world.",
+        goal: "Uncover the truth behind the Chronos Corp conspiracy.",
+        flaw: "Tendency to push others away during times of high stress.",
+        speakingStyle: "Direct and pragmatic, often using technical metaphors.",
+        secret: "Remembers the original Earth coordinates of the Aetheria rift."
+    })),
+    relationships: [
+        { id: "rel-1", source: "Anya", target: "Sachi", type: "Ally", tension: 2, description: "Protective mentor relationship." },
+        { id: "rel-2", source: "Anya", target: "Rika", type: "Enemy", tension: 10, description: "Mutual destruction protocol." },
+        { id: "rel-3", source: "Taro", target: "Anya", type: "Ally", tension: 1, description: "Old contacts with deep trust." }
+    ]
+};
+
 export const MOCK_WORLD = `
 # ${MOCK_STORY_BIBLE.worldName}: ${MOCK_STORY_BIBLE.title.split(': ')[1]}
 
@@ -253,6 +274,17 @@ export const MOCK_WORLD = `
 - **Flora & Fauna**: Sky-Whales and Lightning-Vultures.
 - **Sensory Palette**: Ozone, grease, clanking metal, roaring winds, electric blue, burnished copper, and deep obsidian.
 `;
+
+export const MOCK_WORLD_DATA = {
+    manifest: MOCK_WORLD,
+    lore: `## The Era of Genesis\nIn the beginning, the Aether flowed freely...`,
+    powers: `## Aether-Bending\nA mechanical and spiritual hybrid power system...`,
+    factions: `## The Cloud Council\nA technocratic oligarchy ruling the upper mantles...`,
+    architecture: `## Neon-Steampunk\nBrass foundations with glowing fiber-optic highlights...`,
+    atlas: `## The Floating Isles\nTwelve major archipelagos suspended by Flux-Cores...`,
+    culture: `## The Sinking Ethos\nA society obsessed with altitude and resource hoarding...`,
+    systems: `## Flux-Economics\nCurrency based on mana-density and refined aether-shards...`
+};
 
 export const MOCK_SERIES_PLAN = MOCK_STORY_BIBLE.seriesPlan.map((beat) => ({
     episode: beat.episode,

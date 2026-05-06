@@ -10,6 +10,10 @@ export interface WorldLore {
   powers_blob?: string | null;    // Power System
   factions_blob?: string | null;  // Faction Politics 
   history_blob?: string | null;   // Detailed Lore/Timeline
+  architecture_blob?: string | null;
+  atlas_blob?: string | null;
+  culture_blob?: string | null;
+  systems_blob?: string | null;
   updated_at?: string;
   
   // Modular Prompts (Neural Seeds)

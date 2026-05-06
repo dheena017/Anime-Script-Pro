@@ -70,7 +70,7 @@ export const EngineLogs: React.FC = () => {
             {isLoading ? (
               <tr>
                 <td colSpan={4} className="px-8 py-20 text-center text-zinc-600 animate-pulse font-black uppercase tracking-widest text-[10px]">
-                  Fetching Neural Archive...
+                  Fetching System Archive...
                 </td>
               </tr>
             ) : logs.length === 0 ? (

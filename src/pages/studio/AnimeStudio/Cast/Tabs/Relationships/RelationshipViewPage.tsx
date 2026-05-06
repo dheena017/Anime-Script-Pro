@@ -119,7 +119,7 @@ export default function RelationshipViewPage() {
                <div className="space-y-4">
                   <div className="flex items-center gap-3">
                      <History className="w-4 h-4 text-fuchsia-500" />
-                     <h3 className="text-xs font-black text-zinc-500 uppercase tracking-[0.3em]">Neural Narrative</h3>
+                     <h3 className="text-xs font-black text-zinc-500 uppercase tracking-[0.3em]">Core Narrative</h3>
                   </div>
                   <div className="p-10 bg-black/40 border border-white/5 rounded-[3rem] relative overflow-hidden">
                      <p className="text-2xl text-white font-medium italic leading-relaxed relative z-10">
@@ -130,9 +130,9 @@ export default function RelationshipViewPage() {
 
                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <Card className="p-8 bg-zinc-900/40 border-white/5 space-y-4">
-                     <p className="text-[10px] font-black text-zinc-600 uppercase tracking-widest">Strategic Impact</p>
-                     <p className="text-sm text-zinc-400 leading-relaxed font-medium">
-                        This {connection.type.toLowerCase()} dynamic creates significant narrative pressure, influencing the decision-making matrices of both entities during high-stakes scenes.
+                     <p className="text-[10px] font-black text-zinc-600 uppercase tracking-widest">Narrative Weight</p>
+                     <p className="text-sm text-zinc-400 leading-relaxed font-medium italic">
+                        {connection.tension > 7 ? "[HIGH_TENSION_PATHWAY]: Significant conflict probability detected in current scene manifests." : "[STABLE_CONNECTION]: Standard social resonance maintained."}
                      </p>
                   </Card>
                   <Card className="p-8 bg-zinc-900/40 border-white/5 space-y-4">

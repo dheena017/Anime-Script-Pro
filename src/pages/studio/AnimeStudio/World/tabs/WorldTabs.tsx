@@ -10,6 +10,7 @@ import {
   Globe
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { reportTabChange } from '@/lib/studio-logger';
 
 export type WorldTab = 'manifest' | 'lore' | 'factions' | 'powers' | 'architecture' | 'atlas' | 'culture' | 'systems';
 
@@ -33,6 +34,13 @@ export const WorldTabs: React.FC<WorldTabsProps> = ({
     { id: 'systems', label: 'Systems', icon: Cpu, color: 'text-emerald-400' },
   ];
 
+  const handleTabClick = (tabId: WorldTab) => {
+    if (activeTab !== tabId) {
+      reportTabChange('WORLD', tabId, 'anime');
+      setActiveTab(tabId);
+    }
+  };
+
   return (
     <div className="tabs-nav-container">
       <div className="absolute inset-0 bg-gradient-to-r from-studio/5 via-transparent to-amber-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
@@ -40,7 +48,7 @@ export const WorldTabs: React.FC<WorldTabsProps> = ({
       {tabs.map((tab) => (
         <button
           key={tab.id}
-          onClick={() => setActiveTab(tab.id)}
+          onClick={() => handleTabClick(tab.id)}
           className={cn(
             "tabs-nav-button transition-all duration-200",
             activeTab === tab.id 
@@ -58,6 +66,7 @@ export const WorldTabs: React.FC<WorldTabsProps> = ({
     </div>
   );
 };
+
 
 
 

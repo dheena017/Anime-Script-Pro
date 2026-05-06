@@ -3,6 +3,8 @@ import { motion } from 'framer-motion';
 import { Cpu, Zap, Activity, ShieldCheck, Sparkles, ClipboardList, Download } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { TableOfContents } from '../components/TableOfContents';
+import { useAutoResizeTextarea } from '../hooks/useAutoResizeTextarea';
+import { worldStyles as s } from '../worldStyles/worldStyles';
 
 interface SystemsTabProps {
   isEditing: boolean;
@@ -24,6 +26,8 @@ export const SystemsTab: React.FC<SystemsTabProps> = ({
   onPromptChange
 }) => {
   const sectionContent = content;
+  const { textareaRef: mainTextareaRef, scheduleResizeTextarea: scheduleMainResize } = useAutoResizeTextarea(content || '', isEditing);
+  const { textareaRef: promptTextareaRef, scheduleResizeTextarea: schedulePromptResize } = useAutoResizeTextarea(prompt || '', isEditing);
 
   const systems = React.useMemo(() => {
     const findVal = (regex: RegExp, fallback: string) => {
@@ -31,10 +35,10 @@ export const SystemsTab: React.FC<SystemsTabProps> = ({
       return match ? match[1].trim() : fallback;
     };
     return [
-      { title: 'Power System', desc: findVal(/(?:Power System|Power):\s*(.*)/i, 'Neural-Arcana manipulation through cognitive overloading.'), icon: Zap, color: 'text-amber-400' },
+      { title: 'Power System', desc: findVal(/(?:Power System|Power):\s*(.*)/i, 'Energy manipulation through cognitive overloading.'), icon: Zap, color: 'text-amber-400' },
       { title: 'Economy', desc: findVal(/(?:Economy|Currency):\s*(.*)/i, 'Credits & Karma: A dual-currency social contribution system.'), icon: Activity, color: 'text-blue-400' },
       { title: 'Governance', desc: findVal(/(?:Governance|Government):\s*(.*)/i, 'Algorithm Sovereignty by planetary AI core.'), icon: ShieldCheck, color: 'text-emerald-400' },
-      { title: 'Social Strata', desc: findVal(/(?:Social Hierarchy|Social Strata):\s*(.*)/i, 'The Indexed vs The Ghost: Neural net accessibility.'), icon: Cpu, color: 'text-cyan-400' },
+      { title: 'Social Strata', desc: findVal(/(?:Social Hierarchy|Social Strata):\s*(.*)/i, 'The Indexed vs The Ghost: System net accessibility.'), icon: Cpu, color: 'text-cyan-400' },
     ];
   }, [content]);
 
@@ -70,7 +74,7 @@ export const SystemsTab: React.FC<SystemsTabProps> = ({
               <button 
                 onClick={onGenerate}
                 disabled={isGenerating}
-                className="flex items-center gap-2 px-5 py-2.5 bg-white text-black hover:bg-zinc-200 rounded-full transition-all group disabled:opacity-50"
+                className={s.actionButton}
               >
                 {isGenerating ? (
                   <div className="w-3.5 h-3.5 border-2 border-black/20 border-t-black rounded-full animate-spin" />
@@ -86,7 +90,7 @@ export const SystemsTab: React.FC<SystemsTabProps> = ({
                 navigator.clipboard.writeText(content);
                 alert('Systems Manifest copied!');
               }}
-              className="flex items-center gap-2 px-5 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-full transition-all group"
+              className={s.actionButtonGhost}
             >
               <ClipboardList className="w-3.5 h-3.5 text-zinc-400 group-hover:text-white transition-colors" />
               <span className="text-[10px] font-black text-zinc-400 group-hover:text-white uppercase tracking-widest">Copy</span>
@@ -112,9 +116,14 @@ export const SystemsTab: React.FC<SystemsTabProps> = ({
 
       {isEditing ? (
         <textarea
-          className="world-textarea"
+          ref={mainTextareaRef}
+          className="world-textarea overflow-hidden"
           value={content || ''}
-          onChange={(e) => onContentChange(e.target.value)}
+          onChange={(e) => {
+            onContentChange(e.target.value);
+            scheduleMainResize();
+          }}
+          onInput={scheduleMainResize}
           placeholder="Define your world systems and mechanics here..."
         />
       ) : (
@@ -126,32 +135,37 @@ export const SystemsTab: React.FC<SystemsTabProps> = ({
           </div>
 
           <div className="world-sidebar space-y-8">
-            <div className="p-6 bg-[#050505] border border-white/5 rounded-[2rem] space-y-4 relative overflow-hidden group">
-              <div className="absolute inset-0 bg-emerald-500/5 blur-[40px] pointer-events-none group-hover:bg-emerald-500/10 transition-all duration-700" />
-              <div className="relative z-10 space-y-4">
+            <div className={s.sidebarCard}>
+              <div className={s.sidebarGlow + " bg-emerald-500/5 group-hover:bg-emerald-500/10"} />
+              <div className={s.sidebarContent}>
                 <div className="flex items-center justify-between">
-                  <h4 className="text-[10px] font-black text-zinc-500 uppercase tracking-widest flex items-center gap-2">
-                    <Sparkles className="w-3 h-3 text-emerald-500" /> Neural Seed
+                  <h4 className={s.sidebarTitle}>
+                    <Sparkles className="w-3 h-3 text-emerald-500" /> Core Seed
                   </h4>
                   {isEditing && <span className="text-[8px] font-bold text-emerald-500/50 uppercase">Modular Prompt</span>}
                 </div>
                 
                 {isEditing ? (
                   <textarea
-                    className="w-full bg-black/40 border border-white/5 rounded-xl p-3 text-[10px] font-medium text-zinc-300 placeholder:text-zinc-700 focus:outline-none focus:border-emerald-500/30 transition-colors min-h-[100px] resize-none"
+                    ref={promptTextareaRef}
+                    className={s.sidebarPromptInput + " focus:border-emerald-500/30"}
                     value={prompt || ''}
-                    onChange={(e) => onPromptChange?.(e.target.value)}
+                    onChange={(e) => {
+                      onPromptChange?.(e.target.value);
+                      schedulePromptResize();
+                    }}
+                    onInput={schedulePromptResize}
                     placeholder="Refine the system mechanics with specific instructions..."
                   />
                 ) : (
-                  <div className="p-4 bg-black/40 border border-white/5 rounded-xl">
-                    <p className="text-[9px] font-medium text-zinc-500 leading-relaxed italic">
+                  <div className={s.sidebarPromptBox}>
+                    <p className={s.sidebarPromptText}>
                       {prompt ? `"${prompt.substring(0, 120)}${prompt.length > 120 ? '...' : ''}"` : 'Using global project seed for synthesis.'}
                     </p>
                   </div>
                 )}
                 
-                <p className="text-[8px] text-zinc-600 font-bold uppercase tracking-tighter leading-relaxed">
+                <p className={s.sidebarNote}>
                   Focus the AI on specific economic models, governance structures, or technological laws unique to this world.
                 </p>
               </div>
@@ -164,10 +178,10 @@ export const SystemsTab: React.FC<SystemsTabProps> = ({
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: i * 0.1 }}
-                  className="p-6 bg-[#050505] border border-white/5 rounded-[2rem] space-y-4 relative group overflow-hidden hover:border-emerald-500/30 transition-all"
+                  className={s.statCard + " hover:border-emerald-500/30"}
                 >
                   <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 blur-[40px] pointer-events-none" />
-                  <div className={`w-10 h-10 rounded-xl bg-white/[0.03] border border-white/10 flex items-center justify-center ${sys.color}`}>
+                  <div className={s.statIconBox + " " + sys.color}>
                     <sys.icon className="w-5 h-5" />
                   </div>
                   <div className="space-y-2">

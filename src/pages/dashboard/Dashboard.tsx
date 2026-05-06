@@ -30,9 +30,17 @@ import { useOptimizedData } from '@/hooks/useOptimizedData';
 import { StatsGridSkeleton, ProjectsGridSkeleton, SystemLogsSkeleton } from '@/pages/studio/components/studio/skeletons/SkeletonLoaders';
 
 
+import { studioLog } from '@/lib/studio-logger';
+import React from 'react';
+
 export default function Dashboard() {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
+
+  React.useEffect(() => {
+    studioLog('Dashboard', 'Primary interface synchronized and active.', 'success');
+  }, []);
+
   const [error, setError] = useState<string | null>(null);
   const lightweightCardClass = 'bg-zinc-950/55 border border-white/5 shadow-[0_4px_12px_rgba(0,0,0,0.25)]';
 

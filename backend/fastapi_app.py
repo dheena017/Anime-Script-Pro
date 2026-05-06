@@ -34,7 +34,13 @@ from fastapi.openapi.docs import get_swagger_ui_html, get_redoc_html
 from fastapi.staticfiles import StaticFiles
 
 
+_logging_configured = False
+
 def configure_logging() -> None:
+    global _logging_configured
+    if _logging_configured:
+        return
+        
     logger.remove()
     logger.add(
         sys.stderr,
@@ -71,14 +77,20 @@ def configure_logging() -> None:
 
     # Also add a file sink for persistence
     log_file = os.path.join(BACKEND_ROOT, "logs", "backend.log")
-    logger.add(
-        log_file,
-        rotation="10 MB",
-        retention="1 week",
-        level="DEBUG",
-        format="{time:YYYY-MM-DD HH:mm:ss} | {level: <8} | {name}:{function}:{line} - {message}",
-    )
-    logger.info(f"LOGGING: System synchronized. File sink active at {log_file}")
+    try:
+        logger.add(
+            log_file,
+            rotation="10 MB",
+            retention="1 week",
+            level="DEBUG",
+            format="{time:YYYY-MM-DD HH:mm:ss} | {level: <8} | {name}:{function}:{line} - {message}",
+            enqueue=True, # Use queue for thread-safety and better performance
+        )
+        logger.info(f"LOGGING: System synchronized. File sink active at {log_file}")
+    except Exception as e:
+        logger.error(f"LOGGING: Could not initialize file sink: {e}")
+
+    _logging_configured = True
 
 
 configure_logging()
@@ -118,15 +130,43 @@ tags_metadata = [
 ]
 
 app = FastAPI(
-    title="Studio Architect: Neural Engine API",
+    title="NEURAL ENGINE // Studio Architect Suite",
     description="""
-    The core neural backbone for Anime-Script-Pro. 
-    Implements high-fidelity AI synthesis, autonomous production orchestration, and architect-level context management.
-    
-    *   **Neural Signals**: Every request is tracked via a unique Signal ID.
-    *   **God Mode**: Supports autonomous 10-state production cycles.
+## 🚀 Autonomous Production Protocol v2.5.0
+**The backbone of Anime Script Pro's generative architecture.**
+
+### 📡 Core Subsystems
+* **Lore Oracle**: Narrative consistency and world-building logic.
+* **Soul Forge**: Character DNA synthesis and social matrix mapping.
+* **Visual Synthesizer**: Prompt engineering and aesthetic enforcement.
+* **Motion Choreographer**: Spatial awareness and scene orchestration.
+
+---
+
+### 🛡️ Architect Authorization Protocol
+This interface serves as your **Neural Uplink**. It allows you to authenticate and interact with protected production nodes directly.
+
+#### 1. Purpose of the Uplink
+The **Neural Uplink** allows architects to bypass third-party terminals (like Postman) and validate protected endpoints in real-time. It is the primary diagnostic interface for high-clearance production tasks.
+
+#### 2. Synchronization Mechanism (JWT)
+When you initialize the `Authorize` sequence with your architect credentials:
+* **Credential Dispatch**: Swagger UI transmits your identity to the central authentication node (`/api/auth/jwt/login`).
+* **Neural Verification**: The backend validates your cryptographic signature.
+* **Signal Token Generation**: Upon success, you are issued a **JSON Web Token (JWT)**—a temporary digital VIP pass that grants access to high-tier neural operations.
+* **Local Persistence**: The token is stored within your session buffer, ensuring seamless interaction across the entire architect suite.
+
+#### 3. Diagnostic Testing
+Once your status is marked as **"Authorized"**:
+* You may exit the authorization terminal.
+* Every subsequent `Execute` command on locked nodes will automatically attach your **Signal Token** to the request header (`Authorization: Bearer <token>`).
+* The system will recognize your architect signature, permitting access to restricted data streams instead of returning a `401 Unauthorized` breach alert.
+
+### 🛠 System Architecture
+This API utilizes **Neural Signal Tracing (Signal ID)** for every request.
+All endpoints are strictly monitored by the **Studio Monitor** diagnostic layer.
     """,
-    version="2.0.0-GOD-MODE",
+    version="2.5.0-GODMODE",
     openapi_tags=tags_metadata,
     docs_url=None,   
     redoc_url=None,
@@ -186,6 +226,26 @@ async def sqlalchemy_exception_handler(request: Request, exc: SQLAlchemyError):
     err_str = str(exc) if getattr(app, 'debug', False) else "A database error occurred."
     return error_response(500, "Database synchronization failure", request, error=err_str)
 
+# --- Custom Swagger UI with Schema Styling ---
+@app.get("/docs", include_in_schema=False)
+async def get_swagger_ui_with_custom_css():
+    """Custom Swagger UI with neural schema styling."""
+    return get_swagger_ui_html(
+        openapi_url=app.openapi_url,
+        title=app.title + " - Neural Uplink",
+        oauth2_redirect_url=app.swagger_ui_oauth2_redirect_url,
+        swagger_ui_parameters={"url": app.openapi_url},
+        swagger_css_url="/static/swagger-custom.css",
+    )
+
+@app.get("/redoc", include_in_schema=False)
+async def get_redoc_with_custom_styling():
+    """ReDoc with neural schema styling."""
+    return get_redoc_html(
+        openapi_url=app.openapi_url,
+        title=app.title + " - Neural Reference",
+    )
+
 # --- Middleware ---
 from backend.utils.neural_utils import NeuralTracer
 
@@ -201,6 +261,7 @@ async def log_requests(request: Request, call_next):
     client_ip = request.client.host if request.client else "unknown"
     
     # 1. LOG THE INCOMING REQUEST (The "Trigger")
+    print(f"DEBUG: INCOMING {method} {path}")
     logger.info(f"📥 INCOMING [{signal_id}]: {method} {path}{'?' + query if query else ''} from {client_ip}")
     
     try:
@@ -251,25 +312,24 @@ from api.production import router as production_router
 from api.todos import router as todos_router
 from api.growth import router as growth_router
 from api.episodes import router as episodes_router
+from api.cast import router as cast_router
 
 # Core system routes
 @app.get("/", tags=["system"])
 async def root():
     return {"message": "Welcome to Anime Script Pro API. Visit /docs for documentation.", "status": "online"}
 
+@app.get("/test-reload")
+async def test_reload():
+    return {"status": "reloaded"}
+
 @app.get("/health", tags=["system"])
 async def health():
     return {"status": "ok"}
 
-@app.get("/api/debug-env", tags=["system"], include_in_schema=False)
-async def debug_env():
-    import os
-    return {
-        "ENV": os.getenv("ENV"),
-        "VITE_ENV": os.getenv("VITE_ENV"),
-        "BYPASS_AUTH": os.getenv("BYPASS_AUTH"),
-        "CWD": os.getcwd()
-    }
+@app.get("/health", tags=["system"])
+async def health():
+    return {"status": "ok"}
 
 @app.get("/api/health", tags=["system"], include_in_schema=False)
 async def api_health():
@@ -279,24 +339,7 @@ async def api_health():
 async def favicon():
     return Response(status_code=204)
 
-# Custom Docs Routes (Local Assets)
-@app.get("/docs", include_in_schema=False)
-async def custom_swagger_ui_html():
-    return get_swagger_ui_html(
-        openapi_url=app.openapi_url or "/openapi.json",
-        title=app.title + " - Swagger UI",
-        oauth2_redirect_url=app.swagger_ui_oauth2_redirect_url,
-        swagger_js_url="/static/swagger-ui-bundle.js",
-        swagger_css_url="/static/swagger-ui.css",
-    )
 
-@app.get("/redoc", include_in_schema=False)
-async def custom_redoc_html():
-    return get_redoc_html(
-        openapi_url=app.openapi_url or "/openapi.json",
-        title=app.title + " - ReDoc",
-        redoc_js_url="/static/redoc.standalone.js",
-    )
 
 # --- Compatibility Aliases ---
 from api.ai import generate_content
@@ -316,6 +359,7 @@ app.include_router(seo_router, tags=["Production"])
 app.include_router(todos_router, tags=["Production"])
 app.include_router(growth_router, tags=["Production"])
 app.include_router(episodes_router, tags=["Production"])
+app.include_router(cast_router, tags=["Production"])
 
 app.include_router(users_router, tags=["Architect Context"])
 app.include_router(notifications_router, tags=["Architect Context"])

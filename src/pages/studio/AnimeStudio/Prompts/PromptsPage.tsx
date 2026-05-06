@@ -1,6 +1,7 @@
 import { useContext, useEffect } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { useGenerator } from '@/hooks/useGenerator';
 import { generateImagePrompts } from '@/services/api/gemini';
 import { cn } from '@/lib/utils';
@@ -22,7 +23,8 @@ export function PromptsPage() {
   const {
     generatedImagePrompts, setGeneratedImagePrompts,
     isGeneratingImagePrompts, setIsGeneratingImagePrompts,
-    generatedScript, selectedModel, showNotification
+    generatedScript, selectedModel, showNotification,
+    stopGeneration
   } = useGenerator();
 
   const handleGenerate = async () => {
@@ -52,14 +54,25 @@ export function PromptsPage() {
   const renderTabContent = () => {
     if (isGeneratingImagePrompts) {
       return (
-        <div className="flex flex-col items-center justify-center h-[500px] space-y-8">
+        <div className="flex flex-col items-center justify-center h-[500px] space-y-12">
           <div className="relative">
-            <div className="w-16 h-16 border-2 border-studio/20 border-t-studio rounded-full animate-spin shadow-[0_0_30px_rgba(6,182,212,0.3)]" />
+            <div className="w-20 h-20 border-2 border-studio/20 border-t-studio rounded-full animate-spin shadow-[0_0_30px_rgba(6,182,212,0.3)]" />
             <div className="absolute inset-0 m-auto w-2 h-2 bg-studio rounded-full animate-ping" />
           </div>
-          <div className="text-center space-y-2">
-            <p className="font-black tracking-[0.3em] text-[10px] uppercase text-studio animate-pulse">Designing Visual Prompts...</p>
-            <p className="text-[8px] font-bold text-zinc-600 uppercase tracking-widest">Bridging narrative with neural imagery</p>
+          <div className="text-center space-y-4">
+            <div className="space-y-2">
+              <p className="font-black tracking-[0.3em] text-[12px] uppercase text-studio animate-pulse italic">Designing Visual Prompts...</p>
+              <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest">Bridging narrative with neural imagery</p>
+            </div>
+            
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={stopGeneration}
+              className="mt-6 bg-red-500/10 border-red-500/30 text-red-500 hover:bg-red-500 hover:text-black font-black uppercase tracking-widest text-[9px] rounded-full px-8 h-10 transition-all duration-500"
+            >
+              Terminate Synthesis
+            </Button>
           </div>
         </div>
       );

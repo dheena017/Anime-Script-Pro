@@ -5,19 +5,22 @@ import { AppProvider } from '@/contexts/AppContext';
 import { GeneratorProvider as GlobalGeneratorProvider } from '@/contexts/GeneratorContext';
 import { GeneratorProvider as ModularGeneratorProvider } from '@/contexts/generator';
 import { LogProvider } from '@/contexts/LogContext';
+import { MotionConfig } from 'framer-motion';
 
 export function RootProviders({ children }: { children: React.ReactNode }) {
   return (
-    <AuthProvider>
-      <AppProvider>
-        <TooltipProvider>
-          <LogProvider>
-            <GlobalGeneratorProvider>
-              <ModularGeneratorProvider>{children}</ModularGeneratorProvider>
-            </GlobalGeneratorProvider>
-          </LogProvider>
-        </TooltipProvider>
-      </AppProvider>
-    </AuthProvider>
+    <MotionConfig transition={{ duration: 0 }}>
+      <AuthProvider>
+        <AppProvider>
+          <TooltipProvider>
+            <LogProvider>
+              <GlobalGeneratorProvider>
+                <ModularGeneratorProvider>{children}</ModularGeneratorProvider>
+              </GlobalGeneratorProvider>
+            </LogProvider>
+          </TooltipProvider>
+        </AppProvider>
+      </AuthProvider>
+    </MotionConfig>
   );
 }

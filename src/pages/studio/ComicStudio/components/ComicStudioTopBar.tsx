@@ -33,7 +33,22 @@ export function ComicStudioTopBar({
 
   // Extract current phase from path
   const currentPath = location.pathname.split('/').pop() || 'world';
-  const phaseLabel = currentPath.charAt(0).toUpperCase() + currentPath.slice(1);
+  
+  // Map path segments to phase display names
+  const phaseMap: { [key: string]: string } = {
+    'engine': 'Engine',
+    'world': 'Anime World',
+    'protocols': 'Protocols',
+    'cast': 'Cast',
+    'series': 'Series',
+    'script': 'Script',
+    'storyboard': 'Storyboard',
+    'seo': 'SEO',
+    'prompts': 'Prompts',
+    'screening': 'Screening Room'
+  };
+  
+  const phaseLabel = phaseMap[currentPath] || currentPath.charAt(0).toUpperCase() + currentPath.slice(1);
 
   return (
     <header className={cn(
@@ -73,9 +88,9 @@ export function ComicStudioTopBar({
         <div className="h-8 w-px bg-zinc-800/50 hidden lg:block" />
 
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 px-3 py-1.5 bg-zinc-900/50 rounded-xl border border-zinc-800">
+          <div className="flex items-center gap-2 px-3 py-1.5 bg-black rounded-xl border border-amber-500/80 shadow-[0_0_15px_rgba(245,158,11,0.2)]">
             <Cpu className="w-4 h-4 text-amber-500" />
-            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400">Comic Studio</span>
+            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-500">Comic Studio</span>
           </div>
           <ChevronRight className="w-4 h-4 text-zinc-700 hidden sm:block" />
           <div className="flex flex-col">
@@ -115,7 +130,7 @@ export function ComicStudioTopBar({
             onClick={() => navigate('/profile')}
             className="ml-2 w-9 h-9 rounded-xl bg-zinc-900 border border-zinc-800 overflow-hidden hover:border-amber-500/50 transition-all p-0.5"
           >
-            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Architect" alt="Profile" className="w-full h-full object-cover rounded-lg" />
+            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Creator" alt="Profile" className="w-full h-full object-cover rounded-lg" />
           </button>
         </div>
       </div>

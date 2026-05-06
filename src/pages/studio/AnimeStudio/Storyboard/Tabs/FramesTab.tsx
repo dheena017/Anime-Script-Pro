@@ -40,6 +40,7 @@ interface FramesTabProps {
   handleRewriteTension: () => void;
   handleSuggestDuration: () => void;
   handleAddScene: () => void;
+  isGenerating: boolean;
   handleManifestScene: (sceneId: string) => void;
   isManifestingSceneId: string | null;
 }
@@ -69,11 +70,12 @@ export const FramesTab = React.memo<FramesTabProps>(({
   handleRewriteTension,
   handleSuggestDuration,
   handleAddScene,
+  isGenerating,
   handleManifestScene,
   isManifestingSceneId,
 }) => {
   if (scenes.length === 0) {
-    return <EmptyState handleAddScene={handleAddScene} />;
+    return <EmptyState onLaunch={handleAddScene} isGenerating={isGenerating} />;
   }
 
   const handleSetEditForm = React.useCallback((form: Partial<Scene> | ((prevState: Partial<Scene>) => Partial<Scene>)) => {

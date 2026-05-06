@@ -21,6 +21,7 @@ interface ScreeningToolbarProps {
   content?: string | null;
   activeSession?: number;
   setActiveSession?: (session: number) => void;
+  showTabsOnly?: boolean;
 }
 
 export const ScreeningToolbar: React.FC<ScreeningToolbarProps> = ({
@@ -31,7 +32,8 @@ export const ScreeningToolbar: React.FC<ScreeningToolbarProps> = ({
   episode = '1',
   content = null,
   activeSession = 1,
-  setActiveSession = () => { }
+  setActiveSession = () => { },
+  showTabsOnly = false
 }) => {
   const { isFullscreen } = useApp();
 
@@ -55,6 +57,7 @@ export const ScreeningToolbar: React.FC<ScreeningToolbarProps> = ({
 
   return (
     <TooltipProvider>
+      {!showTabsOnly && (
       <div className="flex flex-col gap-6 w-full p-4 md:p-0">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 lg:gap-0">
           <div className="flex items-center gap-4">
@@ -155,10 +158,11 @@ export const ScreeningToolbar: React.FC<ScreeningToolbarProps> = ({
               </Tooltip>
             </div>
           </div>
+          </div>
         </div>
+      )}
 
-        <ScreeningTabs activeTab={activeTab} setActiveTab={setActiveTab} />
-      </div>
+      <ScreeningTabs activeTab={activeTab} setActiveTab={setActiveTab} />
     </TooltipProvider>
   );
 };

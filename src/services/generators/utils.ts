@@ -54,7 +54,16 @@ export async function enhanceNarration(narration: string, model: string = "gemin
 
   try {
     const prompt = buildNarrationEnhancementPrompt(narration);
-    const text = await callAI(model, prompt, systemInstruction);
+    const text = await callAI(
+      model,
+      prompt,
+      systemInstruction,
+      0.85, // temperature
+      2048, // maxTokens
+      0.95, // topP
+      40,   // topK
+      180000 // timeoutMs
+    );
     return text || narration;
   } catch (error) {
     console.error("Error enhancing narration:", error);
@@ -69,7 +78,16 @@ export async function suggestDuration(narration: string, model: string = "gemini
 
   try {
     const prompt = buildDurationPrompt(narration);
-    const text = await callAI(model, prompt, systemInstruction);
+    const text = await callAI(
+      model,
+      prompt,
+      systemInstruction,
+      0.85, // temperature
+      2048, // maxTokens
+      0.95, // topP
+      40,   // topK
+      180000 // timeoutMs
+    );
     return text ? text.trim() : "5s";
   } catch (error) {
     console.error("Error suggesting duration:", error);

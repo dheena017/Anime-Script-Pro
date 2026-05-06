@@ -4,6 +4,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import ReactMarkdown from 'react-markdown';
+import { seoStyles as s } from '../seoStyles';
 
 interface DistributionTabProps {
   content: string | null;
@@ -35,14 +36,14 @@ export const DistributionTab: React.FC<DistributionTabProps> = ({
 
   return (
     <div className="space-y-10">
-      <div className="flex items-center justify-between border-b border-white/5 pb-10">
+      <div className={s.distributionHeader}>
         <div className="flex items-center gap-6">
-          <div className="w-16 h-16 rounded-[2rem] bg-rose-500/10 border border-rose-500/20 flex items-center justify-center shadow-[0_0_30px_rgba(244,63,94,0.1)]">
+          <div className={s.distributionIconBox + ' bg-rose-500/10 border border-rose-500/20 shadow-[0_0_30px_rgba(244,63,94,0.1)]'}>
             <Share2 className="w-8 h-8 text-rose-500" />
           </div>
           <div>
-            <h2 className="text-3xl font-black text-white uppercase tracking-tighter">Distribution Matrix</h2>
-            <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-[0.3em] mt-1">
+            <h2 className={s.distributionTitle}>Distribution Matrix</h2>
+            <p className={s.distributionSubtitle}>
               Cross-platform content snippets and engagement strategy
             </p>
           </div>
@@ -52,7 +53,7 @@ export const DistributionTab: React.FC<DistributionTabProps> = ({
           {content && (
             <Button
               onClick={handleCopy}
-              className="h-12 px-6 rounded-xl bg-white/5 hover:bg-white/10 text-white text-[10px] font-black uppercase tracking-widest gap-2"
+              className={s.copyButtonBase}
             >
               {copied ? <Check className="w-3 h-3 text-green-500" /> : <Copy className="w-3 h-3" />}
               {copied ? 'Copied' : 'Copy Plan'}
@@ -61,7 +62,7 @@ export const DistributionTab: React.FC<DistributionTabProps> = ({
           <Button
             onClick={onGenerate}
             disabled={isGenerating}
-            className="h-12 px-8 rounded-xl bg-rose-500 hover:bg-rose-600 text-white font-black uppercase tracking-widest text-[10px] gap-3 shadow-rose-500/20 hover:shadow-rose-500/40 transition-all"
+            className={s.generateButtonLarge + ' bg-rose-500 hover:bg-rose-600 shadow-rose-500/20 hover:shadow-rose-500/40'}
           >
             {isGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
             {isGenerating ? 'Analyzing...' : 'Generate Distribution Plan'}
@@ -72,19 +73,19 @@ export const DistributionTab: React.FC<DistributionTabProps> = ({
       {!content ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {platforms.map((platform, i) => (
-            <Card key={i} className={cn("p-6 bg-[#050505]/60 border transition-all duration-500 group cursor-default", platform.border, "hover:scale-[1.02]")}>
+            <Card key={i} className={cn(s.platformCard, platform.border)}>
               <div className="flex items-center justify-between mb-6">
-                <div className={cn("p-3 rounded-xl", platform.bg)}>
-                  <platform.icon className={cn("w-6 h-6", platform.color)} />
+                <div className={cn(s.platformIconBox, platform.bg)}>
+                  <platform.icon className={cn('w-6 h-6', platform.color)} />
                 </div>
-                <div className={cn("px-3 py-1 rounded-full border text-[8px] font-black uppercase tracking-widest", 
+                <div className={cn(s.platformStatus, 
                   platform.status === 'Ready' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' : 'bg-zinc-500/10 border-zinc-500/20 text-zinc-500'
                 )}>
                   {platform.status}
                 </div>
               </div>
-              <h4 className="text-sm font-black text-white uppercase tracking-widest mb-2">{platform.name}</h4>
-              <p className="text-[10px] text-zinc-500 leading-relaxed font-medium">{platform.desc}</p>
+              <h4 className={s.platformName}>{platform.name}</h4>
+              <p className={s.platformDesc}>{platform.desc}</p>
               
               <Button variant="ghost" className="w-full mt-6 h-10 border border-white/5 bg-white/[0.02] hover:bg-white/[0.05] text-[9px] font-black uppercase tracking-widest gap-2">
                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />

@@ -11,14 +11,18 @@ export interface GenerationLog {
 
 export const useRealtimeLogs = () => {
   const [logs, setLogs] = useState<SystemLog[]>([]);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
     const fetchLogs = async () => {
+      setIsRefreshing(true);
       try {
         const data = await logsApi.getLogs(20);
         setLogs(data);
       } catch (err) {
         console.error('Fetch error:', err);
+      } finally {
+        setIsRefreshing(false);
       }
     };
 
@@ -30,7 +34,7 @@ export const useRealtimeLogs = () => {
     return () => clearInterval(interval);
   }, []);
 
-  return logs;
+  return Object.assign(logs, { isRefreshing });
 };
 
 

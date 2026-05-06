@@ -18,7 +18,7 @@ export default function AssetsLayout() {
     isGeneratingDescription, setIsGeneratingDescription,
     isGeneratingImagePrompts, setIsGeneratingImagePrompts,
     generatedScript, selectedModel, session, episode,
-    showNotification
+    showNotification, contentType
   } = useGenerator();
 
   const handleGenerateAll = async () => {
@@ -30,6 +30,7 @@ export default function AssetsLayout() {
     setIsGeneratingMetadata(true);
     setIsGeneratingDescription(true);
     setIsGeneratingImagePrompts(true);
+    console.log('[AssetsLayout] Requesting all assets generation (Metadata, Description, Image Prompts)...');
 
     try {
       const [meta, desc, prompts] = await Promise.all([
@@ -41,8 +42,10 @@ export default function AssetsLayout() {
       setGeneratedMetadata(meta);
       setGeneratedDescription(desc);
       setGeneratedImagePrompts(prompts);
+      console.log(`[AssetsLayout] Assets generated successfully. Meta: ${JSON.stringify(meta)?.length || 0} chars, Desc: ${desc?.length || 0} chars, Prompts: ${prompts?.length || 0} chars.`);
       showNotification?.('All assets generated successfully!', 'success');
     } catch (e: any) {
+      console.error('[AssetsLayout] Failed to generate assets:', e);
       showNotification?.('Failed to generate assets: ' + (e.message || 'Error'), 'error');
     } finally {
       setIsGeneratingMetadata(false);
@@ -57,8 +60,8 @@ export default function AssetsLayout() {
       <AssetsHeader 
         onRegenerate={handleGenerateAll}
         isGenerating={isGeneratingMetadata || isGeneratingDescription || isGeneratingImagePrompts}
-        onNext={() => navigate('/anime/screening')}
-        onPrev={() => navigate('/anime/storyboard')}
+        onNext={() => navigate(`/${contentType.toLowerCase()}/screening`)}
+        onPrev={() => navigate(`/${contentType.toLowerCase()}/storyboard`)}
         session={session}
         episode={episode}
         isLiked={isLiked}

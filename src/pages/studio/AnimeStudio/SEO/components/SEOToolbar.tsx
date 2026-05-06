@@ -20,6 +20,7 @@ interface SEOToolbarProps {
   session?: string;
   episode?: string;
   content?: string | null;
+  showTabsOnly?: boolean;
 }
 
 export const SEOToolbar: React.FC<SEOToolbarProps> = ({
@@ -28,7 +29,8 @@ export const SEOToolbar: React.FC<SEOToolbarProps> = ({
   status,
   session = '1',
   episode = '1',
-  content = null
+  content = null,
+  showTabsOnly = false
 }) => {
   const { isFullscreen } = useApp();
 
@@ -52,6 +54,7 @@ export const SEOToolbar: React.FC<SEOToolbarProps> = ({
 
   return (
     <TooltipProvider>
+      {!showTabsOnly && (
       <div className="flex flex-col gap-6 w-full p-4 md:p-0">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 lg:gap-0">
           <div className="flex items-center gap-4">
@@ -60,10 +63,10 @@ export const SEOToolbar: React.FC<SEOToolbarProps> = ({
             </div>
             <div className="flex flex-col">
               <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white italic">
-                SEO Nexus {status === 'active' ? 'Active' : 'Standby'}
+                SEO Manager {status === 'active' ? 'Active' : 'Standby'}
               </span>
               <span className="text-[8px] font-bold text-zinc-500 uppercase tracking-widest mt-0.5">
-                Marketing DNA // Search_Optimized
+                Strategic Content Metadata // Search_Ready
               </span>
             </div>
           </div>
@@ -135,10 +138,11 @@ export const SEOToolbar: React.FC<SEOToolbarProps> = ({
               </Tooltip>
             </div>
           </div>
+          </div>
         </div>
+      )}
 
-        <SEOTabs activeTab={activeTab} setActiveTab={setActiveTab} />
-      </div>
+      <SEOTabs activeTab={activeTab} setActiveTab={setActiveTab} />
     </TooltipProvider>
   );
 };

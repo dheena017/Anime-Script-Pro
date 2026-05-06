@@ -3,6 +3,7 @@ import ReactMarkdown from 'react-markdown';
 import { motion } from 'framer-motion';
 import { Zap } from 'lucide-react';
 import { TableOfContents } from './TableOfContents';
+import { useAutoResizeTextarea } from '../hooks/useAutoResizeTextarea';
 
 interface WorldOutputViewerProps {
   isEditing: boolean;
@@ -12,12 +13,19 @@ interface WorldOutputViewerProps {
 }
 
 export const WorldOutputViewer = React.memo(({ isEditing, content, prompt, onContentChange }: WorldOutputViewerProps) => {
+  const { textareaRef, scheduleResizeTextarea } = useAutoResizeTextarea(content || '', isEditing);
+
   if (isEditing) {
     return (
       <textarea
-        className="world-textarea"
+        ref={textareaRef}
+        className="world-textarea overflow-hidden"
         value={content || ''}
-        onChange={(e) => onContentChange(e.target.value)}
+        onChange={(e) => {
+          onContentChange(e.target.value);
+          scheduleResizeTextarea();
+        }}
+        onInput={scheduleResizeTextarea}
         placeholder="Manually architect your world lore here..."
       />
     );
@@ -95,10 +103,10 @@ export const WorldOutputViewer = React.memo(({ isEditing, content, prompt, onCon
           </div>
         </div>
 
-        {/* Neural Seed */}
+        {/* Core Seed */}
         {prompt && (
           <div className="p-6 bg-black/40 border border-white/5 rounded-[2rem] space-y-4">
-            <h4 className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Neural Seed</h4>
+            <h4 className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Core Seed</h4>
             <div className="p-3 bg-zinc-950 rounded-xl border border-white/5">
               <p className="text-[9px] font-mono text-studio/70 break-all leading-relaxed">
                 {prompt.substring(0, 150)}...

@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { useLogs } from '@/contexts/LogContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Activity, Clock } from 'lucide-react';
+import { studioLog } from '@/lib/studio-logger';
 
 export function NavigationMonitor() {
   const location = useLocation();
@@ -20,12 +21,17 @@ export function NavigationMonitor() {
       clearTimeout(timeoutRef.current);
     }
 
+    // Report navigation start
+    studioLog('ROUTER', `Navigating to: ${location.pathname}`, 'info');
+
     timeoutRef.current = setTimeout(() => {
       const endTime = performance.now();
       const latency = Math.round(endTime - startTime.current);
       setNavLatency(latency);
       setIsNavigating(false);
+      
       addLog('ROUTER', 'READY', `Page loaded in ${latency}ms`);
+      studioLog('ROUTER', `Destination synchronized: ${location.pathname} (${latency}ms)`, 'success');
       
       // Clear after 3 seconds
       setTimeout(() => setNavLatency(null), 3000);
@@ -55,7 +61,7 @@ export function NavigationMonitor() {
 
       {/* Latency Toast */}
       <AnimatePresence>
-        {navLatency && (
+        {navLatency && (navLatency > 200) && (
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 10 }}
@@ -73,4 +79,5 @@ export function NavigationMonitor() {
     </div>
   );
 }
+
 

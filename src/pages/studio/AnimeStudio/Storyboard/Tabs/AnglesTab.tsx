@@ -1,6 +1,7 @@
 import React from 'react';
 import { Camera, Eye, Maximize2, RotateCcw, Triangle, Move } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { storyboardStyles as s } from '../storyboardStyles';
 
 const shotTypes = [
   { label: 'Extreme Wide', code: 'EWS', description: 'Establishes environment. Character is a tiny element in the vast world.', color: 'from-blue-500/20 to-blue-500/5', border: 'border-blue-500/20', icon: '🌐' },
@@ -21,15 +22,15 @@ const angles = [
 
 export const AnglesTab: React.FC = () => {
   return (
-    <div className="storyboard-tab-content">
+    <div className={s.tabContent}>
       {/* Header */}
-      <div className="tab-section-header">
-        <div className="tab-header-icon-box bg-studio/10 border-studio/20 shadow-studio/10">
+      <div className={s.tabSectionHeader}>
+        <div className={cn(s.tabHeaderIconBox, 'bg-studio/10 border-studio/20 shadow-studio/10')}>
           <Camera className="w-8 h-8 text-studio" />
         </div>
         <div>
-          <h2 className="tab-section-title">Shot Angles</h2>
-          <p className="tab-section-subtitle">
+          <h2 className={s.tabSectionTitle}>Shot Angles</h2>
+          <p className={s.tabSectionSubtitle}>
             Camera blocking, lens selection, and cinematic framing guides
           </p>
         </div>
@@ -37,7 +38,7 @@ export const AnglesTab: React.FC = () => {
 
       {/* Shot Types */}
       <div className="space-y-6">
-        <h3 className="tab-grid-title">
+        <h3 className={s.tabGridTitle}>
           <Camera className="w-3 h-3" /> Shot Type Reference Matrix
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -45,18 +46,18 @@ export const AnglesTab: React.FC = () => {
             <div
               key={shot.code}
               className={cn(
-                "shot-type-card",
+                'p-6 bg-gradient-to-br rounded-[2rem] border transition-all duration-500 hover:border-white/20',
                 shot.color, shot.border
               )}
             >
               <div className="flex items-center justify-between">
                 <span className="text-2xl">{shot.icon}</span>
-                <span className="shot-code-badge">
+                <span className="text-[9px] font-black text-white uppercase tracking-widest px-3 py-1.5 bg-white/10 rounded-lg">
                   {shot.code}
                 </span>
               </div>
-              <h4 className="text-sm font-black text-white uppercase tracking-widest">{shot.label}</h4>
-              <p className="text-[10px] text-zinc-400 leading-relaxed font-medium">{shot.description}</p>
+              <h4 className="text-sm font-black text-white uppercase tracking-widest mt-4">{shot.label}</h4>
+              <p className="text-[10px] text-zinc-400 leading-relaxed font-medium mt-2">{shot.description}</p>
             </div>
           ))}
         </div>
@@ -64,16 +65,16 @@ export const AnglesTab: React.FC = () => {
 
       {/* Camera Angles */}
       <div className="space-y-6">
-        <h3 className="tab-grid-title uppercase">
+        <h3 className={s.tabGridTitle + ' uppercase'}>
           Angle Diagnostics
         </h3>
         <div className="space-y-3 max-w-3xl">
           {angles.map((angle, i) => (
             <div
               key={i}
-              className="angle-diagnostic-item"
+              className="flex items-start gap-4 p-5 bg-white/5 border border-white/5 rounded-2xl hover:border-white/10 transition-all"
             >
-              <div className="angle-icon-box">
+              <div className="w-10 h-10 rounded-xl bg-white/[0.02] border border-white/5 flex items-center justify-center flex-shrink-0 mt-0.5">
                 <angle.icon className="w-5 h-5 text-studio" />
               </div>
               <div>

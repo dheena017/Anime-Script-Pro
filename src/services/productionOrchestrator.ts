@@ -313,7 +313,16 @@ export class ProductionOrchestrator {
     const orchestratorModel = this.context.model || "gemini-2.0-flash-exp";
 
     try {
-      const result = await callAI(orchestratorModel, prompt, systemInstruction);
+      const result = await callAI(
+        orchestratorModel,
+        prompt,
+        systemInstruction,
+        0.85, // temperature
+        2048, // maxTokens
+        0.95, // topP
+        40,   // topK
+        180000 // timeoutMs
+      );
       const cleanJson = result.replace(/```json|```/g, "").trim();
       return JSON.parse(cleanJson);
     } catch (e) {

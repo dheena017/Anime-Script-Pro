@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { CheckCircle2, Table, ChevronRight } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { ManifestScaffolder } from '@/pages/studio/components/studio/ManifestArchitect';
+import { ProjectConfigurator } from '@/pages/studio/components/studio/ManifestArchitect';
 
 interface BlueprintTabProps {
   showScaffolder: boolean;
@@ -11,6 +11,7 @@ interface BlueprintTabProps {
   lastSyncDate: string | null;
   productionSequence: any[];
   applySequenceItem: (sess: number, ep: number) => void;
+  plan?: any[];
 }
 
 export const BlueprintTab: React.FC<BlueprintTabProps> = ({
@@ -18,13 +19,21 @@ export const BlueprintTab: React.FC<BlueprintTabProps> = ({
   isSyncing,
   lastSyncDate,
   productionSequence,
-  applySequenceItem
+  applySequenceItem,
+  plan = []
 }) => {
+  const initialConfig = {
+    sessions: 1,
+    episodes: plan.length || 0,
+    scenes: plan[0]?.asset_matrix?.scene_count || 0
+  };
+
   return (
     <div className="space-y-8">
-      <ManifestScaffolder
+      <ProjectConfigurator
         onContinue={onManifestContinue}
         isLoading={isSyncing}
+        initialConfig={initialConfig}
       />
 
       {lastSyncDate && !isSyncing && (

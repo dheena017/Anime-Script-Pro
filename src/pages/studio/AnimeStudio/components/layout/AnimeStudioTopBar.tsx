@@ -21,8 +21,8 @@ interface AnimeStudioTopBarProps {
   isGlobalSidebarOpen?: boolean;
 }
 
-export const AnimeStudioTopBar = React.memo<AnimeStudioTopBarProps>(({ 
-  onToggleEngine, 
+export const AnimeStudioTopBar = React.memo<AnimeStudioTopBarProps>(({
+  onToggleEngine,
   isEngineOpen,
   onToggleSidebar,
   isSidebarCollapsed,
@@ -32,7 +32,23 @@ export const AnimeStudioTopBar = React.memo<AnimeStudioTopBarProps>(({
 
   // Extract current phase from path
   const currentPath = location.pathname.split('/').pop() || 'world';
-  const phaseLabel = currentPath.charAt(0).toUpperCase() + currentPath.slice(1);
+  
+  // Map path segments to phase display names
+  const phaseMap: { [key: string]: { phase: string; label: string } } = {
+    'engine': { phase: 'PHASE 1: FOUNDATION', label: 'Creative Engine' },
+    'world': { phase: 'PHASE 1: FOUNDATION', label: 'World Builder' },
+    'protocols': { phase: 'PHASE 1: FOUNDATION', label: 'Directives Hub' },
+    'cast': { phase: 'PHASE 2: STRUCTURE', label: 'Cast' },
+    'series': { phase: 'PHASE 2: STRUCTURE', label: 'Series' },
+    'script': { phase: 'PHASE 3: PRODUCTION', label: 'Script' },
+    'storyboard': { phase: 'PHASE 3: PRODUCTION', label: 'Storyboard' },
+    'assets': { phase: 'PHASE 3: PRODUCTION', label: 'Assets' },
+    'seo': { phase: 'PHASE 4: DISTRIBUTION', label: 'SEO' },
+    'prompts': { phase: 'PHASE 4: DISTRIBUTION', label: 'Prompts' },
+    'screening': { phase: 'PHASE 4: DISTRIBUTION', label: 'Screening Room' }
+  };
+  
+  const phaseInfo = phaseMap[currentPath] || { phase: 'PHASE 1: FOUNDATION', label: currentPath.charAt(0).toUpperCase() + currentPath.slice(1) };
 
   return (
     <header className={cn(
@@ -46,8 +62,8 @@ export const AnimeStudioTopBar = React.memo<AnimeStudioTopBarProps>(({
           onClick={onToggleSidebar}
           className={cn(
             "w-10 h-10 flex items-center justify-center rounded-xl transition-all duration-300",
-            isSidebarCollapsed 
-              ? "text-zinc-500 hover:text-white hover:bg-white/5" 
+            isSidebarCollapsed
+              ? "text-zinc-500 hover:text-white hover:bg-white/5"
               : "text-cyan-400 bg-cyan-500/5 border border-cyan-500/10"
           )}
           title={isSidebarCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
@@ -58,14 +74,22 @@ export const AnimeStudioTopBar = React.memo<AnimeStudioTopBarProps>(({
         <div className="h-8 w-px bg-zinc-800/50 hidden lg:block" />
 
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 px-3 py-1.5 bg-zinc-900/50 rounded-xl border border-zinc-800">
-            <Cpu className="w-4 h-4 text-red-500" />
-            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400">Anime Studio</span>
+          <div className="flex items-center gap-2 px-3 py-1.5 bg-black rounded-xl border border-cyan-500/80 shadow-[0_0_15px_rgba(6,182,212,0.2)]">
+            <Cpu className="w-4 h-4 text-cyan-500" />
+            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-cyan-500">Anime Studio</span>
           </div>
           <ChevronRight className="w-4 h-4 text-zinc-700 hidden sm:block" />
           <div className="flex flex-col">
             <h1 className="text-[10px] md:text-[12px] font-black uppercase tracking-[0.2em] text-white leading-none">New Production</h1>
-            <p className="text-[8px] font-bold text-zinc-500 uppercase tracking-widest mt-1">Phase: {phaseLabel}</p>
+            <div className="flex flex-wrap items-center gap-2 mt-1">
+              <span className="text-[8px] font-black uppercase tracking-[0.28em] text-cyan-400">
+                {phaseInfo.phase}
+              </span>
+              <span className="text-[8px] font-black uppercase tracking-[0.2em] text-zinc-700">•</span>
+              <span className="text-[8px] font-bold text-zinc-500 uppercase tracking-widest">
+                {phaseInfo.label}
+              </span>
+            </div>
           </div>
         </div>
       </div>

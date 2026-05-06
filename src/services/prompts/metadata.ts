@@ -75,12 +75,21 @@ QUALITY BAR:
 - Keep the tone aligned with the story world and audience expectations.
 
 OUTPUT FORMAT:
-Return clean Markdown with the following sections:
-- Title Options
-- Description
-- SEO Tags
-- Thumbnail Concepts
-- Packaging Notes
+Return clean Markdown with the following sections (each section MUST be introduced by the exact heading shown):
+## Title Options
+// Provide titles as a numbered list (1. ...)
+
+## Description
+// Full YouTube description copy here
+
+## SEO Tags
+// Comma-separated list of tags on a single line
+
+## Thumbnail Concepts
+// Provide 3 thumbnail concepts under this heading
+
+## Packaging Notes
+// Short packaging notes and audience promise
 `);
 
 export const YOUTUBE_DESCRIPTION_GENERATION_PROMPT = (contentType: string, script: string | null) =>

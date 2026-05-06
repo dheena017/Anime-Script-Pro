@@ -15,7 +15,8 @@ import {
   generateSystems
 } from '@/services/api/gemini';
 import { WorldTab } from './tabs/WorldTabs';
-import './worldStyles/World.css';
+import { WorldLoadingPage } from './WorldLoadingPage';
+import { studioLog, reportTabChange, reportGeneration } from '@/lib/studio-logger';
 
 export const WorldContext = createContext<{
   activeTab: WorldTab;
@@ -57,8 +58,27 @@ export default function WorldLayout() {
     setGeneratedWorldSystems,
     session, episode, showNotification,
     generatedWorld,
+    generatedWorldLore,
+    generatedWorldPowers,
+    generatedWorldFactions,
+    generatedWorldArchitecture,
+    generatedWorldAtlas,
+    generatedWorldCulture,
+    generatedWorldSystems,
     isSaving,
-    syncCore
+    syncCore,
+    setCastData,
+    setCastList,
+    setGeneratedCharacters,
+    setCharacterRelationships,
+    setCastDNA,
+    setCastDynamics,
+    setCastIntegrity,
+    setGeneratedScript,
+    setGeneratedImagePrompts,
+    setGeneratedMetadata,
+    isEditing,
+    setIsEditing
   } = useGenerator();
 
   useAuth();
@@ -67,82 +87,107 @@ export default function WorldLayout() {
     await syncCore();
   };
 
-  const handleGenerate = async () => {
+  // Generate the entire world and all specialized modules (lore, powers, factions, architecture, atlas, culture, systems)
+  const handleGenerateAll = async () => {
     if (!prompt.trim()) {
       showNotification?.('Please enter a story prompt first before building your world.', 'error');
       return;
     }
 
-    if (activeTab === 'manifest') {
-      setIsGeneratingWorld(true);
-      try {
-        const result = await generateWorld(prompt, selectedModel, contentType);
-        setGeneratedWorld(result);
-        showNotification?.('World created successfully!', 'success');
-      } catch (e: any) {
-        console.error(e);
-        showNotification?.('Failed to create world: ' + (e.message || 'Unknown error'), 'error');
-      } finally {
-        setIsGeneratingWorld(false);
-      }
-    } else {
-      // Specialized generation
-      const type = activeTab;
-      const setters: Record<string, (l: boolean) => void> = {
-        lore: setIsGeneratingLore,
-        powers: setIsGeneratingPowers,
-        factions: setIsGeneratingFactions,
-        architecture: setIsGeneratingArchitecture,
-        atlas: setIsGeneratingAtlas,
-        culture: setIsGeneratingCulture,
-        systems: setIsGeneratingSystems
-      };
-      
-      const modulePrompts: Record<string, string> = {
-        lore: promptLore,
-        powers: promptPowers,
-        factions: promptFactions,
-        architecture: promptArchitecture,
-        atlas: promptAtlas,
-        culture: promptCulture,
-        systems: promptSystems
-      };
+    // Clear existing data to show empty states for pending tabs
+    setGeneratedWorld(null);
+    setGeneratedWorldLore(null);
+    setGeneratedWorldPowers(null);
+    setGeneratedWorldFactions(null);
+    setGeneratedWorldArchitecture(null);
+    setGeneratedWorldAtlas(null);
+    setGeneratedWorldCulture(null);
+    setGeneratedWorldSystems(null);
 
-      const activePrompt = modulePrompts[type] || prompt;
-      const setGenerating = setters[type];
-      
-      setGenerating(true);
+    // Clear downstream dependencies
+    setCastData(null);
+    setCastList([]);
+    setGeneratedCharacters(null);
+    setCharacterRelationships(null);
+    setCastDNA(null);
+    setCastDynamics(null);
+    setCastIntegrity(null);
+    setGeneratedScript(null);
+    setGeneratedImagePrompts(null);
+    setGeneratedMetadata(null);
+
+    // Helper to run a module generator with its setter and prompt
+    const runModule = async (
+      name: string,
+      generator: (p: string, m: string, c: string, base?: string) => Promise<string>,
+      setter: (s: string) => void,
+      flagSetter: (b: boolean) => void,
+      modulePrompt: string | undefined
+    ) => {
+      flagSetter(true);
+      reportGeneration('WorldLayout', name, 'request', 'anime');
       try {
-        let result = '';
-        if (type === 'lore') {
-          result = await generateLoreHistory(activePrompt, selectedModel, contentType, generatedWorld || undefined);
-          setGeneratedWorldLore(result);
-        } else if (type === 'powers') {
-          result = await generatePowerSystem(activePrompt, selectedModel, contentType, generatedWorld || undefined);
-          setGeneratedWorldPowers(result);
-        } else if (type === 'factions') {
-          result = await generateFactionSystem(activePrompt, selectedModel, contentType, generatedWorld || undefined);
-          setGeneratedWorldFactions(result);
-        } else if (type === 'architecture') {
-          result = await generateArchitecture(activePrompt, selectedModel, contentType, generatedWorld || undefined);
-          setGeneratedWorldArchitecture(result);
-        } else if (type === 'atlas') {
-          result = await generateAtlas(activePrompt, selectedModel, contentType, generatedWorld || undefined);
-          setGeneratedWorldAtlas(result);
-        } else if (type === 'culture') {
-          result = await generateCulture(activePrompt, selectedModel, contentType, generatedWorld || undefined);
-          setGeneratedWorldCulture(result);
-        } else if (type === 'systems') {
-          result = await generateSystems(activePrompt, selectedModel, contentType, generatedWorld || undefined);
-          setGeneratedWorldSystems(result);
-        }
-        showNotification?.(`${type.charAt(0).toUpperCase() + type.slice(1)} generated successfully!`, 'success');
-      } catch (e: any) {
-        showNotification?.(`Failed to generate ${type}: ` + e.message, 'error');
+        const p = modulePrompt || prompt;
+        const res = await generator(p, selectedModel, contentType, generatedWorld || undefined);
+        setter(res as any);
+        reportGeneration('WorldLayout', name, 'success', 'anime', { length: res?.length || 0 });
+        showNotification?.(`${name} generated successfully!`, 'success');
+      } catch (err: any) {
+        reportGeneration('WorldLayout', name, 'failure', 'anime', err);
+        showNotification?.(`Failed to generate ${name}: ` + (err?.message || 'Unknown'), 'error');
       } finally {
-        setGenerating(false);
+        flagSetter(false);
       }
+    };
+
+    // Generate manifest/world
+    setActiveTab('manifest');
+    setIsGeneratingWorld(true);
+    reportGeneration('WorldLayout', 'World Manifest', 'request', 'anime');
+    try {
+      const world = await generateWorld(prompt, selectedModel, contentType);
+      setGeneratedWorld(world);
+      reportGeneration('WorldLayout', 'World Manifest', 'success', 'anime', { length: world?.length || 0 });
+      showNotification?.('World created successfully!', 'success');
+    } catch (e: any) {
+      reportGeneration('WorldLayout', 'World Manifest', 'failure', 'anime', e);
+      showNotification?.('Failed to create world: ' + (e.message || 'Unknown error'), 'error');
+    } finally {
+      setIsGeneratingWorld(false);
     }
+    await new Promise(r => setTimeout(r, 2000));
+
+    // Run specialized modules sequentially with auto-tab flow
+    setActiveTab('lore');
+    await runModule('History', generateLoreHistory, setGeneratedWorldLore, setIsGeneratingLore, promptLore);
+    await new Promise(r => setTimeout(r, 2000));
+    
+    setActiveTab('factions');
+    await runModule('Factions', generateFactionSystem, setGeneratedWorldFactions, setIsGeneratingFactions, promptFactions);
+    await new Promise(r => setTimeout(r, 2000));
+
+    setActiveTab('powers');
+    await runModule('Powers', generatePowerSystem, setGeneratedWorldPowers, setIsGeneratingPowers, promptPowers);
+    await new Promise(r => setTimeout(r, 2000));
+    
+    setActiveTab('architecture');
+    await runModule('Architecture', generateArchitecture, setGeneratedWorldArchitecture, setIsGeneratingArchitecture, promptArchitecture);
+    await new Promise(r => setTimeout(r, 2000));
+    
+    setActiveTab('atlas');
+    await runModule('Atlas', generateAtlas, setGeneratedWorldAtlas, setIsGeneratingAtlas, promptAtlas);
+    await new Promise(r => setTimeout(r, 2000));
+    
+    setActiveTab('culture');
+    await runModule('Culture', generateCulture, setGeneratedWorldCulture, setIsGeneratingCulture, promptCulture);
+    await new Promise(r => setTimeout(r, 2000));
+    
+    setActiveTab('systems');
+    await runModule('Systems', generateSystems, setGeneratedWorldSystems, setIsGeneratingSystems, promptSystems);
+    await new Promise(r => setTimeout(r, 2000));
+
+    showNotification?.('Full World Manifest Sequence Complete!', 'success');
+    setActiveTab('manifest');
   };
 
   const handleTabChange = (tab: WorldTab) => {
@@ -150,12 +195,19 @@ export default function WorldLayout() {
   };
 
   useEffect(() => {
-    const handleGlobalGenerate = () => handleGenerate();
+    reportTabChange('WorldLayout', activeTab, 'anime');
+  }, [activeTab]);
+
+  useEffect(() => {
+    const handleGlobalGenerate = () => {
+      studioLog('WorldLayout', 'Global world generation event received.', 'anime');
+      handleGenerateAll();
+    };
     window.addEventListener('studio-generate-world', handleGlobalGenerate);
     return () => window.removeEventListener('studio-generate-world', handleGlobalGenerate);
-  }, [handleGenerate]);
+  }, [handleGenerateAll]);
 
-  const generationStatus: Record<string, boolean> = {
+  const generationStatus = {
     manifest: isGeneratingWorld,
     lore: isGeneratingLore,
     powers: isGeneratingPowers,
@@ -166,38 +218,61 @@ export default function WorldLayout() {
     systems: isGeneratingSystems
   };
 
-  const currentIsGenerating = generationStatus[activeTab];
+  const currentIsGenerating = (generationStatus as any)[activeTab];
+  const isGeneratingAny = Object.values(generationStatus).some(Boolean);
+
+  const hasData = {
+    manifest: !!generatedWorld,
+    lore: !!generatedWorldLore,
+    powers: !!generatedWorldPowers,
+    factions: !!generatedWorldFactions,
+    architecture: !!generatedWorldArchitecture,
+    atlas: !!generatedWorldAtlas,
+    culture: !!generatedWorldCulture,
+    systems: !!generatedWorldSystems
+  };
+  const hasCurrentData = (hasData as any)[activeTab];
 
   return (
     <div className="space-y-6">
       <div className="studio-module-header">
         <WorldHeader
-          isGenerating={currentIsGenerating}
-          onRegenerate={handleGenerate}
+          isGenerating={isGeneratingAny}
+          onRegenerate={handleGenerateAll}
           prompt={prompt}
           session={session}
           episode={episode}
-          onPrev={() => navigate('/anime/engine')}
-          onNext={() => navigate('/anime/cast')}
+          onPrev={() => navigate(`/${contentType.toLowerCase()}/engine`)}
+          onNext={() => navigate(`/${contentType.toLowerCase()}/protocols`)}
           onSave={handleSave}
           isSaving={isSaving}
           hasContent={!!generatedWorld}
         />
       </div>
 
-      <div className="studio-module-toolbar flex items-center justify-center p-2 bg-[#050505]/90 border border-white/5 rounded-xl mb-8">
-        <WorldToolbar
-          status={generatedWorld ? 'active' : 'empty'}
-          activeTab={activeTab}
-          setActiveTab={handleTabChange}
-          session={session}
-          episode={episode}
-          content={generatedWorld}
-        />
+      <div className="studio-tabs-bar sticky top-0 z-40 flex items-center justify-center p-3 md:p-4 bg-[#050505]/95 backdrop-blur-md border border-white/10 rounded-[2rem] shadow-2xl mb-8 relative group overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-studio/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
+        <div className="relative z-10 w-full flex justify-center">
+          <WorldToolbar
+            status={generatedWorld ? 'active' : 'empty'}
+            activeTab={activeTab}
+            setActiveTab={handleTabChange}
+            session={session}
+            episode={episode}
+            content={generatedWorld}
+            showTabsOnly={true}
+            isEditing={isEditing}
+            onEditingChange={setIsEditing}
+          />
+        </div>
       </div>
 
       <WorldContext.Provider value={{ activeTab, setActiveTab: handleTabChange }}>
-        <Outlet context={{ activeTab, setActiveTab: handleTabChange }} />
+        {(currentIsGenerating || (isGeneratingAny && !hasCurrentData)) ? (
+          <WorldLoadingPage tab={activeTab} />
+        ) : (
+          <Outlet context={{ activeTab, setActiveTab: handleTabChange }} />
+        )}
       </WorldContext.Provider>
     </div>
   );

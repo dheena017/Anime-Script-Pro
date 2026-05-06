@@ -2,17 +2,14 @@ import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
-import { 
-  Terminal, 
-  Search,
-  Filter,
-  Copy,
-  Check
-} from 'lucide-react';
+import { Filter, Copy, Check } from 'lucide-react';
 import * as Prompts from '@/services/prompts';
 
+import { useContext } from 'react';
+import { ProtocolsContext } from './ProtocolsLayout';
+
 export default function ProtocolsPage() {
-  const [searchQuery, setSearchQuery] = useState('');
+  const { searchQuery } = useContext(ProtocolsContext);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
 
   const allPrompts = Object.entries(Prompts).map(([key, value]) => ({
@@ -36,37 +33,6 @@ export default function ProtocolsPage() {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-700">
-      {/* HEADER SECTION */}
-      <div className="relative group">
-        <div className="absolute -inset-4 bg-gradient-to-r from-studio/10 via-transparent to-studio/10 blur-3xl opacity-50 group-hover:opacity-100 transition-opacity duration-1000" />
-        <div className="relative flex flex-col md:flex-row md:items-end justify-between gap-6">
-          <div className="space-y-2">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-studio/20 flex items-center justify-center border border-studio/30 shadow-[0_0_20px_rgba(6,182,212,0.2)]">
-                <Terminal className="w-5 h-5 text-studio" />
-              </div>
-              <h1 className="text-4xl font-black uppercase tracking-tighter text-white italic">
-                Nexus <span className="text-studio not-italic">Protocols</span>
-              </h1>
-            </div>
-            <p className="text-zinc-500 max-w-xl text-sm font-medium leading-relaxed">
-              The core architectural directives powering the Neural Link. These system instructions define the behavioral logic and output constraints for all synthesis engines.
-            </p>
-          </div>
-
-          <div className="relative w-full md:w-80">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
-            <input 
-              type="text" 
-              placeholder="Search Protocols..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full h-12 bg-zinc-950 border border-white/5 rounded-2xl pl-12 pr-4 text-sm font-medium text-white placeholder:text-zinc-700 focus:outline-none focus:border-studio/50 focus:ring-4 focus:ring-studio/10 transition-all"
-            />
-          </div>
-        </div>
-      </div>
-
       {/* GRID OF PROTOCOLS */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredPrompts.map((prompt, idx) => (

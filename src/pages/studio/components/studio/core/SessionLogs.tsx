@@ -51,7 +51,7 @@ export const SessionLogs: React.FC<SessionLogsProps> = ({
             <div className="p-1.5 rounded-lg bg-studio/10 border border-studio/20">
                <Cpu className={cn("w-3.5 h-3.5 animate-pulse", colors.accent)} />
             </div>
-            Neural Thinking Stream
+            AI Thinking Stream
           </CardTitle>
           <div className="flex items-center gap-3">
             <div className={cn("w-1.5 h-1.5 rounded-full animate-ping", colors.accent.replace('text', 'bg'))} />
@@ -63,7 +63,7 @@ export const SessionLogs: React.FC<SessionLogsProps> = ({
             {realtimeLogs.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full text-zinc-700 py-16 opacity-40">
                 <Activity className="w-10 h-10 mb-4 animate-pulse" />
-                <p className="text-[10px] uppercase tracking-[0.3em] font-black">Awaiting Neural Activity...</p>
+                <p className="text-[10px] uppercase tracking-[0.3em] font-black">Awaiting System Activity...</p>
               </div>
             ) : (
               <div className="p-6 space-y-3">

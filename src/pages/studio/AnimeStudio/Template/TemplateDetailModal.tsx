@@ -40,25 +40,25 @@ export const TemplateDetailModal: React.FC<TemplateDetailModalProps> = ({
         animate={{ opacity: 1 }} 
         exit={{ opacity: 0 }}
         onClick={onClose}
-        className="modal-overlay"
+        className={s.modalOverlay}
       />
       <motion.div
         layoutId={`modal-${template.id}`}
         initial={{ opacity: 0, scale: 0.9, y: 30 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.9, y: 30 }}
-        className="modal-content"
+        className={s.modalContent}
       >
         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-studio to-transparent" />
         <button 
           onClick={onClose}
-          className="modal-close-btn"
+          className={s.modalCloseBtn}
         >
           <X className="w-6 h-6" />
         </button>
 
         {/* Visual Preview Side */}
-        <div className="modal-visual-side">
+        <div className={s.modalVisualSide}>
           <img 
             src={template.thumbnail} 
             alt={template.label} 
@@ -81,23 +81,23 @@ export const TemplateDetailModal: React.FC<TemplateDetailModalProps> = ({
         </div>
 
         {/* Content Side */}
-        <div className="modal-content-side">
+        <div className={s.modalContentSide}>
           <div className="space-y-6">
-            <h4 className="modal-section-title">
+            <h4 className={s.modalSectionTitle}>
                <Database className="w-4 h-4 text-studio" /> Analytical Meta-Data
             </h4>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-               <div className="modal-info-card">
+               <div className={s.modalInfoCard}>
                  <p className="text-[9px] text-zinc-600 font-bold uppercase">Usage</p>
                  <p className="text-sm text-zinc-200 font-mono font-bold">{template.stats?.deployed}</p>
                  <TrendingUp className="w-3 h-3 text-studio/50" />
                </div>
-               <div className="modal-info-card">
+               <div className={s.modalInfoCard}>
                  <p className="text-[9px] text-zinc-600 font-bold uppercase">Success</p>
                  <p className="text-sm text-green-400 font-mono font-bold">{template.stats?.success}</p>
                  <CheckCircle className="w-3 h-3 text-green-500/50" />
                </div>
-               <div className="modal-info-card">
+               <div className={s.modalInfoCard}>
                  <p className="text-[9px] text-zinc-600 font-bold uppercase">Logic</p>
                  <p className={cn("text-sm font-mono font-bold", template.color)}>{template.stats?.complexity}</p>
                  <Cpu className={cn("w-3 h-3 opacity-50", template.color)} />
@@ -107,30 +107,30 @@ export const TemplateDetailModal: React.FC<TemplateDetailModalProps> = ({
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="space-y-4">
-              <h4 className="text-[11px] font-black text-white uppercase tracking-[0.2em] flex items-center gap-2">
+              <h4 className={s.modalSectionTitle}>
                  <Layout className="w-4 h-4 text-studio" /> Technical Style
               </h4>
               <div className="space-y-2">
-                 <div className="modal-detail-row">
+                 <div className={s.modalDetailRow}>
                    <span className="text-[10px] text-zinc-500 font-bold uppercase">Contrast</span>
                    <span className="text-xs text-white font-mono">High/Noir</span>
                  </div>
-                 <div className="modal-detail-row">
+                 <div className={s.modalDetailRow}>
                    <span className="text-[10px] text-zinc-500 font-bold uppercase">Focus</span>
                    <span className="text-xs text-white font-mono">Character-Centric</span>
                  </div>
               </div>
             </div>
             <div className="space-y-4">
-              <h4 className="text-[11px] font-black text-white uppercase tracking-[0.2em] flex items-center gap-2">
+              <h4 className={s.modalSectionTitle}>
                  <Music className="w-4 h-4 text-studio" /> Audio Matrix
               </h4>
               <div className="space-y-2">
-                 <div className="modal-detail-row">
+                 <div className={s.modalDetailRow}>
                    <span className="text-[10px] text-zinc-500 font-bold uppercase">BGM</span>
                    <span className="text-xs text-white font-mono">Hybrid Synths</span>
                  </div>
-                 <div className="modal-detail-row">
+                 <div className={s.modalDetailRow}>
                    <span className="text-[10px] text-zinc-500 font-bold uppercase">Mix</span>
                    <span className="text-xs text-white font-mono">Bass-Driven</span>
                  </div>
@@ -139,11 +139,11 @@ export const TemplateDetailModal: React.FC<TemplateDetailModalProps> = ({
           </div>
 
           <div className="space-y-4">
-            <h4 className="text-[11px] font-black text-white uppercase tracking-[0.2em] flex items-center gap-2">
+            <h4 className={s.modalSectionTitle}>
                <Code className="w-4 h-4 text-orange-500" /> Embedded Directive
             </h4>
-            <div className="modal-prompt-box group">
-              <p className="modal-prompt-text">"{template.prompt}"</p>
+            <div className={s.modalPromptBox + " group"}>
+              <p className={s.modalPromptText}>"{template.prompt}"</p>
             </div>
           </div>
 

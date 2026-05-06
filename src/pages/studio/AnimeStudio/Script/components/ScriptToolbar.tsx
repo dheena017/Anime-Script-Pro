@@ -29,6 +29,7 @@ interface ScriptToolbarProps {
   onListen: () => void;
   onPrev?: () => void;
   onNext?: () => void;
+  showTabsOnly?: boolean;
 }
 
 export const ScriptToolbar: React.FC<ScriptToolbarProps> = ({
@@ -45,7 +46,8 @@ export const ScriptToolbar: React.FC<ScriptToolbarProps> = ({
   onExtend,
   onListen,
   onPrev,
-  onNext
+  onNext,
+  showTabsOnly = false
 }) => {
   const { isFullscreen } = useApp();
 
@@ -69,6 +71,7 @@ export const ScriptToolbar: React.FC<ScriptToolbarProps> = ({
 
   return (
     <TooltipProvider>
+      {!showTabsOnly && (
       <div className="flex flex-col gap-6 w-full">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
@@ -157,7 +160,7 @@ export const ScriptToolbar: React.FC<ScriptToolbarProps> = ({
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="top">
-                  <p className="font-black uppercase tracking-widest text-[9px]">Neural Prompts</p>
+                  <p className="font-black uppercase tracking-widest text-[9px]">AI Prompts</p>
                 </TooltipContent>
               </Tooltip>
 
@@ -209,7 +212,7 @@ export const ScriptToolbar: React.FC<ScriptToolbarProps> = ({
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="top">
-                  <p className="font-black uppercase tracking-widest text-[9px]">Neural Voiceover</p>
+                  <p className="font-black uppercase tracking-widest text-[9px]">AI Voiceover</p>
                 </TooltipContent>
               </Tooltip>
             </div>
@@ -280,9 +283,10 @@ export const ScriptToolbar: React.FC<ScriptToolbarProps> = ({
 
           </div>
         </div>
-
-        <ScriptTabs activeTab={activeTab} setActiveTab={setActiveTab} />
       </div>
+      )}
+
+      <ScriptTabs activeTab={activeTab} setActiveTab={setActiveTab} />
     </TooltipProvider>
   );
 };

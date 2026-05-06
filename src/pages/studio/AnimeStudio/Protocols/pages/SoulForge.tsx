@@ -9,8 +9,8 @@ export default function SoulForge() {
   const prompts = [
     {
       id: 'char',
-      name: 'Character DNA Registry',
-      description: 'Synthesizes psychological profiles, archetype logic, and visual DNA for all tiers of the cast.',
+      name: 'Character Design Studio',
+      description: 'Create detailed character profiles with personality traits, visual characteristics, and relationships with other characters.',
       content: CHARACTER_GENERATION_PROMPT,
       version: '2.0.0'
     },

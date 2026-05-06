@@ -25,6 +25,7 @@ interface StoryboardToolbarProps {
   onEnhanceNarration?: () => void;
   onEnhanceVisuals?: () => void;
   isGlobalEnhancing?: boolean;
+  showTabsOnly?: boolean;
 }
 
 export const StoryboardToolbar: React.FC<StoryboardToolbarProps> = ({
@@ -37,7 +38,8 @@ export const StoryboardToolbar: React.FC<StoryboardToolbarProps> = ({
   onAddScene,
   onEnhanceNarration,
   onEnhanceVisuals,
-  isGlobalEnhancing
+  isGlobalEnhancing,
+  showTabsOnly = false
 }) => {
   const { isFullscreen } = useApp();
 
@@ -67,6 +69,7 @@ export const StoryboardToolbar: React.FC<StoryboardToolbarProps> = ({
   return (
     <TooltipProvider>
       <div className="flex flex-col gap-6 w-full p-4 md:p-0">
+        {!showTabsOnly && (
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 lg:gap-0">
           {/* Identity */}
           <div className="flex items-center gap-4">
@@ -78,7 +81,7 @@ export const StoryboardToolbar: React.FC<StoryboardToolbarProps> = ({
                 Storyboard Nexus {status === 'active' ? 'Active' : 'Standby'}
               </span>
               <span className="text-[8px] font-bold text-zinc-500 uppercase tracking-widest mt-0.5">
-                Visual DNA Engine // Frame_Sync_Ready
+                Visual Design Engine // Frame_Ready
               </span>
             </div>
           </div>
@@ -142,10 +145,24 @@ export const StoryboardToolbar: React.FC<StoryboardToolbarProps> = ({
                 </div>
 
                 {/* Production Unit */}
-                <div className="flex items-center gap-3 px-4 py-2 bg-black/40 border border-white/5 rounded-xl backdrop-blur-md grow sm:grow-0">
-                  <span className="text-fuchsia-400/60 text-xs font-black">#</span>
-                  <div className="flex flex-col">
-                    <span className="text-[7px] font-black text-zinc-500 uppercase tracking-widest leading-none">Production Unit</span>
+                <div className="flex items-center gap-3 px-4 py-2 bg-black/40 border border-white/5 rounded-xl backdrop-blur-md grow sm:grow-0 relative overflow-hidden group/unit">
+                  <div className={cn(
+                    "absolute inset-0 bg-gradient-to-r from-studio/10 via-transparent to-transparent opacity-0 transition-opacity duration-700",
+                    isGlobalEnhancing && "opacity-100"
+                  )} />
+                  {isGlobalEnhancing && (
+                    <div className="absolute top-0 left-0 w-full h-[1px] bg-studio animate-[shimmer_2s_infinite]" />
+                  )}
+                  <span className={cn(
+                    "text-xs font-black transition-colors duration-500",
+                    isGlobalEnhancing ? "text-studio animate-pulse" : "text-fuchsia-400/60"
+                  )}>
+                    {isGlobalEnhancing ? "⚡" : "#"}
+                  </span>
+                  <div className="flex flex-col relative z-10">
+                    <span className="text-[7px] font-black text-zinc-500 uppercase tracking-widest leading-none">
+                      {isGlobalEnhancing ? "AI Refinement" : "Production Unit"}
+                    </span>
                     <span className="text-sm font-black text-white font-mono leading-none mt-1">S{session}-E{episode}</span>
                   </div>
                 </div>
@@ -199,6 +216,7 @@ export const StoryboardToolbar: React.FC<StoryboardToolbarProps> = ({
             </div>
           </div>
         </div>
+        )}
 
         <StoryboardTabs activeTab={activeTab} setActiveTab={setActiveTab} />
       </div>

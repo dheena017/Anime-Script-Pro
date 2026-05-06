@@ -194,7 +194,7 @@ export default function AddRelationshipPage() {
            <div className="space-y-4">
               <div className="flex items-center gap-2 text-zinc-500">
                 <Info className="w-4 h-4" />
-                <span className="text-[10px] font-black uppercase tracking-widest">Neural Tip</span>
+                <span className="text-[10px] font-black uppercase tracking-widest">Pro Tip</span>
               </div>
               <Card className="p-8 bg-fuchsia-500/5 border-fuchsia-500/10 rounded-[2.5rem] space-y-4">
                  <p className="text-xs text-fuchsia-200/60 leading-relaxed font-medium">

@@ -53,7 +53,7 @@ export const StudioTopBar: React.FC<{
             <ScrollText className="text-red-500 w-5 h-5" />
           </div>
           <div className="flex flex-col">
-            <span className="font-black tracking-[0.2em] text-[10px] uppercase text-white leading-none">Architect</span>
+            <span className="font-black tracking-[0.2em] text-[10px] uppercase text-white leading-none">Creator</span>
           </div>
         </Link>
 
@@ -66,7 +66,7 @@ export const StudioTopBar: React.FC<{
           <Search className="w-3.5 h-3.5 text-zinc-600 group-focus-within:text-red-500 transition-colors" />
           <input 
             className="bg-transparent border-none text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-400 placeholder:text-zinc-700 focus:outline-none w-full" 
-            placeholder="Search Neural Manifests..." 
+            placeholder="Search Manifests..." 
           />
           <div className="flex items-center gap-1 opacity-0 group-focus-within:opacity-100 transition-opacity">
              <span className="text-[8px] font-black text-zinc-700 border border-zinc-800 px-1 rounded">ESC</span>
@@ -113,7 +113,7 @@ export const StudioTopBar: React.FC<{
             ) : (
               <div className="flex items-center gap-2">
                 <Zap className="w-3 h-3 fill-current animate-pulse" />
-                <span>Neural Generate</span>
+                <span>Start Generation</span>
               </div>
             )}
           </Button>
@@ -124,7 +124,7 @@ export const StudioTopBar: React.FC<{
         {/* System Status Indicators */}
         <div className="hidden xl:flex items-center gap-8 px-6 border-r border-zinc-800/50 mr-2">
           <div className="flex flex-col items-end group cursor-help">
-            <span className="text-[7px] font-black text-zinc-600 uppercase tracking-[0.2em] leading-none mb-1 group-hover:text-emerald-500 transition-colors">Neural Sync</span>
+            <span className="text-[7px] font-black text-zinc-600 uppercase tracking-[0.2em] leading-none mb-1 group-hover:text-emerald-500 transition-colors">System Sync</span>
             <div className="flex items-center gap-2">
               <div className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.6)]" />
               <span className="text-[9px] font-black text-emerald-500/80 uppercase tracking-tighter">Optimal</span>
@@ -162,12 +162,12 @@ export const StudioTopBar: React.FC<{
           className="flex items-center gap-4 pl-2 pr-1 py-1 rounded-2xl hover:bg-white/5 border border-transparent hover:border-white/10 transition-all group"
         >
           <div className="text-right hidden md:block">
-            <p className="text-[9px] font-black uppercase tracking-[0.2em] text-white leading-none mb-1">Architect</p>
+            <p className="text-[9px] font-black uppercase tracking-[0.2em] text-white leading-none mb-1">Creator</p>
             <p className="text-[7px] font-bold text-zinc-600 uppercase tracking-widest">Level 42 Sync</p>
           </div>
           <div className="relative">
             <div className="w-9 h-9 rounded-xl bg-zinc-900 border border-zinc-800 overflow-hidden group-hover:border-red-500/50 transition-all shadow-2xl">
-              <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Architect" alt="Profile" className="w-full h-full object-cover" />
+              <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Creator" alt="Profile" className="w-full h-full object-cover" />
             </div>
             <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-emerald-500 border-2 border-black rounded-full shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
           </div>

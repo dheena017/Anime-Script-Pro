@@ -55,7 +55,7 @@ export const ScreeningTimeline: React.FC<ScreeningTimelineProps> = ({
                     </div>
                   </div>
                   <p className="text-[11px] font-bold text-zinc-300 line-clamp-2 leading-relaxed">
-                    {scene.script || "Neural pattern generated..."}
+                    {scene.script || "Scene pattern generated..."}
                   </p>
                 </div>
               </div>

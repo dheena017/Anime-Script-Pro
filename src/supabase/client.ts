@@ -3,7 +3,6 @@ import { createClient as supabaseCreateClient } from "@supabase/supabase-js";
 const url = import.meta.env.VITE_SUPABASE_URL;
 const key = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-const isValidUrl = url && typeof url === "string" && url.startsWith("http");
 
 /**
  * Single shared Supabase client instance for the entire application.
@@ -22,8 +21,8 @@ const isValidUrl = url && typeof url === "string" && url.startsWith("http");
  *   const supabase = createClient(); // still returns the singleton
  */
 export const supabase = supabaseCreateClient(
-  isValidUrl ? url : "https://placeholder-project.supabase.co",
-  key || "placeholder-key"
+  (url as string) || "",
+  (key as string) || ""
 );
 
 /**

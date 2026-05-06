@@ -11,10 +11,10 @@ export function NeuralErrorSentinel() {
       const { status, signalId } = e.detail;
       if (status >= 400) {
         // Find a more descriptive message if possible
-        const message = status === 404 ? "Target Protocol Not Found" : 
-                        status === 401 ? "Architect Authentication Required" :
-                        status === 422 ? "Malformed Data Payload" :
-                        "Neural Synapse Mismatch (System Error)";
+        const message = status === 404 ? "Target Resource Not Found" : 
+                        status === 401 ? "Authentication Required" :
+                        status === 422 ? "Invalid Data Format" :
+                        "Unexpected System Error";
         
         setActiveError({ message, signalId, status });
         
@@ -48,7 +48,7 @@ export function NeuralErrorSentinel() {
               
               <div className="flex-1 space-y-1">
                 <div className="flex items-center justify-between">
-                   <h3 className="text-[10px] font-black text-red-400 uppercase tracking-[0.2em]">Neural Breach Detected</h3>
+                   <h3 className="text-[10px] font-black text-red-400 uppercase tracking-[0.2em]">Error Encountered</h3>
                    <button onClick={() => setActiveError(null)} className="text-red-500/50 hover:text-red-500">
                      <X className="w-3 h-3" />
                    </button>
@@ -58,10 +58,10 @@ export function NeuralErrorSentinel() {
                 
                 <div className="flex items-center gap-2 pt-2">
                   <div className="px-2 py-0.5 bg-black/40 rounded border border-red-500/20">
-                    <span className="text-[8px] font-mono text-red-400 uppercase tracking-tighter">Signal: {activeError.signalId}</span>
+                    <span className="text-[8px] font-mono text-red-400 uppercase tracking-tighter">Event: {activeError.signalId}</span>
                   </div>
                   <div className="px-2 py-0.5 bg-black/40 rounded border border-red-500/20">
-                    <span className="text-[8px] font-mono text-red-400 uppercase tracking-tighter">Status: {activeError.status}</span>
+                    <span className="text-[8px] font-mono text-red-400 uppercase tracking-tighter">Code: {activeError.status}</span>
                   </div>
                 </div>
 
@@ -70,7 +70,7 @@ export function NeuralErrorSentinel() {
                   className="flex items-center gap-2 mt-4 text-[9px] font-black text-red-500/80 uppercase tracking-widest hover:text-red-400 transition-colors"
                 >
                   <RefreshCw className="w-3 h-3" />
-                  Initiate System Reset
+                  Restart System
                 </button>
               </div>
             </div>

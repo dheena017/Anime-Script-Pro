@@ -30,7 +30,7 @@ export const ImagePromptsTab: React.FC<ImagePromptsTabProps> = ({
           <div>
             <h2 className="text-3xl font-black text-white uppercase tracking-tighter italic">Visual Manifest</h2>
             <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-[0.3em] mt-1">
-              Neural archetypes and environmental descriptors
+              Core archetypes and environmental descriptors
             </p>
           </div>
         </div>

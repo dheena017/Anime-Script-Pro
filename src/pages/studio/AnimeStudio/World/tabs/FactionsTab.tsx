@@ -3,6 +3,11 @@ import ReactMarkdown from 'react-markdown';
 import { Users, Flag, Sword, Landmark, Sparkles, ClipboardList, Download } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { TableOfContents } from '../components/TableOfContents';
+import { worldStyles as s } from '../worldStyles/worldStyles';
+import { cn } from '@/lib/utils';
+import remarkGfm from 'remark-gfm';
+import { useAutoResizeTextarea } from '../hooks/useAutoResizeTextarea';
+import { reportGeneration } from '@/lib/studio-logger';
 
 interface FactionsTabProps {
   isEditing: boolean;
@@ -24,6 +29,8 @@ export const FactionsTab: React.FC<FactionsTabProps> = ({
   onPromptChange
 }) => {
   const sectionContent = content;
+  const { textareaRef: mainTextareaRef, scheduleResizeTextarea: scheduleMainResize } = useAutoResizeTextarea(content || '', isEditing);
+  const { textareaRef: promptTextareaRef, scheduleResizeTextarea: schedulePromptResize } = useAutoResizeTextarea(prompt || '', isEditing);
 
   const stats = React.useMemo(() => [
     { title: 'Alliances', icon: Landmark, color: 'text-blue-400', desc: 'Diplomatic treaties and hidden collaborations.' },
@@ -32,16 +39,30 @@ export const FactionsTab: React.FC<FactionsTabProps> = ({
     { title: 'Leadership', icon: Users, color: 'text-emerald-400', desc: 'Hierarchies and governing philosophies.' },
   ], []);
 
+  const handleGenerate = () => {
+    if (onGenerate) {
+      reportGeneration('WORLD', 'Faction Synthesis', 'request', 'anime');
+      onGenerate();
+    }
+  };
+
+  React.useEffect(() => {
+    if (!isGenerating && content && content.length > 0) {
+      // This is a bit naive but shows completion when generating finishes
+      // In a real app we'd trigger this from the parent's success callback
+    }
+  }, [isGenerating, content]);
+
   return (
-    <div className="world-container">
-      <div className="world-header">
-        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8">
+    <div className={s.container}>
+      <div className={s.header}>
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 w-full">
           <div className="space-y-3">
-            <div className="world-badge bg-blue-500/10 border-blue-500/20">
+            <div className={cn(s.badge, "bg-blue-500/10 border-blue-500/20")}>
               <Users className="w-3 h-3 text-blue-500" />
-              <span className="world-badge-text text-blue-500">Political Architect</span>
+              <span className={cn(s.badgeText, "text-blue-500")}>Political Architect</span>
             </div>
-            <h1 className="world-header-title">
+            <h1 className={s.headerTitle}>
               FACTION <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-500 to-blue-400">POLITICS</span>
             </h1>
@@ -50,7 +71,7 @@ export const FactionsTab: React.FC<FactionsTabProps> = ({
           <div className="flex items-center gap-3">
             {onGenerate && (
               <button 
-                onClick={onGenerate}
+                onClick={handleGenerate}
                 disabled={isGenerating}
                 className="flex items-center gap-2 px-5 py-2.5 bg-white text-black hover:bg-zinc-200 rounded-full transition-all group disabled:opacity-50"
               >
@@ -94,35 +115,45 @@ export const FactionsTab: React.FC<FactionsTabProps> = ({
 
       {isEditing ? (
         <textarea
-          className="world-textarea"
-          value={content || ''}
-          onChange={(e) => onContentChange(e.target.value)}
-          placeholder="Design your world factions and political systems here..."
+          ref={mainTextareaRef}
+          className={s.textarea}
+          value={content}
+          onChange={(e) => {
+            onContentChange(e.target.value);
+            scheduleMainResize();
+          }}
+          onInput={scheduleMainResize}
+          placeholder="Design your world's political landscape..."
         />
       ) : (
-        <div className="world-content-area">
-          <div className="world-main-column">
-            <div className="world-prose" style={{ '--prose-accent-color': '#60a5fa' } as React.CSSProperties}>
-              <ReactMarkdown>{sectionContent}</ReactMarkdown>
+        <div className={s.contentArea}>
+          <div className={s.mainColumn}>
+            <div className={s.prose} style={{ '--prose-accent-color': '#60a5fa' } as React.CSSProperties}>
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>{sectionContent}</ReactMarkdown>
             </div>
           </div>
 
-          <div className="world-sidebar space-y-8">
+          <div className={cn(s.sidebar, "space-y-8")}>
             <div className="p-6 bg-[#050505] border border-white/5 rounded-[2rem] space-y-4 relative overflow-hidden group">
               <div className="absolute inset-0 bg-blue-500/5 blur-[40px] pointer-events-none group-hover:bg-blue-500/10 transition-all duration-700" />
               <div className="relative z-10 space-y-4">
                 <div className="flex items-center justify-between">
                   <h4 className="text-[10px] font-black text-zinc-500 uppercase tracking-widest flex items-center gap-2">
-                    <Sparkles className="w-3 h-3 text-blue-500" /> Neural Seed
+                    <Sparkles className="w-3 h-3 text-blue-500" /> Core Seed
                   </h4>
                   {isEditing && <span className="text-[8px] font-bold text-blue-500/50 uppercase">Modular Prompt</span>}
                 </div>
                 
                 {isEditing ? (
                   <textarea
-                    className="w-full bg-black/40 border border-white/5 rounded-xl p-3 text-[10px] font-medium text-zinc-300 placeholder:text-zinc-700 focus:outline-none focus:border-blue-500/30 transition-colors min-h-[100px] resize-none"
+                    ref={promptTextareaRef}
+                    className="w-full bg-black/40 border border-white/5 rounded-xl p-3 text-[10px] font-medium text-zinc-300 placeholder:text-zinc-700 focus:outline-none focus:border-blue-500/30 transition-colors min-h-[100px] resize-none overflow-hidden"
                     value={prompt || ''}
-                    onChange={(e) => onPromptChange?.(e.target.value)}
+                    onChange={(e) => {
+                      onPromptChange?.(e.target.value);
+                      schedulePromptResize();
+                    }}
+                    onInput={schedulePromptResize}
                     placeholder="Refine the faction dynamics with specific instructions..."
                   />
                 ) : (
@@ -168,3 +199,4 @@ export const FactionsTab: React.FC<FactionsTabProps> = ({
     </div>
   );
 };
+

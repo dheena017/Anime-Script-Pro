@@ -20,7 +20,6 @@ class WorldLore(SQLModel, table=True):
     systems: Optional[str] = Field(default=None)
     culture: Optional[str] = Field(default=None)
     
-    # Modular Prompts (Neural Seeds)
     prompt_lore: Optional[str] = Field(default=None)
     prompt_powers: Optional[str] = Field(default=None)
     prompt_factions: Optional[str] = Field(default=None)
@@ -28,6 +27,12 @@ class WorldLore(SQLModel, table=True):
     prompt_atlas: Optional[str] = Field(default=None)
     prompt_culture: Optional[str] = Field(default=None)
     prompt_systems: Optional[str] = Field(default=None)
+
+    # Extended modular tab blobs
+    architecture_blob: Optional[str] = Field(default=None)
+    atlas_blob: Optional[str] = Field(default=None)
+    culture_blob: Optional[str] = Field(default=None)
+    systems_blob: Optional[str] = Field(default=None)
 
     # Metadata
     lore_metadata: Dict[str, Any] = Field(default_factory=dict, sa_type=JSON)
@@ -85,5 +90,28 @@ class CharacterRelationship(SQLModel, table=True):
     type: str = Field(default="Ally") # Ally, Rival, Enemy, Love, Secret
     tension: int = Field(default=5) # 1-10
     description: Optional[str] = None
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+
+class CastManifest(SQLModel, table=True):
+    """Unified cast manifest blob table — mirrors the frontend characterApi."""
+    __tablename__ = "cast_manifests"
+    id: Optional[int] = Field(default=None, primary_key=True)
+    user_id: str = Field(index=True)
+    project_id: Optional[int] = Field(default=None, index=True)
+
+    # Core cast data (JSON blobs)
+    cast_list_blob: Optional[str] = Field(default=None)      # Full character JSON array
+    relationships_blob: Optional[str] = Field(default=None)  # Relationship graph JSON
+    dna_config_blob: Optional[str] = Field(default=None)     # DNA analysis JSON
+    dynamics_blob: Optional[str] = Field(default=None)       # Group dynamics analysis
+    integrity_blob: Optional[str] = Field(default=None)      # Narrative integrity report
+
+    # Neural Seeds (prompts used)
+    prompt_cast: Optional[str] = Field(default=None)
+    prompt_relationships: Optional[str] = Field(default=None)
+
+    # Timestamps
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)

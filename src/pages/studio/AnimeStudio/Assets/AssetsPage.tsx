@@ -181,7 +181,7 @@ export function AssetsPage() {
                         exit={{ opacity: 0, y: -20 }}
                       >
                         <AssetCard 
-                          title="Neural Visual DNA"
+                          title="Core Visual DNA"
                           icon={ImageIcon}
                           content={generatedImagePrompts}
                           isGenerating={isGeneratingImagePrompts}
@@ -222,7 +222,7 @@ function AssetCard({ title, icon: Icon, content, isGenerating, onGenerate }: any
           </div>
           <div>
             <h4 className="text-sm font-black uppercase tracking-[0.2em] text-white">{title}</h4>
-            <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest italic">Neural Synthesis Active</p>
+            <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest italic">AI Synthesis Active</p>
           </div>
         </div>
         

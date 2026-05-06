@@ -1,7 +1,9 @@
 import uuid
 import time
 from typing import Any, Dict
-from loguru import logger
+import logging
+
+logger = logging.getLogger(__name__)
 
 class NeuralTracer:
     @staticmethod

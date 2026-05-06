@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Copy, Download, Maximize, Minimize } from 'lucide-react';
+import { Box, Copy, Download, Maximize, Minimize, Edit2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { WorldTabs, WorldTab } from '../tabs/WorldTabs';
 import { Button } from '@/components/ui/button';
@@ -19,6 +19,9 @@ interface WorldToolbarProps {
   session?: string;
   episode?: string;
   content?: string | null;
+  showTabsOnly?: boolean;
+  isEditing?: boolean;
+  onEditingChange?: (editing: boolean) => void;
 }
 
 export const WorldToolbar: React.FC<WorldToolbarProps> = ({
@@ -27,7 +30,10 @@ export const WorldToolbar: React.FC<WorldToolbarProps> = ({
   status,
   session = '1',
   episode = '1',
-  content = null
+  content = null,
+  showTabsOnly = false,
+  isEditing = false,
+  onEditingChange
 }) => {
   const { isFullscreen } = useApp();
 
@@ -63,7 +69,8 @@ export const WorldToolbar: React.FC<WorldToolbarProps> = ({
 
   return (
     <TooltipProvider>
-      <div className="toolbar-container">
+      <div className="toolbar-container flex flex-col gap-4">
+        {!showTabsOnly && (
         <div className="toolbar-header">
           <div className="toolbar-status-box">
             <div className="toolbar-status-icon">
@@ -131,6 +138,27 @@ export const WorldToolbar: React.FC<WorldToolbarProps> = ({
                 <Tooltip>
                   <TooltipTrigger >
                     <Button
+                      onClick={() => onEditingChange?.(!isEditing)}
+                      size="icon"
+                      variant="ghost"
+                      className={cn(
+                        "h-9 w-9 rounded-lg transition-all duration-300",
+                        isEditing
+                          ? "text-studio bg-studio/10 hover:bg-studio/20"
+                          : "text-zinc-500 hover:text-studio hover:bg-studio/10"
+                      )}
+                    >
+                      <Edit2 className="w-4 h-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="top">
+                    <p className="font-black uppercase tracking-widest text-[9px]">{isEditing ? "Lock Edits" : "Edit Manifest"}</p>
+                  </TooltipContent>
+                </Tooltip>
+
+                <Tooltip>
+                  <TooltipTrigger >
+                    <Button
                       onClick={toggleFullscreen}
                       size="icon"
                       variant="ghost"
@@ -147,6 +175,86 @@ export const WorldToolbar: React.FC<WorldToolbarProps> = ({
             </div>
           </div>
         </div>
+        )}
+
+        {showTabsOnly && (
+          <div className="flex items-center justify-end gap-2 px-4">
+            <Tooltip>
+              <TooltipTrigger>
+                <Button
+                  onClick={handleCopy}
+                  size="icon"
+                  variant="ghost"
+                  className="h-9 w-9 rounded-lg text-zinc-500 hover:text-studio hover:bg-studio/10 transition-all duration-300"
+                  disabled={!content}
+                >
+                  <Copy className="w-4 h-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="top">
+                <p className="font-black uppercase tracking-widest text-[9px]">Copy Manifest to Clipboard</p>
+              </TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger >
+                <Button
+                  onClick={handleDownload}
+                  size="icon"
+                  variant="ghost"
+                  className="h-9 w-9 rounded-lg text-zinc-500 hover:text-studio hover:bg-studio/10 transition-all duration-300"
+                  disabled={!content}
+                >
+                  <Download className="w-4 h-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="top">
+                <p className="font-black uppercase tracking-widest text-[9px]">Export as Markdown</p>
+              </TooltipContent>
+            </Tooltip>
+
+            <div className="w-px h-5 bg-white/10 mx-1" />
+
+            <Tooltip>
+              <TooltipTrigger >
+                <Button
+                  onClick={() => onEditingChange?.(!isEditing)}
+                  variant="ghost"
+                  className={cn(
+                    "h-9 px-3 gap-2 rounded-lg transition-all duration-300",
+                    isEditing
+                      ? "text-studio bg-studio/10 hover:bg-studio/20 border border-studio/20"
+                      : "text-zinc-500 hover:text-studio hover:bg-studio/10 border border-white/10"
+                  )}
+                >
+                  <Edit2 className="w-4 h-4" />
+                  <span className="text-[10px] font-black uppercase tracking-widest">
+                    {isEditing ? 'Lock Edits' : 'Edit'}
+                  </span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="top">
+                <p className="font-black uppercase tracking-widest text-[9px]">{isEditing ? "Lock Edits" : "Edit Manifest"}</p>
+              </TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger >
+                <Button
+                  onClick={toggleFullscreen}
+                  size="icon"
+                  variant="ghost"
+                  className="h-9 w-9 rounded-lg text-zinc-500 hover:text-studio hover:bg-studio/10 transition-all duration-300"
+                >
+                  {isFullscreen ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="top">
+                <p className="font-black uppercase tracking-widest text-[9px]">{isFullscreen ? "Exit Fullscreen" : "Fullscreen Mode"}</p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
+        )}
 
         <WorldTabs activeTab={activeTab} setActiveTab={setActiveTab} />
       </div>

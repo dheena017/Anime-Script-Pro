@@ -120,9 +120,9 @@ export const SceneCard = React.memo<SceneCardProps>(({
               <div className="absolute inset-0 m-auto w-12 h-12 border-2 border-fuchsia-500/10 border-b-fuchsia-500 rounded-full animate-[spin_2s_linear_infinite_reverse]" />
               <div className="absolute inset-0 m-auto w-4 h-4 bg-studio rounded-full animate-ping" />
             </div>
-            <h4 className="text-sm font-black uppercase tracking-[0.4em] text-white mb-4">Neural Manifestation</h4>
+            <h4 className="text-sm font-black uppercase tracking-[0.4em] text-white mb-4">Scene Manifestation</h4>
             <div className="space-y-2">
-              <p className="text-[10px] text-studio font-black uppercase tracking-[0.3em] animate-pulse">Reconstructing Scene DNA</p>
+              <p className="text-[10px] text-studio font-black uppercase tracking-[0.3em] animate-pulse">Processing Scene Data</p>
               <p className="text-[8px] text-zinc-600 font-bold uppercase tracking-[0.2em]">Synchronizing Narration, Visuals & Audio</p>
             </div>
           </div>
@@ -304,7 +304,7 @@ export const SceneCard = React.memo<SceneCardProps>(({
 
               <div className="p-4 rounded-2xl bg-studio/[0.03] border border-studio/10 space-y-3">
                 <div className="flex items-center justify-between ml-1">
-                  <label className="text-[9px] font-black text-studio uppercase tracking-[0.3em]">Master Neural Prompt</label>
+                  <label className="text-[9px] font-black text-studio uppercase tracking-[0.3em]">Master AI Prompt</label>
                   {promptList.length > 0 && (
                     <Select onValueChange={(val: string | null) => setEditForm({ ...editForm, linkedPrompt: val || undefined })}>
                       <SelectTrigger className="h-7 w-auto bg-studio/10 border-studio/20 text-[9px] text-white uppercase font-black px-3 rounded-lg hover:bg-studio/20 transition-all">
@@ -324,7 +324,7 @@ export const SceneCard = React.memo<SceneCardProps>(({
                   value={editForm.linkedPrompt || ''}
                   onChange={(e) => setEditForm({ ...editForm, linkedPrompt: e.target.value })}
                   className="min-h-[100px] text-[11px] font-mono bg-black/40 border-studio/20 focus:border-studio/50 focus:bg-black/60 resize-none transition-all rounded-xl leading-relaxed text-zinc-400"
-                  placeholder="Inject master artistic DNA here..."
+                  placeholder="Enter artistic direction and visual guidance here..."
                 />
                 <div className="flex justify-end">
                   <Button
@@ -412,7 +412,7 @@ export const SceneCard = React.memo<SceneCardProps>(({
                   <p className="scene-visual-text">{scene.visuals}</p>
                   {scene.linkedPrompt && (
                     <div className="mt-4 pt-4 border-t border-white/5 space-y-2 relative z-10">
-                      <span className="text-[9px] font-black text-studio uppercase tracking-[0.3em] block ml-1">Linked Neural DNA</span>
+                      <span className="text-[9px] font-black text-studio uppercase tracking-[0.3em] block ml-1">Linked Scene Design</span>
                       <p className="text-[10px] text-zinc-300 font-mono italic bg-black/40 p-3 rounded-lg whitespace-pre-wrap break-words transition-all cursor-default">
                         {scene.linkedPrompt}
                       </p>

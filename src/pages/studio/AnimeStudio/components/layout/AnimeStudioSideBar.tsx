@@ -9,7 +9,6 @@ import {
   Globe,
   Zap,
   Loader2,
-  Layout as LayoutGrid,
   SlidersHorizontal,
   X,
   Brain,
@@ -42,14 +41,10 @@ export const AnimeStudioSideBar = React.memo<AnimeStudioSideBarProps>(({
 }) => {
   const location = useLocation();
 
-  const engineItems = [
-    { icon: Zap, label: 'Engine', path: '/engine' },
-    { icon: LayoutGrid, label: 'Template', path: '/template' },
-  ];
-
   const foundationItems = [
-    { icon: Globe, label: 'Anime World', path: '/world' },
-    { icon: ShieldCheck, label: 'Protocols', path: '/protocols' },
+    { icon: Zap, label: 'Creative Engine', path: '/engine' },
+    { icon: Globe, label: 'World Builder', path: '/world' },
+    { icon: ShieldCheck, label: 'Directives Hub', path: '/protocols' },
   ];
 
   const architectureItems = [
@@ -60,6 +55,7 @@ export const AnimeStudioSideBar = React.memo<AnimeStudioSideBarProps>(({
   const generationItems = [
     { icon: ScrollText, label: 'Script', path: '/script' },
     { icon: LayoutIcon, label: 'Storyboard', path: '/storyboard' },
+    { icon: Layers, label: 'Assets', path: '/assets' },
   ];
 
   const distributionItems = [
@@ -83,7 +79,7 @@ export const AnimeStudioSideBar = React.memo<AnimeStudioSideBarProps>(({
         </motion.div>
       )}
       <div className="flex flex-col gap-1">
-        {items.map((item, idx) => {
+        {items.map((item) => {
           const fullPath = `${basePath}${item.path}`;
           const isActive = location.pathname.startsWith(fullPath);
           const Icon = item.icon;
@@ -98,6 +94,7 @@ export const AnimeStudioSideBar = React.memo<AnimeStudioSideBarProps>(({
               <NavLink
                 to={fullPath}
                 title={collapsed ? item.label : undefined}
+                onClick={() => { if (!collapsed) onToggleCollapse?.(); }}
                 className={({ isActive: _isActive }) => cn(
                   "flex items-center gap-4 px-5 py-3 rounded-2xl text-[10px] font-black transition-all duration-300 group uppercase tracking-[0.2em] relative overflow-hidden mx-2",
                   isActive 
@@ -128,9 +125,9 @@ export const AnimeStudioSideBar = React.memo<AnimeStudioSideBarProps>(({
     <motion.aside
       initial={false}
       animate={{ 
-        width: collapsed ? 16 : 340,
-        opacity: 1
-      }}
+          width: collapsed ? 0 : 340,
+          opacity: 1
+        }}
       transition={{ duration: 0 }}
       className={cn(
         "fixed top-0 left-0 h-full bg-black flex flex-col z-[500] overflow-hidden transition-all duration-300",
@@ -176,10 +173,9 @@ export const AnimeStudioSideBar = React.memo<AnimeStudioSideBarProps>(({
                </div>
             )}
             
-            {renderNavGroup(engineItems, "PHASE 0: ENGINE")}
             {renderNavGroup(foundationItems, "PHASE 1: FOUNDATION")}
-            {renderNavGroup(architectureItems, "PHASE 2: ARCHITECTURE")}
-            {renderNavGroup(generationItems, "PHASE 3: GENERATION")}
+            {renderNavGroup(architectureItems, "PHASE 2: STRUCTURE")}
+            {renderNavGroup(generationItems, "PHASE 3: PRODUCTION")}
             {renderNavGroup(distributionItems, "PHASE 4: DISTRIBUTION")}
           </div>
         </nav>
@@ -206,7 +202,7 @@ export const AnimeStudioSideBar = React.memo<AnimeStudioSideBarProps>(({
                 isLoading && "opacity-20 grayscale pointer-events-none"
               )}
             >
-              {isLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : "CREATE WORLD"}
+              {isLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : "GENERATE WORLD"}
             </Button>
           </div>
 

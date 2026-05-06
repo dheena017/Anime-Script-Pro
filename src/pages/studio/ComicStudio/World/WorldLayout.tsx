@@ -9,7 +9,7 @@ export default function WorldLayout() {
           <Globe className="w-6 h-6 text-amber-400" />
         </div>
         <div>
-          <h1 className="text-2xl font-black text-white uppercase tracking-tighter">Comic World Genesis</h1>
+          <h1 className="text-2xl font-black text-white uppercase tracking-tighter">Comic World Builder</h1>
           <p className="text-zinc-500 text-xs font-bold uppercase tracking-widest">Graphic Novel Environments</p>
         </div>
       </div>

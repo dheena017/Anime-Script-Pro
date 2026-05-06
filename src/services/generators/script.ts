@@ -5,6 +5,7 @@ import {
   SCRIPT_CONTINUATION_PROMPT, 
   SCRIPT_REWRITE_TENSION_PROMPT 
 } from "../prompts";
+import { studioLog, studioGroup, studioEnd } from "@/lib/studio-logger";
 
 function validateScriptInput(value: string, fieldName: string, minimumLength = 2): void {
   if (!value || typeof value !== 'string' || value.trim().length < minimumLength) {
@@ -113,6 +114,7 @@ export async function generateScript(
     prompt
   );
 
+  studioGroup('ScriptEngine', `Script Drafting: S${session} E${episode}`, 'anime');
   try {
     const callPrompt = `
 WRITE A ${contentType.toUpperCase()} SCRIPT.
@@ -126,12 +128,28 @@ Project Prompt:
 ${prompt}
 `;
 
-    const text = await callAI(model, callPrompt, systemInstruction);
+    const text = await callAI(
+      model, 
+      callPrompt, 
+      systemInstruction,
+      0.85, // temperature
+      2048, // maxTokens
+      0.95, // topP
+      40,   // topK
+      180000, // timeoutMs
+      worldBuilding, // worldLore
+      castProfiles,  // castDNA
+      episodePlan    // episodePlan
+    );
+    if (text) {
+      studioLog('ScriptEngine', `Script synthesized successfully (${text.length} chars).`, 'success');
+    }
     return text || "Failed to generate script.";
   } catch (error: any) {
-    console.error("Error generating script:", error);
-    console.warn("[Script Lab] Falling back to MOCK_SCRIPT to preserve pipeline continuity.");
+    studioLog('ScriptEngine', 'Failed to draft script. Falling back to MOCK_SCRIPT.', 'error', error);
     return MOCK_SCRIPT;
+  } finally {
+    studioEnd();
   }
 }
 
@@ -154,7 +172,16 @@ CONTINUITY RULES:
 - Keep the new scenes usable for later storyboard, metadata, and image generation.
 `;
 
-    const text = await callAI(model, prompt, systemInstruction);
+    const text = await callAI(
+      model,
+      prompt,
+      systemInstruction,
+      0.85, // temperature
+      2048, // maxTokens
+      0.95, // topP
+      40,   // topK
+      180000 // timeoutMs
+    );
     return text || "Failed to continue script.";
   } catch (error) {
     console.error("Error continuing script:", error);
@@ -180,14 +207,62 @@ TENSION RULES:
 - Keep the rewrite cinematic and production-friendly.
 `;
 
-    const text = await callAI(model, prompt, systemInstruction);
+    const text = await callAI(
+      model,
+      prompt,
+      systemInstruction,
+      0.85, // temperature
+      2048, // maxTokens
+      0.95, // topP
+      40,   // topK
+      180000 // timeoutMs
+    );
     return text || sceneDescription;
   } catch (error) {
     console.error("Error rewriting for tension:", error);
     return sceneDescription;
   }
+}export async function generateEpisodeAssets(options: {
+  prompt: string;
+  script?: string;
+  episode: string;
+  session: string;
+  numScenes: string;
+  model: string;
+}) {
+  const { prompt, script, episode, session, numScenes, model } = options;
+  
+  // 1. Generate or use existing script
+  const finalScript = script || await generateScript(prompt, "Hype/Energetic", "General Fans", session, episode, numScenes, model);
+  
+  // 2. Mock image and video prompts for the whole episode (aggregates)
+  // In a real implementation, we might call callAI again to summarize or generate specific episode-level prompts
+  const episodeImagePrompts = `Episode ${episode} Image Prompt Matrix: High-fidelity, cinematic style, consistent with the script: ${finalScript.slice(0, 100)}...`;
+  const episodeVideoPrompts = `Episode ${episode} Video Sequence Guidance: Dynamic camera work, story-led motion, consistent with: ${finalScript.slice(0, 100)}...`;
+
+  // 3. Generate Scenes
+  // For a simple implementation, we'll parse the script or create dummy scenes if parsing fails
+  // Here we just return a structured object that EpisodePackager expects
+  const scenes = Array.from({ length: parseInt(numScenes) }, (_, i) => ({
+    index: i + 1,
+    sceneOutput: {
+      narration: `Narration for scene ${i + 1} of episode ${episode}.`,
+      visuals: `Visual description for scene ${i + 1}.`,
+      sound: `Ambient soundscape for scene ${i + 1}.`
+    },
+    imagePrompts: `Image prompt for scene ${i + 1}`,
+    videoPrompts: `Video prompt for scene ${i + 1}`
+  }));
+
+  return {
+    script: finalScript,
+    scenes,
+    episodeImagePrompts,
+    episodeVideoPrompts,
+    meta: {
+      title: `Episode ${episode} Synthesis`,
+      episode,
+      session
+    }
+  };
 }
-
-
-
-

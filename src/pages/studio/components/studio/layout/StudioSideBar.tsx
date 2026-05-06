@@ -71,7 +71,7 @@ export const StudioSideBar = React.memo<StudioSideBarProps>(({ collapsed, setCol
         </motion.div>
       )}
       <div className="flex flex-col gap-1">
-        {items.map((item, idx) => {
+        {items.map((item) => {
           const fullPath = item.path.startsWith('/') ? item.path : `${prefix}/${item.path}`;
           const isActive = location.pathname === fullPath || (location.pathname.startsWith(fullPath) && item.path !== 'world');
           const Icon = item.icon;
@@ -124,14 +124,14 @@ export const StudioSideBar = React.memo<StudioSideBarProps>(({ collapsed, setCol
     <motion.aside
       initial={false}
       animate={{ 
-        x: collapsed ? -324 : 0,
+        x: collapsed ? -340 : 0,
         opacity: 1
       }}
       onClick={() => collapsed && setCollapsed(false)}
       transition={{ duration: 0 }}
       className={cn(
         "fixed top-0 left-0 h-full w-[340px] border-r border-zinc-800/30 bg-black flex flex-col z-[500] shadow-[20px_0_80px_rgba(0,0,0,1)] overflow-hidden transition-colors duration-300 will-change-transform",
-        collapsed ? "cursor-pointer hover:bg-red-500/10 border-red-500/20" : "cursor-default"
+        collapsed ? "cursor-pointer hover:bg-white/5" : "cursor-default"
       )}
     >
       <AnimatePresence>
@@ -147,8 +147,8 @@ export const StudioSideBar = React.memo<StudioSideBarProps>(({ collapsed, setCol
               <ScrollText className="text-red-500 w-6 h-6" />
             </div>
             <div className="flex flex-col">
-              <span className="font-black tracking-[0.2em] text-[12px] uppercase text-white leading-none">Studio <span className="text-red-500">Architect</span></span>
-              <span className="text-[8px] font-bold text-zinc-600 uppercase tracking-[0.3em] mt-1.5">Neural Core v2.5</span>
+              <span className="font-black tracking-[0.2em] text-[12px] uppercase text-white leading-none">Production <span className="text-red-500">Studio</span></span>
+              <span className="text-[8px] font-bold text-zinc-600 uppercase tracking-[0.3em] mt-1.5">AI Core v2.5</span>
             </div>
             <button
               onClick={() => setCollapsed(true)}
@@ -198,11 +198,11 @@ export const StudioSideBar = React.memo<StudioSideBarProps>(({ collapsed, setCol
                 {renderNavGroup([
                   { icon: BookOpen, label: 'Docs', path: '/system/docs' },
                   { icon: LayoutGrid, label: 'Projects', path: '/projects' },
-                  { icon: Terminal, label: 'Terminal', path: '/api-reference' },
-                  { icon: Database, label: 'Archive', path: '/lore-database' },
-                  { icon: Activity, label: 'Neural Health', path: '/system/health' },
-                  { icon: MessageSquare, label: 'Uplink', path: '/system/feedback' },
-                ], "NEURAL PROTOCOLS", "red")}
+                  { icon: Terminal, label: 'Terminal', path: '/system/terminal' },
+                  { icon: Database, label: 'Archive', path: '/system/archive' },
+                  { icon: Activity, label: 'System Health', path: '/system/health' },
+                  { icon: MessageSquare, label: 'Uplink', path: '/system/uplink' },
+                ], "SYSTEM PROTOCOLS", "red")}
              </div>
           )}
         </nav>
@@ -216,7 +216,7 @@ export const StudioSideBar = React.memo<StudioSideBarProps>(({ collapsed, setCol
               <div className="p-2 bg-cyan-500/10 rounded-xl border border-cyan-500/20">
                 <Brain className="w-4 h-4 text-cyan-500 animate-pulse" />
               </div>
-              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-200">Neural Engine</span>
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-200">AI Engine</span>
             </div>
             <p className="text-[9px] text-zinc-500 font-bold leading-relaxed mb-4 uppercase tracking-wider">
               Level 42 Sync Established. Multi-Session Persistence Online.

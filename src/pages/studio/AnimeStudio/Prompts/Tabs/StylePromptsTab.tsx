@@ -17,7 +17,7 @@ export const StylePromptsTab: React.FC = () => {
           <Palette className="w-8 h-8 text-amber-400" />
         </div>
         <div>
-          <h2 className="text-3xl font-black text-white uppercase tracking-tighter">Art Style DNA</h2>
+          <h2 className="text-3xl font-black text-white uppercase tracking-tighter">Visual Style Guide</h2>
           <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-[0.3em] mt-1">
             Visual signature orchestration and aesthetic parameters
           </p>

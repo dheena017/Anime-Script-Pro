@@ -1,5 +1,7 @@
 import { useGenerator } from '@/hooks/useGenerator';
 import { useOutletContext } from 'react-router-dom';
+import { cn } from '@/lib/utils';
+import { sharedStyles } from '@/pages/studio/components/studio/shared/sharedStyles';
 import { ManifestTab } from './tabs/ManifestTab';
 import { HistoryTab } from './tabs/HistoryTab';
 import { PowersTab } from './tabs/PowersTab';
@@ -21,6 +23,7 @@ import {
   generateCulture,
   generateSystems
 } from '@/services/api/gemini';
+import { MOCK_WORLD_DATA } from '@/services/generators/mockData';
 
 export function WorldPage() {
   const {
@@ -75,6 +78,18 @@ export function WorldPage() {
     showNotification
   } = useGenerator();
 
+  const handleLoadDemo = () => {
+    updateGlobalWorld(MOCK_WORLD_DATA.manifest);
+    setGeneratedWorldLore(MOCK_WORLD_DATA.lore);
+    setGeneratedWorldPowers(MOCK_WORLD_DATA.powers);
+    setGeneratedWorldFactions(MOCK_WORLD_DATA.factions);
+    setGeneratedWorldArchitecture(MOCK_WORLD_DATA.architecture);
+    setGeneratedWorldAtlas(MOCK_WORLD_DATA.atlas);
+    setGeneratedWorldCulture(MOCK_WORLD_DATA.culture);
+    setGeneratedWorldSystems(MOCK_WORLD_DATA.systems);
+    showNotification?.('Aetheria world lore loaded successfully.', 'success');
+  };
+
   const { activeTab } = useOutletContext<{ activeTab: WorldTab }>();
 
   const handleGenerateSpecialized = async (type: WorldTab) => {
@@ -110,6 +125,7 @@ export function WorldPage() {
     if (isGenerating) return;
 
     setGenerating(true);
+    console.log(`[WorldPage] Requesting specialized generation for: ${type.toUpperCase()}...`);
     try {
       let result = '';
       const modulePrompts: Record<string, string> = {
@@ -146,8 +162,10 @@ export function WorldPage() {
         result = await generateSystems(activePrompt, selectedModel, contentType, generatedWorld || undefined);
         setGeneratedWorldSystems(result);
       }
+      console.log(`[WorldPage] ${type.toUpperCase()} generated successfully. Response length: ${result?.length || 0} chars.`);
       showNotification?.(`${type.charAt(0).toUpperCase() + type.slice(1)} generated successfully!`, 'success');
     } catch (e: any) {
+      console.error(`[WorldPage] Failed to generate ${type}:`, e);
       showNotification?.(`Failed to generate ${type}: ` + e.message, 'error');
     } finally {
       setGenerating(false);
@@ -224,6 +242,7 @@ export function WorldPage() {
           onLaunch={() => {
             window.dispatchEvent(new CustomEvent('studio-generate-world'));
           }}
+          onLoadDemo={handleLoadDemo}
           isGenerating={isGeneratingWorld}
         />
       );
@@ -282,6 +301,8 @@ export function WorldPage() {
             isEditing={isEditing} 
             content={generatedWorldArchitecture} 
             onContentChange={(val: string) => setGeneratedWorldArchitecture(val)} 
+            onGenerate={() => handleGenerateSpecialized('architecture')}
+            isGenerating={isGeneratingArchitecture}
             prompt={promptArchitecture}
             onPromptChange={setPromptArchitecture}
           />
@@ -292,6 +313,8 @@ export function WorldPage() {
             isEditing={isEditing} 
             content={generatedWorldAtlas} 
             onContentChange={(val: string) => setGeneratedWorldAtlas(val)} 
+            onGenerate={() => handleGenerateSpecialized('atlas')}
+            isGenerating={isGeneratingAtlas}
             prompt={promptAtlas}
             onPromptChange={setPromptAtlas}
           />
@@ -302,6 +325,8 @@ export function WorldPage() {
             isEditing={isEditing} 
             content={generatedWorldCulture} 
             onContentChange={(val: string) => setGeneratedWorldCulture(val)} 
+            onGenerate={() => handleGenerateSpecialized('culture')}
+            isGenerating={isGeneratingCulture}
             prompt={promptCulture}
             onPromptChange={setPromptCulture}
           />
@@ -312,6 +337,8 @@ export function WorldPage() {
             isEditing={isEditing} 
             content={generatedWorldSystems} 
             onContentChange={(val: string) => setGeneratedWorldSystems(val)} 
+            onGenerate={() => handleGenerateSpecialized('systems')}
+            isGenerating={isGeneratingSystems}
             prompt={promptSystems}
             onPromptChange={setPromptSystems}
           />
@@ -323,7 +350,7 @@ export function WorldPage() {
 
   return (
     <div data-testid="marker-world-architecture" className="space-y-8 pb-20">
-      <div className="world-card !p-0 overflow-hidden border-zinc-500/30 bg-zinc-950/90">
+      <div className={cn(sharedStyles.card, "!p-0 overflow-hidden border-zinc-500/30 bg-zinc-950/90")}>
         <div className="w-full p-8 lg:p-10 max-w-[1400px] mx-auto">
           {renderContent()}
         </div>

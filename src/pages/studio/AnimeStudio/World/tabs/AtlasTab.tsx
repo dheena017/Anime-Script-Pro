@@ -2,7 +2,10 @@ import React from 'react';
 import { Map, Compass, Globe, Navigation, Sparkles, ClipboardList, Download } from 'lucide-react';
 import { motion } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
+import { studioLog, reportGeneration } from '@/lib/studio-logger';
 import { TableOfContents } from '../components/TableOfContents';
+import { useAutoResizeTextarea } from '../hooks/useAutoResizeTextarea';
+import { worldStyles as s } from '../worldStyles/worldStyles';
 
 interface AtlasTabProps {
   isEditing: boolean;
@@ -24,6 +27,8 @@ export const AtlasTab: React.FC<AtlasTabProps> = ({
   onPromptChange
 }) => {
   const sectionContent = content;
+  const { textareaRef: mainTextareaRef, scheduleResizeTextarea: scheduleMainResize } = useAutoResizeTextarea(content || '', isEditing);
+  const { textareaRef: promptTextareaRef, scheduleResizeTextarea: schedulePromptResize } = useAutoResizeTextarea(prompt || '', isEditing);
 
   const stats = React.useMemo(() => {
     const findVal = (regex: RegExp, fallback: string) => {
@@ -67,9 +72,12 @@ export const AtlasTab: React.FC<AtlasTabProps> = ({
           <div className="flex items-center gap-3">
             {onGenerate && (
               <button 
-                onClick={onGenerate}
+                onClick={() => {
+                  reportGeneration('AtlasTab', 'Regional synthesis', 'request', 'anime');
+                  onGenerate();
+                }}
                 disabled={isGenerating}
-                className="flex items-center gap-2 px-5 py-2.5 bg-white text-black hover:bg-zinc-200 rounded-full transition-all group disabled:opacity-50"
+                className={s.actionButton}
               >
                 {isGenerating ? (
                   <div className="w-3.5 h-3.5 border-2 border-black/20 border-t-black rounded-full animate-spin" />
@@ -82,10 +90,12 @@ export const AtlasTab: React.FC<AtlasTabProps> = ({
 
             <button 
               onClick={() => {
+                studioLog('AtlasTab', 'Copying Atlas Manifest to clipboard...', 'info');
                 navigator.clipboard.writeText(content);
+                studioLog('AtlasTab', 'Atlas Manifest copied successfully.', 'success');
                 alert('Atlas Manifest copied!');
               }}
-              className="flex items-center gap-2 px-5 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-full transition-all group"
+              className={s.actionButtonGhost}
             >
               <ClipboardList className="w-3.5 h-3.5 text-zinc-400 group-hover:text-white transition-colors" />
               <span className="text-[10px] font-black text-zinc-400 group-hover:text-white uppercase tracking-widest">Copy</span>
@@ -93,12 +103,14 @@ export const AtlasTab: React.FC<AtlasTabProps> = ({
             
             <button 
               onClick={() => {
+                studioLog('AtlasTab', 'Downloading Atlas Manifest...', 'info');
                 const element = document.createElement("a");
                 const file = new Blob([content], { type: 'text/markdown' });
                 element.href = URL.createObjectURL(file);
                 element.download = "Atlas_Manifest.md";
                 document.body.appendChild(element);
                 element.click();
+                studioLog('AtlasTab', 'Atlas Manifest download initiated.', 'success');
               }}
               className="flex items-center gap-2 px-5 py-2.5 bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/20 rounded-full transition-all group"
             >
@@ -111,9 +123,14 @@ export const AtlasTab: React.FC<AtlasTabProps> = ({
 
       {isEditing ? (
         <textarea
-          className="world-textarea"
+          ref={mainTextareaRef}
+          className="world-textarea overflow-hidden"
           value={content || ''}
-          onChange={(e) => onContentChange(e.target.value)}
+          onChange={(e) => {
+            onContentChange(e.target.value);
+            scheduleMainResize();
+          }}
+          onInput={scheduleMainResize}
           placeholder="Map out your world geography here..."
         />
       ) : (
@@ -125,32 +142,39 @@ export const AtlasTab: React.FC<AtlasTabProps> = ({
           </div>
 
           <div className="world-sidebar space-y-8">
-            <div className="p-6 bg-[#050505] border border-white/5 rounded-[2rem] space-y-4 relative overflow-hidden group">
-              <div className="absolute inset-0 bg-blue-500/5 blur-[40px] pointer-events-none group-hover:bg-blue-500/10 transition-all duration-700" />
-              <div className="relative z-10 space-y-4">
+            <div className={s.sidebarCard}>
+              <div className={s.sidebarGlow + " bg-blue-500/5 group-hover:bg-blue-500/10"} />
+              <div className={s.sidebarContent}>
                 <div className="flex items-center justify-between">
-                  <h4 className="text-[10px] font-black text-zinc-500 uppercase tracking-widest flex items-center gap-2">
-                    <Sparkles className="w-3 h-3 text-blue-500" /> Neural Seed
+                  <h4 className={s.sidebarTitle}>
+                    <Sparkles className="w-3 h-3 text-blue-500" /> Core Seed
                   </h4>
                   {isEditing && <span className="text-[8px] font-bold text-blue-500/50 uppercase">Modular Prompt</span>}
                 </div>
                 
                 {isEditing ? (
                   <textarea
-                    className="w-full bg-black/40 border border-white/5 rounded-xl p-3 text-[10px] font-medium text-zinc-300 placeholder:text-zinc-700 focus:outline-none focus:border-blue-500/30 transition-colors min-h-[100px] resize-none"
+                    ref={promptTextareaRef}
+                    className={s.sidebarPromptInput + " focus:border-blue-500/30"}
                     value={prompt || ''}
-                    onChange={(e) => onPromptChange?.(e.target.value)}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      studioLog('AtlasTab', `Refining Atlas Seed. Length: ${val.length} chars.`, 'info');
+                      onPromptChange?.(val);
+                      schedulePromptResize();
+                    }}
+                    onInput={schedulePromptResize}
                     placeholder="Refine the geographic synthesis with specific instructions..."
                   />
                 ) : (
-                  <div className="p-4 bg-black/40 border border-white/5 rounded-xl">
-                    <p className="text-[9px] font-medium text-zinc-500 leading-relaxed italic">
+                  <div className={s.sidebarPromptBox}>
+                    <p className={s.sidebarPromptText}>
                       {prompt ? `"${prompt.substring(0, 120)}${prompt.length > 120 ? '...' : ''}"` : 'Using global project seed for synthesis.'}
                     </p>
                   </div>
                 )}
                 
-                <p className="text-[8px] text-zinc-600 font-bold uppercase tracking-tighter leading-relaxed">
+                <p className={s.sidebarNote}>
                   Focus the AI on specific biomes, landmark names, or environmental hazards unique to this world.
                 </p>
               </div>

@@ -188,37 +188,7 @@ export function ScriptPage() {
   };
 
 
-  const handleGenerateScript = async () => {
-    if (!prompt.trim()) {
-      showNotification?.('Please enter a story prompt first to write the script.', 'error');
-      return;
-    }
-    setIsLoading(true);
-    try {
-      const currentEpisodePlan = generatedSeriesPlan?.find(ep => parseInt(ep.episode) === parseInt(episode));
-      const targetSceneCount = currentEpisodePlan?.asset_matrix?.scene_count?.toString() || numScenes;
-      const script = await generateScript(prompt, tone, audience, session, episode, targetSceneCount, selectedModel, contentType, recapperPersona, characterRelationships, generatedWorld, generatedCharacters, currentEpisodePlan ? JSON.stringify(currentEpisodePlan) : null);
-      setGeneratedScript(script);
-      setCurrentScriptId(null);
-      if (user) {
-        await apiRequest("/api/scripts", {
-          method: 'POST',
-          body: JSON.stringify({
-            user_id: user.id,
-            title: `EPISODE_${episode}`,
-            content: script,
-            metadata: { prompt, tone, audience, episode, session, contentType, model: selectedModel }
-          })
-        });
-      }
-      showNotification?.('Script written successfully!', 'success');
-    } catch (error: any) {
-      console.error("Failed to generate and save script:", error);
-      showNotification?.('Failed to write script: ' + (error.message || 'Unknown error'), 'error');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+
 
 
 
@@ -338,7 +308,9 @@ export function ScriptPage() {
     if (!generatedScript) {
       return (
         <ScriptEmptyState
-          onLaunch={handleGenerateScript}
+          onLaunch={() => {
+            window.dispatchEvent(new CustomEvent('studio-generate-script'));
+          }}
           isGenerating={isLoading}
         />
       );

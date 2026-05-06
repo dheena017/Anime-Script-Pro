@@ -206,7 +206,7 @@ export function ExternalModelNetwork() {
           <div className="p-2 bg-cyan-500/10 rounded-lg border border-cyan-500/20">
             <Globe className="w-5 h-5 text-cyan-400" />
           </div>
-          <h3 className="text-xl font-black text-white uppercase tracking-[0.2em]">Neural Discovery Network</h3>
+          <h3 className="text-xl font-black text-white uppercase tracking-[0.2em]">Discovery Network</h3>
         </div>
         <p className="text-xs text-zinc-500 font-bold uppercase tracking-widest pl-10">
           A curated bypass to external high-performance free AI models for production assistance.

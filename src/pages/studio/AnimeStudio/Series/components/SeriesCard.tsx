@@ -185,7 +185,7 @@ export const SeriesCard = React.memo<SeriesCardProps>(({
                 {/* Image */}
                 <div className="p-5 border-b md:border-r md:border-b-0 border-white/10 hover:bg-purple-500/5 transition-colors group/asset">
                   <p className="text-[9px] font-black uppercase tracking-[0.2em] text-zinc-500 flex items-center gap-2 group-hover/asset:text-purple-400 transition-colors">
-                    <Camera className="w-3 h-3" /> Visual DNA
+                    <Camera className="w-3 h-3" /> Visual Style
                   </p>
                   {isEditing ? (
                     <input

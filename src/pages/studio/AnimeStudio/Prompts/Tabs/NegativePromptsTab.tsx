@@ -58,7 +58,7 @@ export const NegativePromptsTab: React.FC = () => {
       <Card className="p-8 border border-dashed border-rose-500/20 bg-rose-500/5 rounded-[2rem] flex items-center gap-6">
         <AlertTriangle className="w-8 h-8 text-rose-500/40" />
         <p className="text-[10px] text-zinc-500 font-medium leading-relaxed uppercase tracking-wider">
-          Negative prompts are globally injected into the neural engine to ensure consistent quality across all scenes.
+          Negative prompts are applied across all scenes to maintain quality.
         </p>
       </Card>
     </div>

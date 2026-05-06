@@ -9,7 +9,8 @@ import {
   Zap,
   Lock,
   Sparkles,
-  Loader2
+  Loader2,
+  RefreshCw
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -45,48 +46,37 @@ export function RelationshipLab() {
   const [isGenerating, setIsGenerating] = React.useState(false);
 
   const handleAISynthesis = async () => {
-    if (!prompt) return;
+    if (!prompt || !castList || castList.length === 0) return;
     setIsGenerating(true);
 
-    // Get character names for context
-    const castNames = castList?.map(c => c.name).join(", ") || "various characters";
-
+    const castNames = castList.map(c => c.name).join(", ");
     const results = await generateRelationships(prompt, castNames, selectedModel, contentType);
 
     if (results && Array.isArray(results)) {
-      const withIds = results.map(r => ({
-        id: Math.random().toString(36).substr(2, 9),
-        ...r
-      }));
+      const withIds = results.map((r, idx) => {
+        if (r.id) return r;
+        return {
+          ...r,
+          id: `rel-${Date.now()}-${idx}`
+        };
+      });
       setConnections(withIds as any);
-
-      // Sync to global context
-      const syncString = withIds.map(c =>
-        `${c.source} & ${c.target}: ${c.type} (Tension: ${c.tension}/10) - ${c.description}`
-      ).join('\n');
-      setCharacterRelationships(syncString);
+      setCharacterRelationships(JSON.stringify(withIds));
     }
 
     setIsGenerating(false);
   };
 
-
-  // Initial parse of the text-based relationships if they exist
+  // Sync from global context
   React.useEffect(() => {
     if (characterRelationships) {
       try {
         const parsed = JSON.parse(characterRelationships);
         if (Array.isArray(parsed)) {
-          // Add IDs if missing
-          const withIds = parsed.map((c: any) => ({
-            id: c.id || Math.random().toString(36).substr(2, 9),
-            ...c
-          }));
-          setConnections(withIds);
+          setConnections(parsed);
         }
       } catch (e) {
-        // Not JSON, probably legacy string format or empty
-        console.log("Relationship data is not JSON, skipping auto-parse.");
+        console.warn("Relationship data is not JSON, might be legacy format.");
       }
     }
   }, [characterRelationships]);
@@ -94,7 +84,7 @@ export function RelationshipLab() {
   const addConnection = () => {
     if (!newConn.source || !newConn.target) return;
     const conn: Connection = {
-      id: Math.random().toString(36).substr(2, 9),
+      id: `rel-manual-${Date.now()}`,
       source: newConn.source,
       target: newConn.target,
       type: newConn.type as any,
@@ -104,21 +94,13 @@ export function RelationshipLab() {
     const updated = [...connections, conn];
     setConnections(updated);
     setNewConn({ type: 'Ally', tension: 5 });
-
-    // Sync back to global context as a descriptive string the AI can read
-    const syncString = updated.map(c =>
-      `${c.source} & ${c.target}: ${c.type} (Tension: ${c.tension}/10) - ${c.description}`
-    ).join('\n');
-    setCharacterRelationships(syncString);
+    setCharacterRelationships(JSON.stringify(updated));
   };
 
   const removeConnection = (id: string) => {
     const updated = connections.filter(c => c.id !== id);
     setConnections(updated);
-    const syncString = updated.map(c =>
-      `${c.source} & ${c.target}: ${c.type} (Tension: ${c.tension}/10) - ${c.description}`
-    ).join('\n');
-    setCharacterRelationships(syncString);
+    setCharacterRelationships(JSON.stringify(updated));
   };
 
   const getTypeIcon = (type: string) => {
@@ -144,7 +126,7 @@ export function RelationshipLab() {
         <p className="text-zinc-500 italic max-w-lg mx-auto font-medium">
           Engineering the emotional friction and tactical alliances that drive your plot.
         </p>
-        <div className="pt-4">
+        <div className="pt-4 flex items-center justify-center gap-4">
           <Button
             onClick={handleAISynthesis}
             disabled={isGenerating || !prompt}
@@ -153,9 +135,21 @@ export function RelationshipLab() {
             {isGenerating ? (
               <Loader2 className="w-4 h-4 animate-spin" />
             ) : (
+              <RefreshCw className="w-4 h-4 group-hover:scale-125 transition-transform" />
+            )}
+            SYNC SOCIAL MATRIX
+          </Button>
+          <Button
+            onClick={handleAISynthesis}
+            disabled={isGenerating || !prompt}
+            className="bg-fuchsia-600 hover:bg-fuchsia-500 text-white font-black tracking-[0.2em] text-[10px] h-12 px-10 rounded-full shadow-[0_0_30px_rgba(217,70,239,0.3)] transition-all gap-3 group"
+          >
+            {isGenerating ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
               <Sparkles className="w-4 h-4 group-hover:scale-125 transition-transform" />
             )}
-            {isGenerating ? "SYNTHESIZING MATRIX..." : "NEURAL SYNTHESIS"}
+            NEURAL RE-GENERATE
           </Button>
         </div>
       </div>

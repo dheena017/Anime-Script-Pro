@@ -6,6 +6,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { ScreeningHeader } from './components/ScreeningHeader';
 import { ScreeningToolbar } from './components/ScreeningToolbar';
 import { ScreeningTab } from './Tabs/ScreeningTabs';
+import { ScreeningLoadingPage } from './components/ScreeningLoadingPage';
 
 export const ScreeningContext = React.createContext<{
   setHandlers: React.Dispatch<React.SetStateAction<any>>;
@@ -17,38 +18,31 @@ export default function ScreeningLayout() {
   const [handlers, setHandlers] = React.useState<any>({});
 
   const {
-    session, episode, isSaving, setIsSaving, showNotification, generatedScript,
-    castProfiles, castData, generatedSeriesPlan, generatedMetadata
+    session, episode, isSaving, generatedScript,
+    syncCore, contentType
   } = useGenerator();
 
-  const { user } = useAuth();
+  useAuth();
 
   const handleSave = async () => {
-    if (!user?.id) {
-      showNotification?.('Authentication Required', 'error');
-      return;
-    }
-
-    setIsSaving(true);
-    try {
-      const { productionApi } = await import('@/services/api/production');
-      await productionApi.updateContent(user.id, {
-        cast_profiles: castProfiles,
-        cast_data: castData,
-        script_content: generatedScript,
-        series_plan: generatedSeriesPlan,
-        seo_metadata: generatedMetadata
-      });
-      showNotification?.('Preview data saved successfully!', 'success');
-    } catch (e) {
-      console.error("Manual sync failed:", e);
-      showNotification?.('Sync Error', 'error');
-    } finally {
-      setIsSaving(false);
-    }
+    await syncCore();
   };
 
+  React.useEffect(() => {
+    const handleGlobalGenerate = () => {
+      if (handlers.handleFullRender) {
+        handlers.handleFullRender();
+      }
+    };
+    window.addEventListener('studio-generate-screening', handleGlobalGenerate);
+    return () => window.removeEventListener('studio-generate-screening', handleGlobalGenerate);
+  }, [handlers.handleFullRender]);
+
   const activeTab = (searchParams.get('tab') as ScreeningTab) || 'preview';
+
+  React.useEffect(() => {
+    console.log(`[ScreeningLayout] Active tab changed to: ${activeTab.toUpperCase()}`);
+  }, [activeTab]);
 
   const handleTabChange = (tab: ScreeningTab) => {
     setSearchParams({ tab });
@@ -61,8 +55,8 @@ export default function ScreeningLayout() {
           <ScreeningHeader
             session={session}
             episode={episode}
-            onPrev={() => navigate('/anime/prompts')}
-            onNext={() => navigate('/anime/engine')}
+            onPrev={() => navigate(`/${contentType.toLowerCase()}/prompts`)}
+            onNext={() => navigate(`/${contentType.toLowerCase()}/engine`)}
             onRender={handlers.handleFullRender}
             isRendering={handlers.isRendering}
             onSave={handleSave}
@@ -71,25 +65,33 @@ export default function ScreeningLayout() {
           />
         </div>
 
-        <div className="studio-module-toolbar flex items-center justify-center p-2 bg-[#050505]/40 backdrop-blur-md border border-white/5 rounded-xl mb-8">
-          <ScreeningToolbar
-            status="active"
-            activeTab={activeTab}
-            setActiveTab={handleTabChange}
-            session={session}
-            episode={episode}
-            activeSession={handlers.activeSession}
-            setActiveSession={handlers.setActiveSession}
-          />
+        <div className="studio-tabs-bar sticky top-0 z-40 flex items-center justify-center p-3 md:p-4 bg-[#050505]/95 backdrop-blur-md border border-white/10 rounded-[2rem] shadow-2xl mb-8 relative group overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-studio/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
+          <div className="relative z-10 w-full flex justify-center">
+            <ScreeningToolbar
+              status="active"
+              activeTab={activeTab}
+              setActiveTab={handleTabChange}
+              session={session}
+              episode={episode}
+              activeSession={handlers.activeSession}
+              setActiveSession={handlers.setActiveSession}
+              showTabsOnly={true}
+            />
+          </div>
         </div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-        >
-          <Outlet context={{ activeTab }} />
-        </motion.div>
+        {handlers.isRendering ? (
+          <ScreeningLoadingPage tab={activeTab} />
+        ) : (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <Outlet context={{ activeTab }} />
+          </motion.div>
+        )}
       </div>
     </ScreeningContext.Provider>
   );

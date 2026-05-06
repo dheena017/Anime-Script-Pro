@@ -62,7 +62,7 @@ export const Footer: React.FC = () => {
 
             {/* NEURAL UPDATES MODULE */}
             <div className="space-y-4">
-              <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-studio">Neural Updates</h4>
+              <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-studio">System Updates</h4>
               <form onSubmit={handleSubscribe} className="relative group">
                  <div className="absolute -inset-1 bg-gradient-to-r from-studio/50 to-transparent rounded-2xl blur opacity-0 group-focus-within:opacity-20 transition duration-500" />
                  <div className="relative flex gap-2">
@@ -95,7 +95,7 @@ export const Footer: React.FC = () => {
                         exit={{ opacity: 0, y: -10 }}
                         className="mt-4 flex items-center gap-2 text-emerald-500 text-[9px] font-black uppercase tracking-[0.2em]"
                      >
-                        <CheckCircle2 className="w-3.5 h-3.5" /> Neural Link Established
+                        <CheckCircle2 className="w-3.5 h-3.5" /> System Link Established
                      </motion.div>
                    )}
                    {subStatus === 'error' && (
@@ -130,7 +130,7 @@ export const Footer: React.FC = () => {
             <div className="space-y-8">
               <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-white">Platform Nodes</h4>
               <ul className="space-y-4">
-                <li><a href="/anime" className="text-zinc-600 hover:text-studio text-[11px] font-black uppercase tracking-widest transition-all no-underline">God Mode Engine</a></li>
+                <li><a href="/anime" className="text-zinc-600 hover:text-studio text-[11px] font-black uppercase tracking-widest transition-all no-underline">Pro Studio Engine</a></li>
                 <li><a href="/pricing" className="text-zinc-600 hover:text-studio text-[11px] font-black uppercase tracking-widest transition-all no-underline">Pricing Protocol</a></li>
                 <li><a href="/community" className="text-zinc-600 hover:text-studio text-[11px] font-black uppercase tracking-widest transition-all no-underline">Social Hub</a></li>
                 <li><a href="/library" className="text-zinc-600 hover:text-studio text-[11px] font-black uppercase tracking-widest transition-all no-underline">Asset Archives</a></li>
@@ -151,7 +151,7 @@ export const Footer: React.FC = () => {
               <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-white">Support Node</h4>
               <ul className="space-y-4">
                 <li><a href="/contact" className="text-zinc-600 hover:text-studio text-[11px] font-black uppercase tracking-widest transition-all no-underline">Terminal Support</a></li>
-                <li><a href="/help" className="text-zinc-600 hover:text-studio text-[11px] font-black uppercase tracking-widest transition-all no-underline">Neural Help</a></li>
+                <li><a href="/help" className="text-zinc-600 hover:text-studio text-[11px] font-black uppercase tracking-widest transition-all no-underline">Help Center</a></li>
                 <li><a href="/system/status" className="text-zinc-600 hover:text-studio text-[11px] font-black uppercase tracking-widest transition-all no-underline">System Status</a></li>
                 <li><a href="/terms" className="text-zinc-600 hover:text-studio text-[11px] font-black uppercase tracking-widest transition-all no-underline">Terms of Protocol</a></li>
               </ul>

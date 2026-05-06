@@ -127,7 +127,7 @@ export function LoginPage() {
                 className="text-xl font-medium text-zinc-400 max-w-md"
               >
                 Orchestrate your production <br />
-                With neural-grade precision.
+                Fast, powerful, and precise.
               </motion.h2>
               <motion.div
                 initial={{ opacity: 0, x: -20 }}
@@ -215,7 +215,7 @@ export function LoginPage() {
 
           <AuthCard
             title="USER LOGIN"
-            description="Access the God Mode production suite"
+            description="Access the Pro Studio production suite"
           >
             <LoginForm />
 

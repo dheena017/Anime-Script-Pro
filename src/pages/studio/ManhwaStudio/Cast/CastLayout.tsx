@@ -10,7 +10,7 @@ export default function CastLayout() {
         </div>
         <div>
           <h1 className="text-2xl font-black text-white uppercase tracking-tighter">Manhwa Cast Registry</h1>
-          <p className="text-zinc-500 text-xs font-bold uppercase tracking-widest">Character Profiles & DNA Forge</p>
+          <p className="text-zinc-500 text-xs font-bold uppercase tracking-widest">Character Profiles & Creation</p>
         </div>
       </div>
       

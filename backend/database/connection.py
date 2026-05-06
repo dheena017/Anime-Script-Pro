@@ -6,15 +6,7 @@ from typing import AsyncGenerator
 
 from loguru import logger
 
-class AsyncSession(SQLAlchemyAsyncSession):
-    """
-    Custom AsyncSession that adds back the .exec() method from SQLModel 
-    for better compatibility with the existing codebase.
-    """
-    async def exec(self, statement, *args, **kwargs):
-        logger.debug(f"DATABASE: Executing statement: {statement}")
-        result = await self.execute(statement, *args, **kwargs)
-        return result.scalars()
+from sqlalchemy.ext.asyncio import AsyncSession
 
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///backend/database/anime_script_pro.db")
 

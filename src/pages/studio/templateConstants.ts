@@ -8,7 +8,7 @@ export const templateMarkdown = `
 # OMNI-RECAP PRODUCTION DIRECTIVE v5.2
 
 ## GLOBAL HEURISTICS
-- **Neural Pacing:** 120-140 BPM equivalent narrative flow.
+- **AI Pacing:** 120-140 BPM equivalent narrative flow.
 - **Visual DNA:** High-contrast 4K grading, anamorphic flares.
 - **Audio Scaffolding:** Binaural soundstage, dynamic EQ ducking.
 

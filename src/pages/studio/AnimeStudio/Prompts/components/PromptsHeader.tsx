@@ -1,3 +1,4 @@
+import React from 'react';
 import { Button } from '@/components/ui/button';
 import { 
   Tooltip, 
@@ -5,8 +6,9 @@ import {
   TooltipProvider, 
   TooltipTrigger 
 } from '@/components/ui/tooltip';
-import { ChevronLeft, ChevronRight, Cpu, Terminal, RefreshCw, Sparkles, Save } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Cpu, Terminal, Sparkles, Save, Square, Box } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useGenerator } from '@/hooks/useGenerator';
 
 interface PromptsHeaderProps {
   onRegenerate: () => void;
@@ -18,6 +20,8 @@ interface PromptsHeaderProps {
   hasContent?: boolean;
   session: string;
   episode: string;
+  content?: string | null;
+  status?: 'active' | 'draft' | 'empty';
 }
 
 export const PromptsHeader: React.FC<PromptsHeaderProps> = ({
@@ -29,19 +33,20 @@ export const PromptsHeader: React.FC<PromptsHeaderProps> = ({
   hasContent,
   isGenerating,
   session,
-  episode
+  episode,
+  status = 'empty'
 }) => {
+  const { stopGeneration } = useGenerator();
+
+
+
   return (
     <TooltipProvider>
       <div className="relative group">
-
-
-        <div className="relative flex flex-col lg:flex-row items-center justify-between p-4 md:p-5 bg-[#050505]/95 backdrop-blur-md border border-white/10 rounded-[2rem] shadow-2xl overflow-hidden gap-6 lg:gap-0">
-
-          
+        <div className="header-container">
           <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-8 z-10 w-full lg:w-auto">
             <div className="relative shrink-0">
-              <div className="w-14 h-14 rounded-2xl bg-red-500/10 border border-red-500/30 flex items-center justify-center shadow-[0_0_20px_rgba(239,68,68,0.2)] group/icon overflow-hidden">
+              <div className="header-icon-box group/icon !bg-red-500/10 !border-red-500/30">
                 <div className="absolute inset-0 bg-gradient-to-br from-red-500/20 to-transparent opacity-0 group-hover/icon:opacity-100 transition-opacity duration-500" />
                 <Terminal className="w-7 h-7 text-red-500 relative z-10 animate-pulse-slow" />
                 <div className="absolute inset-0 border-2 border-red-500/50 rounded-2xl animate-ping opacity-20" />
@@ -50,13 +55,20 @@ export const PromptsHeader: React.FC<PromptsHeaderProps> = ({
 
             <div className="flex flex-col items-center sm:items-start text-center sm:text-left">
               <div className="flex items-center gap-3">
-                <h1 className="text-xl md:text-2xl font-black uppercase tracking-[0.2em] text-white italic leading-none bg-clip-text text-transparent bg-gradient-to-r from-white via-white to-zinc-400">
-                  Neural Prompts
+                <h1 className="header-title">
+                   AI Prompts
                 </h1>
+                <div className="w-px h-4 bg-white/10 hidden sm:block" />
+                <div className="flex items-center gap-2">
+                  <Box className={cn("w-3.5 h-3.5", status === 'active' ? "text-red-500" : "text-zinc-600")} />
+                  <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500 italic">
+                    Nexus {status === 'active' ? 'Active' : 'Standby'}
+                  </span>
+                </div>
               </div>
               <div className="flex items-center gap-2 mt-2">
                 <Cpu className="w-3.5 h-3.5 text-red-500/40 shrink-0" />
-                <p className="text-[8px] md:text-[9px] font-black text-red-500/40 uppercase tracking-[0.2em] md:tracking-[0.4em]">S{session} // EP{episode} // Neural Engineering Protocol V4.5</p>
+                <p className="header-subtitle !text-red-500/40">S{session} // EP{episode} // Prompt Builder</p>
               </div>
             </div>
           </div>
@@ -67,7 +79,7 @@ export const PromptsHeader: React.FC<PromptsHeaderProps> = ({
                 <TooltipTrigger>
                   <Button 
                     variant="outline" 
-                    className="relative w-full sm:w-auto h-12 px-8 bg-[#050505] border-white/10 text-zinc-400 hover:text-red-500 hover:border-red-500/50 font-black uppercase tracking-widest text-[10px] rounded-full transition-all duration-500 backdrop-blur-md group/back shadow-2xl"
+                    className="relative w-full sm:w-auto h-12 px-8 bg-[#050505] border-white/10 text-zinc-400 hover:text-red-500 hover:border-red-500/50 font-black uppercase tracking-widest text-[10px] rounded-full transition-all duration-500 group/back shadow-2xl"
                     onClick={onPrev}
                   >
                     <ChevronLeft className="w-4 h-4 mr-2 group-hover/back:-translate-x-1 transition-transform" />
@@ -82,24 +94,32 @@ export const PromptsHeader: React.FC<PromptsHeaderProps> = ({
 
             <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
               <Tooltip>
-                <TooltipTrigger>
-                  <Button 
-                    variant="outline" 
-                    className="relative w-full sm:w-auto h-12 px-8 bg-[#050505] border-white/10 text-zinc-100 hover:text-red-500 hover:border-red-500/50 font-black uppercase tracking-widest text-[11px] rounded-full transition-all duration-500 backdrop-blur-md group/btn shadow-2xl"
-                    onClick={onRegenerate}
-                    disabled={isGenerating}
-                  >
-                    <div className="absolute inset-0 bg-red-500/5 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-500 rounded-full" />
-                    {isGenerating ? (
-                      <RefreshCw className="w-4 h-4 animate-spin mr-3 text-red-500" />
-                    ) : (
+                <TooltipTrigger  >
+                  {isGenerating ? (
+                    <Button
+                      variant="outline"
+                      className="relative w-full sm:w-auto h-12 px-8 bg-red-500/10 border-red-500/30 text-red-500 hover:bg-red-500 hover:text-black font-black uppercase tracking-widest text-[11px] rounded-full transition-all duration-500 group/stop shadow-[0_0_25px_rgba(239,68,68,0.2)]"
+                      onClick={stopGeneration}
+                    >
+                      <Square className="w-4 h-4 mr-3 fill-current group-hover/stop:scale-110 transition-transform" />
+                      <span className="relative z-10">STOP SYNTHESIS</span>
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="outline"
+                      className="relative w-full sm:w-auto h-12 px-8 bg-[#050505] border-white/10 text-zinc-100 hover:text-red-500 hover:border-red-500/50 font-black uppercase tracking-widest text-[11px] rounded-full transition-all duration-500 group/btn shadow-2xl"
+                      onClick={onRegenerate}
+                    >
+                      <div className="absolute inset-0 bg-red-500/5 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-500 rounded-full" />
                       <Sparkles className="w-4 h-4 mr-3 text-red-500 group-hover/btn:scale-125 transition-transform duration-500" />
-                    )}
-                    <span className="relative z-10">GENERATE</span>
-                  </Button>
+                      <span className="relative z-10">GENERATE ALL</span>
+                    </Button>
+                  )}
                 </TooltipTrigger>
                 <TooltipContent side="top">
-                  <p className="font-black uppercase tracking-widest text-[9px]">Synthesize Neural Prompt Library</p>
+                  <p className="font-black uppercase tracking-widest text-[9px]">
+                    {isGenerating ? "Stop Generation" : "Generate All Prompts"}
+                  </p>
                 </TooltipContent>
               </Tooltip>
 
@@ -113,11 +133,11 @@ export const PromptsHeader: React.FC<PromptsHeaderProps> = ({
                       disabled={isSaving}
                     >
                       <Save className={cn("w-4 h-4 mr-2", isSaving && "animate-pulse")} />
-                      {isSaving ? "SAVING..." : "SAVE"}
+                      {isSaving ? "SAVING..." : "SAVE ALL"}
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent side="top">
-                    <p className="font-black uppercase tracking-widest text-[9px]">Manual Cloud Sync</p>
+                    <p className="font-black uppercase tracking-widest text-[9px]">Save all tabs (sync to cloud)</p>
                   </TooltipContent>
                 </Tooltip>
               )}
@@ -125,7 +145,7 @@ export const PromptsHeader: React.FC<PromptsHeaderProps> = ({
               <Tooltip>
                 <TooltipTrigger>
                   <Button 
-                    className="relative w-full sm:w-auto h-12 px-10 rounded-full bg-[#050505] border border-white/10 text-zinc-400 hover:text-red-500 hover:border-red-500/50 font-black uppercase tracking-widest text-[10px] transition-all duration-500 backdrop-blur-md group/next shadow-2xl"
+                    className="relative w-full sm:w-auto h-12 px-10 rounded-full bg-[#050505] border border-white/10 text-zinc-400 hover:text-red-500 hover:border-red-500/50 font-black uppercase tracking-widest text-[10px] transition-all duration-500 group/next shadow-2xl"
                     onClick={onNext}
                   >
                     <span className="relative z-10 flex items-center gap-2">

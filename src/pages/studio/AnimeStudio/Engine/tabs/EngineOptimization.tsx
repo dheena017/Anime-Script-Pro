@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Activity, Gauge, TrendingUp, Zap, Cpu, BarChart3, Database } from 'lucide-react';
+import { Activity, Gauge, Zap, Cpu, BarChart3, Database } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { engineApi } from '@/services/api/engine';
 
@@ -50,7 +50,7 @@ export const EngineOptimization: React.FC = () => {
     : 100;
 
   const stats = [
-    { label: 'Neural Latency', value: `${avgLatency}ms`, trend: avgLatency < 1000 ? '-14%' : '+5%', icon: Zap, color: 'text-amber-400' },
+    { label: 'System Latency', value: `${avgLatency}ms`, trend: avgLatency < 1000 ? '-14%' : '+5%', icon: Zap, color: 'text-amber-400' },
     { label: 'Success Rate', value: `${successRate}%`, trend: '+0.8%', icon: Activity, color: 'text-emerald-400' },
     { label: 'Cycle Count', value: telemetry.length.toString(), trend: `+${Math.round(telemetry.length/10)}`, icon: Cpu, color: 'text-blue-400' },
   ];
@@ -61,7 +61,7 @@ export const EngineOptimization: React.FC = () => {
         <div className="space-y-3">
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-studio/10 border border-studio/20 rounded-full">
             <Activity className="w-3 h-3 text-studio" />
-            <span className="text-[8px] font-black text-studio uppercase tracking-[0.2em]">Neural Performance Console</span>
+            <span className="text-[8px] font-black text-studio uppercase tracking-[0.2em]">Performance Console</span>
           </div>
           <h1 className="text-5xl font-black text-white uppercase tracking-tighter italic leading-none">
             ENGINE <span className="text-studio">OPTIMIZATION</span>

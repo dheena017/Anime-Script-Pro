@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Monitor, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { templateStyles as s } from './templateStyles';
 
 interface StructureViewProps {
   templateMarkdown: string;
@@ -19,26 +20,26 @@ export const StructureView: React.FC<StructureViewProps> = ({
   setIsLiked
 }) => {
   return (
-    <Card className="structure-container">
+    <Card className={s.structureContainer}>
       <div className="absolute inset-0 opacity-[0.05] bg-[linear-gradient(to_right,#22d3ee20_1px,transparent_1px),linear-gradient(to_bottom,#22d3ee20_1px,transparent_1px)] bg-[size:20px_20px] pointer-events-none z-0" />
       
-      <div className="structure-header">
+      <div className={s.structureHeader}>
         <div className="space-y-2">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-cyan-500/10 rounded-xl text-cyan-400 border border-cyan-500/20 shadow-[0_0_15px_rgba(34,211,238,0.2)]">
               <Monitor className="w-5 h-5" />
             </div>
-            <h3 className="structure-title">Standard Matrix</h3>
+            <h3 className={s.structureTitle}>Standard Matrix</h3>
           </div>
-          <p className="structure-subtitle">
+          <p className={s.structureSubtitle}>
             Global Production Standards v5.2 // System Core
           </p>
         </div>
         
         <div className="flex items-center gap-4">
           <div className="flex gap-2">
-            <Badge className="structure-badge">Protocol v5.2</Badge>
-            <Badge className="structure-verified-badge">Verified</Badge>
+            <Badge className={s.structureBadge}>Protocol v5.2</Badge>
+            <Badge className={s.structureVerifiedBadge}>Verified</Badge>
           </div>
           <Button
             variant="ghost"
@@ -57,7 +58,7 @@ export const StructureView: React.FC<StructureViewProps> = ({
       <div className="w-full p-0 relative z-10">
         <div className="p-8 lg:p-16 max-w-5xl mx-auto">
           <div className="animate-in fade-in slide-in-from-bottom-8 duration-1000">
-            <div className="structure-prose">
+            <div className={s.structureProse}>
               <div className="mb-16 flex justify-start">
                  <div className="inline-block px-6 py-2 bg-cyan-500/5 border border-cyan-500/20 rounded-xl text-[10px] font-black uppercase tracking-[0.5em] text-cyan-400/80 shadow-[0_0_20px_rgba(6,182,212,0.1)]">
                    Technical Specification // Unit: Standard

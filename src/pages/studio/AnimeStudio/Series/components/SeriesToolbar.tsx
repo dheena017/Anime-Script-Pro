@@ -25,6 +25,7 @@ interface SeriesToolbarProps {
   showScaffolder?: boolean;
   onManifestClick?: () => void;
   onExportClick?: () => void;
+  showTabsOnly?: boolean;
 }
 
 export const SeriesToolbar: React.FC<SeriesToolbarProps> = ({
@@ -36,6 +37,7 @@ export const SeriesToolbar: React.FC<SeriesToolbarProps> = ({
   content = null,
   onManifestClick,
   onExportClick,
+  showTabsOnly = false,
 }) => {
   const { isFullscreen } = useApp();
 
@@ -83,6 +85,7 @@ export const SeriesToolbar: React.FC<SeriesToolbarProps> = ({
   return (
     <TooltipProvider>
       <div className="flex flex-col gap-6 w-full p-4 md:p-0">
+        {!showTabsOnly && (
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 lg:gap-0">
           <div className="flex items-center gap-4">
             <div className="w-10 h-10 rounded-xl bg-studio/10 border border-studio/20 flex items-center justify-center">
@@ -184,12 +187,10 @@ export const SeriesToolbar: React.FC<SeriesToolbarProps> = ({
 
           </div>
         </div>
+        )}
 
         <SeriesTabs activeTab={activeTab} setActiveTab={setActiveTab} />
       </div>
     </TooltipProvider>
   );
 };
-
-
-

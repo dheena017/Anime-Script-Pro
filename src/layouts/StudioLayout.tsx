@@ -9,11 +9,21 @@ import { NeuralErrorSentinel } from '@/pages/studio/components/studio/NeuralErro
 import { NeuralPulseLayer } from '@/components/neural/NeuralPulseLayer';
 import { StudioLoading } from '@/pages/studio/components/studio/StudioLoading';
 import { DeferredRender } from '@/pages/studio/components/studio/DeferredRender';
+import { studioLog, studioGroup, studioEnd } from '@/lib/studio-logger';
 
 export const StudioLayout: React.FC = () => {
   const location = useLocation();
   const [collapsed, setCollapsed] = React.useState(true); // Default closed
   const [showNotifications, setShowNotifications] = React.useState(false);
+
+  // System Boot Sequence
+  React.useEffect(() => {
+    studioGroup('SYSTEM', 'Studio Environment Initializing', 'system');
+    studioLog('SYSTEM', 'Core engine v2.4.0 active', 'success');
+    studioLog('SYSTEM', 'Neural pulse layer synchronized', 'anime');
+    studioLog('SYSTEM', 'Global navigation monitor ready', 'info');
+    studioEnd();
+  }, []);
 
   // Disable scroll when sidebar is open
   React.useEffect(() => {
@@ -51,7 +61,7 @@ export const StudioLayout: React.FC = () => {
         )}
       </AnimatePresence>
       <main
-        className="flex-1 flex flex-col relative overflow-hidden pt-[60px] transition-all duration-300 pl-4"
+        className="flex-1 flex flex-col relative overflow-hidden pt-[60px] transition-all duration-300"
       >
         <StudioTopBar
           showNotifications={showNotifications}
@@ -60,7 +70,7 @@ export const StudioLayout: React.FC = () => {
           setCollapsed={setCollapsed}
         />
 
-        <div className="flex-1 overflow-y-auto relative flex flex-col">
+        <div className="flex-1 overflow-y-auto no-scrollbar relative flex flex-col">
           <div className="p-6 lg:p-10 flex-1 relative pb-32">
             <div className="absolute top-0 left-0 w-full h-full pointer-events-none opacity-[0.03]" style={backdropTextureStyle} />
             <AnimatePresence>
@@ -70,7 +80,7 @@ export const StudioLayout: React.FC = () => {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.15, ease: "linear" }}
-                className="relative z-10 h-full"
+                className="relative z-10 h-full flex flex-col min-h-[48vh]"
                 style={{ willChange: 'opacity' }}
               >
                 <DeferredRender delay={32} fallback={<StudioLoading fullPage={false} message="Loading content..." submessage="Preparing the workspace..." />}>
@@ -90,6 +100,7 @@ export const StudioLayout: React.FC = () => {
     </div>
   );
 };
+
 
 
 

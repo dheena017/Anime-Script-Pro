@@ -30,6 +30,8 @@ import { AnglesTab } from './Tabs/AnglesTab';
 import { CompositionTab } from './Tabs/CompositionTab';
 import { AnimaticTab } from './Tabs/AnimaticTab';
 import { AudioTab } from './Tabs/AudioTab';
+import { StoryboardLoadingPage } from './components/StoryboardLoadingPage';
+import { StoryboardEmptyState } from './components/StoryboardEmptyState';
 
 interface Scene {
   id: string;
@@ -397,19 +399,34 @@ export function StoryboardPage() {
     });
   }, [isGlobalEnhancing, scenes, isProductionLoopActive, productionProgress, isGuideOpen, isGeneratingVisuals, isManifestingSceneId, handleManifestScene]);
 
+  const getLoadingMessage = () => {
+    switch (activeTab) {
+      case 'angles': return "Calculating Camera Vectors...";
+      case 'composition': return "Mapping Spatial Balance...";
+      case 'animatic': return "Igniting Motion Engines...";
+      case 'audio': return "Synthesizing Audio Stems...";
+      default: return "Initializing Visual Buffer...";
+    }
+  };
+
   const renderTabContent = () => {
+    if (isGeneratingVisuals) {
+      return (
+        <StoryboardLoadingPage 
+          message={getLoadingMessage()} 
+          subtext="AI model is rendering cinematic manifests"
+        />
+      );
+    }
+
     if (scenes.length === 0 && activeTab !== 'animatic') {
       return (
-        <div className="flex flex-col items-center justify-center h-[500px] space-y-8">
-          <div className="relative">
-            <div className="w-16 h-16 border-2 border-studio/20 border-t-studio rounded-full animate-spin shadow-[0_0_30px_rgba(6,182,212,0.3)]" />
-            <div className="absolute inset-0 m-auto w-2 h-2 bg-studio rounded-full animate-ping" />
-          </div>
-          <div className="text-center space-y-2">
-            <p className="font-black tracking-[0.3em] text-[10px] uppercase text-studio animate-pulse">Initializing Visual Buffer...</p>
-            <p className="text-[8px] font-bold text-zinc-600 uppercase tracking-widest">Waiting for script manifest to stabilize</p>
-          </div>
-        </div>
+        <StoryboardEmptyState 
+          onLaunch={() => {
+            window.dispatchEvent(new CustomEvent('studio-generate-storyboard'));
+          }}
+          isGenerating={isGeneratingVisuals}
+        />
       );
     }
 
@@ -441,6 +458,7 @@ export function StoryboardPage() {
             handleRewriteTension={handleRewriteTension}
             handleSuggestDuration={handleSuggestDuration}
             handleAddScene={handleAddScene}
+            isGenerating={isGeneratingVisuals}
             handleManifestScene={handleManifestScene}
             isManifestingSceneId={isManifestingSceneId}
           />
@@ -479,6 +497,7 @@ export function StoryboardPage() {
             handleRewriteTension={handleRewriteTension}
             handleSuggestDuration={handleSuggestDuration}
             handleAddScene={handleAddScene}
+            isGenerating={isGeneratingVisuals}
             handleManifestScene={handleManifestScene}
             isManifestingSceneId={isManifestingSceneId}
           />

@@ -32,6 +32,19 @@ The studio has been modernized to handle a complex **Image-to-Video** pipeline:
 
 ## ⚙️ Direct Deployment
 
+### 0. Prerequisites - Python 3.11+ Installation
+Before starting the backend, ensure Python 3.11 or higher is installed:
+
+**Option A: Using Windows Package Manager (Recommended)**
+```powershell
+winget install Python.Python.3.11
+```
+
+**Option B: Direct Download**
+Visit [python.org](https://www.python.org/downloads/) and download Python 3.11+ for Windows. **During installation, ensure "Add Python to PATH" is checked.**
+
+> ⚠️ **Troubleshooting**: If you see `"Python was not found"` despite installation, disable the Microsoft Store Python alias at Settings > Apps > Advanced app settings > App execution aliases.
+
 ### 1. Unified Studio Start (Local Hybrid Mode)
 Start the frontend and AI proxy in one single command:
 ```bash
@@ -39,9 +52,32 @@ npm run dev
 ```
 
 ### 2. Python AI Backend (Manual Start)
-```bash
-.\backend\venv\Scripts\activate
-python -m uvicorn backend.fastapi_app:app --reload --port 8080```
+
+**Option A: Using Virtual Environment (Recommended)**
+```powershell
+# Create virtual environment (first time only)
+python -m venv .\backend\venv
+
+# Activate it
+.\backend\venv\Scripts\Activate.ps1
+
+# Install dependencies
+pip install -r .\backend\requirements.txt
+
+# Run FastAPI server
+python -m uvicorn backend.fastapi_app:app --reload --port 8080
+```
+
+**Option B: Using System Python (If venv has issues)**
+```powershell
+# Install dependencies globally
+python -m pip install -r .\backend\requirements.txt
+
+# Run FastAPI server directly
+python -m uvicorn backend.fastapi_app:app --reload --port 8080
+```
+
+The backend will be available at `http://127.0.0.1:8080`
 
 ### 3. Environment Configuration (`.env`)
 Ensure your environment is primed for autonomous generation:
@@ -84,6 +120,8 @@ npm run test
 | `npm run dev` | Start the Express server + Vite Frontend in hybrid mode. |
 | `npm run build` | Generate the optimized production-grade bundle. |
 | `npm run start` | Launch the production server bundle. |
+| `npm run backend` | Start the FastAPI backend server on port 8080. |
+| `python -m uvicorn backend.fastapi_app:app --reload --port 8080` | Start FastAPI with auto-reload on code changes. |
 | `docker compose up -d` | Launch the entire 3-tier studio architecture. |
 
 ### 🛡️ Sovereign Audit (Testing)
@@ -117,4 +155,18 @@ The studio utilizes a high-contrast **Noir System** designed for focus and creat
 </div>
 
 
-thse any preloader text that all the message need to good and the humman need to understand. the premium, professional aesthetic of the studio
+# Remove the broken venv
+Remove-Item -Recurse -Force .\backend\venv
+
+# Create a fresh venv
+python -m venv .\backend\venv
+
+# Activate it
+.\backend\venv\Scripts\Activate.ps1
+
+# Install dependencies
+pip install -r .\backend\requirements.txt
+
+# Run FastAPI
+python -m uvicorn backend.fastapi_app:app --reload --port 8080
+

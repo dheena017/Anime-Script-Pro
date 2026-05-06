@@ -15,6 +15,7 @@ import { ScreeningViewport } from './components/ScreeningViewport';
 import { ScreeningTimeline } from './components/ScreeningTimeline';
 import { ScreeningMetadata } from './components/ScreeningMetadata';
 import { ScreeningEmptyState } from './components/ScreeningEmptyState';
+import { ScreeningLoadingPage } from './components/ScreeningLoadingPage';
 import { RenderPhase, Scene } from './components/types';
 import { Monitor } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -38,7 +39,7 @@ export function ScreeningRoom() {
   const [videoPrompts, setVideoPrompts] = useState<string | null>(null);
   const [renderPhases, setRenderPhases] = useState<RenderPhase[]>([
     { id: 'lore', label: 'Lore Vault Integration', status: 'pending' },
-    { id: 'cast', label: 'Character DNA Sync', status: 'pending' },
+    { id: 'cast', label: 'Character Profile Sync', status: 'pending' },
     { id: 'script', label: 'Dialogue Synthesis', status: 'pending' },
     { id: 'visuals', label: 'Cinematic Rendering', status: 'pending' },
     { id: 'integrity', label: 'Manifest Integrity Check', status: 'pending' },
@@ -136,19 +137,24 @@ export function ScreeningRoom() {
     });
   }, [generatedScript, selectedModel, isRendering, activeSession]);
 
+  const getLoadingMessage = () => {
+    switch (activeTab) {
+      case 'preview': return "Calibrating Visual Fidelity...";
+      case 'sequences': return "Synchronizing Master Stems...";
+      case 'dailies': return "Preparing Distribution Pack...";
+      case 'archives': return "Indexing Production Vault...";
+      case 'exports': return "Manifesting Final Render...";
+      default: return "Preparing Screening Room...";
+    }
+  };
+
   const renderTabContent = () => {
-    if (isLoading) {
+    if (isLoading || isRendering) {
       return (
-        <div className="flex flex-col items-center justify-center h-[500px] space-y-8">
-          <div className="relative">
-            <div className="w-16 h-16 border-2 border-studio/20 border-t-studio rounded-full animate-spin shadow-[0_0_30px_rgba(6,182,212,0.3)]" />
-            <Monitor className="absolute inset-0 m-auto w-6 h-6 text-studio animate-pulse" />
-          </div>
-          <div className="text-center space-y-2">
-            <p className="font-black tracking-[0.3em] text-[10px] uppercase text-studio animate-pulse">Preparing Screening Room...</p>
-            <p className="text-[8px] font-bold text-zinc-600 uppercase tracking-widest">Loading your cinematic previews</p>
-          </div>
-        </div>
+        <ScreeningLoadingPage 
+          message={getLoadingMessage()} 
+          subtext="AI model is synthesizing production manifests"
+        />
       );
     }
 
@@ -157,7 +163,12 @@ export function ScreeningRoom() {
         <AnimatePresence mode="wait">
           {scenes.length === 0 && !isRendering ? (
             <motion.div key="empty" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}>
-              <ScreeningEmptyState onLaunch={handleFullRender} isGenerating={isRendering} />
+              <ScreeningEmptyState 
+                onLaunch={() => {
+                  window.dispatchEvent(new CustomEvent('studio-generate-screening'));
+                }} 
+                isGenerating={isRendering} 
+              />
             </motion.div>
           ) : (
             <motion.div key="content" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="space-y-8">
@@ -189,13 +200,13 @@ export function ScreeningRoom() {
 
     return (
       <div className="flex flex-col items-center justify-center py-20 text-zinc-700">
-        <div className="w-20 h-20 bg-white/[0.02] border border-white/5 rounded-[2rem] flex items-center justify-center mb-8">
+        <div className="w-20 h-20 bg-white/[0.02] border border-white/5 rounded-[2.5rem] flex items-center justify-center mb-8 group hover:border-studio/30 transition-all duration-700">
           <motion.div animate={{ rotate: 360 }} transition={{ duration: 10, repeat: Infinity, ease: "linear" }}>
-            <Monitor className="w-8 h-8 opacity-20" />
+            <Monitor className="w-8 h-8 opacity-20 group-hover:opacity-60 transition-opacity" />
           </motion.div>
         </div>
-        <p className="font-black uppercase tracking-[0.3em] text-[10px] max-w-[220px] text-center leading-loose">
-          The {activeTab} layer is currently being synchronized with the production core.
+        <p className="font-black uppercase tracking-[0.3em] text-[10px] max-w-[280px] text-center leading-loose">
+          The <span className="text-studio">{activeTab} protocol</span> is currently being synchronized with the production core.
         </p>
       </div>
     );

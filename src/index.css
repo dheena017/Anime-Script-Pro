@@ -14,15 +14,89 @@
   --color-studio-glow: var(--studio-glow);
 }
 
-@utility shadow-studio {
+/* Global Studio Design System */
+.world-card {
+  @apply p-8 bg-zinc-950/80 border border-white/5 rounded-[2rem] relative overflow-hidden transition-all;
+}
+
+.header-container {
+  @apply p-8 bg-zinc-950/80 border border-white/5 rounded-[2rem] relative overflow-hidden transition-all !p-4 md:!p-5 !rounded-[2rem] flex flex-col lg:flex-row items-center justify-between bg-[#050505] gap-6 lg:gap-0;
+}
+
+.header-icon-box {
+  @apply w-14 h-14 rounded-2xl bg-studio/10 border border-studio/30 flex items-center justify-center shadow-lg overflow-hidden relative;
+}
+
+.header-title {
+  @apply text-xl md:text-2xl font-black uppercase tracking-[0.2em] text-white italic leading-none;
+}
+
+.header-subtitle {
+  @apply text-[8px] md:text-[9px] font-black text-studio/40 uppercase tracking-[0.2em];
+}
+
+.toolbar-container {
+  @apply flex flex-col gap-6 w-full p-4 md:p-0;
+}
+
+.toolbar-header {
+  @apply flex flex-col lg:flex-row lg:items-center justify-between gap-6 lg:gap-0;
+}
+
+.toolbar-status-box {
+  @apply flex items-center gap-4;
+}
+
+.toolbar-status-icon {
+  @apply w-10 h-10 rounded-xl bg-studio/10 border border-studio/20 flex items-center justify-center shrink-0;
+}
+
+.toolbar-action-group {
+  @apply flex flex-col md:flex-row items-center gap-4 md:gap-6 w-full lg:w-auto;
+}
+
+.toolbar-unit-box {
+  @apply flex items-center gap-3 px-4 py-2 bg-black border border-white/5 rounded-xl grow md:grow-0;
+}
+
+.toolbar-btn-group {
+  @apply flex items-center gap-1 p-1.5 bg-black border border-white/5 rounded-xl shrink-0;
+}
+
+.tabs-nav-container {
+  @apply flex items-center gap-2 p-1.5 bg-[#080808] border border-white/5 rounded-[1.5rem] relative overflow-x-auto;
+}
+
+/* Hide native scrollbars for tabs navigation (cross-browser) */
+.tabs-nav-container::-webkit-scrollbar {
+  display: none;
+}
+.tabs-nav-container {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+.tabs-nav-button {
+  @apply relative px-5 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-colors duration-200 flex items-center gap-3 shrink-0 whitespace-nowrap;
+}
+
+.tabs-nav-active-glow {
+  @apply absolute inset-0 bg-white/5 border border-white/10 rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.05)];
+}
+
+.tabs-nav-underline {
+  @apply absolute -bottom-1 left-4 right-4 h-0.5 bg-current rounded-full opacity-50;
+}
+
+.shadow-studio {
   box-shadow: 0 0 15px var(--studio-glow);
 }
 
-@utility text-shadow-studio {
+.text-shadow-studio {
   text-shadow: 0 0 8px var(--studio-glow);
 }
 
-@utility border-studio {
+.border-studio {
   border-color: color-mix(in srgb, var(--studio-primary), transparent 80%);
 }
 
@@ -32,27 +106,13 @@
     overflow-x: auto; /* Allow horizontal scroll as requested */
   }
   
-  /* High-Fidelity Studio Scrollbars */
+  /* Hide Global Scrollbars */
   ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    display: none;
   }
-  
-  ::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.2);
-    border-left: 1px solid rgba(255, 255, 255, 0.02);
-  }
-  
-  ::-webkit-scrollbar-thumb {
-    background: var(--studio-primary);
-    border-radius: 0; /* Sharp, technical look */
-    border: 2px solid #030303;
-    box-shadow: inset 0 0 10px var(--studio-glow);
-  }
-  
-  ::-webkit-scrollbar-thumb:hover {
-    background: white;
-    box-shadow: 0 0 20px var(--studio-glow);
+  * {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
   body {
     @apply bg-black text-[#e4e4e7] min-h-screen selection:bg-red-500/30 selection:text-red-200 antialiased;
@@ -102,11 +162,11 @@
   }
 
   .studio-fullscreen-mode #studio-content-area {
-    height: calc(100vh - 4rem) !important;
-    margin: 2rem !important;
-    border-radius: 2rem !important;
-    max-width: calc(100vw - 4rem) !important;
-    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    height: 100vh !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    max-width: 100vw !important;
+    border: none !important;
   }
 
   .studio-fullscreen-mode #studio-content-area > div {
@@ -131,45 +191,46 @@
   }
 }
 
-/* Themed Custom Scrollbar for Panels */
+@utility no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Custom Scrollbars */
 @utility custom-scrollbar {
   &::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    width: 6px;
+    height: 6px;
   }
-  
   &::-webkit-scrollbar-track {
-    @apply bg-black/20 rounded-full border border-white/5;
+    background: transparent;
   }
-  
   &::-webkit-scrollbar-thumb {
-    background-color: color-mix(in srgb, var(--studio-primary), transparent 60%);
-    border-radius: 9999px;
-    border: 1px solid color-mix(in srgb, var(--studio-primary), transparent 80%);
+    background: var(--studio-primary);
+    border-radius: 10px;
   }
-  
   &::-webkit-scrollbar-thumb:hover {
-    background-color: color-mix(in srgb, var(--studio-primary), transparent 20%);
-    box-shadow: 0 0 15px var(--studio-glow);
+    background: color-mix(in srgb, var(--studio-primary), white 20%);
   }
 }
-
-
 
 /* Glass & Technical Components */
-@utility glass {
+.glass {
   @apply bg-zinc-950 border border-white/10 shadow-xl relative;
 }
 
-@utility glass-panel {
+.glass-panel {
   @apply bg-zinc-950 border border-white/10 shadow-xl relative;
 }
 
-@utility technical-card {
+.technical-card {
   @apply bg-[#080808] border border-zinc-900 shadow-xl relative overflow-hidden;
 }
 
-@utility glow-text {
+.glow-text {
   text-shadow: 0 0 15px var(--studio-glow), 0 0 30px var(--studio-glow);
 }
 
@@ -251,6 +312,166 @@
 
 .prose hr {
   @apply border-zinc-900/50 my-20;
+}
+
+/* --- WORLD BUILDER STYLES --- */
+.world-container {
+  @apply space-y-8 pb-20 will-change-transform transform-gpu;
+}
+
+.world-header {
+  @apply flex flex-col gap-8 mb-8;
+}
+
+.world-badge {
+  @apply inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-black uppercase tracking-widest w-fit;
+}
+
+.world-badge-text {
+  @apply text-xs font-black uppercase tracking-widest;
+}
+
+.world-header-title {
+  @apply text-3xl lg:text-4xl font-black uppercase tracking-[0.2em] text-white leading-tight;
+}
+
+.world-content-area {
+  @apply relative overflow-hidden;
+}
+
+.world-main-column {
+  @apply space-y-8;
+}
+
+.world-textarea {
+  @apply w-full bg-zinc-950 border border-white/10 rounded-2xl p-8 text-white font-mono text-sm leading-relaxed resize-none overflow-hidden focus:outline-none focus:border-studio/50 focus:ring-2 focus:ring-studio/20 transition-all;
+}
+
+.world-prose {
+  @apply space-y-6;
+}
+
+.world-prose h1 {
+  @apply text-3xl font-black uppercase tracking-[0.3em] text-studio mb-6 mt-10 first:mt-0 text-shadow-studio;
+}
+
+.world-prose h2 {
+  @apply text-2xl font-black uppercase tracking-[0.25em] text-white mb-4 mt-8 first:mt-0 relative pl-4 pb-2 border-b border-studio/20;
+}
+
+.world-prose h2::before {
+  @apply absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-gradient-to-b from-studio to-studio/40 rounded-full;
+}
+
+.world-prose h3 {
+  @apply text-xl font-bold uppercase tracking-[0.2em] text-zinc-100 mb-4 mt-6 first:mt-0 relative pl-4;
+}
+
+.world-prose h3::before {
+  @apply absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 bg-studio/60 rounded-full;
+}
+
+.world-prose h4 {
+  @apply text-lg font-bold uppercase tracking-[0.15em] text-zinc-200 mb-3 mt-4 first:mt-0;
+}
+
+.world-prose p {
+  @apply text-sm leading-relaxed text-zinc-300 mb-4 text-justify;
+}
+
+.world-prose strong {
+  @apply font-black text-studio tracking-wider;
+}
+
+.world-prose em {
+  @apply italic text-studio/80;
+}
+
+.world-prose blockquote {
+  @apply border-l-4 border-studio/40 pl-6 py-4 my-6 bg-studio/5 italic text-zinc-300 rounded-r-xl relative;
+}
+
+.world-prose blockquote p {
+  @apply text-sm leading-relaxed mb-0;
+}
+
+.world-prose ul, .world-prose ol {
+  @apply my-4 ml-6 space-y-2;
+}
+
+.world-prose li {
+  @apply text-sm text-zinc-300 leading-relaxed;
+}
+
+.world-prose ul li::before {
+  @apply content-['▸'] text-studio mr-3 font-black;
+}
+
+.world-prose ol {
+  counter-reset: world-counter;
+}
+
+.world-prose ol li {
+  counter-increment: world-counter;
+}
+
+.world-prose ol li::before {
+  @apply content-[counter(world-counter)] text-studio font-black mr-3 bg-studio/10 px-2 py-0.5 rounded text-xs;
+}
+
+.world-prose code {
+  @apply bg-zinc-900/50 border border-zinc-800 px-3 py-1 rounded-md text-studio font-mono text-xs;
+}
+
+.world-prose pre {
+  @apply bg-zinc-900/30 border border-zinc-800 rounded-xl p-4 overflow-x-auto my-6 shadow-inner;
+}
+
+.world-prose pre code {
+  @apply bg-transparent border-0 p-0 text-zinc-200 text-xs leading-relaxed;
+}
+
+.world-prose a {
+  @apply text-studio hover:text-studio/80 underline underline-offset-2 transition-colors;
+}
+
+.world-prose hr {
+  @apply my-12 border-t border-dashed border-studio/20;
+}
+
+.world-prose table {
+  @apply w-full my-6 border-collapse bg-zinc-950/50 rounded-xl overflow-hidden border border-zinc-800;
+}
+
+.world-prose th {
+  @apply bg-studio/10 border border-studio/20 px-4 py-3 text-studio font-black uppercase text-xs tracking-widest text-left;
+}
+
+.world-prose td {
+  @apply border border-zinc-800 px-4 py-3 text-zinc-300 text-sm;
+}
+
+.world-prose tr:hover {
+  @apply bg-white/[0.02];
+}
+
+.world-hud-marker {
+  @apply absolute text-zinc-600 text-[10px] font-black uppercase tracking-widest;
+}
+
+.world-hud-coords {
+  @apply text-[9px] text-zinc-700 font-black tracking-[0.2em];
+}
+
+.world-hud-v-bar {
+  @apply w-px h-12 bg-gradient-to-b from-studio/40 to-transparent;
+}
+
+.world-bible-blueprint {
+  background-image: 
+    linear-gradient(90deg, rgba(6,182,212,0.03) 1px, transparent 1px),
+    linear-gradient(rgba(6,182,212,0.03) 1px, transparent 1px);
+  background-size: 50px 50px;
 }
 
 @custom-variant dark (&:is(.dark *));
@@ -386,5 +607,27 @@
   body {
     @apply bg-background text-foreground;
     }
+}
+
+/* Global Animation & Transition Removal */
+*, *::before, *::after {
+  animation: none !important;
+  transition: none !important;
+  animation-duration: 0s !important;
+  transition-duration: 0s !important;
+}
+
+/* Override common Tailwind animation classes to ensure they are disabled */
+.animate-pulse,
+.animate-spin,
+.animate-ping,
+.animate-bounce,
+.animate-in,
+.animate-out,
+.animate-fade-in,
+.animate-zoom-in,
+.animate-spin-slow,
+.animate-gentle-fade {
+  animation: none !important;
 }
 

@@ -22,7 +22,7 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 export function AppProvider({ children }: { children: React.ReactNode }) {
   const [currentProject, setCurrentProject] = useState<any | null>(null);
   const [notifications, setNotifications] = useState<any[]>([]);
-  const [userTier] = useState<string>('God Mode');
+  const [userTier] = useState<string>('Enterprise Plan');
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [notification, setNotification] = useState<{ message: string; type: 'error' | 'success' | 'info' } | null>(null);
   const [hasInitialized, setHasInitialized] = useState(false);

@@ -1,5 +1,5 @@
-import React from 'react';
-import { motion } from 'framer-motion';
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import {
   Target,
@@ -9,8 +9,13 @@ import {
   Sparkles,
   Search,
   EyeOff,
-  Eye
+  Eye,
+  Camera,
+  Loader2,
+  RefreshCw
 } from 'lucide-react';
+import { generateSceneImage } from '@/services/api/gemini';
+import { Button } from '@/components/ui/button';
 
 interface CastCardProps {
   character: any;
@@ -27,6 +32,51 @@ export const CastCard = React.memo<CastCardProps>(({
   onUpdate,
   onViewCharacter
 }) => {
+  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
+
+  const toText = (value: unknown, fallback = ''): string => {
+    if (typeof value === 'string') return value;
+    if (value == null) return fallback;
+    if (Array.isArray(value)) {
+      return value
+        .map((item) => (typeof item === 'string' ? item : JSON.stringify(item)))
+        .join(', ');
+    }
+    if (typeof value === 'object') {
+      // Flatten object values so rich AI JSON doesn't crash text nodes.
+      return Object.values(value as Record<string, unknown>)
+        .map((item) => (typeof item === 'string' ? item : Array.isArray(item) ? item.join(', ') : JSON.stringify(item)))
+        .join(' | ');
+    }
+    return String(value);
+  };
+
+  const archetypeText = toText(character.archetype, 'Main Protocol');
+  const personalityText = toText(character.personality, 'Underspecified');
+  const goalText = toText(character.goal, 'Redacted');
+  const flawText = toText(character.flaw, 'Perfect Model');
+  const appearanceText = toText(character.appearance, 'Standard aesthetic parameters.');
+  const speakingStyleText = toText(character.speakingStyle, 'Clinical and precise.');
+  const conflictText = toText(character.conflict, 'Primary ideological battleground.');
+  const secretText = toText(character.secret, 'No classified data found.');
+  const visualPromptText = toText(character.visualPrompt, 'GENETIC_HASH_PENDING');
+
+  const handleGenerateImage = async () => {
+    if (!character.visualPrompt) return;
+    
+    setIsGeneratingImage(true);
+    try {
+      const imageUrl = await generateSceneImage(character.visualPrompt);
+      if (imageUrl) {
+        onUpdate({ imageUrl });
+      }
+    } catch (error) {
+      console.error("Failed to generate character image:", error);
+    } finally {
+      setIsGeneratingImage(false);
+    }
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -72,29 +122,75 @@ export const CastCard = React.memo<CastCardProps>(({
                 <>
                   <span className={cn(
                     "text-[9px] uppercase tracking-[0.2em] font-black px-3 py-1 rounded-full border shadow-sm",
-                    character.archetype?.toLowerCase().includes('protagonist') || character.archetype?.toLowerCase().includes('hero') ? 'text-cyan-400 bg-cyan-500/10 border-cyan-500/30 shadow-cyan-500/20' :
-                      character.archetype?.toLowerCase().includes('antagonist') || character.archetype?.toLowerCase().includes('villain') ? 'text-red-400 bg-red-500/10 border-red-500/30 shadow-red-500/20' :
-                        character.archetype?.toLowerCase().includes('mentor') || character.archetype?.toLowerCase().includes('master') ? 'text-amber-400 bg-amber-500/10 border-amber-500/30 shadow-amber-500/20' :
-                          character.archetype?.toLowerCase().includes('rival') ? 'text-orange-400 bg-orange-500/10 border-orange-500/30 shadow-orange-500/20' :
+                    archetypeText.toLowerCase().includes('protagonist') || archetypeText.toLowerCase().includes('hero') ? 'text-cyan-400 bg-cyan-500/10 border-cyan-500/30 shadow-cyan-500/20' :
+                      archetypeText.toLowerCase().includes('antagonist') || archetypeText.toLowerCase().includes('villain') ? 'text-red-400 bg-red-500/10 border-red-500/30 shadow-red-500/20' :
+                        archetypeText.toLowerCase().includes('mentor') || archetypeText.toLowerCase().includes('master') ? 'text-amber-400 bg-amber-500/10 border-amber-500/30 shadow-amber-500/20' :
+                          archetypeText.toLowerCase().includes('rival') ? 'text-orange-400 bg-orange-500/10 border-orange-500/30 shadow-orange-500/20' :
                             'text-studio bg-studio/10 border-studio/30 shadow-studio/20'
                   )}>
-                    {character.archetype || "Main Protocol"}
+                    {archetypeText}
                   </span>
 
                   <span className={cn(
                     "text-[9px] uppercase tracking-[0.1em] font-bold px-3 py-1 rounded-full border",
-                    character.personality?.toLowerCase().includes('dere') ? 'text-fuchsia-400 bg-fuchsia-500/10 border-fuchsia-500/30' : 'text-zinc-400 bg-zinc-900 border-zinc-800'
+                    personalityText.toLowerCase().includes('dere') ? 'text-fuchsia-400 bg-fuchsia-500/10 border-fuchsia-500/30' : 'text-zinc-400 bg-zinc-900 border-zinc-800'
                   )}>
-                    {character.personality || "Underspecified"}
+                    {personalityText}
                   </span>
                 </>
               )}
             </div>
           </div>
+          
           <div className="relative group/avatar shrink-0">
             <div className="absolute inset-0 bg-studio/20 blur-xl rounded-full opacity-0 group-hover/avatar:opacity-100 transition-opacity duration-500" />
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-zinc-800 to-black border border-zinc-700 flex items-center justify-center text-zinc-500 group-hover/avatar:text-studio group-hover/avatar:border-studio/50 transition-all duration-500 relative z-10 shadow-xl">
-              <User className="w-7 h-7" />
+            <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-zinc-800 to-black border border-zinc-700 flex items-center justify-center overflow-hidden relative z-10 shadow-2xl group-hover/avatar:border-studio/50 transition-all duration-500">
+              <AnimatePresence mode="wait">
+                {isGeneratingImage ? (
+                  <motion.div 
+                    key="loading"
+                    initial={{ opacity: 0 }} 
+                    animate={{ opacity: 1 }} 
+                    exit={{ opacity: 0 }}
+                    className="flex flex-col items-center gap-2"
+                  >
+                    <Loader2 className="w-8 h-8 text-studio animate-spin" />
+                    <span className="text-[8px] font-black text-studio uppercase animate-pulse">Synthesizing</span>
+                  </motion.div>
+                ) : character.imageUrl ? (
+                  <motion.img 
+                    key="image"
+                    initial={{ opacity: 0, scale: 1.1 }} 
+                    animate={{ opacity: 1, scale: 1 }} 
+                    src={character.imageUrl} 
+                    alt={character.name} 
+                    className="w-full h-full object-cover" 
+                  />
+                ) : (
+                  <motion.div 
+                    key="placeholder"
+                    initial={{ opacity: 0 }} 
+                    animate={{ opacity: 1 }} 
+                    className="flex flex-col items-center gap-2 text-zinc-600 group-hover/avatar:text-studio transition-colors"
+                  >
+                    <User className="w-10 h-10" />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* Overlay button for generation */}
+              <div className="absolute inset-0 bg-black/60 opacity-0 group-hover/avatar:opacity-100 transition-opacity flex items-center justify-center p-2">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={handleGenerateImage}
+                  disabled={isGeneratingImage}
+                  className="w-full h-full text-[9px] font-black uppercase text-white hover:text-studio hover:bg-transparent flex flex-col gap-1"
+                >
+                  {character.imageUrl ? <RefreshCw className="w-4 h-4" /> : <Camera className="w-4 h-4" />}
+                  {character.imageUrl ? "Regenerate" : "Generate"}
+                </Button>
+              </div>
             </div>
           </div>
         </div>
@@ -113,8 +209,8 @@ export const CastCard = React.memo<CastCardProps>(({
                   onChange={(e) => onUpdate({ goal: e.target.value })}
                 />
               ) : (
-                <p className="text-[11px] text-zinc-400 font-medium leading-relaxed leading-snug italic">
-                  "{character.goal || "Redacted"}"
+                <p className="text-[11px] text-zinc-400 font-medium leading-relaxed italic">
+                  "{goalText}"
                 </p>
               )}
             </div>
@@ -130,8 +226,8 @@ export const CastCard = React.memo<CastCardProps>(({
                   onChange={(e) => onUpdate({ flaw: e.target.value })}
                 />
               ) : (
-                <p className="text-[11px] text-zinc-400 font-medium leading-relaxed leading-snug italic">
-                  "{character.flaw || "Perfect Model"}"
+                <p className="text-[11px] text-zinc-400 font-medium leading-relaxed italic">
+                  "{flawText}"
                 </p>
               )}
             </div>
@@ -151,12 +247,12 @@ export const CastCard = React.memo<CastCardProps>(({
             {isEditing ? (
               <textarea
                 className="w-full bg-black/40 border border-white/5 rounded-xl p-3 text-[10px] text-zinc-500 font-medium focus:outline-none min-h-[80px] resize-none"
-                value={character.appearance}
+                value={toText(character.appearance)}
                 onChange={(e) => onUpdate({ appearance: e.target.value })}
               />
             ) : (
               <p className="text-[10px] text-zinc-500 font-medium leading-relaxed">
-                {character.appearance || "Standard aesthetic parameters."}
+                {appearanceText}
               </p>
             )}
           </div>
@@ -168,12 +264,12 @@ export const CastCard = React.memo<CastCardProps>(({
             {isEditing ? (
               <input
                 className="w-full bg-black/40 border border-white/5 rounded-xl px-3 py-2 text-[10px] text-zinc-400 font-medium italic focus:outline-none"
-                value={character.speakingStyle}
+                value={toText(character.speakingStyle)}
                 onChange={(e) => onUpdate({ speakingStyle: e.target.value })}
               />
             ) : (
               <p className="text-[10px] text-zinc-400 font-medium italic">
-                "{character.speakingStyle || "Clinical and precise."}"
+                "{speakingStyleText}"
               </p>
             )}
           </div>
@@ -192,7 +288,7 @@ export const CastCard = React.memo<CastCardProps>(({
               />
             ) : (
               <p className="text-[10px] text-zinc-500 font-medium leading-relaxed">
-                {character.conflict || "Primary ideological battleground."}
+                {conflictText}
               </p>
             )}
           </div>
@@ -210,7 +306,7 @@ export const CastCard = React.memo<CastCardProps>(({
                 />
               ) : (
                 <p className="text-[9px] text-orange-400/80 font-black uppercase tracking-tighter italic">
-                  {character.secret || "No classified data found."}
+                  {secretText}
                 </p>
               )}
             </div>
@@ -223,7 +319,7 @@ export const CastCard = React.memo<CastCardProps>(({
         <div className="flex items-center gap-3">
           <div className="w-2 h-2 rounded-full bg-studio shadow-studio" />
           <span className="text-[8px] font-black text-zinc-700 uppercase tracking-widest truncate max-w-[200px]">
-            DNA: {character.visualPrompt || "GENETIC_HASH_PENDING"}
+            DNA: {visualPromptText}
           </span>
         </div>
         <div className="flex items-center gap-2">

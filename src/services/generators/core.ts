@@ -59,6 +59,9 @@ function logAIUserHint(message: string) {
 
 import { GoogleGenAI } from "@google/genai";
 import { API_BASE_URL } from "@/lib/api-utils";
+import { studioGroup, studioEnd } from "@/lib/studio-logger";
+import ValidationEngine from "@/services/validators/ValidationEngine";
+import { traceContextFromInstruction } from "@/services/validators/ContextTracer";
 
 /**
  * Custom Error Classes for AI Operations
@@ -150,7 +153,12 @@ DETAIL DEPTH POLICY:
 - If a prompt is already constrained, deepen the value content rather than widening the schema.
 `;
 
-function composeDetailedSystemInstruction(systemInstruction: string): string {
+function composeDetailedSystemInstruction(
+  systemInstruction: string,
+  worldLore?: string | null,
+  castDNA?: string | null,
+  episodePlan?: string | null
+): string {
   const trimmedInstruction = systemInstruction.trim();
 
   if (!trimmedInstruction) {
@@ -174,7 +182,23 @@ function composeDetailedSystemInstruction(systemInstruction: string): string {
     ? `${DETAIL_DEPTH_DIRECTIVE}\nFORMAT SAFETY:\n- Preserve the exact requested schema and output shape.\n- Increase detail within the permitted fields only.`
     : DETAIL_DEPTH_DIRECTIVE;
 
-  return `${trimmedInstruction}\n\n${detailAppendix.trim()}`;
+  // Inject context blocks if provided
+  const contextBlocks = [];
+  if (worldLore?.trim()) {
+    contextBlocks.push(`=== WORLD LORE SOURCE OF TRUTH ===\n${worldLore}\n`);
+  }
+  if (castDNA?.trim()) {
+    contextBlocks.push(`=== CHARACTER DNA REGISTRY ===\n${castDNA}\n`);
+  }
+  if (episodePlan?.trim()) {
+    contextBlocks.push(`=== EPISODE MASTER BLUEPRINT ===\n${episodePlan}\n`);
+  }
+
+  const contextSection = contextBlocks.length > 0 
+    ? `\n\nSTORY STATE CONTEXT:\n${contextBlocks.join('\n')}` 
+    : '';
+
+  return `${trimmedInstruction}${contextSection}\n\n${detailAppendix.trim()}`;
 }
 
 export interface AIMetadata {
@@ -199,6 +223,7 @@ function broadcastAIStart(model: string) {
 
 /**
  * Robust AI Call Utility with built-in retries, timeouts, and error handling.
+ * Optional context parameters allow story state injection for consistent generation.
  */
 export async function callAI(
   model: string,
@@ -208,9 +233,17 @@ export async function callAI(
   maxTokens: number = 2048,
   topP: number = 0.95,
   topK: number = 40,
-  timeoutMs: number = 180000
+  timeoutMs: number = 180000,
+  worldLore?: string | null,
+  castDNA?: string | null,
+  episodePlan?: string | null
 ) {
-  const detailedSystemInstruction = composeDetailedSystemInstruction(systemInstruction);
+  const detailedSystemInstruction = composeDetailedSystemInstruction(
+    systemInstruction,
+    worldLore,
+    castDNA,
+    episodePlan
+  );
   const requestKey = JSON.stringify({ model, prompt, systemInstruction: detailedSystemInstruction, temperature, maxTokens, topP, topK });
   if (inFlightRequests.has(requestKey)) {
     logger.info('Duplicate generation request detected. Reusing existing in-flight request.');
@@ -229,12 +262,40 @@ export async function callAI(
     const castInjected = detailedSystemInstruction.includes("CHARACTER DNA REGISTRY");
     const planInjected = detailedSystemInstruction.includes("EPISODE MASTER BLUEPRINT");
 
-    logger.group(`Neural Context Audit`);
-    console.log("%cWorld Lore Sync:", STYLES.info, worldInjected ? "ACTIVE ✅" : "NONE ❌");
-    console.log("%cCast DNA Sync:", STYLES.info, castInjected ? "ACTIVE ✅" : "NONE ❌");
-    console.log("%cEpisode Plan Sync:", STYLES.info, planInjected ? "ACTIVE ✅" : "NONE ❌");
-    console.log("%cTotal Instruction Volume:", STYLES.info, detailedSystemInstruction.length, "chars");
-    logger.end();
+    // Enhanced Neural Context Audit with detailed metrics
+    const auditMetrics = {
+      "World Lore Sync": worldInjected 
+        ? `ACTIVE ✅ (${worldLore?.length || 0} chars)` 
+        : "NONE ❌",
+      "Cast DNA Sync": castInjected 
+        ? `ACTIVE ✅ (${castDNA?.length || 0} chars)` 
+        : "NONE ❌",
+      "Episode Plan Sync": planInjected 
+        ? `ACTIVE ✅ (${episodePlan?.length || 0} chars)` 
+        : "NONE ❌",
+      "Total Instruction Volume": `${detailedSystemInstruction.length} chars`,
+      "User Prompt Volume": `${prompt.length} chars`,
+      "Combined Context Size": `${detailedSystemInstruction.length + prompt.length} chars`,
+    };
+
+    // Emit a structured context trace for UI/telemetry
+    try {
+      const trace = traceContextFromInstruction(detailedSystemInstruction);
+      AI_EVENTS.dispatchEvent(new CustomEvent('ai_context_trace', { detail: { model, trace } }));
+      console.groupCollapsed('%c[AI Core] Context Trace','color: #6366f1; font-weight:700;');
+      console.log(trace);
+      console.groupEnd();
+    } catch (e) {
+      logger.warn('Context tracer failed', e);
+    }
+
+    studioGroup('AI Core', `Neural Context Audit: ${model}`, 'system');
+    Object.entries(auditMetrics).forEach(([key, value]) => {
+      const isActive = value.includes('ACTIVE');
+      const style = isActive ? STYLES.success : (value.includes('NONE') ? STYLES.warn : STYLES.info);
+      console.log(`%c${key}:`, style, value);
+    });
+    studioEnd();
 
     logger.group(`Request to ${model}`);
     console.log("%cSystem Instruction:", STYLES.info, detailedSystemInstruction);
@@ -360,6 +421,21 @@ export async function callAI(
           latency: data.latency_ms || totalLatency,
           fallbacks: attemptedFallbacks
         });
+
+        // Run lightweight validation on the returned text and broadcast results
+        try {
+          const engine = new ValidationEngine();
+          const validation = engine.validate(detailedSystemInstruction, text);
+          console.groupCollapsed("%c[AI Core] Validation Result", "color: #6366f1; font-weight: 700;");
+          console.log(validation);
+          console.groupEnd();
+          AI_EVENTS.dispatchEvent(new CustomEvent('ai_validation', { detail: { model: currentModel, validation } }));
+          if (!validation.isValid) {
+            logger.warn(`Validation flagged issues (score: ${validation.score})`, validation.violations);
+          }
+        } catch (valErr) {
+          logger.warn('Validation engine failed:', valErr);
+        }
 
         return text;
       } catch (error: any) {

@@ -5,17 +5,27 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 
-interface ManifestScaffolderProps {
+interface ProjectConfiguratorProps {
   onContinue?: (config: { sessions: number; episodes: number; scenes: number }) => void;
   isLoading?: boolean;
+  initialConfig?: { sessions: number; episodes: number; scenes: number };
 }
 
-export function ManifestScaffolder({ onContinue, isLoading }: ManifestScaffolderProps) {
+export function ProjectConfigurator({ onContinue, isLoading, initialConfig }: ProjectConfiguratorProps) {
   const [config, setConfig] = React.useState({
-    sessions: 1,
-    episodes: 12,
-    scenes: 16
+    sessions: initialConfig?.sessions || 1,
+    episodes: initialConfig?.episodes || 12,
+    scenes: initialConfig?.scenes || 16
   });
+
+  React.useEffect(() => {
+    if (initialConfig) {
+      setConfig(prev => ({
+        ...prev,
+        ...initialConfig
+      }));
+    }
+  }, [initialConfig]);
 
   const totalItems = config.sessions * config.episodes * config.scenes;
 
@@ -149,7 +159,7 @@ export function ManifestScaffolder({ onContinue, isLoading }: ManifestScaffolder
 
         {/* Footer Technical Metadata */}
         <div className="px-8 py-4 bg-[#080808] border-t border-zinc-900 flex justify-between items-center text-[8px] font-mono text-zinc-600 uppercase tracking-widest">
-          <span>Architect Build: v2.4.9</span>
+          <span>Build: v2.4.9</span>
           <span>Latency: 24ms</span>
         </div>
       </motion.div>

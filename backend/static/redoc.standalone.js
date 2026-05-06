@@ -1,3 +1,13 @@
+(function () {var module=function(exports,require){if(typeof require !== "undefined" && require.main === module){return require("./src")}
+
+const redoc$1 = require('./redoc.standalone.js');
+
+
+module.exports = redoc$1;
+};
+if(typeof require !== "undefined" && require.register){require.register("./src", module)}
+
+
 /*! For license information please see redoc.standalone.js.LICENSE.txt */
       @media ${t?"print, ":""} screen and (max-width: ${t=>t.theme.breakpoints[e]}) ${n||""} {
         ${ca(...r)};

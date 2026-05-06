@@ -1,5 +1,4 @@
 import React from 'react';
-import '@/styles/creative-engine.css';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import {
@@ -15,9 +14,6 @@ import {
   X,
   Target,
   Users,
-  Settings,
-  Clapperboard,
-  SlidersHorizontal,
   History,
   PanelRightClose
 } from 'lucide-react';
@@ -26,9 +22,9 @@ import { cn } from '@/lib/utils';
 import TextareaAutosize from 'react-textarea-autosize';
 import { useGeneratorState } from '@/hooks/useGenerator';
 import { AlertCircle, RefreshCcw } from 'lucide-react';
-import { StudioSelector } from '../../selectors/StudioSelector';
-import { EngineSelector } from '../../selectors/EngineSelector';
-import { ToneSelector } from '../../selectors/ToneSelector';
+import { StudioSelector } from '@/pages/studio/components/selectors/StudioSelector';
+import { EngineSelector } from '@/pages/studio/components/selectors/EngineSelector';
+import { ToneSelector } from '@/pages/studio/components/selectors/ToneSelector';
 
 
 interface ProductionCoreProps {
@@ -204,7 +200,7 @@ export const ProductionCore = React.memo<ProductionCoreProps>((props) => {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <RefreshCcw className={cn("w-3 h-3 animate-spin", colors.primary)} />
-                      <span className={cn("text-[9px] font-black uppercase tracking-widest", colors.primary)}>Neural Link Active</span>
+                      <span className={cn("text-[9px] font-black uppercase tracking-widest", colors.primary)}>AI Connected</span>
                     </div>
                     {fallbackHistory.length > 0 && (
                       <div className="px-2 py-0.5 bg-amber-500/10 border border-amber-500/20 rounded text-[8px] font-black text-amber-500 uppercase tracking-tighter flex items-center gap-1">
@@ -322,7 +318,7 @@ export const ProductionCore = React.memo<ProductionCoreProps>((props) => {
                   )}
                 >
                   <Sparkles className="w-4 h-4 fill-white/20" />
-                  LAUNCH WORLD GENESIS
+                  GENERATE PRODUCTION PLAN
                 </Button>
 
                 {generatedScript && (

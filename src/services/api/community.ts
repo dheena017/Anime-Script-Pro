@@ -6,10 +6,14 @@ const LOCAL_STRATEGIC_USER = "local-dev-architect-id";
 export interface CommunityPost {
   id: number;
   user_id: string;
+  author_id?: string;
+  author_name?: string;
   title: string;
   content: string;
   likes: number;
   views: number;
+  category?: string;
+  comments_count?: number;
   is_active: boolean;
   created_at: string;
 }

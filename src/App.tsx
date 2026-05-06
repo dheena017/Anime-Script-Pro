@@ -5,6 +5,7 @@ import { ErrorBoundary } from '@/lib/error-utils';
 import { NavigationMonitor } from '@/pages/studio/components/studio/NavigationMonitor';
 import { RootProviders } from '@/contexts/RootProviders';
 import { StudioLoading } from '@/pages/studio/components/studio/StudioLoading';
+import { StudioContextWrapper } from '@/components/layout/StudioContextWrapper';
 
 function AuthRoute({ children }: { children: React.ReactNode }) {
   return <ProtectedRoute>{children}</ProtectedRoute>;
@@ -16,7 +17,7 @@ const StudioLayout = lazy(() => import('@/layouts/StudioLayout').then(m => ({ de
 const LoginPage = lazy(() => import('@/pages/auth/LoginPage').then(m => ({ default: m.LoginPage })));
 const RegisterPage = lazy(() => import('@/pages/auth/RegisterPage').then(m => ({ default: m.RegisterPage })));
 const ForgotPasswordPage = lazy(() => import('@/pages/auth/ForgotPasswordPage').then(m => ({ default: m.ForgotPasswordPage })));
-const NotificationsPage = lazy(() => import('@/pages/dashboard/Notifications'));
+const NotificationsPage = lazy(() => import('@/pages/studio/Notifications/NotificationsPage'));
 const CreateProject = lazy(() => import('@/pages/projects/CreateProject'));
 const Dashboard = lazy(() => import('@/pages/dashboard/Dashboard'));
 const ProfilePage = lazy(() => import('@/pages/dashboard/ProfilePage').then(m => ({ default: m.ProfilePage })));
@@ -32,16 +33,16 @@ const ProjectsPage = lazy(() => import('@/pages/projects/Projects'));
 const ProjectWizard = lazy(() => import('@/pages/projects/ProjectWizard'));
 
 // New Modular Pages
-const SystemModule = lazy(() => import('@/pages/studio/system/Index'));
-const DiscoverModule = lazy(() => import('@/pages/studio/Discover/Index'));
-const CommunityModule = lazy(() => import('@/pages/studio/Community/Index'));
-const AcademyModule = lazy(() => import('@/pages/studio/Tutorials/Index'));
-const SettingsModule = lazy(() => import('@/pages/studio/Settings/Index'));
-const LibraryModule = lazy(() => import('@/pages/studio/Library/Index'));
+const SystemModule = lazy(() => import('@/pages/studio/system/SystemPage'));
+const DiscoverModule = lazy(() => import('@/pages/studio/Discover/DiscoverPage'));
+const CommunityModule = lazy(() => import('@/pages/studio/Community/CommunityPage'));
+const AcademyModule = lazy(() => import('@/pages/studio/Tutorials/AcademyPage'));
+const SettingsModule = lazy(() => import('@/pages/studio/Settings/SettingsPage'));
+const LibraryModule = lazy(() => import('@/pages/studio/Library/LibraryPage'));
 
 // Studio Layouts
 const AnimeLayout = lazy(() => import('@/pages/studio/AnimeStudio/Layout'));
-const ManhwaLayout = lazy(() => import('@/pages/studio/ManhwaStudio/Layout'));
+const ManhwaLayout = lazy(() => import('@/pages/studio/ManhwaStudio/ManhwaStudioLayout'));
 const ComicLayout = lazy(() => import('@/pages/studio/ComicStudio/Layout'));
 
 // Anime Studio Pages
@@ -66,6 +67,8 @@ const PromptsLayout = lazy(() => import('@/pages/studio/AnimeStudio/Prompts/Prom
 const ScreeningLayout = lazy(() => import('@/pages/studio/AnimeStudio/Screening/ScreeningLayout'));
 const EngineLayout = lazy(() => import('@/pages/studio/AnimeStudio/Engine/EngineLayout'));
 const ProtocolsLayout = lazy(() => import('@/pages/studio/AnimeStudio/Protocols/ProtocolsLayout'));
+const AssetsLayout = lazy(() => import('@/pages/studio/AnimeStudio/Assets/AssetsLayout'));
+const AssetsPage = lazy(() => import('@/pages/studio/AnimeStudio/Assets/AssetsPage').then(m => ({ default: m.AssetsPage })));
 
 // Manhwa Studio Phase Layouts
 const ManhwaWorldLayout = lazy(() => import('@/pages/studio/ManhwaStudio/World/WorldLayout'));
@@ -75,6 +78,7 @@ const ManhwaCastLayout = lazy(() => import('@/pages/studio/ManhwaStudio/Cast/Cas
 const ComicWorldLayout = lazy(() => import('@/pages/studio/ComicStudio/World/WorldLayout'));
 
 // Protocols & Sub-modules
+const ProtocolsPage = lazy(() => import('@/pages/studio/AnimeStudio/Protocols/ProtocolsPage'));
 const ScriptArchitect = lazy(() => import('@/pages/studio/AnimeStudio/Protocols/pages/ScriptArchitect'));
 const LoreOracle = lazy(() => import('@/pages/studio/AnimeStudio/Protocols/pages/LoreOracle'));
 const SoulForge = lazy(() => import('@/pages/studio/AnimeStudio/Protocols/pages/SoulForge'));
@@ -84,13 +88,12 @@ const Showrunner = lazy(() => import('@/pages/studio/AnimeStudio/Protocols/pages
 const SEOMaster = lazy(() => import('@/pages/studio/AnimeStudio/Protocols/pages/SEOMaster'));
 const ProductionAide = lazy(() => import('@/pages/studio/AnimeStudio/Protocols/pages/ProductionAide'));
 
-const EpisodesPage = lazy(() => import('@/pages/studio/AnimeStudio/Series/Episodes/EpisodesPage'));
 const EpisodeViewPage = lazy(() => import('@/pages/studio/AnimeStudio/Series/Episodes/EpisodeViewPage'));
 const EpisodeEditPage = lazy(() => import('@/pages/studio/AnimeStudio/Series/Episodes/EpisodeEditPage'));
 
-const CharactersPage = lazy(() => import('@/pages/studio/AnimeStudio/Cast/Characters/CharactersPage'));
-const CharacterViewPage = lazy(() => import('@/pages/studio/AnimeStudio/Cast/Characters/CharacterViewPage'));
-const CharacterEditPage = lazy(() => import('@/pages/studio/AnimeStudio/Cast/Characters/CharacterEditPage'));
+const CharactersPage = lazy(() => import('@/pages/studio/AnimeStudio/Cast/Tabs/Characters/CharactersPage'));
+const CharacterViewPage = lazy(() => import('@/pages/studio/AnimeStudio/Cast/Tabs/Characters/CharacterViewPage'));
+const CharacterEditPage = lazy(() => import('@/pages/studio/AnimeStudio/Cast/Tabs/Characters/CharacterEditPage'));
 const CharacterCreationPage = lazy(() => import('@/pages/studio/AnimeStudio/Cast/CharacterCreationPage').then(m => ({ default: m.CharacterCreationPage })));
 const DNAPage = lazy(() => import('@/pages/studio/AnimeStudio/Cast/DNAPage').then(m => ({ default: m.DNAPage })));
 const DynamicsPage = lazy(() => import('@/pages/studio/AnimeStudio/Cast/DynamicsPage').then(m => ({ default: m.DynamicsPage })));
@@ -99,6 +102,10 @@ const RelationshipsPage = lazy(() => import('@/pages/studio/AnimeStudio/Cast/Tab
 const AddRelationshipPage = lazy(() => import('@/pages/studio/AnimeStudio/Cast/Tabs/Relationships/AddRelationshipPage'));
 const RelationshipViewPage = lazy(() => import('@/pages/studio/AnimeStudio/Cast/Tabs/Relationships/RelationshipViewPage'));
 const RelationshipEditPage = lazy(() => import('@/pages/studio/AnimeStudio/Cast/Tabs/Relationships/RelationshipEditPage'));
+
+const RegistryTab = lazy(() => import('@/pages/studio/AnimeStudio/Cast/Tabs/RegistryTab').then(m => ({ default: m.RegistryTab })));
+const IntegrityTab = lazy(() => import('@/pages/studio/AnimeStudio/Cast/Tabs/IntegrityTab').then(m => ({ default: m.IntegrityTab })));
+const AddLeadTab = lazy(() => import('@/pages/studio/AnimeStudio/Cast/Tabs/AddLeadTab').then(m => ({ default: m.AddLeadTab })));
 
 export default function App() {
   return (
@@ -122,28 +129,37 @@ export default function App() {
               {/* Studio Global Layout */}
               <Route element={<AuthRoute><StudioLayout /></AuthRoute>}>
                 <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/projects" element={<ProjectsPage />} />
-                <Route path="/notifications" element={<NotificationsPage />} />
+                <Route path="/projects/*" element={<ProjectsPage />} />
+                <Route path="/notifications/*" element={<NotificationsPage />} />
                 <Route path="/profile" element={<ProfilePage />} />
                 <Route path="/system/*" element={<SystemModule />} />
                 <Route path="/discover/*" element={<DiscoverModule />} />
                 <Route path="/community/*" element={<CommunityModule />} />
                 <Route path="/academy/*" element={<AcademyModule />} />
+                <Route path="/tutorials/*" element={<AcademyModule />} />
                 <Route path="/settings/*" element={<SettingsModule />} />
+
                 <Route path="/library/*" element={<LibraryModule />} />
               </Route>
 
               {/* INDEPENDENT STUDIO CONTEXTS (No global StudioLayout) */}
               {/* Anime Studio Context */}
-              <Route path="/anime" element={<AuthRoute><AnimeLayout /></AuthRoute>}>
-                <Route index element={<Navigate to="/anime/world" replace />} />
+              <Route
+                path="/anime"
+                element={
+                  <StudioContextWrapper>
+                    <AnimeLayout />
+                  </StudioContextWrapper>
+                }
+              >
+                <Route index element={<Navigate to="/anime/Engine" replace />} />
 
                 <Route path="world" element={<WorldLayout />}>
                   <Route index element={<AnimeWorld />} />
                 </Route>
 
                 <Route path="protocols" element={<ProtocolsLayout />}>
-                  <Route index element={<Navigate to="architect" replace />} />
+                  <Route index element={<ProtocolsPage />} />
                   <Route path="architect" element={<ScriptArchitect />} />
                   <Route path="oracle" element={<LoreOracle />} />
                   <Route path="forge" element={<SoulForge />} />
@@ -154,16 +170,25 @@ export default function App() {
                   <Route path="aide" element={<ProductionAide />} />
                 </Route>
 
+                <Route path="assets" element={<AssetsLayout />}>
+                  <Route index element={<AssetsPage />} />
+                  <Route path="seo" element={<AssetsPage />} />
+                  <Route path="prompts" element={<AssetsPage />} />
+                </Route>
+
                 <Route path="cast" element={<CastLayout />}>
-                  <Route index element={<CharactersPage />} />
-                  <Route path="registry" element={<CharactersPage />} />
+                  <Route index element={<RegistryTab />} />
+                  <Route path="registry" element={<RegistryTab />} />
                   <Route path="characters" element={<CharactersPage />} />
                   <Route path="characters/:id" element={<CharacterViewPage />} />
                   <Route path="characters/:id/edit" element={<CharacterEditPage />} />
                   <Route path="creation" element={<CharacterCreationPage />} />
                   <Route path="dna" element={<DNAPage />} />
                   <Route path="dynamics" element={<DynamicsPage />} />
+                  <Route path="integrity" element={<IntegrityTab />} />
+                  <Route path="add-lead" element={<AddLeadTab />} />
                   <Route path="relationships" element={<RelationshipsPage />} />
+                  <Route path="matrix" element={<RelationshipsPage />} />
                   <Route path="relationships/add" element={<AddRelationshipPage />} />
                   <Route path="relationships/:id" element={<RelationshipViewPage />} />
                   <Route path="relationships/:id/edit" element={<RelationshipEditPage />} />
@@ -171,7 +196,12 @@ export default function App() {
 
                 <Route path="series" element={<SeriesLayout />}>
                   <Route index element={<AnimeSeries />} />
-                  <Route path="episodes" element={<EpisodesPage />} />
+                  <Route path="roadmap" element={<AnimeSeries />} />
+                  <Route path="arcs" element={<AnimeSeries />} />
+                  <Route path="blueprint" element={<AnimeSeries />} />
+                  <Route path="assets" element={<AnimeSeries />} />
+                  <Route path="timeline" element={<AnimeSeries />} />
+                  <Route path="episodes" element={<AnimeSeries />} />
                   <Route path="episodes/:id" element={<EpisodeViewPage />} />
                   <Route path="episodes/:id/edit" element={<EpisodeEditPage />} />
                 </Route>
@@ -204,7 +234,14 @@ export default function App() {
               </Route>
 
               {/* Manhwa Studio Context */}
-              <Route path="/manhwa" element={<AuthRoute><ManhwaLayout /></AuthRoute>}>
+              <Route
+                path="/manhwa"
+                element={
+                  <StudioContextWrapper>
+                    <ManhwaLayout />
+                  </StudioContextWrapper>
+                }
+              >
                 <Route index element={<Navigate to="/manhwa/world" replace />} />
                 <Route path="world" element={<ManhwaWorldLayout />} />
                 <Route path="cast" element={<ManhwaCastLayout />} />
@@ -217,7 +254,14 @@ export default function App() {
               </Route>
 
               {/* Comic Studio Context */}
-              <Route path="/comic" element={<AuthRoute><ComicLayout /></AuthRoute>}>
+              <Route
+                path="/comic"
+                element={
+                  <StudioContextWrapper>
+                    <ComicLayout />
+                  </StudioContextWrapper>
+                }
+              >
                 <Route index element={<Navigate to="/comic/world" replace />} />
                 <Route path="world" element={<ComicWorldLayout />} />
                 <Route path="engine" element={<EngineLayout />} />

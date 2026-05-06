@@ -12,7 +12,7 @@ export const PromptsEmptyState: React.FC<PromptsEmptyStateProps> = ({
   isGenerating
 }) => {
   const features = [
-    { icon: Code, title: 'Technical Syntax', description: 'AI optimizes prompt structure for specific neural engines' },
+    { icon: Code, title: 'Technical Syntax', description: 'AI formats prompts for best results with each model' },
     { icon: Cpu, title: 'Compute Efficiency', description: 'Reduces token overhead while maintaining visual fidelity' },
     { icon: Command, title: 'Directives Sync', description: 'Ensures prompts align with script technical notes' }
   ];

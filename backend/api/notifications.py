@@ -11,8 +11,8 @@ router = APIRouter(prefix="/api/notifications", tags=["Notifications"])
 async def get_notifications(user_id: str):
     async with AsyncSession(async_engine) as session:
         statement = select(Notification).where(Notification.user_id == user_id)
-        results = await session.exec(statement)
-        return results.all()
+        result = await session.execute(statement)
+        return result.scalars().all()
 
 @router.post("/{notification_id}/read")
 async def mark_notification_read(notification_id: int):

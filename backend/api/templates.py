@@ -29,8 +29,8 @@ async def get_templates(
         query = select(Template).where(Template.is_active == True)
         if name:
             query = query.where(Template.name.contains(name))
-        results = await session.exec(query.offset(offset).limit(limit))
-        return results.all()
+        result = await session.execute(query.offset(offset).limit(limit))
+        return result.scalars().all()
 
 @router.get("/{template_id}", response_model=TemplateOut)
 async def get_template(template_id: int):

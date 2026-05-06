@@ -15,6 +15,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
+import { marketingStyles as s } from './marketingStyles';
 
 const PricingCard = ({ 
   title, 
@@ -42,15 +43,13 @@ const PricingCard = ({
     whileInView={{ opacity: 1, y: 0 }}
     viewport={{ once: true }}
     className={cn(
-      "p-10 rounded-[3rem] border transition-all duration-500 relative overflow-hidden flex flex-col group",
-      highlighted 
-        ? "border-studio bg-studio/[0.03] shadow-[0_30px_70px_rgba(6,182,212,0.15)]" 
-        : "border-white/5 bg-[#0a0a0b] hover:border-white/10"
+      s.cardBase,
+      highlighted ? s.cardHighlighted : s.cardDefault
     )}
   >
     {/* Background Glow */}
     <div className={cn(
-      "absolute top-0 right-0 w-64 h-64 blur-[100px] rounded-full opacity-0 group-hover:opacity-20 transition-opacity",
+      s.cardGlow,
       highlighted ? "bg-studio" : "bg-white"
     )} />
 
@@ -64,8 +63,8 @@ const PricingCard = ({
     
     <div className="flex items-center justify-between mb-12">
        <div className={cn(
-         "w-16 h-16 rounded-2xl flex items-center justify-center transition-all duration-500",
-         highlighted ? "bg-studio text-black shadow-[0_0_30px_rgba(6,182,212,0.4)]" : "bg-white/[0.03] border border-white/5 text-zinc-500 group-hover:bg-white group-hover:text-black"
+         s.iconWrapper,
+         highlighted ? s.iconHighlighted : s.iconDefault
        )}>
          <Icon className="w-8 h-8" />
        </div>
@@ -127,12 +126,12 @@ export default function PricingPage() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-[#050505] text-zinc-100 py-32 px-6 relative overflow-hidden">
+    <div className={s.page}>
       {/* Visual Decor */}
-      <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-studio/5 blur-[180px] rounded-full pointer-events-none" />
-      <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-fuchsia-500/5 blur-[180px] rounded-full pointer-events-none" />
+      <div className={s.decorTop} />
+      <div className={s.decorBottom} />
 
-      <div className="max-w-7xl mx-auto space-y-24 relative z-10">
+      <div className={s.wrapper}>
         
         {/* 1. HEADER PROTOCOL */}
         <div className="flex flex-col items-center text-center space-y-8">
@@ -156,7 +155,7 @@ export default function PricingPage() {
         </div>
 
         {/* 2. TIER GRID */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+        <div className={s.tierGrid}>
           <PricingCard 
             title="Aspirant"
             price="Free"
@@ -215,31 +214,31 @@ export default function PricingPage() {
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="p-12 md:p-20 rounded-[4rem] bg-[#0a0a0b] border border-white/5 flex flex-col lg:flex-row items-center justify-between gap-12 relative overflow-hidden group shadow-3xl"
+          className={s.enterprisePanel}
         >
-          <div className="absolute inset-0 bg-studio/[0.02] opacity-50 group-hover:opacity-100 transition-opacity" />
-          <div className="relative z-10 text-center lg:text-left space-y-6 max-w-2xl">
-            <div className="flex items-center gap-3 justify-center lg:justify-start">
+          <div className={s.enterpriseOverlay} />
+          <div className={s.enterpriseText}>
+            <div className={s.enterpriseBadge}>
                <Globe className="w-5 h-5 text-studio" />
-               <span className="text-[10px] font-black text-studio uppercase tracking-[0.4em]">Enterprise Protocol</span>
+               <span className={s.enterpriseBadgeText}>Enterprise Protocol</span>
             </div>
-            <div className="space-y-4">
-               <h3 className="text-4xl md:text-6xl font-black text-white uppercase italic tracking-tighter">Need a Custom <br /> Production Cluster?</h3>
-               <p className="text-zinc-500 text-[11px] font-bold uppercase tracking-[0.2em] leading-relaxed">
+            <div className={s.enterpriseHeadingCopy}>
+               <h3 className={s.enterpriseHeading}>Need a Custom <br /> Production Cluster?</h3>
+               <p className={s.enterpriseCopy}>
                  Dedicated neural infrastructure for large-scale anime production houses. Specialized sub-agent swarms and high-bandwidth API nodes.
                </p>
             </div>
           </div>
           <Button 
             onClick={() => navigate('/contact')} 
-            className="relative z-10 h-20 px-16 rounded-[2rem] bg-white text-black font-black uppercase tracking-[0.3em] text-[11px] hover:bg-studio hover:scale-105 transition-all shadow-2xl"
+            className={s.enterpriseButton}
           >
             INITIALIZE SALES LINK <ArrowRight className="ml-4 w-5 h-5" />
           </Button>
         </motion.div>
 
         {/* 4. TELEMETRY FOOTER */}
-        <footer className="mt-20 pt-12 border-t border-white/5 flex flex-col md:flex-row items-center justify-center gap-16 text-[9px] font-black text-zinc-700 uppercase tracking-[0.4em]">
+        <footer className={s.footerStats}>
            <div className="flex items-center gap-4">
               <ShieldCheck className="w-4 h-4 text-emerald-500" />
               <span>Certified Secure Billing Node</span>

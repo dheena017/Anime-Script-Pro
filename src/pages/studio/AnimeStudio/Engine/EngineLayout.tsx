@@ -6,7 +6,6 @@ import { useAuth } from '@/hooks/useAuth';
 import { EngineHeader } from './components/EngineHeader';
 import { EngineToolbar } from './components/EngineToolbar';
 import { EngineTab } from './tabs/EngineTabs';
-import '../Template/templateStyles/Template.css';
 
 export const EngineContext = React.createContext<{
   setHandlers: React.Dispatch<React.SetStateAction<any>>;
@@ -15,11 +14,11 @@ export const EngineContext = React.createContext<{
 export default function EngineLayout() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [handlers, setHandlers] = React.useState<any>({});
 
   const {
     session, episode, generatedScript, isSaving, setIsSaving, showNotification,
-    temperature, maxTokens, selectedModel, tone, audience
+    temperature, maxTokens, selectedModel, tone, audience,
+    contentType
   } = useGenerator();
 
   const { user } = useAuth();
@@ -56,29 +55,35 @@ export default function EngineLayout() {
   };
 
   return (
-    <EngineContext.Provider value={{ setHandlers }}>
+    <EngineContext.Provider value={{ setHandlers: () => {} }}>
       <div className="space-y-6">
-        <div className="studio-module-header">
-          <EngineHeader
-            session={session}
-            episode={episode}
-            onPrev={() => navigate('/anime/screening')}
-            isGenerating={handlers.isGenerating}
-            onSave={handleSaveCurrent}
-            isSaving={isSaving}
-            hasContent={!!generatedScript}
-          />
-        </div>
+<div className="studio-module-header">
+        <EngineHeader
+          session={session}
+          episode={episode}
+          onPrev={() => navigate(`/${contentType.toLowerCase()}/screening`)}
+          onNext={() => navigate(`/${contentType.toLowerCase()}/world`)}
+          onSave={handleSaveCurrent}
+          isSaving={isSaving}
+          hasContent={!!generatedScript}
+        />
+      </div>
 
-        <div className="studio-module-toolbar flex items-center justify-center p-2 bg-[#050505]/40 backdrop-blur-md border border-white/5 rounded-xl mb-8">
+      <div className="studio-tabs-bar sticky top-0 z-40 flex items-center justify-center p-3 md:p-4 bg-[#050505]/95 backdrop-blur-md border border-white/10 rounded-[2rem] shadow-2xl mb-8 relative group overflow-hidden">
+         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-studio/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
+         
+         <div className="relative z-10 w-full flex justify-center">
           <EngineToolbar
             status={generatedScript ? 'active' : 'empty'}
             activeTab={activeTab}
             setActiveTab={handleTabChange}
             session={session}
             episode={episode}
+            content={generatedScript}
+            showTabsOnly={true}
           />
         </div>
+      </div>
 
         <motion.div
           initial={{ opacity: 0, y: 10 }}
@@ -91,6 +96,3 @@ export default function EngineLayout() {
     </EngineContext.Provider>
   );
 }
-
-
-

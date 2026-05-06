@@ -27,8 +27,8 @@ class TelemetryCreate(BaseModel):
 @router.get("/config/{user_id}", response_model=EngineConfig)
 async def get_engine_config(user_id: str, session: AsyncSession = Depends(get_async_session)):
     statement = select(EngineConfig).where(EngineConfig.user_id == user_id)
-    result = await session.exec(statement)
-    config = result.first()
+    result = await session.execute(statement)
+    config = result.scalars().first()
     
     if not config:
         # Create default config for new users
@@ -42,8 +42,8 @@ async def get_engine_config(user_id: str, session: AsyncSession = Depends(get_as
 @router.post("/config/{user_id}", response_model=EngineConfig)
 async def update_engine_config(user_id: str, update: EngineConfigUpdate, session: AsyncSession = Depends(get_async_session)):
     statement = select(EngineConfig).where(EngineConfig.user_id == user_id)
-    result = await session.exec(statement)
-    config = result.first()
+    result = await session.execute(statement)
+    config = result.scalars().first()
     
     if not config:
         config = EngineConfig(user_id=user_id)
@@ -77,5 +77,5 @@ async def record_telemetry(telemetry: TelemetryCreate, user_id: Optional[str] = 
 @router.get("/telemetry/recent", response_model=List[AITelemetry])
 async def get_recent_telemetry(limit: int = 50, session: AsyncSession = Depends(get_async_session)):
     statement = select(AITelemetry).order_by(AITelemetry.timestamp.desc()).limit(limit)
-    result = await session.exec(statement)
-    return result.all()
+    result = await session.execute(statement)
+    return result.scalars().all()

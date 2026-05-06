@@ -1,13 +1,14 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { 
-  Tooltip, 
-  TooltipContent, 
-  TooltipProvider, 
-  TooltipTrigger 
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
 } from '@/components/ui/tooltip';
-import { ChevronLeft, ChevronRight, Cpu, Globe, RefreshCw, Sparkles, Save } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Cpu, Globe, Save, Zap, Square, Box } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useGenerator } from '@/hooks/useGenerator';
 
 interface WorldHeaderProps {
   onRegenerate: () => void;
@@ -20,6 +21,8 @@ interface WorldHeaderProps {
   session: string;
   episode: string;
   prompt?: string;
+  content?: string | null;
+  status?: 'active' | 'draft' | 'empty';
 }
 
 export const WorldHeader: React.FC<WorldHeaderProps> = ({
@@ -31,8 +34,11 @@ export const WorldHeader: React.FC<WorldHeaderProps> = ({
   hasContent,
   isGenerating,
   session,
-  episode
+  episode,
+  status = 'empty'
 }) => {
+  const { stopGeneration } = useGenerator();
+
   return (
     <TooltipProvider>
       <div className="relative group">
@@ -49,8 +55,15 @@ export const WorldHeader: React.FC<WorldHeaderProps> = ({
             <div className="flex flex-col items-center sm:items-start text-center sm:text-left">
               <div className="flex items-center gap-3">
                 <h1 className="header-title">
-                   World Architect
+                   World Builder
                 </h1>
+                <div className="w-px h-4 bg-white/10 hidden sm:block" />
+                <div className="flex items-center gap-2">
+                  <Box className={cn("w-3.5 h-3.5", status === 'active' ? "text-studio" : "text-zinc-600")} />
+                  <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500 italic">
+                    Nexus {status === 'active' ? 'Active' : 'Standby'}
+                  </span>
+                </div>
               </div>
               <div className="flex items-center gap-2 mt-2">
                 <Cpu className="w-3.5 h-3.5 text-studio/40 shrink-0" />
@@ -63,8 +76,8 @@ export const WorldHeader: React.FC<WorldHeaderProps> = ({
             {onPrev && (
               <Tooltip>
                 <TooltipTrigger>
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     className="relative w-full sm:w-auto h-12 px-8 bg-[#050505] border-white/10 text-zinc-400 hover:text-studio hover:border-studio/50 font-black uppercase tracking-widest text-[10px] rounded-full transition-all duration-500 group/back shadow-2xl"
                     onClick={onPrev}
                   >
@@ -73,46 +86,75 @@ export const WorldHeader: React.FC<WorldHeaderProps> = ({
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="top">
-                  <p className="font-black uppercase tracking-widest text-[9px]">Return to Mission Control</p>
+                  <p className="font-black uppercase tracking-widest text-[9px]">Return to Engine Matrix</p>
                 </TooltipContent>
               </Tooltip>
             )}
 
             <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
-
               {onSave && hasContent && (
                 <Tooltip>
                   <TooltipTrigger>
-                    <Button 
-                      variant="outline" 
+                    <Button
+                      variant="outline"
                       className="relative w-full sm:w-auto h-12 px-6 bg-studio/5 border-studio/20 text-studio hover:bg-studio/10 font-black uppercase tracking-widest text-[11px] rounded-full transition-all duration-500 shadow-[0_0_20px_rgba(6,182,212,0.1)] group/save"
                       onClick={onSave}
                       disabled={isSaving}
                     >
                       <Save className={cn("w-4 h-4 mr-2", isSaving && "animate-pulse")} />
-                      {isSaving ? "SAVING..." : "SAVE"}
+                      {isSaving ? "SAVING..." : "SAVE ALL"}
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent side="top">
-                    <p className="font-black uppercase tracking-widest text-[9px]">Manual Cloud Sync</p>
+                    <p className="font-black uppercase tracking-widest text-[9px]">Save all tabs (sync to cloud)</p>
                   </TooltipContent>
                 </Tooltip>
               )}
 
               <Tooltip>
-                <TooltipTrigger>
-                  <Button 
+                <TooltipTrigger >
+                  {isGenerating ? (
+                    <Button
+                      variant="outline"
+                      className="relative w-full sm:w-auto h-12 px-8 bg-red-500/10 border-red-500/30 text-red-500 hover:bg-red-500 hover:text-black font-black uppercase tracking-widest text-[11px] rounded-full transition-all duration-500 group/stop shadow-[0_0_25px_rgba(239,68,68,0.2)]"
+                      onClick={stopGeneration}
+                    >
+                      <Square className="w-4 h-4 mr-3 fill-current group-hover/stop:scale-110 transition-transform" />
+                      <span className="relative z-10">STOP SYNTHESIS</span>
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="outline"
+                      className="relative w-full sm:w-auto h-12 px-8 bg-[#050505] border-white/10 text-zinc-100 hover:text-studio hover:border-studio/50 font-black uppercase tracking-widest text-[11px] rounded-full transition-all duration-500 group/btn shadow-2xl"
+                      onClick={onRegenerate}
+                    >
+                      <div className="absolute inset-0 bg-studio/5 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-500 rounded-full" />
+                      <Zap className="w-4 h-4 mr-3 text-studio group-hover/btn:scale-125 transition-transform duration-500" />
+                      <span className="relative z-10">GENERATE ALL</span>
+                    </Button>
+                  )}
+                </TooltipTrigger>
+                <TooltipContent side="top">
+                  <p className="font-black uppercase tracking-widest text-[9px]">
+                    {isGenerating ? "Terminate Active Process" : "Initiate World Synthesis"}
+                  </p>
+                </TooltipContent>
+              </Tooltip>
+
+              <Tooltip>
+                <TooltipTrigger >
+                  <Button
                     className="relative w-full sm:w-auto h-12 px-10 rounded-full bg-[#050505] border border-white/10 text-zinc-400 hover:text-studio hover:border-studio/50 font-black uppercase tracking-widest text-[10px] transition-all duration-500 group/next shadow-2xl"
                     onClick={onNext}
                   >
                     <span className="relative z-10 flex items-center gap-2">
-                      NEXT <ChevronRight className="w-4 h-4 group-hover/next:translate-x-1 transition-transform" />
+                      PROCEED TO CAST <ChevronRight className="w-4 h-4 group-hover/next:translate-x-1 transition-transform" />
                     </span>
                     <div className="absolute inset-0 bg-studio/5 opacity-0 group-hover/next:opacity-100 transition-opacity duration-500 rounded-full" />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="top">
-                  <p className="font-black uppercase tracking-widest text-[9px]">Proceed to Next Phase</p>
+                  <p className="font-black uppercase tracking-widest text-[9px]">Proceed to Modules Hub</p>
                 </TooltipContent>
               </Tooltip>
             </div>

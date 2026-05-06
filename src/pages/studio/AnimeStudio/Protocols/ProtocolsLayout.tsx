@@ -1,16 +1,28 @@
+import React from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { ProtocolsHeader } from './components/ProtocolsHeader';
 import { ProtocolsToolbar } from './components/ProtocolsToolbar';
-import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight, Save, RefreshCw } from 'lucide-react';
 import { useGenerator } from '@/hooks/useGenerator';
 import { useAuth } from '@/hooks/useAuth';
 
+export const ProtocolsContext = React.createContext<{
+  setHandlers: React.Dispatch<React.SetStateAction<any>>;
+  searchQuery: string;
+  setSearchQuery: (q: string) => void;
+}>({ 
+  setHandlers: () => { },
+  searchQuery: '',
+  setSearchQuery: () => { }
+});
+
 export default function ProtocolsLayout() {
   const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = React.useState('');
   const { 
     isSaving, setIsSaving, showNotification, generatedScript,
-    castProfiles, castData, generatedSeriesPlan, generatedMetadata
+    castProfiles, castData, generatedSeriesPlan, generatedMetadata,
+    session, episode, contentType
   } = useGenerator();
   const { user } = useAuth();
 
@@ -40,63 +52,44 @@ export default function ProtocolsLayout() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col md:flex-row items-center justify-between gap-4 bg-[#050505]/40 backdrop-blur-md border border-white/5 rounded-2xl p-2 pr-4">
-        <div className="flex items-center gap-2 px-4 border-r border-white/10 mr-2 py-2">
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            onClick={() => navigate('/anime/prompts')}
-            className="h-8 w-8 rounded-lg text-zinc-500 hover:text-studio"
-          >
-            <ChevronLeft className="w-4 h-4" />
-          </Button>
-          <div className="flex flex-col">
-            <span className="text-[8px] font-black text-zinc-600 uppercase tracking-widest leading-none">Nexus</span>
-            <span className="text-[10px] font-black text-white uppercase tracking-widest">Protocols</span>
+    <ProtocolsContext.Provider value={{ setHandlers: () => {}, searchQuery, setSearchQuery }}>
+      <div className="space-y-8 animate-in fade-in duration-700">
+        <div className="studio-module-header">
+          <ProtocolsHeader
+            session={session}
+            episode={episode}
+            onPrev={() => navigate(`/${contentType.toLowerCase()}/world`)}
+            onNext={() => navigate(`/${contentType.toLowerCase()}/cast`)}
+            onRegenerate={() => {
+              // Placeholder logic for regenerating protocols
+              showNotification?.('Refreshing Protocol Matrix...', 'info');
+              // Actual logic would go here
+            }}
+            isGenerating={false} // Would be tied to state if logic implemented
+            onSave={handleSave}
+            isSaving={isSaving}
+            hasContent={!!generatedScript}
+
+          />
+        </div>
+
+        <div className="studio-tabs-bar sticky top-0 z-40 flex items-center justify-center p-3 md:p-4 bg-[#050505]/95 backdrop-blur-md border border-white/10 rounded-[2rem] shadow-2xl mb-8 relative group overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-studio/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
+          <div className="relative z-10 w-full flex justify-center">
+            <ProtocolsToolbar showTabsOnly={true} />
           </div>
         </div>
 
-        <div className="flex-1 overflow-hidden">
-          <ProtocolsToolbar />
-        </div>
 
-        <div className="flex items-center gap-4 pl-4 border-l border-white/10 ml-2">
-          {generatedScript && (
-            <Button
-              variant="outline"
-              className="h-9 px-4 bg-studio/5 border-studio/20 text-studio hover:bg-studio/10 font-black uppercase tracking-widest text-[10px] rounded-xl transition-all duration-500 group/save"
-              onClick={handleSave}
-              disabled={isSaving}
-            >
-              {isSaving ? (
-                <RefreshCw className="w-3.5 h-3.5 animate-spin mr-2" />
-              ) : (
-                <Save className="w-3.5 h-3.5 mr-2 group-hover/save:scale-110 transition-transform" />
-              )}
-              {isSaving ? "SYNCING..." : "SAVE"}
-            </Button>
-          )}
-
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            onClick={() => navigate('/anime/screening')}
-            className="h-8 w-8 rounded-lg text-zinc-500 hover:text-studio"
-          >
-            <ChevronRight className="w-4 h-4" />
-          </Button>
-        </div>
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          <Outlet />
+        </motion.div>
       </div>
-
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
-      >
-        <Outlet />
-      </motion.div>
-    </div>
+    </ProtocolsContext.Provider>
   );
 }
 

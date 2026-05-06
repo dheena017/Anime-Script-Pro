@@ -3,6 +3,7 @@ import { TrendingUp, Sparkles, Loader2, Play, Users, MessageSquare, Repeat, Zap,
 import { Button } from '@/components/ui/button';
 import ReactMarkdown from 'react-markdown';
 import { growthApi, GrowthStrategy } from '@/services/api/growth';
+import { seoStyles as s } from '../seoStyles';
 
 interface GrowthTabProps {
   content: string | null;
@@ -49,21 +50,21 @@ export const GrowthTab: React.FC<GrowthTabProps> = ({
     return (
       <div className="flex flex-col items-center justify-center py-20 space-y-4">
         <Loader2 className="w-8 h-8 text-orange-500 animate-spin" />
-        <p className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-500">Accessing Neural Strategy Vault...</p>
+        <p className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-500">Accessing Strategy Vault...</p>
       </div>
     );
   }
 
   return (
     <div className="space-y-10">
-      <div className="flex items-center justify-between border-b border-white/5 pb-10">
+      <div className={s.distributionHeader}>
         <div className="flex items-center gap-6">
-          <div className="w-16 h-16 rounded-[2rem] bg-orange-500/10 border border-orange-500/20 flex items-center justify-center shadow-[0_0_30px_rgba(249,115,22,0.1)]">
+          <div className={s.distributionIconBox + ' bg-orange-500/10 border border-orange-500/20 shadow-[0_0_30px_rgba(249,115,22,0.1)]'}>
             <TrendingUp className="w-8 h-8 text-orange-500" />
           </div>
           <div>
-            <h2 className="text-3xl font-black text-white uppercase tracking-tighter">Growth Blueprint</h2>
-            <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-[0.3em] mt-1">
+            <h2 className={s.distributionTitle}>Growth Blueprint</h2>
+            <p className={s.distributionSubtitle}>
               Advanced YouTube Strategy & Audience Retention Matrix
             </p>
           </div>
@@ -73,14 +74,14 @@ export const GrowthTab: React.FC<GrowthTabProps> = ({
           <div className="flex gap-4">
             <Button
               variant="outline"
-              onClick={() => onGenerate()} // Reset or generate new
+              onClick={() => onGenerate()}
               className="h-12 px-6 rounded-xl border-white/5 hover:bg-white/5 text-[10px] font-black uppercase tracking-widest gap-2"
             >
               <ChevronLeft className="w-3 h-3" /> New Strategy
             </Button>
             <Button
               onClick={handleCopy}
-              className="h-12 px-6 rounded-xl bg-white/5 hover:bg-white/10 text-white text-[10px] font-black uppercase tracking-widest gap-2"
+              className={s.copyButtonBase}
             >
               {copied ? <Check className="w-3 h-3 text-green-500" /> : <Copy className="w-3 h-3" />}
               {copied ? 'Copied' : 'Copy Blueprint'}
@@ -111,7 +112,7 @@ export const GrowthTab: React.FC<GrowthTabProps> = ({
                   <p className="text-[9px] text-zinc-500 leading-relaxed uppercase tracking-wide line-clamp-2">{strat.description}</p>
                 </div>
                 <div className="pt-4 flex items-center gap-2 text-[8px] font-black text-orange-500/40 uppercase tracking-[0.2em] group-hover:text-orange-500 transition-colors">
-                  {isGenerating ? 'Neural Processing...' : 'Synthesize Blueprint'}
+                  {isGenerating ? 'AI Processing...' : 'Synthesize Blueprint'}
                 </div>
               </button>
             );

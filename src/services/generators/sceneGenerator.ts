@@ -86,8 +86,13 @@ export async function generateScene(
       model,
       `Overall Context: ${prompt}\nBeat: ${beatDescription}`,
       systemInstruction,
-      options.temperature,
-      options.maxTokens
+      options.temperature ?? 0.85,
+      options.maxTokens ?? 2048,
+      0.95, // topP
+      40,   // topK
+      180000, // timeoutMs
+      worldLore,
+      castProfiles
     );
 
     if (!result) {

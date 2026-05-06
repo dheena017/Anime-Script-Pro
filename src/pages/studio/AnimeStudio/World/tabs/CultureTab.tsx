@@ -3,6 +3,8 @@ import { motion } from 'framer-motion';
 import { Users, Music, Utensils, Heart, Sparkles, ClipboardList, Download } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { TableOfContents } from '../components/TableOfContents';
+import { useAutoResizeTextarea } from '../hooks/useAutoResizeTextarea';
+import { worldStyles as s } from '../worldStyles/worldStyles';
 
 interface CultureTabProps {
   isEditing: boolean;
@@ -24,6 +26,8 @@ export const CultureTab: React.FC<CultureTabProps> = ({
   onPromptChange
 }) => {
   const sectionContent = content;
+  const { textareaRef: mainTextareaRef, scheduleResizeTextarea: scheduleMainResize } = useAutoResizeTextarea(content || '', isEditing);
+  const { textareaRef: promptTextareaRef, scheduleResizeTextarea: schedulePromptResize } = useAutoResizeTextarea(prompt || '', isEditing);
 
   const cultureItems = React.useMemo(() => {
     const findVal = (regex: RegExp, fallback: string) => {
@@ -34,7 +38,7 @@ export const CultureTab: React.FC<CultureTabProps> = ({
       { label: 'Traditions', val: findVal(/(?:Tradition|Ritual):\s*(.*)/i, 'Neo-Matsuri'), icon: Heart, color: 'text-rose-400' },
       { label: 'Cuisine', val: findVal(/(?:Cuisine|Food):\s*(.*)/i, 'Synthetic Soul'), icon: Utensils, color: 'text-orange-400' },
       { label: 'Arts', val: findVal(/(?:Art|Music):\s*(.*)/i, 'Holographic Echo'), icon: Music, color: 'text-fuchsia-400' },
-      { label: 'Identity', val: findVal(/(?:Identity|Social Role):\s*(.*)/i, 'Neural Nomad'), icon: Users, color: 'text-blue-400' },
+      { label: 'Identity', val: findVal(/(?:Identity|Social Role):\s*(.*)/i, 'Digital Nomad'), icon: Users, color: 'text-blue-400' },
     ];
   }, [content]);
 
@@ -70,7 +74,7 @@ export const CultureTab: React.FC<CultureTabProps> = ({
               <button 
                 onClick={onGenerate}
                 disabled={isGenerating}
-                className="flex items-center gap-2 px-5 py-2.5 bg-white text-black hover:bg-zinc-200 rounded-full transition-all group disabled:opacity-50"
+                className={s.actionButton}
               >
                 {isGenerating ? (
                   <div className="w-3.5 h-3.5 border-2 border-black/20 border-t-black rounded-full animate-spin" />
@@ -86,7 +90,7 @@ export const CultureTab: React.FC<CultureTabProps> = ({
                 navigator.clipboard.writeText(content);
                 alert('Culture Manifest copied!');
               }}
-              className="flex items-center gap-2 px-5 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-full transition-all group"
+              className={s.actionButtonGhost}
             >
               <ClipboardList className="w-3.5 h-3.5 text-zinc-400 group-hover:text-white transition-colors" />
               <span className="text-[10px] font-black text-zinc-400 group-hover:text-white uppercase tracking-widest">Copy</span>
@@ -112,9 +116,14 @@ export const CultureTab: React.FC<CultureTabProps> = ({
 
       {isEditing ? (
         <textarea
-          className="world-textarea"
+          ref={mainTextareaRef}
+          className="world-textarea overflow-hidden"
           value={content || ''}
-          onChange={(e) => onContentChange(e.target.value)}
+          onChange={(e) => {
+            onContentChange(e.target.value);
+            scheduleMainResize();
+          }}
+          onInput={scheduleMainResize}
           placeholder="Profile your world culture and societal norms here..."
         />
       ) : (
@@ -126,32 +135,37 @@ export const CultureTab: React.FC<CultureTabProps> = ({
           </div>
 
           <div className="world-sidebar space-y-8">
-            <div className="p-6 bg-[#050505] border border-white/5 rounded-[2rem] space-y-4 relative overflow-hidden group">
-              <div className="absolute inset-0 bg-rose-500/5 blur-[40px] pointer-events-none group-hover:bg-rose-500/10 transition-all duration-700" />
-              <div className="relative z-10 space-y-4">
+            <div className={s.sidebarCard}>
+              <div className={s.sidebarGlow + " bg-rose-500/5 group-hover:bg-rose-500/10"} />
+              <div className={s.sidebarContent}>
                 <div className="flex items-center justify-between">
-                  <h4 className="text-[10px] font-black text-zinc-500 uppercase tracking-widest flex items-center gap-2">
-                    <Sparkles className="w-3 h-3 text-rose-500" /> Neural Seed
+                  <h4 className={s.sidebarTitle}>
+                    <Sparkles className="w-3 h-3 text-rose-500" /> Core Seed
                   </h4>
                   {isEditing && <span className="text-[8px] font-bold text-rose-500/50 uppercase">Modular Prompt</span>}
                 </div>
                 
                 {isEditing ? (
                   <textarea
-                    className="w-full bg-black/40 border border-white/5 rounded-xl p-3 text-[10px] font-medium text-zinc-300 placeholder:text-zinc-700 focus:outline-none focus:border-rose-500/30 transition-colors min-h-[100px] resize-none"
+                    ref={promptTextareaRef}
+                    className={s.sidebarPromptInput + " focus:border-rose-500/30"}
                     value={prompt || ''}
-                    onChange={(e) => onPromptChange?.(e.target.value)}
+                    onChange={(e) => {
+                      onPromptChange?.(e.target.value);
+                      schedulePromptResize();
+                    }}
+                    onInput={schedulePromptResize}
                     placeholder="Refine the cultural synthesis with specific instructions..."
                   />
                 ) : (
-                  <div className="p-4 bg-black/40 border border-white/5 rounded-xl">
-                    <p className="text-[9px] font-medium text-zinc-500 leading-relaxed italic">
+                  <div className={s.sidebarPromptBox}>
+                    <p className={s.sidebarPromptText}>
                       {prompt ? `"${prompt.substring(0, 120)}${prompt.length > 120 ? '...' : ''}"` : 'Using global project seed for synthesis.'}
                     </p>
                   </div>
                 )}
                 
-                <p className="text-[8px] text-zinc-600 font-bold uppercase tracking-tighter leading-relaxed">
+                <p className={s.sidebarNote}>
                   Focus the AI on specific rituals, social norms, or cultural traditions unique to this society.
                 </p>
               </div>
@@ -164,14 +178,14 @@ export const CultureTab: React.FC<CultureTabProps> = ({
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.1 }}
-                  className="p-6 bg-[#050505] border border-white/5 rounded-3xl flex flex-col items-center text-center space-y-4 hover:bg-white/[0.02] transition-colors border-l-2 border-l-rose-500/20 group"
+                  className={s.statCard + " flex flex-col items-center text-center space-y-4 hover:bg-white/[0.02] border-l-2 border-l-rose-500/20"}
                 >
-                  <div className={`w-10 h-10 rounded-full bg-white/[0.03] border border-white/10 flex items-center justify-center ${item.color} group-hover:scale-110 transition-transform`}>
+                  <div className={s.statIconBox + " rounded-full " + item.color}>
                     <item.icon className="w-5 h-5" />
                   </div>
                   <div>
-                    <span className="text-[8px] font-black text-zinc-500 uppercase tracking-widest block mb-1">{item.label}</span>
-                    <p className="text-sm font-black text-white uppercase tracking-tighter line-clamp-1">{item.val}</p>
+                    <span className={s.statLabel + " block mb-1"}>{item.label}</span>
+                    <p className={s.statValue}>{item.val}</p>
                   </div>
                 </motion.div>
               ))}

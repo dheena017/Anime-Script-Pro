@@ -47,7 +47,16 @@ PIPELINE REQUIREMENTS:
 - Make the prompts specific enough for image-to-video or scene animation workflows.
 `;
 
-    const text = await callAI(model, prompt, systemInstruction);
+    const text = await callAI(
+      model,
+      prompt,
+      systemInstruction,
+      0.85, // temperature
+      2048, // maxTokens
+      0.95, // topP
+      40,   // topK
+      180000 // timeoutMs
+    );
     return text || buildFallbackVideoPrompt(script, contentType);
   } catch (error) {
     console.error("Error generating video prompts:", error);

@@ -52,7 +52,16 @@ export async function generateImagePrompts(script: string, model: string = "gemi
   const systemInstruction = IMAGE_PROMPT_GENERATION_PROMPT(contentType, script);
 
   try {
-    const text = await callAI(model, `Generate image prompts for this script: ${script}`, systemInstruction);
+    const text = await callAI(
+      model,
+      `Generate image prompts for this script: ${script}`,
+      systemInstruction,
+      0.85, // temperature
+      2048, // maxTokens
+      0.95, // topP
+      40,   // topK
+      180000 // timeoutMs
+    );
     return text || buildFallbackImagePrompt(script);
   } catch (error) {
     console.error("Error generating image prompts:", error);
@@ -65,7 +74,16 @@ export async function enhanceSceneVisuals(visuals: string, narration: string, mo
 
   try {
     const prompt = `Narration context: "${narration}"\nCurrent Visuals: "${visuals}"\n\nEnhance these visuals.`;
-    const text = await callAI(model, prompt, systemInstruction);
+    const text = await callAI(
+      model,
+      prompt,
+      systemInstruction,
+      0.85, // temperature
+      2048, // maxTokens
+      0.95, // topP
+      40,   // topK
+      180000 // timeoutMs
+    );
     return text || visuals;
   } catch (error) {
     console.error("Error enhancing visuals:", error);
@@ -76,7 +94,16 @@ export async function enhanceSceneVisuals(visuals: string, narration: string, mo
 export async function generateSceneImage(prompt: string, model: string = "imagen-3.0-generate-001"): Promise<string | null> {
   try {
     // Route image generation through our stable proxy
-    const imageData = await callAI(model, prompt, GENERATE_SCENE_IMAGE_SYSTEM_PROMPT);
+    const imageData = await callAI(
+      model,
+      prompt,
+      GENERATE_SCENE_IMAGE_SYSTEM_PROMPT,
+      0.85, // temperature
+      2048, // maxTokens
+      0.95, // topP
+      40,   // topK
+      180000 // timeoutMs
+    );
     return imageData || buildFallbackSceneImageData(prompt); // The backend returns the full data URI
   } catch (error) {
     console.error("Error generating image via proxy:", error);

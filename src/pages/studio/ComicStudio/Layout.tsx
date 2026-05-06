@@ -4,15 +4,18 @@ import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
 import { useAuth } from '@/hooks/useAuth';
 import { useApp } from '@/contexts/AppContext';
 import { motion, AnimatePresence } from 'framer-motion';
+import { studioLog } from '@/lib/studio-logger';
 
 // Local Studio Components
 import { ComicStudioSideBar } from './components/ComicStudioSideBar';
 import { ComicStudioTopBar } from './components/ComicStudioTopBar';
 import { StudioSideBar } from '@/pages/studio/components/studio/layout/StudioSideBar';
 import { StudioFooter } from '@/pages/studio/components/studio/layout/StudioFooter';
+import { ProductionFlowBar } from '@/pages/studio/components/studio/layout/ProductionFlowBar';
 import { ProductionCore } from '@/pages/studio/components/studio/core/ProductionCore';
 import { SessionLogs } from '@/pages/studio/components/studio/core/SessionLogs';
 import { StudioLoading } from '@/pages/studio/components/studio/StudioLoading';
+import { StudioIntelligenceHUD } from '../components/studio/layout/StudioIntelligenceHUD';
 
 export default function ComicLayout() {
   const { user } = useAuth();
@@ -50,6 +53,7 @@ export default function ComicLayout() {
 
   const toggleEngine = () => {
     const newState = !sidebarOpen;
+    studioLog('ComicLayout', `${newState ? 'Opening' : 'Closing'} Creative Engine...`, 'comic');
     setSidebarOpen(newState);
     const newParams = new URLSearchParams(location.search);
     if (newState) newParams.set('engine', 'open');
@@ -69,16 +73,25 @@ export default function ComicLayout() {
       return;
     }
     setIsLoading(true);
+    studioLog('ComicLayout', 'Initializing Master Production Cycle...', 'comic');
     addLog("COMIC_CORE", "INITIALIZED", "Orchestrating Comic Production Cycle...");
     setTimeout(() => {
       setIsLoading(false);
-      showNotification?.('Comic Synthesis Scaffold Complete', 'success');
+      studioLog('ComicLayout', 'Production Complete. Redirecting to World Builder.', 'success');
+      showNotification?.('Production Complete: All Elements Prepared', 'success');
       navigate(`${basePath}/world`);
     }, 2000);
   }, [prompt, user, setIsLoading, addLog, showNotification, navigate, basePath]);
 
+  React.useEffect(() => {
+    studioLog('ComicLayout', `Navigation detected: ${location.pathname}`, 'comic');
+  }, [location.pathname]);
+
   return (
     <div className="fixed inset-0 bg-black flex h-screen w-full overflow-hidden z-[1000] comic-studio-root">
+      {/* Intelligence HUD (Persistent) */}
+      <StudioIntelligenceHUD />
+
       {/* GLOBAL HUB SIDEBAR (Far Left) */}
       <div className="relative z-[501] border-r border-amber-500/20">
         <StudioSideBar
@@ -137,26 +150,42 @@ export default function ComicLayout() {
           )}
         </AnimatePresence>
 
-        <ComicStudioTopBar
-          onToggleEngine={toggleEngine}
-          isEngineOpen={sidebarOpen}
-          onToggleSidebar={toggleLeftSidebar}
-          isSidebarCollapsed={leftSidebarCollapsed}
-          onToggleGlobalSidebar={toggleGlobalSidebar}
-          isGlobalSidebarOpen={!globalSidebarCollapsed}
-        />
+        {!sidebarOpen && (
+          <ComicStudioTopBar
+            onToggleEngine={toggleEngine}
+            isEngineOpen={sidebarOpen}
+            onToggleSidebar={toggleLeftSidebar}
+            isSidebarCollapsed={leftSidebarCollapsed}
+            onToggleGlobalSidebar={toggleGlobalSidebar}
+            isGlobalSidebarOpen={!globalSidebarCollapsed}
+          />
+        )}
+
+        {/* Production Flow Monitor */}
+        <ProductionFlowBar basePath={basePath} />
 
         {/* Main Production Workspace */}
-        <div className="flex-1 overflow-y-auto custom-scrollbar relative">
+        <div className="flex-1 overflow-y-auto no-scrollbar relative">
           <div className="min-h-full flex flex-col">
-            <div className="w-full max-w-7xl mx-auto px-4 sm:px-8 py-8 relative z-10 flex-1">
+            <div className="w-full max-w-7xl mx-auto px-0 py-8 relative z-10 flex-1">
               <div id="studio-content-area" className="w-full min-h-[calc(100vh-250px)] bg-[#1a150b]/60 backdrop-blur-xl border border-amber-900/30 shadow-[0_20px_50px_rgba(0,0,0,0.5)] rounded-[2.5rem] relative overflow-hidden flex flex-col">
                 <div className="relative z-10 w-full flex-1 flex flex-col">
-                  <React.Suspense fallback={<StudioLoading fullPage={false} message="Opening Comic Studio" submessage="Connecting to the studio..." />}>
-                    <div className="flex-1 flex flex-col justify-center">
-                      <Outlet />
-                    </div>
-                  </React.Suspense>
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={location.pathname}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ duration: 0.2, ease: "easeOut" }}
+                      className="flex-1 flex flex-col justify-center"
+                    >
+                      <React.Suspense fallback={<StudioLoading fullPage={false} message="Opening Comic Studio" submessage="Connecting to the studio..." />}>
+                        <div className="flex-1 flex flex-col justify-center">
+                          <Outlet />
+                        </div>
+                      </React.Suspense>
+                    </motion.div>
+                  </AnimatePresence>
                 </div>
               </div>
 

@@ -32,7 +32,7 @@ export const EngineConsole: FC = () => {
     const handleAIFallback = (e: any) => {
       addLog({
         type: 'warn',
-        message: `Model Fallback: ${e.detail.failedModel} -> ${e.detail.nextModel}`,
+        message: `Model Switch: ${e.detail.failedModel} -> ${e.detail.nextModel}`,
         details: e.detail.error
       });
     };
@@ -40,7 +40,7 @@ export const EngineConsole: FC = () => {
     const handleAIStart = (e: any) => {
       addLog({
         type: 'info',
-        message: `Synthesizer Initialized: ${e.detail.model}`,
+        message: `Content Engine Initialized: ${e.detail.model}`,
       });
     };
 
@@ -86,8 +86,8 @@ export const EngineConsole: FC = () => {
             <Terminal className="w-5 h-5 text-emerald-400" />
           </div>
           <div>
-            <h3 className="text-sm font-black text-white uppercase tracking-widest">Neural Console</h3>
-            <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Real-time Synthesis Telemetry</p>
+            <h3 className="text-sm font-black text-white uppercase tracking-widest">System Console</h3>
+            <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Real-time Generation Activity</p>
           </div>
         </div>
 
@@ -96,7 +96,7 @@ export const EngineConsole: FC = () => {
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-zinc-600" />
             <input 
               type="text" 
-              placeholder="FILTER LOGS..." 
+              placeholder="SEARCH LOGS..." 
               value={filter}
               onChange={(e) => setFilter(e.target.value)}
               className="pl-10 pr-4 py-2 bg-black border border-white/5 rounded-xl text-[9px] font-black uppercase tracking-widest text-zinc-400 focus:border-emerald-500/50 transition-all outline-none w-48"
@@ -121,7 +121,7 @@ export const EngineConsole: FC = () => {
           {filteredLogs.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-zinc-700 opacity-50">
               <Terminal className="w-12 h-12 mb-4 opacity-20" />
-              <p className="font-black uppercase tracking-[0.3em] text-[10px]">Awaiting Link Initiation...</p>
+              <p className="font-black uppercase tracking-[0.3em] text-[10px]">Awaiting Activity...</p>
             </div>
           ) : (
             filteredLogs.map((log) => (

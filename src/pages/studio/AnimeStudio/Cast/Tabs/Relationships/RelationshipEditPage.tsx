@@ -112,7 +112,7 @@ export default function RelationshipEditPage() {
 
       <div className="space-y-2">
         <div className="inline-block px-3 py-1 bg-fuchsia-500/10 border border-fuchsia-500/20 rounded-full text-[10px] uppercase tracking-widest text-fuchsia-400 font-bold">
-          Refactoring Neural Threads
+          Refactoring AI Threads
         </div>
         <h1 className="text-6xl font-black text-white uppercase tracking-tighter leading-none">
           Modify <span className="text-fuchsia-500">Connection</span>

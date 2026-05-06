@@ -61,9 +61,16 @@ CONNECTIVITY RULES (CRITICAL):
 - Characters should feel ready to appear in scene tables, script prompts, image prompts, and metadata without reinterpretation
 - Character visual DNA must be specific enough to feed storyboard and thumbnail generation
 - Relationship dynamics should be strong enough to support multi-episode arcs, betrayals, rivalries, mentorship, romance, and emotional payoff
-- Power levels must respect the world's power system ceiling and tier structure
-- Faction affiliations should reflect the established political and ideological divisions
-- Social status should align with the world's economic system, class structure, and mobility barriers
+
+NEURAL DNA WEIGHTING (DNA PARAMETERS):
+- If the user provides "DNA Parameters" (e.g., Determination, Complexity, Darkness, Intelligence), treat these as psychological weights:
+    - DETERMINATION: Influences the protagonist's resolve and the supporting cast's loyalty.
+    - COMPLEXITY: Influences the depth of secrets, internal conflicts, and moral gray areas.
+    - DARKNESS: Influences the tragedy of core wounds, the lethality of antagonists, and the overall "grimness" of the cast.
+    - INTELLIGENCE: Influences tactical depth, power system mastery, and the complexity of relationship betrayals.
+
+ARCHETYPE FOCUS:
+- If a "Focus Archetype" is mentioned (e.g., "Shonen Lead", "Anti-Hero"), the Protagonist (Tier 1) MUST embody the core characteristics of that archetype while maintaining unique depth.
 
 PRIME DIRECTIVE:
 - Do NOT create characters that contradict established lore, power systems, social hierarchies, or tonal direction
@@ -707,4 +714,82 @@ Return ONLY the complete JSON array with all required fields populated for each 
 `;
 
 
+export const CAST_DNA_PROMPT = (castData: string, worldContext: string) => `
+You are a Narrative Geneticist and Character Architect. 
+Analyze the following cast and world context to provide a deep "DNA Analysis" of the characters.
+This analysis should focus on archetypal resonance, psychological complexity, and narrative weight.
 
+CAST DATA: ${castData}
+WORLD CONTEXT: ${worldContext}
+
+Your output must be a JSON object with the following structure:
+{
+  "cognitiveLoad": number, // 0-100
+  "emotionalFlux": number, // 0-100
+  "narrativeArmor": string, // e.g., "Verified", "High", "Critical"
+  "conflictWeight": string, // e.g., "Active", "Heavy", "Volatile"
+  "archetypes": [
+    { "trait": "Protagonists", "value": number },
+    { "trait": "Antagonists", "value": number },
+    { "trait": "Support", "value": number },
+    { "trait": "Foil", "value": number },
+    { "trait": "Rival", "value": number }
+  ],
+  "synapseScan": "Detailed 2-3 sentence technical analysis of the narrative connections.",
+  "weightDistribution": number[], // Array of 8 numbers (0-100) representing character weight across the cast
+  "complexity": "CALCULATED" | "OPTIMIZED" | "HIGH",
+  "resonance": "ALIGNED" | "SYNCED" | "CORE",
+  "variance": "OPTIMIZED" | "HIGH" | "DIVERSE"
+}
+
+Return ONLY the JSON.
+`;
+
+export const CAST_DYNAMICS_PROMPT = (relationships: string, cast: string) => `
+You are a Social Friction Architect and Conflict Simulator.
+Analyze the following relationships and cast to provide a "Dynamics Analysis".
+Focus on growth arcs, tension points, and social threads.
+
+CAST: ${cast}
+RELATIONSHIPS: ${relationships}
+
+Your output must be a JSON object with the following structure:
+{
+  "growthArcs": [
+    { "label": "Protagonist Path", "progress": number, "color": "bg-fuchsia-500" },
+    { "label": "Antagonist Counter", "progress": number, "color": "bg-rose-500" },
+    { "label": "Sub-plot Variance", "progress": number, "color": "bg-studio" }
+  ],
+  "conflictMapStatus": string, // e.g., "[SIMULATION_ACTIVE]: mapping collision points..."
+  "socialThreads": number, // count of active social connections
+  "tensionDynamics": [
+    { "type": string, "source": string, "target": string, "tension": number }
+  ]
+}
+
+Return ONLY the JSON.
+`;
+
+export const CAST_INTEGRITY_PROMPT = (cast: string) => `
+You are an AI Continuity Auditor and Integrity Specialist.
+Audit the following cast for consistency, logic gaps, and character depth.
+
+CAST: ${cast}
+
+Your output must be a JSON object with the following structure:
+{
+  "integrityScore": number, // 0-100
+  "missingGoals": number,
+  "placeholders": number,
+  "duplicateNames": boolean,
+  "statusMessage": "Detailed 1-2 sentence audit summary.",
+  "stats": [
+    { "label": "Integrity Score", "value": string, "status": string, "color": string },
+    { "label": "Missing Goals", "value": number, "status": string, "color": string },
+    { "label": "Duplicate Check", "value": string, "status": string, "color": string },
+    { "label": "Neural Sync", "value": string, "status": string, "color": string }
+  ]
+}
+
+Return ONLY the JSON.
+`;

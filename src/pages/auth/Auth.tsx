@@ -35,13 +35,20 @@ export default function AuthPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [mode, setMode] = useState<'signin' | 'signup'>('signin');
 
+  const Fallback = () => (
+    <div className="flex flex-col items-center justify-center space-y-4 py-8 animate-pulse">
+      <div className="w-12 h-12 border-2 border-zinc-800 border-t-[#bd4a4a] rounded-full animate-spin" />
+      <p className="text-[10px] text-zinc-500 font-black uppercase tracking-[0.2em]">Synchronizing with Matrix...</p>
+    </div>
+  );
+
   const getErrorMessage = (err: any) => {
     const message = err.message?.toLowerCase() || '';
     if (message.includes('invalid login credentials')) return 'Authentication Failed: Invalid Node Identity or Key.';
     if (message.includes('email not confirmed')) return 'Access Denied: Please verify your email first.';
     if (message.includes('user already registered')) return 'Identity Conflict: This node is already registered in the matrix.';
     if (message.includes('password is too short')) return 'Security Violation: Cryptographic key must be at least 6 characters.';
-    return err.message || 'System Error: Unexpected disruption in neural link.';
+    return err.message || 'Something went wrong. Please try again.';
   };
 
   const handleAuth = async (e: React.FormEvent) => {
@@ -136,8 +143,9 @@ export default function AuthPage() {
           </CardHeader>
 
           <CardContent className="space-y-8 px-10 pb-12">
-            <AnimatePresence mode="wait">
-              {success ? (
+            <React.Suspense fallback={<Fallback />}>
+              <AnimatePresence mode="wait">
+                {success ? (
                 <motion.div
                   key="success-view"
                   initial={{ opacity: 0, y: 10 }}
@@ -253,6 +261,7 @@ export default function AuthPage() {
                 </motion.form>
               )}
             </AnimatePresence>
+          </React.Suspense>
 
             {!success && (
               <div className="flex flex-col gap-4">
@@ -294,7 +303,7 @@ export default function AuthPage() {
             </div>
           </div>
           <p className="text-[10px] uppercase tracking-[0.3em] font-black text-zinc-800">
-            God Mode v2.04
+            Studio Pro v2.04
           </p>
         </motion.div>
       </motion.div>

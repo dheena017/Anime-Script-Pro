@@ -1,4 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Response, Request
+from fastapi.security import OAuth2PasswordRequestForm
+
 from sqlmodel import select
 from pydantic import BaseModel
 from datetime import datetime, timezone, timedelta
@@ -18,6 +20,57 @@ class LoginRequest(BaseModel):
 
 MAX_FAILED_ATTEMPTS = 3
 LOCKOUT_MINUTES = 1
+
+@router.post("/token")
+async def login_for_access_token(
+    response: Response,
+    request: Request,
+    form_data: OAuth2PasswordRequestForm = Depends()
+):
+    """
+    OAuth2 compatible token login. Supports both real database users and 
+    the development architect bypass (email@gmail.com / password).
+    """
+    email = form_data.username
+    password = form_data.password
+    
+    # Dev Bypass Logic
+    is_dev = os.getenv("ENV") == "development" or os.getenv("BYPASS_AUTH") == "true" or request.headers.get('x-bypass-auth') == 'true'
+    
+    if is_dev and email == "email@gmail.com" and password == "password":
+        logger.info(f"Development TOKEN login successful for: {email}")
+        user_id = "local-dev-architect-id"
+        access_token = create_access_token(data={"sub": user_id})
+        return {
+            "access_token": access_token,
+            "token_type": "bearer"
+        }
+
+    # Real DB Login Logic
+    try:
+        async with AsyncSession(async_engine) as db:
+            statement = select(User).where(User.email == email)
+            result = await db.execute(statement)
+            user = result.scalars().first()
+            
+            if not user or not verify_password(password, user.hashed_password):
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="Incorrect email or password",
+                    headers={"WWW-Authenticate": "Bearer"},
+                )
+            
+            user_id = str(user.id)
+            access_token = create_access_token(data={"sub": user_id})
+            return {
+                "access_token": access_token,
+                "token_type": "bearer"
+            }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"TOKEN LOGIN ERROR: {str(e)}")
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 @router.post("/login")
 async def secure_login(

@@ -55,7 +55,7 @@ export const ScreeningHeader: React.FC<ScreeningHeaderProps> = ({
             <div className="flex flex-col items-center sm:items-start text-center sm:text-left">
               <div className="flex items-center gap-3">
                 <h1 className="text-xl md:text-2xl font-black uppercase tracking-[0.2em] text-white italic leading-none bg-clip-text text-transparent bg-gradient-to-r from-white via-white to-zinc-400">
-                  Screening Architect
+                  Screening Management
                 </h1>
               </div>
               <div className="flex items-center gap-2 mt-2">
@@ -76,11 +76,11 @@ export const ScreeningHeader: React.FC<ScreeningHeaderProps> = ({
                       onClick={onPrev}
                     >
                       <ChevronLeft className="w-4 h-4 mr-2 group-hover/back:-translate-x-1 transition-transform" />
-                      PREVIOUS: PROMPTS
+                      PREVIOUS
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent side="top">
-                    <p className="font-black uppercase tracking-widest text-[9px]">Return to Prompt Architect</p>
+                    <p className="font-black uppercase tracking-widest text-[9px]">Return to Prompt Oracle</p>
                   </TooltipContent>
                 </Tooltip>
               )}
@@ -105,7 +105,7 @@ export const ScreeningHeader: React.FC<ScreeningHeaderProps> = ({
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="top">
-                  <p className="font-black uppercase tracking-widest text-[9px]">Execute Neural Cinema Rendering</p>
+                  <p className="font-black uppercase tracking-widest text-[9px]">Execute Cinema Rendering</p>
                 </TooltipContent>
               </Tooltip>
 
@@ -123,11 +123,11 @@ export const ScreeningHeader: React.FC<ScreeningHeaderProps> = ({
                       ) : (
                         <Save className="w-4 h-4 mr-2 group-hover/save:scale-110 transition-transform" />
                       )}
-                      <span>{isSaving ? "SAVING..." : "SAVE"}</span>
+                      <span>{isSaving ? "SAVING..." : "SAVE ALL"}</span>
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent side="top">
-                    <p className="font-black uppercase tracking-widest text-[9px]">Save Current State</p>
+                    <p className="font-black uppercase tracking-widest text-[9px]">Save all tabs (sync to cloud)</p>
                   </TooltipContent>
                 </Tooltip>
               )}
@@ -139,7 +139,7 @@ export const ScreeningHeader: React.FC<ScreeningHeaderProps> = ({
                     onClick={onNext}
                   >
                     <span className="relative z-10 flex items-center gap-2">
-                      NEXT: ENGINE <ChevronRight className="w-4 h-4 group-hover/next:translate-x-1 transition-transform" />
+                      NEXT <ChevronRight className="w-4 h-4 group-hover/next:translate-x-1 transition-transform" />
                     </span>
                     <div className="absolute inset-0 bg-studio/5 opacity-0 group-hover/next:opacity-100 transition-opacity duration-500 rounded-full" />
                   </Button>

@@ -31,7 +31,7 @@ export const EngineCalibration: React.FC = () => {
     },
     { 
       id: 'tokens', 
-      label: 'Neural Buffer (Max Tokens)', 
+      label: 'Max Output Length (Tokens)', 
       value: maxTokens, 
       min: 512, 
       max: 16384, 
@@ -159,7 +159,7 @@ export const EngineCalibration: React.FC = () => {
 
             <div className="space-y-8">
               <div className="space-y-2">
-                 <span className="text-[8px] font-black text-zinc-500 uppercase tracking-widest block">Active Neural Engine</span>
+                 <span className="text-[8px] font-black text-zinc-500 uppercase tracking-widest block">Active AI Model</span>
                  <div className="px-5 py-4 bg-white/[0.02] border border-white/5 rounded-2xl flex items-center justify-between">
                     <span className="text-[10px] font-black text-white uppercase tracking-widest">{selectedModel}</span>
                     <div className="w-2 h-2 rounded-full bg-studio animate-pulse shadow-[0_0_10px_rgba(6,182,212,0.5)]" />
@@ -190,9 +190,9 @@ export const EngineCalibration: React.FC = () => {
 
               <div className="flex items-center gap-3 p-4 bg-white/[0.02] rounded-xl border border-dashed border-white/10">
                  <RefreshCw className={cn("w-3.5 h-3.5 text-zinc-700", isGeneratingDescription && "animate-spin text-studio")} />
-                 <p className="text-[8px] font-bold text-zinc-600 uppercase tracking-widest leading-relaxed">
-                   Changes to calibration take effect on the next neural synthesis cycle.
-                 </p>
+                  <p className="text-[8px] font-bold text-zinc-600 uppercase tracking-widest leading-relaxed">
+                    Changes apply on the next generation run.
+                  </p>
               </div>
             </div>
           </div>

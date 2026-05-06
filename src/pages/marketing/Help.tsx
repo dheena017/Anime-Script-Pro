@@ -21,6 +21,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { supportService, HelpCategory, FAQ } from '@/services/api/support';
+import { marketingStyles as s } from './marketingStyles';
 
 const ICON_MAP: Record<string, any> = {
   Zap,
@@ -73,62 +74,62 @@ export default function HelpPage() {
     }
   };
 
+  const displayFaqs = searchResults ? searchResults.faqs : faqs;
+
   if (loading && categories.length === 0) {
     return (
-      <div className="min-h-screen bg-[#050505] flex flex-col items-center justify-center space-y-6">
-        <div className="relative">
-           <div className="w-16 h-16 border-2 border-studio/20 border-t-studio rounded-full animate-spin" />
-           <div className="absolute inset-0 flex items-center justify-center">
-              <Zap className="w-6 h-6 text-studio animate-pulse" />
+      <div className={s.helpLoadingRoot}>
+        <div className={s.helpLoadingSpinnerWrapper}>
+           <div className={s.helpLoadingSpinner} />
+           <div className={s.helpLoadingIconWrapper}>
+              <Zap className={s.helpLoadingIcon} />
            </div>
         </div>
-        <span className="text-[10px] font-black text-studio uppercase tracking-[0.5em] animate-pulse">Initializing Terminal</span>
+        <span className={s.helpLoadingLabel}>Initializing Terminal</span>
       </div>
     );
   }
 
-  const displayFaqs = searchResults ? searchResults.faqs : faqs;
-
   return (
-    <div className="relative min-h-screen bg-[#050505] overflow-hidden flex flex-col p-6 lg:p-12 selection:bg-studio/30">
+    <div className={s.pageAlt}>
       {/* Visual Decor */}
-      <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-studio/5 blur-[180px] rounded-full pointer-events-none" />
-      <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-fuchsia-500/5 blur-[180px] rounded-full pointer-events-none" />
+      <div className={s.decorTop} />
+      <div className={s.decorBottom} />
 
-      <div className="relative z-10 max-w-7xl mx-auto w-full space-y-24">
+      <div className={s.wrapper}>
         
         {/* 1. KNOWLEDGE SEARCH MATRIX */}
-        <header className="flex flex-col items-center text-center space-y-10">
-          <div className="space-y-6">
-            <div className="flex items-center justify-center gap-3">
-              <div className="px-4 py-1.5 bg-studio/5 rounded-full border border-studio/20 flex items-center gap-2">
-                <Database className="w-3.5 h-3.5 text-studio" />
-                <span className="text-[10px] font-black uppercase tracking-[0.4em] text-studio">Help Archive</span>
+        <header className={s.sectionHeader}>
+          <div className={s.helpIntroStack}>
+            <div className={s.helpIntroRow}>
+              <div className={s.badgePill}>
+                <Database className={s.helpBadgeIcon} />
+                <span className={s.badgeText}>Help Archive</span>
               </div>
             </div>
-            <h1 className="text-5xl md:text-8xl font-black text-white uppercase italic tracking-tighter leading-none">
-              How can we <span className="text-studio">Assist?</span>
+            <h1 className={s.pageTitle}>
+              How can we <span className={s.helpHighlight}>Assist?</span>
             </h1>
-            <p className="text-zinc-500 font-bold uppercase text-[11px] tracking-[0.2em] max-w-2xl mx-auto leading-relaxed">
+            <p className={s.pageDescription}>
               Global knowledge terminal for autonomous production protocols. Search the archive or initialize a support directive.
             </p>
           </div>
 
-          <div className="w-full max-w-3xl relative group">
-            <div className="absolute -inset-1 bg-gradient-to-r from-studio/30 to-fuchsia-500/30 rounded-[2.5rem] blur-xl opacity-0 group-focus-within:opacity-100 transition duration-700" />
-            <div className="relative flex items-center bg-zinc-900/60 backdrop-blur-2xl border border-white/5 rounded-[2.5rem] p-3 pl-8 focus-within:border-studio/50 transition-all duration-500 shadow-2xl">
-              <Search className={cn("w-6 h-6 transition-colors", isSearching ? "text-studio animate-pulse" : "text-zinc-600")} />
+          <div className={s.helpSearchSurface}>
+            <div className={s.helpSearchFocusRing} />
+            <div className={s.inputCard}>
+              <Search className={cn(s.searchIcon, isSearching ? "text-studio animate-pulse" : "text-zinc-600")} />
               <Input 
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                className="bg-transparent border-none focus-visible:ring-0 text-white placeholder:text-zinc-700 text-xl py-8 font-black uppercase tracking-widest" 
+                className={s.searchInput} 
                 placeholder="SEARCH PROTOCOLS, MODELS, OR BILLING..." 
               />
               <Button 
                 onClick={handleSearch} 
                 disabled={isSearching}
-                className="bg-studio text-black font-black uppercase tracking-widest rounded-[1.5rem] px-10 h-16 hover:bg-white transition-all shadow-[0_0_30px_rgba(6,182,212,0.3)]"
+                className={s.searchButton}
               >
                 {isSearching ? "SEARCHING..." : "INITIALIZE"}
               </Button>
@@ -138,7 +139,7 @@ export default function HelpPage() {
 
         {/* 2. PROTOCOL GRID */}
         {!searchResults && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className={s.supportGrid}>
             {categories.map((cat, idx) => {
               const Icon = ICON_MAP[cat.icon] || HelpCircle;
               return (
@@ -148,21 +149,21 @@ export default function HelpPage() {
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: idx * 0.1 }}
                 >
-                  <Card className="bg-[#0a0a0b] border border-white/5 p-10 rounded-[3rem] hover:border-studio/50 hover:shadow-[0_20px_50px_rgba(0,0,0,0.5)] transition-all duration-500 group cursor-pointer relative overflow-hidden h-full">
-                    <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity pointer-events-none">
+                  <Card className={s.supportCard}>
+                    <div className={s.supportCardOverlay}>
                       <Icon className={cn("w-32 h-32", cat.color)} />
                     </div>
-                    <div className="relative z-10 space-y-10">
-                      <div className={cn("w-16 h-16 rounded-2xl bg-white/[0.03] border border-white/5 flex items-center justify-center transition-all duration-700 group-hover:bg-studio group-hover:-rotate-6", cat.color)}>
-                        <Icon className="w-8 h-8 group-hover:text-black transition-colors" />
+                    <div className={s.supportCardInner}>
+                      <div className={cn(s.supportCardIcon, cat.color)}>
+                        <Icon className={s.helpSupportCardIcon} />
                       </div>
-                      <div className="space-y-2">
-                        <span className="text-[9px] font-black text-zinc-700 uppercase tracking-[0.4em]">NODE-P{idx + 1}</span>
-                        <h3 className="text-xl font-black text-white uppercase italic tracking-widest group-hover:text-studio transition-colors">{cat.label}</h3>
-                        <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mt-1">{cat.sub}</p>
+                      <div className={s.helpCategoryRow}>
+                        <span className={s.helpCategoryId}>NODE-P{idx + 1}</span>
+                        <h3 className={s.supportCardHeading}>{cat.label}</h3>
                       </div>
-                      <div className="flex items-center gap-2 text-[9px] font-black text-studio uppercase tracking-[0.3em] opacity-0 group-hover:opacity-100 translate-x-[-10px] group-hover:translate-x-0 transition-all duration-700">
-                        OPEN PROTOCOL <ArrowRight className="w-4 h-4" />
+                      <p className={s.helpCategorySub}>{cat.sub}</p>
+                      <div className={s.helpProtocolAction}>
+                        OPEN PROTOCOL <ArrowRight className={s.externalLinkIcon} />
                       </div>
                     </div>
                   </Card>
@@ -172,26 +173,26 @@ export default function HelpPage() {
           </div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
+        <div className={s.helpContentGrid}>
           {/* 3. ARCHIVE MONITOR */}
-          <div className="lg:col-span-8 space-y-10">
-            <div className="flex items-center justify-between border-b border-white/5 pb-8">
-               <div className="flex items-center gap-4">
-                  <div className="p-2.5 bg-studio/10 rounded-xl border border-studio/20">
-                     <Zap className="w-6 h-6 text-studio fill-studio" />
+          <div className={s.helpContentColumn}>
+            <div className={s.helpPanelHeader}>
+               <div className={s.helpPanelBadgeRow}>
+                  <div className={s.helpPanelBadge}>
+                     <Zap className={s.helpPanelIcon} />
                   </div>
-                  <h2 className="text-3xl font-black text-white uppercase italic tracking-tighter">
+                  <h2 className={s.helpPanelHeading}>
                     {searchResults ? `Archive Search (${displayFaqs.length})` : 'Frequent Inquiries'}
                   </h2>
                </div>
                {searchResults && (
-                 <button onClick={() => { setSearchQuery(''); setSearchResults(null); }} className="text-[10px] font-black text-zinc-600 hover:text-white uppercase tracking-widest transition-colors">
+                 <button onClick={() => { setSearchQuery(''); setSearchResults(null); }} className={s.resetButton}>
                     Reset Archive
                  </button>
                )}
             </div>
             
-            <div className="grid grid-cols-1 gap-6">
+            <div className={s.helpFaqGrid}>
               <AnimatePresence mode="popLayout">
                 {displayFaqs.length > 0 ? displayFaqs.map((faq, idx) => (
                   <motion.div 
@@ -200,27 +201,27 @@ export default function HelpPage() {
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: idx * 0.05 }}
-                    className="p-8 bg-[#0a0a0b] border border-white/5 rounded-[2.5rem] hover:border-studio/30 transition-all cursor-pointer group shadow-xl"
+                    className={s.helpFaqCard}
                   >
-                    <div className="flex items-start justify-between gap-8">
-                      <div className="space-y-4">
-                        <div className="flex items-center gap-3">
-                           <div className="w-1.5 h-1.5 rounded-full bg-studio" />
-                           <p className="text-[11px] font-black text-white uppercase tracking-widest group-hover:text-studio transition-colors">{faq.question}</p>
+                    <div className={s.helpFaqContent}>
+                      <div className={s.helpFaqMeta}>
+                        <div className={s.helpFaqRow}>
+                           <div className={s.helpFaqDot} />
+                           <p className={s.helpFaqQuestion}>{faq.question}</p>
                         </div>
-                        <p className="text-[11px] text-zinc-500 font-bold uppercase tracking-widest leading-relaxed pl-4 border-l border-white/5">
+                        <p className={s.helpFaqAnswer}>
                            {faq.answer}
                         </p>
                       </div>
-                      <div className="bg-zinc-900 p-2.5 rounded-xl text-zinc-700 group-hover:text-studio group-hover:bg-white transition-all shadow-inner">
-                        <ExternalLink className="w-4 h-4" />
+                      <div className={s.helpFaqLink}>
+                        <ExternalLink className={s.externalLinkIcon} />
                       </div>
                     </div>
                   </motion.div>
                 )) : (
-                  <div className="text-center py-32 bg-zinc-900/10 rounded-[3rem] border border-dashed border-white/5">
-                     <LifeBuoy className="w-16 h-16 text-zinc-800 mx-auto mb-6 animate-spin-slow" />
-                     <p className="text-zinc-600 font-black uppercase tracking-[0.4em] text-[10px]">Transmission Error: Protocol Not Found In Archive.</p>
+                  <div className={s.helpNoResultsCard}>
+                     <LifeBuoy className={s.helpNoResultsIcon} />
+                     <p className={s.helpNoResultsText}>Transmission Error: Protocol Not Found In Archive.</p>
                   </div>
                 )}
               </AnimatePresence>
@@ -228,30 +229,30 @@ export default function HelpPage() {
           </div>
 
           {/* 4. SYNC MONITOR (SIDEBAR) */}
-          <div className="lg:col-span-4 space-y-10">
-            <div className="flex items-center gap-4 border-b border-white/5 pb-8">
-               <div className="p-2.5 bg-fuchsia-500/10 rounded-xl border border-fuchsia-500/20">
-                  <Activity className="w-6 h-6 text-fuchsia-500" />
+          <div className={s.helpSidebarColumn}>
+            <div className={s.helpSupportHeader}>
+               <div className={s.helpSupportTag}>
+                  <Activity className={s.helpSupportBadgeIcon} />
                </div>
-               <h2 className="text-2xl font-black text-white uppercase italic tracking-tighter">Support Core</h2>
+               <h2 className={s.helpSupportTitle}>Support Core</h2>
             </div>
 
-            <div className="space-y-6">
-               <Card className="bg-gradient-to-br from-[#0a0a0b] to-black border border-white/5 p-10 rounded-[3rem] space-y-8 shadow-3xl">
-                  <div className="space-y-4 text-center">
-                    <div className="w-20 h-20 bg-studio/5 rounded-3xl flex items-center justify-center mx-auto mb-6 border border-studio/10 relative">
-                      <Mail className="w-10 h-10 text-studio" />
-                      <div className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-500 rounded-full border-4 border-black animate-pulse" />
+            <div className={s.helpSidebarStack}>
+               <Card className={s.helpCardPanel}>
+                  <div className={s.helpCardBody}>
+                    <div className={s.helpCardIconWrap}>
+                      <Mail className={s.helpCardIconLarge} />
+                      <div className={s.helpNotificationDot} />
                     </div>
-                    <h3 className="text-2xl font-black text-white uppercase italic tracking-widest">Priority Support</h3>
-                    <p className="text-[10px] text-zinc-600 font-black uppercase tracking-[0.2em]">Response Latency: &lt; 2 hours</p>
+                    <h3 className={s.helpSupportTitle}>Priority Support</h3>
+                    <p className={s.helpSupportCopy}>Response Latency: &lt; 2 hours</p>
                   </div>
-                  <Button className="w-full h-16 bg-studio text-black font-black uppercase tracking-[0.3em] text-[11px] rounded-[1.5rem] hover:bg-white transition-all shadow-2xl">
+                  <Button className={s.helpCallToActionButton}>
                     INITIATE CONTACT LINK
                   </Button>
                </Card>
 
-               <div className="grid grid-cols-1 gap-3">
+               <div className={s.helpSidebarLinks}>
                   {[
                     { icon: BookOpen, label: 'API Protocols', link: '/documentation' },
                     { icon: MessageSquare, label: 'Global Collective', link: '#' }
@@ -259,13 +260,13 @@ export default function HelpPage() {
                     <a 
                       key={idx}
                       href={item.link} 
-                      className="flex items-center justify-between p-6 bg-zinc-900/30 border border-white/5 rounded-[1.5rem] hover:bg-studio/5 hover:border-studio/30 transition-all group no-underline"
+                      className={s.helpSidebarLink}
                     >
-                      <div className="flex items-center gap-4">
-                        <item.icon className="w-5 h-5 text-zinc-700 group-hover:text-studio" />
-                        <span className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em] group-hover:text-white">{item.label}</span>
+                      <div className={s.helpSidebarLinkContent}>
+                        <item.icon className={s.helpSidebarLinkIcon} />
+                        <span className={s.helpSidebarLinkText}>{item.label}</span>
                       </div>
-                      <ExternalLink className="w-4 h-4 text-zinc-800 group-hover:text-studio" />
+                      <ExternalLink className={s.helpSidebarLinkIcon} />
                     </a>
                   ))}
                </div>
@@ -274,19 +275,19 @@ export default function HelpPage() {
         </div>
 
         {/* 5. SYSTEM STATUS FOOTER */}
-        <footer className="mt-20 pt-12 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-8 text-[9px] font-black text-zinc-700 uppercase tracking-[0.4em]">
-           <div className="flex items-center gap-6">
-              <div className="flex items-center gap-3">
-                 <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
+        <footer className={s.footerStats}>
+           <div className={s.footerRow}>
+              <div className={s.footerMeta}>
+                 <div className={s.helpFooterStatusDot} />
                  <span>Studio Uptime: 99.98%</span>
               </div>
-              <div className="w-px h-4 bg-white/5 hidden md:block" />
+              <div className={s.footerDivider} />
               <span>Node: Global-Archive-Main</span>
            </div>
-           <div className="flex items-center gap-12">
-              <a href="#" className="hover:text-studio transition-colors no-underline">Privacy Policy</a>
-              <a href="#" className="hover:text-studio transition-colors no-underline">Terms of Service</a>
-              <a href="/system/status" className="hover:text-studio transition-colors no-underline">System Status</a>
+           <div className={s.footerLinks}>
+              <a href="#" className={s.footerLink}>Privacy Policy</a>
+              <a href="#" className={s.footerLink}>Terms of Service</a>
+              <a href="/system/status" className={s.footerLink}>System Status</a>
            </div>
         </footer>
       </div>

@@ -37,7 +37,7 @@ export const ProductionLayout: React.FC<ProductionLayoutProps> = ({
             {/* Optional Navigation Section (Within scroll area) */}
             {navigation}
 
-            <div className="w-full max-w-[1600px] mx-auto px-6 py-8 relative z-10">
+            <div className="w-full max-w-[1600px] mx-auto px-0 py-8 relative z-10">
               <div className="w-full min-h-[calc(100vh-280px)] bg-black/40 backdrop-blur-md border border-white/5 shadow-2xl rounded-[2.5rem] relative overflow-hidden">
 
 

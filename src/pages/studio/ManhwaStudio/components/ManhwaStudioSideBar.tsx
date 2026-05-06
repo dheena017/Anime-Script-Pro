@@ -43,13 +43,13 @@ export function ManhwaStudioSideBar({
   const location = useLocation();
 
   const engineItems = [
-    { icon: Zap, label: 'Engine', path: '/engine' },
-    { icon: LayoutGrid, label: 'Template', path: '/template' },
+    { icon: Zap, label: 'Core Engine', path: '/engine' },
+    { icon: LayoutGrid, label: 'Templates', path: '/template' },
   ];
 
   const foundationItems = [
-    { icon: Globe, label: 'Manhwa World', path: '/world' },
-    { icon: ShieldCheck, label: 'Protocols', path: '/protocols' },
+    { icon: Globe, label: 'World Builder', path: '/world' },
+    { icon: ShieldCheck, label: 'Production Units', path: '/protocols' },
   ];
 
   const architectureItems = [
@@ -183,8 +183,8 @@ export function ManhwaStudioSideBar({
             
             {renderNavGroup(engineItems, "PHASE 0: ENGINE")}
             {renderNavGroup(foundationItems, "PHASE 1: FOUNDATION")}
-            {renderNavGroup(architectureItems, "PHASE 2: ARCHITECTURE")}
-            {renderNavGroup(generationItems, "PHASE 3: GENERATION")}
+            {renderNavGroup(architectureItems, "PHASE 2: STRUCTURE")}
+            {renderNavGroup(generationItems, "PHASE 3: PRODUCTION")}
             {renderNavGroup(distributionItems, "PHASE 4: DISTRIBUTION")}
           </div>
         </nav>
@@ -211,7 +211,7 @@ export function ManhwaStudioSideBar({
                 isLoading && "opacity-20 grayscale pointer-events-none"
               )}
             >
-              {isLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : "LAUNCH WORLD GENESIS"}
+              {isLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : "GENERATE WORLD"}
             </Button>
           </div>
 

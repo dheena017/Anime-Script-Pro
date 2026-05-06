@@ -1,13 +1,14 @@
 import React from 'react';
-import { Settings, Cpu, ChevronRight, ChevronLeft, RefreshCw, Zap, Save } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger
+import { 
+  Tooltip, 
+  TooltipContent, 
+  TooltipProvider, 
+  TooltipTrigger 
 } from '@/components/ui/tooltip';
+import { ChevronRight, Cpu, Save } from 'lucide-react';
+import { cn } from '@/lib/utils';
+
 
 interface EngineHeaderProps {
   session: string;
@@ -16,7 +17,6 @@ interface EngineHeaderProps {
   onPrev?: () => void;
   onSave?: () => void;
   isSaving?: boolean;
-  isGenerating?: boolean;
   hasContent?: boolean;
 }
 
@@ -28,80 +28,94 @@ export const EngineHeader: React.FC<EngineHeaderProps> = ({
   onSave,
   isSaving,
   hasContent,
-  isGenerating = false
 }) => {
+
   return (
     <TooltipProvider>
       <div className="relative group">
-        <div className="header-container !p-3 md:!p-4 !rounded-2xl">
-          <div className="flex items-center gap-6 z-10">
+        <div className="header-container">
+          <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-8 z-10 w-full lg:w-auto">
             <div className="relative shrink-0">
-              <div className="w-10 h-10 rounded-xl bg-studio/10 border border-studio/30 flex items-center justify-center shadow-lg group/icon overflow-hidden">
-                <Cpu className="w-5 h-5 text-studio relative z-10" />
+              <div className="header-icon-box group/icon">
+                <div className="absolute inset-0 bg-gradient-to-br from-studio/20 to-transparent opacity-0 group-hover/icon:opacity-100 transition-opacity duration-500" />
+                <Cpu className="w-7 h-7 text-studio relative z-10 animate-pulse-slow" />
+                <div className="absolute inset-0 border-2 border-studio/50 rounded-2xl animate-ping opacity-20" />
               </div>
             </div>
 
-            <div className="flex flex-col">
-              <h1 className="text-lg font-black uppercase tracking-widest text-white italic leading-none">
-                Engine Architect
-              </h1>
-              <div className="flex items-center gap-2 mt-1.5">
-                <p className="text-[7px] font-black text-studio/40 uppercase tracking-[0.3em]">S{session} // EP{episode} // Neural Core V5.1</p>
+            <div className="flex flex-col items-center sm:items-start text-center sm:text-left">
+              <div className="flex items-center gap-3">
+                <h1 className="header-title">
+                   Engine Settings
+                </h1>
+              </div>
+              <div className="flex items-center gap-2 mt-2">
+                <Cpu className="w-3.5 h-3.5 text-studio/40 shrink-0" />
+                <p className="header-subtitle">S{session} // EP{episode} // AI Core V5.1</p>
               </div>
             </div>
           </div>
-
-          <div className="flex items-center gap-3 z-10">
+          <div className="flex flex-col sm:flex-row items-center gap-4 z-10 w-full lg:w-auto">
             {onPrev && (
-              <Button 
-                variant="outline" 
-                className="h-10 px-4 bg-[#050505] border-white/10 text-zinc-400 hover:text-studio hover:border-studio/50 font-black uppercase tracking-widest text-[9px] rounded-xl transition-all group/back"
-                onClick={onPrev}
-              >
-                <ChevronLeft className="w-3 h-3 mr-2 group-hover/back:-translate-x-1 transition-transform" />
-                PREV
-              </Button>
+              <Tooltip>
+                <TooltipTrigger>
+                  <Button 
+                    variant="outline" 
+                    className="relative w-full sm:w-auto h-12 px-8 bg-[#050505] border-white/10 text-zinc-400 hover:text-studio hover:border-studio/50 font-black uppercase tracking-widest text-[10px] rounded-full transition-all duration-500 backdrop-blur-md group/back shadow-2xl"
+                    onClick={onPrev}
+                  >
+                    <ChevronRight className="w-4 h-4 mr-2 group-hover/back:-translate-x-1 transition-transform rotate-180" />
+                    PREVIOUS
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="top">
+                  <p className="font-black uppercase tracking-widest text-[9px]">Return to Screening Lab</p>
+                </TooltipContent>
+              </Tooltip>
             )}
 
-            <div className="flex items-center gap-2">
+            <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
               {onSave && hasContent && (
-                <Button 
-                  variant="outline" 
-                  className="h-10 px-4 bg-studio/5 border-studio/20 text-studio hover:bg-studio/10 font-black uppercase tracking-widest text-[9px] rounded-xl transition-all"
-                  onClick={onSave}
-                  disabled={isSaving}
-                >
-                  <Save className={cn("w-3 h-3 mr-2", isSaving && "animate-pulse")} />
-                  {isSaving ? "SYNCING" : "SAVE"}
-                </Button>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <Button 
+                      variant="outline" 
+                      className="relative w-full sm:w-auto h-12 px-6 bg-studio/5 border-studio/20 text-studio hover:bg-studio/10 font-black uppercase tracking-widest text-[11px] rounded-full transition-all duration-500 shadow-[0_0_20px_rgba(0,200,255,0.1)] group/save"
+                      onClick={onSave}
+                      disabled={isSaving}
+                    >
+                      <Save className={cn("w-4 h-4 mr-2", isSaving && "animate-pulse")} />
+                      {isSaving ? "SAVING..." : "SAVE ALL"}
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="top">
+                    <p className="font-black uppercase tracking-widest text-[9px]">Save all tabs (sync to cloud)</p>
+                  </TooltipContent>
+                </Tooltip>
               )}
-
-              <Button 
-                variant="outline" 
-                className="h-10 px-4 bg-studio border-none text-black hover:bg-studio/90 font-black uppercase tracking-widest text-[9px] rounded-xl transition-all shadow-lg"
-                onClick={() => {}} 
-                disabled={isGenerating}
-              >
-                {isGenerating ? (
-                  <RefreshCw className="w-3 h-3 animate-spin mr-2" />
-                ) : (
-                  <Zap className="w-3 h-3 mr-2 fill-current" />
-                )}
-                GENERATE
-              </Button>
 
               {onNext && (
-                <Button 
-                  className="h-10 px-6 rounded-xl bg-white/5 border border-white/10 text-zinc-400 hover:text-white hover:border-white/30 font-black uppercase tracking-widest text-[9px] transition-all group/next"
-                  onClick={onNext}
-                >
-                  NEXT <ChevronRight className="w-3 h-3 ml-2 group-hover/next:translate-x-1 transition-transform" />
-                </Button>
+                <Tooltip>
+                  <TooltipTrigger >
+                    <Button 
+                      className="relative w-full sm:w-auto h-12 px-10 rounded-full bg-[#050505] border border-white/10 text-zinc-400 hover:text-studio hover:border-studio/50 font-black uppercase tracking-widest text-[10px] transition-all duration-500 group/next shadow-2xl"
+                      onClick={onNext}
+                    >
+                      <span className="relative z-10 flex items-center gap-2">
+                        NEXT <ChevronRight className="w-4 h-4 group-hover/next:translate-x-1 transition-transform" />
+                      </span>
+                      <div className="absolute inset-0 bg-studio/5 opacity-0 group-hover/next:opacity-100 transition-opacity duration-500 rounded-full" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="top">
+                    <p className="font-black uppercase tracking-widest text-[9px]">Proceed to World Builder</p>
+                  </TooltipContent>
+                </Tooltip>
               )}
             </div>
-          </div>
         </div>
       </div>
+    </div>
     </TooltipProvider>
   );
 };

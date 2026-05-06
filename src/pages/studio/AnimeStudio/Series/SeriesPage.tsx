@@ -16,6 +16,9 @@ import { TimelineTab } from './Tabs/TimelineTab';
 import { SeriesEmptyState } from './components/SeriesEmptyState';
 import EpisodesPage from './Episodes/EpisodesPage';
 
+import { MOCK_SERIES_PLAN } from '@/services/generators/mockData';
+import { SeriesLoadingPage } from './components/SeriesLoadingPage';
+
 export function SeriesPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -34,7 +37,13 @@ export function SeriesPage() {
     setSession,
     setEpisode,
     isEditing,
+    showNotification
   } = useGenerator();
+
+  const handleLoadDemo = () => {
+    setGeneratedSeriesPlan(MOCK_SERIES_PLAN);
+    showNotification?.('Loaded "Aetheria" Sample Production Manifest', 'success');
+  };
 
   const handleUpdateEpisode = (index: number, updates: any) => {
     if (!generatedSeriesPlan) return;
@@ -70,48 +79,91 @@ export function SeriesPage() {
     setIsSyncing(true);
 
     try {
-      const res = await fetch("/api/scenes", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          project_id: prompt,
-          scenes: sequence.map((u, idx) => ({
-            scene_number: (u.ep - 1) * 16 + u.scen,
-            status: 'QUEUED',
-            visual_variance_index: Math.floor(idx / 4)
-          }))
-        })
+      // Validate project id
+      if (!prompt || String(prompt).trim() === '') {
+        throw new Error('Missing project id');
+      }
+
+      // Create any missing episodes first so we have their ids
+      const uniqueEpisodes = Array.from(new Set(sequence.map(u => u.ep)));
+      const episodesPayload = uniqueEpisodes.map(epNum => ({ episode_number: epNum, title: `Episode ${epNum}` }));
+
+      const epsRes = await fetch('/api/episodes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ project_id: prompt, episodes: episodesPayload })
       });
 
-      if (!res.ok) throw new Error("Bulk sync failed");
+      if (!epsRes.ok) throw new Error('Failed to create episodes');
+      const createdEpisodes = await epsRes.json();
+      // createdEpisodes may be an array of episode objects with id and episode_number
+      const episodeMap: Record<number, number> = {};
+      (createdEpisodes || []).forEach((e: any) => {
+        if (e.episode_number != null && e.id != null) episodeMap[Number(e.episode_number)] = Number(e.id);
+        if (e.episode_number != null && e.episode_id != null) episodeMap[Number(e.episode_number)] = Number(e.episode_id);
+      });
+
+      // Build scenes payload including per-scene episode_id
+      const scenesPayload = sequence.map((u, idx) => {
+        const sceneNumber = (u.ep - 1) * 16 + u.scen;
+        const epId = episodeMap[u.ep];
+        return {
+          episode_id: epId,
+          scene_number: sceneNumber,
+          status: 'QUEUED',
+          visual_variance_index: Math.floor(idx / 4)
+        };
+      });
+
+      const res = await fetch('/api/scenes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ project_id: prompt, scenes: scenesPayload })
+      });
+
+      if (!res.ok) throw new Error('Bulk sync failed');
+      const resJson = await res.json();
+      const createdEpisodesCount = (resJson.episodes || []).length;
+      const createdScenesCount = (resJson.scenes || []).length;
+      showNotification?.(`Synced ${createdScenesCount} scenes and ${createdEpisodesCount} episodes`, 'success');
       setLastSyncDate(new Date().toLocaleTimeString());
     } catch (error) {
-      console.error("Bulk sync failed:", error);
+      console.error('Bulk sync failed:', error);
     } finally {
       setIsSyncing(false);
+    }
+  };
+
+  const getLoadingMessage = () => {
+    switch (activeTab) {
+      case 'arcs': return "Synthesizing Narrative Arcs...";
+      case 'assets': return "Calculating Resource Matrix...";
+      case 'timeline': return "Estimating Production Schedule...";
+      case 'blueprint': return "Architecting Production Sequence...";
+      case 'episodes': return "Indexing Episodes Library...";
+      default: return "Mapping Production Roadmap...";
     }
   };
 
   const renderTabContent = () => {
     if (isGeneratingSeries) {
       return (
-        <div className="flex flex-col items-center justify-center h-[500px] space-y-8">
-          <div className="relative">
-            <div className="w-16 h-16 border-2 border-studio/20 border-t-studio rounded-full animate-spin shadow-[0_0_30px_rgba(6,182,212,0.3)]" />
-            <div className="absolute inset-0 m-auto w-2 h-2 bg-studio rounded-full animate-ping" />
-          </div>
-          <div className="text-center space-y-2">
-            <p className="font-black tracking-[0.3em] text-[10px] uppercase text-studio animate-pulse">Mapping Production Roadmap...</p>
-            <p className="text-[8px] font-bold text-zinc-600 uppercase tracking-widest">Sequencing episodic beats</p>
-          </div>
-        </div>
+        <SeriesLoadingPage 
+          message={getLoadingMessage()} 
+          subtext="AI model is processing episodic metadata"
+        />
       );
     }
 
     if (!generatedSeriesPlan) {
       return (
         <SeriesEmptyState
-          onLaunch={() => { }} // Handled by Layout Header
+          onLaunch={() => {
+            window.dispatchEvent(new CustomEvent('studio-generate-series'));
+          }}
+          onLoadDemo={handleLoadDemo}
           isGenerating={isGeneratingSeries}
         />
       );
@@ -145,14 +197,15 @@ export function SeriesPage() {
             lastSyncDate={lastSyncDate}
             productionSequence={productionSequence}
             applySequenceItem={applySequenceItem}
+            plan={generatedSeriesPlan}
           />
         );
       case 'arcs':
-        return <ArcsTab />;
+        return <ArcsTab plan={generatedSeriesPlan} />;
       case 'assets':
-        return <AssetsTab />;
+        return <AssetsTab plan={generatedSeriesPlan} />;
       case 'timeline':
-        return <TimelineTab />;
+        return <TimelineTab plan={generatedSeriesPlan} />;
       default:
         return (
           <RoadmapTab

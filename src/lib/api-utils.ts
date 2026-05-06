@@ -60,6 +60,10 @@ export async function apiRequest<T>(url: string, options?: RequestInit & { timeo
     const controller = new AbortController();
     const id = setTimeout(() => controller.abort(), timeout);
 
+    if (options?.signal) {
+      options.signal.addEventListener('abort', () => controller.abort());
+    }
+
     const finalUrl = url.startsWith('http')
       ? url
       : `${API_BASE_URL}${url.startsWith('/') ? url : `/${url}`}`;
@@ -102,15 +106,19 @@ export async function apiRequest<T>(url: string, options?: RequestInit & { timeo
 
       console.info(`%c[Backend] %cSUCCESS [${displayLabel}]: ${response.status} (${duration}ms)`, 'color: #10b981; font-weight: bold', 'color: #94a3b8');
       return await response.json();
-    } catch (error) {
+    } catch (error: any) {
       if (error instanceof ApiError) throw error;
-      const errorName = typeof error === 'object' && error !== null ? (error as any).name : undefined;
-      const errorMessage = typeof error === 'object' && error !== null ? String((error as any).message || (error as any)) : String(error);
+      const errorName = error?.name;
+      const errorMessage = error?.message || String(error);
 
-      console.error(`%c[System] %cNETWORK ERROR: ${errorMessage}`, 'color: #f59e0b; font-weight: bold', 'color: #94a3b8');
       if (errorName === 'AbortError' || errorMessage.toLowerCase().includes('aborted')) {
+        if (options?.signal?.aborted) {
+          throw new ApiError('Generation stopped by user', 499);
+        }
         throw new ApiError(`Request timed out after ${timeout}ms`, 408);
       }
+
+      console.error(`%c[System] %cNETWORK ERROR: ${errorMessage}`, 'color: #f59e0b; font-weight: bold', 'color: #94a3b8');
       throw new ApiError(errorMessage || 'Network error');
     } finally {
       clearTimeout(id);
