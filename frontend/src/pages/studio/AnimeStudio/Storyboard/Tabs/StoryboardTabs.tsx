@@ -26,28 +26,38 @@ export const StoryboardTabs: React.FC<StoryboardTabsProps> = ({ activeTab, setAc
           key={tab.id}
           onClick={() => setActiveTab(tab.id)}
           className={cn(
-            "storyboard-tab-btn group/tab relative overflow-hidden",
+            "storyboard-tab-btn group/tab",
             activeTab === tab.id 
-              ? "bg-white/[0.03] border border-white/10 shadow-[0_0_20px_rgba(255,255,255,0.02)]" 
+              ? "bg-white/[0.03] border border-white/10 shadow-[0_0_30px_rgba(255,255,255,0.02)]" 
               : "text-zinc-500 hover:text-zinc-300 hover:bg-white/[0.01]"
           )}
         >
           {activeTab === tab.id && (
-            <motion.div
-              layoutId="active-tab-glow"
-              className={cn(
+            <>
+              <motion.div
+                layoutId="active-tab-glow"
+                className={cn(
+                  "storyboard-tab-glow",
+                  tab.id === 'frames' && "bg-fuchsia-500",
+                  tab.id === 'angles' && "bg-studio",
+                  tab.id === 'composition' && "bg-amber-400",
+                  tab.id === 'animatic' && "bg-emerald-400",
+                  tab.id === 'audio' && "bg-blue-400"
+                )}
+              />
+              <div className={cn(
                 "absolute inset-0 bg-gradient-to-br opacity-5",
                 tab.id === 'frames' && "from-fuchsia-500",
                 tab.id === 'angles' && "from-studio",
                 tab.id === 'composition' && "from-amber-400",
                 tab.id === 'animatic' && "from-emerald-400",
                 tab.id === 'audio' && "from-blue-400"
-              )}
-            />
+              )} />
+            </>
           )}
           
           <tab.icon className={cn(
-            "w-4 h-4 transition-all duration-500",
+            "w-3.5 h-3.5 transition-all duration-500 relative z-10",
             activeTab === tab.id ? tab.color : "text-zinc-600 group-hover/tab:text-zinc-400"
           )} />
           
@@ -62,7 +72,7 @@ export const StoryboardTabs: React.FC<StoryboardTabsProps> = ({ activeTab, setAc
             <motion.div 
               layoutId="tab-indicator"
               className={cn(
-                "absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r",
+                "absolute bottom-0 left-4 right-4 h-[2px] bg-gradient-to-r rounded-full",
                 tab.id === 'frames' && "from-fuchsia-500/0 via-fuchsia-500 to-fuchsia-500/0",
                 tab.id === 'angles' && "from-studio/0 via-studio to-studio/0",
                 tab.id === 'composition' && "from-amber-400/0 via-amber-400 to-amber-400/0",

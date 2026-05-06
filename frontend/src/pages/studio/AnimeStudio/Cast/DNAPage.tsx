@@ -1,16 +1,18 @@
+import React from 'react';
 import { motion } from 'framer-motion';
 import { BarChart3, ShieldCheck, Activity, Brain, Search, Shield, Sparkles, RefreshCcw } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { useGenerator } from '@/hooks/useGenerator';
-import { useNavigate, useOutletContext } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { StudioEmptyState } from '@/pages/studio/components/studio/shared/StudioEmptyState';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { CastTabActionsContext } from './CastLayout';
 
 export function DNAPage() {
   const navigate = useNavigate();
   const { castList, contentType, castDNA } = useGenerator();
-  const { handleGenerateDNA, isAnalyzingCast } = useOutletContext<any>();
+  const { handleGenerateDNA, isAnalyzingCast } = React.useContext(CastTabActionsContext);
   const hasCast = castList && castList.length > 0;
 
   if (!hasCast) {

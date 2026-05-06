@@ -2,15 +2,16 @@ import React from 'react';
 import { GitBranch, ArrowRightLeft, Users, Zap, Workflow, RefreshCcw } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { useGenerator } from '@/hooks/useGenerator';
-import { useNavigate, useOutletContext } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { StudioEmptyState } from '@/pages/studio/components/studio/shared/StudioEmptyState';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { CastTabActionsContext } from './CastLayout';
 
 export function DynamicsPage() {
   const navigate = useNavigate();
   const { characterRelationships, castList, contentType, castDynamics } = useGenerator();
-  const { handleGenerateDynamics, isAnalyzingCast } = useOutletContext<any>();
+  const { handleGenerateDynamics, isAnalyzingCast } = React.useContext(CastTabActionsContext);
   const hasCast = Array.isArray(castList) && castList.length > 0;
 
   if (!hasCast) {

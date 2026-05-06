@@ -39,6 +39,7 @@ export const CastTabs: React.FC<CastTabsProps> = ({
       {tabs.map((tab) => (
         <button
           key={tab.id}
+          type="button"
           onClick={() => setActiveTab(tab.id)}
           className={cn(
             "relative px-5 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all duration-500 flex items-center gap-3 group/tab shrink-0 whitespace-nowrap",

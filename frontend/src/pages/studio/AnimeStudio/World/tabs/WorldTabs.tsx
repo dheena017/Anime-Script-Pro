@@ -48,6 +48,7 @@ export const WorldTabs: React.FC<WorldTabsProps> = ({
       {tabs.map((tab) => (
         <button
           key={tab.id}
+          type="button"
           onClick={() => handleTabClick(tab.id)}
           className={cn(
             "tabs-nav-button transition-all duration-200",

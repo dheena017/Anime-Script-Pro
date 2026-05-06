@@ -11,6 +11,7 @@ import { SeriesLoadingPage } from './components/SeriesLoadingPage';
 export default function SeriesLayout() {
   const navigate = useNavigate();
   const [showScaffolder, setShowScaffolder] = React.useState(false);
+  const location = useLocation();
 
   const {
     prompt,
@@ -117,8 +118,6 @@ export default function SeriesLayout() {
     }
   };
 
-  const location = useLocation();
-
   const getActiveTab = (): SeriesTab => {
     const path = location.pathname;
     if (path.includes('/series/episodes')) return 'episodes';
@@ -132,16 +131,15 @@ export default function SeriesLayout() {
     return 'roadmap';
   };
 
-  const activeTab = getActiveTab();
+  const [activeTab, setActiveTab] = React.useState<SeriesTab>(() => getActiveTab());
 
   const handleTabChange = (tab: SeriesTab) => {
-    const base = `/${contentType.toLowerCase()}/series`;
-    if (tab === 'roadmap') {
-      navigate(base);
-    } else {
-      navigate(`${base}/${tab}`);
-    }
+    setActiveTab(tab);
   };
+
+  React.useEffect(() => {
+    setActiveTab(getActiveTab());
+  }, [location.pathname]);
 
   React.useEffect(() => {
     console.log(`[SeriesLayout] Active tab changed to: ${activeTab.toUpperCase()}`);

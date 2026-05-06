@@ -2,14 +2,15 @@ import React from 'react';
 import { ShieldCheck, AlertTriangle, CheckCircle2, Search, RefreshCcw } from 'lucide-react';
 import { useGenerator } from '@/hooks/useGenerator';
 import { StudioEmptyState } from '@/pages/studio/components/studio/shared/StudioEmptyState';
-import { useNavigate, useOutletContext } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { CastTabActionsContext } from '../CastLayout';
 
 export const IntegrityTab: React.FC = () => {
   const navigate = useNavigate();
   const { castList, contentType, castIntegrity } = useGenerator();
-  const { handleGenerateIntegrity, isAnalyzingCast } = useOutletContext<any>();
+  const { handleGenerateIntegrity, isAnalyzingCast } = React.useContext(CastTabActionsContext);
   
   const characters = castList || [];
   const missingGoals = characters.filter(c => !c.goal || c.goal.toLowerCase().includes('redacted')).length;

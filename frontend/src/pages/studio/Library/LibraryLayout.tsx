@@ -70,7 +70,7 @@ export const LibraryLayout: React.FC<LibraryLayoutProps> = ({
       <div className="relative">
         <nav className={s.tabList}>
           {tabs.map((tab) => (
-            <button key={tab.id} onClick={() => onTabChange(tab.id)} className={cn(s.tabItem, activeTab === tab.id ? s.tabActive : s.tabInactive)}>
+            <button type="button" key={tab.id} onClick={() => onTabChange(tab.id)} className={cn(s.tabItem, activeTab === tab.id ? s.tabActive : s.tabInactive)}>
               {activeTab === tab.id && <motion.div layoutId="libTab" className={s.tabIndicator} />}
               <tab.icon className={cn("w-4 h-4 transition-colors relative z-10", activeTab === tab.id ? "text-[#bd4a4a]" : "text-zinc-700 hover:text-zinc-500")} />
               <span className="relative z-10">{tab.label}</span>

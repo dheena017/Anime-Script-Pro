@@ -5,6 +5,13 @@ import { useAuth } from '@/hooks/useAuth';
 import { useApp } from '@/contexts/AppContext';
 import { CastHeader } from './components/CastHeader';
 import { CastToolbar, CastTab } from './components/CastToolbar';
+import { RegistryTab } from './Tabs/RegistryTab';
+import CharactersPage from './Tabs/Characters/CharactersPage';
+import { DNAPage } from './DNAPage';
+import { DynamicsPage } from './DynamicsPage';
+import { IntegrityTab } from './Tabs/IntegrityTab';
+import { AddLeadTab } from './Tabs/AddLeadTab';
+import RelationshipsPage from './Tabs/Relationships/RelationshipsPage';
 import {
   generateCharacters,
   generateRelationships,
@@ -21,9 +28,30 @@ export const CastContext = React.createContext<{
   handleLoadDemo?: () => void;
 }>({ setHandlers: () => { } });
 
+export const CastTabActionsContext = React.createContext<{
+  handleGenerateDNA?: () => Promise<void>;
+  handleGenerateDynamics?: () => Promise<void>;
+  handleGenerateIntegrity?: () => Promise<void>;
+  isAnalyzingCast?: boolean;
+}>({});
+
 export default function CastLayout() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [handlers, setHandlers] = React.useState<any>({});
+
+  const getTabFromPath = (path: string): CastTab => {
+    if (path.includes('/cast/relationships') || path.includes('/cast/matrix')) return 'matrix';
+    if (path.includes('/cast/characters')) return 'characters';
+    if (path.includes('/cast/integrity')) return 'integrity';
+    if (path.includes('/cast/add-lead')) return 'add-lead';
+    if (path.includes('/cast/dna')) return 'dna';
+    if (path.includes('/cast/dynamics')) return 'dynamics';
+    if (path.endsWith('/cast')) return 'registry';
+    return 'registry';
+  };
+
+  const [activeTab, setActiveTab] = React.useState<CastTab>(() => getTabFromPath(location.pathname));
 
   const { showNotification } = useApp();
   const {
@@ -203,37 +231,16 @@ export default function CastLayout() {
     }
   };
 
-  const location = useLocation();
-
-  const getActiveTab = (): CastTab => {
-    const path = location.pathname;
-    if (path.includes('/cast/relationships') || path.includes('/cast/matrix')) return 'matrix';
-    if (path.includes('/cast/characters')) return 'characters';
-    if (path.includes('/cast/integrity')) return 'integrity';
-    if (path.includes('/cast/add-lead')) return 'add-lead';
-    if (path.includes('/cast/dna')) return 'dna';
-    if (path.includes('/cast/dynamics')) return 'dynamics';
-
-    // Default based on path
-    if (path.endsWith('/cast')) return 'registry';
-
-    return 'registry';
-  };
-
-  const activeTab = getActiveTab();
-
   const handleTabChange = (tab: CastTab) => {
-    const base = `/${contentType.toLowerCase()}/cast`;
-    if (tab === 'matrix') {
-      navigate(`${base}/relationships`);
-    } else if (tab === 'characters') {
-      navigate(`${base}/characters`);
-    } else if (tab === 'registry') {
-      navigate(base);
-    } else {
-      navigate(`${base}/${tab}`);
-    }
+    setActiveTab(tab);
   };
+
+  React.useEffect(() => {
+    const routeTab = getTabFromPath(location.pathname);
+    if (location.pathname !== `/${contentType.toLowerCase()}/cast`) {
+      setActiveTab(routeTab);
+    }
+  }, [location.pathname, contentType]);
 
   React.useEffect(() => {
     reportTabChange('CastLayout', activeTab, 'anime');
@@ -248,8 +255,38 @@ export default function CastLayout() {
     return () => window.removeEventListener('studio-generate-cast', handleGlobalGenerate);
   }, [handleGenerateAll]);
 
+  const routeTab = getTabFromPath(location.pathname);
+  const isDetailRoute = location.pathname.includes('/cast/characters/') || location.pathname.includes('/cast/relationships/');
+  const shouldRenderOutlet = isDetailRoute && activeTab === routeTab;
+
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case 'characters':
+        return <CharactersPage />;
+      case 'matrix':
+        return <RelationshipsPage />;
+      case 'dna':
+        return <DNAPage />;
+      case 'dynamics':
+        return <DynamicsPage />;
+      case 'integrity':
+        return <IntegrityTab />;
+      case 'add-lead':
+        return <AddLeadTab />;
+      case 'registry':
+      default:
+        return <RegistryTab />;
+    }
+  };
+
   return (
     <CastContext.Provider value={{ setHandlers, handleLoadDemo }}>
+      <CastTabActionsContext.Provider value={{
+        handleGenerateDNA,
+        handleGenerateDynamics,
+        handleGenerateIntegrity,
+        isAnalyzingCast
+      }}>
       <div className="space-y-6">
         <div className="studio-module-header">
           <CastHeader
@@ -282,7 +319,7 @@ export default function CastLayout() {
 
         {(isGeneratingCharacters || isAnalyzingCast) ? (
           <CastLoadingPage tab={activeTab} />
-        ) : (
+        ) : shouldRenderOutlet ? (
           <Outlet context={{
             activeTab,
             setActiveTab: handleTabChange,
@@ -292,8 +329,11 @@ export default function CastLayout() {
             handleGenerateIntegrity,
             isAnalyzingCast
           }} />
+        ) : (
+          renderTabContent()
         )}
       </div>
+      </CastTabActionsContext.Provider>
     </CastContext.Provider>
   );
 }

@@ -223,26 +223,22 @@ export function WorldPage() {
       );
     }
 
-    if (!generatedWorld) {
-      return (
-        <WorldEmptyState
-          onLaunch={() => {
-            window.dispatchEvent(new CustomEvent('studio-generate-world'));
-          }}
-          onLoadDemo={handleLoadDemo}
-          isGenerating={isGeneratingWorld}
-        />
-      );
-    }
-
     switch (activeTab) {
       case 'manifest':
-        return (
+        return generatedWorld ? (
           <ManifestTab
             isEditing={isEditing}
             content={generatedWorld || ''}
             onContentChange={(val: string) => updateGlobalWorld(val)}
             onGenerate={() => window.dispatchEvent(new CustomEvent('studio-generate-world'))}
+            isGenerating={isGeneratingWorld}
+          />
+        ) : (
+          <WorldEmptyState
+            onLaunch={() => {
+              window.dispatchEvent(new CustomEvent('studio-generate-world'));
+            }}
+            onLoadDemo={handleLoadDemo}
             isGenerating={isGeneratingWorld}
           />
         );
