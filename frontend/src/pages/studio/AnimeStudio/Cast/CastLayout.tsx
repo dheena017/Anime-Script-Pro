@@ -257,7 +257,7 @@ export default function CastLayout() {
             onRegenerate={handlers.handleGenerateCharacter || handleGenerateAll}
             session={session}
             episode={episode}
-            onPrev={() => navigate(`/${contentType.toLowerCase()}/protocols`)}
+            onPrev={() => navigate(`/${contentType.toLowerCase()}/world`)}
             onNext={() => navigate(`/${contentType.toLowerCase()}/series`)}
             onSave={handleSave}
             isSaving={isSaving}

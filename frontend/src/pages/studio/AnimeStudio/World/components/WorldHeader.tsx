@@ -144,13 +144,12 @@ export const WorldHeader: React.FC<WorldHeaderProps> = ({
               <Tooltip>
                 <TooltipTrigger >
                   <Button
-                    className="relative w-full sm:w-auto h-12 px-10 rounded-full bg-[#050505] border border-white/10 text-zinc-400 hover:text-studio hover:border-studio/50 font-black uppercase tracking-widest text-[10px] transition-all duration-500 group/next shadow-2xl"
+                    className="relative w-full sm:w-auto h-12 px-10 rounded-full bg-white text-black hover:bg-zinc-200 font-black uppercase tracking-widest text-[11px] transition-all duration-500 group/next shadow-[0_0_30px_rgba(255,255,255,0.2)]"
                     onClick={onNext}
                   >
                     <span className="relative z-10 flex items-center gap-2">
-                      PROCEED TO CAST <ChevronRight className="w-4 h-4 group-hover/next:translate-x-1 transition-transform" />
+                      NEXT <ChevronRight className="w-4 h-4 group-hover/next:translate-x-1 transition-transform" />
                     </span>
-                    <div className="absolute inset-0 bg-studio/5 opacity-0 group-hover/next:opacity-100 transition-opacity duration-500 rounded-full" />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="top">

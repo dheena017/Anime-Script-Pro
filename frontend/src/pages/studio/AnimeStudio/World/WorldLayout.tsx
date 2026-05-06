@@ -243,7 +243,7 @@ export default function WorldLayout() {
           session={session}
           episode={episode}
           onPrev={() => navigate(`/${contentType.toLowerCase()}/engine`)}
-          onNext={() => navigate(`/${contentType.toLowerCase()}/protocols`)}
+          onNext={() => navigate(`/${contentType.toLowerCase()}/cast`)}
           onSave={handleSave}
           isSaving={isSaving}
           hasContent={!!generatedWorld}
