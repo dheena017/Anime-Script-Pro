@@ -14,18 +14,12 @@ import { WorldEmptyState } from './components/WorldEmptyState';
 import { WorldTab } from './tabs/WorldTabs';
 import { Button } from '@/components/ui/button';
 import { Zap, History, Users, Sparkles, Building2, Map, Globe, Cpu } from 'lucide-react';
-import {
-  generatePowerSystem,
-  generateFactionSystem,
-  generateLoreHistory,
-  generateArchitecture,
-  generateAtlas,
-  generateCulture,
-  generateSystems
-} from '@/services/api/gemini';
+import { worldApi } from '@/services/api/world';
 import { MOCK_WORLD_DATA } from '@/services/generators/mockData';
+import { useAuth } from '@/hooks/useAuth';
 
 export function WorldPage() {
+  const { user } = useAuth();
   const {
     isEditing,
     generatedWorld,
@@ -74,9 +68,11 @@ export function WorldPage() {
     setPromptAtlas,
     setPromptCulture,
     setPromptSystems,
-    selectedModel, contentType,
+    currentScriptId,
     showNotification
   } = useGenerator();
+
+  const projectId = currentScriptId ? parseInt(currentScriptId) : undefined;
 
   const handleLoadDemo = () => {
     updateGlobalWorld(MOCK_WORLD_DATA.manifest);
@@ -94,8 +90,12 @@ export function WorldPage() {
 
   const handleGenerateSpecialized = async (type: WorldTab) => {
     if (type === 'manifest') return;
-    if (!prompt) {
-      showNotification?.('Project prompt required for specialized generation.', 'error');
+    if (!user?.id) {
+      showNotification?.('You must be logged in to generate world content.', 'error');
+      return;
+    }
+    if (!projectId) {
+      showNotification?.('Project context required for specialized generation.', 'error');
       return;
     }
 
@@ -125,44 +125,31 @@ export function WorldPage() {
     if (isGenerating) return;
 
     setGenerating(true);
-    console.log(`[WorldPage] Requesting specialized generation for: ${type.toUpperCase()}...`);
+    console.log(`[WorldPage] Requesting modular generation for: ${type.toUpperCase()}...`);
     try {
-      let result = '';
-      const modulePrompts: Record<string, string> = {
-        lore: promptLore,
-        powers: promptPowers,
-        factions: promptFactions,
-        architecture: promptArchitecture,
-        atlas: promptAtlas,
-        culture: promptCulture,
-        systems: promptSystems
-      };
-
-      const activePrompt = modulePrompts[type] || prompt;
-
+      let result: any;
       if (type === 'lore') {
-        result = await generateLoreHistory(activePrompt, selectedModel, contentType, generatedWorld || undefined);
-        setGeneratedWorldLore(result);
+        result = await worldApi.history.generate(user.id, projectId);
+        setGeneratedWorldLore(result.content);
       } else if (type === 'powers') {
-        result = await generatePowerSystem(activePrompt, selectedModel, contentType, generatedWorld || undefined);
-        setGeneratedWorldPowers(result);
+        result = await worldApi.powers.generate(user.id, projectId);
+        setGeneratedWorldPowers(result.content);
       } else if (type === 'factions') {
-        result = await generateFactionSystem(activePrompt, selectedModel, contentType, generatedWorld || undefined);
-        setGeneratedWorldFactions(result);
+        result = await worldApi.factions.generate(user.id, projectId);
+        setGeneratedWorldFactions(result.content);
       } else if (type === 'architecture') {
-        result = await generateArchitecture(activePrompt, selectedModel, contentType, generatedWorld || undefined);
-        setGeneratedWorldArchitecture(result);
+        result = await worldApi.architecture.generate(user.id, projectId);
+        setGeneratedWorldArchitecture(result.content);
       } else if (type === 'atlas') {
-        result = await generateAtlas(activePrompt, selectedModel, contentType, generatedWorld || undefined);
-        setGeneratedWorldAtlas(result);
+        result = await worldApi.atlas.generate(user.id, projectId);
+        setGeneratedWorldAtlas(result.content);
       } else if (type === 'culture') {
-        result = await generateCulture(activePrompt, selectedModel, contentType, generatedWorld || undefined);
-        setGeneratedWorldCulture(result);
+        result = await worldApi.culture.generate(user.id, projectId);
+        setGeneratedWorldCulture(result.content);
       } else if (type === 'systems') {
-        result = await generateSystems(activePrompt, selectedModel, contentType, generatedWorld || undefined);
-        setGeneratedWorldSystems(result);
+        result = await worldApi.systems.generate(user.id, projectId);
+        setGeneratedWorldSystems(result.content);
       }
-      console.log(`[WorldPage] ${type.toUpperCase()} generated successfully. Response length: ${result?.length || 0} chars.`);
       showNotification?.(`${type.charAt(0).toUpperCase() + type.slice(1)} generated successfully!`, 'success');
     } catch (e: any) {
       console.error(`[WorldPage] Failed to generate ${type}:`, e);
