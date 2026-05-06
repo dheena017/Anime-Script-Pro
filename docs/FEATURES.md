@@ -4,7 +4,7 @@ This document summarizes the major features implemented across the Anime Script 
 
 ## 0. Workflow Overview
 - **User entry**: visitors arrive on the landing page, authenticate, and enter the studio.
-- **Studio initiation**: users select a project, open the studio portal, and choose production tools.
+- **Studio initiation**: users select a project, enter the studio interface, and choose production tools.
 - **Data orchestration**: frontend routes requests through the Express orchestrator to the Python FastAPI backend.
 - **AI execution**: FastAPI sends prompts and generation requests to AI providers (OpenAI, Anthropic, Groq, Gemini).
 - **Live monitoring**: orchestrator health endpoints report status to Settings and System Status pages.
@@ -39,7 +39,7 @@ This document summarizes the major features implemented across the Anime Script 
   - `/_orchestrator/traffic`: returns recent request logs.
 
 ## 3. Anime Studio Production Features
-- **Studio portal**: central entrypoint for managing anime story production and creative sessions.
+- **Studio Hub**: central entrypoint for managing anime story production and creative sessions.
 - **World building tools**: tools for creating world lore, geography, and setting details.
 - **Character / cast management**: define characters, roles, and narrative relationships.
 - **Series & episode management**: organize scripts and story arcs into series structure.

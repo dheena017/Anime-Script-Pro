@@ -10,7 +10,11 @@
       "DOM.Iterable"
     ],
     "skipLibCheck": true,
-    "types": ["node", "vite/client", "jest"],
+    "types": [
+      "node",
+      "vite/client",
+      "jest"
+    ],
     "moduleResolution": "bundler",
     "isolatedModules": true,
     "moduleDetection": "force",
@@ -18,7 +22,7 @@
     "jsx": "react-jsx",
     "paths": {
       "@/*": [
-        "./src/*"
+        "./frontend/src/*"
       ]
     },
     "allowImportingTsExtensions": true,
@@ -33,12 +37,12 @@
   },
   "include": [
     "*.ts",
-    "src",
-    "backend",
+    "frontend",
+    "server.ts",
     "playwright-reporters"
   ],
   "exclude": [
-    "node_modules",
+    "frontend/node_modules",
     "backend/static",
     "**/*_old.tsx",
     "**/*_old.ts"

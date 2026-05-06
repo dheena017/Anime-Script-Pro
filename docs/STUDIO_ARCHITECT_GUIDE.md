@@ -39,6 +39,7 @@ The Python/FastAPI backend has been fully modernized for high-concurrency studio
 - **Absolute API Pathing**: All communication is standardized to `/api/` absolute paths for robust service discovery.
 - **Non-Blocking Startup**: Metadata and table creation are handled via the `AsyncEngine` startup loop.
 - **Real-Time Observability**: Integrated `Loguru` for granular monitoring of the AI synthesis lifecycle.
+- **Detailed API Reference**: See the [API Documentation](./API_DOCUMENTATION.md) for endpoint specifications.
 
 ---
 

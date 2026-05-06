@@ -9,7 +9,7 @@
 Welcome to the most advanced AI-driven anime production suite. **Anime Script Pro** orchestrates a full-stack creative pipeline—from the initial spark of world lore to high-fidelity screening metadata—using a "God Mode" one-prompt construction loop.
 
 ### 🏛️ Engineering Manifest
-For deep-dive technical documentation on our multimodal synthesis engine and cinematic design system, refer to the [Studio Architect Guide](./STUDIO_ARCHITECT_GUIDE.md) and our [API Documentation](./API_DOCUMENTATION.md).
+For deep-dive technical documentation on our multimodal synthesis engine and cinematic design system, refer to the [Studio Architect Guide](./docs/STUDIO_ARCHITECT_GUIDE.md) and our [API Documentation](./docs/API_DOCUMENTATION.md).
 
 
 ---
@@ -45,7 +45,7 @@ The studio has been modernized to handle a complex **Image-to-Video** pipeline:
 - **Intelligence Layer**: FastAPI + Python (100% Async / SQLModel)
 - **Neural Models**: Multi-Model Swarm (Gemini 2.5 Pro / Flash, Imagen-3, Veo-2.0)
 - **Verification**: Playwright E2E + Backend Unit/Integration Suite
-- **Feature Docs**: See [FEATURES.md](./FEATURES.md) for a detailed feature catalog.
+- **Feature Docs**: See [FEATURES.md](./docs/FEATURES.md) for a detailed feature catalog.
 
 ---
 
@@ -192,25 +192,25 @@ pip install -r .\backend\requirements.txt
 The following blueprints document the high-fidelity architecture and production logic of the Anime Script Pro ecosystem.
 
 ### 📡 System & Flow
-![Architecture Diagram](anime_script_pro_architecture_1778054153988.png)
-![System Flowchart](anime_script_pro_flowchart_cinematic_1778054550386.png)
-![Production Pipeline](anime_script_pro_production_pipeline_ultra_detailed_1778055343002.png)
+![Architecture Diagram](docs/flow-images/anime_script_pro_architecture_1778054153988.png)
+![System Flowchart](docs/flow-images/anime_script_pro_flowchart_cinematic_1778054550386.png)
+![Production Pipeline](docs/flow-images/anime_script_pro_production_pipeline_ultra_detailed_1778055343002.png)
 
 ### 🏗️ Studio Infrastructure
-![Master Infographic](anime_script_pro_master_infographic_1778055093056.png)
-![Full UI Sitemap](anime_script_pro_full_sitemap_ui_map_1778055257341.png)
-![Anime Studio Deep Dive](anime_studio_deep_dive_sitemap_1778055541066.png)
+![Master Infographic](docs/flow-images/anime_script_pro_master_infographic_1778055093056.png)
+![Full UI Sitemap](docs/flow-images/anime_script_pro_full_sitemap_ui_map_1778055257341.png)
+![Anime Studio Deep Dive](docs/flow-images/anime_studio_deep_dive_sitemap_1778055541066.png)
 
 ### 🧠 Module Blueprints
-![World Architect Deep Dive](world_architect_deep_dive_blueprint_1778055694454.png)
-![Cast Forge Deep Dive](cast_dna_deep_dive_blueprint_1778055859963.png)
-![Series Blueprint Deep Dive](series_blueprint_deep_dive_1778055886671.png)
-![Script Architect Deep Dive](script_architect_deep_dive_blueprint_1778055910858.png)
-![Storyboard Visualizer Deep Dive](storyboard_visual_deep_dive_blueprint_1778055942261.png)
-![SEO Master Deep Dive](seo_master_deep_dive_blueprint_1778055965823.png)
+![World Architect Deep Dive](docs/flow-images/world_architect_deep_dive_blueprint_1778055694454.png)
+![Cast Forge Deep Dive](docs/flow-images/cast_dna_deep_dive_blueprint_1778055859963.png)
+![Series Blueprint Deep Dive](docs/flow-images/series_blueprint_deep_dive_1778055886671.png)
+![Script Architect Deep Dive](docs/flow-images/script_architect_deep_dive_blueprint_1778055910858.png)
+![Storyboard Visualizer Deep Dive](docs/flow-images/storyboard_visual_deep_dive_blueprint_1778055942261.png)
+![SEO Master Deep Dive](docs/flow-images/seo_master_deep_dive_blueprint_1778055965823.png)
 
 
 ### ⚙️ Backend Core
-![Neural Engine Deep Dive](neural_engine_deep_dive_blueprint_final_1778055992557.png)
-![Backend Infrastructure Flow](backend_neural_infrastructure_flow_1778056103418.png)
+![Neural Engine Deep Dive](docs/flow-images/neural_engine_deep_dive_blueprint_final_1778055992557.png)
+![Backend Infrastructure Flow](docs/flow-images/backend_neural_infrastructure_flow_1778056103418.png)
 

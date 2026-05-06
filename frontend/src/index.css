@@ -1,0 +1,674 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=JetBrains+Mono:wght@400;500&display=swap');
+@import "tailwindcss";
+@import "shadcn/tailwind.css";
+@import "@fontsource-variable/geist";
+
+@plugin "@tailwindcss/typography";
+
+@theme {
+  --font-sans: "Helvetica Neue", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Playfair Display", ui-serif, Georgia, serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  
+  --color-studio: var(--studio-primary);
+  --color-studio-glow: var(--studio-glow);
+}
+
+/* Global Studio Design System */
+.world-card {
+  @apply p-8 bg-zinc-950/80 border border-white/5 rounded-[2rem] relative overflow-hidden transition-all;
+}
+
+.header-container {
+  @apply p-8 bg-zinc-950/80 border border-white/5 rounded-[2rem] relative overflow-hidden transition-all !p-4 md:!p-5 !rounded-[2rem] flex flex-col lg:flex-row items-center justify-between bg-[#050505] gap-6 lg:gap-0;
+}
+
+.header-icon-box {
+  @apply w-14 h-14 rounded-2xl bg-studio/10 border border-studio/30 flex items-center justify-center shadow-lg overflow-hidden relative;
+}
+
+.header-title {
+  @apply text-xl md:text-2xl font-black uppercase tracking-[0.2em] text-white italic leading-none;
+}
+
+.header-subtitle {
+  @apply text-[8px] md:text-[9px] font-black text-studio/40 uppercase tracking-[0.2em];
+}
+
+.toolbar-container {
+  @apply flex flex-col gap-6 w-full p-4 md:p-0;
+}
+
+.toolbar-header {
+  @apply flex flex-col lg:flex-row lg:items-center justify-between gap-6 lg:gap-0;
+}
+
+.toolbar-status-box {
+  @apply flex items-center gap-4;
+}
+
+.toolbar-status-icon {
+  @apply w-10 h-10 rounded-xl bg-studio/10 border border-studio/20 flex items-center justify-center shrink-0;
+}
+
+.toolbar-action-group {
+  @apply flex flex-col md:flex-row items-center gap-4 md:gap-6 w-full lg:w-auto;
+}
+
+.toolbar-unit-box {
+  @apply flex items-center gap-3 px-4 py-2 bg-black border border-white/5 rounded-xl grow md:grow-0;
+}
+
+.toolbar-btn-group {
+  @apply flex items-center gap-1 p-1.5 bg-black border border-white/5 rounded-xl shrink-0;
+}
+
+.tabs-nav-container {
+  @apply flex items-center gap-2 p-1.5 bg-[#080808] border border-white/5 rounded-[1.5rem] relative overflow-x-auto;
+}
+
+/* Hide native scrollbars for tabs navigation (cross-browser) */
+.tabs-nav-container::-webkit-scrollbar {
+  display: none;
+}
+.tabs-nav-container {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+.tabs-nav-button {
+  @apply relative px-5 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-colors duration-200 flex items-center gap-3 shrink-0 whitespace-nowrap;
+}
+
+.tabs-nav-active-glow {
+  @apply absolute inset-0 bg-white/5 border border-white/10 rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.05)];
+}
+
+.tabs-nav-underline {
+  @apply absolute -bottom-1 left-4 right-4 h-0.5 bg-current rounded-full opacity-50;
+}
+
+.shadow-studio {
+  box-shadow: 0 0 15px var(--studio-glow);
+}
+
+.text-shadow-studio {
+  text-shadow: 0 0 8px var(--studio-glow);
+}
+
+.border-studio {
+  border-color: color-mix(in srgb, var(--studio-primary), transparent 80%);
+}
+
+@layer base {
+  html, body {
+    max-width: 100vw;
+    overflow-x: auto; /* Allow horizontal scroll as requested */
+  }
+  
+  /* Global Dark Scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #000000;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #1a1a1a;
+    border: 2px solid #000000;
+    border-radius: 10px;
+    transition: background 0.2s;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #2a2a2a;
+  }
+  ::-webkit-scrollbar-corner {
+    background: #000000;
+  }
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #1a1a1a #000000;
+  }
+  body {
+    @apply bg-black text-[#e4e4e7] min-h-screen selection:bg-red-500/30 selection:text-red-200 antialiased;
+    background-image: 
+      radial-gradient(circle at 50% 0%, rgba(6, 182, 212, 0.03) 0%, transparent 70%);
+    background-attachment: scroll; /* Scroll is cheaper than fixed */
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11", "ss01";
+    
+    /* Hardware Acceleration & Layout Optimization */
+    text-rendering: optimizeSpeed;
+    transform: translateZ(0); /* Force GPU layer */
+    backface-visibility: hidden;
+  }
+
+  /* Optimized Content Visibility for large sections */
+  #studio-content-area, 
+  .studio-content-grid {
+    content-visibility: auto;
+    contain-intrinsic-size: 1px 1000px;
+  }
+
+  /* Premium Noise Overlay - Disabled for Performance */
+  
+
+
+  /* Global Fullscreen Logic */
+  .studio-fullscreen-mode .sidebar-container,
+  .studio-fullscreen-mode header,
+  .studio-fullscreen-mode footer,
+  .studio-fullscreen-mode .session-logs-container,
+  .studio-fullscreen-mode .studio-navigation-bar {
+    display: none !important;
+  }
+
+  .studio-fullscreen-mode main {
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: 100vw !important;
+    height: 100vh !important;
+    overflow-y: auto !important;
+  }
+
+  .studio-fullscreen-mode .max-w-7xl {
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .studio-fullscreen-mode #studio-content-area {
+    height: 100vh !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    max-width: 100vw !important;
+    border: none !important;
+  }
+
+  .studio-fullscreen-mode #studio-content-area > div {
+    /* Restore normal padding */
+  }
+
+  /* Global Animation Removal - RESTORED for UX */
+  /* This was previously disabling all transitions, making the app feel laggy and unresponsive */
+
+  /* Optimization: will-change hints for smoother transitions */
+  .studio-layout-content,
+  .studio-page-container {
+    will-change: transform, opacity;
+  }
+}
+
+@utility hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@utility no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Custom Scrollbars */
+@utility custom-scrollbar {
+  &::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: var(--studio-primary);
+    border-radius: 10px;
+  }
+  &::-webkit-scrollbar-thumb:hover {
+    background: color-mix(in srgb, var(--studio-primary), white 20%);
+  }
+}
+
+/* Glass & Technical Components */
+.glass {
+  @apply bg-[#030303]/40 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)] relative overflow-hidden;
+}
+
+.glass-panel {
+  @apply bg-zinc-950/60 backdrop-blur-md border border-white/5 shadow-2xl relative rounded-[2rem];
+}
+
+.cyber-panel {
+  @apply relative p-8 rounded-[3rem] bg-zinc-950/40 border border-white/5 shadow-2xl transition-all duration-500 overflow-hidden;
+  background-image: radial-gradient(circle at 0% 0%, rgba(255, 255, 255, 0.03) 0%, transparent 50%);
+}
+
+.cyber-panel::after {
+  content: '';
+  @apply absolute bottom-0 right-0 w-32 h-32 bg-studio/5 blur-[80px] -z-10 rounded-full;
+}
+
+.technical-card {
+  @apply bg-[#080808] border border-zinc-900 shadow-xl relative overflow-hidden rounded-[2rem];
+}
+
+.glow-text {
+  text-shadow: 0 0 15px var(--studio-glow), 0 0 30px var(--studio-glow);
+}
+
+.btn-genesis {
+  @apply h-16 px-12 text-white font-black uppercase tracking-[0.3em] text-[11px] rounded-full transition-all duration-500 border-none flex items-center justify-center gap-4 relative overflow-hidden;
+  background-color: var(--studio-primary);
+  box-shadow: 0 0 20px var(--studio-glow), 0 0 40px rgba(0, 0, 0, 0.3), inset 0 0 20px rgba(255, 255, 255, 0.1);
+}
+
+.btn-genesis:hover {
+  @apply scale-[1.02];
+  background-color: color-mix(in srgb, var(--studio-primary), white 10%);
+  box-shadow: 0 0 40px var(--studio-glow), 0 0 80px rgba(0, 0, 0, 0.5), inset 0 0 30px rgba(255, 255, 255, 0.2);
+}
+
+.btn-genesis::before {
+  content: "";
+  @apply absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full skew-x-12 transition-transform duration-700;
+}
+
+.btn-genesis:hover::before {
+  @apply translate-x-full;
+}
+
+.scanline {
+  width: 100%;
+  height: 100px;
+  z-index: 10;
+  background: linear-gradient(0deg, rgba(0, 0, 0, 0) 0%, rgba(6, 182, 212, 0.02) 50%, rgba(0, 0, 0, 0) 100%);
+  opacity: 0.05;
+  position: absolute;
+  bottom: 100%;
+}
+
+
+
+/* Anime Script Markdown Overrides */
+.prose table {
+  @apply w-full border-separate border-spacing-0 my-10 shadow-2xl rounded-3xl overflow-hidden border border-zinc-800/40 bg-zinc-950/10 backdrop-blur-md;
+}
+
+.prose th {
+  @apply bg-zinc-900/80 text-zinc-500 font-bold p-5 text-left border-b border-zinc-800/60 text-[9px] uppercase tracking-[0.3em] font-sans;
+}
+
+.prose td {
+  @apply p-6 border-b border-zinc-900/40 text-[13px] text-zinc-400 align-top leading-relaxed font-sans;
+}
+
+.prose tr:hover td {
+  @apply bg-cyan-500/[0.02] text-zinc-300;
+}
+
+.prose td:nth-child(2) {
+  @apply text-zinc-300 font-medium italic translate-x-0;
+}
+
+.prose td:nth-child(3) {
+  @apply text-cyan-50 font-semibold bg-cyan-500/[0.02] border-x border-cyan-500/5;
+}
+
+.prose td:nth-child(1) { @apply w-[12%]; }
+
+.prose strong {
+  @apply text-cyan-400 font-black tracking-widest uppercase text-[0.85em] drop-shadow-[0_0_8px_rgba(6,182,212,0.3)];
+}
+
+.prose h1, .prose h2, .prose h3 {
+  @apply font-black uppercase text-zinc-100 mb-8 mt-16 first:mt-0 tracking-widest text-shadow-sm;
+}
+
+.prose p {
+  @apply text-zinc-400 leading-loose font-sans mb-8;
+}
+
+.prose blockquote {
+  @apply border-l-4 border-cyan-500/30 pl-8 italic text-zinc-300 my-12 bg-cyan-500/[0.02] py-10 pr-10 rounded-r-3xl border-y border-r border-cyan-500/5 shadow-inner;
+}
+
+.prose hr {
+  @apply border-zinc-900/50 my-20;
+}
+
+/* --- WORLD BUILDER STYLES --- */
+.world-container {
+  @apply space-y-8 pb-20 will-change-transform transform-gpu;
+}
+
+.world-header {
+  @apply flex flex-col gap-8 mb-8;
+}
+
+.world-badge {
+  @apply inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-black uppercase tracking-widest w-fit;
+}
+
+.world-badge-text {
+  @apply text-xs font-black uppercase tracking-widest;
+}
+
+.world-header-title {
+  @apply text-3xl lg:text-4xl font-black uppercase tracking-[0.2em] text-white leading-tight;
+}
+
+.world-content-area {
+  @apply relative overflow-hidden;
+}
+
+.world-main-column {
+  @apply space-y-8;
+}
+
+.world-textarea {
+  @apply w-full bg-zinc-950 border border-white/10 rounded-2xl p-8 text-white font-mono text-sm leading-relaxed resize-none overflow-hidden focus:outline-none focus:border-studio/50 focus:ring-2 focus:ring-studio/20 transition-all;
+}
+
+.world-prose {
+  @apply space-y-6;
+}
+
+.world-prose h1 {
+  @apply text-3xl font-black uppercase tracking-[0.3em] text-studio mb-6 mt-10 first:mt-0 text-shadow-studio;
+}
+
+.world-prose h2 {
+  @apply text-2xl font-black uppercase tracking-[0.25em] text-white mb-4 mt-8 first:mt-0 relative pl-4 pb-2 border-b border-studio/20;
+}
+
+.world-prose h2::before {
+  @apply absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-gradient-to-b from-studio to-studio/40 rounded-full;
+}
+
+.world-prose h3 {
+  @apply text-xl font-bold uppercase tracking-[0.2em] text-zinc-100 mb-4 mt-6 first:mt-0 relative pl-4;
+}
+
+.world-prose h3::before {
+  @apply absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 bg-studio/60 rounded-full;
+}
+
+.world-prose h4 {
+  @apply text-lg font-bold uppercase tracking-[0.15em] text-zinc-200 mb-3 mt-4 first:mt-0;
+}
+
+.world-prose p {
+  @apply text-sm leading-relaxed text-zinc-300 mb-4 text-justify;
+}
+
+.world-prose strong {
+  @apply font-black text-studio tracking-wider;
+}
+
+.world-prose em {
+  @apply italic text-studio/80;
+}
+
+.world-prose blockquote {
+  @apply border-l-4 border-studio/40 pl-6 py-4 my-6 bg-studio/5 italic text-zinc-300 rounded-r-xl relative;
+}
+
+.world-prose blockquote p {
+  @apply text-sm leading-relaxed mb-0;
+}
+
+.world-prose ul, .world-prose ol {
+  @apply my-4 ml-6 space-y-2;
+}
+
+.world-prose li {
+  @apply text-sm text-zinc-300 leading-relaxed;
+}
+
+.world-prose ul li::before {
+  @apply content-['▸'] text-studio mr-3 font-black;
+}
+
+.world-prose ol {
+  counter-reset: world-counter;
+}
+
+.world-prose ol li {
+  counter-increment: world-counter;
+}
+
+.world-prose ol li::before {
+  @apply content-[counter(world-counter)] text-studio font-black mr-3 bg-studio/10 px-2 py-0.5 rounded text-xs;
+}
+
+.world-prose code {
+  @apply bg-zinc-900/50 border border-zinc-800 px-3 py-1 rounded-md text-studio font-mono text-xs;
+}
+
+.world-prose pre {
+  @apply bg-zinc-900/30 border border-zinc-800 rounded-xl p-4 overflow-x-auto my-6 shadow-inner;
+}
+
+.world-prose pre code {
+  @apply bg-transparent border-0 p-0 text-zinc-200 text-xs leading-relaxed;
+}
+
+.world-prose a {
+  @apply text-studio hover:text-studio/80 underline underline-offset-2 transition-colors;
+}
+
+.world-prose hr {
+  @apply my-12 border-t border-dashed border-studio/20;
+}
+
+.world-prose table {
+  @apply w-full my-6 border-collapse bg-zinc-950/50 rounded-xl overflow-hidden border border-zinc-800;
+}
+
+.world-prose th {
+  @apply bg-studio/10 border border-studio/20 px-4 py-3 text-studio font-black uppercase text-xs tracking-widest text-left;
+}
+
+.world-prose td {
+  @apply border border-zinc-800 px-4 py-3 text-zinc-300 text-sm;
+}
+
+.world-prose tr:hover {
+  @apply bg-white/[0.02];
+}
+
+.world-hud-marker {
+  @apply absolute text-zinc-600 text-[10px] font-black uppercase tracking-widest;
+}
+
+.world-hud-coords {
+  @apply text-[9px] text-zinc-700 font-black tracking-[0.2em];
+}
+
+.world-hud-v-bar {
+  @apply w-px h-12 bg-gradient-to-b from-studio/40 to-transparent;
+}
+
+.world-bible-blueprint {
+  background-image: 
+    linear-gradient(90deg, rgba(6,182,212,0.03) 1px, transparent 1px),
+    linear-gradient(rgba(6,182,212,0.03) 1px, transparent 1px);
+  background-size: 50px 50px;
+}
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+    --font-heading: "Inter", sans-serif;
+    --font-sans: 'Inter', sans-serif;
+    --color-sidebar-ring: var(--sidebar-ring);
+    --color-sidebar-border: var(--sidebar-border);
+    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+    --color-sidebar-accent: var(--sidebar-accent);
+    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+    --color-sidebar-primary: var(--sidebar-primary);
+    --color-sidebar-foreground: var(--sidebar-foreground);
+    --color-sidebar: var(--sidebar);
+    --color-chart-5: var(--chart-5);
+    --color-chart-4: var(--chart-4);
+    --color-chart-3: var(--chart-3);
+    --color-chart-2: var(--chart-2);
+    --color-chart-1: var(--chart-1);
+    --color-ring: var(--ring);
+    --color-input: var(--input);
+    --color-border: var(--border);
+    --color-destructive: var(--destructive);
+    --color-accent-foreground: var(--accent-foreground);
+    --color-accent: var(--accent);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-muted: var(--muted);
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-secondary: var(--secondary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-primary: var(--primary);
+    --color-popover-foreground: var(--popover-foreground);
+    --color-popover: var(--popover);
+    --color-card-foreground: var(--card-foreground);
+    --color-card: var(--card);
+    --color-foreground: var(--foreground);
+    --color-background: var(--background);
+    --radius-sm: calc(var(--radius) * 0.6);
+    --radius-md: calc(var(--radius) * 0.8);
+    --radius-lg: var(--radius);
+    --radius-xl: calc(var(--radius) * 1.4);
+    --radius-2xl: calc(var(--radius) * 1.8);
+    --radius-3xl: calc(var(--radius) * 2.2);
+    --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+:root {
+    --background: #000000; /* Pure Black */
+    --foreground: oklch(0.92 0.01 0); /* #e4e4e7 approx */
+    --card: oklch(0.12 0 0);
+    --card-foreground: oklch(0.92 0 0);
+    --popover: oklch(0.12 0 0);
+    --popover-foreground: oklch(0.92 0 0);
+    --primary: oklch(0.6 0.25 250);
+    --primary-foreground: oklch(0.05 0 0);
+    --secondary: oklch(0.2 0 0);
+    --secondary-foreground: oklch(0.9 0 0);
+    --muted: oklch(0.15 0 0);
+    --muted-foreground: oklch(0.6 0 0);
+    --accent: oklch(0.6 0.25 250 / 0.1);
+    --accent-foreground: oklch(0.6 0.25 250);
+    --destructive: oklch(0.577 0.245 27.325);
+    --border: oklch(1 0 0 / 10%);
+    --input: oklch(1 0 0 / 15%);
+    --ring: oklch(0.6 0.25 250);
+    --chart-1: oklch(0.6 0.25 250);
+    --chart-2: oklch(0.8 0.15 200);
+    --chart-3: oklch(0.7 0.2 300);
+    --chart-4: oklch(0.5 0.3 220);
+    --chart-5: oklch(0.4 0.2 280);
+    --radius: 0.75rem;
+    --sidebar: oklch(0.08 0 0);
+    --sidebar-foreground: oklch(0.98 0 0);
+    --sidebar-primary: oklch(0.6 0.25 250);
+    --sidebar-primary-foreground: oklch(0.05 0 0);
+    --sidebar-accent: oklch(0.6 0.25 250 / 0.1);
+    --sidebar-accent-foreground: oklch(0.6 0.25 250);
+    --sidebar-border: oklch(1 0 0 / 10%);
+    --sidebar-ring: oklch(0.6 0.25 250);
+
+    /* Studio Specifics */
+    --studio-primary: oklch(0.6 0.25 250);
+    --studio-glow: rgba(6, 182, 212, 0.5);
+}
+
+.theme-manhwa {
+    --studio-primary: oklch(0.75 0.25 150); /* Webtoon Green */
+    --studio-glow: rgba(34, 197, 94, 0.5);
+    --primary: oklch(0.75 0.25 150);
+    --ring: oklch(0.75 0.25 150);
+}
+
+.theme-comic {
+    --studio-primary: oklch(0.6 0.25 25); /* Superhero Red */
+    --studio-glow: rgba(220, 38, 38, 0.5);
+    --primary: oklch(0.6 0.25 25);
+    --ring: oklch(0.6 0.25 25);
+}
+
+.theme-anime {
+    --studio-primary: oklch(0.6 0.25 250);
+    --studio-glow: rgba(6, 182, 212, 0.5);
+    --primary: oklch(0.6 0.25 250);
+    --ring: oklch(0.6 0.25 250);
+}
+
+.dark {
+    --background: #000000;
+    --foreground: oklch(0.985 0 0);
+    --card: oklch(0.08 0 0);
+    --card-foreground: oklch(0.985 0 0);
+    --popover: oklch(0.08 0 0);
+    --popover-foreground: oklch(0.985 0 0);
+    --primary: oklch(0.6 0.25 250);
+    --primary-foreground: oklch(0.05 0 0);
+    --secondary: oklch(0.15 0 0);
+    --secondary-foreground: oklch(0.985 0 0);
+    --muted: oklch(0.15 0 0);
+    --muted-foreground: oklch(0.6 0 0);
+    --accent: oklch(0.15 0 0);
+    --accent-foreground: oklch(0.985 0 0);
+    --destructive: oklch(0.704 0.191 22.216);
+    --border: oklch(1 0 0 / 10%);
+    --input: oklch(1 0 0 / 15%);
+    --ring: oklch(0.6 0.25 250);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+    }
+  body {
+    @apply bg-background text-foreground;
+    }
+}
+
+/* Global Animation & Transition Removal */
+*, *::before, *::after {
+  animation: none !important;
+  transition: none !important;
+  animation-duration: 0s !important;
+  transition-duration: 0s !important;
+}
+
+/* Disable common hover/active transforms from Tailwind */
+.hover\:scale-110,
+.hover\:scale-105,
+.hover\:scale-102,
+.hover\:-rotate-6,
+.hover\:rotate-6,
+.hover\:translate-x-1,
+.hover\:-translate-y-1,
+.active\:scale-95,
+.active\:scale-90,
+.group-hover\:scale-110,
+.group-hover\:-rotate-6,
+.group-hover\:rotate-6,
+.group-hover\:translate-x-1,
+.group-hover\:-translate-y-1 {
+  transform: none !important;
+}
+
+/* Override all common animation classes */
+[class*="animate-"] {
+  animation: none !important;
+  animation-duration: 0s !important;
+}
+
+/* Disable will-change to save memory since nothing is animating */
+* {
+  will-change: auto !important;
+}
+

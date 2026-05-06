@@ -22,7 +22,7 @@ from typing import List, Optional, Dict
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, status, Response, Request, WebSocket, WebSocketDisconnect, Depends
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, HTMLResponse
 from fastapi.exceptions import RequestValidationError as FastAPIRequestValidationError
 from sqlmodel import SQLModel, Session, select
 from sqlalchemy.exc import SQLAlchemyError
@@ -32,6 +32,7 @@ from slowapi.errors import RateLimitExceeded
 from slowapi.util import get_remote_address
 from fastapi.openapi.docs import get_swagger_ui_html, get_redoc_html
 from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
 
 
 _logging_configured = False
@@ -177,6 +178,9 @@ All endpoints are strictly monitored by the **Studio Monitor** diagnostic layer.
 static_dir = os.path.join(os.path.dirname(__file__), "static")
 app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
+# Setup templates
+templates = Jinja2Templates(directory=os.path.join(BACKEND_ROOT, "templates"))
+
 # --- CORS Middleware ---
 app.add_middleware(
     CORSMiddleware,
@@ -315,9 +319,9 @@ from api.episodes import router as episodes_router
 from api.cast import router as cast_router
 
 # Core system routes
-@app.get("/", tags=["system"])
-async def root():
-    return {"message": "Welcome to Anime Script Pro API. Visit /docs for documentation.", "status": "online"}
+@app.get("/", tags=["system"], include_in_schema=False)
+async def root(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request})
 
 @app.get("/test-reload")
 async def test_reload():
