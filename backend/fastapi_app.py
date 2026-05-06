@@ -41,7 +41,7 @@ def configure_logging() -> None:
     global _logging_configured
     if _logging_configured:
         return
-        
+
     logger.remove()
     logger.add(
         sys.stderr,
@@ -169,7 +169,7 @@ All endpoints are strictly monitored by the **Studio Monitor** diagnostic layer.
     """,
     version="2.5.0-GODMODE",
     openapi_tags=tags_metadata,
-    docs_url=None,   
+    docs_url=None,
     redoc_url=None,
     openapi_url="/openapi.json"
 )
@@ -257,22 +257,22 @@ from backend.utils.neural_utils import NeuralTracer
 async def log_requests(request: Request, call_next):
     import time
     start_time = time.perf_counter()
-    
+
     signal_id = NeuralTracer.generate_signal_id()
     method = request.method
     path = request.url.path
     query = request.url.query
     client_ip = request.client.host if request.client else "unknown"
-    
+
     # 1. LOG THE INCOMING REQUEST (The "Trigger")
     print(f"DEBUG: INCOMING {method} {path}")
     logger.info(f"📥 INCOMING [{signal_id}]: {method} {path}{'?' + query if query else ''} from {client_ip}")
-    
+
     try:
         # 2. THE LOGIC (The "Processing")
         response = await call_next(request)
         process_time = (time.perf_counter() - start_time) * 1000
-        
+
         # Determine status color
         if response.status_code < 400:
             status_tag = f"<green>{response.status_code}</green>"
@@ -283,10 +283,10 @@ async def log_requests(request: Request, call_next):
 
         # 3. LOG THE OUTGOING RESPONSE (The "Response")
         logger.info(f"📤 OUTGOING [{signal_id}]: {method} {path} | Status: {status_tag} | Latency: {process_time:.2f}ms")
-        
+
         # Add Signal ID to headers for frontend tracing
         response.headers["X-Signal-ID"] = signal_id
-        
+
         return response
     except Exception as e:
         logger.error(f"❌ CRITICAL [{signal_id}]: Cycle broken during {method} {path}")
@@ -304,7 +304,17 @@ from api.auth import router as auth_router
 from api.logs import router as logs_router
 from api.stats import router as stats_router
 from api.admin import router as admin_router
-from api.world import router as world_router
+
+# World Modules integrated into services
+from backend.services.api.world.manifest import router as manifest_router
+from backend.services.api.world.history import router as history_router
+from backend.services.api.world.factions import router as factions_router
+from backend.services.api.world.powers import router as powers_router
+from backend.services.api.world.architecture import router as architecture_router
+from backend.services.api.world.atlas import router as atlas_router
+from backend.services.api.world.culture import router as culture_router
+from backend.services.api.world.systems import router as systems_router
+
 from api.ai import router as ai_router
 from api.tutorials import router as tutorials_router
 from api.library import router as library_router
@@ -353,7 +363,15 @@ app.post("/api/generate", tags=["AI Engine"], response_model=GenerationResponse)
 app.include_router(ai_router, tags=["Neural Engine"])
 app.include_router(engine_router, tags=["Neural Engine"])
 app.include_router(scripts_router, tags=["Neural Engine"])
-app.include_router(world_router, tags=["Neural Engine"])
+
+app.include_router(manifest_router, tags=["Neural Engine"])
+app.include_router(history_router, tags=["Neural Engine"])
+app.include_router(factions_router, tags=["Neural Engine"])
+app.include_router(powers_router, tags=["Neural Engine"])
+app.include_router(architecture_router, tags=["Neural Engine"])
+app.include_router(atlas_router, tags=["Neural Engine"])
+app.include_router(culture_router, tags=["Neural Engine"])
+app.include_router(systems_router, tags=["Neural Engine"])
 
 app.include_router(projects_router, tags=["Production"])
 app.include_router(production_router, tags=["Production"])
@@ -439,7 +457,7 @@ async def on_startup():
     async with async_engine.begin() as conn:
         await conn.run_sync(SQLModel.metadata.create_all)
     logger.success("DATABASE: Metadata synced successfully.")
-    
+
     # 2. Auto-seed if empty
     from sqlalchemy import func
     async with AsyncSession(async_engine) as session:
