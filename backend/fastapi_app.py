@@ -294,16 +294,16 @@ async def log_requests(request: Request, call_next):
         raise
 
 # --- Routers ---
-from api.templates import router as templates_router
-from api.projects import router as projects_router
-from api.scripts import router as scripts_router
-from api.users import router as users_router
-from api.media import router as media_router
-from api.notifications import router as notifications_router
-from api.auth import router as auth_router
-from api.logs import router as logs_router
-from api.stats import router as stats_router
-from api.admin import router as admin_router
+from backend.api.templates import router as templates_router
+from backend.api.projects import router as projects_router
+from backend.api.scripts import router as scripts_router
+from backend.api.users import router as users_router
+from backend.api.media import router as media_router
+from backend.api.notifications import router as notifications_router
+from backend.api.auth import router as auth_router
+from backend.api.logs import router as logs_router
+from backend.api.stats import router as stats_router
+from backend.api.admin import router as admin_router
 
 # World Modules integrated into services
 from backend.services.api.world.manifest import router as manifest_router
@@ -315,18 +315,18 @@ from backend.services.api.world.atlas import router as atlas_router
 from backend.services.api.world.culture import router as culture_router
 from backend.services.api.world.systems import router as systems_router
 
-from api.ai import router as ai_router
-from api.tutorials import router as tutorials_router
-from api.library import router as library_router
-from api.seo import router as seo_router
-from api.community import router as community_router
-from api.help import router as help_router
-from api.engine import router as engine_router
-from api.production import router as production_router
-from api.todos import router as todos_router
-from api.growth import router as growth_router
-from api.episodes import router as episodes_router
-from api.cast import router as cast_router
+from backend.api.ai import router as ai_router
+from backend.api.tutorials import router as tutorials_router
+from backend.api.library import router as library_router
+from backend.api.seo import router as seo_router
+from backend.api.community import router as community_router
+from backend.api.help import router as help_router
+from backend.api.engine import router as engine_router
+from backend.api.production import router as production_router
+from backend.api.todos import router as todos_router
+from backend.api.growth import router as growth_router
+from backend.api.episodes import router as episodes_router
+from backend.api.cast import router as cast_router
 
 # Core system routes
 @app.get("/", tags=["system"], include_in_schema=False)
@@ -356,7 +356,7 @@ async def favicon():
 
 
 # --- Compatibility Aliases ---
-from api.ai import generate_content
+from backend.api.ai import generate_content
 app.post("/api/generate", tags=["AI Engine"], response_model=GenerationResponse)(generate_content)
 
 # Include routers with specialized tags
