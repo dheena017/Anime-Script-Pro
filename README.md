@@ -11,6 +11,25 @@ Welcome to the most advanced AI-driven anime production suite. **Anime Script Pr
 ### 🏛️ Engineering Manifest
 For deep-dive technical documentation on our multimodal synthesis engine and cinematic design system, refer to the [Studio Architect Guide](./STUDIO_ARCHITECT_GUIDE.md) and our [API Documentation](./API_DOCUMENTATION.md).
 
+
+---
+
+## 🎨 Studio Core Modules
+
+Anime Script Pro is divided into 11 specialized production modules, each managed by a dedicated AI protocol.
+
+*   **🌍 World Builder**: 10-tab foundation for architecting Lore, Powers, Factions, Architecture, Atlas, Culture, and Systems.
+*   **👥 Cast System**: Comprehensive Character Registry with DNA profiles, relationship matrices, and dynamic growth tracking.
+*   **🎬 Series Manager**: Production-level planning for episode arcs, timelines, and season roadmaps.
+*   **✍️ Script Editor**: 11-column high-fidelity screenplay format with integrated dialogue and metadata synthesis.
+*   **🖼️ Storyboard**: Visual composition engine for camera angles, scene framing, and animatic sequences.
+*   **📈 SEO Manager**: Built-in optimization for YouTube, Netflix, and streaming platform metadata.
+*   **⌨️ Prompts Manager**: Advanced prompt engineering for Image, Motion, Style, and Negative constraints.
+*   **📽️ Screening Room**: 9-phase automated render and QA workflow for final production review.
+*   **🧠 Engine**: Central command for AI model configuration and generation orchestration.
+*   **📦 Assets Manager**: Centralized library for Audio, Moodboards, Images, and Video assets.
+*   **🛡️ Protocols**: 8 Specialized AI Agents (Lore Oracle, Soul Forge, Script Architect, etc.).
+
 ---
 
 ## 🚀 Multimodal Synthesis Engine
@@ -167,6 +186,31 @@ python -m venv .\backend\venv
 # Install dependencies
 pip install -r .\backend\requirements.txt
 
-# Run FastAPI
-python -m uvicorn backend.fastapi_app:app --reload --port 8080
+
+## 🏛️ Neural Blueprint Gallery
+
+The following blueprints document the high-fidelity architecture and production logic of the Anime Script Pro ecosystem.
+
+### 📡 System & Flow
+![Architecture Diagram](anime_script_pro_architecture_1778054153988.png)
+![System Flowchart](anime_script_pro_flowchart_cinematic_1778054550386.png)
+![Production Pipeline](anime_script_pro_production_pipeline_ultra_detailed_1778055343002.png)
+
+### 🏗️ Studio Infrastructure
+![Master Infographic](anime_script_pro_master_infographic_1778055093056.png)
+![Full UI Sitemap](anime_script_pro_full_sitemap_ui_map_1778055257341.png)
+![Anime Studio Deep Dive](anime_studio_deep_dive_sitemap_1778055541066.png)
+
+### 🧠 Module Blueprints
+![World Architect Deep Dive](world_architect_deep_dive_blueprint_1778055694454.png)
+![Cast Forge Deep Dive](cast_dna_deep_dive_blueprint_1778055859963.png)
+![Series Blueprint Deep Dive](series_blueprint_deep_dive_1778055886671.png)
+![Script Architect Deep Dive](script_architect_deep_dive_blueprint_1778055910858.png)
+![Storyboard Visualizer Deep Dive](storyboard_visual_deep_dive_blueprint_1778055942261.png)
+![SEO Master Deep Dive](seo_master_deep_dive_blueprint_1778055965823.png)
+
+
+### ⚙️ Backend Core
+![Neural Engine Deep Dive](neural_engine_deep_dive_blueprint_final_1778055992557.png)
+![Backend Infrastructure Flow](backend_neural_infrastructure_flow_1778056103418.png)
 

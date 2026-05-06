@@ -1,0 +1,103 @@
+flowchart TD
+  A[Anime Script Pro] --> B[World Builder]
+  B --> C[Cast System]
+  C --> D[Series Manager]
+  D --> E[Script Editor]
+  E --> F[Storyboard]
+  F --> G[SEO Manager]
+  G --> H[Screening Room]
+  H --> I[Assets Manager]
+
+  subgraph WORLD[1. World Builder]
+    B1[Manifest]
+    B2[History]
+    B3[Factions]
+    B4[Powers]
+    B5[Architecture]
+    B6[Atlas]
+    B7[Culture]
+    B8[Systems]
+    B1 --> B2 --> B3 --> B4 --> B5 --> B6 --> B7 --> B8
+  end
+
+  subgraph CAST[2. Cast System]
+    C1[Registry]
+    C2[Manifest]
+    C3[Matrix]
+    C4[Trait Analysis]
+    C5[Dynamics]
+    C6[Integrity]
+    C7[Add Lead]
+    C1 --> C2 --> C3 --> C4 --> C5 --> C6 --> C7
+  end
+
+  subgraph SERIES[3. Series Manager]
+    D1[Roadmap]
+    D2[Episodes]
+    D3[Blueprint]
+    D4[Arcs]
+    D5[Assets]
+    D6[Timeline]
+    D1 --> D2 --> D3 --> D4 --> D5 --> D6
+  end
+
+  subgraph SCRIPT[4. Script Editor]
+    E1[Teleprompter]
+    E2[Linguistics]
+    E3[Beat Sheet]
+    E4[Dialogue]
+    E5[Metadata]
+    E1 --> E2 --> E3 --> E4 --> E5
+  end
+
+  subgraph STORYBOARD[5. Storyboard]
+    F1[Frame Matrix]
+    F2[Shot Angles]
+    F3[Composition]
+    F4[Animatic]
+    F5[Audio Sync]
+    F1 --> F2 --> F3 --> F4 --> F5
+  end
+
+  subgraph SEO[6. SEO Manager]
+    G1[Keywords]
+    G2[Description]
+    G3[Alt Texts]
+    G4[Meta Tags]
+    G5[Distribution]
+    G6[Growth Strategy]
+    G1 --> G2 --> G3 --> G4 --> G5 --> G6
+  end
+
+  subgraph SCREENING[7. Screening Room]
+    H1[Cinema Mode]
+    H2[Sequences]
+    H3[Dailies]
+    H4[Archives]
+    H5[Exports]
+    H1 --> H2 --> H3 --> H4 --> H5
+  end
+
+  subgraph ASSETS[8. Assets Manager]
+    I1[Metadata & Description]
+    I2[Visual DNA]
+    I1 --> I2
+  end
+
+  B8 --> C1
+  C7 --> D1
+  D6 --> E1
+  E5 --> F1
+  F5 --> G1
+  G6 --> H1
+  H5 --> I1
+
+  click A "src/App.tsx" "Frontend entry"
+  click B "src/pages/studio/AnimeStudio/World/WorldPage.tsx" "World Builder"
+  click C "src/pages/studio/AnimeStudio/Cast" "Cast System"
+  click D "src/pages/studio/AnimeStudio/Series" "Series Manager"
+  click E "src/pages/studio/AnimeStudio/Script" "Script Editor"
+  click F "src/pages/studio/AnimeStudio/Storyboard" "Storyboard"
+  click G "src/pages/studio/AnimeStudio/SEO" "SEO Manager"
+  click H "src/pages/studio/AnimeStudio/Screening" "Screening Room"
+  click I "src/pages/studio/AnimeStudio/Assets" "Assets Manager"
