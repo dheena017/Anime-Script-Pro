@@ -252,7 +252,7 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     if (fullBlob) {
       setGeneratedWorldContent({
         user_id: user?.id || '',
-        full_lore_blob: fullBlob,
+        manifest_blob: fullBlob,
         history_blob: generatedWorldLore,
         powers_blob: generatedWorldPowers,
         factions_blob: generatedWorldFactions,
@@ -317,10 +317,6 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
   const showNotification = useCallback((message: string, type?: 'error' | 'success' | 'info') => {
     rawShowNotification(message, type);
   }, [rawShowNotification]);
-
-  // World Modular Lore State REMOVED (Migrated to WorldContext)
-
-  // Engine Configuration State REMOVED (Migrated to EngineContext)
 
   // TanStack Queries for Caching
   useQuery({
@@ -429,7 +425,7 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     const canSync = !hasLoadedWorld.current || (!generatedWorld && !isGeneratingAnyWorld);
 
     if (worldLore && canSync) {
-      setGeneratedWorldInternal(worldLore.full_lore_blob);
+      setGeneratedWorldInternal(worldLore.manifest_blob || null);
       setGeneratedWorldLore(worldLore.history_blob || null);
       setGeneratedWorldPowers(worldLore.powers_blob || null);
       setGeneratedWorldFactions(worldLore.factions_blob || null);
@@ -438,7 +434,7 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
       setGeneratedWorldCulture(worldLore.culture_blob || null);
       setGeneratedWorldSystems(worldLore.systems_blob || null);
       
-      setPromptLore(worldLore.prompt_lore || '');
+      setPromptLore(worldLore.prompt_history || '');
       setPromptPowers(worldLore.prompt_powers || '');
       setPromptFactions(worldLore.prompt_factions || '');
       setPromptArchitecture(worldLore.prompt_architecture || '');
@@ -468,8 +464,6 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     }
   }, [castDataFromApi, castList.length, isGeneratingCharacters]);
 
-  // Removed specialized modular auto-saves (Handled by smaller contexts)
-
   // Auto-save Production Content (Remaining global fields)
   useEffect(() => {
     if (!user?.id || !production) return;
@@ -487,7 +481,7 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
         if (generatedWorldContent) {
           await worldApi.updateLore(user.id, {
             ...generatedWorldContent,
-            full_lore_blob: generatedWorld,
+            manifest_blob: generatedWorld,
             history_blob: generatedWorldLore,
             powers_blob: generatedWorldPowers,
             factions_blob: generatedWorldFactions,
@@ -495,7 +489,7 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
             atlas_blob: generatedWorldAtlas,
             culture_blob: generatedWorldCulture,
             systems_blob: generatedWorldSystems,
-            prompt_lore: promptLore,
+            prompt_history: promptLore,
             prompt_powers: promptPowers,
             prompt_factions: promptFactions,
             prompt_architecture: promptArchitecture,
@@ -505,7 +499,7 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
           });
         } else if (generatedWorld) {
           await worldApi.updateLore(user.id, { 
-            full_lore_blob: generatedWorld,
+            manifest_blob: generatedWorld,
             history_blob: generatedWorldLore,
             powers_blob: generatedWorldPowers,
             factions_blob: generatedWorldFactions,
@@ -513,7 +507,7 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
             atlas_blob: generatedWorldAtlas,
             culture_blob: generatedWorldCulture,
             systems_blob: generatedWorldSystems,
-            prompt_lore: promptLore,
+            prompt_history: promptLore,
             prompt_powers: promptPowers,
             prompt_factions: promptFactions,
             prompt_architecture: promptArchitecture,
@@ -566,7 +560,7 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
         addLog("WORLD", "SAVING", "Saving world data...");
         await worldApi.updateLore(user.id, {
           ...(generatedWorldContent || {}),
-          full_lore_blob: generatedWorld,
+          manifest_blob: generatedWorld,
           history_blob: generatedWorldLore,
           powers_blob: generatedWorldPowers,
           factions_blob: generatedWorldFactions,
@@ -574,7 +568,7 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
           atlas_blob: generatedWorldAtlas,
           culture_blob: generatedWorldCulture,
           systems_blob: generatedWorldSystems,
-          prompt_lore: promptLore,
+          prompt_history: promptLore,
           prompt_powers: promptPowers,
           prompt_factions: promptFactions,
           prompt_architecture: promptArchitecture,
