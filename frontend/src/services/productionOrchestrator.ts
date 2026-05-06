@@ -275,22 +275,25 @@ export class ProductionOrchestrator {
     // This simulates the "bulkCreate" requested
     const dbEpisodes = await apiRequest<any[]>(`/api/episodes?project_id=${this.project.id}`);
 
+    const allScenes: any[] = [];
     for (const ep of dbEpisodes) {
       const epSequences = sequences.filter(s => s.sess === Math.ceil(ep.episode_number / 12) && s.ep === ((ep.episode_number - 1) % 12) + 1);
 
-      await apiRequest("/api/scenes", {
-        method: "POST",
-        body: JSON.stringify({
-          project_id: this.project.id,
-          episode_id: ep.id,
-          scenes: epSequences.map((_, idx) => ({
-            scene_number: (ep.episode_number - 1) * 16 + (idx + 1),
-            status: "QUEUED",
-            visual_variance_index: Math.floor(idx / 4)
-          }))
-        })
-      });
+      allScenes.push(...epSequences.map((_, idx) => ({
+        episode_id: ep.id,
+        scene_number: (ep.episode_number - 1) * 16 + (idx + 1),
+        status: "QUEUED",
+        visual_variance_index: Math.floor(idx / 4)
+      })));
     }
+
+    await apiRequest("/api/scenes", {
+      method: "POST",
+      body: JSON.stringify({
+        project_id: this.project.id,
+        scenes: allScenes
+      })
+    });
 
     console.info("%c[Orchestrator] %cSuccessfully scaffolded 960 scene records with visual variance markers.", 'color: #10b981; font-weight: bold;', 'color: #94a3b8;');
 
@@ -302,7 +305,7 @@ export class ProductionOrchestrator {
       You are an expert Story Architect for ${this.context.contentType}.
       Based on the provided World Lore and Prompt, create a 5-Session production arc.
       Each Session should represent a major narrative milestone.
-      
+
       Return ONLY a JSON array with exactly 5 objects:
       [
         { "session_number": 1, "title": "Session Title", "summary": "Detailed summary of the session goals" },
@@ -451,6 +454,3 @@ export class ProductionOrchestrator {
     };
   }
 }
-
-
-
