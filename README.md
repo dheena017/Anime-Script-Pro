@@ -170,6 +170,143 @@ npm run test
 | `python -m uvicorn backend.fastapi_app:app --reload --port 8080` | Start FastAPI with auto-reload on code changes. |
 | `docker compose up -d` | Launch the entire 3-tier studio architecture. |
 
+## Command Center
+
+The Command Center is the single place to run and orchestrate common studio tasks locally or in CI. Use these commands from the repository root (or in the `backend` venv when noted).
+
+- Start development (frontend + local AI proxy):
+
+```bash
+npm run dev
+```
+
+- Start only the FastAPI backend (recommended inside `backend/venv`):
+
+```powershell
+# from repo root
+python -m venv .\backend\venv
+.\backend\venv\Scripts\Activate.ps1
+pip install -r backend/requirements.txt
+python -m uvicorn backend.fastapi_app:app --reload --port 8080
+```
+
+- Build production frontend:
+
+```bash
+npm run build
+```
+
+- Run the full automated test suite (unit, integration, e2e):
+
+```bash
+npm run test
+npx playwright test
+```
+
+- Docker (orchestration and health checks):
+
+```bash
+docker compose up -d
+docker compose ps
+docker compose logs -f
+```
+
+- Export / packaging notes: use `npm run build` then backend export endpoints to generate project bundles (see API docs in `docs/API_DOCUMENTATION.md`).
+
+If you want, I can expand this section with exact API endpoints for exports, sample payloads, or shortcut scripts for CI/CD.
+
+## API Quick Reference
+
+Authentication: all API calls require an authenticated user. Include an `Authorization: Bearer <token>` header.
+
+- POST `/api/generate` — Unified AI generation
+
+Example request body:
+
+```json
+{
+  "model": "gemini-2.5-flash",
+  "prompt": "Write a 3-beat outline for a pilot episode about a sky pirate in a neon city.",
+  "systemInstruction": "Produce concise cinematic beats suitable for anime scripting."
+}
+```
+
+Example curl:
+
+```bash
+curl -X POST "http://127.0.0.1:8080/api/generate" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"model":"gemini-2.5-flash","prompt":"..."}'
+```
+
+- POST `/api/generate/god-mode/{project_id}` — Master generation loop for a project (World + Cast + Beats). No body required; use project_id path param.
+
+Example curl:
+
+```bash
+curl -X POST "http://127.0.0.1:8080/api/generate/god-mode/123" \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+- POST `/api/episodes/render` — Create a ZIP export immediately from an `episode_package` payload.
+
+Query: `generate_assets` (bool) — if true, placeholder images/videos are generated.
+
+Example request body (minimal):
+
+```json
+{
+  "episode_package": {
+    "project_id": 42,
+    "episode_number": 1,
+    "title": "Pilot",
+    "scenes": [
+      { "scene_number": 1, "narration": "A city at dusk...", "videoPrompts": "..." }
+    ]
+  }
+}
+```
+
+Example curl:
+
+```bash
+curl -X POST "http://127.0.0.1:8080/api/episodes/render?generate_assets=true" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '@episode_package.json'
+```
+
+Response (success):
+
+```json
+{ "status": "ok", "downloadUrl": "/static/exports/episode_export_... .zip", "filename": "episode_export_... .zip" }
+```
+
+- POST `/api/episodes/render/jobs` — Queue a render job (useful for larger exports). Returns a `jobId`.
+
+Example body:
+
+```json
+{ "episode_package": { /* same shape as above */ }, "generate_assets": true }
+```
+
+Example curl:
+
+```bash
+curl -X POST "http://127.0.0.1:8080/api/episodes/render/jobs" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"episode_package": {...}, "generate_assets": true}'
+```
+
+Check job status:
+
+- GET `/api/episodes/render/jobs/{job_id}` — returns status, download URL when complete.
+- DELETE `/api/episodes/render/jobs/{job_id}` — cancel or remove a job and its artifacts.
+
+---
+
 ### 🛡️ Sovereign Audit (Testing)
 | Command | Result |
 | :--- | :--- |
