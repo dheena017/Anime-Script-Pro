@@ -19,7 +19,8 @@ export default function ScreeningLayout() {
 
   const {
     session, episode, isSaving, generatedScript,
-    syncCore, contentType
+    syncCore, contentType,
+    generationProgress
   } = useGenerator();
 
   useAuth();
@@ -85,7 +86,7 @@ export default function ScreeningLayout() {
         )}
 
         {handlers.isRendering ? (
-          <ScreeningLoadingPage tab={activeTab} />
+          <ScreeningLoadingPage tab={activeTab} progress={generationProgress} />
         ) : (
           <motion.div
             initial={{ opacity: 0, y: 10 }}

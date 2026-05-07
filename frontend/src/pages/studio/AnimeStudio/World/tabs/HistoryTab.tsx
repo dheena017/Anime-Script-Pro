@@ -51,81 +51,13 @@ export const HistoryTab: React.FC<HistoryTabProps> = ({
   }, [sectionContent]);
   return (
     <div className="world-container">
-      <div className="world-header">
-        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8">
-          <div className="space-y-3">
-            <div className="world-badge bg-fuchsia-500/10 border-fuchsia-500/20">
-              <History className="w-3 h-3 text-fuchsia-500" />
-              <span className="world-badge-text text-fuchsia-500">Temporal Archivist</span>
-            </div>
-            <h1 className="world-header-title">
-              CHRONICLED <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-400 via-purple-500 to-fuchsia-400">ERAS</span>
-            </h1>
-          </div>
 
-          <div className="flex items-center gap-3">
-            {onGenerate && (
-              <button 
-                onClick={() => {
-                  reportGeneration('HistoryTab', 'Specialized Lore synthesis', 'request', 'anime');
-                  onGenerate();
-                }}
-                disabled={isGenerating}
-                className={s.actionButton}
-              >
-                {isGenerating ? (
-                  <div className="w-3.5 h-3.5 border-2 border-black/20 border-t-black rounded-full animate-spin" />
-                ) : (
-                  <Sparkles className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
-                )}
-                <span className="text-[10px] font-black uppercase tracking-widest">Synthesize</span>
-              </button>
-            )}
-
-            <button 
-              onClick={() => {
-                studioLog('HistoryTab', 'Copying Lore Timeline to clipboard...', 'info');
-                navigator.clipboard.writeText(content);
-                studioLog('HistoryTab', 'Lore Timeline copied successfully.', 'success');
-                alert('Lore Timeline copied!');
-              }}
-              className={s.actionButtonGhost}
-            >
-              <ClipboardList className="w-3.5 h-3.5 text-zinc-400 group-hover:text-white transition-colors" />
-              <span className="text-[10px] font-black text-zinc-400 group-hover:text-white uppercase tracking-widest">Copy</span>
-            </button>
-            
-            <button 
-              onClick={() => {
-                studioLog('HistoryTab', 'Downloading Lore Timeline...', 'info');
-                const element = document.createElement("a");
-                const file = new Blob([content], { type: 'text/markdown' });
-                element.href = URL.createObjectURL(file);
-                element.download = "Lore_Timeline.md";
-                document.body.appendChild(element);
-                element.click();
-                studioLog('HistoryTab', 'Lore Timeline download initiated.', 'success');
-              }}
-              className="flex items-center gap-2 px-5 py-2.5 bg-fuchsia-500/10 hover:bg-fuchsia-500/20 border border-fuchsia-500/20 rounded-full transition-all group"
-            >
-              <Download className="w-3.5 h-3.5 text-fuchsia-500 group-hover:scale-110 transition-transform" />
-              <span className="text-[10px] font-black text-fuchsia-500 uppercase tracking-widest">Download</span>
-            </button>
-          </div>
-        </div>
-      </div>
 
       {isEditing ? (
-        <textarea
-          ref={mainTextareaRef}
-          className="world-textarea overflow-hidden"
-          value={content || ''}
-          onChange={(e) => {
-            onContentChange(e.target.value);
-            scheduleMainResize();
-          }}
-          onInput={scheduleMainResize}
+        <StudioEditor
+          content={content}
+          onContentChange={onContentChange}
+          isEditing={isEditing}
           placeholder="Archive your world history here..."
         />
       ) : (

@@ -48,17 +48,16 @@ export const EngineToolbar: React.FC<EngineToolbarProps> = ({
   return (
     <div className="flex flex-col gap-4 w-full">
       {!showTabsOnly && (
-        <div className="flex items-center justify-between px-4 py-2 bg-black/40 border border-white/5 rounded-2xl backdrop-blur-md">
-          <div className="flex items-center gap-4">
-            <div className="flex flex-col">
-              <span className="text-[9px] font-black uppercase tracking-widest text-zinc-500 italic">
-                Engine Nexus <span className={cn(status === 'active' ? "text-studio" : "text-zinc-700")}>{status === 'active' ? 'Active' : 'Standby'}</span>
+        <div className="flex items-center justify-between px-4 py-2.5 bg-black/60 border border-white/5 rounded-2xl backdrop-blur-md shadow-inner">
+          <div className="flex items-center gap-3">
+            <div className="flex flex-col gap-0.5">
+              <span className={cn(
+                "text-[9px] font-black uppercase tracking-widest bg-gradient-to-r bg-clip-text text-transparent",
+                status === 'active' ? "from-studio/80 to-cyan-400/60" : "from-zinc-500 to-zinc-600"
+              )}>
+                Engine Nexus{' '}
+                <span className={cn(status === 'active' ? 'text-studio' : 'text-zinc-700')}>{status === 'active' ? 'Active' : 'Standby'}</span>
               </span>
-            </div>
-            <div className="w-px h-3 bg-white/5" />
-            <div className="flex items-center gap-2">
-              <span className="text-[7px] font-black text-zinc-600 uppercase tracking-widest">Unit:</span>
-              <span className="text-[9px] font-black text-white font-mono tracking-widest">S{session}-E{episode}</span>
             </div>
           </div>
 
@@ -67,18 +66,20 @@ export const EngineToolbar: React.FC<EngineToolbarProps> = ({
               onClick={handleCopy}
               size="icon"
               variant="ghost"
-              className="h-8 w-8 rounded-lg text-zinc-600 hover:text-studio transition-all"
+              className="h-8 w-8 rounded-lg text-zinc-400 hover:text-studio border border-transparent hover:border-studio/40 hover:bg-gradient-to-br hover:from-studio/20 hover:to-studio/5 transition-all duration-300 group relative overflow-hidden"
               disabled={!content}
             >
-              <Copy className="w-3.5 h-3.5" />
+              <div className="absolute inset-0 bg-studio/0 group-hover:bg-studio/5 transition-colors duration-300" />
+              <Copy className="w-3.5 h-3.5 relative z-10 group-hover:scale-110 transition-transform duration-300" />
             </Button>
             <Button
               onClick={toggleFullscreen}
               size="icon"
               variant="ghost"
-              className="h-8 w-8 rounded-lg text-zinc-600 hover:text-studio transition-all"
+              className="h-8 w-8 rounded-lg text-zinc-400 hover:text-studio border border-transparent hover:border-studio/40 hover:bg-gradient-to-br hover:from-studio/20 hover:to-studio/5 transition-all duration-300 group relative overflow-hidden"
             >
-              {isFullscreen ? <Minimize className="w-3.5 h-3.5" /> : <Maximize className="w-3.5 h-3.5" />}
+              <div className="absolute inset-0 bg-studio/0 group-hover:bg-studio/5 transition-colors duration-300" />
+              {isFullscreen ? <Minimize className="w-3.5 h-3.5 relative z-10 group-hover:scale-110 transition-transform duration-300" /> : <Maximize className="w-3.5 h-3.5 relative z-10 group-hover:scale-110 transition-transform duration-300" />}
             </Button>
           </div>
         </div>

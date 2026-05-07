@@ -24,6 +24,7 @@ export default function SeriesLayout() {
     showNotification,
     isSaving,
     syncCore,
+    generationProgress,
     isGeneratingSeries,
     setIsGeneratingSeries,
     generatedSeriesPlan,
@@ -184,8 +185,6 @@ export default function SeriesLayout() {
             status={generatedSeriesPlan ? 'active' : 'empty'}
             session={session}
             episode={episode}
-            onToggleScaffolder={() => setShowScaffolder(!showScaffolder)}
-            showScaffolder={showScaffolder}
             onManifestClick={() => handleTabChange('roadmap')}
             onExportClick={() => {
               if (!generatedSeriesPlan) return;
@@ -203,7 +202,7 @@ export default function SeriesLayout() {
       )}
 
       {isGeneratingSeries ? (
-        <SeriesLoadingPage tab={activeTab} />
+        <SeriesLoadingPage tab={activeTab} progress={generationProgress} />
       ) : (
         <Outlet context={{ showScaffolder, setShowScaffolder, activeTab }} />
       )}

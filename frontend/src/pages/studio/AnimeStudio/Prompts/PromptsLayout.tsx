@@ -27,7 +27,8 @@ export default function PromptsLayout() {
     showNotification,
     isSaving, setIsSaving,
     castProfiles, castData, generatedSeriesPlan, generatedMetadata,
-    contentType
+    contentType,
+    generationProgress
   } = useGenerator();
 
   const { user } = useAuth();
@@ -140,7 +141,7 @@ export default function PromptsLayout() {
         )}
 
         {(handlers.isGenerating || isLoading) ? (
-          <PromptsLoadingPage tab={activeTab} />
+          <PromptsLoadingPage tab={activeTab} progress={generationProgress} />
         ) : (
           <motion.div
             initial={{ opacity: 0, y: 10 }}

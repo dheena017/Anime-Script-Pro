@@ -11,6 +11,7 @@ import { AtlasTab } from './tabs/AtlasTab';
 import { CultureTab } from './tabs/CultureTab';
 import { SystemsTab } from './tabs/SystemsTab';
 import { WorldEmptyState } from './components/WorldEmptyState';
+import { SpecializedTabEmptyState } from './components/SpecializedTabEmptyState';
 import { WorldTab } from './tabs/WorldTabs';
 import { Button } from '@/components/ui/button';
 import { Zap, History, Users, Sparkles, Building2, Map, Globe, Cpu } from 'lucide-react';
@@ -160,16 +161,6 @@ export function WorldPage() {
   };
 
   const renderSpecializedEmpty = (type: Exclude<WorldTab, 'manifest'>) => {
-    const config = {
-      lore: { icon: History, label: 'Historical Timeline', color: 'text-fuchsia-400', desc: 'Expand your world\'s history with eras and legendary events.' },
-      powers: { icon: Zap, label: 'Power System', color: 'text-amber-400', desc: 'Define mechanics, tiers, and limitations of your world\'s powers.' },
-      factions: { icon: Users, label: 'Faction Politics', color: 'text-blue-400', desc: 'Create complex relationships between world factions and ideologies.' },
-      architecture: { icon: Building2, label: 'Visual Style', color: 'text-orange-400', desc: 'Define the architectural aesthetic and visual motifs of your world.' },
-      atlas: { icon: Map, label: 'World Atlas', color: 'text-cyan-400', desc: 'Map out the physical geography, biomes, and regional boundaries.' },
-      culture: { icon: Globe, label: 'Societal Ethos', color: 'text-rose-400', desc: 'Profile the rituals, daily life, and cultural traditions of your people.' },
-      systems: { icon: Cpu, label: 'World Dynamics', color: 'text-emerald-400', desc: 'Define ecosystems, signature technology, and mechanical systems.' }
-    }[type];
-
     const status: Record<string, boolean> = {
       lore: isGeneratingLore,
       powers: isGeneratingPowers,
@@ -183,27 +174,11 @@ export function WorldPage() {
     const isGenerating = status[type];
 
     return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] text-center space-y-6">
-        <div className={`p-4 rounded-full bg-white/5 border border-white/10 ${config.color}`}>
-          <config.icon className="w-8 h-8" />
-        </div>
-        <div className="space-y-2 max-w-md">
-          <h3 className="text-lg font-black text-white uppercase tracking-tight">{config.label}</h3>
-          <p className="text-xs text-zinc-500 leading-relaxed uppercase font-bold tracking-widest">{config.desc}</p>
-        </div>
-        <Button
-          onClick={() => handleGenerateSpecialized(type)}
-          disabled={isGenerating}
-          className="bg-white text-black hover:bg-zinc-200 rounded-full px-8 py-6 h-auto font-black uppercase tracking-widest text-[10px] gap-2 group transition-all"
-        >
-          {isGenerating ? (
-            <div className="w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin" />
-          ) : (
-            <Sparkles className="w-4 h-4 group-hover:scale-110 transition-transform" />
-          )}
-          Generate {type} Manifest
-        </Button>
-      </div>
+      <SpecializedTabEmptyState
+        tab={type}
+        onGenerate={() => handleGenerateSpecialized(type)}
+        isGenerating={isGenerating}
+      />
     );
   };
 

@@ -58,10 +58,10 @@ export const EngineHeader: React.FC<EngineHeaderProps> = ({
           <div className="flex flex-col sm:flex-row items-center gap-4 z-10 w-full lg:w-auto">
             {onPrev && (
               <Tooltip>
-                <TooltipTrigger>
+                <TooltipTrigger asChild>
                   <Button 
-                    variant="outline" 
-                    className="relative w-full sm:w-auto h-12 px-8 bg-[#050505] border-white/10 text-zinc-400 hover:text-studio hover:border-studio/50 font-black uppercase tracking-widest text-[10px] rounded-full transition-all duration-500 backdrop-blur-md group/back shadow-2xl"
+                    variant="ghost" 
+                    className="relative w-full sm:w-auto h-10 px-6 bg-gradient-to-r from-violet-500/10 to-violet-500/5 border border-violet-500/30 text-zinc-400 hover:text-violet-500 hover:border-violet-500/60 hover:bg-gradient-to-r hover:from-violet-500/20 hover:to-violet-500/10 font-black uppercase tracking-widest text-[9px] rounded-lg transition-all duration-300 group/back shadow-lg hover:shadow-[0_0_20px_rgba(139,92,246,0.3)]"
                     onClick={onPrev}
                   >
                     <ChevronRight className="w-4 h-4 mr-2 group-hover/back:-translate-x-1 transition-transform rotate-180" />
@@ -77,15 +77,15 @@ export const EngineHeader: React.FC<EngineHeaderProps> = ({
             <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
               {onSave && hasContent && (
                 <Tooltip>
-                  <TooltipTrigger>
+                  <TooltipTrigger asChild>
                     <Button 
-                      variant="outline" 
-                      className="relative w-full sm:w-auto h-12 px-6 bg-studio/5 border-studio/20 text-studio hover:bg-studio/10 font-black uppercase tracking-widest text-[11px] rounded-full transition-all duration-500 shadow-[0_0_20px_rgba(0,200,255,0.1)] group/save"
+                      variant="ghost" 
+                      className="relative w-full sm:w-auto h-10 px-6 bg-gradient-to-r from-violet-500/10 to-transparent border border-violet-500/30 text-violet-500 hover:text-violet-400 hover:border-violet-500/60 hover:bg-gradient-to-r hover:from-violet-500/20 hover:to-violet-500/10 font-black uppercase tracking-widest text-[9px] rounded-lg transition-all duration-300 shadow-lg hover:shadow-[0_0_20px_rgba(139,92,246,0.2)] group/save"
                       onClick={onSave}
                       disabled={isSaving}
                     >
                       <Save className={cn("w-4 h-4 mr-2", isSaving && "animate-pulse")} />
-                      {isSaving ? "SAVING..." : "SAVE ALL"}
+                      {isSaving ? "SAVING" : "SAVE"}
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent side="top">
@@ -96,15 +96,14 @@ export const EngineHeader: React.FC<EngineHeaderProps> = ({
 
               {onNext && (
                 <Tooltip>
-                  <TooltipTrigger >
+                  <TooltipTrigger asChild>
                     <Button 
-                      className="relative w-full sm:w-auto h-12 px-10 rounded-full bg-[#050505] border border-white/10 text-zinc-400 hover:text-studio hover:border-studio/50 font-black uppercase tracking-widest text-[10px] transition-all duration-500 group/next shadow-2xl"
+                      className="relative w-full sm:w-auto h-10 px-8 rounded-lg bg-gradient-to-r from-white to-zinc-100 text-black hover:from-zinc-50 hover:to-white font-black uppercase tracking-widest text-[9px] transition-all duration-300 group/next shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:shadow-[0_0_30px_rgba(255,255,255,0.4)]"
                       onClick={onNext}
                     >
                       <span className="relative z-10 flex items-center gap-2">
                         NEXT <ChevronRight className="w-4 h-4 group-hover/next:translate-x-1 transition-transform" />
                       </span>
-                      <div className="absolute inset-0 bg-studio/5 opacity-0 group-hover/next:opacity-100 transition-opacity duration-500 rounded-full" />
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent side="top">

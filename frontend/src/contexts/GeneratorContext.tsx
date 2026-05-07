@@ -12,6 +12,7 @@ import { AI_EVENTS } from '../services/generators/core';
 import { useLogs } from './LogContext';
 
 interface GeneratorState {
+  generationProgress: any;
   storyboardPrompts: any;
   prompt: string;
   promptLore: string;
@@ -403,6 +404,7 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
   const [castDynamics, setCastDynamics] = useState<any | null>(null);
   const [castIntegrity, setCastIntegrity] = useState<any | null>(null);
   const [isAnalyzingCast, setIsAnalyzingCast] = useState(false);
+  const [generationProgress, setGenerationProgress] = useState<number>(0);
 
   // Sync logic moved after ALL state declarations to avoid "used before declaration" errors
   useEffect(() => {
@@ -649,6 +651,30 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     };
   }, [user?.id, addLog]);
 
+  // Auto-progress: when any generation flag is active, animate generationProgress
+  useEffect(() => {
+    const isAnyGenerating = isGeneratingCharacters || isGeneratingImagePrompts || isGeneratingSeries || isGeneratingDescription || isGeneratingWorld || isGeneratingVisuals || isGeneratingMetadata || isGeneratingDistribution || isGeneratingGrowthStrategy || isGeneratingAltText;
+    let interval: NodeJS.Timeout | null = null;
+
+    if (isAnyGenerating) {
+      setGenerationProgress(p => (p > 0 ? p : 3));
+      interval = setInterval(() => {
+        setGenerationProgress(prev => {
+          if (prev >= 95) return prev;
+          const inc = Math.random() * 6 + 1;
+          return Math.min(95, Math.round((prev + inc) * 10) / 10);
+        });
+      }, 700);
+    } else if (!isAnyGenerating) {
+      // finish and reset
+      setGenerationProgress(prev => (prev > 0 && prev < 100 ? 100 : prev));
+      const t = setTimeout(() => setGenerationProgress(0), 800);
+      return () => clearTimeout(t);
+    }
+
+    return () => { if (interval) clearInterval(interval); };
+  }, [isGeneratingCharacters, isGeneratingImagePrompts, isGeneratingSeries, isGeneratingDescription, isGeneratingWorld, isGeneratingVisuals, isGeneratingMetadata, isGeneratingDistribution, isGeneratingGrowthStrategy, isGeneratingAltText]);
+
   const state = useMemo<GeneratorState>(() => ({
     storyboardPrompts: generatedImagePrompts,
     prompt,
@@ -735,6 +761,7 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     seoMetadata: generatedMetadata,
     seriesPlan: generatedSeriesPlan,
     worldLore: null,
+    generationProgress,
     activeModelAttempt,
     fallbackHistory,
     castDNA,
@@ -759,7 +786,7 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     generatedWorldArchitecture, generatedWorldAtlas, generatedWorldCulture, generatedWorldSystems
     , temperature, maxTokens, topP, topK, selectedModel, tone, audience,
     castData, castList, castProfiles, characterRelationships, visualData, videoData, generatedMetadata, generatedSeriesPlan,
-    activeModelAttempt, fallbackHistory, castDNA, castDynamics, castIntegrity, isAnalyzingCast
+    activeModelAttempt, fallbackHistory, castDNA, castDynamics, castIntegrity, isAnalyzingCast, generationProgress
   ]);
 
   const dispatch = useMemo<GeneratorDispatch>(() => ({
@@ -840,6 +867,8 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     setCastList,
     setCastProfiles,
     setCharacterRelationships,
+
+    setGenerationProgress,
 
     // Visual setters
     setVisualData,

@@ -26,6 +26,7 @@ export default function StoryboardLayout() {
     isGeneratingImagePrompts, setIsGeneratingImagePrompts,
     selectedModel, showNotification,
     isSaving, contentType,
+    generationProgress,
     syncCore,
     session, episode
   } = useGenerator();
@@ -137,7 +138,7 @@ export default function StoryboardLayout() {
         )}
 
         {(handlers.isGenerating || isGeneratingImagePrompts) ? (
-          <StoryboardLoadingPage tab={activeTab} />
+          <StoryboardLoadingPage tab={activeTab} progress={generationProgress} />
         ) : (
           <motion.div
             initial={{ opacity: 0, y: 10 }}

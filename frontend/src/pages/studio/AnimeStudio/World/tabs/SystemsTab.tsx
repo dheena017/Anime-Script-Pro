@@ -56,63 +56,7 @@ export const SystemsTab: React.FC<SystemsTabProps> = ({
 
   return (
     <div className="world-container">
-      <div className="world-header">
-        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8">
-          <div className="space-y-3">
-            <div className="world-badge bg-emerald-500/10 border-emerald-500/20">
-              <Cpu className="w-3 h-3 text-emerald-500" />
-              <span className="world-badge-text text-emerald-500">Mechanical Logic</span>
-            </div>
-            <h1 className="world-header-title">
-              WORLD <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-emerald-500 to-emerald-400">DYNAMICS</span>
-            </h1>
-          </div>
 
-          <div className="flex items-center gap-3">
-            {onGenerate && (
-              <button 
-                onClick={onGenerate}
-                disabled={isGenerating}
-                className={s.actionButton}
-              >
-                {isGenerating ? (
-                  <div className="w-3.5 h-3.5 border-2 border-black/20 border-t-black rounded-full animate-spin" />
-                ) : (
-                  <Sparkles className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
-                )}
-                <span className="text-[10px] font-black uppercase tracking-widest">Synthesize</span>
-              </button>
-            )}
-
-            <button 
-              onClick={() => {
-                navigator.clipboard.writeText(content);
-                alert('Systems Manifest copied!');
-              }}
-              className={s.actionButtonGhost}
-            >
-              <ClipboardList className="w-3.5 h-3.5 text-zinc-400 group-hover:text-white transition-colors" />
-              <span className="text-[10px] font-black text-zinc-400 group-hover:text-white uppercase tracking-widest">Copy</span>
-            </button>
-            
-            <button 
-              onClick={() => {
-                const element = document.createElement("a");
-                const file = new Blob([content], { type: 'text/markdown' });
-                element.href = URL.createObjectURL(file);
-                element.download = "Systems_Manifest.md";
-                document.body.appendChild(element);
-                element.click();
-              }}
-              className="flex items-center gap-2 px-5 py-2.5 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 rounded-full transition-all group"
-            >
-              <Download className="w-3.5 h-3.5 text-emerald-500 group-hover:scale-110 transition-transform" />
-              <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Download</span>
-            </button>
-          </div>
-        </div>
-      </div>
 
       {isEditing ? (
         <textarea

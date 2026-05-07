@@ -1,4 +1,6 @@
 import { Loader2, Monitor, Sparkles, Film, Database, Eye, Play } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { useGeneratorState } from '@/hooks/useGenerator';
 import type { ScreeningTab } from '../Tabs/ScreeningTabs';
 
 interface ScreeningLoadingPageProps {
@@ -7,6 +9,7 @@ interface ScreeningLoadingPageProps {
   description?: string;
   message?: string;
   subtext?: string;
+  progress?: number;
 }
 
 const TAB_META: Record<string, { title: string; description: string; icon: any }> = {
@@ -16,7 +19,14 @@ const TAB_META: Record<string, { title: string; description: string; icon: any }
   review: { title: 'Preparing Review', description: 'Setting up your production for final review', icon: Eye },
 };
 
-export function ScreeningLoadingPage({ tab, title, description, message, subtext }: ScreeningLoadingPageProps) {
+export function ScreeningLoadingPage({ tab, title, description, message, subtext, progress }: ScreeningLoadingPageProps) {
+  const gen = useGeneratorState();
+  const [localProgress, setLocalProgress] = useState<number>(typeof progress === 'number' ? progress : (typeof gen.generationProgress === 'number' ? gen.generationProgress : 0));
+
+  useEffect(() => {
+    if (typeof progress === 'number') { setLocalProgress(progress); return; }
+    if (typeof gen.generationProgress === 'number' && gen.generationProgress > 0) { setLocalProgress(gen.generationProgress); return; }
+  }, [progress, gen.generationProgress]);
   const meta = tab ? TAB_META[tab] : { 
     title: message || title || 'Loading Screening Room', 
     description: subtext || description || 'Preparing your cinematic previews and production review',
@@ -44,12 +54,13 @@ export function ScreeningLoadingPage({ tab, title, description, message, subtext
         </p>
 
         <div className="mx-auto mb-6 h-1.5 w-full max-w-md overflow-hidden rounded-full bg-white/5">
-          <div className="h-full w-1/3 animate-pulse rounded-full bg-studio" />
+          <div className="h-full rounded-full transition-all duration-300 bg-studio" style={{ width: `${typeof progress === 'number' ? progress : (typeof gen.generationProgress === 'number' && gen.generationProgress > 0 ? gen.generationProgress : localProgress)}%` }} />
         </div>
 
         <div className="flex items-center justify-center gap-2 text-[9px] font-black uppercase tracking-[0.2em] text-studio/70">
           <Sparkles className="h-3.5 w-3.5" />
           AI is preparing your preview
+          <span className="ml-2 text-[10px] font-black text-zinc-400">{Math.round(typeof progress === 'number' ? progress : (typeof gen.generationProgress === 'number' && gen.generationProgress > 0 ? gen.generationProgress : localProgress))}%</span>
         </div>
       </div>
     </div>

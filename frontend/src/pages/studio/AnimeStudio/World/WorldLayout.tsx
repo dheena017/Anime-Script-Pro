@@ -78,7 +78,8 @@ export default function WorldLayout() {
     setGeneratedImagePrompts,
     setGeneratedMetadata,
     isEditing,
-    setIsEditing
+    setIsEditing,
+    generationProgress
   } = useGenerator();
 
   useAuth();
@@ -253,7 +254,7 @@ export default function WorldLayout() {
       <div className="studio-tabs-bar sticky top-0 z-40 flex items-center justify-center p-3 md:p-4 bg-[#050505]/95 backdrop-blur-md border border-white/10 rounded-[2rem] shadow-2xl mb-8 relative group overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-studio/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
         <div className="relative z-10 w-full flex justify-center">
-          <WorldTabs activeTab={activeTab} setActiveTab={handleTabChange} />
+          <WorldTabs activeTab={activeTab} setActiveTab={handleTabChange} loadingStates={generationStatus} />
         </div>
       </div>
 
@@ -274,15 +275,16 @@ export default function WorldLayout() {
                           activeTab === 'systems' ? generatedWorldSystems :
                             generatedWorld}
             isEditing={isEditing}
-            onEditingChange={setIsEditing} activeTab={'manifest'} setActiveTab={function (tab: WorldTab): void {
-              throw new Error('Function not implemented.');
-            } }          />
+            onEditingChange={setIsEditing}
+            activeTab={activeTab}
+            setActiveTab={handleTabChange}
+          />
         </div>
       )}
 
       <WorldContext.Provider value={{ activeTab, setActiveTab: handleTabChange }}>
         {(currentIsGenerating || (isGeneratingAny && !hasCurrentData)) ? (
-          <WorldLoadingPage tab={activeTab} />
+          <WorldLoadingPage tab={activeTab} progress={generationProgress} />
         ) : (
           <Outlet context={{ activeTab, setActiveTab: handleTabChange }} />
         )}

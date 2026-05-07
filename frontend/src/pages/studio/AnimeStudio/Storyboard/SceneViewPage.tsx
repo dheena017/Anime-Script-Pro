@@ -160,7 +160,6 @@ export function SceneViewPage() {
 
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2 px-6 py-2 bg-studio/5 border border-studio/20 rounded-2xl">
-            <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Production Unit</span>
             <span className="text-xl font-black text-studio font-mono">{String(currentSceneIndex + 1).padStart(2, '0')}</span>
             <span className="text-[10px] font-black text-zinc-700 uppercase">/ {String(scenes.length).padStart(2, '0')}</span>
           </div>

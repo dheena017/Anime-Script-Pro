@@ -72,13 +72,13 @@ export const WorldToolbar: React.FC<WorldToolbarProps> = ({
           <div className="toolbar-header">
             <div className="toolbar-status-box">
               <div className="toolbar-status-icon">
-                <Box className={cn("w-5 h-5", status === 'active' ? "text-studio" : "text-zinc-600")} />
+                <Box className={cn("w-5 h-5 transition-all duration-500", status === 'active' ? "text-studio drop-shadow-[0_0_8px_rgba(6,182,212,0.6)]" : "text-zinc-600")} />
               </div>
-              <div className="flex flex-col">
-                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white italic">
+              <div className="flex flex-col gap-1">
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] bg-gradient-to-r from-studio/80 to-cyan-400/60 bg-clip-text text-transparent">
                   World Nexus {status === 'active' ? 'Active' : 'Standby'}
                 </span>
-                <span className="text-[8px] font-bold text-zinc-500 uppercase tracking-widest mt-0.5">
+                <span className="text-[8px] font-bold text-zinc-500 uppercase tracking-widest">
                   System Status: Optimal // World_Sync_01
                 </span>
               </div>
@@ -86,15 +86,6 @@ export const WorldToolbar: React.FC<WorldToolbarProps> = ({
 
             <div className="toolbar-action-group">
               <div className="flex items-center justify-between w-full md:w-auto gap-4">
-                {/* Production Unit */}
-                <div className="toolbar-unit-box">
-                  <span className="text-studio/60 text-xs font-black">#</span>
-                  <div className="flex flex-col">
-                    <span className="text-[7px] font-black text-zinc-500 uppercase tracking-widest leading-none">Production Unit</span>
-                    <span className="text-sm font-black text-white font-mono leading-none mt-1">S{session}-E{episode}</span>
-                  </div>
-                </div>
-
                 {/* Actions */}
                 <div className="toolbar-btn-group">
                   <Tooltip>
@@ -103,10 +94,11 @@ export const WorldToolbar: React.FC<WorldToolbarProps> = ({
                         onClick={handleCopy}
                         size="icon"
                         variant="ghost"
-                        className="h-9 w-9 rounded-lg text-zinc-500 hover:text-studio hover:bg-studio/10 transition-all duration-300"
+                        className="h-9 w-9 rounded-lg text-zinc-400 hover:text-studio border border-transparent hover:border-studio/40 hover:bg-gradient-to-br hover:from-studio/20 hover:to-studio/5 transition-all duration-300 group relative overflow-hidden"
                         disabled={!content}
                       >
-                        <Copy className="w-4 h-4" />
+                        <div className="absolute inset-0 bg-studio/0 group-hover:bg-studio/5 transition-colors duration-300" />
+                        <Copy className="w-4 h-4 relative z-10 group-hover:scale-110 transition-transform duration-300" />
                       </Button>
                     </TooltipTrigger>
                     <TooltipContent side="top">
@@ -120,10 +112,11 @@ export const WorldToolbar: React.FC<WorldToolbarProps> = ({
                         onClick={handleDownload}
                         size="icon"
                         variant="ghost"
-                        className="h-9 w-9 rounded-lg text-zinc-500 hover:text-studio hover:bg-studio/10 transition-all duration-300"
+                        className="h-9 w-9 rounded-lg text-zinc-400 hover:text-studio border border-transparent hover:border-studio/40 hover:bg-gradient-to-br hover:from-studio/20 hover:to-studio/5 transition-all duration-300 group relative overflow-hidden"
                         disabled={!content}
                       >
-                        <Download className="w-4 h-4" />
+                        <div className="absolute inset-0 bg-studio/0 group-hover:bg-studio/5 transition-colors duration-300" />
+                        <Download className="w-4 h-4 relative z-10 group-hover:scale-110 transition-transform duration-300" />
                       </Button>
                     </TooltipTrigger>
                     <TooltipContent side="top">
@@ -131,7 +124,7 @@ export const WorldToolbar: React.FC<WorldToolbarProps> = ({
                     </TooltipContent>
                   </Tooltip>
 
-                  <div className="w-px h-5 bg-white/10 mx-1" />
+                  <div className="w-px h-5 bg-gradient-to-b from-transparent via-white/10 to-transparent mx-1" />
 
                   <Tooltip>
                     <TooltipTrigger >
@@ -139,13 +132,13 @@ export const WorldToolbar: React.FC<WorldToolbarProps> = ({
                         onClick={() => onEditingChange?.(!isEditing)}
                         variant="ghost"
                         className={cn(
-                          "h-9 px-3 gap-2 rounded-lg transition-all duration-300",
+                          "h-9 px-3 gap-2 rounded-lg transition-all duration-300 group relative overflow-hidden border",
                           isEditing
-                            ? "text-studio bg-studio/10 hover:bg-studio/20 border border-studio/20"
-                            : "text-zinc-500 hover:text-studio hover:bg-studio/10 border border-white/10"
+                            ? "text-studio bg-gradient-to-br from-studio/20 to-studio/5 hover:from-studio/30 hover:to-studio/10 border-studio/40 shadow-[0_0_12px_rgba(6,182,212,0.15)]"
+                            : "text-zinc-400 hover:text-studio bg-transparent hover:bg-gradient-to-br hover:from-studio/15 hover:to-studio/5 border-transparent hover:border-studio/40"
                         )}
                       >
-                        <Edit2 className="w-4 h-4" />
+                        <Edit2 className="w-4 h-4 group-hover:scale-110 transition-transform duration-300" />
                         <span className="text-[10px] font-black uppercase tracking-widest">
                           {isEditing ? 'Lock Edits' : 'Edit'}
                         </span>
@@ -162,9 +155,10 @@ export const WorldToolbar: React.FC<WorldToolbarProps> = ({
                         onClick={toggleFullscreen}
                         size="icon"
                         variant="ghost"
-                        className="h-9 w-9 rounded-lg text-zinc-500 hover:text-studio hover:bg-studio/10 transition-all duration-300"
+                        className="h-9 w-9 rounded-lg text-zinc-400 hover:text-studio border border-transparent hover:border-studio/40 hover:bg-gradient-to-br hover:from-studio/20 hover:to-studio/5 transition-all duration-300 group relative overflow-hidden"
                       >
-                        {isFullscreen ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
+                        <div className="absolute inset-0 bg-studio/0 group-hover:bg-studio/5 transition-colors duration-300" />
+                        {isFullscreen ? <Minimize className="w-4 h-4 relative z-10 group-hover:scale-110 transition-transform duration-300" /> : <Maximize className="w-4 h-4 relative z-10 group-hover:scale-110 transition-transform duration-300" />}
                       </Button>
                     </TooltipTrigger>
                     <TooltipContent side="top">

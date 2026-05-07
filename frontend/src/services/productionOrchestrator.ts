@@ -454,3 +454,21 @@ export class ProductionOrchestrator {
     };
   }
 }
+
+export function phaseToPercent(phase: string): number {
+  const p = (phase || '').toUpperCase();
+  if (p.startsWith('SIGNAL_INIT')) return 3;
+  if (p.startsWith('PROTOCOL_SCALPEL')) return 12;
+  if (p.startsWith('SYNTHESIS_DNA')) return 22;
+  if (p.startsWith('RELATIONSHIP_MATRIX')) return 30;
+  if (p.startsWith('ROADMAP_INIT')) return 38;
+  if (p.startsWith('MANIFEST_SCRIPT')) return 50;
+  if (p.startsWith('PACKAGING_ASSETS')) return 60;
+  if (p.startsWith('SCAFFOLD_VISUAL')) return 72;
+  if (p.startsWith('SEO_OPTIMIZE')) return 82;
+  if (p.startsWith('PROMPT_REFINERY')) return 88;
+  if (p.startsWith('PREMIERE_READY')) return 94;
+  if (p.startsWith('NEURAL_COMPLETE')) return 100;
+  if (p.startsWith('CRITICAL_FAILURE')) return 100;
+  return 0;
+}

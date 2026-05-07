@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { FileText, Download, ClipboardList, Sparkles, Bold, Italic, Heading2, Code, List, Quote } from 'lucide-react';
+import { StudioEditor } from '../components/StudioEditor';
 import ReactMarkdown from 'react-markdown';
 import { studioLog } from '@/lib/studio-logger';
 import { useAutoResizeTextarea } from '../hooks/useAutoResizeTextarea';
@@ -75,146 +76,14 @@ export const ManifestTab: React.FC<ManifestTabProps> = ({
 
   return (
     <div className="world-container will-change-transform transform-gpu">
-      <div className="world-header">
-        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8">
-          <div className="space-y-4">
-            <div className="world-badge bg-zinc-500/10 border-zinc-500/20">
-              <FileText className="w-3 h-3 text-zinc-400" />
-              <span className="world-badge-text text-zinc-400">Master Source</span>
-            </div>
-            <h1 className="world-header-title">
-              WORLD BIBLE <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-studio via-studio/80 to-studio/60 uppercase text-2xl lg:text-3xl">FULL MANIFEST</span>
-            </h1>
-            <p className="text-xs text-zinc-500 uppercase tracking-[0.2em] font-bold">Complete worldbuilding specification</p>
-          </div>
 
-          <div className="flex items-center gap-3 flex-wrap">
-            {onGenerate && (
-              <button 
-                onClick={onGenerate}
-                disabled={isGenerating}
-                className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-studio to-studio/80 text-black hover:from-studio hover:to-studio font-black uppercase tracking-widest text-[10px] rounded-full transition-all group disabled:opacity-50 shadow-lg hover:shadow-[0_0_20px_rgba(6,182,212,0.3)]"
-              >
-                {isGenerating ? (
-                  <div className="w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin" />
-                ) : (
-                  <Sparkles className="w-4 h-4 group-hover:scale-110 transition-transform" />
-                )}
-                <span>Regenerate</span>
-              </button>
-            )}
-            
-            <button 
-              onClick={copyToClipboard}
-              className="flex items-center gap-2 px-5 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-studio/50 rounded-full transition-all group"
-            >
-              <ClipboardList className="w-3.5 h-3.5 text-zinc-400 group-hover:text-studio transition-colors" />
-              <span className="text-[10px] font-black text-zinc-400 group-hover:text-studio uppercase tracking-widest">Copy</span>
-            </button>
-            <button 
-              onClick={downloadReport}
-              className="flex items-center gap-2 px-5 py-2.5 bg-studio/10 hover:bg-studio/20 border border-studio/20 hover:border-studio/50 rounded-full transition-all group"
-            >
-              <Download className="w-3.5 h-3.5 text-studio group-hover:scale-110 transition-transform" />
-              <span className="text-[10px] font-black text-studio uppercase tracking-widest">Export</span>
-            </button>
-          </div>
-        </div>
-      </div>
 
       {isEditing ? (
-        <div className="relative space-y-4">
-          {/* Edit Mode Header */}
-          <div className="flex items-center justify-between p-4 bg-studio/10 border border-studio/30 rounded-2xl">
-            <div className="flex items-center gap-3">
-              <div className="w-2 h-2 rounded-full bg-studio animate-pulse" />
-              <span className="text-xs font-black uppercase tracking-widest text-studio">Edit Mode Active</span>
-            </div>
-            <span className="text-xs text-zinc-500 font-mono">{lineCount} lines</span>
-          </div>
-
-          {/* Formatting Toolbar */}
-          <div className="flex flex-wrap gap-2 p-4 bg-white/5 border border-white/10 rounded-2xl">
-            <button
-              onClick={() => insertMarkdown('**', '**')}
-              className="flex items-center gap-2 px-3 py-2 bg-white/5 hover:bg-studio/20 border border-white/10 hover:border-studio/50 rounded-lg transition-all group"
-              title="Bold (Cmd+B)"
-            >
-              <Bold className="w-4 h-4 text-zinc-400 group-hover:text-studio" />
-              <span className="text-xs font-bold text-zinc-400 group-hover:text-studio">Bold</span>
-            </button>
-            
-            <button
-              onClick={() => insertMarkdown('_', '_')}
-              className="flex items-center gap-2 px-3 py-2 bg-white/5 hover:bg-studio/20 border border-white/10 hover:border-studio/50 rounded-lg transition-all group"
-              title="Italic (Cmd+I)"
-            >
-              <Italic className="w-4 h-4 text-zinc-400 group-hover:text-studio" />
-              <span className="text-xs font-bold text-zinc-400 group-hover:text-studio">Italic</span>
-            </button>
-
-            <div className="w-px bg-white/10" />
-
-            <button
-              onClick={() => insertMarkdown('## ', '\n')}
-              className="flex items-center gap-2 px-3 py-2 bg-white/5 hover:bg-studio/20 border border-white/10 hover:border-studio/50 rounded-lg transition-all group"
-              title="Heading 2"
-            >
-              <Heading2 className="w-4 h-4 text-zinc-400 group-hover:text-studio" />
-              <span className="text-xs font-bold text-zinc-400 group-hover:text-studio">H2</span>
-            </button>
-
-            <button
-              onClick={() => insertMarkdown('`', '`')}
-              className="flex items-center gap-2 px-3 py-2 bg-white/5 hover:bg-studio/20 border border-white/10 hover:border-studio/50 rounded-lg transition-all group"
-              title="Code"
-            >
-              <Code className="w-4 h-4 text-zinc-400 group-hover:text-studio" />
-              <span className="text-xs font-bold text-zinc-400 group-hover:text-studio">Code</span>
-            </button>
-
-            <button
-              onClick={() => insertMarkdown('- ', '\n')}
-              className="flex items-center gap-2 px-3 py-2 bg-white/5 hover:bg-studio/20 border border-white/10 hover:border-studio/50 rounded-lg transition-all group"
-              title="Bullet List"
-            >
-              <List className="w-4 h-4 text-zinc-400 group-hover:text-studio" />
-              <span className="text-xs font-bold text-zinc-400 group-hover:text-studio">List</span>
-            </button>
-
-            <button
-              onClick={() => insertMarkdown('> ', '\n')}
-              className="flex items-center gap-2 px-3 py-2 bg-white/5 hover:bg-studio/20 border border-white/10 hover:border-studio/50 rounded-lg transition-all group"
-              title="Quote"
-            >
-              <Quote className="w-4 h-4 text-zinc-400 group-hover:text-studio" />
-              <span className="text-xs font-bold text-zinc-400 group-hover:text-studio">Quote</span>
-            </button>
-
-            <div className="flex-1" />
-            <div className="flex items-center gap-4 text-xs text-zinc-500 px-2">
-              <span className="font-mono">{charCount.toLocaleString()} chars</span>
-              <span className="font-mono">{wordCount.toLocaleString()} words</span>
-            </div>
-          </div>
-
-          {/* Enhanced Textarea */}
-          <div className="relative group">
-            <div className="absolute -inset-1 bg-gradient-to-r from-studio/30 to-studio/10 rounded-2xl blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            <div className="absolute inset-0 bg-gradient-to-br from-studio/10 via-transparent to-studio/5 rounded-2xl pointer-events-none opacity-0 group-focus-within:opacity-100 transition-opacity" />
-            <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-20 rounded-b-2xl bg-gradient-to-t from-zinc-950/95 via-zinc-950/60 to-transparent" />
-            <textarea
-              ref={textareaRef}
-              className="world-textarea relative w-full min-h-[500px] p-6 bg-zinc-950/50 border border-studio/30 rounded-2xl text-zinc-100 placeholder-zinc-600 font-mono text-sm leading-relaxed focus:outline-none focus:ring-2 focus:ring-studio/50 focus:border-studio/50 resize-none overflow-hidden backdrop-blur-sm transition-all duration-200 group-hover:border-studio/50"
-              value={content || ''}
-              onChange={(e) => {
-                onContentChange(e.target.value);
-                scheduleResizeTextarea();
-              }}
-              onInput={scheduleResizeTextarea}
-              onPaste={scheduleResizeTextarea}
-              placeholder="Edit your comprehensive world bible here...
+        <StudioEditor
+          content={content}
+          onContentChange={onContentChange}
+          isEditing={isEditing}
+          placeholder="Edit your comprehensive world bible here...
 
 Use markdown formatting:
 • **Bold** for emphasis
@@ -223,20 +92,7 @@ Use markdown formatting:
 • `Code` for technical terms
 • - Lists for items
 • > Quotes for important notes"
-              spellCheck="true"
-            />
-          </div>
-
-          {/* Editor Footer */}
-          <div className="flex items-center justify-between p-3 bg-white/5 border border-white/10 rounded-xl text-xs text-zinc-500">
-            <div className="flex items-center gap-4">
-              <span className="font-mono">Markdown enabled</span>
-              <span>•</span>
-              <span>Ctrl+Enter to format</span>
-            </div>
-            <span className="text-studio font-bold">Live preview on save</span>
-          </div>
-        </div>
+        />
       ) : (
         <div className="world-content-area relative">
           {/* Blueprint Background */}

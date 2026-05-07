@@ -67,10 +67,10 @@ export const SEOHeader: React.FC<SEOHeaderProps> = ({
           <div className="flex flex-col sm:flex-row items-center gap-4 z-10 w-full lg:w-auto">
             {onPrev && (
               <Tooltip>
-                <TooltipTrigger >
+                <TooltipTrigger asChild>
                   <Button
-                    variant="outline"
-                    className="relative w-full sm:w-auto h-12 px-8 bg-[#050505] border-white/10 text-zinc-400 hover:text-yellow-500 hover:border-yellow-500/50 font-black uppercase tracking-widest text-[10px] rounded-full transition-all duration-500 group/back shadow-2xl"
+                    variant="ghost"
+                    className="relative w-full sm:w-auto h-10 px-6 bg-gradient-to-r from-lime-500/10 to-lime-500/5 border border-lime-500/30 text-zinc-400 hover:text-lime-500 hover:border-lime-500/60 hover:bg-gradient-to-r hover:from-lime-500/20 hover:to-lime-500/10 font-black uppercase tracking-widest text-[9px] rounded-lg transition-all duration-300 group/back shadow-lg hover:shadow-[0_0_20px_rgba(132,204,22,0.3)]"
                     onClick={onPrev}
                   >
                     <ChevronLeft className="w-4 h-4 mr-2 group-hover/back:-translate-x-1 transition-transform" />
@@ -85,25 +85,24 @@ export const SEOHeader: React.FC<SEOHeaderProps> = ({
 
             <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
               <Tooltip>
-                <TooltipTrigger >
+                <TooltipTrigger asChild>
                   {isGenerating ? (
                     <Button 
-                      variant="outline" 
-                      className="relative w-full sm:w-auto h-12 px-8 bg-red-500/10 border-red-500/30 text-red-500 hover:bg-red-500 hover:text-black font-black uppercase tracking-widest text-[11px] rounded-full transition-all duration-500 group/stop shadow-[0_0_25px_rgba(239,68,68,0.2)]"
+                      variant="ghost" 
+                      className="relative w-full sm:w-auto h-10 px-6 bg-red-500/10 border border-red-500/40 text-red-400 hover:text-red-300 hover:border-red-500/60 hover:bg-red-500/15 font-black uppercase tracking-widest text-[9px] rounded-lg transition-all duration-300 group/stop shadow-lg hover:shadow-[0_0_20px_rgba(239,68,68,0.2)]"
                       onClick={stopGeneration}
                     >
-                      <Square className="w-4 h-4 mr-3 fill-current group-hover/stop:scale-110 transition-transform" />
-                      <span className="relative z-10">STOP SYNTHESIS</span>
+                      <Square className="w-4 h-4 mr-2 fill-current group-hover/stop:scale-110 transition-transform" />
+                      <span className="relative z-10">STOP</span>
                     </Button>
                   ) : (
                     <Button
-                      variant="outline"
-                      className="relative w-full sm:w-auto h-12 px-8 bg-[#050505] border-white/10 text-zinc-100 hover:text-yellow-500 hover:border-yellow-500/50 font-black uppercase tracking-widest text-[11px] rounded-full transition-all duration-500 group/btn shadow-2xl"
+                      variant="ghost"
+                      className="relative w-full sm:w-auto h-10 px-6 bg-gradient-to-r from-lime-500/15 to-lime-500/5 border border-lime-500/40 text-lime-500 hover:text-lime-400 hover:border-lime-500/70 hover:bg-gradient-to-r hover:from-lime-500/25 hover:to-lime-500/15 font-black uppercase tracking-widest text-[9px] rounded-lg transition-all duration-300 group/btn shadow-lg hover:shadow-[0_0_20px_rgba(132,204,22,0.3)]"
                       onClick={onRegenerate}
                     >
-                      <div className="absolute inset-0 bg-yellow-500/5 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-500 rounded-full" />
-                      <Sparkles className="w-4 h-4 mr-3 text-yellow-500 group-hover/btn:scale-125 transition-transform duration-500" />
-                      <span className="relative z-10">GENERATE ALL</span>
+                      <Sparkles className="w-4 h-4 mr-2 group-hover/btn:scale-125 transition-transform duration-300" />
+                      <span className="relative z-10">GENERATE</span>
                     </Button>
                   )}
                 </TooltipTrigger>
@@ -116,15 +115,15 @@ export const SEOHeader: React.FC<SEOHeaderProps> = ({
 
               {onSave && hasContent && (
                 <Tooltip>
-                  <TooltipTrigger>
+                  <TooltipTrigger asChild>
                     <Button 
-                      variant="outline" 
-                      className="relative w-full sm:w-auto h-12 px-6 bg-yellow-500/5 border-yellow-500/20 text-yellow-500 hover:bg-yellow-500/10 font-black uppercase tracking-widest text-[11px] rounded-full transition-all duration-500 shadow-[0_0_20px_rgba(234,179,8,0.1)] group/save"
+                      variant="ghost" 
+                      className="relative w-full sm:w-auto h-10 px-6 bg-gradient-to-r from-lime-500/10 to-transparent border border-lime-500/30 text-lime-500 hover:text-lime-400 hover:border-lime-500/60 hover:bg-gradient-to-r hover:from-lime-500/20 hover:to-lime-500/10 font-black uppercase tracking-widest text-[9px] rounded-lg transition-all duration-300 shadow-lg hover:shadow-[0_0_20px_rgba(132,204,22,0.2)] group/save"
                       onClick={onSave}
                       disabled={isSaving}
                     >
                       <Save className={cn("w-4 h-4 mr-2", isSaving && "animate-pulse")} />
-                      {isSaving ? "SAVING..." : "SAVE ALL"}
+                      {isSaving ? "SAVING" : "SAVE"}
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent side="top">
@@ -134,15 +133,14 @@ export const SEOHeader: React.FC<SEOHeaderProps> = ({
               )}
 
               <Tooltip>
-                <TooltipTrigger>
+                <TooltipTrigger asChild>
                   <Button
-                    className="relative w-full sm:w-auto h-12 px-10 rounded-full bg-[#050505] border border-white/10 text-zinc-400 hover:text-yellow-500 hover:border-yellow-500/50 font-black uppercase tracking-widest text-[10px] transition-all duration-500 group/next shadow-2xl"
+                    className="relative w-full sm:w-auto h-10 px-8 rounded-lg bg-gradient-to-r from-white to-zinc-100 text-black hover:from-zinc-50 hover:to-white font-black uppercase tracking-widest text-[9px] transition-all duration-300 group/next shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:shadow-[0_0_30px_rgba(255,255,255,0.4)]"
                     onClick={onNext}
                   >
                     <span className="relative z-10 flex items-center gap-2">
                       NEXT <ChevronRight className="w-4 h-4 group-hover/next:translate-x-1 transition-transform" />
                     </span>
-                    <div className="absolute inset-0 bg-yellow-500/5 opacity-0 group-hover/next:opacity-100 transition-opacity duration-500 rounded-full" />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="top">

@@ -56,63 +56,7 @@ export const CultureTab: React.FC<CultureTabProps> = ({
 
   return (
     <div className="world-container">
-      <div className="world-header">
-        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8">
-          <div className="space-y-3">
-            <div className="world-badge bg-rose-500/10 border-rose-500/20">
-              <Users className="w-3 h-3 text-rose-500" />
-              <span className="world-badge-text text-rose-500">Societal Pulse</span>
-            </div>
-            <h1 className="world-header-title">
-              CULTURAL <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-rose-400 via-orange-500 to-rose-400">ETHOS</span>
-            </h1>
-          </div>
 
-          <div className="flex items-center gap-3">
-            {onGenerate && (
-              <button 
-                onClick={onGenerate}
-                disabled={isGenerating}
-                className={s.actionButton}
-              >
-                {isGenerating ? (
-                  <div className="w-3.5 h-3.5 border-2 border-black/20 border-t-black rounded-full animate-spin" />
-                ) : (
-                  <Sparkles className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
-                )}
-                <span className="text-[10px] font-black uppercase tracking-widest">Synthesize</span>
-              </button>
-            )}
-
-            <button 
-              onClick={() => {
-                navigator.clipboard.writeText(content);
-                alert('Culture Manifest copied!');
-              }}
-              className={s.actionButtonGhost}
-            >
-              <ClipboardList className="w-3.5 h-3.5 text-zinc-400 group-hover:text-white transition-colors" />
-              <span className="text-[10px] font-black text-zinc-400 group-hover:text-white uppercase tracking-widest">Copy</span>
-            </button>
-            
-            <button 
-              onClick={() => {
-                const element = document.createElement("a");
-                const file = new Blob([content], { type: 'text/markdown' });
-                element.href = URL.createObjectURL(file);
-                element.download = "Culture_Manifest.md";
-                document.body.appendChild(element);
-                element.click();
-              }}
-              className="flex items-center gap-2 px-5 py-2.5 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 rounded-full transition-all group"
-            >
-              <Download className="w-3.5 h-3.5 text-rose-500 group-hover:scale-110 transition-transform" />
-              <span className="text-[10px] font-black text-rose-500 uppercase tracking-widest">Download</span>
-            </button>
-          </div>
-        </div>
-      </div>
 
       {isEditing ? (
         <textarea

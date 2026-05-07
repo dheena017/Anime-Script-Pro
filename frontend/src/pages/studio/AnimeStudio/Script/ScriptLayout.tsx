@@ -24,7 +24,8 @@ export default function ScriptLayout() {
     generatedScript, isLoading, prompt, tone, audience,
     session, episode, numScenes, selectedModel, contentType,
     recapperPersona, characterRelationships, generatedWorld,
-    generatedCharacters, generatedSeriesPlan, isSaving, generatedMetadata
+    generatedCharacters, generatedSeriesPlan, isSaving, generatedMetadata,
+    generationProgress
   } = useGeneratorState();
 
   const {
@@ -167,7 +168,7 @@ export default function ScriptLayout() {
         )}
 
         {isLoading ? (
-          <ScriptLoadingPage tab={activeTab} />
+          <ScriptLoadingPage tab={activeTab} progress={generationProgress} />
         ) : (
           <Outlet context={{ activeTab }} />
         )}

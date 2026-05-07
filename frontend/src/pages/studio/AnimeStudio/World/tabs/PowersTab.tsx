@@ -40,70 +40,7 @@ export const PowersTab: React.FC<PowersTabProps> = ({
 
   return (
     <div className={s.container}>
-      <div className={s.header}>
-        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 w-full">
-          <div className="space-y-3">
-            <div className={cn(s.badge, "bg-amber-500/10 border-amber-500/20")}>
-              <Zap className="w-3 h-3 text-amber-500" />
-              <span className={cn(s.badgeText, "text-amber-500")}>Universal System</span>
-            </div>
-            <h1 className={s.headerTitle}>
-              POWER <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-400">MECHANICS</span>
-            </h1>
-          </div>
 
-          <div className="flex items-center gap-3">
-            {onGenerate && (
-              <button 
-                onClick={() => {
-                  reportGeneration('PowersTab', 'Power System synthesis', 'request', 'anime');
-                  onGenerate();
-                }}
-                disabled={isGenerating}
-                className={s.actionButton}
-              >
-                {isGenerating ? (
-                  <div className="w-3.5 h-3.5 border-2 border-black/20 border-t-black rounded-full animate-spin" />
-                ) : (
-                  <Sparkles className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
-                )}
-                <span className="text-[10px] font-black uppercase tracking-widest">Synthesize</span>
-              </button>
-            )}
-
-            <button 
-              onClick={() => {
-                studioLog('PowersTab', 'Copying Power System Manifest to clipboard...', 'info');
-                navigator.clipboard.writeText(content);
-                studioLog('PowersTab', 'Power System Manifest copied successfully.', 'success');
-                alert('Power System Manifest copied!');
-              }}
-              className={s.actionButtonGhost}
-            >
-              <ClipboardList className="w-3.5 h-3.5 text-zinc-400 group-hover:text-white transition-colors" />
-              <span className="text-[10px] font-black text-zinc-400 group-hover:text-white uppercase tracking-widest">Copy</span>
-            </button>
-            
-            <button 
-              onClick={() => {
-                studioLog('PowersTab', 'Downloading Power System Manifest...', 'info');
-                const element = document.createElement("a");
-                const file = new Blob([content], { type: 'text/markdown' });
-                element.href = URL.createObjectURL(file);
-                element.download = "Power_System_Manifest.md";
-                document.body.appendChild(element);
-                element.click();
-                studioLog('PowersTab', 'Power System Manifest download initiated.', 'success');
-              }}
-              className="flex items-center gap-2 px-5 py-2.5 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 rounded-full transition-all group"
-            >
-              <Download className="w-3.5 h-3.5 text-amber-500 group-hover:scale-110 transition-transform" />
-              <span className="text-[10px] font-black text-amber-500 uppercase tracking-widest">Download</span>
-            </button>
-          </div>
-        </div>
-      </div>
 
       {isEditing ? (
         <textarea

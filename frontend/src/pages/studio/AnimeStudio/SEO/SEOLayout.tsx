@@ -26,7 +26,8 @@ export default function SEOLayout() {
     showNotification, contentType,
     isSaving, 
     
-    syncCore
+    syncCore,
+    generationProgress
   } = useGenerator();
 
   const {
@@ -153,7 +154,7 @@ export default function SEOLayout() {
         )}
 
         {isLoading ? (
-          <SEOLoadingPage tab={activeTab} />
+          <SEOLoadingPage tab={activeTab} progress={generationProgress} />
         ) : (
           <motion.div
             initial={{ opacity: 0, y: 10 }}

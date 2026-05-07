@@ -5,6 +5,7 @@ import { Search } from 'lucide-react';
 import { useGenerator } from '@/hooks/useGenerator';
 import { AssetsHeader } from '../components/Assets/AssetsHeader';  
 import { generateMetadata, generateYouTubeDescription, generateImagePrompts } from '@/services/api/gemini';
+import { AssetsLoadingPage } from './AssetsLoadingPage';
 
 export default function AssetsLayout() {
   const navigate = useNavigate();
@@ -18,7 +19,8 @@ export default function AssetsLayout() {
     isGeneratingDescription, setIsGeneratingDescription,
     isGeneratingImagePrompts, setIsGeneratingImagePrompts,
     generatedScript, selectedModel, session, episode,
-    showNotification, contentType
+    showNotification, contentType,
+    generationProgress
   } = useGenerator();
 
   const handleGenerateAll = async () => {
@@ -78,13 +80,17 @@ export default function AssetsLayout() {
         </div>
       </div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
-      >
-        <Outlet />
-      </motion.div>
+      {(isGeneratingMetadata || isGeneratingDescription || isGeneratingImagePrompts) ? (
+        <AssetsLoadingPage progress={generationProgress} />
+      ) : (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          <Outlet />
+        </motion.div>
+      )}
     </div>
   );
 }

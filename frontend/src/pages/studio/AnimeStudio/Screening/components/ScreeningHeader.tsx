@@ -41,7 +41,7 @@ export const ScreeningHeader: React.FC<ScreeningHeaderProps> = ({
     <TooltipProvider>
       <div className="relative group">
         
-        <div className="relative flex flex-col lg:flex-row items-center justify-between p-4 md:p-5 bg-[#050505]/95 backdrop-blur-md border border-white/10 rounded-[2rem] shadow-2xl overflow-hidden gap-6 lg:gap-0">
+        <div className="header-container">
           
           <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-8 z-10 w-full lg:w-auto">
             <div className="relative shrink-0">
@@ -69,10 +69,10 @@ export const ScreeningHeader: React.FC<ScreeningHeaderProps> = ({
             <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
               {onPrev && (
                 <Tooltip>
-                  <TooltipTrigger>
+                  <TooltipTrigger asChild>
                     <Button 
-                      variant="outline" 
-                      className="relative w-full sm:w-auto h-12 px-8 bg-[#050505] border-white/10 text-zinc-400 hover:text-studio hover:border-studio/50 font-black uppercase tracking-widest text-[10px] rounded-full transition-all duration-500 backdrop-blur-md group/back shadow-2xl"
+                      variant="ghost" 
+                      className="relative w-full sm:w-auto h-10 px-6 bg-gradient-to-r from-cyan-500/10 to-cyan-500/5 border border-cyan-500/30 text-zinc-400 hover:text-cyan-500 hover:border-cyan-500/60 hover:bg-gradient-to-r hover:from-cyan-500/20 hover:to-cyan-500/10 font-black uppercase tracking-widest text-[9px] rounded-lg transition-all duration-300 group/back shadow-lg hover:shadow-[0_0_20px_rgba(34,211,238,0.3)]"
                       onClick={onPrev}
                     >
                       <ChevronLeft className="w-4 h-4 mr-2 group-hover/back:-translate-x-1 transition-transform" />
@@ -88,20 +88,19 @@ export const ScreeningHeader: React.FC<ScreeningHeaderProps> = ({
 
             <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
               <Tooltip>
-                <TooltipTrigger>
+                <TooltipTrigger asChild>
                   <Button 
-                    variant="outline" 
-                    className="relative w-full sm:w-auto h-12 px-8 bg-[#050505] border-white/10 text-zinc-100 hover:text-studio hover:border-studio/50 font-black uppercase tracking-widest text-[11px] rounded-full transition-all duration-500 backdrop-blur-md group/btn shadow-2xl"
+                    variant="ghost" 
+                    className="relative w-full sm:w-auto h-10 px-6 bg-gradient-to-r from-cyan-500/15 to-cyan-500/5 border border-cyan-500/40 text-cyan-500 hover:text-cyan-400 hover:border-cyan-500/70 hover:bg-gradient-to-r hover:from-cyan-500/25 hover:to-cyan-500/15 font-black uppercase tracking-widest text-[9px] rounded-lg transition-all duration-300 group/btn shadow-lg hover:shadow-[0_0_20px_rgba(34,211,238,0.3)]"
                     onClick={onRender}
                     disabled={isRendering || !hasScript}
                   >
-                    <div className="absolute inset-0 bg-studio/5 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-500 rounded-full" />
                     {isRendering ? (
-                      <RefreshCw className="w-4 h-4 animate-spin mr-3 text-studio" />
+                      <RefreshCw className="w-4 h-4 animate-spin mr-2" />
                     ) : (
-                      <Zap className="w-4 h-4 mr-3 text-studio group-hover/btn:scale-110 transition-transform duration-500" />
+                      <Zap className="w-4 h-4 mr-2 group-hover/btn:scale-110 transition-transform duration-300" />
                     )}
-                    <span className="relative z-10">GENERATE SCREENING</span>
+                    <span className="relative z-10">{isRendering ? "RENDERING" : "RENDER"}</span>
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="top">
@@ -111,19 +110,19 @@ export const ScreeningHeader: React.FC<ScreeningHeaderProps> = ({
 
               {onSave && hasContent && (
                 <Tooltip>
-                  <TooltipTrigger>
+                  <TooltipTrigger asChild>
                     <Button 
-                      variant="outline"
-                      className="relative w-full sm:w-auto h-12 px-8 bg-[#050505] border-white/10 text-zinc-100 hover:text-emerald-500 hover:border-emerald-500/50 font-black uppercase tracking-widest text-[11px] rounded-full transition-all duration-500 backdrop-blur-md group/save shadow-2xl"
+                      variant="ghost"
+                      className="relative w-full sm:w-auto h-10 px-6 bg-gradient-to-r from-cyan-500/10 to-transparent border border-cyan-500/30 text-cyan-500 hover:text-cyan-400 hover:border-cyan-500/60 hover:bg-gradient-to-r hover:from-cyan-500/20 hover:to-cyan-500/10 font-black uppercase tracking-widest text-[9px] rounded-lg transition-all duration-300 shadow-lg hover:shadow-[0_0_20px_rgba(34,211,238,0.2)] group/save"
                       onClick={onSave}
                       disabled={isSaving}
                     >
                       {isSaving ? (
-                        <RefreshCw className="w-4 h-4 animate-spin mr-2 text-emerald-500" />
+                        <RefreshCw className="w-4 h-4 animate-spin mr-2" />
                       ) : (
                         <Save className="w-4 h-4 mr-2 group-hover/save:scale-110 transition-transform" />
                       )}
-                      <span>{isSaving ? "SAVING..." : "SAVE ALL"}</span>
+                      <span>{isSaving ? "SAVING" : "SAVE"}</span>
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent side="top">
@@ -133,15 +132,14 @@ export const ScreeningHeader: React.FC<ScreeningHeaderProps> = ({
               )}
 
               <Tooltip>
-                <TooltipTrigger>
+                <TooltipTrigger asChild>
                   <Button 
-                    className="relative w-full sm:w-auto h-12 px-10 rounded-full bg-[#050505] border border-white/10 text-zinc-400 hover:text-studio hover:border-studio/50 font-black uppercase tracking-widest text-[10px] transition-all duration-500 backdrop-blur-md group/next shadow-2xl"
+                    className="relative w-full sm:w-auto h-10 px-8 rounded-lg bg-gradient-to-r from-white to-zinc-100 text-black hover:from-zinc-50 hover:to-white font-black uppercase tracking-widest text-[9px] transition-all duration-300 group/next shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:shadow-[0_0_30px_rgba(255,255,255,0.4)]"
                     onClick={onNext}
                   >
                     <span className="relative z-10 flex items-center gap-2">
                       NEXT <ChevronRight className="w-4 h-4 group-hover/next:translate-x-1 transition-transform" />
                     </span>
-                    <div className="absolute inset-0 bg-studio/5 opacity-0 group-hover/next:opacity-100 transition-opacity duration-500 rounded-full" />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="top">
