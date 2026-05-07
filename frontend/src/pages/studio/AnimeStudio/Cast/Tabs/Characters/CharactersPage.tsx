@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { Plus, ListFilter, Search, Layout as LayoutGrid, List, User, Camera } from 'lucide-react';
 import { useGenerator } from '@/hooks/useGenerator';
+import { StudioEditor } from '../../../components/StudioEditor';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { CastCard } from '../../components/CastCard';
@@ -16,6 +17,8 @@ export default function CharactersPage() {
     isEditing,
     setIsEditing,
     contentType,
+    generatedCharacters,
+    setGeneratedCharacters,
     showNotification: notify
   } = useGenerator();
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
@@ -134,35 +137,44 @@ export default function CharactersPage() {
       </div>
 
       {/* Characters List - Responsive Layout */}
-      <div className={cn(
-        "relative z-10",
-        viewMode === 'grid' ? "grid grid-cols-1 lg:grid-cols-2 gap-8" : "flex flex-col gap-6"
-      )}>
-        {displayCast.length > 0 ? (
-          displayCast.map((char: any, idx: number) => (
-            <CastCard
-              key={idx}
-              character={char}
-              index={idx}
-              isEditing={isEditing}
-              onUpdate={(updates) => handleUpdateCharacter(idx, updates)}
-              onViewCharacter={(charName) => {
-                navigate(`/${contentType.toLowerCase()}/cast/characters/${charName}`);
-              }}
-            />
-          ))
-        ) : (
-          <div className="col-span-full h-[400px] flex flex-col items-center justify-center border-2 border-dashed border-zinc-800 rounded-[3rem] text-center space-y-4">
-            <div className="w-16 h-16 rounded-full bg-zinc-900 flex items-center justify-center">
-              <User className="w-8 h-8 text-zinc-700" />
+      {isEditing ? (
+        <StudioEditor
+          content={generatedCharacters || ''}
+          onContentChange={(val) => setGeneratedCharacters?.(val)}
+          isEditing={isEditing}
+          placeholder="Edit your character manifest here in markdown format..."
+        />
+      ) : (
+        <div className={cn(
+          "relative z-10",
+          viewMode === 'grid' ? "grid grid-cols-1 lg:grid-cols-2 gap-8" : "flex flex-col gap-6"
+        )}>
+          {displayCast.length > 0 ? (
+            displayCast.map((char: any, idx: number) => (
+              <CastCard
+                key={idx}
+                character={char}
+                index={idx}
+                isEditing={isEditing}
+                onUpdate={(updates) => handleUpdateCharacter(idx, updates)}
+                onViewCharacter={(charName) => {
+                  navigate(`/${contentType.toLowerCase()}/cast/characters/${charName}`);
+                }}
+              />
+            ))
+          ) : (
+            <div className="col-span-full h-[400px] flex flex-col items-center justify-center border-2 border-dashed border-zinc-800 rounded-[3rem] text-center space-y-4">
+              <div className="w-16 h-16 rounded-full bg-zinc-900 flex items-center justify-center">
+                <User className="w-8 h-8 text-zinc-700" />
+              </div>
+              <div className="space-y-1">
+                <p className="text-white font-bold uppercase tracking-widest text-sm">No Cast Members Detected</p>
+                <p className="text-zinc-600 text-xs">Initialize your character synthesis to begin sequencing the cast.</p>
+              </div>
             </div>
-            <div className="space-y-1">
-              <p className="text-white font-bold uppercase tracking-widest text-sm">No Cast Members Detected</p>
-              <p className="text-zinc-600 text-xs">Initialize your character synthesis to begin sequencing the cast.</p>
-            </div>
-          </div>
-        )}
-      </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

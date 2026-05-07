@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { StudioEditor } from '../../components/StudioEditor';
 import { Zap, Shield, Flame, Activity, Sparkles, ClipboardList, Download } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { studioLog, reportGeneration } from '@/lib/studio-logger';
@@ -28,7 +29,6 @@ export const PowersTab: React.FC<PowersTabProps> = ({
   onPromptChange
 }) => {
   const sectionContent = content;
-  const { textareaRef: mainTextareaRef, scheduleResizeTextarea: scheduleMainResize } = useAutoResizeTextarea(content || '', isEditing);
   const { textareaRef: promptTextareaRef, scheduleResizeTextarea: schedulePromptResize } = useAutoResizeTextarea(prompt || '', isEditing);
 
   const stats = React.useMemo(() => [
@@ -43,15 +43,10 @@ export const PowersTab: React.FC<PowersTabProps> = ({
 
 
       {isEditing ? (
-        <textarea
-          ref={mainTextareaRef}
-          className={s.textarea}
-          value={content}
-          onChange={(e) => {
-            onContentChange(e.target.value);
-            scheduleMainResize();
-          }}
-          onInput={scheduleMainResize}
+        <StudioEditor
+          content={content}
+          onContentChange={onContentChange}
+          isEditing={isEditing}
           placeholder="Define the laws of your magic/power system..."
         />
       ) : (

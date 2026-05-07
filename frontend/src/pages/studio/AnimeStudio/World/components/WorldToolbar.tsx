@@ -85,87 +85,81 @@ export const WorldToolbar: React.FC<WorldToolbarProps> = ({
             </div>
 
             <div className="toolbar-action-group">
-              <div className="flex items-center justify-between w-full md:w-auto gap-4">
-                {/* Actions */}
-                <div className="toolbar-btn-group">
-                  <Tooltip>
-                    <TooltipTrigger>
-                      <Button
-                        onClick={handleCopy}
-                        size="icon"
-                        variant="ghost"
-                        className="h-9 w-9 rounded-lg text-zinc-400 hover:text-studio border border-transparent hover:border-studio/40 hover:bg-gradient-to-br hover:from-studio/20 hover:to-studio/5 transition-all duration-300 group relative overflow-hidden"
-                        disabled={!content}
-                      >
-                        <div className="absolute inset-0 bg-studio/0 group-hover:bg-studio/5 transition-colors duration-300" />
-                        <Copy className="w-4 h-4 relative z-10 group-hover:scale-110 transition-transform duration-300" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent side="top">
-                      <p className="font-black uppercase tracking-widest text-[9px]">Copy Manifest to Clipboard</p>
-                    </TooltipContent>
-                  </Tooltip>
+              <div className="toolbar-btn-group">
+                <Tooltip>
+                  <TooltipTrigger>
+                    <Button
+                      onClick={handleCopy}
+                      size="icon"
+                      variant="ghost"
+                      className="h-9 w-9 rounded-lg text-zinc-400 hover:text-studio border border-transparent hover:border-studio/40 hover:bg-studio/10 transition-all duration-300 group relative overflow-hidden"
+                      disabled={!content}
+                    >
+                      <Copy className="w-4 h-4 relative z-10 group-hover:scale-110 transition-transform duration-300" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="top">
+                    <p className="font-black uppercase tracking-widest text-[9px]">Copy Manifest</p>
+                  </TooltipContent>
+                </Tooltip>
 
-                  <Tooltip>
-                    <TooltipTrigger >
-                      <Button
-                        onClick={handleDownload}
-                        size="icon"
-                        variant="ghost"
-                        className="h-9 w-9 rounded-lg text-zinc-400 hover:text-studio border border-transparent hover:border-studio/40 hover:bg-gradient-to-br hover:from-studio/20 hover:to-studio/5 transition-all duration-300 group relative overflow-hidden"
-                        disabled={!content}
-                      >
-                        <div className="absolute inset-0 bg-studio/0 group-hover:bg-studio/5 transition-colors duration-300" />
-                        <Download className="w-4 h-4 relative z-10 group-hover:scale-110 transition-transform duration-300" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent side="top">
-                      <p className="font-black uppercase tracking-widest text-[9px]">Export as Markdown</p>
-                    </TooltipContent>
-                  </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <Button
+                      onClick={handleDownload}
+                      size="icon"
+                      variant="ghost"
+                      className="h-9 w-9 rounded-lg text-zinc-400 hover:text-studio border border-transparent hover:border-studio/40 hover:bg-studio/10 transition-all duration-300 group relative overflow-hidden"
+                      disabled={!content}
+                    >
+                      <Download className="w-4 h-4 relative z-10 group-hover:scale-110 transition-transform duration-300" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="top">
+                    <p className="font-black uppercase tracking-widest text-[9px]">Export Markdown</p>
+                  </TooltipContent>
+                </Tooltip>
 
-                  <div className="w-px h-5 bg-gradient-to-b from-transparent via-white/10 to-transparent mx-1" />
+                <div className="w-px h-4 bg-white/10 mx-1" />
 
-                  <Tooltip>
-                    <TooltipTrigger >
-                      <Button
-                        onClick={() => onEditingChange?.(!isEditing)}
-                        variant="ghost"
-                        className={cn(
-                          "h-9 px-3 gap-2 rounded-lg transition-all duration-300 group relative overflow-hidden border",
-                          isEditing
-                            ? "text-studio bg-gradient-to-br from-studio/20 to-studio/5 hover:from-studio/30 hover:to-studio/10 border-studio/40 shadow-[0_0_12px_rgba(6,182,212,0.15)]"
-                            : "text-zinc-400 hover:text-studio bg-transparent hover:bg-gradient-to-br hover:from-studio/15 hover:to-studio/5 border-transparent hover:border-studio/40"
-                        )}
-                      >
-                        <Edit2 className="w-4 h-4 group-hover:scale-110 transition-transform duration-300" />
-                        <span className="text-[10px] font-black uppercase tracking-widest">
-                          {isEditing ? 'Lock Edits' : 'Edit'}
-                        </span>
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent side="top">
-                      <p className="font-black uppercase tracking-widest text-[9px]">{isEditing ? "Lock Edits" : "Edit Manifest"}</p>
-                    </TooltipContent>
-                  </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <Button
+                      onClick={() => onEditingChange?.(!isEditing)}
+                      variant="ghost"
+                      className={cn(
+                        "h-9 px-4 gap-2 rounded-lg transition-all duration-300 group relative overflow-hidden border",
+                        isEditing
+                          ? "text-studio bg-studio/20 border-studio shadow-[0_0_15px_rgba(var(--studio-rgb),0.3)]"
+                          : "text-zinc-400 hover:text-studio bg-transparent border-transparent hover:border-studio/40"
+                      )}
+                    >
+                      <Edit2 className="w-4 h-4 group-hover:scale-110 transition-transform duration-300" />
+                      <span className="text-[10px] font-black uppercase tracking-widest">
+                        {isEditing ? 'Lock Edits' : 'Edit'}
+                      </span>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="top">
+                    <p className="font-black uppercase tracking-widest text-[9px]">{isEditing ? "Lock Edits" : "Edit Manifest"}</p>
+                  </TooltipContent>
+                </Tooltip>
 
-                  <Tooltip>
-                    <TooltipTrigger >
-                      <Button
-                        onClick={toggleFullscreen}
-                        size="icon"
-                        variant="ghost"
-                        className="h-9 w-9 rounded-lg text-zinc-400 hover:text-studio border border-transparent hover:border-studio/40 hover:bg-gradient-to-br hover:from-studio/20 hover:to-studio/5 transition-all duration-300 group relative overflow-hidden"
-                      >
-                        <div className="absolute inset-0 bg-studio/0 group-hover:bg-studio/5 transition-colors duration-300" />
-                        {isFullscreen ? <Minimize className="w-4 h-4 relative z-10 group-hover:scale-110 transition-transform duration-300" /> : <Maximize className="w-4 h-4 relative z-10 group-hover:scale-110 transition-transform duration-300" />}
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent side="top">
-                      <p className="font-black uppercase tracking-widest text-[9px]">{isFullscreen ? "Exit Fullscreen" : "Fullscreen Mode"}</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </div>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <Button
+                      onClick={toggleFullscreen}
+                      size="icon"
+                      variant="ghost"
+                      className="h-9 w-9 rounded-lg text-zinc-400 hover:text-studio border border-transparent hover:border-studio/40 hover:bg-studio/10 transition-all duration-300 group relative overflow-hidden"
+                    >
+                      {isFullscreen ? <Minimize className="w-4 h-4 relative z-10 group-hover:scale-110 transition-transform duration-300" /> : <Maximize className="w-4 h-4 relative z-10 group-hover:scale-110 transition-transform duration-300" />}
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="top">
+                    <p className="font-black uppercase tracking-widest text-[9px]">{isFullscreen ? "Exit Fullscreen" : "Fullscreen Mode"}</p>
+                  </TooltipContent>
+                </Tooltip>
               </div>
             </div>
           </div>
@@ -174,8 +168,3 @@ export const WorldToolbar: React.FC<WorldToolbarProps> = ({
     </TooltipProvider>
   );
 };
-
-
-
-
-

@@ -33,21 +33,55 @@ export interface GeneratedCharacter {
     primaryFear: string;
     primaryDesire: string;
     copingMechanism: string;
+    moralDilemma?: string;
   };
-  appearance: any; // Can be rich object or string
+  appearance: {
+    silhouette: string;
+    colorPalette: string[];
+    notableFeatures: string[];
+    clothing: string;
+    accessories: string[];
+    bodyType: string;
+    movementQuality: string;
+  };
   visualPrompt: string;
-  speakingStyle: any; // Can be rich object or string
+  speakingStyle: {
+    sentence_structure: string;
+    vocabulary: string;
+    verbalTics: string[];
+    emotionalTells: string;
+    voiceArchetype: string;
+    emotionalSpectrum: string;
+    catchphrases: string[];
+    dialogueRhythm: string;
+  };
   powerSystem?: {
     powerType: string;
     powerTier: string;
     signatureAbility: string;
     limitations: string;
     weakness: string;
+    defensiveStyle?: string;
+    powerLevel?: string;
+    cameraChoreography?: string;
   };
   narrative?: {
     arcType: string;
     primaryFunction: string;
     emotionalPurpose: string;
+    arcRoadmap?: {
+      initialState: string;
+      catalyst: string;
+      finalTransformation: string;
+      moralDilemma: string;
+    };
+  };
+  technicalModel?: {
+    movementStyle: string;
+    heightComparison: string;
+    visualDNA: string;
+    vfxSignature: string;
+    lightingLogic: string;
   };
   secrets?: string[];
   conflict: string;
@@ -59,13 +93,18 @@ export interface GeneratedCharacter {
     socialClass: string;
     geographicOrigin: string;
     culturalBackground: string;
+    socialDynamics?: {
+      socialStanding: string;
+      coreBonds: string[];
+      coreFriction: string;
+      groupEtiquette: string;
+    };
   };
   relationship_vectors?: {
     targetCharacter: string;
     type: string;
     tension: number;
   }[];
-  secret?: string; // Fallback for simple prompt format
 }
 
 export interface GeneratedCast {
@@ -76,8 +115,13 @@ export interface GeneratedCast {
     source: string;
     target: string;
     type: RelationshipType;
+    subtype?: string;
     tension: number;
     description: string;
+    dynamicSetup?: string;
+    escalationPath?: string;
+    betrayalPotential?: string;
+    arcPotential?: string;
   }[];
 }
 

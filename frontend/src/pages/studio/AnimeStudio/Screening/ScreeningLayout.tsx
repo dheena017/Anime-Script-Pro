@@ -20,7 +20,8 @@ export default function ScreeningLayout() {
   const {
     session, episode, isSaving, generatedScript,
     syncCore, contentType,
-    generationProgress
+    generationProgress,
+    isEditing, setIsEditing
   } = useGenerator();
 
   useAuth();
@@ -81,6 +82,8 @@ export default function ScreeningLayout() {
               episode={episode}
               activeSession={handlers.activeSession}
               setActiveSession={handlers.setActiveSession}
+              isEditing={isEditing}
+              onEditingChange={setIsEditing}
             />
           </div>
         )}

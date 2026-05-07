@@ -1,8 +1,14 @@
-import { Copy, Maximize, Minimize } from 'lucide-react';
+import { Box, Copy, Maximize, Minimize } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { EngineTabs, EngineTab } from '../tabs/EngineTabs';
 import { Button } from '@/components/ui/button';
 import { useApp } from '@/contexts/AppContext';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
+} from '@/components/ui/tooltip';
 
 export type { EngineTab };
 
@@ -46,41 +52,61 @@ export const EngineToolbar: React.FC<EngineToolbarProps> = ({
   };
 
   return (
-    <div className="flex flex-col gap-4 w-full">
+    <div className="toolbar-container flex flex-col gap-4">
       {!showTabsOnly && (
-        <div className="flex items-center justify-between px-4 py-2.5 bg-black/60 border border-white/5 rounded-2xl backdrop-blur-md shadow-inner">
-          <div className="flex items-center gap-3">
-            <div className="flex flex-col gap-0.5">
-              <span className={cn(
-                "text-[9px] font-black uppercase tracking-widest bg-gradient-to-r bg-clip-text text-transparent",
-                status === 'active' ? "from-studio/80 to-cyan-400/60" : "from-zinc-500 to-zinc-600"
-              )}>
-                Engine Nexus{' '}
-                <span className={cn(status === 'active' ? 'text-studio' : 'text-zinc-700')}>{status === 'active' ? 'Active' : 'Standby'}</span>
+        <div className="toolbar-header">
+          {/* Identity */}
+          <div className="toolbar-status-box">
+            <div className="toolbar-status-icon">
+              <Box className={cn("w-5 h-5 transition-all duration-500", status === 'active' ? "text-studio drop-shadow-[0_0_8px_rgba(6,182,212,0.6)]" : "text-zinc-600")} />
+            </div>
+            <div className="flex flex-col gap-1">
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] bg-gradient-to-r from-studio/80 to-cyan-400/60 bg-clip-text text-transparent">
+                Engine Nexus {status === 'active' ? 'Active' : 'Standby'}
+              </span>
+              <span className="text-[8px] font-bold text-zinc-500 uppercase tracking-widest">
+                System Status: Optimal // Engine_Sync_01
               </span>
             </div>
           </div>
 
-          <div className="flex items-center gap-1">
-            <Button
-              onClick={handleCopy}
-              size="icon"
-              variant="ghost"
-              className="h-8 w-8 rounded-lg text-zinc-400 hover:text-studio border border-transparent hover:border-studio/40 hover:bg-gradient-to-br hover:from-studio/20 hover:to-studio/5 transition-all duration-300 group relative overflow-hidden"
-              disabled={!content}
-            >
-              <div className="absolute inset-0 bg-studio/0 group-hover:bg-studio/5 transition-colors duration-300" />
-              <Copy className="w-3.5 h-3.5 relative z-10 group-hover:scale-110 transition-transform duration-300" />
-            </Button>
-            <Button
-              onClick={toggleFullscreen}
-              size="icon"
-              variant="ghost"
-              className="h-8 w-8 rounded-lg text-zinc-400 hover:text-studio border border-transparent hover:border-studio/40 hover:bg-gradient-to-br hover:from-studio/20 hover:to-studio/5 transition-all duration-300 group relative overflow-hidden"
-            >
-              <div className="absolute inset-0 bg-studio/0 group-hover:bg-studio/5 transition-colors duration-300" />
-              {isFullscreen ? <Minimize className="w-3.5 h-3.5 relative z-10 group-hover:scale-110 transition-transform duration-300" /> : <Maximize className="w-3.5 h-3.5 relative z-10 group-hover:scale-110 transition-transform duration-300" />}
-            </Button>
+          <div className="toolbar-action-group">
+            <div className="toolbar-btn-group">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <Button
+                      onClick={handleCopy}
+                      size="icon"
+                      variant="ghost"
+                      className="h-9 w-9 rounded-lg text-zinc-400 hover:text-studio border border-transparent hover:border-studio/40 hover:bg-studio/10 transition-all duration-300 group relative overflow-hidden"
+                      disabled={!content}
+                    >
+                      <Copy className="w-4 h-4 relative z-10 group-hover:scale-110 transition-transform duration-300" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="top">
+                    <p className="font-black uppercase tracking-widest text-[9px]">Copy Output</p>
+                  </TooltipContent>
+                </Tooltip>
+
+                <Tooltip>
+                  <TooltipTrigger>
+                    <Button
+                      onClick={toggleFullscreen}
+                      size="icon"
+                      variant="ghost"
+                      className="h-9 w-9 rounded-lg text-zinc-400 hover:text-studio border border-transparent hover:border-studio/40 hover:bg-studio/10 transition-all duration-300 group relative overflow-hidden"
+                    >
+                      {isFullscreen ? <Minimize className="w-4 h-4 relative z-10 group-hover:scale-110 transition-transform duration-300" /> : <Maximize className="w-4 h-4 relative z-10 group-hover:scale-110 transition-transform duration-300" />}
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="top">
+                    <p className="font-black uppercase tracking-widest text-[9px]">{isFullscreen ? "Exit Fullscreen" : "Fullscreen Mode"}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
           </div>
         </div>
       )}

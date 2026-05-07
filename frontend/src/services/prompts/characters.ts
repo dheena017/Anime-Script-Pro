@@ -245,25 +245,27 @@ OHOHOHO LOGIC (Noble/Proud):
 - Evolution: Learning respect through humbling experiences
 - Arc: From arrogance to earned confidence
 
---- CHARACTER DETAIL REQUIREMENTS (Mandatory for Every Character) ---
+--- HYPER-DETAIL CHARACTER REQUIREMENTS (Mandatory for Every Character) ---
 
-For EVERY character in the cast, you MUST define:
+For EVERY character in the cast, you MUST define HYPER-DETAILED profiles:
 
-1. VISUAL IDENTITY:
+1. VISUAL IDENTITY (HYPER-RESOLUTION):
    - Distinctive silhouette recognizable at any size/distance
    - Primary color palette (3-5 colors defining their appearance)
    - Signature accessories or visual quirks
    - Body type and movement quality (graceful, rigid, fluid, jerky?)
-   - Hair style, length, color with narrative significance
-   - Eye color/shape with emotional meaning
-   - Clothing style reflecting class, faction, and personality
-   - Scars, marks, or physical distinctions
+   - Hair style, length, color with narrative significance (e.g., "layered obsidian spikes with cyan glowing tips")
+   - Eye color/shape with emotional meaning (e.g., "sectoral heterochromia, piercing gold with dilated pupils")
+   - Clothing MATERIAL details (e.g., "weathered carbon-fiber weave", "iridescent silk with micro-circuit embroidery")
+   - Skin texture and marks (e.g., "matte porcelain finish", "subtle freckles along bridge of nose", "glowing neural-link scars")
+   - Lighting Logic: How they catch light (e.g., "constant rim lighting", "heavy sub-surface scattering in shadows")
+   - Scars, marks, or physical distinctions with historical weight
    - Age and how it manifests in their appearance
    - How they look when at peace vs. in combat vs. emotionally devastated
 
-2. PSYCHOLOGICAL PROFILE:
+2. PSYCHOLOGICAL PROFILE (DEEP-DIVE):
    - Myers-Briggs or similar framework (optional but useful)
-   - Core wound or trauma shaping their psychology
+   - Core wound or trauma shaping their psychology (must be specific, e.g., "The Betrayal at the Glass Spire")
    - Coping mechanisms (humor, isolation, aggression, perfectionism?)
    - Attachment style (secure, anxious, avoidant, fearful?)
    - Primary fear (failure, abandonment, insignificance, corruption?)
@@ -385,42 +387,64 @@ You MUST return a JSON object with this EXACT structure:
         "bodyType": "<body description>",
         "movementQuality": "<how they move>"
       },
-      "visualPrompt": "<technical image generation prompt for visual generation tools>",
+      "visualPrompt": "Detailed Image Generation Prompt: [Full Body/Portrait], [Character Description], [Clothing Materials], [Lighting Setup (e.g. rim lighting, cinematic shadows)], [VFX/Particle Effects Signature], [Lens Type: 35mm/85mm], [Art Style: High Fidelity ${contentType}]",
       "speakingStyle": {
         "sentence_structure": "<how they construct sentences>",
         "vocabulary": "<formal/informal/slang/academic?>",
         "verbalTics": ["<tic1>", "<tic2>"],
-        "emotionalTells": "<what reveals true emotions>"
+        "emotionalTells": "<what reveals true emotions>",
+        "voiceArchetype": "<vocal range and tone>",
+        "emotionalSpectrum": "<emotional expression style>",
+        "catchphrases": ["<signature phrase 1>", "<signature phrase 2>"],
+        "dialogueRhythm": "<staccato, melodic, monotone, etc.>"
       },
       "powerSystem": {
-        "powerType": "<magic/martial/tech/hybrid/none>",
-        "powerTier": "<tier within world's system>",
-        "signatureAbility": "<their most recognizable move>",
-        "limitations": "<specific mechanical limitations>",
-        "weakness": "<concrete exploitable weakness>"
+        "powerType": "<magic/martial/tech/none>",
+        "powerTier": "<tier>",
+        "signatureAbility": "<move name>",
+        "limitations": "<limitations>",
+        "weakness": "<weakness>",
+        "defensiveStyle": "<defense>",
+        "powerLevel": "<level>",
+        "cameraChoreography": "<how the camera should move during their fights (e.g., fast tracking, low angle static)>"
       },
       "narrative": {
-        "arcType": "<redemption/fall/transformation/sacrifice/triumph>",
-        "primaryFunction": "<story role>",
-        "emotionalPurpose": "<what they provide emotionally>"
+        "arcType": "<type>",
+        "primaryFunction": "<role>",
+        "emotionalPurpose": "<purpose>",
+        "arcRoadmap": {
+          "initialState": "<initial>",
+          "catalyst": "<catalyst>",
+          "finalTransformation": "<final>",
+          "moralDilemma": "<the core impossible choice they must make>"
+        }
       },
-      "secrets": [
-        "<secret1>",
-        "<secret2>",
-        "<secret3>"
-      ],
-      "conflict": "<their core internal struggle>",
-      "goal": "<their burning desire or mission>",
-      "flaw": "<deep-seated limitation creating complications>",
-      "sceneFunction": ["<function1>", "<function2>", "<function3>"],
+      "secrets": ["<secret1>"],
+      "conflict": "<conflict>",
+      "goal": "<goal>",
+      "flaw": "<flaw>",
+      "sceneFunction": ["<function1>"],
       "worldAlignment": {
-        "factionAffiliation": "<which world faction>",
-        "socialClass": "<rich/middle/poor/noble/outcast?>",
-        "geographicOrigin": "<where they're from>",
-        "culturalBackground": "<cultural traditions>"
+        "factionAffiliation": "<faction>",
+        "socialClass": "<class>",
+        "geographicOrigin": "<origin>",
+        "culturalBackground": "<culture>",
+        "socialDynamics": {
+          "socialStanding": "<standing>",
+          "coreBonds": ["<bond1>"],
+          "coreFriction": "<friction>",
+          "groupEtiquette": "<how they behave in a group (e.g., always stands in the back, interrupts others)>"
+        }
+      },
+      "technicalModel": {
+        "movementStyle": "<movement>",
+        "heightComparison": "<height>",
+        "visualDNA": "<detailed visual breakdown for consistency>",
+        "vfxSignature": "<specific particle or lighting effects (e.g., blue sparks, heavy lens flare)>",
+        "lightingLogic": "<how they should be lit (e.g., rim lighting, high contrast shadow)>"
       },
       "relationship_vectors": [
-        {"targetCharacter": "<name>", "type": "<Ally/Rival/Love/Mentor/etc>", "tension": <1-10>}
+        {"targetCharacter": "<name>", "type": "<type>", "tension": <1-10>}
       ]
     }
   ],

@@ -27,17 +27,37 @@ export default function CharacterEditPage() {
   const characterIndex = displayCast.findIndex((c: any) => c.name === characterName);
   const character = characterIndex !== -1 ? displayCast[characterIndex] : null;
 
+  const toText = (value: unknown, fallback = ''): string => {
+    if (typeof value === 'string') return value;
+    if (value == null) return fallback;
+    if (Array.isArray(value)) {
+      return value
+        .map((item) => (typeof item === 'string' ? item : JSON.stringify(item)))
+        .join(', ');
+    }
+    if (typeof value === 'object') {
+      return Object.entries(value as Record<string, unknown>)
+        .map(([key, val]) => `${key}: ${typeof val === 'string' ? val : JSON.stringify(val)}`)
+        .join('\n');
+    }
+    return String(value);
+  };
+
   const normalizeCharData = (char: any) => {
     if (!char) return null;
     return {
       ...char,
-      appearance: typeof char.appearance === 'object' && char.appearance !== null
-        ? `Silhouette: ${char.appearance.silhouette || ''}\nClothing: ${char.appearance.clothing || ''}\nFeatures: ${(char.appearance.notableFeatures || []).join(', ')}`
-        : char.appearance || '',
-      speakingStyle: typeof char.speakingStyle === 'object' && char.speakingStyle !== null
-        ? `${char.speakingStyle.vocabulary || ''} ${char.speakingStyle.sentence_structure || ''}`.trim()
-        : char.speakingStyle || '',
-      secret: char.secret || (Array.isArray(char.secrets) ? char.secrets[0] : ''),
+      appearance: toText(char.appearance),
+      speakingStyle_text: toText(char.speakingStyle), // Keep original logic for legacy
+      secret: toText(char.secret || (Array.isArray(char.secrets) ? char.secrets[0] : '')),
+      goal: toText(char.goal),
+      conflict: toText(char.conflict),
+      flaw: toText(char.flaw),
+      // Production Deep Fields
+      cameraChoreography: toText(char.powerSystem?.cameraChoreography),
+      moralDilemma: toText(char.narrative?.arcRoadmap?.moralDilemma),
+      vfxSignature: toText(char.technicalModel?.vfxSignature),
+      groupEtiquette: toText(char.worldAlignment?.socialDynamics?.groupEtiquette),
     };
   };
 
@@ -66,8 +86,22 @@ export default function CharacterEditPage() {
 
   const handleSave = () => {
     const newList = [...displayCast];
-    // Retain original deep properties but override edited ones
-    newList[characterIndex] = { ...character, ...formData };
+    // Deep update logic
+    const updatedChar = { 
+      ...character, 
+      ...formData,
+      powerSystem: { ...character.powerSystem, cameraChoreography: formData.cameraChoreography },
+      narrative: { 
+        ...character.narrative, 
+        arcRoadmap: { ...character.narrative?.arcRoadmap, moralDilemma: formData.moralDilemma } 
+      },
+      technicalModel: { ...character.technicalModel, vfxSignature: formData.vfxSignature },
+      worldAlignment: {
+        ...character.worldAlignment,
+        socialDynamics: { ...character.worldAlignment?.socialDynamics, groupEtiquette: formData.groupEtiquette }
+      }
+    };
+    newList[characterIndex] = updatedChar;
     setCastList(newList);
     navigate(`/${contentType.toLowerCase()}/cast/characters/${formData.name}`);
   };
@@ -207,7 +241,7 @@ export default function CharacterEditPage() {
                  <div className="space-y-4">
                     <div className="flex items-center gap-3">
                        <MessageSquare className="w-4 h-4 text-studio" />
-                       <Label className="text-[10px] font-black uppercase text-zinc-500 tracking-widest">Speaking Protocol</Label>
+                       <Label className="text-[10px] font-black uppercase text-zinc-500 tracking-widest">Speaking Protocol & Rhythm</Label>
                     </div>
                     <Input 
                       value={formData.speakingStyle} 
@@ -225,6 +259,44 @@ export default function CharacterEditPage() {
                       onChange={(e) => setFormData({...formData, secret: e.target.value})}
                       className="bg-orange-500/5 border-orange-500/20 h-12 text-sm text-orange-400 font-bold uppercase tracking-widest"
                     />
+                 </div>
+              </div>
+
+              {/* Advanced Production Data */}
+              <div className="space-y-8 pt-8 border-t border-white/5">
+                 <div className="space-y-1">
+                    <h3 className="text-sm font-black text-white uppercase tracking-[0.2em]">Advanced Production DNA</h3>
+                    <p className="text-zinc-500 text-[9px] font-black uppercase tracking-widest italic">Directorial and Technical Specifications</p>
+                 </div>
+
+                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="space-y-2">
+                       <Label className="text-[9px] font-black uppercase text-red-500/60 tracking-widest">Camera Choreography</Label>
+                       <Textarea 
+                          value={formData.cameraChoreography} 
+                          onChange={(e) => setFormData({...formData, cameraChoreography: e.target.value})}
+                          className="bg-black/40 border-zinc-800 min-h-[80px] text-[11px] italic"
+                          placeholder="Tracking, static, or kinetic camera notes..."
+                       />
+                    </div>
+                    <div className="space-y-2">
+                       <Label className="text-[9px] font-black uppercase text-fuchsia-500/60 tracking-widest">Moral Dilemma</Label>
+                       <Textarea 
+                          value={formData.moralDilemma} 
+                          onChange={(e) => setFormData({...formData, moralDilemma: e.target.value})}
+                          className="bg-black/40 border-zinc-800 min-h-[80px] text-[11px] italic"
+                          placeholder="The character's core narrative conflict..."
+                       />
+                    </div>
+                    <div className="space-y-2">
+                       <Label className="text-[9px] font-black uppercase text-indigo-500/60 tracking-widest">VFX Signature</Label>
+                       <Textarea 
+                          value={formData.vfxSignature} 
+                          onChange={(e) => setFormData({...formData, vfxSignature: e.target.value})}
+                          className="bg-black/40 border-zinc-800 min-h-[80px] text-[11px] italic"
+                          placeholder="Particles, lighting, or distortion effects..."
+                       />
+                    </div>
                  </div>
               </div>
            </Card>

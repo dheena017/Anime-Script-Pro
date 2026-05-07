@@ -1,4 +1,5 @@
 import React from 'react';
+import { StudioEditor } from '../../components/StudioEditor';
 import { motion } from 'framer-motion';
 import { History, Hourglass, Landmark, ScrollText, Sparkles, ClipboardList, Download } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
@@ -26,7 +27,6 @@ export const HistoryTab: React.FC<HistoryTabProps> = ({
   onPromptChange
 }) => {
   const sectionContent = content;
-  const { textareaRef: mainTextareaRef, scheduleResizeTextarea: scheduleMainResize } = useAutoResizeTextarea(content || '', isEditing);
   const { textareaRef: promptTextareaRef, scheduleResizeTextarea: schedulePromptResize } = useAutoResizeTextarea(prompt || '', isEditing);
 
   const timeline = React.useMemo(() => {

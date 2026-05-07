@@ -36,7 +36,7 @@ export const CastHeader: React.FC<CastHeaderProps> = ({
   episode,
   status = 'empty'
 }) => {
-  const { stopGeneration } = useGenerator();
+  const { stopGeneration, numCharacters, setNumCharacters } = useGenerator();
 
   return (
     <TooltipProvider>
@@ -84,6 +84,23 @@ export const CastHeader: React.FC<CastHeaderProps> = ({
             )}
 
             <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
+              {/* Squad Scale Selector */}
+              <div className="flex items-center bg-black/40 border border-fuchsia-500/20 rounded-lg overflow-hidden h-10">
+                 <div className="px-3 border-r border-fuchsia-500/20 flex items-center gap-2">
+                    <Users className="w-3 h-3 text-fuchsia-500/50" />
+                    <span className="text-[8px] font-black text-fuchsia-500/50 uppercase tracking-widest">Scale</span>
+                 </div>
+                 <select 
+                    value={numCharacters}
+                    onChange={(e) => setNumCharacters(Number(e.target.value))}
+                    className="bg-transparent text-[10px] font-black text-fuchsia-400 px-3 outline-none cursor-pointer hover:bg-fuchsia-500/5 transition-colors h-full"
+                 >
+                    {[3, 4, 5, 6, 7, 8, 10, 12, 15].map(n => (
+                       <option key={n} value={n} className="bg-zinc-950 text-white">{n} UNITS</option>
+                    ))}
+                 </select>
+              </div>
+
               <Tooltip>
                 <TooltipTrigger>
                   {isGenerating ? (

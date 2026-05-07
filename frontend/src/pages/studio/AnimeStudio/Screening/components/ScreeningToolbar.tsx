@@ -1,3 +1,6 @@
+import { Download, Maximize, Copy, Minimize, Monitor } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 import {
   Tooltip,
   TooltipContent,
@@ -5,9 +8,6 @@ import {
   TooltipTrigger
 } from '@/components/ui/tooltip';
 import { useApp } from '@/contexts/AppContext';
-import { Download, Maximize, Copy, Minimize, Monitor } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
 
 interface ScreeningToolbarProps {
   status: 'active' | 'draft' | 'empty';
@@ -48,11 +48,11 @@ export const ScreeningToolbar: React.FC<ScreeningToolbarProps> = ({
 
   return (
     <TooltipProvider>
-      <div className="flex flex-col gap-6 w-full p-4 md:p-0">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 lg:gap-0">
+      <div className="toolbar-container">
+        <div className="toolbar-header">
           {/* Identity */}
-          <div className="flex items-center gap-4">
-            <div className="w-10 h-10 rounded-xl bg-studio/10 border border-studio/20 flex items-center justify-center shadow-[0_0_10px_rgba(6,182,212,0.08)]">
+          <div className="toolbar-status-box">
+            <div className="toolbar-status-icon">
               <Monitor className={cn("w-5 h-5 transition-all duration-500", status === 'active' ? "text-studio drop-shadow-[0_0_8px_rgba(6,182,212,0.6)]" : "text-zinc-600")} />
             </div>
             <div className="flex flex-col gap-1">
@@ -65,44 +65,40 @@ export const ScreeningToolbar: React.FC<ScreeningToolbarProps> = ({
             </div>
           </div>
 
-          <div className="flex flex-col md:flex-row items-center gap-4 md:gap-6 w-full lg:w-auto">
-            <div className="flex items-center justify-between w-full md:w-auto gap-4">
-              {/* Session Navigation */}
-              <div className="flex items-center bg-black/60 border border-white/5 p-1 rounded-full backdrop-blur-md shadow-inner">
-                {[1, 2, 3, 4].map((s) => (
-                  <button
-                    key={s}
-                    onClick={() => setActiveSession(s)}
-                    className={cn(
-                      "relative h-8 flex items-center px-4 rounded-full text-[9px] font-black uppercase tracking-widest transition-all duration-300",
-                      activeSession === s
-                        ? "text-black bg-gradient-to-br from-studio to-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.4)]"
-                        : "text-zinc-500 hover:text-studio/80 hover:bg-studio/5"
-                    )}
-                  >
-                    S{s}
-                  </button>
-                ))}
-              </div>
-            </div>
+          {/* Session Navigation */}
+          <div className="flex items-center bg-black/60 border border-white/5 p-1 rounded-full backdrop-blur-md shadow-inner">
+            {[1, 2, 3, 4].map((s) => (
+              <button
+                key={s}
+                onClick={() => setActiveSession(s)}
+                className={cn(
+                  "relative h-8 flex items-center px-4 rounded-full text-[9px] font-black uppercase tracking-widest transition-all duration-300",
+                  activeSession === s
+                    ? "text-black bg-gradient-to-br from-studio to-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.4)]"
+                    : "text-zinc-500 hover:text-studio/80 hover:bg-studio/5"
+                )}
+              >
+                S{s}
+              </button>
+            ))}
+          </div>
 
-            {/* Actions */}
-            <div className="flex items-center justify-center gap-1.5 p-1.5 bg-black/60 border border-white/5 rounded-xl backdrop-blur-md w-full md:w-auto shadow-inner">
+          <div className="toolbar-action-group">
+            <div className="toolbar-btn-group">
               <Tooltip>
                 <TooltipTrigger>
                   <Button
                     onClick={handleCopy}
                     size="icon"
                     variant="ghost"
-                    className="h-9 w-9 rounded-lg text-zinc-400 hover:text-studio border border-transparent hover:border-studio/40 hover:bg-gradient-to-br hover:from-studio/20 hover:to-studio/5 transition-all duration-300 group relative overflow-hidden"
+                    className="h-9 w-9 rounded-lg text-zinc-400 hover:text-studio border border-transparent hover:border-studio/40 hover:bg-studio/10 transition-all duration-300"
                     disabled={!content}
                   >
-                    <div className="absolute inset-0 bg-studio/0 group-hover:bg-studio/5 transition-colors duration-300" />
-                    <Copy className="w-4 h-4 relative z-10 group-hover:scale-110 transition-transform duration-300" />
+                    <Copy className="w-4 h-4" />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="top">
-                  <p className="font-black uppercase tracking-widest text-[9px]">Copy Viewport Data</p>
+                  <p className="font-black uppercase tracking-widest text-[9px]">Copy Viewport</p>
                 </TooltipContent>
               </Tooltip>
 
@@ -111,19 +107,16 @@ export const ScreeningToolbar: React.FC<ScreeningToolbarProps> = ({
                   <Button
                     size="icon"
                     variant="ghost"
-                    className="h-9 w-9 rounded-lg text-zinc-400 hover:text-studio border border-transparent hover:border-studio/40 hover:bg-gradient-to-br hover:from-studio/20 hover:to-studio/5 transition-all duration-300 group relative overflow-hidden"
+                    className="h-9 w-9 rounded-lg text-zinc-400 hover:text-studio border border-transparent hover:border-studio/40 hover:bg-studio/10 transition-all duration-300"
                     disabled={!content}
                   >
-                    <div className="absolute inset-0 bg-studio/0 group-hover:bg-studio/5 transition-colors duration-300" />
-                    <Download className="w-4 h-4 relative z-10 group-hover:scale-110 transition-transform duration-300" />
+                    <Download className="w-4 h-4" />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="top">
-                  <p className="font-black uppercase tracking-widest text-[9px]">Export Cinema Data</p>
+                  <p className="font-black uppercase tracking-widest text-[9px]">Export Cinema</p>
                 </TooltipContent>
               </Tooltip>
-
-              <div className="w-px h-5 bg-gradient-to-b from-transparent via-white/10 to-transparent mx-1" />
 
               <Tooltip>
                 <TooltipTrigger>
@@ -131,10 +124,9 @@ export const ScreeningToolbar: React.FC<ScreeningToolbarProps> = ({
                     onClick={toggleFullscreen}
                     size="icon"
                     variant="ghost"
-                    className="h-9 w-9 rounded-lg text-zinc-400 hover:text-studio border border-transparent hover:border-studio/40 hover:bg-gradient-to-br hover:from-studio/20 hover:to-studio/5 transition-all duration-300 group relative overflow-hidden"
+                    className="h-9 w-9 rounded-lg text-zinc-400 hover:text-studio border border-transparent hover:border-studio/40 hover:bg-studio/10 transition-all duration-300"
                   >
-                    <div className="absolute inset-0 bg-studio/0 group-hover:bg-studio/5 transition-colors duration-300" />
-                    {isFullscreen ? <Minimize className="w-4 h-4 relative z-10 group-hover:scale-110 transition-transform duration-300" /> : <Maximize className="w-4 h-4 relative z-10 group-hover:scale-110 transition-transform duration-300" />}
+                    {isFullscreen ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="top">
@@ -145,7 +137,6 @@ export const ScreeningToolbar: React.FC<ScreeningToolbarProps> = ({
           </div>
         </div>
       </div>
-
     </TooltipProvider>
   );
 };

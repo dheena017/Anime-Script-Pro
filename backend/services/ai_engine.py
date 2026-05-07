@@ -133,20 +133,31 @@ class AIEngine:
 
     async def generate_characters(self, lore: str, count=3, tone: str = "Standard", content_type: str = "Anime", user_id: str = None):
         prompt = f"""
-        Role: Lead Character Designer for {content_type}
-        Task: Create {count} core characters for this world.
+        Role: Lead Character Designer and Production Architect for {content_type}
+        Task: Create {count} core characters for this world that are production-ready.
         World Lore: {lore}
         Tone: {tone}
 
-        For each character, provide:
-        - Name
-        - Role (Main, Rival, Support)
-        - Archetype (Aligned with {tone} {content_type} tropes)
-        - Visual DNA (detailed prompt for {content_type} style)
-        - Core Motivation
-        - Secret
+        For EACH character, provide a HYPER-DETAILED profile:
+        - name: Unique character name
+        - role: (Tier 1: Core | Tier 2: Support | Tier 3: Tertiary)
+        - archetype: Specific class/archetype
+        - visual_dna: Technical description for visual consistency
+        - vfx_signature: Particle effects, glowing nodes, or energy signatures
+        - lighting_logic: How they should be lit (rim lighting, high contrast shadow, etc.)
+        - camera_choreography: How the camera moves for them (fast tracking, low-angle static)
+        - hair_style: Hyper-detailed description
+        - eye_details: Color, shape, and emotional "catchlight"
+        - clothing_materials: Weathered fabric, iridescent plates, etc.
+        - personality: Psychological summary
+        - goal: What they crave
+        - flaw: Defining limitation
+        - core_wound: Specific trauma shaping them
+        - moral_dilemma: The impossible choice they must make
+        - secret: Hidden truth
+        - speaking_style: Vocabulary, syntax, and verbal tics
 
-        Return only a JSON array of objects.
+        Return only a JSON array of objects matching these keys. No preamble.
         """
         logger.info(f"PROCESS: [🧬] Sequencing Character DNA for {count} targets... (User: {user_id})")
         client = await self._get_client(user_id)

@@ -40,9 +40,9 @@ export const SeriesTabs: React.FC<SeriesTabsProps> = ({
   setActiveTab
 }) => {
   const tabs: { id: SeriesTab; label: string; icon: any; color: string }[] = [
+    { id: 'blueprint', label: 'Blueprint', icon: Network, color: 'text-amber-400' },
     { id: 'roadmap', label: 'Roadmap', icon: ListChecks, color: 'text-studio' },
     { id: 'episodes', label: 'Episodes', icon: Film, color: 'text-cyan-400' },
-    { id: 'blueprint', label: 'Blueprint', icon: Network, color: 'text-amber-400' },
     { id: 'arcs', label: 'Arcs', icon: GitMerge, color: 'text-fuchsia-400' },
     { id: 'assets', label: 'Assets', icon: Box, color: 'text-emerald-400' },
     { id: 'timeline', label: 'Timeline', icon: Clock, color: 'text-blue-400' },

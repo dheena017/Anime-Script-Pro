@@ -28,7 +28,8 @@ export default function PromptsLayout() {
     isSaving, setIsSaving,
     castProfiles, castData, generatedSeriesPlan, generatedMetadata,
     contentType,
-    generationProgress
+    generationProgress,
+    isEditing, setIsEditing
   } = useGenerator();
 
   const { user } = useAuth();
@@ -136,6 +137,8 @@ export default function PromptsLayout() {
               session={session}
               episode={episode}
               content={activeTab === 'video' ? JSON.stringify(videoData) : generatedImagePrompts}
+              isEditing={isEditing}
+              onEditingChange={setIsEditing}
             />
           </div>
         )}

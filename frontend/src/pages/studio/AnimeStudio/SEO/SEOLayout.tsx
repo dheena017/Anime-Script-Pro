@@ -24,10 +24,10 @@ export default function SEOLayout() {
     isLoading, setIsLoading,
     generatedScript, selectedModel, session, episode,
     showNotification, contentType,
-    isSaving, 
-    
     syncCore,
-    generationProgress
+    generationProgress,
+    isEditing, setIsEditing,
+    isSaving
   } = useGenerator();
 
   const {
@@ -149,6 +149,8 @@ export default function SEOLayout() {
               session={session}
               episode={episode}
               content={JSON.stringify(generatedMetadata)}
+              isEditing={isEditing}
+              onEditingChange={setIsEditing}
             />
           </div>
         )}

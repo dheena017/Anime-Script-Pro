@@ -103,6 +103,7 @@ interface GeneratorState {
   castDynamics?: any | null;
   castIntegrity?: any | null;
   isAnalyzingCast: boolean;
+  numCharacters: number;
 }
 
 interface GeneratorDispatch {
@@ -196,6 +197,7 @@ interface GeneratorDispatch {
   // Aliases for older APIs
   setGlobalPrompt: (p: string) => void;
   setGlobalContentType: (t: string) => void;
+  setNumCharacters: (n: number) => void;
 }
 
 export type GeneratorContextType = GeneratorState & GeneratorDispatch;
@@ -404,6 +406,7 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
   const [castDynamics, setCastDynamics] = useState<any | null>(null);
   const [castIntegrity, setCastIntegrity] = useState<any | null>(null);
   const [isAnalyzingCast, setIsAnalyzingCast] = useState(false);
+  const [numCharacters, setNumCharacters] = useState<number>(8);
   const [generationProgress, setGenerationProgress] = useState<number>(0);
 
   // Sync logic moved after ALL state declarations to avoid "used before declaration" errors
@@ -454,9 +457,12 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     const canSync = !hasLoadedCast.current || (castList.length === 0 && !isGeneratingCharacters);
 
     if (castDataFromApi && canSync) {
-      if (castDataFromApi.cast_list_blob) {
+      if (castDataFromApi.cast_list_blob || castDataFromApi.num_characters) {
         try {
-          setCastList(JSON.parse(castDataFromApi.cast_list_blob));
+          if (castDataFromApi.num_characters) {
+            setNumCharacters(castDataFromApi.num_characters);
+          }
+          setCastList(castDataFromApi.cast_list_blob ? JSON.parse(castDataFromApi.cast_list_blob) : []);
         } catch (e) {
           console.error("Failed to parse cast list from API", e);
         }
@@ -524,6 +530,7 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
           cast_list_blob: castList ? JSON.stringify(castList) : null,
           relationships_blob: characterRelationships,
           prompt_cast: prompt, // Using global prompt as baseline for cast logic
+          num_characters: numCharacters,
         });
       } catch (error) {
         console.error("%c[System] %cFailed to sync production/cast content:", 'color: #ef4444; font-weight: bold', 'color: #94a3b8', error);
@@ -601,7 +608,7 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setIsSaving(false);
     }
-  }, [user?.id, generatedScript, generatedSeriesPlan, generatedMetadata, generatedImagePrompts, generatedGrowthStrategy, generatedDistributionPlan, generatedWorld, generatedWorldContent, generatedWorldLore, generatedWorldPowers, generatedWorldFactions, generatedWorldArchitecture, generatedWorldAtlas, generatedWorldCulture, generatedWorldSystems, promptLore, promptPowers, promptFactions, promptArchitecture, promptAtlas, promptCulture, promptSystems, castList, characterRelationships, castDNA, castDynamics, castIntegrity, prompt, addLog, showNotification]);
+  }, [user?.id, generatedScript, generatedSeriesPlan, generatedMetadata, generatedImagePrompts, generatedGrowthStrategy, generatedDistributionPlan, generatedWorld, generatedWorldContent, generatedWorldLore, generatedWorldPowers, generatedWorldFactions, generatedWorldArchitecture, generatedWorldAtlas, generatedWorldCulture, generatedWorldSystems, promptLore, promptPowers, promptFactions, promptArchitecture, promptAtlas, promptCulture, promptSystems, castList, characterRelationships, castDNA, castDynamics, castIntegrity, prompt, numCharacters, addLog, showNotification]);
 
   // Neural Telemetry & Thinking Stream Log Sync
   useEffect(() => {
@@ -767,7 +774,8 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     castDNA,
     castDynamics,
     castIntegrity,
-    isAnalyzingCast
+    isAnalyzingCast,
+    numCharacters
   }), [
     prompt, promptLore, promptPowers, promptFactions, promptArchitecture, promptAtlas, promptCulture, promptSystems,
     theme, generatedScript, generatedCharacters, generatedMetadata, 
@@ -786,7 +794,7 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     generatedWorldArchitecture, generatedWorldAtlas, generatedWorldCulture, generatedWorldSystems
     , temperature, maxTokens, topP, topK, selectedModel, tone, audience,
     castData, castList, castProfiles, characterRelationships, visualData, videoData, generatedMetadata, generatedSeriesPlan,
-    activeModelAttempt, fallbackHistory, castDNA, castDynamics, castIntegrity, isAnalyzingCast, generationProgress
+    activeModelAttempt, fallbackHistory, castDNA, castDynamics, castIntegrity, isAnalyzingCast, generationProgress, numCharacters
   ]);
 
   const dispatch = useMemo<GeneratorDispatch>(() => ({
@@ -879,6 +887,7 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     setIsAnalyzingCast,
     stopGeneration,
     getSignal,
+    setNumCharacters,
     // Aliases
     setGlobalPrompt: setPrompt,
     setGlobalContentType: setContentType,

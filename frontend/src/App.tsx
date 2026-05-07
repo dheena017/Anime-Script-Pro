@@ -58,6 +58,18 @@ const AnimeWorld = lazy(() => import('@/pages/studio/AnimeStudio/World/WorldPage
 // Production System Layouts (Shared/Contextual)
 const WorldLayout = lazy(() => import('@/pages/studio/AnimeStudio/World/WorldLayout'));
 const CastLayout = lazy(() => import('@/pages/studio/AnimeStudio/Cast/CastLayout'));
+const RegistryTab = lazy(() => import('@/pages/studio/AnimeStudio/Cast/Tabs/RegistryTab').then(m => ({ default: m.RegistryTab })));
+const VoiceTab = lazy(() => import('@/pages/studio/AnimeStudio/Cast/Tabs/VoiceTab').then(m => ({ default: m.VoiceTab })));
+const CombatTab = lazy(() => import('@/pages/studio/AnimeStudio/Cast/Tabs/CombatTab').then(m => ({ default: m.CombatTab })));
+const ArcsTab = lazy(() => import('@/pages/studio/AnimeStudio/Cast/Tabs/ArcsTab').then(m => ({ default: m.ArcsTab })));
+const DynamicsTab = lazy(() => import('@/pages/studio/AnimeStudio/Cast/Tabs/DynamicsTab').then(m => ({ default: m.DynamicsTab })));
+const RelationshipsPage = lazy(() => import('@/pages/studio/AnimeStudio/Cast/Tabs/Relationships/RelationshipsPage'));
+const RelationshipViewPage = lazy(() => import('@/pages/studio/AnimeStudio/Cast/Tabs/Relationships/RelationshipViewPage'));
+const RelationshipEditPage = lazy(() => import('@/pages/studio/AnimeStudio/Cast/Tabs/Relationships/RelationshipEditPage'));
+const TechnicalTab = lazy(() => import('@/pages/studio/AnimeStudio/Cast/Tabs/TechnicalTab').then(m => ({ default: m.TechnicalTab })));
+const CharacterViewPage = lazy(() => import('@/pages/studio/AnimeStudio/Cast/Tabs/Characters/CharacterViewPage'));
+const CharacterEditPage = lazy(() => import('@/pages/studio/AnimeStudio/Cast/Tabs/Characters/CharacterEditPage'));
+
 const SeriesLayout = lazy(() => import('@/pages/studio/AnimeStudio/Series/SeriesLayout'));
 const ScriptLayout = lazy(() => import('@/pages/studio/AnimeStudio/Script/ScriptLayout'));
 const StoryboardLayout = lazy(() => import('@/pages/studio/AnimeStudio/Storyboard/StoryboardLayout'));
@@ -80,18 +92,10 @@ const EpisodeViewPage = lazy(() => import('@/pages/studio/AnimeStudio/Series/Epi
 const EpisodeEditPage = lazy(() => import('@/pages/studio/AnimeStudio/Series/Episodes/EpisodeEditPage'));
 
 const CharactersPage = lazy(() => import('@/pages/studio/AnimeStudio/Cast/Tabs/Characters/CharactersPage'));
-const CharacterViewPage = lazy(() => import('@/pages/studio/AnimeStudio/Cast/Tabs/Characters/CharacterViewPage'));
-const CharacterEditPage = lazy(() => import('@/pages/studio/AnimeStudio/Cast/Tabs/Characters/CharacterEditPage'));
 const CharacterCreationPage = lazy(() => import('@/pages/studio/AnimeStudio/Cast/CharacterCreationPage').then(m => ({ default: m.CharacterCreationPage })));
 const DNAPage = lazy(() => import('@/pages/studio/AnimeStudio/Cast/DNAPage').then(m => ({ default: m.DNAPage })));
 const DynamicsPage = lazy(() => import('@/pages/studio/AnimeStudio/Cast/DynamicsPage').then(m => ({ default: m.DynamicsPage })));
-
-const RelationshipsPage = lazy(() => import('@/pages/studio/AnimeStudio/Cast/Tabs/Relationships/RelationshipsPage'));
 const AddRelationshipPage = lazy(() => import('@/pages/studio/AnimeStudio/Cast/Tabs/Relationships/AddRelationshipPage'));
-const RelationshipViewPage = lazy(() => import('@/pages/studio/AnimeStudio/Cast/Tabs/Relationships/RelationshipViewPage'));
-const RelationshipEditPage = lazy(() => import('@/pages/studio/AnimeStudio/Cast/Tabs/Relationships/RelationshipEditPage'));
-
-const RegistryTab = lazy(() => import('@/pages/studio/AnimeStudio/Cast/Tabs/RegistryTab').then(m => ({ default: m.RegistryTab })));
 const IntegrityTab = lazy(() => import('@/pages/studio/AnimeStudio/Cast/Tabs/IntegrityTab').then(m => ({ default: m.IntegrityTab })));
 const AddLeadTab = lazy(() => import('@/pages/studio/AnimeStudio/Cast/Tabs/AddLeadTab').then(m => ({ default: m.AddLeadTab })));
 
@@ -155,21 +159,18 @@ export default function App() {
                 </Route>
 
                 <Route path="cast" element={<CastLayout />}>
-                  <Route index element={<RegistryTab />} />
-                  <Route path="registry" element={<RegistryTab />} />
-                  <Route path="characters" element={<CharactersPage />} />
-                  <Route path="characters/:id" element={<CharacterViewPage />} />
-                  <Route path="characters/:id/edit" element={<CharacterEditPage />} />
-                  <Route path="creation" element={<CharacterCreationPage />} />
-                  <Route path="dna" element={<DNAPage />} />
-                  <Route path="dynamics" element={<DynamicsPage />} />
-                  <Route path="integrity" element={<IntegrityTab />} />
-                  <Route path="add-lead" element={<AddLeadTab />} />
+                  <Route index element={<RegistryTab onViewCharacter={() => {}} />} />
+                  <Route path="registry" element={<RegistryTab onViewCharacter={() => {}} />} />
+                  <Route path="voice" element={<VoiceTab />} />
+                  <Route path="combat" element={<CombatTab />} />
+                  <Route path="arcs" element={<ArcsTab />} />
+                  <Route path="dynamics" element={<DynamicsTab />} />
                   <Route path="relationships" element={<RelationshipsPage />} />
-                  <Route path="matrix" element={<RelationshipsPage />} />
-                  <Route path="relationships/add" element={<AddRelationshipPage />} />
                   <Route path="relationships/:id" element={<RelationshipViewPage />} />
                   <Route path="relationships/:id/edit" element={<RelationshipEditPage />} />
+                  <Route path="technical" element={<TechnicalTab />} />
+                  <Route path="characters/:characterName" element={<CharacterViewPage />} />
+                  <Route path="characters/:characterName/edit" element={<CharacterEditPage />} />
                 </Route>
 
                 <Route path="series" element={<SeriesLayout />}>

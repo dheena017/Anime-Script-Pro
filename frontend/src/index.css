@@ -152,18 +152,20 @@
 
 .toolbar-header {
   @apply flex flex-col lg:flex-row lg:items-center justify-between gap-6 lg:gap-8;
-  background: linear-gradient(135deg, rgba(6, 182, 212, 0.03) 0%, rgba(6, 182, 212, 0.01) 100%);
-  padding: 1.5rem;
-  border-radius: 1.25rem;
-  border: 1px solid rgba(6, 182, 212, 0.15);
-  backdrop-filter: blur(12px);
-  transition: all 0.3s ease;
+  background: rgba(3, 3, 3, 0.85);
+  padding: 1.25rem 1.75rem;
+  border-radius: 2rem;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(24px);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .toolbar-header:hover {
-  border-color: rgba(6, 182, 212, 0.25);
-  background: linear-gradient(135deg, rgba(6, 182, 212, 0.06) 0%, rgba(6, 182, 212, 0.02) 100%);
-  box-shadow: 0 8px 32px rgba(6, 182, 212, 0.1);
+  border-color: rgba(6, 182, 212, 0.15);
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.5);
 }
 
 .toolbar-status-box {
@@ -203,17 +205,19 @@
 }
 
 .toolbar-btn-group {
-  @apply flex items-center gap-2 p-2 bg-black/40 border border-white/10 rounded-xl shrink-0;
-  backdrop-filter: blur(8px);
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%);
-  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.05);
+  @apply flex items-center gap-1.5 p-1.5 rounded-[1.25rem] shrink-0;
+  background: rgba(20, 20, 20, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
+  box-shadow: 
+    inset 0 1px 1px rgba(255, 255, 255, 0.05),
+    0 4px 12px rgba(0, 0, 0, 0.2);
   transition: all 0.3s ease;
 }
 
 .toolbar-btn-group:hover {
-  border-color: rgba(255, 255, 255, 0.2);
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.02) 100%);
-  box-shadow: 0 4px 16px rgba(255, 255, 255, 0.08), inset 0 1px 2px rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.12);
+  background: rgba(25, 25, 25, 0.7);
 }
 
 /* Toolbar divider enhancement */

@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
+import { StudioEditor } from '../../components/StudioEditor';
 import { Users, Flag, Sword, Landmark, Sparkles, ClipboardList, Download } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { TableOfContents } from '../components/TableOfContents';
@@ -29,7 +30,6 @@ export const FactionsTab: React.FC<FactionsTabProps> = ({
   onPromptChange
 }) => {
   const sectionContent = content;
-  const { textareaRef: mainTextareaRef, scheduleResizeTextarea: scheduleMainResize } = useAutoResizeTextarea(content || '', isEditing);
   const { textareaRef: promptTextareaRef, scheduleResizeTextarea: schedulePromptResize } = useAutoResizeTextarea(prompt || '', isEditing);
 
   const stats = React.useMemo(() => [
@@ -58,15 +58,10 @@ export const FactionsTab: React.FC<FactionsTabProps> = ({
 
 
       {isEditing ? (
-        <textarea
-          ref={mainTextareaRef}
-          className={s.textarea}
-          value={content}
-          onChange={(e) => {
-            onContentChange(e.target.value);
-            scheduleMainResize();
-          }}
-          onInput={scheduleMainResize}
+        <StudioEditor
+          content={content}
+          onContentChange={onContentChange}
+          isEditing={isEditing}
           placeholder="Design your world's political landscape..."
         />
       ) : (

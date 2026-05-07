@@ -1,5 +1,5 @@
 import React from 'react';
-import { Layout as LayoutGrid, TrendingUp, GitBranch, Layers } from 'lucide-react';
+import { Map, Layout, List, Calendar, TrendingUp, Package, Layout as LayoutGrid } from 'lucide-react';
 import { StudioEmptyState } from '@/pages/studio/components/studio/shared/StudioEmptyState';
 
 interface SeriesEmptyStateProps {
@@ -14,35 +14,27 @@ export const SeriesEmptyState: React.FC<SeriesEmptyStateProps> = ({
   isGenerating
 }) => {
   const features = [
-    { icon: TrendingUp, title: 'Arc Synthesis', description: 'AI maps character growth and plot intensity over multiple episodes' },
-    { icon: GitBranch, title: 'Branching Narratives', description: 'Identifies potential plot points for future seasons' },
-    { icon: Layers, title: 'Structural Integrity', description: 'Ensures thematic consistency across the entire series' }
+    { icon: Layout, title: 'Strategic Blueprint', description: 'Technical breakdown of pacing and production goals', color: 'cyan' },
+    { icon: Map, title: 'Series Roadmap', description: 'Holistic multi-season vision and thematic pillars', color: 'amber' },
+    { icon: List, title: 'Episode Matrix', description: 'Granular loglines and beat sheets for all episodes', color: 'emerald' },
+    { icon: Calendar, title: 'Dynamic Timeline', description: 'Chronological event tracking and world-state evolution', color: 'rose' },
+    { icon: TrendingUp, title: 'Narrative Arcs', description: 'Emotional resonance mapping and intensity scaling', color: 'fuchsia' },
+    { icon: Package, title: 'Asset Library', description: 'Automated extraction of locations and requirements', color: 'indigo' }
   ];
 
   return (
-    <div className="space-y-12">
-      <StudioEmptyState
-        icon={LayoutGrid}
-        title="No Series Plan"
-        description="The narrative roadmap for your production is missing. Generate a multi-episode blueprint to see your story mapped out."
-        actionLabel="Create Series Plan"
-        loadingLabel="Structuring Your Series..."
-        onAction={onLaunch}
-        isLoading={isGenerating}
-        features={features}
-        accentColor="amber"
-      />
-      
-      <div className="flex flex-col items-center gap-4 pt-8 border-t border-white/5">
-        <p className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.3em]">Quick Start Visualization</p>
-        <button 
-          onClick={onLoadDemo}
-          className="px-8 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl text-[10px] font-black text-zinc-400 hover:text-white uppercase tracking-widest transition-all duration-300"
-        >
-          Load Aetheria Sample Production
-        </button>
-      </div>
-    </div>
+    <StudioEmptyState
+      icon={LayoutGrid}
+      title="No Series Plan"
+      description="The narrative roadmap for your production is missing. Generate a multi-episode blueprint to see your story mapped out."
+      actionLabel={isGenerating ? "Structuring Your Series..." : "Create Series Plan"}
+      onAction={onLaunch}
+      isLoading={isGenerating}
+      secondaryActionLabel="Load Aetheria Sample Production"
+      onSecondaryAction={onLoadDemo}
+      features={features}
+      accentColor="amber"
+    />
   );
 };
 

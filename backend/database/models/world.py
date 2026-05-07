@@ -6,7 +6,8 @@ class WorldLore(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     user_id: str = Field(index=True)
     project_id: Optional[int] = Field(default=None, index=True)
-    
+    series_id: Optional[int] = Field(default=None, index=True)
+
     # Modular Lore Data
     full_lore_blob: Optional[str] = Field(default=None) # The Master Manifest
     history_blob: Optional[str] = Field(default=None)   # Detailed Timeline
@@ -55,6 +56,12 @@ class CastMember(SQLModel, table=True):
     speakingStyle: Optional[str] = Field(default=None)
     secret: Optional[str] = Field(default=None)
     visual_dna: Optional[str] = Field(default=None)
+    vfx_signature: Optional[str] = Field(default=None)
+    lighting_logic: Optional[str] = Field(default=None)
+    camera_choreography: Optional[str] = Field(default=None)
+    hair_style: Optional[str] = Field(default=None)
+    eye_details: Optional[str] = Field(default=None)
+    clothing_materials: Optional[str] = Field(default=None)
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 
@@ -88,8 +95,13 @@ class CharacterRelationship(SQLModel, table=True):
     source_name: str = Field(default="")
     target_name: str = Field(default="")
     type: str = Field(default="Ally") # Ally, Rival, Enemy, Love, Secret
+    subtype: Optional[str] = Field(default=None) # Ideological Rivalry, Slow Burn, etc.
     tension: int = Field(default=5) # 1-10
     description: Optional[str] = None
+    dynamic_setup: Optional[str] = Field(default=None)
+    escalation_path: Optional[str] = Field(default=None)
+    betrayal_potential: Optional[str] = Field(default=None)
+    arc_potential: Optional[str] = Field(default=None)
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 
@@ -109,6 +121,7 @@ class CastManifest(SQLModel, table=True):
     integrity_blob: Optional[str] = Field(default=None)      # Narrative integrity report
 
     # Neural Seeds (prompts used)
+    num_characters: int = Field(default=8)
     prompt_cast: Optional[str] = Field(default=None)
     prompt_relationships: Optional[str] = Field(default=None)
 

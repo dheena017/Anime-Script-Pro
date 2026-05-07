@@ -28,7 +28,8 @@ export default function StoryboardLayout() {
     isSaving, contentType,
     generationProgress,
     syncCore,
-    session, episode
+    session, episode,
+    isEditing, setIsEditing
   } = useGenerator();
 
   useAuth();
@@ -133,6 +134,8 @@ export default function StoryboardLayout() {
               onEnhanceVisuals={handlers.handleEnhanceAllVisuals}
               isGlobalEnhancing={handlers.isGlobalEnhancing}
               onAddScene={handlers.handleAddScene}
+              isEditing={isEditing}
+              onEditingChange={setIsEditing}
             />
           </div>
         )}

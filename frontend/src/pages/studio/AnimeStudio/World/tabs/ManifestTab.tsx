@@ -1,9 +1,6 @@
 import React, { useMemo } from 'react';
-import { FileText, Download, ClipboardList, Sparkles, Bold, Italic, Heading2, Code, List, Quote } from 'lucide-react';
-import { StudioEditor } from '../components/StudioEditor';
+import { StudioEditor } from '../../components/StudioEditor';
 import ReactMarkdown from 'react-markdown';
-import { studioLog } from '@/lib/studio-logger';
-import { useAutoResizeTextarea } from '../hooks/useAutoResizeTextarea';
 
 interface ManifestTabProps {
   isEditing: boolean;
@@ -20,55 +17,6 @@ export const ManifestTab: React.FC<ManifestTabProps> = ({
   onGenerate,
   isGenerating
 }) => {
-  const { textareaRef, scheduleResizeTextarea } = useAutoResizeTextarea(content || '', isEditing);
-
-  const wordCount = useMemo(() => {
-    return content.trim().split(/\s+/).filter(word => word.length > 0).length;
-  }, [content]);
-
-  const charCount = content.length;
-  const lineCount = content.split('\n').length;
-
-  const insertMarkdown = (before: string, after: string = '') => {
-    const textarea = textareaRef.current;
-    if (!textarea) return;
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const selectedText = content.substring(start, end) || 'text';
-    const newContent = 
-      content.substring(0, start) + 
-      before + selectedText + after + 
-      content.substring(end);
-    onContentChange(newContent);
-    
-    setTimeout(() => {
-      textarea.focus();
-      textarea.setSelectionRange(
-        start + before.length,
-        start + before.length + selectedText.length
-      );
-      scheduleResizeTextarea();
-    }, 0);
-  };
-
-  const downloadReport = () => {
-    studioLog('ManifestTab', 'Exporting World Bible Full Report...', 'info');
-    const element = document.createElement("a");
-    const file = new Blob([content], { type: 'text/markdown' });
-    element.href = URL.createObjectURL(file);
-    element.download = "World_Bible_Full_Report.md";
-    document.body.appendChild(element);
-    element.click();
-    studioLog('ManifestTab', 'World Bible Full Report export initiated.', 'success');
-  };
-
-  const copyToClipboard = () => {
-    studioLog('ManifestTab', 'Copying World Bible to clipboard...', 'info');
-    navigator.clipboard.writeText(content);
-    studioLog('ManifestTab', 'World Bible copied successfully.', 'success');
-    alert('Full World Bible copied to clipboard!');
-  };
-
   // Memoize markdown to prevent re-renders on scroll or state changes
   const MemoizedMarkdown = useMemo(() => (
     <ReactMarkdown>{content}</ReactMarkdown>

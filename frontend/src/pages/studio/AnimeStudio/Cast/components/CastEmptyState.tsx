@@ -1,6 +1,8 @@
 import React from 'react';
-import { Users, Fingerprint, Brain, ShieldCheck, Sparkles, ArrowRight } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Users, Mic2, Swords, TrendingUp, GitBranch, Layout, Workflow, Fingerprint, Brain, ShieldCheck, Scale } from 'lucide-react';
+import { StudioEmptyState } from '@/pages/studio/components/studio/shared/StudioEmptyState';
+import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
+import { Slider } from '@/components/ui/slider';
 
 interface CastEmptyStateProps {
   onLaunch: () => void;
@@ -9,9 +11,12 @@ interface CastEmptyStateProps {
 }
 
 const features = [
-  { icon: Fingerprint, title: 'DNA Synthesis', description: 'Unique personality markers and backstories' },
-  { icon: Brain, title: 'Cognitive Mapping', description: 'AI determines relationship dynamics and arcs' },
-  { icon: ShieldCheck, title: 'Integrity Audit', description: 'Checks cast consistency against the story core' },
+  { icon: Users, title: 'Registry', description: 'Core character dossiers and archetypes', color: 'cyan' },
+  { icon: Mic2, title: 'Voice', description: 'Vocal rhythm and dialogue archetypes', color: 'blue' },
+  { icon: Swords, title: 'Combat', description: 'Power systems and signature techniques', color: 'red' },
+  { icon: TrendingUp, title: 'Arcs', description: 'Character growth and moral roadmaps', color: 'fuchsia' },
+  { icon: GitBranch, title: 'Dynamics', description: 'Social standing and group etiquette', color: 'orange' },
+  { icon: Workflow, title: 'Relationships', description: 'Holistic social web and matrix', color: 'indigo' },
 ];
 
 export const CastEmptyState: React.FC<CastEmptyStateProps> = ({
@@ -19,64 +24,61 @@ export const CastEmptyState: React.FC<CastEmptyStateProps> = ({
   onLoadDemo,
   isGenerating
 }) => {
+  const { numCharacters } = useGeneratorState();
+  const { setNumCharacters } = useGeneratorDispatch();
+
   return (
-    <div className="w-full py-10 flex flex-col items-center justify-center gap-8 min-h-[620px]">
-      <div className="w-full max-w-3xl rounded-[2rem] border border-cyan-500/20 bg-[#050505] px-8 py-14 text-center backdrop-blur-sm shadow-[0_0_60px_rgba(6,182,212,0.08)] relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 via-transparent to-transparent" />
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <StudioEmptyState
+        icon={Users}
+        title="Build Your Cast"
+        description="Your cast registry is empty. Generate characters, relationships, and deep trait analysis to bring your story’s people to life."
+        actionLabel={isGenerating ? "Synthesizing Cast..." : "Create My Cast"}
+        onAction={onLaunch}
+        isLoading={isGenerating}
+        secondaryActionLabel="Load Demo Cast"
+        onSecondaryAction={onLoadDemo}
+        features={features}
+        accentColor="cyan"
+      />
 
-        <div className="relative mx-auto mb-8 flex h-20 w-20 items-center justify-center rounded-3xl border border-cyan-500/20 bg-cyan-500/5">
-          <Users className="h-10 w-10 text-cyan-400" />
-        </div>
-
-        <div className="relative mb-6">
-          <p className="mb-3 text-[10px] font-black uppercase tracking-[0.3em] text-cyan-400/80">Character Designer</p>
-          <h2 className="text-4xl font-black uppercase tracking-[0.12em] text-white drop-shadow-[0_0_20px_rgba(6,182,212,0.15)]">
-            Build Your Cast
-          </h2>
-          <p className="mx-auto mt-4 max-w-xl text-[10px] font-bold uppercase tracking-[0.22em] text-zinc-400 leading-relaxed">
-            Your cast registry is empty. Generate characters, relationships, and deep trait analysis to bring your story’s people to life.
-          </p>
-        </div>
-
-        <div className="flex items-center justify-center gap-4 flex-wrap">
-          <Button
-            onClick={onLaunch}
-            disabled={isGenerating}
-            className="h-12 rounded-full bg-cyan-500 px-8 text-[10px] font-black uppercase tracking-[0.22em] text-black hover:bg-cyan-400 transition-all shadow-[0_0_24px_rgba(6,182,212,0.18)]"
-          >
-            {isGenerating ? 'Synthesizing Cast...' : 'Create My Cast'}
-            <ArrowRight className="ml-2 h-4 w-4" />
-          </Button>
-
-          {!isGenerating && onLoadDemo && (
-            <Button
-              variant="outline"
-              onClick={onLoadDemo}
-              className="h-12 rounded-full border border-white/10 bg-white/5 px-8 text-[10px] font-black uppercase tracking-[0.22em] text-zinc-300 hover:bg-white/10 hover:text-white transition-all"
-            >
-              <Sparkles className="mr-2 h-4 w-4" />
-              Load Demo Cast
-            </Button>
-          )}
-        </div>
-
-        <div className="mt-8 border-t border-white/10 pt-8">
-          <p className="mb-4 text-[9px] font-black uppercase tracking-[0.26em] text-zinc-500">Cast Generation Modules</p>
-          <div className="grid gap-4 md:grid-cols-3">
-            {features.map((feature) => {
-              const Icon = feature.icon;
-              return (
-                <div key={feature.title} className="rounded-2xl border border-cyan-500/20 bg-cyan-500/5 p-5 text-left">
-                  <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl border border-cyan-500/20 bg-black/30">
-                    <Icon className="h-5 w-5 text-cyan-400" />
+      {/* Squad Scaling Controller */}
+      <div className="max-w-2xl mx-auto p-8 bg-zinc-950/40 border border-white/5 rounded-[2.5rem] backdrop-blur-xl relative overflow-hidden group">
+         <div className="absolute inset-0 bg-gradient-to-r from-studio/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
+         
+         <div className="flex flex-col md:flex-row items-center gap-8 relative z-10">
+            <div className="shrink-0 w-16 h-16 rounded-2xl bg-studio/10 flex items-center justify-center text-studio">
+               <Scale className="w-8 h-8" />
+            </div>
+            
+            <div className="flex-1 space-y-4 w-full">
+               <div className="flex items-center justify-between">
+                  <div>
+                    <h4 className="text-[10px] font-black text-white uppercase tracking-[0.2em]">Squad Scale</h4>
+                    <p className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">Adjust number of souls to sequence</p>
                   </div>
-                  <h3 className="text-[11px] font-black uppercase tracking-[0.18em] text-white">{feature.title}</h3>
-                  <p className="mt-2 text-[9px] font-bold uppercase tracking-[0.16em] text-zinc-500 leading-relaxed">{feature.description}</p>
-                </div>
-              );
-            })}
-          </div>
-        </div>
+                  <div className="px-4 py-1 bg-studio/10 border border-studio/20 rounded-xl">
+                    <span className="text-xl font-black text-studio tracking-tighter">{numCharacters}</span>
+                    <span className="text-[10px] font-black text-studio/40 ml-1 uppercase">Units</span>
+                  </div>
+               </div>
+               
+               <Slider
+                 value={[numCharacters]}
+                 onValueChange={(val) => setNumCharacters(Array.isArray(val) ? val[0] : val)}
+                 min={3}
+                 max={15}
+                 step={1}
+                 className="py-4"
+               />
+               
+               <div className="flex justify-between text-[8px] font-black text-zinc-700 uppercase tracking-widest">
+                  <span>Minimum (3)</span>
+                  <span>Standard (8)</span>
+                  <span>Maximum (15)</span>
+               </div>
+            </div>
+         </div>
       </div>
     </div>
   );

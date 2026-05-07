@@ -1,17 +1,16 @@
-import React from 'react';
 import {
-  Fingerprint,
   Users,
-  ShieldCheck,
-  UserPlus,
-  Dna,
-  Workflow,
-  Zap
+  Mic2,
+  Swords,
+  TrendingUp,
+  GitBranch,
+  Layout,
+  Workflow
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 
-export type CastTab = 'matrix' | 'registry' | 'integrity' | 'add-lead' | 'dna' | 'dynamics' | 'characters';
+export type CastTab = 'registry' | 'voice' | 'combat' | 'arcs' | 'dynamics' | 'relationships' | 'technical';
 
 interface CastTabsProps {
   activeTab: CastTab;
@@ -21,22 +20,22 @@ interface CastTabsProps {
 
 const GLOW_COLORS: Record<CastTab, string> = {
   registry: 'bg-studio',
-  characters: 'bg-cyan-400',
-  matrix: 'bg-fuchsia-400',
-  dna: 'bg-blue-400',
-  dynamics: 'bg-rose-400',
-  integrity: 'bg-emerald-400',
-  'add-lead': 'bg-amber-400',
+  voice: 'bg-cyan-500',
+  combat: 'bg-red-500',
+  arcs: 'bg-fuchsia-500',
+  dynamics: 'bg-orange-500',
+  relationships: 'bg-fuchsia-500',
+  technical: 'bg-indigo-500',
 };
 
 const UNDERLINE_COLORS: Record<CastTab, string> = {
   registry: 'from-studio/0 via-studio to-studio/0',
-  characters: 'from-cyan-400/0 via-cyan-400 to-cyan-400/0',
-  matrix: 'from-fuchsia-400/0 via-fuchsia-400 to-fuchsia-400/0',
-  dna: 'from-blue-400/0 via-blue-400 to-blue-400/0',
-  dynamics: 'from-rose-400/0 via-rose-400 to-rose-400/0',
-  integrity: 'from-emerald-400/0 via-emerald-400 to-emerald-400/0',
-  'add-lead': 'from-amber-400/0 via-amber-400 to-amber-400/0',
+  voice: 'from-cyan-500/0 via-cyan-500 to-cyan-500/0',
+  combat: 'from-red-500/0 via-red-500 to-red-500/0',
+  arcs: 'from-fuchsia-500/0 via-fuchsia-500 to-fuchsia-500/0',
+  dynamics: 'from-orange-500/0 via-orange-500 to-orange-500/0',
+  relationships: 'from-fuchsia-500/0 via-fuchsia-500 to-fuchsia-500/0',
+  technical: 'from-indigo-500/0 via-indigo-500 to-indigo-500/0',
 };
 
 export const CastTabs: React.FC<CastTabsProps> = ({
@@ -46,12 +45,12 @@ export const CastTabs: React.FC<CastTabsProps> = ({
 }) => {
   const tabs: { id: CastTab; label: string; icon: any; color: string }[] = [
     { id: 'registry', label: 'Registry', icon: Users, color: 'text-studio' },
-    { id: 'characters', label: 'Manifest', icon: Fingerprint, color: 'text-cyan-400' },
-    { id: 'matrix', label: 'Matrix', icon: Workflow, color: 'text-fuchsia-400' },
-    { id: 'dna', label: 'Trait Analysis', icon: Dna, color: 'text-blue-400' },
-    { id: 'dynamics', label: 'Dynamics', icon: Zap, color: 'text-rose-400' },
-    { id: 'integrity', label: 'Integrity', icon: ShieldCheck, color: 'text-emerald-400' },
-    { id: 'add-lead', label: 'Add Lead', icon: UserPlus, color: 'text-amber-400' },
+    { id: 'voice', label: 'Voice', icon: Mic2, color: 'text-cyan-400' },
+    { id: 'combat', label: 'Combat', icon: Swords, color: 'text-red-400' },
+    { id: 'arcs', label: 'Arcs', icon: TrendingUp, color: 'text-fuchsia-400' },
+    { id: 'dynamics', label: 'Dynamics', icon: GitBranch, color: 'text-orange-400' },
+    { id: 'relationships', label: 'Relationships', icon: Workflow, color: 'text-fuchsia-400' },
+    { id: 'technical', label: 'Technical', icon: Layout, color: 'text-indigo-400' },
   ];
 
   return (

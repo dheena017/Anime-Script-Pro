@@ -14,6 +14,7 @@ export interface CharacterCast {
   updated_at?: string;
   
   // Neural Seed Prompts
+  num_characters?: number;
   prompt_cast?: string | null;
   prompt_relationships?: string | null;
 }

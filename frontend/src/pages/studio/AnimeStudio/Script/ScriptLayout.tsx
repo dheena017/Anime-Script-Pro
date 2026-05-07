@@ -25,12 +25,12 @@ export default function ScriptLayout() {
     session, episode, numScenes, selectedModel, contentType,
     recapperPersona, characterRelationships, generatedWorld,
     generatedCharacters, generatedSeriesPlan, isSaving, generatedMetadata,
-    generationProgress
+    generationProgress, isEditing
   } = useGeneratorState();
 
   const {
     setGeneratedScript, setIsLoading, syncCore,
-    setGeneratedImagePrompts, setGeneratedMetadata
+    setGeneratedImagePrompts, setGeneratedMetadata, setIsEditing
   } = useGeneratorDispatch();
 
   useAuth();
@@ -163,6 +163,8 @@ export default function ScriptLayout() {
               onListen={handlers.playVoiceover}
               onNext={handlers.handleNextEpisode}
               onPrev={handlers.handlePrevEpisode}
+              isEditing={isEditing}
+              onEditingChange={setIsEditing}
             />
           </div>
         )}

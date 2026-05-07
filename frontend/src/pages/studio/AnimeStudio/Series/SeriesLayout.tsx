@@ -127,9 +127,10 @@ export default function SeriesLayout() {
     if (path.includes('/series/assets')) return 'assets';
     if (path.includes('/series/timeline')) return 'timeline';
 
-    if (path.endsWith('/series') || path.includes('/series/roadmap')) return 'roadmap';
+    if (path.endsWith('/series') || path.includes('/series/blueprint')) return 'blueprint';
+    if (path.includes('/series/roadmap')) return 'roadmap';
 
-    return 'roadmap';
+    return 'blueprint';
   };
 
   const [activeTab, setActiveTab] = React.useState<SeriesTab>(() => getActiveTab());

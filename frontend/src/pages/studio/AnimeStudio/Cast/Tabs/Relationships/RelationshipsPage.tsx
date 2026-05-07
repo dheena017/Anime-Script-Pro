@@ -14,10 +14,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { RelationshipCard } from '../../components/RelationshipCard';
 import { generateRelationships } from '@/services/api/gemini';
-import { StudioEmptyState } from '@/pages/studio/components/studio/shared/StudioEmptyState';
+import { CastEmptyState } from '../../components/CastEmptyState';
+import { CastContext } from '../../CastLayout';
 
 export default function RelationshipsPage() {
   const navigate = useNavigate();
+  const { handleLoadDemo } = React.useContext(CastContext);
   const { 
     characterRelationships, 
     setCharacterRelationships, 
@@ -25,25 +27,21 @@ export default function RelationshipsPage() {
     castList, 
     prompt, 
     selectedModel,
-    showNotification 
+    showNotification,
+    isGeneratingCharacters
   } = useGenerator();
+
   const [isGenerating, setIsGenerating] = useState(false);
   const hasCast = Array.isArray(castList) && castList.length > 0;
 
   if (!hasCast) {
     return (
-      <StudioEmptyState
-        icon={Workflow}
-        title="Relationship Lab Empty"
-        description="Generate your cast first to synthesize emotional threads, alliances, and rivalry arcs."
-        actionLabel="Open Cast Registry"
-        onAction={() => navigate(`/${contentType.toLowerCase()}/cast`)}
-        features={[
-          { icon: Sparkles, title: 'Social Graph Seed', description: 'Cast entities become relationship nodes' },
-          { icon: Filter, title: 'Thread Filtering', description: 'Unlock tactical relation clustering' },
-          { icon: Plus, title: 'Connection Forge', description: 'Create and tune core character links' }
-        ]}
-        accentColor="fuchsia"
+      <CastEmptyState
+        onLaunch={() => {
+          window.dispatchEvent(new CustomEvent('studio-generate-cast'));
+        }}
+        onLoadDemo={handleLoadDemo}
+        isGenerating={isGeneratingCharacters}
       />
     );
   }
@@ -137,28 +135,6 @@ export default function RelationshipsPage() {
         </div>
       </div>
 
-      {/* Toolbar */}
-      <div className="flex items-center justify-between gap-4 p-4 bg-zinc-900/40 border border-white/5 rounded-3xl backdrop-blur-md">
-        <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
-          <Input
-            placeholder="Search active threads..."
-            className="pl-12 bg-black/40 border-zinc-800 focus:border-fuchsia-500/50 h-12 rounded-2xl"
-          />
-        </div>
-        <div className="flex items-center gap-2">
-          <Button variant="ghost" className="text-zinc-500 hover:text-white uppercase tracking-widest text-[10px] font-black">
-            <Filter className="w-4 h-4 mr-2" /> Filter
-          </Button>
-          <div className="w-px h-6 bg-zinc-800 mx-2" />
-          <div className="flex items-center gap-4 px-4 py-2 bg-black/40 rounded-2xl border border-white/5">
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-emerald-500" />
-              <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Active Threads: {connections.length}</span>
-            </div>
-          </div>
-        </div>
-      </div>
 
       {/* Relationships Grid - Two per row on large screens */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 relative z-10">

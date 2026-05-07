@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
+import { StudioEditor } from '../../components/StudioEditor';
 import { motion } from 'framer-motion';
 import { Building2, Castle, Ruler, Layers, Sparkles, ClipboardList, Download } from 'lucide-react';
 import { TableOfContents } from '../components/TableOfContents';
@@ -26,7 +27,6 @@ export const ArchitectureTab: React.FC<ArchitectureTabProps> = ({
   onPromptChange
 }) => {
   const sectionContent = content;
-  const { textareaRef: mainTextareaRef, scheduleResizeTextarea: scheduleMainResize } = useAutoResizeTextarea(content || '', isEditing);
   const { textareaRef: promptTextareaRef, scheduleResizeTextarea: schedulePromptResize } = useAutoResizeTextarea(prompt || '', isEditing);
 
   const stats = React.useMemo(() => {
@@ -59,15 +59,10 @@ export const ArchitectureTab: React.FC<ArchitectureTabProps> = ({
 
 
       {isEditing ? (
-        <textarea
-          ref={mainTextareaRef}
-          className="world-textarea overflow-hidden"
-          value={content || ''}
-          onChange={(e) => {
-            onContentChange(e.target.value);
-            scheduleMainResize();
-          }}
-          onInput={scheduleMainResize}
+        <StudioEditor
+          content={content}
+          onContentChange={onContentChange}
+          isEditing={isEditing}
           placeholder="Define your world's architectural style and aesthetic design here..."
         />
       ) : (

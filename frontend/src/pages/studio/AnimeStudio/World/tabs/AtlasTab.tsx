@@ -2,6 +2,7 @@ import React from 'react';
 import { Map, Compass, Globe, Navigation, Sparkles, ClipboardList, Download } from 'lucide-react';
 import { motion } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
+import { StudioEditor } from '../../components/StudioEditor';
 import { studioLog, reportGeneration } from '@/lib/studio-logger';
 import { TableOfContents } from '../components/TableOfContents';
 import { useAutoResizeTextarea } from '../hooks/useAutoResizeTextarea';
@@ -27,7 +28,6 @@ export const AtlasTab: React.FC<AtlasTabProps> = ({
   onPromptChange
 }) => {
   const sectionContent = content;
-  const { textareaRef: mainTextareaRef, scheduleResizeTextarea: scheduleMainResize } = useAutoResizeTextarea(content || '', isEditing);
   const { textareaRef: promptTextareaRef, scheduleResizeTextarea: schedulePromptResize } = useAutoResizeTextarea(prompt || '', isEditing);
 
   const stats = React.useMemo(() => {
@@ -59,15 +59,10 @@ export const AtlasTab: React.FC<AtlasTabProps> = ({
 
 
       {isEditing ? (
-        <textarea
-          ref={mainTextareaRef}
-          className="world-textarea overflow-hidden"
-          value={content || ''}
-          onChange={(e) => {
-            onContentChange(e.target.value);
-            scheduleMainResize();
-          }}
-          onInput={scheduleMainResize}
+        <StudioEditor
+          content={content}
+          onContentChange={onContentChange}
+          isEditing={isEditing}
           placeholder="Map out your world geography here..."
         />
       ) : (
