@@ -5,6 +5,7 @@ python-dotenv
 sqlmodel
 fastapi-users[sqlmodel]
 fastapi-users-db-sqlmodel
+jinja2
 
 # AI Engine
 google-genai

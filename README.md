@@ -92,6 +92,7 @@ python -m uvicorn backend.fastapi_app:app --reload --port 8080
 # Install dependencies globally
 python -m pip install -r .\backend\requirements.txt
 
+.venv/Scripts/python.exe -m uvicorn backend.fastapi_app:app --reload --port 8080
 # Run FastAPI server directly
 python -m uvicorn backend.fastapi_app:app --reload --port 8080
 ```
@@ -214,5 +215,6 @@ The following blueprints document the high-fidelity architecture and production 
 ![Neural Engine Deep Dive](docs/flow-images/neural_engine_deep_dive_blueprint_final_1778055992557.png)
 ![Backend Infrastructure Flow](docs/flow-images/backend_neural_infrastructure_flow_1778056103418.png)
 
-#   A n i m e - S c r i p t - P r o  
+#   A n i m e - S c r i p t - P r o 
+ 
  
