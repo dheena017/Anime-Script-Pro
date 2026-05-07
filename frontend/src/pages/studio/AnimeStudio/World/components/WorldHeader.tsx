@@ -113,7 +113,7 @@ export const WorldHeader: React.FC<WorldHeaderProps> = ({
                       onClick={stopGeneration}
                     >
                       <Square className="w-4 h-4 mr-3 fill-current group-hover/stop:scale-110 transition-transform" />
-                      <span className="relative z-10">STOP SYNTHESIS</span>
+                      <span className="relative z-10">STOP GENERATE</span>
                     </Button>
                   ) : (
                     <Button
