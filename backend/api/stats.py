@@ -10,15 +10,15 @@ router = APIRouter(prefix="/api", tags=["Stats"])
 async def get_categories():
     async with AsyncSession(async_engine) as session:
         statement = select(Category).order_by(Category.name)
-        results = await session.exec(statement)
-        return results.all()
+        results = await session.execute(statement)
+        return results.scalars().all()
 
 @router.get("/stats/progress")
 async def get_stats_progress(project_id: int):
     async with AsyncSession(async_engine) as session:
         statement = select(Scene).where(Scene.project_id == project_id)
-        results = await session.exec(statement)
-        scenes = results.all()
+        results = await session.execute(statement)
+        scenes = results.scalars().all()
         
         stats = {}
         for s in scenes:

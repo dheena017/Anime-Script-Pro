@@ -227,7 +227,10 @@ async def validation_exception_handler(request: Request, exc: FastAPIRequestVali
 
 @app.exception_handler(SQLAlchemyError)
 async def sqlalchemy_exception_handler(request: Request, exc: SQLAlchemyError):
-    err_str = str(exc) if getattr(app, 'debug', False) else "A database error occurred."
+    err_str = str(exc)  # Always show full error for debugging
+    logger.error(f"SQLAlchemy Error: {err_str}")
+    import traceback
+    logger.error(f"Traceback: {traceback.format_exc()}")
     return error_response(500, "Database synchronization failure", request, error=err_str)
 
 # --- Custom Swagger UI with Schema Styling ---
@@ -305,15 +308,15 @@ from backend.api.logs import router as logs_router
 from backend.api.stats import router as stats_router
 from backend.api.admin import router as admin_router
 
-# World Modules integrated into services
-from backend.services.api.world.manifest import router as manifest_router
-from backend.services.api.world.history import router as history_router
-from backend.services.api.world.factions import router as factions_router
-from backend.services.api.world.powers import router as powers_router
-from backend.services.api.world.architecture import router as architecture_router
-from backend.services.api.world.atlas import router as atlas_router
-from backend.services.api.world.culture import router as culture_router
-from backend.services.api.world.systems import router as systems_router
+# World Modules (Modular Architecture)
+from backend.api.world.manifest import router as manifest_router
+from backend.api.world.history import router as history_router
+from backend.api.world.factions import router as factions_router
+from backend.api.world.powers import router as powers_router
+from backend.api.world.architecture import router as architecture_router
+from backend.api.world.atlas import router as atlas_router
+from backend.api.world.culture import router as culture_router
+from backend.api.world.systems import router as systems_router
 
 from backend.api.ai import router as ai_router
 from backend.api.tutorials import router as tutorials_router
@@ -326,6 +329,7 @@ from backend.api.production import router as production_router
 from backend.api.todos import router as todos_router
 from backend.api.growth import router as growth_router
 from backend.api.episodes import router as episodes_router
+from backend.api.series import router as series_router
 from backend.api.cast import router as cast_router
 from backend.api.analysis import router as analysis_router
 
@@ -374,6 +378,7 @@ app.include_router(architecture_router, tags=["Neural Engine"])
 app.include_router(atlas_router, tags=["Neural Engine"])
 app.include_router(culture_router, tags=["Neural Engine"])
 app.include_router(systems_router, tags=["Neural Engine"])
+app.include_router(series_router, tags=["Production"])
 
 app.include_router(projects_router, tags=["Production"])
 app.include_router(production_router, tags=["Production"])
