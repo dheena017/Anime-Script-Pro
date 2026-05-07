@@ -66,7 +66,7 @@ export default defineConfig(({ mode }) => {
       host: '0.0.0.0',
       port: 5173,
       strictPort: true,
-      hmr: process.env.DISABLE_HMR !== 'true',
+      hmr: false, // Auto-reloading is intentionally disabled
       proxy: {
         '/api': {
           target: 'http://127.0.0.1:8080',
