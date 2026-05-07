@@ -68,23 +68,19 @@ export default function PromptsLayout() {
 
     setIsLoading(true);
     try {
-      // Image prompts first (switch to image tab)
-      setSearchParams({ tab: 'image' });
+      // Image prompts first
       console.log('[PromptsLayout] Requesting image prompts generation...');
       const prompts = await generateImagePrompts(generatedScript, selectedModel);
       setGeneratedImagePrompts(prompts as any);
       console.log(`[PromptsLayout] Image prompts generated successfully. Response length: ${prompts?.length || 0} chars.`);
       showNotification?.('Image prompts synthesized.', 'success');
-      await new Promise((r) => setTimeout(r, 2000));
 
-      // Then video prompts (switch to video tab)
-      setSearchParams({ tab: 'video' });
+      // Then video prompts
       console.log('[PromptsLayout] Requesting video prompts generation...');
       const vprompts = await generateVideoPrompts(generatedScript, selectedModel);
       setVideoData(vprompts as any);
       console.log(`[PromptsLayout] Video prompts generated successfully. Response length: ${JSON.stringify(vprompts)?.length || 0} chars.`);
       showNotification?.('Video prompts synthesized.', 'success');
-      await new Promise((r) => setTimeout(r, 2000));
 
       showNotification?.('All prompts generated successfully!', 'success');
     } catch (e: any) {

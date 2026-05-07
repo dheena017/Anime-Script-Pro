@@ -17,15 +17,7 @@ from backend.utils.deps import get_auth_user_id
 from backend.services.ai_engine import ai_engine, build_genai_client
 from backend.schemas import GenerationRequest, GenerationResponse
 
-# Import world generator services for God Mode
-from backend.services.generators.world.manifest import manifest_service
-from backend.services.generators.world.history import history_service
-from backend.services.generators.world.factions import factions_service
-from backend.services.generators.world.powers import powers_service
-from backend.services.generators.world.architecture import architecture_service
-from backend.services.generators.world.atlas import atlas_service
-from backend.services.generators.world.culture import culture_service
-from backend.services.generators.world.systems import systems_service
+# World modules are now handled via AIEngine specialized methods
 
 router = APIRouter(prefix="/api", tags=["AI Engine"])
 
@@ -282,16 +274,16 @@ async def initialize_god_mode(project_id: int, user_id: str = Depends(get_auth_u
             tone = project.vibe or "Standard"
 
             # 1. Manifest (The Foundation)
-            manifest = await manifest_service.generate(project.title, project_prompt, tone, content_type, user_id)
+            manifest = await ai_engine.generate_manifest(project.title, project_prompt, tone, content_type, user_id)
 
             # 2-8: Specialized Modules
-            history = await history_service.generate(project_prompt, "", manifest, content_type, user_id)
-            factions = await factions_service.generate(project_prompt, "", manifest, content_type, user_id)
-            powers = await powers_service.generate(project_prompt, "", manifest, content_type, user_id)
-            architecture = await architecture_service.generate(project_prompt, "", manifest, content_type, user_id)
-            atlas = await atlas_service.generate(project_prompt, "", manifest, content_type, user_id)
-            culture = await culture_service.generate(project_prompt, "", manifest, content_type, user_id)
-            systems = await systems_service.generate(project_prompt, "", manifest, content_type, user_id)
+            history = await ai_engine.generate_history(project_prompt, "", manifest, content_type, user_id)
+            factions = await ai_engine.generate_factions(project_prompt, "", manifest, content_type, user_id)
+            powers = await ai_engine.generate_powers(project_prompt, "", manifest, content_type, user_id)
+            architecture = await ai_engine.generate_architecture(project_prompt, "", manifest, content_type, user_id)
+            atlas = await ai_engine.generate_atlas(project_prompt, "", manifest, content_type, user_id)
+            culture = await ai_engine.generate_culture(project_prompt, "", manifest, content_type, user_id)
+            systems = await ai_engine.generate_systems(project_prompt, "", manifest, content_type, user_id)
 
             # Persist to WorldLore
             statement = select(WorldLore).where(WorldLore.user_id == user_id).where(WorldLore.project_id == project_id)

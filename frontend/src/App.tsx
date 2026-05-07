@@ -42,8 +42,6 @@ const LibraryModule = lazy(() => import('@/pages/studio/Library/LibraryPage'));
 
 // Studio Layouts
 const AnimeLayout = lazy(() => import('@/pages/studio/AnimeStudio/Layout'));
-const ManhwaLayout = lazy(() => import('@/pages/studio/ManhwaStudio/ManhwaStudioLayout'));
-const ComicLayout = lazy(() => import('@/pages/studio/ComicStudio/Layout'));
 
 // Anime Studio Pages
 const AnimeScript = lazy(() => import('@/pages/studio/AnimeStudio/Script/ScriptPage').then(m => ({ default: m.ScriptPage })));
@@ -68,13 +66,6 @@ const ScreeningLayout = lazy(() => import('@/pages/studio/AnimeStudio/Screening/
 const EngineLayout = lazy(() => import('@/pages/studio/AnimeStudio/Engine/EngineLayout'));
 const AssetsLayout = lazy(() => import('@/pages/studio/AnimeStudio/Assets/AssetsLayout'));
 const AssetsPage = lazy(() => import('@/pages/studio/AnimeStudio/Assets/AssetsPage').then(m => ({ default: m.AssetsPage })));
-
-// Manhwa Studio Phase Layouts
-const ManhwaWorldLayout = lazy(() => import('@/pages/studio/ManhwaStudio/World/WorldLayout'));
-const ManhwaCastLayout = lazy(() => import('@/pages/studio/ManhwaStudio/Cast/CastLayout'));
-
-// Comic Studio Phase Layouts
-const ComicWorldLayout = lazy(() => import('@/pages/studio/ComicStudio/World/WorldLayout'));
 
 const EpisodeViewPage = lazy(() => import('@/pages/studio/AnimeStudio/Series/Episodes/EpisodeViewPage'));
 const EpisodeEditPage = lazy(() => import('@/pages/studio/AnimeStudio/Series/Episodes/EpisodeEditPage'));
@@ -211,44 +202,6 @@ export default function App() {
                 </Route>
               </Route>
 
-              {/* Manhwa Studio Context */}
-              <Route
-                path="/manhwa"
-                element={
-                  <StudioContextWrapper>
-                    <ManhwaLayout />
-                  </StudioContextWrapper>
-                }
-              >
-                <Route index element={<Navigate to="/manhwa/world" replace />} />
-                <Route path="world" element={<ManhwaWorldLayout />} />
-                <Route path="cast" element={<ManhwaCastLayout />} />
-                <Route path="engine" element={<EngineLayout />} />
-                <Route path="script" element={<ScriptLayout />} />
-                <Route path="storyboard" element={<StoryboardLayout />} />
-                <Route path="seo" element={<SEOLayout />} />
-                <Route path="prompts" element={<PromptsLayout />} />
-                <Route path="screening" element={<ScreeningLayout />} />
-              </Route>
-
-              {/* Comic Studio Context */}
-              <Route
-                path="/comic"
-                element={
-                  <StudioContextWrapper>
-                    <ComicLayout />
-                  </StudioContextWrapper>
-                }
-              >
-                <Route index element={<Navigate to="/comic/world" replace />} />
-                <Route path="world" element={<ComicWorldLayout />} />
-                <Route path="engine" element={<EngineLayout />} />
-                <Route path="script" element={<ScriptLayout />} />
-                <Route path="storyboard" element={<StoryboardLayout />} />
-                <Route path="seo" element={<SEOLayout />} />
-                <Route path="prompts" element={<PromptsLayout />} />
-                <Route path="screening" element={<ScreeningLayout />} />
-              </Route>
 
               {/* Legacy Redirects */}
               <Route path="/projects/new" element={<AuthRoute><CreateProject /></AuthRoute>} />

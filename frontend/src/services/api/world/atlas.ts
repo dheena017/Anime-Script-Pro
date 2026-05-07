@@ -19,10 +19,14 @@ export const atlasApi = {
       }
     );
   },
-  generate: async (userId: string, projectId: number) => {
+  generate: async (userId: string, projectId: number, tuning?: any) => {
     return apiRequest(
       `${BASE}/generate/${userId}?project_id=${projectId}`,
-      { method: 'POST', label: 'Generate Atlas' }
+      { 
+        method: 'POST', 
+        label: 'Generate Atlas',
+        body: JSON.stringify({ tuning })
+      }
     );
   }
 };

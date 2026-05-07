@@ -1,4 +1,5 @@
 import React from 'react';
+import { useDiagnostic } from '../../Diagnostic/context/DiagnosticCommandCenter';
 
 /**
  * Series Command Center
@@ -31,14 +32,42 @@ export const SeriesCommandCenterProvider: React.FC<{children: React.ReactNode, s
   seriesPlan,
   handlers 
 }) => {
+  const { updateModuleStatus, updateModuleMetrics } = useDiagnostic();
+
+  React.useEffect(() => {
+    if (seriesPlan && seriesPlan.length > 0) {
+      updateModuleStatus('series', 'healthy');
+    }
+  }, [seriesPlan, updateModuleStatus]);
+
   const value: SeriesDataContextType = {
     seriesPlan: seriesPlan || [],
     currentEpisode: 1,
     totalEpisodes: seriesPlan?.length || 12,
     handlers: {
-      generateSeriesPlan: handlers.generateSeriesPlan || (async () => {}),
+      generateSeriesPlan: async () => {
+        updateModuleStatus('series', 'syncing');
+        const start = performance.now();
+        try {
+          await (handlers.generateSeriesPlan || (async () => {}))();
+          updateModuleMetrics('series', { loadTime: Math.round(performance.now() - start) });
+          updateModuleStatus('series', 'healthy');
+        } catch (e) {
+          updateModuleStatus('series', 'error');
+          throw e;
+        }
+      },
       updateEpisode: handlers.updateEpisode || (() => {}),
-      syncSeries: handlers.syncSeries || (async () => {}),
+      syncSeries: async () => {
+        updateModuleStatus('series', 'syncing');
+        try {
+          await (handlers.syncSeries || (async () => {}))();
+          updateModuleStatus('series', 'healthy');
+        } catch (e) {
+          updateModuleStatus('series', 'error');
+          throw e;
+        }
+      },
     }
   };
 

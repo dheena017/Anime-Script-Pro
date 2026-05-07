@@ -50,11 +50,6 @@ export const EngineToolbar: React.FC<EngineToolbarProps> = ({
       {!showTabsOnly && (
         <div className="flex items-center justify-between px-4 py-2 bg-black/40 border border-white/5 rounded-2xl backdrop-blur-md">
           <div className="flex items-center gap-4">
-            <div className="flex flex-col">
-              <span className="text-[9px] font-black uppercase tracking-widest text-zinc-500 italic">
-                Engine Nexus <span className={cn(status === 'active' ? "text-studio" : "text-zinc-700")}>{status === 'active' ? 'Active' : 'Standby'}</span>
-              </span>
-            </div>
             <div className="w-px h-3 bg-white/5" />
             <div className="flex items-center gap-2">
               <span className="text-[7px] font-black text-zinc-600 uppercase tracking-widest">Unit:</span>

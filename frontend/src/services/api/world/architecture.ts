@@ -19,10 +19,14 @@ export const architectureApi = {
       }
     );
   },
-  generate: async (userId: string, projectId: number) => {
+  generate: async (userId: string, projectId: number, tuning?: any) => {
     return apiRequest(
       `${BASE}/generate/${userId}?project_id=${projectId}`,
-      { method: 'POST', label: 'Generate Architecture' }
+      { 
+        method: 'POST', 
+        label: 'Generate Architecture',
+        body: JSON.stringify({ tuning })
+      }
     );
   }
 };

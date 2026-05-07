@@ -77,12 +77,7 @@ export const StoryboardToolbar: React.FC<StoryboardToolbarProps> = ({
               <Palette className={cn("w-5 h-5", status === 'active' ? "text-fuchsia-400" : "text-zinc-600")} />
             </div>
             <div className="flex flex-col">
-              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white italic">
-                Storyboard Nexus {status === 'active' ? 'Active' : 'Standby'}
-              </span>
-              <span className="text-[8px] font-bold text-zinc-500 uppercase tracking-widest mt-0.5">
-                Visual Design Engine // Frame_Ready
-              </span>
+
             </div>
           </div>
 

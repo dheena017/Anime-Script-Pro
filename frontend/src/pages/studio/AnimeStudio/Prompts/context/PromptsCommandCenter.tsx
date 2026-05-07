@@ -1,4 +1,5 @@
 import React from 'react';
+import { useDiagnostic } from '../../Diagnostic/context/DiagnosticCommandCenter';
 
 /**
  * Prompts Command Center
@@ -30,13 +31,41 @@ export const PromptsCommandCenterProvider: React.FC<{children: React.ReactNode, 
   prompts,
   handlers 
 }) => {
+  const { updateModuleStatus, updateModuleMetrics } = useDiagnostic();
+
+  React.useEffect(() => {
+    if (prompts && prompts.length > 0) {
+      updateModuleStatus('prompts', 'healthy');
+    }
+  }, [prompts, updateModuleStatus]);
+
   const value: PromptsDataContextType = {
     prompts: prompts || [],
     currentModel: 'Stable Diffusion XL / Midjourney v6',
     handlers: {
-      generatePrompts: handlers.generatePrompts || (async () => {}),
+      generatePrompts: async () => {
+        updateModuleStatus('prompts', 'syncing');
+        const start = performance.now();
+        try {
+          await (handlers.generatePrompts || (async () => {}))();
+          updateModuleMetrics('prompts', { loadTime: Math.round(performance.now() - start) });
+          updateModuleStatus('prompts', 'healthy');
+        } catch (e) {
+          updateModuleStatus('prompts', 'error');
+          throw e;
+        }
+      },
       savePrompt: handlers.savePrompt || (() => {}),
-      syncPrompts: handlers.syncPrompts || (async () => {}),
+      syncPrompts: async () => {
+        updateModuleStatus('prompts', 'syncing');
+        try {
+          await (handlers.syncPrompts || (async () => {}))();
+          updateModuleStatus('prompts', 'healthy');
+        } catch (e) {
+          updateModuleStatus('prompts', 'error');
+          throw e;
+        }
+      },
     }
   };
 

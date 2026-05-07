@@ -74,9 +74,7 @@ export const CastToolbar: React.FC<CastToolbarProps> = ({
                 <Activity className={cn("w-5 h-5", status === 'active' ? "text-studio" : "text-zinc-600")} />
               </div>
               <div className="flex flex-col">
-                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white italic">
-                  AI Registry {status === 'active' ? 'Active' : 'Standby'}
-                </span>
+
                 <span className="text-[8px] font-bold text-zinc-500 uppercase tracking-widest mt-0.5">
                   System Status: Optimal // Core_Sync_01
                 </span>

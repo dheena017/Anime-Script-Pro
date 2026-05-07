@@ -1,4 +1,5 @@
 import React from 'react';
+import { useDiagnostic } from '../../Diagnostic/context/DiagnosticCommandCenter';
 
 /**
  * Assets Command Center
@@ -30,13 +31,50 @@ export const AssetsCommandCenterProvider: React.FC<{children: React.ReactNode, l
   library,
   handlers 
 }) => {
+  const { updateModuleStatus, updateModuleMetrics } = useDiagnostic();
+
+  React.useEffect(() => {
+    if (library && library.length > 0) {
+      updateModuleStatus('assets', 'healthy');
+    }
+  }, [library, updateModuleStatus]);
+
   const value: AssetsDataContextType = {
     library: library || [],
     diskUsage: '1.2 GB / 50 GB',
     handlers: {
-      importAsset: handlers.importAsset || (async () => {}),
-      generateProp: handlers.generateProp || (async () => {}),
-      syncAssets: handlers.syncAssets || (async () => {}),
+      importAsset: async (file: File) => {
+        updateModuleStatus('assets', 'syncing');
+        try {
+          await (handlers.importAsset || (async () => {}))(file);
+          updateModuleStatus('assets', 'healthy');
+        } catch (e) {
+          updateModuleStatus('assets', 'error');
+          throw e;
+        }
+      },
+      generateProp: async (prompt: string) => {
+        updateModuleStatus('assets', 'syncing');
+        try {
+          await (handlers.generateProp || (async () => {}))(prompt);
+          updateModuleStatus('assets', 'healthy');
+        } catch (e) {
+          updateModuleStatus('assets', 'error');
+          throw e;
+        }
+      },
+      syncAssets: async () => {
+        updateModuleStatus('assets', 'syncing');
+        const start = performance.now();
+        try {
+          await (handlers.syncAssets || (async () => {}))();
+          updateModuleMetrics('assets', { loadTime: Math.round(performance.now() - start) });
+          updateModuleStatus('assets', 'healthy');
+        } catch (e) {
+          updateModuleStatus('assets', 'error');
+          throw e;
+        }
+      },
     }
   };
 

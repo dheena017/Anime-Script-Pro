@@ -45,25 +45,9 @@ export default function StoryboardLayout() {
     setIsGeneratingImagePrompts(true);
     console.log('[StoryboardLayout] Requesting image prompts generation...');
     try {
-      setSearchParams({ tab: 'frames' });
       const prompts = await generateImagePrompts(generatedScript, selectedModel);
       setGeneratedImagePrompts(prompts);
       console.log(`[StoryboardLayout] Image prompts generated successfully. Response length: ${prompts?.length || 0} chars.`);
-      await new Promise(r => setTimeout(r, 2000));
-      
-      setSearchParams({ tab: 'angles' });
-      await new Promise(r => setTimeout(r, 2000));
-      
-      setSearchParams({ tab: 'composition' });
-      await new Promise(r => setTimeout(r, 2000));
-      
-      setSearchParams({ tab: 'animatic' });
-      await new Promise(r => setTimeout(r, 2000));
-      
-      setSearchParams({ tab: 'audio' });
-      await new Promise(r => setTimeout(r, 2000));
-      
-      setSearchParams({ tab: 'frames' });
       showNotification?.('Full Storyboard Sequence Generated!', 'success');
     } catch (e: any) {
       console.error('[StoryboardLayout] Failed to generate visuals:', e);

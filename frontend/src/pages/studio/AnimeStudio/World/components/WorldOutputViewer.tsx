@@ -1,8 +1,6 @@
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import { motion } from 'framer-motion';
-import { Zap } from 'lucide-react';
-import { TableOfContents } from './TableOfContents';
 import { useAutoResizeTextarea } from '../hooks/useAutoResizeTextarea';
 
 interface WorldOutputViewerProps {
@@ -12,7 +10,7 @@ interface WorldOutputViewerProps {
   onContentChange: (val: string) => void;
 }
 
-export const WorldOutputViewer = React.memo(({ isEditing, content, prompt, onContentChange }: WorldOutputViewerProps) => {
+export const WorldOutputViewer = React.memo(({ isEditing, content, onContentChange }: WorldOutputViewerProps) => {
   const { textareaRef, scheduleResizeTextarea } = useAutoResizeTextarea(content || '', isEditing);
 
   if (isEditing) {
@@ -73,51 +71,6 @@ export const WorldOutputViewer = React.memo(({ isEditing, content, prompt, onCon
       <div className="world-main-column">
         <div className="world-prose">
           <ReactMarkdown components={customComponents}>{content}</ReactMarkdown>
-        </div>
-      </div>
-      
-      {/* Sidebar (Manifest + TOC) */}
-      <div className="world-sidebar">
-        {/* Lore Manifest */}
-        <div className="p-6 bg-studio/5 border border-studio/10 rounded-[2rem] space-y-6">
-          <h4 className="text-[10px] font-black text-studio uppercase tracking-widest flex items-center gap-2">
-            <Zap className="w-3 h-3" /> Lore Manifest
-          </h4>
-          <div className="space-y-4">
-            {[
-              { label: "Geography", val: "Rendered" },
-              { label: "Metaphysics", val: "Active" },
-              { label: "Timeline", val: "Synced" },
-              { label: "Sociology", val: "Archived" }
-            ].map((item, idx) => (
-              <div key={idx} className="flex items-center justify-between">
-                <span className="text-[10px] font-bold text-zinc-500 uppercase">{item.label}</span>
-                <span className="text-[10px] font-black text-white uppercase tracking-tighter">{item.val}</span>
-              </div>
-            ))}
-          </div>
-          <div className="pt-4 border-t border-studio/10">
-            <p className="text-[9px] text-zinc-600 font-medium leading-relaxed uppercase">
-              World data is now locked as the "Source of Truth" for all subsequent Script and Beat generation.
-            </p>
-          </div>
-        </div>
-
-        {/* Core Seed */}
-        {prompt && (
-          <div className="p-6 bg-black/40 border border-white/5 rounded-[2rem] space-y-4">
-            <h4 className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Core Seed</h4>
-            <div className="p-3 bg-zinc-950 rounded-xl border border-white/5">
-              <p className="text-[9px] font-mono text-studio/70 break-all leading-relaxed">
-                {prompt.substring(0, 150)}...
-              </p>
-            </div>
-          </div>
-        )}
-
-        {/* Quick Navigation TOC */}
-        <div className="pt-2">
-          <TableOfContents content={content} />
         </div>
       </div>
     </div>

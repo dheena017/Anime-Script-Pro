@@ -1,4 +1,5 @@
 import React from 'react';
+import { useDiagnostic } from '../../Diagnostic/context/DiagnosticCommandCenter';
 
 /**
  * Screening Command Center
@@ -30,6 +31,14 @@ export const ScreeningCommandCenterProvider: React.FC<{children: React.ReactNode
   playlist,
   handlers 
 }) => {
+  const { updateModuleStatus, updateModuleMetrics } = useDiagnostic();
+
+  React.useEffect(() => {
+    if (playlist && playlist.length > 0) {
+      updateModuleStatus('screening', 'healthy');
+    }
+  }, [playlist, updateModuleStatus]);
+
   const [activeVideo, setActiveVideo] = React.useState(null);
 
   const value: ScreeningDataContextType = {
@@ -38,7 +47,18 @@ export const ScreeningCommandCenterProvider: React.FC<{children: React.ReactNode
     handlers: {
       playVideo: (video) => setActiveVideo(video),
       downloadVideo: handlers.downloadVideo || (() => {}),
-      syncScreening: handlers.syncScreening || (async () => {}),
+      syncScreening: async () => {
+        updateModuleStatus('screening', 'syncing');
+        const start = performance.now();
+        try {
+          await (handlers.syncScreening || (async () => {}))();
+          updateModuleMetrics('screening', { loadTime: Math.round(performance.now() - start) });
+          updateModuleStatus('screening', 'healthy');
+        } catch (e) {
+          updateModuleStatus('screening', 'error');
+          throw e;
+        }
+      },
     }
   };
 

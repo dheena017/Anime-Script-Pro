@@ -89,27 +89,6 @@ export default function SeriesLayout() {
       setGeneratedSeriesPlan(plan);
       console.log(`[SeriesLayout] Series plan generated successfully. Response length: ${JSON.stringify(plan)?.length || 0} chars.`);
       
-      // Response and Report Flow
-      const base = `/${contentType.toLowerCase()}/series`;
-      navigate(base); // roadmap
-      await new Promise(r => setTimeout(r, 2000));
-      
-      navigate(`${base}/blueprint`);
-      await new Promise(r => setTimeout(r, 2000));
-      
-      navigate(`${base}/episodes`);
-      await new Promise(r => setTimeout(r, 2000));
-      
-      navigate(`${base}/timeline`);
-      await new Promise(r => setTimeout(r, 2000));
-      
-      navigate(`${base}/arcs`);
-      await new Promise(r => setTimeout(r, 2000));
-      
-      navigate(`${base}/assets`);
-      await new Promise(r => setTimeout(r, 2000));
-
-      navigate(base); // Return to roadmap
       showNotification?.('Full Series Blueprint Synthesized!', 'success');
     } catch (error: any) {
       console.error('[SeriesLayout] Failed to create series plan:', error);

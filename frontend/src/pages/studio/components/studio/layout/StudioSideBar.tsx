@@ -51,8 +51,6 @@ export const StudioSideBar = React.memo<StudioSideBarProps>(({ collapsed, setCol
 
   const getPrefix = () => {
     if (location.pathname.startsWith('/anime')) return '/anime';
-    if (location.pathname.startsWith('/manhwa')) return '/manhwa';
-    if (location.pathname.startsWith('/comic')) return '/comic';
     return '/anime';
   };
 
@@ -60,8 +58,6 @@ export const StudioSideBar = React.memo<StudioSideBarProps>(({ collapsed, setCol
 
   const studioTypes = [
     { id: 'anime', label: 'Anime Studio', path: '/anime', icon: Brain, color: 'text-cyan-400', bg: 'bg-cyan-500/10' },
-    { id: 'manhwa', label: 'Manhwa Studio', path: '/manhwa', icon: Sparkles, color: 'text-violet-400', bg: 'bg-violet-500/10' },
-    { id: 'comic', label: 'Comic Studio', path: '/comic', icon: Zap, color: 'text-orange-400', bg: 'bg-orange-500/10' },
   ];
 
 

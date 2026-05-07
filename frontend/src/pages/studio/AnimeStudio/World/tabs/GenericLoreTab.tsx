@@ -23,31 +23,10 @@ export const GenericLoreTab: React.FC<GenericLoreTabProps> = ({
   content,
   prompt,
   onContentChange,
-  icon: Icon,
-  label,
   accentColor = '#06b6d4' // Default studio cyan
 }) => {
   return (
     <div className={s.container}>
-      {/* Dynamic Header */}
-      <div className={s.header}>
-        <div className="space-y-3">
-          <div className={s.badge} style={{ backgroundColor: `${accentColor}10`, borderColor: `${accentColor}20` }}>
-            <Icon className="w-3 h-3 child-path-fill" style={{ color: accentColor }} />
-            <span className={s.badgeText} style={{ color: accentColor }}>{label} Domain</span>
-          </div>
-          <h1 className={s.headerTitle}>
-            {label.toUpperCase()} <br />
-            <span 
-              className="text-transparent bg-clip-text" 
-              style={{ backgroundImage: `linear-gradient(to right, ${accentColor}, #ffffff, ${accentColor})` }}
-            >
-              MODULE
-            </span>
-          </h1>
-        </div>
-      </div>
-
       {/* Shared Output Viewer */}
       <div style={{ '--prose-accent-color': accentColor } as React.CSSProperties}>
         <WorldOutputViewer

@@ -1,6 +1,7 @@
-import React from 'react';
 import { ScriptTab } from '../Tabs/ScriptTabs';
 import { analyzeScript, AnalysisResponse } from '@/services/api/analysis';
+import { useDiagnostic } from '../../Diagnostic/context/DiagnosticCommandCenter';
+import React from 'react';
 
 /**
  * The Command Center for the Script Studio.
@@ -62,6 +63,14 @@ export const ScriptCommandCenterProvider: React.FC<ProviderProps> = ({
   generatedScript,
   handlers 
 }) => {
+  const { updateModuleStatus, updateModuleMetrics } = useDiagnostic();
+
+  React.useEffect(() => {
+    if (generatedScript && generatedScript.length > 0) {
+      updateModuleStatus('script', 'healthy');
+    }
+  }, [generatedScript, updateModuleStatus]);
+
   const [technicalData, setTechnicalData] = React.useState<AnalysisResponse>({
     shot_list: [
       { id: 'SCN_01', type: 'EXT. CITY - WIDE', action: 'Drone sweep across the neon skyline.' },
@@ -84,11 +93,16 @@ export const ScriptCommandCenterProvider: React.FC<ProviderProps> = ({
       if (!generatedScript || generatedScript.length < 100) return;
       
       setIsAnalyzing(true);
+      updateModuleStatus('script', 'syncing');
+      const start = performance.now();
       try {
         const data = await analyzeScript(generatedScript);
         setTechnicalData(data);
+        updateModuleMetrics('script', { loadTime: Math.round(performance.now() - start) });
+        updateModuleStatus('script', 'healthy');
       } catch (err) {
         console.error("Neural Analysis Failed:", err);
+        updateModuleStatus('script', 'error');
       } finally {
         setIsAnalyzing(false);
       }

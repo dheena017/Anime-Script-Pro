@@ -1,5 +1,6 @@
-import React from 'react';
 import { CastTab } from '../Tabs/CastTabs';
+import { useDiagnostic } from '../../Diagnostic/context/DiagnosticCommandCenter';
+import React from 'react';
 
 /**
  * Cast Command Center
@@ -45,15 +46,43 @@ export const CastCommandCenterProvider: React.FC<ProviderProps> = ({
   relationships,
   handlers 
 }) => {
+  const { updateModuleStatus, updateModuleMetrics } = useDiagnostic();
+
+  React.useEffect(() => {
+    if (characters && characters.length > 0) {
+      updateModuleStatus('cast', 'healthy');
+    }
+  }, [characters, updateModuleStatus]);
+
   const value: CastDataContextType = {
     activeTab,
     generatedCharacters,
     characters: characters || [],
     relationships: relationships || [],
     handlers: {
-      generateCharacter: handlers.generateCharacter || (async () => {}),
+      generateCharacter: async () => {
+        updateModuleStatus('cast', 'syncing');
+        const start = performance.now();
+        try {
+          await (handlers.generateCharacter || (async () => {}))();
+          updateModuleMetrics('cast', { loadTime: Math.round(performance.now() - start) });
+          updateModuleStatus('cast', 'healthy');
+        } catch (e) {
+          updateModuleStatus('cast', 'error');
+          throw e;
+        }
+      },
       updateRelationship: handlers.updateRelationship || (() => {}),
-      syncCast: handlers.syncCast || (async () => {}),
+      syncCast: async () => {
+        updateModuleStatus('cast', 'syncing');
+        try {
+          await (handlers.syncCast || (async () => {}))();
+          updateModuleStatus('cast', 'healthy');
+        } catch (e) {
+          updateModuleStatus('cast', 'error');
+          throw e;
+        }
+      },
     }
   };
 

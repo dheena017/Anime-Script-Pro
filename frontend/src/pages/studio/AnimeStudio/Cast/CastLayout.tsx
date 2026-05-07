@@ -186,10 +186,6 @@ export default function CastLayout() {
         }
       }
 
-      // Navigation flow (Response and Report)
-      navigate(`${base}/characters`);
-      await new Promise((r) => setTimeout(r, 2000));
-
       // Generate relationships
       try {
         const castNames = characters.length ? characters.map((c: any) => c.name) : [];
@@ -199,31 +195,17 @@ export default function CastLayout() {
           const rels = await generateRelationships(prompt, castListStr, selectedModel, contentType);
           setCharacterRelationships(JSON.stringify(rels));
           reportGeneration('CastLayout', 'Relationships generation', 'success', 'anime', { length: JSON.stringify(rels)?.length || 0 });
-          navigate(`${base}/relationships`);
-          await new Promise((r) => setTimeout(r, 2000));
-        } else {
-          navigate(`${base}/relationships`);
-          await new Promise((r) => setTimeout(r, 1000));
         }
       } catch (relErr: any) {
         reportGeneration('CastLayout', 'Relationships generation', 'failure', 'anime', relErr);
       }
 
       // Run deep analysis
-      navigate(`${base}/dna`);
       await handleGenerateDNA();
-      await new Promise((r) => setTimeout(r, 2000));
-
-      navigate(`${base}/dynamics`);
       await handleGenerateDynamics();
-      await new Promise((r) => setTimeout(r, 2000));
-
-      navigate(`${base}/integrity`);
       await handleGenerateIntegrity();
-      await new Promise((r) => setTimeout(r, 2000));
 
       showNotification?.('Full Cast Nexus Synthesized.', 'success');
-      navigate(`${base}/characters`);
     } catch (e: any) {
       reportGeneration('CastLayout', 'Full Cast Synthesization', 'failure', 'anime', e);
       showNotification?.('Failed to create characters: ' + (e.message || 'Unknown error'), 'error');

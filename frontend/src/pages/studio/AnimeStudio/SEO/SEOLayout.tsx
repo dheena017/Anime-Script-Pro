@@ -57,41 +57,32 @@ export default function SEOLayout() {
 
       const { generateYouTubeDescription, generateAltTexts, generateDistributionStrategy } = await import('@/services/api/gemini');
       
-      // Sequence SEO generations with Response and Report flow
-      setSearchParams({ tab: 'keywords' });
+      // Sequence SEO generations
       console.log('[SEOLayout] Requesting metadata/keywords generation...');
       const metadata = await generateMetadata(generatedScript, selectedModel);
       setGeneratedMetadata(metadata);
       console.log(`[SEOLayout] Metadata generated successfully. Response length: ${JSON.stringify(metadata)?.length || 0} chars.`);
       showNotification?.('Keywords indexed.', 'success');
-      await new Promise(r => setTimeout(r, 2000));
 
-      setSearchParams({ tab: 'description' });
       console.log('[SEOLayout] Requesting YouTube description generation...');
       const description = await generateYouTubeDescription(generatedScript, selectedModel);
       setGeneratedDescription(description);
       console.log(`[SEOLayout] Description generated successfully. Response length: ${description?.length || 0} chars.`);
       showNotification?.('Description synthesized.', 'success');
-      await new Promise(r => setTimeout(r, 2000));
 
-      setSearchParams({ tab: 'alt-texts' });
       console.log('[SEOLayout] Requesting alt texts generation...');
       const altText = await generateAltTexts(generatedScript, selectedModel);
       setGeneratedAltText(altText);
       console.log(`[SEOLayout] Alt texts generated successfully. Response length: ${altText?.length || 0} chars.`);
       showNotification?.('Alt texts generated.', 'success');
-      await new Promise(r => setTimeout(r, 2000));
 
-      setSearchParams({ tab: 'distribution' });
       console.log('[SEOLayout] Requesting distribution strategy generation...');
       const dist = await generateDistributionStrategy(generatedScript, selectedModel);
       setGeneratedDistributionPlan(dist);
       console.log(`[SEOLayout] Distribution strategy generated successfully. Response length: ${dist?.length || 0} chars.`);
       showNotification?.('Distribution plan ready.', 'success');
-      await new Promise(r => setTimeout(r, 2000));
 
       showNotification?.('Full SEO Nexus synchronized!', 'success');
-      setSearchParams({ tab: 'keywords' }); // Return to start
     } catch (e: any) {
       console.error('[SEOLayout] SEO synthesis failed:', e);
       showNotification?.('SEO synthesis failed: ' + (e.message || 'Error'), 'error');

@@ -58,27 +58,12 @@ export default function ScriptLayout() {
         recapperPersona, characterRelationships, generatedWorld, generatedCharacters,
         currentEpisodePlan ? JSON.stringify(currentEpisodePlan) : null
       );
-      setSearchParams({ tab: 'teleprompter' });
       setGeneratedScript(script);
       reportGeneration('ScriptLayout', 'Script generation', 'success', 'anime', { length: script?.length || 0 });
       showNotification?.('Script drafted.', 'success');
-      await new Promise((r) => setTimeout(r, 2000));
-
-      // Review linguistics analysis
-      setSearchParams({ tab: 'linguistics' });
-      await new Promise((r) => setTimeout(r, 2000));
-
-      // Review beat sheet
-      setSearchParams({ tab: 'beats' });
-      await new Promise((r) => setTimeout(r, 2000));
-
-      // Review dialogue
-      setSearchParams({ tab: 'dialogue' });
-      await new Promise((r) => setTimeout(r, 2000));
 
       // Generate & review metadata/SEO
       try {
-        setSearchParams({ tab: 'metadata' });
         if (handlers.handleGenerateSEO) {
           reportGeneration('ScriptLayout', 'SEO metadata generation via handler', 'request', 'anime');
           await handlers.handleGenerateSEO();
@@ -89,12 +74,10 @@ export default function ScriptLayout() {
           reportGeneration('ScriptLayout', 'Metadata generation', 'success', 'anime', { length: JSON.stringify(metadata)?.length || 0 });
         }
         showNotification?.('Script metadata indexed.', 'success');
-        await new Promise((r) => setTimeout(r, 2000));
       } catch (metaErr) {
         console.warn('Failed to generate metadata:', metaErr);
       }
 
-      setSearchParams({ tab: 'teleprompter' });
       showNotification?.('Full Script Synthesized!', 'success');
     } catch (e: any) {
       reportGeneration('ScriptLayout', 'Script Synthesization', 'failure', 'anime', e);
@@ -168,11 +151,7 @@ export default function ScriptLayout() {
           generatedScript={generatedScript}
           handlers={handlers}
         >
-          {isLoading ? (
-            <ScriptLoadingPage tab={activeTab} />
-          ) : (
-            <Outlet context={{ activeTab }} />
-          )}
+          <Outlet context={{ activeTab }} />
         </ScriptCommandCenterProvider>
       </div>
 

@@ -58,13 +58,6 @@ export const PromptsHeader: React.FC<PromptsHeaderProps> = ({
                 <h1 className="header-title">
                    AI Prompts
                 </h1>
-                <div className="w-px h-4 bg-white/10 hidden sm:block" />
-                <div className="flex items-center gap-2">
-                  <Box className={cn("w-3.5 h-3.5", status === 'active' ? "text-red-500" : "text-zinc-600")} />
-                  <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500 italic">
-                    Nexus {status === 'active' ? 'Active' : 'Standby'}
-                  </span>
-                </div>
               </div>
               <div className="flex items-center gap-2 mt-2">
                 <Cpu className="w-3.5 h-3.5 text-red-500/40 shrink-0" />

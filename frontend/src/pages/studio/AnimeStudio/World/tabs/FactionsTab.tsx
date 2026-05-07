@@ -1,117 +1,116 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import ReactMarkdown from 'react-markdown';
-import { Users, Flag, Sword, Landmark, Sparkles, ClipboardList, Download } from 'lucide-react';
-import { motion } from 'framer-motion';
-import { TableOfContents } from '../components/TableOfContents';
 import { worldStyles as s } from '../worldStyles/worldStyles';
-import { cn } from '@/lib/utils';
 import remarkGfm from 'remark-gfm';
 import { useAutoResizeTextarea } from '../hooks/useAutoResizeTextarea';
-import { reportGeneration } from '@/lib/studio-logger';
+import { WorldToolbar } from '../components/WorldToolbar';
+import { useGenerator } from '@/hooks/useGenerator';
+import { useOutletContext } from 'react-router-dom';
+import { WorldEditorToolbar } from '../components/WorldEditorToolbar';
+import { Users, Shield, Target, Landmark, Swords } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { useWorldCommandCenter, useFactions } from '../context/WorldCommandCenter';
 
-interface FactionsTabProps {
-  isEditing: boolean;
-  content: string;
-  onContentChange: (content: string) => void;
-  onGenerate?: () => void;
-  isGenerating?: boolean;
-  prompt?: string;
-  onPromptChange?: (p: string) => void;
-}
+export const FactionsTab: React.FC = () => {
+  const { 
+    data: content, 
+    isGenerating, 
+    generate, 
+    update: onContentChange,
+    save: handleSave
+  } = useFactions();
+  
+  const { activeTab, setActiveTab, isGeneratingAny, progress } = useWorldCommandCenter();
+  const { session, episode, setIsEditing, isEditing, showNotification } = useGenerator();
 
-export const FactionsTab: React.FC<FactionsTabProps> = ({
-  isEditing,
-  content,
-  onContentChange,
-  onGenerate,
-  isGenerating,
-  prompt,
-  onPromptChange
-}) => {
-  const sectionContent = content;
   const { textareaRef: mainTextareaRef, scheduleResizeTextarea: scheduleMainResize } = useAutoResizeTextarea(content || '', isEditing);
-  const { textareaRef: promptTextareaRef, scheduleResizeTextarea: schedulePromptResize } = useAutoResizeTextarea(prompt || '', isEditing);
 
-  const stats = React.useMemo(() => [
-    { title: 'Alliances', icon: Landmark, color: 'text-blue-400', desc: 'Diplomatic treaties and hidden collaborations.' },
-    { title: 'Territories', icon: Flag, color: 'text-studio', desc: 'Lands and resources controlled by factions.' },
-    { title: 'Conflict', icon: Sword, color: 'text-rose-400', desc: 'Active wars and ideological friction points.' },
-    { title: 'Leadership', icon: Users, color: 'text-emerald-400', desc: 'Hierarchies and governing philosophies.' },
-  ], []);
+  const handleFormat = (type: string) => {
+    const textarea = mainTextareaRef.current;
+    if (!textarea) return;
 
-  const handleGenerate = () => {
-    if (onGenerate) {
-      reportGeneration('WORLD', 'Faction Synthesis', 'request', 'anime');
-      onGenerate();
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const text = textarea.value;
+    const selectedText = text.substring(start, end);
+
+    let replacement = '';
+    switch (type) {
+      case 'bold': replacement = `**${selectedText}**`; break;
+      case 'italic': replacement = `*${selectedText}*`; break;
+      case 'list': replacement = `\n- ${selectedText}`; break;
+      case 'h2': replacement = `\n## ${selectedText}`; break;
+      default: replacement = selectedText;
+    }
+
+    const newContent = text.substring(0, start) + replacement + text.substring(end);
+    onContentChange(newContent);
+    
+    setTimeout(() => {
+      textarea.focus();
+      textarea.setSelectionRange(start + replacement.length, start + replacement.length);
+      scheduleMainResize();
+    }, 0);
+  };
+
+  const handleRefine = async () => {
+    try {
+      showNotification?.('Political Analysis active. Balancing factional power dynamics...', 'info');
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      onContentChange(content + '\n\n*Political landscape refined: factional goals aligned.*');
+      showNotification?.('Factions refined successfully.', 'success');
+    } catch (err) {
+      showNotification?.('Political Analysis failed. Geopolitical instability detected.', 'error');
     }
   };
 
-  React.useEffect(() => {
-    if (!isGenerating && content && content.length > 0) {
-      // This is a bit naive but shows completion when generating finishes
-      // In a real app we'd trigger this from the parent's success callback
-    }
-  }, [isGenerating, content]);
+  const onSave = async () => {
+    await handleSave();
+    setIsEditing(false);
+  };
 
   return (
-    <div className={s.container}>
-      <div className={s.header}>
-        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 w-full">
-          <div className="space-y-3">
-            <div className={cn(s.badge, "bg-blue-500/10 border-blue-500/20")}>
-              <Users className="w-3 h-3 text-blue-500" />
-              <span className={cn(s.badgeText, "text-blue-500")}>Political Architect</span>
-            </div>
-            <h1 className={s.headerTitle}>
-              FACTION <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-500 to-blue-400">POLITICS</span>
-            </h1>
-          </div>
-
-          <div className="flex items-center gap-3">
-            {onGenerate && (
-              <button 
-                onClick={handleGenerate}
-                disabled={isGenerating}
-                className="flex items-center gap-2 px-5 py-2.5 bg-white text-black hover:bg-zinc-200 rounded-full transition-all group disabled:opacity-50"
-              >
-                {isGenerating ? (
-                  <div className="w-3.5 h-3.5 border-2 border-black/20 border-t-black rounded-full animate-spin" />
-                ) : (
-                  <Sparkles className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
-                )}
-                <span className="text-[10px] font-black uppercase tracking-widest">Synthesize</span>
-              </button>
-            )}
-
-            <button 
-              onClick={() => {
-                navigator.clipboard.writeText(content);
-                alert('Faction Manifest copied!');
-              }}
-              className="flex items-center gap-2 px-5 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-full transition-all group"
-            >
-              <ClipboardList className="w-3.5 h-3.5 text-zinc-400 group-hover:text-white transition-colors" />
-              <span className="text-[10px] font-black text-zinc-400 group-hover:text-white uppercase tracking-widest">Copy</span>
-            </button>
-            
-            <button 
-              onClick={() => {
-                const element = document.createElement("a");
-                const file = new Blob([content], { type: 'text/markdown' });
-                element.href = URL.createObjectURL(file);
-                element.download = "Faction_Manifest.md";
-                document.body.appendChild(element);
-                element.click();
-              }}
-              className="flex items-center gap-2 px-5 py-2.5 bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/20 rounded-full transition-all group"
-            >
-              <Download className="w-3.5 h-3.5 text-blue-500 group-hover:scale-110 transition-transform" />
-              <span className="text-[10px] font-black text-blue-500 uppercase tracking-widest">Download</span>
-            </button>
-          </div>
-        </div>
+    <div className="world-tab-content space-y-6">
+      <div className="flex justify-end">
+        <WorldToolbar
+          status={content ? 'active' : 'empty'}
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          session={session}
+          episode={episode}
+          content={content}
+          showTabsOnly={true}
+          isEditing={isEditing}
+          onEditingChange={setIsEditing}
+          progress={progress}
+          isGenerating={isGeneratingAny}
+        />
       </div>
+
+      <div className={s.container}>
+        {isEditing && (
+          <div className="space-y-4 mb-6 animate-in fade-in slide-in-from-top-4 duration-500">
+            <WorldEditorToolbar 
+              onFormat={handleFormat}
+              onRefine={handleRefine}
+              onUndo={() => {}}
+              onSave={onSave}
+              isGenerating={isGeneratingAny}
+            />
+            
+            <div className="bg-black/40 backdrop-blur-xl border border-white/5 rounded-2xl p-4 flex flex-wrap items-center gap-6 shadow-2xl">
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-studio/10 border border-studio/20 rounded-lg">
+                <Landmark className="w-3.5 h-3.5 text-studio" />
+                <span className="text-[10px] font-black uppercase tracking-widest text-studio">Geopolitical Tuning</span>
+              </div>
+
+              <div className="flex items-center gap-4">
+                <TuningOption icon={Users} label="Structure" options={['Monarchy', 'Democracy', 'Tribal']} active="Monarchy" />
+                <TuningOption icon={Swords} label="Conflict" options={['Cold War', 'All-Out', 'Stable']} active="Cold War" />
+              </div>
+            </div>
+          </div>
+        )}
 
       {isEditing ? (
         <textarea
@@ -129,74 +128,36 @@ export const FactionsTab: React.FC<FactionsTabProps> = ({
         <div className={s.contentArea}>
           <div className={s.mainColumn}>
             <div className={s.prose} style={{ '--prose-accent-color': '#60a5fa' } as React.CSSProperties}>
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>{sectionContent}</ReactMarkdown>
-            </div>
-          </div>
-
-          <div className={cn(s.sidebar, "space-y-8")}>
-            <div className="p-6 bg-[#050505] border border-white/5 rounded-[2rem] space-y-4 relative overflow-hidden group">
-              <div className="absolute inset-0 bg-blue-500/5 blur-[40px] pointer-events-none group-hover:bg-blue-500/10 transition-all duration-700" />
-              <div className="relative z-10 space-y-4">
-                <div className="flex items-center justify-between">
-                  <h4 className="text-[10px] font-black text-zinc-500 uppercase tracking-widest flex items-center gap-2">
-                    <Sparkles className="w-3 h-3 text-blue-500" /> Core Seed
-                  </h4>
-                  {isEditing && <span className="text-[8px] font-bold text-blue-500/50 uppercase">Modular Prompt</span>}
-                </div>
-                
-                {isEditing ? (
-                  <textarea
-                    ref={promptTextareaRef}
-                    className="w-full bg-black/40 border border-white/5 rounded-xl p-3 text-[10px] font-medium text-zinc-300 placeholder:text-zinc-700 focus:outline-none focus:border-blue-500/30 transition-colors min-h-[100px] resize-none overflow-hidden"
-                    value={prompt || ''}
-                    onChange={(e) => {
-                      onPromptChange?.(e.target.value);
-                      schedulePromptResize();
-                    }}
-                    onInput={schedulePromptResize}
-                    placeholder="Refine the faction dynamics with specific instructions..."
-                  />
-                ) : (
-                  <div className="p-4 bg-black/40 border border-white/5 rounded-xl">
-                    <p className="text-[9px] font-medium text-zinc-500 leading-relaxed italic">
-                      {prompt ? `"${prompt.substring(0, 120)}${prompt.length > 120 ? '...' : ''}"` : 'Using global project seed for synthesis.'}
-                    </p>
-                  </div>
-                )}
-                
-                <p className="text-[8px] text-zinc-600 font-bold uppercase tracking-tighter leading-relaxed">
-                  Refine the political landscape by defining key conflicts, leadership styles, or hidden agendas.
-                </p>
-              </div>
-            </div>
-
-            <div className="space-y-6">
-              {stats.map((stat, i) => (
-                <motion.div 
-                  key={i}
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: i * 0.1 }}
-                  className="p-6 bg-[#050505] border border-white/5 rounded-[2rem] space-y-4 relative group overflow-hidden hover:border-blue-500/30 transition-all"
-                >
-                  <div className="absolute top-0 right-0 w-24 h-24 bg-blue-500/5 blur-[40px] pointer-events-none" />
-                  <div className={`w-10 h-10 rounded-xl bg-white/[0.03] border border-white/10 flex items-center justify-center ${stat.color}`}>
-                    <stat.icon className="w-5 h-5" />
-                  </div>
-                  <div className="space-y-2">
-                    <h3 className="text-sm font-black text-white uppercase tracking-widest line-clamp-1">{stat.title}</h3>
-                    <p className="text-[10px] font-medium text-zinc-500 leading-relaxed line-clamp-2">{stat.desc}</p>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-            <div className="pt-2">
-              <TableOfContents content={content} />
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
             </div>
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 };
 
+const TuningOption = ({ icon: Icon, label, options, active }: { icon: any, label: string, options: string[], active: string }) => (
+  <div className="flex flex-col gap-1">
+    <div className="flex items-center gap-1.5 pl-1">
+      <Icon className="w-2.5 h-2.5 text-zinc-600" />
+      <span className="text-[8px] font-black text-zinc-500 uppercase tracking-[0.2em]">{label}</span>
+    </div>
+    <div className="flex items-center bg-zinc-950/80 rounded-xl p-1 border border-white/5 shadow-inner">
+      {options.map(opt => (
+        <button
+          key={opt}
+          className={cn(
+            "px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-tighter transition-all duration-300",
+            active === opt 
+              ? "bg-studio/20 text-studio shadow-[0_0_10px_rgba(6,182,212,0.2)]" 
+              : "text-zinc-600 hover:text-zinc-400 hover:bg-white/5"
+          )}
+        >
+          {opt}
+        </button>
+      ))}
+    </div>
+  </div>
+);

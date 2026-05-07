@@ -1,4 +1,5 @@
 import React from 'react';
+import { useDiagnostic } from '../../Diagnostic/context/DiagnosticCommandCenter';
 
 /**
  * Storyboard Command Center
@@ -30,13 +31,41 @@ export const StoryboardCommandCenterProvider: React.FC<{children: React.ReactNod
   frames,
   handlers 
 }) => {
+  const { updateModuleStatus, updateModuleMetrics } = useDiagnostic();
+
+  React.useEffect(() => {
+    if (frames && frames.length > 0) {
+      updateModuleStatus('storyboard', 'healthy');
+    }
+  }, [frames, updateModuleStatus]);
+
   const value: StoryboardDataContextType = {
     frames: frames || [],
     isRendering: false,
     handlers: {
-      generateFrames: handlers.generateFrames || (async () => {}),
+      generateFrames: async () => {
+        updateModuleStatus('storyboard', 'syncing');
+        const start = performance.now();
+        try {
+          await (handlers.generateFrames || (async () => {}))();
+          updateModuleMetrics('storyboard', { loadTime: Math.round(performance.now() - start) });
+          updateModuleStatus('storyboard', 'healthy');
+        } catch (e) {
+          updateModuleStatus('storyboard', 'error');
+          throw e;
+        }
+      },
       exportStoryboard: handlers.exportStoryboard || (() => {}),
-      syncStoryboard: handlers.syncStoryboard || (async () => {}),
+      syncStoryboard: async () => {
+        updateModuleStatus('storyboard', 'syncing');
+        try {
+          await (handlers.syncStoryboard || (async () => {}))();
+          updateModuleStatus('storyboard', 'healthy');
+        } catch (e) {
+          updateModuleStatus('storyboard', 'error');
+          throw e;
+        }
+      },
     }
   };
 

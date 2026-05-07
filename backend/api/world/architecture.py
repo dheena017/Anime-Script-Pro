@@ -3,9 +3,8 @@ from sqlmodel import select
 from backend.database import AsyncSession, get_async_session
 from backend.database.models.world import WorldLore
 from backend.database.models import Project
-from backend.services.generators.world.architecture import architecture_service
+from backend.services.ai_engine import ai_engine
 from backend.utils.deps import get_auth_user_id
-from backend.services.cache.dataCache import world_cache
 from datetime import datetime
 from typing import Optional
 from loguru import logger
@@ -17,21 +16,15 @@ async def get_architecture(user_id: str, project_id: Optional[int] = None, sessi
     if user_id != auth_user_id:
         raise HTTPException(status_code=403, detail="Unauthorized")
 
-    if project_id:
-        cached = world_cache.get(user_id, project_id, "architecture")
-        if cached:
-            return cached
-
     statement = select(WorldLore).where(WorldLore.user_id == user_id)
     if project_id:
         statement = statement.where(WorldLore.project_id == project_id)
     result = await session.execute(statement)
     lore = result.scalars().first()
 
-    if lore and project_id:
-        world_cache.set(user_id, project_id, "architecture", lore.dict())
-
-    return lore
+    if not lore:
+        return {"content": "", "prompt": ""}
+    return {"content": lore.architecture_blob, "prompt": lore.prompt_architecture}
 
 @router.post("/{user_id}")
 async def update_architecture(user_id: str, payload: dict, project_id: Optional[int] = None, session: AsyncSession = Depends(get_async_session), auth_user_id: str = Depends(get_auth_user_id)):
@@ -56,15 +49,10 @@ async def update_architecture(user_id: str, payload: dict, project_id: Optional[
     db_lore.updated_at = datetime.utcnow()
     session.add(db_lore)
     await session.commit()
-    await session.refresh(db_lore)
-
-    if effective_project_id:
-        world_cache.set(user_id, effective_project_id, "architecture", db_lore.dict())
-
-    return db_lore
+    return {"status": "success"}
 
 @router.post("/generate/{user_id}")
-async def generate_architecture(user_id: str, project_id: int, session: AsyncSession = Depends(get_async_session), auth_user_id: str = Depends(get_auth_user_id)):
+async def generate_architecture(user_id: str, project_id: int, tuning: Optional[dict] = None, session: AsyncSession = Depends(get_async_session), auth_user_id: str = Depends(get_auth_user_id)):
     if user_id != auth_user_id:
         raise HTTPException(status_code=403, detail="Unauthorized")
 
@@ -72,32 +60,25 @@ async def generate_architecture(user_id: str, project_id: int, session: AsyncSes
     if not project or project.user_id != user_id:
         raise HTTPException(status_code=404, detail="Project not found")
 
+    project_prompt = project.prompt or project.description or ""
+    
     statement = select(WorldLore).where(WorldLore.user_id == user_id).where(WorldLore.project_id == project_id)
     result = await session.execute(statement)
-    db_lore = result.scalars().first()
-    context = db_lore.manifest_blob if db_lore else ""
+    lore = result.scalars().first()
+    module_prompt = lore.prompt_architecture if lore else ""
 
-    try:
-        content = await architecture_service.generate(
-            project_prompt=project.prompt or project.description or "",
-            module_prompt=db_lore.prompt_architecture if db_lore else "",
-            context=context,
-            content_type=project.content_type or "Anime",
-            user_id=user_id
-        )
+    content = await ai_engine.generate_architecture(
+        project_prompt=project_prompt,
+        module_prompt=module_prompt,
+        tuning=tuning,
+        user_id=user_id
+    )
 
-        if not db_lore:
-            db_lore = WorldLore(user_id=user_id, project_id=project_id)
+    if not lore:
+        lore = WorldLore(user_id=user_id, project_id=project_id)
 
-        db_lore.architecture_blob = content
-        db_lore.updated_at = datetime.utcnow()
-        session.add(db_lore)
-        await session.commit()
-        await session.refresh(db_lore)
-
-        world_cache.set(user_id, project_id, "architecture", db_lore.dict())
-
-        return {"content": content}
-    except Exception as e:
-        logger.error(f"Architecture generation failed: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+    lore.architecture_blob = content
+    lore.updated_at = datetime.utcnow()
+    session.add(lore)
+    await session.commit()
+    return {"content": content}
