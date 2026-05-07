@@ -1,12 +1,12 @@
 import { apiRequest } from '@/lib/api-utils';
-import { manifestApi } from './world/manifest';
-import { historyApi } from './world/history';
-import { factionsApi } from './world/factions';
-import { powersApi } from './world/powers';
-import { architectureApi } from './world/architecture';
-import { atlasApi } from './world/atlas';
-import { cultureApi } from './world/culture';
-import { systemsApi } from './world/systems';
+import { manifestApi } from '@/services/api/world/manifest';
+import { historyApi } from '@/services/api/world/history';
+import { factionsApi } from '@/services/api/world/factions';
+import { powersApi } from '@/services/api/world/powers';
+import { architectureApi } from '@/services/api/world/architecture';
+import { atlasApi } from '@/services/api/world/atlas';
+import { cultureApi } from '@/services/api/world/culture';
+import { systemsApi } from '@/services/api/world/systems';
 
 const API_BASE = '/api/world';
 
