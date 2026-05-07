@@ -1,7 +1,11 @@
 import React from 'react';
 import { Volume2, Music, Mic2, Radio } from 'lucide-react';
+import { useScriptCommandCenter } from '../context/ScriptCommandCenter';
 
 export const AudioTab: React.FC = () => {
+  const { technicalData } = useScriptCommandCenter();
+  const { vocalProfiles, bgmTrack } = technicalData.audio;
+
   return (
     <div className="py-12 space-y-12">
       <div className="text-center space-y-4">
@@ -14,7 +18,7 @@ export const AudioTab: React.FC = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
          {[
-           { label: 'BGM Track', value: 'Synth-Wave #04', icon: Music },
+           { label: 'BGM Track', value: bgmTrack, icon: Music },
            { label: 'Sample Rate', value: '96kHz / 24-bit', icon: Radio },
            { label: 'Master Bus', value: 'Cinematic Wide', icon: Volume2 }
          ].map((item, i) => (
@@ -37,14 +41,11 @@ export const AudioTab: React.FC = () => {
               <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.4em]">Vocal Profiles</h4>
            </div>
            <div className="space-y-6">
-              {[
-                { name: 'Kaelen', profile: 'Deep, Resonant, Calm', levels: 65 },
-                { name: 'Nova', profile: 'High-Pitch, Energetic', levels: 85 },
-              ].map((vocal, i) => (
+              {vocalProfiles.map((vocal, i) => (
                 <div key={i} className="space-y-2">
                    <div className="flex justify-between items-end">
                       <span className="text-xs font-black text-white uppercase tracking-wider">{vocal.name}</span>
-                      <span className="text-[9px] text-zinc-600 font-mono">{vocal.profile}</span>
+                      <span className="text-[9px] text-zinc-600 font-mono">Dynamic Analysis Active</span>
                    </div>
                    <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
                       <div className="h-full bg-cyan-500/40 rounded-full" style={{ width: `${vocal.levels}%` }} />

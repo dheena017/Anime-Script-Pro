@@ -20,6 +20,27 @@ class GenerationResponse(BaseModel):
     latency_ms: Optional[float] = None
     fallbacks: Optional[List[str]] = None
 
+class CinematicShot(BaseModel):
+    id: str
+    type: str
+    action: str
+
+class VocalProfile(BaseModel):
+    name: str
+    levels: int
+
+class AnalysisRequest(BaseModel):
+    script: str
+    model: str = "gemini-2.5-flash"
+
+class AnalysisResponse(BaseModel):
+    shot_list: List[CinematicShot]
+    lenses: List[str]
+    energy_levels: List[float]
+    tension_score: int
+    vocal_profiles: List[VocalProfile]
+    bgm_track: str
+
 
 class TemplateIn(BaseModel):
     name: str

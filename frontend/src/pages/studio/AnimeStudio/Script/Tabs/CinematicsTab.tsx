@@ -1,7 +1,11 @@
 import React from 'react';
 import { Camera, Video, Monitor, Layers } from 'lucide-react';
+import { useScriptCommandCenter } from '../context/ScriptCommandCenter';
 
 export const CinematicsTab: React.FC = () => {
+  const { technicalData } = useScriptCommandCenter();
+  const { shotList, lenses } = technicalData.cinematics;
+
   return (
     <div className="py-12 space-y-12">
       <div className="text-center space-y-4">
@@ -14,7 +18,7 @@ export const CinematicsTab: React.FC = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
          {[
-           { label: 'Primary Lens', value: '35mm Anamorphic', icon: Video },
+           { label: 'Primary Lens', value: lenses[0], icon: Video },
            { label: 'Aspect Ratio', value: '2.39:1 Cinemascope', icon: Monitor },
            { label: 'Visual Depth', value: 'High-Contrast Noir', icon: Layers }
          ].map((item, i) => (
@@ -40,10 +44,7 @@ export const CinematicsTab: React.FC = () => {
         </div>
         <h4 className="text-[10px] font-black text-purple-400 uppercase tracking-[0.4em] mb-6">Active Shot List</h4>
         <div className="space-y-4">
-          {[
-            { id: 'SCN_01', type: 'EXT. CITY - WIDE', action: 'Drone sweep across the neon skyline.' },
-            { id: 'SCN_02', type: 'INT. LAB - CLOSE', action: 'Focus on characters eyes reflecting the data stream.' },
-          ].map((shot, i) => (
+          {shotList.map((shot, i) => (
             <div key={i} className="flex items-center gap-6 p-4 rounded-2xl hover:bg-white/5 transition-colors group/shot">
               <span className="text-[10px] font-mono text-zinc-600 group-hover/shot:text-purple-400 transition-colors">{shot.id}</span>
               <div className="h-px flex-1 bg-zinc-800" />

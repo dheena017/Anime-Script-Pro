@@ -9,6 +9,7 @@ import { ScriptLoadingPage } from './components/ScriptLoadingPage';
 import { generateScript, generateMetadata } from '@/services/api/gemini';
 import { ScriptTab } from './Tabs/ScriptTabs';
 import { studioLog, reportTabChange, reportGeneration } from '@/lib/studio-logger';
+import { ScriptCommandCenterProvider } from './context/ScriptCommandCenter';
 
 export const ScriptContext = React.createContext<{
   setHandlers: React.Dispatch<React.SetStateAction<any>>;
@@ -162,11 +163,17 @@ export default function ScriptLayout() {
           </div>
         </div>
 
-        {isLoading ? (
-          <ScriptLoadingPage tab={activeTab} />
-        ) : (
-          <Outlet context={{ activeTab }} />
-        )}
+        <ScriptCommandCenterProvider
+          activeTab={activeTab}
+          generatedScript={generatedScript}
+          handlers={handlers}
+        >
+          {isLoading ? (
+            <ScriptLoadingPage tab={activeTab} />
+          ) : (
+            <Outlet context={{ activeTab }} />
+          )}
+        </ScriptCommandCenterProvider>
       </div>
 
     </ScriptContext.Provider>

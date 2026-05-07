@@ -214,6 +214,42 @@ class AIEngine:
         )
         return response.text
 
+    async def analyze_script(self, script: str, user_id: str = None):
+        """
+        Extracts technical production data from a script for Cinematics, Pulse, and Audio.
+        Returns JSON structured for AnalysisResponse schema.
+        """
+        system_instruction = """
+        You are the Head of Production for a high-end Anime Studio.
+        Your task is to analyze the provided script and extract technical production data in JSON format.
+        
+        The output MUST be a JSON object with the following keys:
+        - shot_list: List of objects with {id, type, action}. 'id' should be SCN_01, SCN_02, etc. 'type' is camera angle (WIDE, CLOSE, POV). 'action' is a brief visual description.
+        - lenses: List of 3 strings for recommended camera lenses (e.g., '35mm Anamorphic').
+        - energy_levels: List of exactly 40 floats (0-100) representing the narrative energy/tension flow across the script.
+        - tension_score: A single integer (0-100) representing the overall script intensity.
+        - vocal_profiles: List of objects {name, levels} for the main characters found in the script. 'levels' is an integer (0-100) representing their vocal volume/presence.
+        - bgm_track: A creative name for the recommended background music track (e.g., 'Cyberpunk Pulse #09').
+
+        RETURN ONLY THE JSON OBJECT.
+        """
+        
+        user_prompt = f"Analyze this script and return the production JSON:\n\n{script}"
+        
+        logger.info(f"PROCESS: [🔍] Analyzing Script technicals... (User: {user_id})")
+        client = await self._get_client(user_id)
+        
+        response = await client.aio.models.generate_content(
+            model=self.model_name,
+            contents=user_prompt,
+            config=types.GenerateContentConfig(
+                system_instruction=system_instruction,
+                response_mime_type="application/json"
+            )
+        )
+        
+        return response.text
+
 ai_engine = AIEngine()
 
 async def call_ai(model: str, prompt: str, system_instruction: str = None, user_id: str = None):

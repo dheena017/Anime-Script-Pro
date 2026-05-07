@@ -327,6 +327,7 @@ from backend.api.todos import router as todos_router
 from backend.api.growth import router as growth_router
 from backend.api.episodes import router as episodes_router
 from backend.api.cast import router as cast_router
+from backend.api.analysis import router as analysis_router
 
 # Core system routes
 @app.get("/", tags=["system"], include_in_schema=False)
@@ -363,6 +364,7 @@ app.post("/api/generate", tags=["AI Engine"], response_model=GenerationResponse)
 app.include_router(ai_router, tags=["Neural Engine"])
 app.include_router(engine_router, tags=["Neural Engine"])
 app.include_router(scripts_router, tags=["Neural Engine"])
+app.include_router(analysis_router, tags=["Neural Engine"])
 
 app.include_router(manifest_router, tags=["Neural Engine"])
 app.include_router(history_router, tags=["Neural Engine"])
