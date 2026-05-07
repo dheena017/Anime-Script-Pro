@@ -1,7 +1,6 @@
 import React from 'react';
 import { Search, Copy, Download, Maximize, Minimize } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { SEOTabs, SEOTab } from '../Tabs/SEOTabs';
 import { Button } from '@/components/ui/button';
 import { useApp } from '@/contexts/AppContext';
 import { 
@@ -11,26 +10,18 @@ import {
   TooltipTrigger 
 } from '@/components/ui/tooltip';
 
-export type { SEOTab };
-
 interface SEOToolbarProps {
-  activeTab: SEOTab;
-  setActiveTab: (tab: SEOTab) => void;
   status: 'active' | 'draft' | 'empty';
   session?: string;
   episode?: string;
   content?: string | null;
-  showTabsOnly?: boolean;
 }
 
 export const SEOToolbar: React.FC<SEOToolbarProps> = ({
-  activeTab,
-  setActiveTab,
   status,
   session = '1',
   episode = '1',
-  content = null,
-  showTabsOnly = false
+  content = null
 }) => {
   const { isFullscreen } = useApp();
 
@@ -54,7 +45,6 @@ export const SEOToolbar: React.FC<SEOToolbarProps> = ({
 
   return (
     <TooltipProvider>
-      {!showTabsOnly && (
       <div className="flex flex-col gap-6 w-full p-4 md:p-0">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 lg:gap-0">
           <div className="flex items-center gap-4">
@@ -138,11 +128,8 @@ export const SEOToolbar: React.FC<SEOToolbarProps> = ({
               </Tooltip>
             </div>
           </div>
-          </div>
         </div>
-      )}
-
-      <SEOTabs activeTab={activeTab} setActiveTab={setActiveTab} />
+      </div>
     </TooltipProvider>
   );
 };

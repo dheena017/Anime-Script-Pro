@@ -1,7 +1,7 @@
 import React from 'react';
 import { ScrollText, Search, Layout, Volume2, Wand2, Download, RefreshCw, Copy, Maximize, Minimize, ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { ScriptTabs, ScriptTab } from '../../Script/Tabs/ScriptTabs';
+import { ScriptTab } from '../../Script/Tabs/ScriptTabs';
 import { Button } from '@/components/ui/button';
 import { useApp } from '@/contexts/AppContext';
 
@@ -15,8 +15,6 @@ import {
 export type { ScriptTab };
 
 interface ScriptToolbarProps {
-  activeTab: ScriptTab;
-  setActiveTab: (tab: ScriptTab) => void;
   status: 'active' | 'draft' | 'empty';
   session?: string;
   episode?: string;
@@ -33,8 +31,6 @@ interface ScriptToolbarProps {
 }
 
 export const ScriptToolbar: React.FC<ScriptToolbarProps> = ({
-  activeTab,
-  setActiveTab,
   status,
   session = '1',
   episode = '1',
@@ -285,8 +281,6 @@ export const ScriptToolbar: React.FC<ScriptToolbarProps> = ({
         </div>
       </div>
       )}
-
-      <ScriptTabs activeTab={activeTab} setActiveTab={setActiveTab} />
     </TooltipProvider>
   );
 };

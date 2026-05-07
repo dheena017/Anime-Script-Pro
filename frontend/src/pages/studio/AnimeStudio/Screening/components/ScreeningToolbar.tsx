@@ -4,36 +4,27 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from '@/components/ui/tooltip';
-import { ScreeningTab, ScreeningTabs } from '../../Screening/Tabs/ScreeningTabs';
 import { useApp } from '@/contexts/AppContext';
 import { Download, Maximize, Copy, Minimize, Monitor } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
-export type { ScreeningTab };
-
 interface ScreeningToolbarProps {
-  activeTab: ScreeningTab;
-  setActiveTab: (tab: ScreeningTab) => void;
   status: 'active' | 'draft' | 'empty';
   session?: string;
   episode?: string;
   content?: string | null;
   activeSession?: number;
   setActiveSession?: (session: number) => void;
-  showTabsOnly?: boolean;
 }
 
 export const ScreeningToolbar: React.FC<ScreeningToolbarProps> = ({
-  activeTab,
-  setActiveTab,
   status,
   session = '1',
   episode = '1',
   content = null,
   activeSession = 1,
-  setActiveSession = () => { },
-  showTabsOnly = false
+  setActiveSession = () => { }
 }) => {
   const { isFullscreen } = useApp();
 
@@ -57,7 +48,6 @@ export const ScreeningToolbar: React.FC<ScreeningToolbarProps> = ({
 
   return (
     <TooltipProvider>
-      {!showTabsOnly && (
       <div className="flex flex-col gap-6 w-full p-4 md:p-0">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 lg:gap-0">
           <div className="flex items-center gap-4">
@@ -158,11 +148,9 @@ export const ScreeningToolbar: React.FC<ScreeningToolbarProps> = ({
               </Tooltip>
             </div>
           </div>
-          </div>
         </div>
-      )}
+      </div>
 
-      <ScreeningTabs activeTab={activeTab} setActiveTab={setActiveTab} />
     </TooltipProvider>
   );
 };

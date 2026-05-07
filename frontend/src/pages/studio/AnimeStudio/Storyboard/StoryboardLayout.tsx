@@ -7,7 +7,7 @@ import { generateImagePrompts } from '@/services/api/gemini';
 
 import { StoryboardHeader } from './components/StoryboardHeader';
 import { StoryboardToolbar } from './components/StoryboardToolbar';
-import { StoryboardTab } from './Tabs/StoryboardTabs';
+import { StoryboardTabs, StoryboardTab } from './Tabs/StoryboardTabs';
 
 import { StoryboardLoadingPage } from './components/StoryboardLoadingPage';
 
@@ -116,10 +116,15 @@ export default function StoryboardLayout() {
         <div className="studio-tabs-bar sticky top-0 z-40 flex items-center justify-center p-3 md:p-4 bg-[#050505]/95 backdrop-blur-md border border-white/10 rounded-[2rem] shadow-2xl mb-8 relative group overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-studio/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
           <div className="relative z-10 w-full flex justify-center">
+            <StoryboardTabs activeTab={activeTab} setActiveTab={handleTabChange} />
+          </div>
+        </div>
+
+        {/* Toolbar Section */}
+        {generatedImagePrompts && (
+          <div className="mb-8 relative z-30">
             <StoryboardToolbar
               status={generatedImagePrompts ? 'active' : 'empty'}
-              activeTab={activeTab}
-              setActiveTab={handleTabChange}
               session={session}
               episode={episode}
               content={generatedImagePrompts}
@@ -127,10 +132,9 @@ export default function StoryboardLayout() {
               onEnhanceVisuals={handlers.handleEnhanceAllVisuals}
               isGlobalEnhancing={handlers.isGlobalEnhancing}
               onAddScene={handlers.handleAddScene}
-              showTabsOnly={true}
             />
           </div>
-        </div>
+        )}
 
         {(handlers.isGenerating || isGeneratingImagePrompts) ? (
           <StoryboardLoadingPage tab={activeTab} />

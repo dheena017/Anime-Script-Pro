@@ -7,7 +7,7 @@ import { ScriptHeader } from './components/ScriptHeader';
 import { ScriptToolbar } from './components/ScriptToolbar';
 import { ScriptLoadingPage } from './components/ScriptLoadingPage';
 import { generateScript, generateMetadata } from '@/services/api/gemini';
-import { ScriptTab } from './Tabs/ScriptTabs';
+import { ScriptTabs, ScriptTab } from './Tabs/ScriptTabs';
 import { studioLog, reportTabChange, reportGeneration } from '@/lib/studio-logger';
 
 export const ScriptContext = React.createContext<{
@@ -24,7 +24,7 @@ export default function ScriptLayout() {
     generatedScript, isLoading, prompt, tone, audience,
     session, episode, numScenes, selectedModel, contentType,
     recapperPersona, characterRelationships, generatedWorld,
-    generatedCharacters, generatedSeriesPlan, isSaving
+    generatedCharacters, generatedSeriesPlan, isSaving, generatedMetadata
   } = useGeneratorState();
 
   const {
@@ -142,13 +142,18 @@ export default function ScriptLayout() {
         <div className="studio-tabs-bar sticky top-0 z-40 flex items-center justify-center p-3 md:p-4 bg-[#050505]/95 backdrop-blur-md border border-white/10 rounded-[2rem] shadow-2xl mb-8 relative group overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-studio/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
           <div className="relative z-10 w-full flex justify-center">
+            <ScriptTabs activeTab={activeTab} setActiveTab={handleTabChange} />
+          </div>
+        </div>
+
+        {/* Toolbar Section */}
+        {(generatedScript || generatedMetadata) && (
+          <div className="mb-8 relative z-30">
             <ScriptToolbar
               status={generatedScript ? 'active' : 'empty'}
-              activeTab={activeTab}
-              setActiveTab={handleTabChange}
               session={session}
               episode={episode}
-              content={generatedScript}
+              content={activeTab === 'metadata' ? JSON.stringify(generatedMetadata) : generatedScript}
               onExport={handlers.exportToPDF}
               onViewSEO={handlers.handleGenerateSEO}
               onViewPrompts={handlers.handleGeneratePrompts}
@@ -157,10 +162,9 @@ export default function ScriptLayout() {
               onListen={handlers.playVoiceover}
               onNext={handlers.handleNextEpisode}
               onPrev={handlers.handlePrevEpisode}
-              showTabsOnly={true}
             />
           </div>
-        </div>
+        )}
 
         {isLoading ? (
           <ScriptLoadingPage tab={activeTab} />

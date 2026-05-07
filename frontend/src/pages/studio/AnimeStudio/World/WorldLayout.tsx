@@ -14,7 +14,7 @@ import {
   generateCulture,
   generateSystems
 } from '@/services/api/gemini';
-import { WorldTab } from './tabs/WorldTabs';
+import { WorldTabs, WorldTab } from './tabs/WorldTabs';
 import { WorldLoadingPage } from './WorldLoadingPage';
 import { studioLog, reportTabChange, reportGeneration } from '@/lib/studio-logger';
 
@@ -253,19 +253,32 @@ export default function WorldLayout() {
       <div className="studio-tabs-bar sticky top-0 z-40 flex items-center justify-center p-3 md:p-4 bg-[#050505]/95 backdrop-blur-md border border-white/10 rounded-[2rem] shadow-2xl mb-8 relative group overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-studio/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
         <div className="relative z-10 w-full flex justify-center">
-          <WorldToolbar
-            status={generatedWorld ? 'active' : 'empty'}
-            activeTab={activeTab}
-            setActiveTab={handleTabChange}
-            session={session}
-            episode={episode}
-            content={generatedWorld}
-            showTabsOnly={true}
-            isEditing={isEditing}
-            onEditingChange={setIsEditing}
-          />
+          <WorldTabs activeTab={activeTab} setActiveTab={handleTabChange} />
         </div>
       </div>
+
+      {/* Toolbar Section */}
+      {(generatedWorld || generatedWorldLore || generatedWorldPowers || generatedWorldFactions || generatedWorldArchitecture || generatedWorldAtlas || generatedWorldCulture || generatedWorldSystems) && (
+        <div className="mb-8 relative z-30">
+          <WorldToolbar
+            status={generatedWorld ? 'active' : 'empty'}
+            session={session}
+            episode={episode}
+            content={activeTab === 'manifest' ? generatedWorld :
+              activeTab === 'lore' ? generatedWorldLore :
+                activeTab === 'powers' ? generatedWorldPowers :
+                  activeTab === 'factions' ? generatedWorldFactions :
+                    activeTab === 'architecture' ? generatedWorldArchitecture :
+                      activeTab === 'atlas' ? generatedWorldAtlas :
+                        activeTab === 'culture' ? generatedWorldCulture :
+                          activeTab === 'systems' ? generatedWorldSystems :
+                            generatedWorld}
+            isEditing={isEditing}
+            onEditingChange={setIsEditing} activeTab={'manifest'} setActiveTab={function (tab: WorldTab): void {
+              throw new Error('Function not implemented.');
+            } }          />
+        </div>
+      )}
 
       <WorldContext.Provider value={{ activeTab, setActiveTab: handleTabChange }}>
         {(currentIsGenerating || (isGeneratingAny && !hasCurrentData)) ? (

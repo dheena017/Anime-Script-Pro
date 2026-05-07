@@ -1,7 +1,6 @@
 import React from 'react';
 import { Layers, Copy, Download, Maximize, Minimize, FileText } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { SeriesTabs, SeriesTab } from '../../Series/Tabs/SeriesTabs';
 import { Button } from '@/components/ui/button';
 import { useApp } from '@/contexts/AppContext';
 
@@ -12,32 +11,22 @@ import {
   TooltipTrigger
 } from '@/components/ui/tooltip';
 
-export type { SeriesTab };
-
 interface SeriesToolbarProps {
-  activeTab: SeriesTab;
-  setActiveTab: (tab: SeriesTab) => void;
   status: 'active' | 'draft' | 'empty';
   session?: string;
   episode?: string;
   content?: string | null;
-  onToggleScaffolder?: () => void;
-  showScaffolder?: boolean;
   onManifestClick?: () => void;
   onExportClick?: () => void;
-  showTabsOnly?: boolean;
 }
 
 export const SeriesToolbar: React.FC<SeriesToolbarProps> = ({
-  activeTab,
-  setActiveTab,
   status,
   session = '1',
   episode = '1',
   content = null,
   onManifestClick,
-  onExportClick,
-  showTabsOnly = false,
+  onExportClick
 }) => {
   const { isFullscreen } = useApp();
 
@@ -85,7 +74,6 @@ export const SeriesToolbar: React.FC<SeriesToolbarProps> = ({
   return (
     <TooltipProvider>
       <div className="flex flex-col gap-6 w-full p-4 md:p-0">
-        {!showTabsOnly && (
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 lg:gap-0">
           <div className="flex items-center gap-4">
             <div className="w-10 h-10 rounded-xl bg-studio/10 border border-studio/20 flex items-center justify-center">
@@ -187,9 +175,6 @@ export const SeriesToolbar: React.FC<SeriesToolbarProps> = ({
 
           </div>
         </div>
-        )}
-
-        <SeriesTabs activeTab={activeTab} setActiveTab={setActiveTab} />
       </div>
     </TooltipProvider>
   );

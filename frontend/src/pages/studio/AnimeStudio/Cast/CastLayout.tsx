@@ -5,6 +5,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useApp } from '@/contexts/AppContext';
 import { CastHeader } from './components/CastHeader';
 import { CastToolbar, CastTab } from './components/CastToolbar';
+import { CastTabs } from './Tabs/CastTabs';
 import { RegistryTab } from './Tabs/RegistryTab';
 import CharactersPage from './Tabs/Characters/CharactersPage';
 import { DNAPage } from './DNAPage';
@@ -57,7 +58,7 @@ export default function CastLayout() {
   const {
     prompt, selectedModel, contentType, generatedWorld,
     session, episode, generatedCharacters, isSaving, isGeneratingCharacters, isAnalyzingCast,
-    castList, characterRelationships
+    castList, characterRelationships, castDNA, castDynamics, castIntegrity
   } = useGeneratorState();
 
   const {
@@ -305,17 +306,30 @@ export default function CastLayout() {
         <div className="studio-tabs-bar sticky top-0 z-40 flex items-center justify-center p-3 md:p-4 bg-[#050505]/95 backdrop-blur-md border border-white/10 rounded-[2rem] shadow-2xl mb-8 relative group overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-studio/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
           <div className="relative z-10 w-full flex justify-center">
-            <CastToolbar
-              status={generatedCharacters ? 'active' : 'empty'}
-              activeTab={activeTab}
-              setActiveTab={handleTabChange}
-              session={session}
-              episode={episode}
-              content={generatedCharacters}
-              showTabsOnly={true}
-            />
+            <CastTabs activeTab={activeTab} setActiveTab={handleTabChange} />
           </div>
         </div>
+
+        {/* Toolbar Section */}
+        {(generatedCharacters || characterRelationships || castDNA || castDynamics || castIntegrity) && (
+          <div className="mb-8 relative z-30">
+            <CastToolbar
+              status={generatedCharacters ? 'active' : 'empty'}
+              session={session}
+              episode={episode}
+              activeTab={activeTab}
+              setActiveTab={handleTabChange}
+              content={
+                activeTab === 'characters' || activeTab === 'registry' ? generatedCharacters :
+                activeTab === 'matrix' ? characterRelationships :
+                activeTab === 'dna' ? JSON.stringify(castDNA) :
+                activeTab === 'dynamics' ? JSON.stringify(castDynamics) :
+                activeTab === 'integrity' ? JSON.stringify(castIntegrity) :
+                generatedCharacters
+              }
+            />
+          </div>
+        )}
 
         {(isGeneratingCharacters || isAnalyzingCast) ? (
           <CastLoadingPage tab={activeTab} />

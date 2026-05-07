@@ -5,7 +5,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { generateSeriesPlan } from '@/services/api/gemini';
 import { SeriesHeader } from './components/SeriesHeader';
 import { SeriesToolbar } from './components/SeriesToolbar';
-import { SeriesTab } from './Tabs/SeriesTabs';
+import { SeriesTabs, SeriesTab } from './Tabs/SeriesTabs';
 import { SeriesLoadingPage } from './components/SeriesLoadingPage';
 
 export default function SeriesLayout() {
@@ -173,10 +173,15 @@ export default function SeriesLayout() {
       <div className="studio-tabs-bar sticky top-0 z-40 flex items-center justify-center p-3 md:p-4 bg-[#050505]/95 backdrop-blur-md border border-white/10 rounded-[2rem] shadow-2xl mb-8 relative group overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-studio/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
         <div className="relative z-10 w-full flex justify-center">
+          <SeriesTabs activeTab={activeTab} setActiveTab={handleTabChange} />
+        </div>
+      </div>
+
+      {/* Toolbar Section */}
+      {generatedSeriesPlan && (
+        <div className="mb-8 relative z-30">
           <SeriesToolbar
             status={generatedSeriesPlan ? 'active' : 'empty'}
-            activeTab={activeTab}
-            setActiveTab={handleTabChange}
             session={session}
             episode={episode}
             onToggleScaffolder={() => setShowScaffolder(!showScaffolder)}
@@ -193,10 +198,9 @@ export default function SeriesLayout() {
               URL.revokeObjectURL(url);
             }}
             content={generatedSeriesPlan ? JSON.stringify(generatedSeriesPlan, null, 2) : null}
-            showTabsOnly={true}
           />
         </div>
-      </div>
+      )}
 
       {isGeneratingSeries ? (
         <SeriesLoadingPage tab={activeTab} />

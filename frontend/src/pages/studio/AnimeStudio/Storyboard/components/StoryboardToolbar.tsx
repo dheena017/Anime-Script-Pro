@@ -1,7 +1,6 @@
 import React from 'react';
 import { Palette, Mic2, Zap, Download, Copy, Maximize, Minimize, Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { StoryboardTabs, StoryboardTab } from '../../Storyboard/Tabs/StoryboardTabs';
 import { Button } from '@/components/ui/button';
 import { useApp } from '@/contexts/AppContext';
 
@@ -12,12 +11,8 @@ import {
   TooltipTrigger
 } from '@/components/ui/tooltip';
 
-export type { StoryboardTab };
-
 interface StoryboardToolbarProps {
   onAddScene?: () => void;
-  activeTab: StoryboardTab;
-  setActiveTab: (tab: StoryboardTab) => void;
   status: 'active' | 'draft' | 'empty';
   session?: string;
   episode?: string;
@@ -25,12 +20,9 @@ interface StoryboardToolbarProps {
   onEnhanceNarration?: () => void;
   onEnhanceVisuals?: () => void;
   isGlobalEnhancing?: boolean;
-  showTabsOnly?: boolean;
 }
 
 export const StoryboardToolbar: React.FC<StoryboardToolbarProps> = ({
-  activeTab,
-  setActiveTab,
   status,
   session = '1',
   episode = '1',
@@ -38,8 +30,7 @@ export const StoryboardToolbar: React.FC<StoryboardToolbarProps> = ({
   onAddScene,
   onEnhanceNarration,
   onEnhanceVisuals,
-  isGlobalEnhancing,
-  showTabsOnly = false
+  isGlobalEnhancing
 }) => {
   const { isFullscreen } = useApp();
 
@@ -217,8 +208,6 @@ export const StoryboardToolbar: React.FC<StoryboardToolbarProps> = ({
           </div>
         </div>
         )}
-
-        <StoryboardTabs activeTab={activeTab} setActiveTab={setActiveTab} />
       </div>
     </TooltipProvider>
   );

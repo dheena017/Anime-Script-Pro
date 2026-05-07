@@ -1,7 +1,6 @@
 import React from 'react';
 import { Zap, Copy, Download, Maximize, Minimize } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { PromptsTabs, PromptsTab } from '../Tabs/PromptsTabs';
 import { Button } from '@/components/ui/button';
 import { useApp } from '@/contexts/AppContext';
 import {
@@ -11,26 +10,18 @@ import {
   TooltipTrigger
 } from '@/components/ui/tooltip';
 
-export type { PromptsTab };
-
 interface PromptsToolbarProps {
-  activeTab: PromptsTab;
-  setActiveTab: (tab: PromptsTab) => void;
   status: 'active' | 'draft' | 'empty';
   session?: string;
   episode?: string;
   content?: string | null;
-  showTabsOnly?: boolean;
 }
 
 export const PromptsToolbar: React.FC<PromptsToolbarProps> = ({
-  activeTab,
-  setActiveTab,
   status,
   session = '1',
   episode = '1',
-  content = null,
-  showTabsOnly = false
+  content = null
 }) => {
   const { isFullscreen } = useApp();
 
@@ -55,8 +46,7 @@ export const PromptsToolbar: React.FC<PromptsToolbarProps> = ({
   return (
     <TooltipProvider>
       <div className="flex flex-col gap-6 w-full p-4 md:p-0">
-        {!showTabsOnly && (
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 lg:gap-0">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 lg:gap-0">
             <div className="flex items-center gap-4">
               <div className="w-10 h-10 rounded-xl bg-studio/10 border border-studio/20 flex items-center justify-center">
                 <Zap className={cn("w-5 h-5", status === 'active' ? "text-studio" : "text-zinc-600")} />
@@ -139,10 +129,7 @@ export const PromptsToolbar: React.FC<PromptsToolbarProps> = ({
               </div>
             </div>
           </div>
-        )}
-
-        <PromptsTabs activeTab={activeTab} setActiveTab={setActiveTab} />
-      </div>
+        </div>
     </TooltipProvider>
   );
 };

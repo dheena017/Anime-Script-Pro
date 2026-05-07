@@ -24,8 +24,6 @@ interface CastToolbarProps {
 }
 
 export const CastToolbar: React.FC<CastToolbarProps> = ({
-  activeTab,
-  setActiveTab,
   status,
   session = '1',
   episode = '1',
@@ -154,10 +152,8 @@ export const CastToolbar: React.FC<CastToolbarProps> = ({
           </div>
         </div>
       )}
-
-          <CastTabs activeTab={activeTab} setActiveTab={setActiveTab} />
-        </TooltipProvider>
-      );
+    </TooltipProvider>
+  );
 };
 
 

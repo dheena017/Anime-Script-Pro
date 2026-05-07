@@ -7,7 +7,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { generateImagePrompts, generateVideoPrompts } from '@/services/api/gemini';
 import { PromptsHeader } from './components/PromptsHeader';
 import { PromptsToolbar } from './components/PromptsToolbar';
-import { PromptsTab } from './Tabs/PromptsTabs';
+import { PromptsTabs, PromptsTab } from './Tabs/PromptsTabs';
 import { PromptsLoadingPage } from './components/PromptsLoadingPage';
 
 export const PromptsContext = React.createContext<{
@@ -124,17 +124,20 @@ export default function PromptsLayout() {
         <div className="studio-tabs-bar sticky top-0 z-40 flex items-center justify-center p-3 md:p-4 bg-[#050505]/95 backdrop-blur-md border border-white/10 rounded-[2rem] shadow-2xl mb-8 relative group overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-studio/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
           <div className="relative z-10 w-full flex justify-center">
-            <PromptsToolbar
-              status={generatedImagePrompts ? 'active' : 'empty'}
-              activeTab={activeTab}
-              setActiveTab={handleTabChange}
-              session={session}
-              episode={episode}
-              content={generatedImagePrompts}
-              showTabsOnly={true}
-            />
+            <PromptsTabs activeTab={activeTab} setActiveTab={handleTabChange} />
           </div>
         </div>
+
+        {((activeTab === 'image' && generatedImagePrompts) || (activeTab === 'video' && videoData)) && !isLoading && !handlers.isGenerating && (
+          <div className="mb-8">
+            <PromptsToolbar
+              status="active"
+              session={session}
+              episode={episode}
+              content={activeTab === 'video' ? JSON.stringify(videoData) : generatedImagePrompts}
+            />
+          </div>
+        )}
 
         {(handlers.isGenerating || isLoading) ? (
           <PromptsLoadingPage tab={activeTab} />

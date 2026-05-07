@@ -7,7 +7,7 @@ import { generateMetadata } from '@/services/api/gemini';
 import { useSEODispatch } from '@/contexts/generator';
 import { SEOHeader } from './components/SEOHeader';
 import { SEOToolbar } from './components/SEOToolbar';
-import { SEOTab } from './Tabs/SEOTabs';
+import { SEOTabs, SEOTab } from './Tabs/SEOTabs';
 import { SEOLoadingPage } from './components/SEOLoadingPage';
 
 export const SEOContext = React.createContext<{
@@ -137,16 +137,20 @@ export default function SEOLayout() {
         <div className="studio-tabs-bar sticky top-0 z-40 flex items-center justify-center p-3 md:p-4 bg-[#050505]/95 backdrop-blur-md border border-white/10 rounded-[2rem] shadow-2xl mb-8 relative group overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-studio/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
           <div className="relative z-10 w-full flex justify-center">
-            <SEOToolbar
-              status={generatedMetadata ? 'active' : 'empty'}
-              activeTab={activeTab}
-              setActiveTab={handleTabChange}
-              session={session}
-              episode={episode}
-              showTabsOnly={true}
-            />
+            <SEOTabs activeTab={activeTab} setActiveTab={handleTabChange} />
           </div>
         </div>
+
+        {generatedMetadata && !isLoading && (
+          <div className="mb-8">
+            <SEOToolbar
+              status="active"
+              session={session}
+              episode={episode}
+              content={JSON.stringify(generatedMetadata)}
+            />
+          </div>
+        )}
 
         {isLoading ? (
           <SEOLoadingPage tab={activeTab} />
