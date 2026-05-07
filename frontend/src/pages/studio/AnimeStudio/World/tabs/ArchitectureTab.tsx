@@ -1,75 +1,46 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import { motion } from 'framer-motion';
-import { Building2, Castle, Ruler, Layers, Sparkles, ClipboardList, Download, Target, Zap, Palette, Brush } from 'lucide-react';
+import { Building2, Castle, Ruler, Layers, Sparkles, ClipboardList, Download } from 'lucide-react';
 import { TableOfContents } from '../components/TableOfContents';
 import { useAutoResizeTextarea } from '../hooks/useAutoResizeTextarea';
 import { worldStyles as s } from '../worldStyles/worldStyles';
-import { WorldToolbar } from '../components/WorldToolbar';
-import { useGenerator } from '@/hooks/useGenerator';
-import { useOutletContext } from 'react-router-dom';
-import { WorldEditorToolbar } from '../components/WorldEditorToolbar';
-import { cn } from '@/lib/utils';
 
-import { useWorldCommandCenter, useArchitecture } from '../context/WorldCommandCenter';
+interface ArchitectureTabProps {
+  isEditing: boolean;
+  content: string;
+  onContentChange: (content: string) => void;
+  onGenerate?: () => void;
+  isGenerating?: boolean;
+  prompt?: string;
+  onPromptChange?: (p: string) => void;
+}
 
-export const ArchitectureTab: React.FC = () => {
-  const { 
-    data: content, 
-    isGenerating, 
-    generate, 
-    update: onContentChange,
-    save: handleSave
-  } = useArchitecture();
-  
-  const { activeTab, setActiveTab, isGeneratingAny, progress } = useWorldCommandCenter();
-  const { session, episode, setIsEditing, isEditing, showNotification } = useGenerator();
-
+export const ArchitectureTab: React.FC<ArchitectureTabProps> = ({
+  isEditing,
+  content,
+  onContentChange,
+  onGenerate,
+  isGenerating,
+  prompt,
+  onPromptChange
+}) => {
+  const sectionContent = content;
   const { textareaRef: mainTextareaRef, scheduleResizeTextarea: scheduleMainResize } = useAutoResizeTextarea(content || '', isEditing);
+  const { textareaRef: promptTextareaRef, scheduleResizeTextarea: schedulePromptResize } = useAutoResizeTextarea(prompt || '', isEditing);
 
-  const handleFormat = (type: string) => {
-    const textarea = mainTextareaRef.current;
-    if (!textarea) return;
+  const stats = React.useMemo(() => {
+    const findVal = (regex: RegExp, fallback: string) => {
+      const match = content?.match(regex);
+      return match ? match[1].trim() : fallback;
+    };
 
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const text = textarea.value;
-    const selectedText = text.substring(start, end);
-
-    let replacement = '';
-    switch (type) {
-      case 'bold': replacement = `**${selectedText}**`; break;
-      case 'italic': replacement = `*${selectedText}*`; break;
-      case 'list': replacement = `\n- ${selectedText}`; break;
-      case 'h2': replacement = `\n## ${selectedText}`; break;
-      default: replacement = selectedText;
-    }
-
-    const newContent = text.substring(0, start) + replacement + text.substring(end);
-    onContentChange(newContent);
-    
-    setTimeout(() => {
-      textarea.focus();
-      textarea.setSelectionRange(start + replacement.length, start + replacement.length);
-      scheduleMainResize();
-    }, 0);
-  };
-
-  const handleRefine = async () => {
-    try {
-      showNotification?.('Aesthetic Refinement active. Polishing architectural blueprints...', 'info');
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      onContentChange(content + '\n\n*Aesthetic refined: architectural style unified.*');
-      showNotification?.('Architecture refined successfully.', 'success');
-    } catch (err) {
-      showNotification?.('Aesthetic Refinement failed. Structural anomaly detected.', 'error');
-    }
-  };
-
-  const onSave = async () => {
-    await handleSave();
-    setIsEditing(false);
-  };
+    return [
+      { label: 'Settlement Style', icon: Castle, val: findVal(/(?:Settlement Style|Style):\s*(.*)/i, 'Gothic-Futurism') },
+      { label: 'Building Material', icon: Layers, val: findVal(/(?:Building Material|Material):\s*(.*)/i, 'Obsidian / Neon') },
+      { label: 'Scale Factor', icon: Ruler, val: findVal(/(?:Scale Factor|Scale):\s*(.*)/i, 'Mega-Metropolis') },
+    ];
+  }, [content]);
 
   const customComponents = React.useMemo(() => ({
     h2: ({ node, ...props }: any) => {
@@ -84,47 +55,64 @@ export const ArchitectureTab: React.FC = () => {
   }), []);
 
   return (
-    <div className="world-tab-content space-y-6">
-      <div className="flex justify-end">
-        <WorldToolbar
-          status={content ? 'active' : 'empty'}
-          activeTab={activeTab}
-          setActiveTab={setActiveTab}
-          session={session}
-          episode={episode}
-          content={content}
-          showTabsOnly={true}
-          isEditing={isEditing}
-          onEditingChange={setIsEditing}
-          progress={progress}
-          isGenerating={isGeneratingAny}
-        />
-      </div>
-
-      <div className="world-container">
-        {isEditing && (
-          <div className="space-y-4 mb-6 animate-in fade-in slide-in-from-top-4 duration-500">
-            <WorldEditorToolbar 
-              onFormat={handleFormat}
-              onRefine={handleRefine}
-              onUndo={() => {}}
-              onSave={onSave}
-              isGenerating={isGeneratingAny}
-            />
-            
-            <div className="bg-black/40 backdrop-blur-xl border border-white/5 rounded-2xl p-4 flex flex-wrap items-center gap-6 shadow-2xl">
-              <div className="flex items-center gap-2 px-3 py-1.5 bg-studio/10 border border-studio/20 rounded-lg">
-                <Brush className="w-3.5 h-3.5 text-studio" />
-                <span className="text-[10px] font-black uppercase tracking-widest text-studio">Aesthetic Tuning</span>
-              </div>
-
-              <div className="flex items-center gap-4">
-                <TuningOption icon={Target} label="Style" options={['Gothic', 'Futuristic', 'Brutalist']} active="Futuristic" />
-                <TuningOption icon={Zap} label="Material" options={['Stone', 'Synthetic', 'Organic']} active="Synthetic" />
-              </div>
+    <div className="world-container">
+      <div className="world-header">
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8">
+          <div className="space-y-3">
+            <div className="world-badge bg-orange-500/10 border-orange-500/20">
+              <Building2 className="w-3 h-3 text-orange-500" />
+              <span className="world-badge-text text-orange-500">Structural Architect</span>
             </div>
+            <h1 className="world-header-title">
+              VISUAL <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-amber-500 to-orange-400">STRUCTURES</span>
+            </h1>
           </div>
-        )}
+
+          <div className="flex items-center gap-3">
+            {onGenerate && (
+              <button 
+                onClick={onGenerate}
+                disabled={isGenerating}
+                className={s.actionButton}
+              >
+                {isGenerating ? (
+                  <div className="w-3.5 h-3.5 border-2 border-black/20 border-t-black rounded-full animate-spin" />
+                ) : (
+                  <Sparkles className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
+                )}
+                <span className="text-[10px] font-black uppercase tracking-widest">Synthesize</span>
+              </button>
+            )}
+
+            <button 
+              onClick={() => {
+                navigator.clipboard.writeText(content);
+                alert('Architecture Manifest copied!');
+              }}
+              className={s.actionButtonGhost}
+            >
+              <ClipboardList className="w-3.5 h-3.5 text-zinc-400 group-hover:text-white transition-colors" />
+              <span className="text-[10px] font-black text-zinc-400 group-hover:text-white uppercase tracking-widest">Copy</span>
+            </button>
+            
+            <button 
+              onClick={() => {
+                const element = document.createElement("a");
+                const file = new Blob([content], { type: 'text/markdown' });
+                element.href = URL.createObjectURL(file);
+                element.download = "Architecture_Manifest.md";
+                document.body.appendChild(element);
+                element.click();
+              }}
+              className="flex items-center gap-2 px-5 py-2.5 bg-orange-500/10 hover:bg-orange-500/20 border border-orange-500/20 rounded-full transition-all group"
+            >
+              <Download className="w-3.5 h-3.5 text-orange-500 group-hover:scale-110 transition-transform" />
+              <span className="text-[10px] font-black text-orange-500 uppercase tracking-widest">Download</span>
+            </button>
+          </div>
+        </div>
+      </div>
 
       {isEditing ? (
         <textarea
@@ -142,36 +130,74 @@ export const ArchitectureTab: React.FC = () => {
         <div className="world-content-area">
           <div className="world-main-column">
             <div className="world-prose" style={{ '--prose-accent-color': '#f59e0b' } as React.CSSProperties}>
-              <ReactMarkdown components={customComponents}>{content}</ReactMarkdown>
+              <ReactMarkdown components={customComponents}>{sectionContent}</ReactMarkdown>
+            </div>
+          </div>
+
+          <div className="world-sidebar space-y-8">
+            <div className={s.sidebarCard}>
+              <div className={s.sidebarGlow + " bg-orange-500/5 group-hover:bg-orange-500/10"} />
+              <div className={s.sidebarContent}>
+                <div className="flex items-center justify-between">
+                  <h4 className={s.sidebarTitle}>
+                    <Sparkles className="w-3 h-3 text-orange-500" /> Core Seed
+                  </h4>
+                  {isEditing && <span className="text-[8px] font-bold text-orange-500/50 uppercase">Modular Prompt</span>}
+                </div>
+                
+                {isEditing ? (
+                  <textarea
+                    ref={promptTextareaRef}
+                    className={s.sidebarPromptInput + " focus:border-orange-500/30"}
+                    value={prompt || ''}
+                    onChange={(e) => {
+                      onPromptChange?.(e.target.value);
+                      schedulePromptResize();
+                    }}
+                    onInput={schedulePromptResize}
+                    placeholder="Refine the architectural style with specific instructions..."
+                  />
+                ) : (
+                  <div className={s.sidebarPromptBox}>
+                    <p className={s.sidebarPromptText}>
+                      {prompt ? `"${prompt.substring(0, 120)}${prompt.length > 120 ? '...' : ''}"` : 'Using global project seed for synthesis.'}
+                    </p>
+                  </div>
+                )}
+                
+                <p className={s.sidebarNote}>
+                  Refine the visual aesthetic by defining key motifs, lighting moods, or cultural influences.
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-6">
+              {stats.map((stat, i) => (
+                <motion.div 
+                  key={i}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.1 }}
+                  className={s.statCard + " hover:border-orange-500/30"}
+                >
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-orange-500/5 blur-[40px] pointer-events-none" />
+                  <div className={s.statIconBox + " text-orange-400"}>
+                    <stat.icon className="w-5 h-5" />
+                  </div>
+                  <div className="space-y-1">
+                    <span className={s.statLabel}>{stat.label}</span>
+                    <h3 className={s.statValue}>{stat.val}</h3>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+
+            <div className="pt-2">
+              <TableOfContents content={content} />
             </div>
           </div>
         </div>
       )}
-      </div>
     </div>
   );
 };
-
-const TuningOption = ({ icon: Icon, label, options, active }: { icon: any, label: string, options: string[], active: string }) => (
-  <div className="flex flex-col gap-1">
-    <div className="flex items-center gap-1.5 pl-1">
-      <Icon className="w-2.5 h-2.5 text-zinc-600" />
-      <span className="text-[8px] font-black text-zinc-500 uppercase tracking-[0.2em]">{label}</span>
-    </div>
-    <div className="flex items-center bg-zinc-950/80 rounded-xl p-1 border border-white/5 shadow-inner">
-      {options.map(opt => (
-        <button
-          key={opt}
-          className={cn(
-            "px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-tighter transition-all duration-300",
-            active === opt 
-              ? "bg-studio/20 text-studio shadow-[0_0_10px_rgba(6,182,212,0.2)]" 
-              : "text-zinc-600 hover:text-zinc-400 hover:bg-white/5"
-          )}
-        >
-          {opt}
-        </button>
-      ))}
-    </div>
-  </div>
-);

@@ -56,6 +56,13 @@ export const ScriptHeader: React.FC<ScriptHeaderProps> = ({
                 <h1 className="header-title">
                    Script Editor
                 </h1>
+                <div className="w-px h-4 bg-white/10 hidden sm:block" />
+                <div className="flex items-center gap-2">
+                  <Box className={cn("w-3.5 h-3.5", status === 'active' ? "text-blue-500" : "text-zinc-600")} />
+                  <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500 italic">
+                    Nexus {status === 'active' ? 'Active' : 'Standby'}
+                  </span>
+                </div>
               </div>
               <div className="flex items-center gap-2 mt-2">
                 <Cpu className="w-3.5 h-3.5 text-blue-500/40 shrink-0" />

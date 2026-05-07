@@ -1,35 +1,51 @@
 import React from 'react';
-import { Zap } from 'lucide-react';
+import { Globe, Map, Book, Shield, Sparkles } from 'lucide-react';
+import { StudioEmptyState } from '@/pages/studio/components/studio/shared/StudioEmptyState';
+import { Button } from '@/components/ui/button';
 
 interface WorldEmptyStateProps {
+  onLaunch: () => void;
+  onLoadDemo?: () => void;
   isGenerating: boolean;
-  label?: string;
 }
 
 export const WorldEmptyState: React.FC<WorldEmptyStateProps> = ({
-  isGenerating,
-  label = "World Lore"
+  onLaunch,
+  onLoadDemo,
+  isGenerating
 }) => {
-  return (
-    <div className="flex flex-col items-center justify-center min-h-[400px] text-center space-y-6">
-      <div className="relative">
-        <Zap className={`w-12 h-12 text-studio ${isGenerating ? 'animate-pulse' : 'opacity-20'}`} />
-        {isGenerating && (
-          <div className="absolute inset-0 bg-studio/20 blur-xl rounded-full animate-pulse" />
-        )}
-      </div>
-      
-      <div className="space-y-2">
-        <h3 className="text-sm font-bold uppercase tracking-[0.3em] text-white/90">
-          {isGenerating ? 'Synthesizing...' : 'Empty Manifest'}
-        </h3>
-        <p className="text-xs text-zinc-500 max-w-[280px] leading-relaxed tracking-wider">
-          {isGenerating 
-            ? `Our Neural Engine is architecting your ${label.toLowerCase()} now.` 
-            : `Your ${label.toLowerCase()} is currently empty. Generate the output to continue.`}
-        </p>
-      </div>
+  const features = [
+    { icon: Map, title: 'Geographic Synthesis', description: 'AI manifests terrain, climates, and strategic points' },
+    { icon: Book, title: 'Lore Generation', description: 'Auto-generates historical timelines and cultural norms' },
+    { icon: Shield, title: 'Rule Definition', description: 'Defines the metaphysical and physical laws of reality' }
+  ];
 
+  return (
+    <div className="space-y-6">
+      <StudioEmptyState
+        icon={Globe}
+        title="Build Your World"
+        description="Your story's foundation is currently empty. Generate your world to see its history, geography, and laws come to life."
+        actionLabel="Create My World"
+        loadingLabel="Crafting Your World..."
+        onAction={onLaunch}
+        isLoading={isGenerating}
+        features={features}
+        accentColor="studio"
+      />
+      
+      {!isGenerating && onLoadDemo && (
+        <div className="flex justify-center">
+          <Button 
+            variant="ghost" 
+            onClick={onLoadDemo}
+            className="text-[10px] uppercase tracking-[0.2em] font-black text-zinc-500 hover:text-studio transition-all gap-2"
+          >
+            <Sparkles className="w-3 h-3" />
+            Load Aetheria World Lore
+          </Button>
+        </div>
+      )}
     </div>
   );
 };

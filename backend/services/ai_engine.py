@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 from sqlmodel import select
 from backend.database import AsyncSession, async_engine
 from backend.database.models.user import UserSettings
-from backend.utils.prompts.world import (
+from backend.services.prompts.world.world import (
     MANIFEST_GENERATION_PROMPT,
     HISTORY_GENERATION_PROMPT,
     FACTIONS_GENERATION_PROMPT,
@@ -82,68 +82,52 @@ class AIEngine:
         """Legacy method for God Mode - generates initial manifest."""
         return await self.generate_manifest(title, description, tone, content_type, user_id)
 
-    async def generate_manifest(self, title: str, description: str, tone: str = "Standard", content_type: str = "Anime", tuning: dict = None, user_id: str = None):
+    async def generate_manifest(self, title: str, description: str, tone: str = "Standard", content_type: str = "Anime", user_id: str = None):
         system_instruction = MANIFEST_GENERATION_PROMPT(content_type)
         user_prompt = f"Title: {title}\nDescription: {description}\nTone: {tone}"
-        if tuning:
-            user_prompt += f"\n\nNeural Tuning Directives:\n{json.dumps(tuning, indent=2)}"
 
         logger.info(f"PROCESS: [🗺️] Architecting World Manifest: <cyan>{title}</cyan>")
         return await self.generate_content(user_prompt, system_instruction, user_id)
 
-    async def generate_history(self, project_prompt: str, module_prompt: str = "", context: str = "", content_type: str = "Anime", tuning: dict = None, user_id: str = None):
+    async def generate_history(self, project_prompt: str, module_prompt: str = "", context: str = "", content_type: str = "Anime", user_id: str = None):
         system_instruction = HISTORY_GENERATION_PROMPT(content_type)
         user_prompt = f"Core Seed: {project_prompt}\nModular Prompt: {module_prompt}\nContext: {context}"
-        if tuning:
-            user_prompt += f"\n\nChronicle Tuning:\n{json.dumps(tuning, indent=2)}"
         logger.info(f"PROCESS: [📜] Synthesizing World History...")
         return await self.generate_content(user_prompt, system_instruction, user_id)
 
-    async def generate_factions(self, project_prompt: str, module_prompt: str = "", context: str = "", content_type: str = "Anime", tuning: dict = None, user_id: str = None):
+    async def generate_factions(self, project_prompt: str, module_prompt: str = "", context: str = "", content_type: str = "Anime", user_id: str = None):
         system_instruction = FACTIONS_GENERATION_PROMPT(content_type)
         user_prompt = f"Core Seed: {project_prompt}\nModular Prompt: {module_prompt}\nContext: {context}"
-        if tuning:
-            user_prompt += f"\n\nPolitical Tuning:\n{json.dumps(tuning, indent=2)}"
         logger.info(f"PROCESS: [⚖️] Drafting Faction Politics...")
         return await self.generate_content(user_prompt, system_instruction, user_id)
 
-    async def generate_powers(self, project_prompt: str, module_prompt: str = "", context: str = "", content_type: str = "Anime", tuning: dict = None, user_id: str = None):
+    async def generate_powers(self, project_prompt: str, module_prompt: str = "", context: str = "", content_type: str = "Anime", user_id: str = None):
         system_instruction = POWERS_GENERATION_PROMPT(context, "Universal System")
         user_prompt = f"Core Seed: {project_prompt}\nModular Prompt: {module_prompt}"
-        if tuning:
-            user_prompt += f"\n\nPower Matrix Tuning:\n{json.dumps(tuning, indent=2)}"
         logger.info(f"PROCESS: [⚡] Architecting Power Mechanics...")
         return await self.generate_content(user_prompt, system_instruction, user_id)
 
-    async def generate_architecture(self, project_prompt: str, module_prompt: str = "", context: str = "", content_type: str = "Anime", tuning: dict = None, user_id: str = None):
+    async def generate_architecture(self, project_prompt: str, module_prompt: str = "", context: str = "", content_type: str = "Anime", user_id: str = None):
         system_instruction = ARCHITECTURE_GENERATION_PROMPT(content_type)
         user_prompt = f"Core Seed: {project_prompt}\nModular Prompt: {module_prompt}\nContext: {context}"
-        if tuning:
-            user_prompt += f"\n\nAesthetic Tuning:\n{json.dumps(tuning, indent=2)}"
         logger.info(f"PROCESS: [🏛️] Visualizing Architecture...")
         return await self.generate_content(user_prompt, system_instruction, user_id)
 
-    async def generate_atlas(self, project_prompt: str, module_prompt: str = "", context: str = "", content_type: str = "Anime", tuning: dict = None, user_id: str = None):
+    async def generate_atlas(self, project_prompt: str, module_prompt: str = "", context: str = "", content_type: str = "Anime", user_id: str = None):
         system_instruction = ATLAS_GENERATION_PROMPT(content_type)
         user_prompt = f"Core Seed: {project_prompt}\nModular Prompt: {module_prompt}\nContext: {context}"
-        if tuning:
-            user_prompt += f"\n\nTerrain Tuning:\n{json.dumps(tuning, indent=2)}"
         logger.info(f"PROCESS: [🗺️] Mapping World Atlas...")
         return await self.generate_content(user_prompt, system_instruction, user_id)
 
-    async def generate_culture(self, project_prompt: str, module_prompt: str = "", context: str = "", content_type: str = "Anime", tuning: dict = None, user_id: str = None):
+    async def generate_culture(self, project_prompt: str, module_prompt: str = "", context: str = "", content_type: str = "Anime", user_id: str = None):
         system_instruction = CULTURE_GENERATION_PROMPT(content_type)
         user_prompt = f"Core Seed: {project_prompt}\nModular Prompt: {module_prompt}\nContext: {context}"
-        if tuning:
-            user_prompt += f"\n\nSocietal Tuning:\n{json.dumps(tuning, indent=2)}"
         logger.info(f"PROCESS: [🎭] Designing Cultural Ethos...")
         return await self.generate_content(user_prompt, system_instruction, user_id)
 
-    async def generate_systems(self, project_prompt: str, module_prompt: str = "", context: str = "", content_type: str = "Anime", tuning: dict = None, user_id: str = None):
+    async def generate_systems(self, project_prompt: str, module_prompt: str = "", context: str = "", content_type: str = "Anime", user_id: str = None):
         system_instruction = SYSTEMS_GENERATION_PROMPT(content_type)
         user_prompt = f"Core Seed: {project_prompt}\nModular Prompt: {module_prompt}\nContext: {context}"
-        if tuning:
-            user_prompt += f"\n\nLogic Tuning:\n{json.dumps(tuning, indent=2)}"
         logger.info(f"PROCESS: [⚙️] Configuring World Systems...")
         return await self.generate_content(user_prompt, system_instruction, user_id)
 
@@ -228,42 +212,6 @@ class AIEngine:
             contents=prompt,
             config=config
         )
-        return response.text
-
-    async def analyze_script(self, script: str, user_id: str = None):
-        """
-        Extracts technical production data from a script for Cinematics, Pulse, and Audio.
-        Returns JSON structured for AnalysisResponse schema.
-        """
-        system_instruction = """
-        You are the Head of Production for a high-end Anime Studio.
-        Your task is to analyze the provided script and extract technical production data in JSON format.
-        
-        The output MUST be a JSON object with the following keys:
-        - shot_list: List of objects with {id, type, action}. 'id' should be SCN_01, SCN_02, etc. 'type' is camera angle (WIDE, CLOSE, POV). 'action' is a brief visual description.
-        - lenses: List of 3 strings for recommended camera lenses (e.g., '35mm Anamorphic').
-        - energy_levels: List of exactly 40 floats (0-100) representing the narrative energy/tension flow across the script.
-        - tension_score: A single integer (0-100) representing the overall script intensity.
-        - vocal_profiles: List of objects {name, levels} for the main characters found in the script. 'levels' is an integer (0-100) representing their vocal volume/presence.
-        - bgm_track: A creative name for the recommended background music track (e.g., 'Cyberpunk Pulse #09').
-
-        RETURN ONLY THE JSON OBJECT.
-        """
-        
-        user_prompt = f"Analyze this script and return the production JSON:\n\n{script}"
-        
-        logger.info(f"PROCESS: [🔍] Analyzing Script technicals... (User: {user_id})")
-        client = await self._get_client(user_id)
-        
-        response = await client.aio.models.generate_content(
-            model=self.model_name,
-            contents=user_prompt,
-            config=types.GenerateContentConfig(
-                system_instruction=system_instruction,
-                response_mime_type="application/json"
-            )
-        )
-        
         return response.text
 
 ai_engine = AIEngine()

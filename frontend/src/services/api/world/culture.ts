@@ -19,14 +19,10 @@ export const cultureApi = {
       }
     );
   },
-  generate: async (userId: string, projectId: number, tuning?: any) => {
+  generate: async (userId: string, projectId: number) => {
     return apiRequest(
       `${BASE}/generate/${userId}?project_id=${projectId}`,
-      { 
-        method: 'POST', 
-        label: 'Generate Culture',
-        body: JSON.stringify({ tuning })
-      }
+      { method: 'POST', label: 'Generate Culture' }
     );
   }
 };

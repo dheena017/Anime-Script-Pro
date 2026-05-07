@@ -9,7 +9,6 @@ import { PromptsHeader } from './components/PromptsHeader';
 import { PromptsToolbar } from './components/PromptsToolbar';
 import { PromptsTab } from './Tabs/PromptsTabs';
 import { PromptsLoadingPage } from './components/PromptsLoadingPage';
-import { PromptsCommandCenterProvider } from './context/PromptsCommandCenter';
 
 export const PromptsContext = React.createContext<{
   setHandlers: React.Dispatch<React.SetStateAction<any>>;
@@ -68,19 +67,23 @@ export default function PromptsLayout() {
 
     setIsLoading(true);
     try {
-      // Image prompts first
+      // Image prompts first (switch to image tab)
+      setSearchParams({ tab: 'image' });
       console.log('[PromptsLayout] Requesting image prompts generation...');
       const prompts = await generateImagePrompts(generatedScript, selectedModel);
       setGeneratedImagePrompts(prompts as any);
       console.log(`[PromptsLayout] Image prompts generated successfully. Response length: ${prompts?.length || 0} chars.`);
       showNotification?.('Image prompts synthesized.', 'success');
+      await new Promise((r) => setTimeout(r, 2000));
 
-      // Then video prompts
+      // Then video prompts (switch to video tab)
+      setSearchParams({ tab: 'video' });
       console.log('[PromptsLayout] Requesting video prompts generation...');
       const vprompts = await generateVideoPrompts(generatedScript, selectedModel);
       setVideoData(vprompts as any);
       console.log(`[PromptsLayout] Video prompts generated successfully. Response length: ${JSON.stringify(vprompts)?.length || 0} chars.`);
       showNotification?.('Video prompts synthesized.', 'success');
+      await new Promise((r) => setTimeout(r, 2000));
 
       showNotification?.('All prompts generated successfully!', 'success');
     } catch (e: any) {
@@ -133,26 +136,17 @@ export default function PromptsLayout() {
           </div>
         </div>
 
-        <PromptsCommandCenterProvider
-          prompts={generatedImagePrompts ? [generatedImagePrompts] : []}
-          handlers={{
-            generatePrompts: handlers.handleGenerate || handleGenerateAll,
-            savePrompt: () => {},
-            syncPrompts: handleSave
-          }}
-        >
-          {(handlers.isGenerating || isLoading) ? (
-            <PromptsLoadingPage tab={activeTab} />
-          ) : (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              {activeTab === 'video' ? <EpisodePackager /> : <Outlet context={{ activeTab }} />}
-            </motion.div>
-          )}
-        </PromptsCommandCenterProvider>
+        {(handlers.isGenerating || isLoading) ? (
+          <PromptsLoadingPage tab={activeTab} />
+        ) : (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            {activeTab === 'video' ? <EpisodePackager /> : <Outlet context={{ activeTab }} />}
+          </motion.div>
+        )}
       </div>
     </PromptsContext.Provider>
   );

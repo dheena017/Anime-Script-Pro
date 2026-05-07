@@ -1,116 +1,109 @@
-import React, { useMemo } from 'react';
+import React from 'react';
+import { motion } from 'framer-motion';
+import { Zap, Shield, Flame, Activity, Sparkles, ClipboardList, Download } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
+import { studioLog, reportGeneration } from '@/lib/studio-logger';
+import { TableOfContents } from '../components/TableOfContents';
 import { worldStyles as s } from '../worldStyles/worldStyles';
-import { useAutoResizeTextarea } from '../hooks/useAutoResizeTextarea';
-import { WorldToolbar } from '../components/WorldToolbar';
-import { useGenerator } from '@/hooks/useGenerator';
-import { useOutletContext } from 'react-router-dom';
-import { WorldEditorToolbar } from '../components/WorldEditorToolbar';
-import { Flame, Zap, Target, Shield, Wand2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useAutoResizeTextarea } from '../hooks/useAutoResizeTextarea';
 
-import { useWorldCommandCenter, usePowers } from '../context/WorldCommandCenter';
+interface PowersTabProps {
+  isEditing: boolean;
+  content: string;
+  onContentChange: (content: string) => void;
+  onGenerate?: () => void;
+  isGenerating?: boolean;
+  prompt?: string;
+  onPromptChange?: (p: string) => void;
+}
 
-export const PowersTab: React.FC = () => {
-  const { 
-    data: content, 
-    isGenerating, 
-    generate, 
-    update: onContentChange,
-    save: handleSave
-  } = usePowers();
-  
-  const { activeTab, setActiveTab, isGeneratingAny, progress } = useWorldCommandCenter();
-  const { session, episode, setIsEditing, isEditing, showNotification } = useGenerator();
-
+export const PowersTab: React.FC<PowersTabProps> = ({
+  isEditing,
+  content,
+  onContentChange,
+  onGenerate,
+  isGenerating,
+  prompt,
+  onPromptChange
+}) => {
+  const sectionContent = content;
   const { textareaRef: mainTextareaRef, scheduleResizeTextarea: scheduleMainResize } = useAutoResizeTextarea(content || '', isEditing);
+  const { textareaRef: promptTextareaRef, scheduleResizeTextarea: schedulePromptResize } = useAutoResizeTextarea(prompt || '', isEditing);
 
-  const handleFormat = (type: string) => {
-    const textarea = mainTextareaRef.current;
-    if (!textarea) return;
-
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const text = textarea.value;
-    const selectedText = text.substring(start, end);
-
-    let replacement = '';
-    switch (type) {
-      case 'bold': replacement = `**${selectedText}**`; break;
-      case 'italic': replacement = `*${selectedText}*`; break;
-      case 'list': replacement = `\n- ${selectedText}`; break;
-      case 'h2': replacement = `\n## ${selectedText}`; break;
-      default: replacement = selectedText;
-    }
-
-    const newContent = text.substring(0, start) + replacement + text.substring(end);
-    onContentChange(newContent);
-    
-    setTimeout(() => {
-      textarea.focus();
-      textarea.setSelectionRange(start + replacement.length, start + replacement.length);
-      scheduleMainResize();
-    }, 0);
-  };
-
-  const handleRefine = async () => {
-    try {
-      showNotification?.('Power Matrix Refinement active. Calibrating energy levels...', 'info');
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      onContentChange(content + '\n\n*Power Matrix refined: laws of physics/magic synchronized.*');
-      showNotification?.('Powers refined successfully.', 'success');
-    } catch (err) {
-      showNotification?.('Power Matrix Refinement failed. Energy surge detected.', 'error');
-    }
-  };
-
-  const onSave = async () => {
-    await handleSave();
-    setIsEditing(false);
-  };
+  const stats = React.useMemo(() => [
+    { title: 'Core Source', icon: Zap, color: 'text-amber-400', desc: 'The fundamental energy driving the world.' },
+    { title: 'Mastery Level', icon: Activity, color: 'text-studio', desc: 'Progression from novice to legendary.' },
+    { title: 'Hard Limits', icon: Shield, color: 'text-emerald-400', desc: 'Costs and physical tolls of usage.' },
+    { title: 'Forbidden', icon: Flame, color: 'text-rose-400', desc: 'Taboo powers and corruption risks.' },
+  ], []);
 
   return (
-    <div className="world-tab-content space-y-6">
-      <div className="flex justify-end">
-        <WorldToolbar
-          status={content ? 'active' : 'empty'}
-          activeTab={activeTab}
-          setActiveTab={setActiveTab}
-          session={session}
-          episode={episode}
-          content={content}
-          showTabsOnly={true}
-          isEditing={isEditing}
-          onEditingChange={setIsEditing}
-          progress={progress}
-          isGenerating={isGeneratingAny}
-        />
-      </div>
-
-      <div className={s.container}>
-        {isEditing && (
-          <div className="space-y-4 mb-6 animate-in fade-in slide-in-from-top-4 duration-500">
-            <WorldEditorToolbar 
-              onFormat={handleFormat}
-              onRefine={handleRefine}
-              onUndo={() => {}}
-              onSave={onSave}
-              isGenerating={isGeneratingAny}
-            />
-            
-            <div className="bg-black/40 backdrop-blur-xl border border-white/5 rounded-2xl p-4 flex flex-wrap items-center gap-6 shadow-2xl">
-              <div className="flex items-center gap-2 px-3 py-1.5 bg-studio/10 border border-studio/20 rounded-lg">
-                <Wand2 className="w-3.5 h-3.5 text-studio" />
-                <span className="text-[10px] font-black uppercase tracking-widest text-studio">Power Matrix Tuning</span>
-              </div>
-
-              <div className="flex items-center gap-4">
-                <TuningOption icon={Flame} label="Source" options={['Internal', 'External', 'Cosmic']} active="Internal" />
-                <TuningOption icon={Shield} label="Cost" options={['Low', 'High', 'Sacrificial']} active="High" />
-              </div>
+    <div className={s.container}>
+      <div className={s.header}>
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 w-full">
+          <div className="space-y-3">
+            <div className={cn(s.badge, "bg-amber-500/10 border-amber-500/20")}>
+              <Zap className="w-3 h-3 text-amber-500" />
+              <span className={cn(s.badgeText, "text-amber-500")}>Universal System</span>
             </div>
+            <h1 className={s.headerTitle}>
+              POWER <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-400">MECHANICS</span>
+            </h1>
           </div>
-        )}
+
+          <div className="flex items-center gap-3">
+            {onGenerate && (
+              <button 
+                onClick={() => {
+                  reportGeneration('PowersTab', 'Power System synthesis', 'request', 'anime');
+                  onGenerate();
+                }}
+                disabled={isGenerating}
+                className={s.actionButton}
+              >
+                {isGenerating ? (
+                  <div className="w-3.5 h-3.5 border-2 border-black/20 border-t-black rounded-full animate-spin" />
+                ) : (
+                  <Sparkles className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
+                )}
+                <span className="text-[10px] font-black uppercase tracking-widest">Synthesize</span>
+              </button>
+            )}
+
+            <button 
+              onClick={() => {
+                studioLog('PowersTab', 'Copying Power System Manifest to clipboard...', 'info');
+                navigator.clipboard.writeText(content);
+                studioLog('PowersTab', 'Power System Manifest copied successfully.', 'success');
+                alert('Power System Manifest copied!');
+              }}
+              className={s.actionButtonGhost}
+            >
+              <ClipboardList className="w-3.5 h-3.5 text-zinc-400 group-hover:text-white transition-colors" />
+              <span className="text-[10px] font-black text-zinc-400 group-hover:text-white uppercase tracking-widest">Copy</span>
+            </button>
+            
+            <button 
+              onClick={() => {
+                studioLog('PowersTab', 'Downloading Power System Manifest...', 'info');
+                const element = document.createElement("a");
+                const file = new Blob([content], { type: 'text/markdown' });
+                element.href = URL.createObjectURL(file);
+                element.download = "Power_System_Manifest.md";
+                document.body.appendChild(element);
+                element.click();
+                studioLog('PowersTab', 'Power System Manifest download initiated.', 'success');
+              }}
+              className="flex items-center gap-2 px-5 py-2.5 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 rounded-full transition-all group"
+            >
+              <Download className="w-3.5 h-3.5 text-amber-500 group-hover:scale-110 transition-transform" />
+              <span className="text-[10px] font-black text-amber-500 uppercase tracking-widest">Download</span>
+            </button>
+          </div>
+        </div>
+      </div>
 
       {isEditing ? (
         <textarea
@@ -128,36 +121,75 @@ export const PowersTab: React.FC = () => {
         <div className={s.contentArea}>
           <div className={s.mainColumn}>
             <div className={s.prose} style={{ '--prose-accent-color': '#fbbf24' } as React.CSSProperties}>
-              <ReactMarkdown>{content}</ReactMarkdown>
+              <ReactMarkdown>{sectionContent}</ReactMarkdown>
+            </div>
+          </div>
+
+          <div className={cn(s.sidebar, "space-y-8")}>
+            <div className={s.sidebarCard}>
+              <div className={s.sidebarGlow + " bg-amber-500/5 group-hover:bg-amber-500/10"} />
+              <div className={s.sidebarContent}>
+                <div className="flex items-center justify-between">
+                  <h4 className={s.sidebarTitle}>
+                    <Sparkles className="w-3 h-3 text-amber-500" /> Core Seed
+                  </h4>
+                  {isEditing && <span className="text-[8px] font-bold text-amber-500/50 uppercase">Modular Prompt</span>}
+                </div>
+                
+                {isEditing ? (
+                  <textarea
+                    ref={promptTextareaRef}
+                    className={s.sidebarPromptInput + " focus:border-amber-500/30"}
+                    value={prompt || ''}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      studioLog('PowersTab', `Refining Power System Seed. Length: ${val.length} chars.`, 'info');
+                      onPromptChange?.(val);
+                      schedulePromptResize();
+                    }}
+                    onInput={schedulePromptResize}
+                    placeholder="Refine the power mechanics with specific instructions..."
+                  />
+                ) : (
+                  <div className={s.sidebarPromptBox}>
+                    <p className={s.sidebarPromptText}>
+                      {prompt ? `"${prompt.substring(0, 120)}${prompt.length > 120 ? '...' : ''}"` : 'Using global project seed for synthesis.'}
+                    </p>
+                  </div>
+                )}
+                
+                <p className={s.sidebarNote}>
+                  Focus the AI on specific mechanics, limits, or energy types unique to this world.
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-6">
+              {stats.map((stat, i) => (
+                <motion.div 
+                  key={i}
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: i * 0.1 }}
+                  className={s.statCard + " hover:border-amber-500/30"}
+                >
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-amber-500/5 blur-[40px] pointer-events-none" />
+                  <div className={s.statIconBox + " " + stat.color}>
+                    <stat.icon className="w-5 h-5" />
+                  </div>
+                  <div className="space-y-2">
+                    <h3 className="text-sm font-black text-white uppercase tracking-widest line-clamp-1">{stat.title}</h3>
+                    <p className="text-[10px] font-medium text-zinc-500 leading-relaxed line-clamp-2">{stat.desc}</p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+            <div className="pt-2">
+              <TableOfContents content={content} />
             </div>
           </div>
         </div>
       )}
-      </div>
     </div>
   );
 };
-
-const TuningOption = ({ icon: Icon, label, options, active }: { icon: any, label: string, options: string[], active: string }) => (
-  <div className="flex flex-col gap-1">
-    <div className="flex items-center gap-1.5 pl-1">
-      <Icon className="w-2.5 h-2.5 text-zinc-600" />
-      <span className="text-[8px] font-black text-zinc-500 uppercase tracking-[0.2em]">{label}</span>
-    </div>
-    <div className="flex items-center bg-zinc-950/80 rounded-xl p-1 border border-white/5 shadow-inner">
-      {options.map(opt => (
-        <button
-          key={opt}
-          className={cn(
-            "px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-tighter transition-all duration-300",
-            active === opt 
-              ? "bg-studio/20 text-studio shadow-[0_0_10px_rgba(6,182,212,0.2)]" 
-              : "text-zinc-600 hover:text-zinc-400 hover:bg-white/5"
-          )}
-        >
-          {opt}
-        </button>
-      ))}
-    </div>
-  </div>
-);

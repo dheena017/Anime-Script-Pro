@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box, Copy, Download, Maximize, Minimize, Edit2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { WorldTab } from '../tabs/WorldTabs';
+import { WorldTabs, WorldTab } from '../tabs/WorldTabs';
 import { Button } from '@/components/ui/button';
 import { useApp } from '@/contexts/AppContext';
 
@@ -22,8 +22,6 @@ interface WorldToolbarProps {
   showTabsOnly?: boolean;
   isEditing?: boolean;
   onEditingChange?: (editing: boolean) => void;
-  progress?: number;
-  isGenerating?: boolean;
 }
 
 export const WorldToolbar: React.FC<WorldToolbarProps> = ({
@@ -35,10 +33,10 @@ export const WorldToolbar: React.FC<WorldToolbarProps> = ({
   content = null,
   showTabsOnly = false,
   isEditing = false,
-  onEditingChange,
+  onEditingChange
 }) => {
-  const { isFullscreen, showNotification } = useApp();
-  
+  const { isFullscreen } = useApp();
+
   const toggleFullscreen = async () => {
     try {
       if (!document.fullscreenElement) {
@@ -48,31 +46,24 @@ export const WorldToolbar: React.FC<WorldToolbarProps> = ({
       }
     } catch (err) {
       console.error("Error toggling fullscreen:", err);
-      showNotification?.("Screen management failed. Check permissions.", "error");
     }
   };
 
   const handleCopy = () => {
     if (content) {
       navigator.clipboard.writeText(content);
-      showNotification?.("Content copied to clipboard", "success");
     }
   };
 
   const handleDownload = () => {
     if (content) {
-      try {
-        const blob = new Blob([content], { type: 'text/markdown' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `world_${activeTab}.md`;
-        a.click();
-        URL.revokeObjectURL(url);
-        showNotification?.("Export complete. Check downloads.", "success");
-      } catch (err) {
-        showNotification?.("Failed to export content.", "error");
-      }
+      const blob = new Blob([content], { type: 'text/markdown' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'world_manifest.md';
+      a.click();
+      URL.revokeObjectURL(url);
     }
   };
 
@@ -86,7 +77,9 @@ export const WorldToolbar: React.FC<WorldToolbarProps> = ({
               <Box className={cn("w-5 h-5", status === 'active' ? "text-studio" : "text-zinc-600")} />
             </div>
             <div className="flex flex-col">
-
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white italic">
+                World Nexus {status === 'active' ? 'Active' : 'Standby'}
+              </span>
               <span className="text-[8px] font-bold text-zinc-500 uppercase tracking-widest mt-0.5">
                 System Status: Optimal // World_Sync_01
               </span>
@@ -263,10 +256,13 @@ export const WorldToolbar: React.FC<WorldToolbarProps> = ({
           </div>
         )}
 
+        <WorldTabs activeTab={activeTab} setActiveTab={setActiveTab} />
       </div>
     </TooltipProvider>
   );
 };
+
+
 
 
 

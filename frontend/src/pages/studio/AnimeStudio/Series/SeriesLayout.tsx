@@ -7,7 +7,6 @@ import { SeriesHeader } from './components/SeriesHeader';
 import { SeriesToolbar } from './components/SeriesToolbar';
 import { SeriesTab } from './Tabs/SeriesTabs';
 import { SeriesLoadingPage } from './components/SeriesLoadingPage';
-import { SeriesCommandCenterProvider } from './context/SeriesCommandCenter';
 
 export default function SeriesLayout() {
   const navigate = useNavigate();
@@ -89,6 +88,27 @@ export default function SeriesLayout() {
       setGeneratedSeriesPlan(plan);
       console.log(`[SeriesLayout] Series plan generated successfully. Response length: ${JSON.stringify(plan)?.length || 0} chars.`);
       
+      // Response and Report Flow
+      const base = `/${contentType.toLowerCase()}/series`;
+      navigate(base); // roadmap
+      await new Promise(r => setTimeout(r, 2000));
+      
+      navigate(`${base}/blueprint`);
+      await new Promise(r => setTimeout(r, 2000));
+      
+      navigate(`${base}/episodes`);
+      await new Promise(r => setTimeout(r, 2000));
+      
+      navigate(`${base}/timeline`);
+      await new Promise(r => setTimeout(r, 2000));
+      
+      navigate(`${base}/arcs`);
+      await new Promise(r => setTimeout(r, 2000));
+      
+      navigate(`${base}/assets`);
+      await new Promise(r => setTimeout(r, 2000));
+
+      navigate(base); // Return to roadmap
       showNotification?.('Full Series Blueprint Synthesized!', 'success');
     } catch (error: any) {
       console.error('[SeriesLayout] Failed to create series plan:', error);
@@ -178,20 +198,11 @@ export default function SeriesLayout() {
         </div>
       </div>
 
-      <SeriesCommandCenterProvider
-        seriesPlan={(generatedSeriesPlan as any)?.episodes || []}
-        handlers={{
-          generateSeriesPlan: handleGenerate,
-          updateEpisode: () => {},
-          syncSeries: syncCore
-        }}
-      >
-        {isGeneratingSeries ? (
-          <SeriesLoadingPage tab={activeTab} />
-        ) : (
-          <Outlet context={{ showScaffolder, setShowScaffolder, activeTab }} />
-        )}
-      </SeriesCommandCenterProvider>
+      {isGeneratingSeries ? (
+        <SeriesLoadingPage tab={activeTab} />
+      ) : (
+        <Outlet context={{ showScaffolder, setShowScaffolder, activeTab }} />
+      )}
     </div>
   );
 }

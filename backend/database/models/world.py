@@ -7,25 +7,32 @@ class WorldLore(SQLModel, table=True):
     user_id: str = Field(index=True)
     project_id: Optional[int] = Field(default=None, index=True)
     
-    # Modular Lore Data Blobs
-    manifest_blob: Optional[str] = Field(default=None)
-    history_blob: Optional[str] = Field(default=None)
-    factions_blob: Optional[str] = Field(default=None)
-    powers_blob: Optional[str] = Field(default=None)
-    architecture_blob: Optional[str] = Field(default=None)
-    atlas_blob: Optional[str] = Field(default=None)
-    culture_blob: Optional[str] = Field(default=None)
-    systems_blob: Optional[str] = Field(default=None)
+    # Modular Lore Data
+    full_lore_blob: Optional[str] = Field(default=None) # The Master Manifest
+    history_blob: Optional[str] = Field(default=None)   # Detailed Timeline
+    powers_blob: Optional[str] = Field(default=None)    # Power Systems
+    factions_blob: Optional[str] = Field(default=None)  # Factions & Politics
     
-    # Modular Neural Seeds (Prompts)
-    prompt_manifest: Optional[str] = Field(default=None)
-    prompt_history: Optional[str] = Field(default=None)
-    prompt_factions: Optional[str] = Field(default=None)
+    # Modular Lore Data (Category Tabs)
+    architecture: Optional[str] = Field(default=None)
+    atlas: Optional[str] = Field(default=None)
+    history: Optional[str] = Field(default=None)        # Legacy field
+    systems: Optional[str] = Field(default=None)
+    culture: Optional[str] = Field(default=None)
+    
+    prompt_lore: Optional[str] = Field(default=None)
     prompt_powers: Optional[str] = Field(default=None)
+    prompt_factions: Optional[str] = Field(default=None)
     prompt_architecture: Optional[str] = Field(default=None)
     prompt_atlas: Optional[str] = Field(default=None)
     prompt_culture: Optional[str] = Field(default=None)
     prompt_systems: Optional[str] = Field(default=None)
+
+    # Extended modular tab blobs
+    architecture_blob: Optional[str] = Field(default=None)
+    atlas_blob: Optional[str] = Field(default=None)
+    culture_blob: Optional[str] = Field(default=None)
+    systems_blob: Optional[str] = Field(default=None)
 
     # Metadata
     lore_metadata: Dict[str, Any] = Field(default_factory=dict, sa_type=JSON)

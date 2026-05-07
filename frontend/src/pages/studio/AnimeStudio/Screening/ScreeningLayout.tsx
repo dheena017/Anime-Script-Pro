@@ -7,7 +7,6 @@ import { ScreeningHeader } from './components/ScreeningHeader';
 import { ScreeningToolbar } from './components/ScreeningToolbar';
 import { ScreeningTab } from './Tabs/ScreeningTabs';
 import { ScreeningLoadingPage } from './components/ScreeningLoadingPage';
-import { ScreeningCommandCenterProvider } from './context/ScreeningCommandCenter';
 
 export const ScreeningContext = React.createContext<{
   setHandlers: React.Dispatch<React.SetStateAction<any>>;
@@ -82,26 +81,17 @@ export default function ScreeningLayout() {
           </div>
         </div>
 
-        <ScreeningCommandCenterProvider
-          playlist={[]}
-          handlers={{
-            playVideo: () => {},
-            downloadVideo: () => {},
-            syncScreening: syncCore
-          }}
-        >
-          {handlers.isRendering ? (
-            <ScreeningLoadingPage tab={activeTab} />
-          ) : (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              <Outlet context={{ activeTab }} />
-            </motion.div>
-          )}
-        </ScreeningCommandCenterProvider>
+        {handlers.isRendering ? (
+          <ScreeningLoadingPage tab={activeTab} />
+        ) : (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <Outlet context={{ activeTab }} />
+          </motion.div>
+        )}
       </div>
     </ScreeningContext.Provider>
   );

@@ -9,7 +9,6 @@ import { SEOHeader } from './components/SEOHeader';
 import { SEOToolbar } from './components/SEOToolbar';
 import { SEOTab } from './Tabs/SEOTabs';
 import { SEOLoadingPage } from './components/SEOLoadingPage';
-import { SEOCommandCenterProvider } from './context/SEOCommandCenter';
 
 export const SEOContext = React.createContext<{
   setHandlers: React.Dispatch<React.SetStateAction<any>>;
@@ -57,32 +56,41 @@ export default function SEOLayout() {
 
       const { generateYouTubeDescription, generateAltTexts, generateDistributionStrategy } = await import('@/services/api/gemini');
       
-      // Sequence SEO generations
+      // Sequence SEO generations with Response and Report flow
+      setSearchParams({ tab: 'keywords' });
       console.log('[SEOLayout] Requesting metadata/keywords generation...');
       const metadata = await generateMetadata(generatedScript, selectedModel);
       setGeneratedMetadata(metadata);
       console.log(`[SEOLayout] Metadata generated successfully. Response length: ${JSON.stringify(metadata)?.length || 0} chars.`);
       showNotification?.('Keywords indexed.', 'success');
+      await new Promise(r => setTimeout(r, 2000));
 
+      setSearchParams({ tab: 'description' });
       console.log('[SEOLayout] Requesting YouTube description generation...');
       const description = await generateYouTubeDescription(generatedScript, selectedModel);
       setGeneratedDescription(description);
       console.log(`[SEOLayout] Description generated successfully. Response length: ${description?.length || 0} chars.`);
       showNotification?.('Description synthesized.', 'success');
+      await new Promise(r => setTimeout(r, 2000));
 
+      setSearchParams({ tab: 'alt-texts' });
       console.log('[SEOLayout] Requesting alt texts generation...');
       const altText = await generateAltTexts(generatedScript, selectedModel);
       setGeneratedAltText(altText);
       console.log(`[SEOLayout] Alt texts generated successfully. Response length: ${altText?.length || 0} chars.`);
       showNotification?.('Alt texts generated.', 'success');
+      await new Promise(r => setTimeout(r, 2000));
 
+      setSearchParams({ tab: 'distribution' });
       console.log('[SEOLayout] Requesting distribution strategy generation...');
       const dist = await generateDistributionStrategy(generatedScript, selectedModel);
       setGeneratedDistributionPlan(dist);
       console.log(`[SEOLayout] Distribution strategy generated successfully. Response length: ${dist?.length || 0} chars.`);
       showNotification?.('Distribution plan ready.', 'success');
+      await new Promise(r => setTimeout(r, 2000));
 
       showNotification?.('Full SEO Nexus synchronized!', 'success');
+      setSearchParams({ tab: 'keywords' }); // Return to start
     } catch (e: any) {
       console.error('[SEOLayout] SEO synthesis failed:', e);
       showNotification?.('SEO synthesis failed: ' + (e.message || 'Error'), 'error');
@@ -140,26 +148,17 @@ export default function SEOLayout() {
           </div>
         </div>
 
-        <SEOCommandCenterProvider
-          metadata={generatedMetadata}
-          handlers={{
-            generateSEO: handleGenerate,
-            updateMetadata: () => {},
-            syncSEO: syncCore
-          }}
-        >
-          {isLoading ? (
-            <SEOLoadingPage tab={activeTab} />
-          ) : (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              <Outlet context={{ activeTab }} />
-            </motion.div>
-          )}
-        </SEOCommandCenterProvider>
+        {isLoading ? (
+          <SEOLoadingPage tab={activeTab} />
+        ) : (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <Outlet context={{ activeTab }} />
+          </motion.div>
+        )}
       </div>
     </SEOContext.Provider>
   );

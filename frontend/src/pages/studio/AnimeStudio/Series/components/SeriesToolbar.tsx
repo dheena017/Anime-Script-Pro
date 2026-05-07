@@ -91,6 +91,14 @@ export const SeriesToolbar: React.FC<SeriesToolbarProps> = ({
             <div className="w-10 h-10 rounded-xl bg-studio/10 border border-studio/20 flex items-center justify-center">
               <Layers className={cn("w-5 h-5", status === 'active' ? "text-studio" : "text-zinc-600")} />
             </div>
+            <div className="flex flex-col">
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white italic">
+                Series Nexus {status === 'active' ? 'Active' : 'Standby'}
+              </span>
+              <span className="text-[8px] font-bold text-zinc-500 uppercase tracking-widest mt-0.5">
+                System Status: Optimal // Series_Sync_01
+              </span>
+            </div>
           </div>
 
           <div className="flex flex-col md:flex-row items-center gap-4 md:gap-6 w-full lg:w-auto">

@@ -62,7 +62,9 @@ export const SEOToolbar: React.FC<SEOToolbarProps> = ({
               <Search className={cn("w-5 h-5", status === 'active' ? "text-emerald-400" : "text-zinc-600")} />
             </div>
             <div className="flex flex-col">
-
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white italic">
+                SEO Manager {status === 'active' ? 'Active' : 'Standby'}
+              </span>
               <span className="text-[8px] font-bold text-zinc-500 uppercase tracking-widest mt-0.5">
                 Strategic Content Metadata // Search_Ready
               </span>

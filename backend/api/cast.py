@@ -6,10 +6,10 @@ Mirrors the frontend `characterApi` service at /api/cast/{user_id}.
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import select
 from backend.database import AsyncSession, get_async_session
-from backend.database.models.world import CastManifest, CastMember, CharacterRelationship
+from backend.database.models.world import CastManifest
 from backend.utils.deps import get_auth_user_id
 from datetime import datetime
-from typing import List, Optional
+from typing import Optional
 from loguru import logger
 
 router = APIRouter(prefix="/api/cast", tags=["Cast"])
@@ -33,8 +33,7 @@ async def get_cast_manifest(
     result = await session.execute(statement)
     manifest = result.scalars().first()
     if not manifest:
-        # Return empty manifest instead of 404 to avoid frontend breaks
-        return {"user_id": user_id, "project_id": project_id, "characters": [], "relationships": []}
+        raise HTTPException(status_code=404, detail="Cast manifest not found")
     return manifest
 
 
@@ -83,98 +82,22 @@ async def update_cast_manifest(
         raise HTTPException(status_code=500, detail=f"Cast sync failure: {str(e)}")
 
 
-# --- Legacy Granular Character Endpoints ---
-
-@router.get("/characters", response_model=List[CastMember])
-async def get_characters(
-    project_id: Optional[int] = None, 
-    user_id: Optional[str] = None,
+@router.get("/history/{user_id}")
+async def get_cast_history(
+    user_id: str,
+    limit: int = 10,
     session: AsyncSession = Depends(get_async_session),
-    auth_user_id: str = Depends(get_auth_user_id)
+    auth_user_id: str = Depends(get_auth_user_id),
 ):
-    effective_user_id = user_id or auth_user_id
-    if effective_user_id != auth_user_id:
-        raise HTTPException(status_code=403, detail="Not authorized")
-        
-    statement = select(CastMember).where(CastMember.user_id == effective_user_id)
-    if project_id:
-        statement = statement.where(CastMember.project_id == project_id)
-    
+    """Retrieve the cast history for a user."""
+    if user_id != auth_user_id:
+        raise HTTPException(status_code=403, detail="Not authorized to access this cast history")
+
+    statement = (
+        select(CastManifest)
+        .where(CastManifest.user_id == user_id)
+        .order_by(CastManifest.updated_at.desc())
+        .limit(limit)
+    )
     result = await session.execute(statement)
     return result.scalars().all()
-
-@router.post("/characters", response_model=CastMember)
-async def create_character(
-    character: CastMember,
-    session: AsyncSession = Depends(get_async_session),
-    auth_user_id: str = Depends(get_auth_user_id)
-):
-    character.user_id = auth_user_id 
-    session.add(character)
-    await session.commit()
-    await session.refresh(character)
-    return character
-
-@router.put("/characters/{character_id}", response_model=CastMember)
-async def update_character(
-    character_id: int,
-    updates: dict,
-    session: AsyncSession = Depends(get_async_session),
-    auth_user_id: str = Depends(get_auth_user_id)
-):
-    db_char = await session.get(CastMember, character_id)
-    if not db_char or db_char.user_id != auth_user_id:
-        raise HTTPException(status_code=404, detail="Character not found")
-    
-    for key, value in updates.items():
-        if hasattr(db_char, key):
-            setattr(db_char, key, value)
-    
-    db_char.updated_at = datetime.utcnow()
-    session.add(db_char)
-    await session.commit()
-    await session.refresh(db_char)
-    return db_char
-
-@router.delete("/characters/{character_id}")
-async def delete_character(
-    character_id: int,
-    session: AsyncSession = Depends(get_async_session),
-    auth_user_id: str = Depends(get_auth_user_id)
-):
-    db_char = await session.get(CastMember, character_id)
-    if not db_char or db_char.user_id != auth_user_id:
-        raise HTTPException(status_code=404, detail="Character not found")
-    
-    await session.delete(db_char)
-    await session.commit()
-    return {"status": "success"}
-
-# --- Legacy Granular Relationship Endpoints ---
-
-@router.get("/relationships", response_model=List[CharacterRelationship])
-async def get_relationships(
-    project_id: Optional[int] = None, 
-    user_id: Optional[str] = None,
-    session: AsyncSession = Depends(get_async_session),
-    auth_user_id: str = Depends(get_auth_user_id)
-):
-    effective_user_id = user_id or auth_user_id
-    statement = select(CharacterRelationship).where(CharacterRelationship.user_id == effective_user_id)
-    if project_id:
-        statement = statement.where(CharacterRelationship.project_id == project_id)
-    
-    result = await session.execute(statement)
-    return result.scalars().all()
-
-@router.post("/relationships", response_model=CharacterRelationship)
-async def create_relationship(
-    relationship: CharacterRelationship,
-    session: AsyncSession = Depends(get_async_session),
-    auth_user_id: str = Depends(get_auth_user_id)
-):
-    relationship.user_id = auth_user_id
-    session.add(relationship)
-    await session.commit()
-    await session.refresh(relationship)
-    return relationship

@@ -1,12 +1,8 @@
 import React from 'react';
 import { Activity, Zap, TrendingUp, Heart } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { useScriptCommandCenter } from '../context/ScriptCommandCenter';
 
 export const AnalysisTab: React.FC = () => {
-  const { technicalData } = useScriptCommandCenter();
-  const { energyLevels, tensionScore } = technicalData.pulse;
-
   return (
     <div className="py-12 space-y-12">
       <div className="text-center space-y-4">
@@ -19,7 +15,7 @@ export const AnalysisTab: React.FC = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
          {[
-           { label: 'Avg Tension', value: `${tensionScore}%`, icon: Zap, color: 'text-rose-400' },
+           { label: 'Avg Tension', value: '78%', icon: Zap, color: 'text-rose-400' },
            { label: 'Narrative Arc', value: 'High-Paced Hero', icon: TrendingUp, color: 'text-rose-400' },
            { label: 'Emotional Bias', value: 'Melancholy', icon: Heart, color: 'text-rose-400' }
          ].map((item, i) => (
@@ -41,20 +37,19 @@ export const AnalysisTab: React.FC = () => {
             <p className="text-zinc-600 text-[9px] font-bold uppercase tracking-widest mt-1">Live tracking of script intensity per scene</p>
         </div>
         
-        {energyLevels.map((level, i) => (
+        {Array.from({ length: 40 }).map((_, i) => (
             <motion.div
                 key={i}
                 initial={{ height: 20 }}
                 animate={{ 
                     height: [
-                        level, 
-                        level * 0.8, 
-                        level * 1.2,
-                        level
+                        Math.random() * 150 + 20, 
+                        Math.random() * 150 + 20, 
+                        Math.random() * 150 + 20
                     ] 
                 }}
                 transition={{ 
-                    duration: 3, 
+                    duration: 2, 
                     repeat: Infinity, 
                     repeatType: "reverse",
                     delay: i * 0.05

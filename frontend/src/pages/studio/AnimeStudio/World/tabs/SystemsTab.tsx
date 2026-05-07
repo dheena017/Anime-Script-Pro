@@ -1,75 +1,48 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
+import { Cpu, Zap, Activity, ShieldCheck, Sparkles, ClipboardList, Download } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
+import { TableOfContents } from '../components/TableOfContents';
 import { useAutoResizeTextarea } from '../hooks/useAutoResizeTextarea';
-import { WorldToolbar } from '../components/WorldToolbar';
-import { useGenerator } from '@/hooks/useGenerator';
-import { useOutletContext } from 'react-router-dom';
-import { WorldEditorToolbar } from '../components/WorldEditorToolbar';
-import { Cpu, Binary, Network, Database, Target, Zap, Palette, Cog } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { worldStyles as s } from '../worldStyles/worldStyles';
 
-import { useWorldCommandCenter, useSystems } from '../context/WorldCommandCenter';
+interface SystemsTabProps {
+  isEditing: boolean;
+  content: string;
+  onContentChange: (content: string) => void;
+  onGenerate?: () => void;
+  isGenerating?: boolean;
+  prompt?: string;
+  onPromptChange?: (p: string) => void;
+}
 
-export const SystemsTab: React.FC = () => {
-  const { 
-    data: content, 
-    isGenerating, 
-    generate, 
-    update: onContentChange,
-    save: handleSave
-  } = useSystems();
-  
-  const { activeTab, setActiveTab, isGeneratingAny, progress } = useWorldCommandCenter();
-  const { session, episode, setIsEditing, isEditing, showNotification } = useGenerator();
-
+export const SystemsTab: React.FC<SystemsTabProps> = ({
+  isEditing,
+  content,
+  onContentChange,
+  onGenerate,
+  isGenerating,
+  prompt,
+  onPromptChange
+}) => {
+  const sectionContent = content;
   const { textareaRef: mainTextareaRef, scheduleResizeTextarea: scheduleMainResize } = useAutoResizeTextarea(content || '', isEditing);
+  const { textareaRef: promptTextareaRef, scheduleResizeTextarea: schedulePromptResize } = useAutoResizeTextarea(prompt || '', isEditing);
 
-  const handleFormat = (type: string) => {
-    const textarea = mainTextareaRef.current;
-    if (!textarea) return;
+  const systems = React.useMemo(() => {
+    const findVal = (regex: RegExp, fallback: string) => {
+      const match = content?.match(regex);
+      return match ? match[1].trim() : fallback;
+    };
+    return [
+      { title: 'Power System', desc: findVal(/(?:Power System|Power):\s*(.*)/i, 'Energy manipulation through cognitive overloading.'), icon: Zap, color: 'text-amber-400' },
+      { title: 'Economy', desc: findVal(/(?:Economy|Currency):\s*(.*)/i, 'Credits & Karma: A dual-currency social contribution system.'), icon: Activity, color: 'text-blue-400' },
+      { title: 'Governance', desc: findVal(/(?:Governance|Government):\s*(.*)/i, 'Algorithm Sovereignty by planetary AI core.'), icon: ShieldCheck, color: 'text-emerald-400' },
+      { title: 'Social Strata', desc: findVal(/(?:Social Hierarchy|Social Strata):\s*(.*)/i, 'The Indexed vs The Ghost: System net accessibility.'), icon: Cpu, color: 'text-cyan-400' },
+    ];
+  }, [content]);
 
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const text = textarea.value;
-    const selectedText = text.substring(start, end);
-
-    let replacement = '';
-    switch (type) {
-      case 'bold': replacement = `**${selectedText}**`; break;
-      case 'italic': replacement = `*${selectedText}*`; break;
-      case 'list': replacement = `\n- ${selectedText}`; break;
-      case 'h2': replacement = `\n## ${selectedText}`; break;
-      default: replacement = selectedText;
-    }
-
-    const newContent = text.substring(0, start) + replacement + text.substring(end);
-    onContentChange(newContent);
-    
-    setTimeout(() => {
-      textarea.focus();
-      textarea.setSelectionRange(start + replacement.length, start + replacement.length);
-      scheduleMainResize();
-    }, 0);
-  };
-
-  const handleRefine = async () => {
-    try {
-      showNotification?.('System Optimization active. Verifying core world logic...', 'info');
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      onContentChange(content + '\n\n*System refined: logical consistencies optimized.*');
-      showNotification?.('Systems refined successfully.', 'success');
-    } catch (err) {
-      showNotification?.('System Optimization failed. Logic loop detected.', 'error');
-    }
-  };
-
-  const onSave = async () => {
-    await handleSave();
-    setIsEditing(false);
-  };
-
-  const customComponents = useMemo(() => ({
+  const customComponents = React.useMemo(() => ({
     h2: ({ node, ...props }: any) => {
       const text = React.Children.toArray(props.children)
         .map((child) => (typeof child === 'string' ? child : '')).join('');
@@ -82,47 +55,64 @@ export const SystemsTab: React.FC = () => {
   }), []);
 
   return (
-    <div className="world-tab-content space-y-6">
-      <div className="flex justify-end">
-        <WorldToolbar
-          status={content ? 'active' : 'empty'}
-          activeTab={activeTab}
-          setActiveTab={setActiveTab}
-          session={session}
-          episode={episode}
-          content={content}
-          showTabsOnly={true}
-          isEditing={isEditing}
-          onEditingChange={setIsEditing}
-          progress={progress}
-          isGenerating={isGeneratingAny}
-        />
-      </div>
-
-      <div className="world-container">
-        {isEditing && (
-          <div className="space-y-4 mb-6 animate-in fade-in slide-in-from-top-4 duration-500">
-            <WorldEditorToolbar 
-              onFormat={handleFormat}
-              onRefine={handleRefine}
-              onUndo={() => {}}
-              onSave={onSave}
-              isGenerating={isGeneratingAny}
-            />
-            
-            <div className="bg-black/40 backdrop-blur-xl border border-white/5 rounded-2xl p-4 flex flex-wrap items-center gap-6 shadow-2xl">
-              <div className="flex items-center gap-2 px-3 py-1.5 bg-studio/10 border border-studio/20 rounded-lg">
-                <Cog className="w-3.5 h-3.5 text-studio" />
-                <span className="text-[10px] font-black uppercase tracking-widest text-studio">Logic Tuning</span>
-              </div>
-
-              <div className="flex items-center gap-4">
-                <TuningOption icon={Binary} label="Complexity" options={['High', 'Medium', 'Low']} active="High" />
-                <TuningOption icon={Network} label="Intercon." options={['Rigid', 'Fluid', 'Fractured']} active="Fluid" />
-              </div>
+    <div className="world-container">
+      <div className="world-header">
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8">
+          <div className="space-y-3">
+            <div className="world-badge bg-emerald-500/10 border-emerald-500/20">
+              <Cpu className="w-3 h-3 text-emerald-500" />
+              <span className="world-badge-text text-emerald-500">Mechanical Logic</span>
             </div>
+            <h1 className="world-header-title">
+              WORLD <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-emerald-500 to-emerald-400">DYNAMICS</span>
+            </h1>
           </div>
-        )}
+
+          <div className="flex items-center gap-3">
+            {onGenerate && (
+              <button 
+                onClick={onGenerate}
+                disabled={isGenerating}
+                className={s.actionButton}
+              >
+                {isGenerating ? (
+                  <div className="w-3.5 h-3.5 border-2 border-black/20 border-t-black rounded-full animate-spin" />
+                ) : (
+                  <Sparkles className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
+                )}
+                <span className="text-[10px] font-black uppercase tracking-widest">Synthesize</span>
+              </button>
+            )}
+
+            <button 
+              onClick={() => {
+                navigator.clipboard.writeText(content);
+                alert('Systems Manifest copied!');
+              }}
+              className={s.actionButtonGhost}
+            >
+              <ClipboardList className="w-3.5 h-3.5 text-zinc-400 group-hover:text-white transition-colors" />
+              <span className="text-[10px] font-black text-zinc-400 group-hover:text-white uppercase tracking-widest">Copy</span>
+            </button>
+            
+            <button 
+              onClick={() => {
+                const element = document.createElement("a");
+                const file = new Blob([content], { type: 'text/markdown' });
+                element.href = URL.createObjectURL(file);
+                element.download = "Systems_Manifest.md";
+                document.body.appendChild(element);
+                element.click();
+              }}
+              className="flex items-center gap-2 px-5 py-2.5 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 rounded-full transition-all group"
+            >
+              <Download className="w-3.5 h-3.5 text-emerald-500 group-hover:scale-110 transition-transform" />
+              <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Download</span>
+            </button>
+          </div>
+        </div>
+      </div>
 
       {isEditing ? (
         <textarea
@@ -140,36 +130,74 @@ export const SystemsTab: React.FC = () => {
         <div className="world-content-area">
           <div className="world-main-column">
             <div className="world-prose" style={{ '--prose-accent-color': '#10b981' } as React.CSSProperties}>
-              <ReactMarkdown components={customComponents}>{content}</ReactMarkdown>
+              <ReactMarkdown components={customComponents}>{sectionContent}</ReactMarkdown>
+            </div>
+          </div>
+
+          <div className="world-sidebar space-y-8">
+            <div className={s.sidebarCard}>
+              <div className={s.sidebarGlow + " bg-emerald-500/5 group-hover:bg-emerald-500/10"} />
+              <div className={s.sidebarContent}>
+                <div className="flex items-center justify-between">
+                  <h4 className={s.sidebarTitle}>
+                    <Sparkles className="w-3 h-3 text-emerald-500" /> Core Seed
+                  </h4>
+                  {isEditing && <span className="text-[8px] font-bold text-emerald-500/50 uppercase">Modular Prompt</span>}
+                </div>
+                
+                {isEditing ? (
+                  <textarea
+                    ref={promptTextareaRef}
+                    className={s.sidebarPromptInput + " focus:border-emerald-500/30"}
+                    value={prompt || ''}
+                    onChange={(e) => {
+                      onPromptChange?.(e.target.value);
+                      schedulePromptResize();
+                    }}
+                    onInput={schedulePromptResize}
+                    placeholder="Refine the system mechanics with specific instructions..."
+                  />
+                ) : (
+                  <div className={s.sidebarPromptBox}>
+                    <p className={s.sidebarPromptText}>
+                      {prompt ? `"${prompt.substring(0, 120)}${prompt.length > 120 ? '...' : ''}"` : 'Using global project seed for synthesis.'}
+                    </p>
+                  </div>
+                )}
+                
+                <p className={s.sidebarNote}>
+                  Focus the AI on specific economic models, governance structures, or technological laws unique to this world.
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-6">
+              {systems.map((sys, i) => (
+                <motion.div 
+                  key={i}
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: i * 0.1 }}
+                  className={s.statCard + " hover:border-emerald-500/30"}
+                >
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 blur-[40px] pointer-events-none" />
+                  <div className={s.statIconBox + " " + sys.color}>
+                    <sys.icon className="w-5 h-5" />
+                  </div>
+                  <div className="space-y-2">
+                    <h3 className="text-sm font-black text-white uppercase tracking-widest line-clamp-1">{sys.title}</h3>
+                    <p className="text-[10px] font-medium text-zinc-500 leading-relaxed line-clamp-3">{sys.desc}</p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+
+            <div className="pt-2">
+              <TableOfContents content={content} />
             </div>
           </div>
         </div>
       )}
-      </div>
     </div>
   );
 };
-
-const TuningOption = ({ icon: Icon, label, options, active }: { icon: any, label: string, options: string[], active: string }) => (
-  <div className="flex flex-col gap-1">
-    <div className="flex items-center gap-1.5 pl-1">
-      <Icon className="w-2.5 h-2.5 text-zinc-600" />
-      <span className="text-[8px] font-black text-zinc-500 uppercase tracking-[0.2em]">{label}</span>
-    </div>
-    <div className="flex items-center bg-zinc-950/80 rounded-xl p-1 border border-white/5 shadow-inner">
-      {options.map(opt => (
-        <button
-          key={opt}
-          className={cn(
-            "px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-tighter transition-all duration-300",
-            active === opt 
-              ? "bg-studio/20 text-studio shadow-[0_0_10px_rgba(6,182,212,0.2)]" 
-              : "text-zinc-600 hover:text-zinc-400 hover:bg-white/5"
-          )}
-        >
-          {opt}
-        </button>
-      ))}
-    </div>
-  </div>
-);

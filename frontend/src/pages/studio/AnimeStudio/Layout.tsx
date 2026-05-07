@@ -13,8 +13,6 @@ import { AnimeStudioTopBar } from './components/layout/AnimeStudioTopBar';
 import { StudioFooter } from '@/pages/studio/components/studio/layout/StudioFooter';
 import { motion, AnimatePresence } from 'framer-motion';
 import { StudioIntelligenceHUD } from '@/pages/studio/components/studio/layout/StudioIntelligenceHUD';
-import { DiagnosticProvider } from './Diagnostic/context/DiagnosticCommandCenter';
-import { StudioDiagnosticHUD } from './Diagnostic/components/StudioDiagnosticHUD';
 
 import { StudioLoading } from '@/pages/studio/components/studio/StudioLoading';
 
@@ -182,6 +180,7 @@ export default function AnimeLayout() {
       addLog("SEO", "COMPLETED", "Metadata generation complete.");
 
       showNotification?.('Production Process Complete: All Modules Prepared', 'success');
+      navigate(`${basePath}/world`);
     } catch (error: any) {
       console.error("Production Failed:", error);
       addLog("CORE", "FAILURE", error.message || "Unknown error during production");
@@ -234,6 +233,7 @@ export default function AnimeLayout() {
       return;
     }
     setIsLoading(true);
+    navigate(`${basePath}/script`);
 
     try {
       const { generateScript } = await import('@/services/api/gemini');
@@ -303,10 +303,8 @@ export default function AnimeLayout() {
   };
 
   return (
-    <DiagnosticProvider>
-      <div className="fixed inset-0 bg-black flex h-screen w-full overflow-hidden z-[1000] studio-engine-root">
-        <StudioIntelligenceHUD />
-        <StudioDiagnosticHUD />
+    <div className="fixed inset-0 bg-black flex h-screen w-full overflow-hidden z-[1000] studio-engine-root">
+      <StudioIntelligenceHUD />
       {/* GLOBAL HUB SIDEBAR (Far Left) */}
       <div className="relative z-[501] border-r border-zinc-800/20">
         <StudioSideBar
@@ -444,6 +442,5 @@ export default function AnimeLayout() {
         setTheme={setTheme}
       />
     </div>
-    </DiagnosticProvider>
   );
 }

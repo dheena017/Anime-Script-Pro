@@ -12,7 +12,7 @@ import {
 import { cn } from '@/lib/utils';
 import { reportTabChange } from '@/lib/studio-logger';
 
-export type WorldTab = 'manifest' | 'history' | 'factions' | 'powers' | 'architecture' | 'atlas' | 'culture' | 'systems';
+export type WorldTab = 'manifest' | 'lore' | 'factions' | 'powers' | 'architecture' | 'atlas' | 'culture' | 'systems';
 
 interface WorldTabsProps {
   activeTab: WorldTab;
@@ -25,7 +25,7 @@ export const WorldTabs: React.FC<WorldTabsProps> = ({
 }) => {
   const tabs: { id: WorldTab; label: string; icon: any; color: string }[] = [
     { id: 'manifest', label: 'Manifest', icon: ScrollText, color: 'text-zinc-400' },
-    { id: 'history', label: 'History', icon: History, color: 'text-fuchsia-400' },
+    { id: 'lore', label: 'History', icon: History, color: 'text-fuchsia-400' },
     { id: 'factions', label: 'Factions', icon: Users, color: 'text-blue-400' },
     { id: 'powers', label: 'Powers', icon: Zap, color: 'text-amber-400' },
     { id: 'architecture', label: 'Architecture', icon: Building2, color: 'text-orange-400' },

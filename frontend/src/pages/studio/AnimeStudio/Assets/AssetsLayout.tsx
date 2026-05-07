@@ -5,7 +5,6 @@ import { Search } from 'lucide-react';
 import { useGenerator } from '@/hooks/useGenerator';
 import { AssetsHeader } from '../components/Assets/AssetsHeader';  
 import { generateMetadata, generateYouTubeDescription, generateImagePrompts } from '@/services/api/gemini';
-import { AssetsCommandCenterProvider } from './context/AssetsCommandCenter';
 
 export default function AssetsLayout() {
   const navigate = useNavigate();
@@ -79,22 +78,13 @@ export default function AssetsLayout() {
         </div>
       </div>
 
-      <AssetsCommandCenterProvider
-        library={[]}
-        handlers={{
-          importAsset: async () => {},
-          generateProp: async () => {},
-          syncAssets: async () => {}
-        }}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
       >
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-        >
-          <Outlet />
-        </motion.div>
-      </AssetsCommandCenterProvider>
+        <Outlet />
+      </motion.div>
     </div>
   );
 }
