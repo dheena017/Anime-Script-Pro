@@ -4,12 +4,15 @@ import {
   Languages, 
   ListMusic, 
   MessageSquare, 
-  Database 
+  Database,
+  Camera,
+  Activity,
+  Volume2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 
-export type ScriptTab = 'teleprompter' | 'linguistics' | 'beats' | 'dialogue' | 'metadata';
+export type ScriptTab = 'teleprompter' | 'linguistics' | 'beats' | 'dialogue' | 'metadata' | 'cinematics' | 'analysis' | 'audio';
 
 interface ScriptTabsProps {
   activeTab: ScriptTab;
@@ -22,9 +25,12 @@ export const ScriptTabs: React.FC<ScriptTabsProps> = ({
 }) => {
   const tabs: { id: ScriptTab; label: string; icon: any; color: string }[] = [
     { id: 'teleprompter', label: 'Teleprompter', icon: FileText, color: 'text-studio' },
+    { id: 'cinematics', label: 'Cinematics', icon: Camera, color: 'text-purple-400' },
     { id: 'linguistics', label: 'Linguistics', icon: Languages, color: 'text-amber-400' },
     { id: 'beats', label: 'Beat Sheet', icon: ListMusic, color: 'text-fuchsia-400' },
     { id: 'dialogue', label: 'Dialogue', icon: MessageSquare, color: 'text-emerald-400' },
+    { id: 'analysis', label: 'Pulse', icon: Activity, color: 'text-rose-400' },
+    { id: 'audio', label: 'Audio', icon: Volume2, color: 'text-cyan-400' },
     { id: 'metadata', label: 'Metadata', icon: Database, color: 'text-blue-400' },
   ];
 

@@ -21,6 +21,9 @@ import { LinguisticsTab } from './Tabs/LinguisticsTab';
 import { BeatSheetTab } from './Tabs/BeatSheetTab';
 import { DialogueTab } from './Tabs/DialogueTab';
 import { MetadataTab } from './Tabs/MetadataTab';
+import { CinematicsTab } from './Tabs/CinematicsTab';
+import { AnalysisTab } from './Tabs/AnalysisTab';
+import { AudioTab } from './Tabs/AudioTab';
 
 export function ScriptPage() {
   const { user } = useAuth();
@@ -340,6 +343,12 @@ export function ScriptPage() {
         return <BeatSheetTab />;
       case 'dialogue':
         return <DialogueTab />;
+      case 'cinematics':
+        return <CinematicsTab />;
+      case 'analysis':
+        return <AnalysisTab />;
+      case 'audio':
+        return <AudioTab />;
       case 'metadata':
         return (
           <MetadataTab
