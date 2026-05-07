@@ -9,6 +9,7 @@ import { SEOHeader } from './components/SEOHeader';
 import { SEOToolbar } from './components/SEOToolbar';
 import { SEOTab } from './Tabs/SEOTabs';
 import { SEOLoadingPage } from './components/SEOLoadingPage';
+import { SEOCommandCenterProvider } from './context/SEOCommandCenter';
 
 export const SEOContext = React.createContext<{
   setHandlers: React.Dispatch<React.SetStateAction<any>>;
@@ -148,17 +149,26 @@ export default function SEOLayout() {
           </div>
         </div>
 
-        {isLoading ? (
-          <SEOLoadingPage tab={activeTab} />
-        ) : (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            <Outlet context={{ activeTab }} />
-          </motion.div>
-        )}
+        <SEOCommandCenterProvider
+          metadata={generatedMetadata}
+          handlers={{
+            generateSEO: handleGenerate,
+            updateMetadata: () => {},
+            syncSEO: syncCore
+          }}
+        >
+          {isLoading ? (
+            <SEOLoadingPage tab={activeTab} />
+          ) : (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <Outlet context={{ activeTab }} />
+            </motion.div>
+          )}
+        </SEOCommandCenterProvider>
       </div>
     </SEOContext.Provider>
   );

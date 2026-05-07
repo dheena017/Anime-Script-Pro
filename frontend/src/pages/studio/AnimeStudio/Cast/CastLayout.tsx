@@ -22,6 +22,7 @@ import {
 import { CastLoadingPage } from './CastLoadingPage';
 import { MOCK_CAST_DATA } from '@/services/generators/mockData';
 import { studioLog, reportTabChange, reportGeneration } from '@/lib/studio-logger';
+import { CastCommandCenterProvider } from './context/CastCommandCenter';
 
 export const CastContext = React.createContext<{
   setHandlers: React.Dispatch<React.SetStateAction<any>>;
@@ -317,21 +318,33 @@ export default function CastLayout() {
           </div>
         </div>
 
-        {(isGeneratingCharacters || isAnalyzingCast) ? (
-          <CastLoadingPage tab={activeTab} />
-        ) : shouldRenderOutlet ? (
-          <Outlet context={{
-            activeTab,
-            setActiveTab: handleTabChange,
-            handleGenerateCharacter: handlers.handleGenerateCharacter,
-            handleGenerateDNA,
-            handleGenerateDynamics,
-            handleGenerateIntegrity,
-            isAnalyzingCast
-          }} />
-        ) : (
-          renderTabContent()
-        )}
+        <CastCommandCenterProvider
+          activeTab={activeTab}
+          generatedCharacters={generatedCharacters}
+          characters={castList || []}
+          relationships={JSON.parse(characterRelationships || '[]')}
+          handlers={{
+            generateCharacter: handlers.handleGenerateCharacter || handleGenerateAll,
+            updateRelationship: () => {},
+            syncCast: syncCore
+          }}
+        >
+          {(isGeneratingCharacters || isAnalyzingCast) ? (
+            <CastLoadingPage tab={activeTab} />
+          ) : shouldRenderOutlet ? (
+            <Outlet context={{
+              activeTab,
+              setActiveTab: handleTabChange,
+              handleGenerateCharacter: handlers.handleGenerateCharacter,
+              handleGenerateDNA,
+              handleGenerateDynamics,
+              handleGenerateIntegrity,
+              isAnalyzingCast
+            }} />
+          ) : (
+            renderTabContent()
+          )}
+        </CastCommandCenterProvider>
       </div>
       </CastTabActionsContext.Provider>
     </CastContext.Provider>

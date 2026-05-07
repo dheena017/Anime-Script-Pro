@@ -9,6 +9,7 @@ import { PromptsHeader } from './components/PromptsHeader';
 import { PromptsToolbar } from './components/PromptsToolbar';
 import { PromptsTab } from './Tabs/PromptsTabs';
 import { PromptsLoadingPage } from './components/PromptsLoadingPage';
+import { PromptsCommandCenterProvider } from './context/PromptsCommandCenter';
 
 export const PromptsContext = React.createContext<{
   setHandlers: React.Dispatch<React.SetStateAction<any>>;
@@ -136,17 +137,26 @@ export default function PromptsLayout() {
           </div>
         </div>
 
-        {(handlers.isGenerating || isLoading) ? (
-          <PromptsLoadingPage tab={activeTab} />
-        ) : (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            {activeTab === 'video' ? <EpisodePackager /> : <Outlet context={{ activeTab }} />}
-          </motion.div>
-        )}
+        <PromptsCommandCenterProvider
+          prompts={generatedImagePrompts ? [generatedImagePrompts] : []}
+          handlers={{
+            generatePrompts: handlers.handleGenerate || handleGenerateAll,
+            savePrompt: () => {},
+            syncPrompts: handleSave
+          }}
+        >
+          {(handlers.isGenerating || isLoading) ? (
+            <PromptsLoadingPage tab={activeTab} />
+          ) : (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              {activeTab === 'video' ? <EpisodePackager /> : <Outlet context={{ activeTab }} />}
+            </motion.div>
+          )}
+        </PromptsCommandCenterProvider>
       </div>
     </PromptsContext.Provider>
   );

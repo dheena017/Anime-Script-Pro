@@ -10,6 +10,7 @@ import { StoryboardToolbar } from './components/StoryboardToolbar';
 import { StoryboardTab } from './Tabs/StoryboardTabs';
 
 import { StoryboardLoadingPage } from './components/StoryboardLoadingPage';
+import { StoryboardCommandCenterProvider } from './context/StoryboardCommandCenter';
 
 export const StoryboardContext = React.createContext<{
   setHandlers: (handlers: any) => void;
@@ -132,17 +133,26 @@ export default function StoryboardLayout() {
           </div>
         </div>
 
-        {(handlers.isGenerating || isGeneratingImagePrompts) ? (
-          <StoryboardLoadingPage tab={activeTab} />
-        ) : (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            <Outlet context={{ activeTab }} />
-          </motion.div>
-        )}
+        <StoryboardCommandCenterProvider
+          frames={generatedImagePrompts ? JSON.parse(generatedImagePrompts) : []}
+          handlers={{
+            generateFrames: handlers.handleGenerateAll || handleGenerate,
+            exportStoryboard: handleSave,
+            syncStoryboard: syncCore
+          }}
+        >
+          {(handlers.isGenerating || isGeneratingImagePrompts) ? (
+            <StoryboardLoadingPage tab={activeTab} />
+          ) : (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <Outlet context={{ activeTab }} />
+            </motion.div>
+          )}
+        </StoryboardCommandCenterProvider>
       </div>
     </StoryboardContext.Provider>
   );

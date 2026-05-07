@@ -7,6 +7,7 @@ import { SeriesHeader } from './components/SeriesHeader';
 import { SeriesToolbar } from './components/SeriesToolbar';
 import { SeriesTab } from './Tabs/SeriesTabs';
 import { SeriesLoadingPage } from './components/SeriesLoadingPage';
+import { SeriesCommandCenterProvider } from './context/SeriesCommandCenter';
 
 export default function SeriesLayout() {
   const navigate = useNavigate();
@@ -198,11 +199,20 @@ export default function SeriesLayout() {
         </div>
       </div>
 
-      {isGeneratingSeries ? (
-        <SeriesLoadingPage tab={activeTab} />
-      ) : (
-        <Outlet context={{ showScaffolder, setShowScaffolder, activeTab }} />
-      )}
+      <SeriesCommandCenterProvider
+        seriesPlan={(generatedSeriesPlan as any)?.episodes || []}
+        handlers={{
+          generateSeriesPlan: handleGenerate,
+          updateEpisode: () => {},
+          syncSeries: syncCore
+        }}
+      >
+        {isGeneratingSeries ? (
+          <SeriesLoadingPage tab={activeTab} />
+        ) : (
+          <Outlet context={{ showScaffolder, setShowScaffolder, activeTab }} />
+        )}
+      </SeriesCommandCenterProvider>
     </div>
   );
 }

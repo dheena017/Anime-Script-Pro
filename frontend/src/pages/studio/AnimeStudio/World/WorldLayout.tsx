@@ -17,6 +17,7 @@ import {
 import { WorldTab } from './tabs/WorldTabs';
 import { WorldLoadingPage } from './WorldLoadingPage';
 import { studioLog, reportTabChange, reportGeneration } from '@/lib/studio-logger';
+import { WorldCommandCenterProvider } from './context/WorldCommandCenter';
 
 export const WorldContext = createContext<{
   activeTab: WorldTab;
@@ -268,11 +269,26 @@ export default function WorldLayout() {
       </div>
 
       <WorldContext.Provider value={{ activeTab, setActiveTab: handleTabChange }}>
-        {(currentIsGenerating || (isGeneratingAny && !hasCurrentData)) ? (
-          <WorldLoadingPage tab={activeTab} />
-        ) : (
-          <Outlet context={{ activeTab, setActiveTab: handleTabChange }} />
-        )}
+        <WorldCommandCenterProvider
+          activeTab={activeTab as any}
+          worldData={{
+            manifest: generatedWorld,
+            factions: generatedWorldFactions,
+            powers: generatedWorldPowers,
+            atlas: generatedWorldAtlas
+          }}
+          handlers={{
+            syncWorld: syncCore,
+            generateLore: handleGenerateAll,
+            exportLore: handleSave
+          }}
+        >
+          {(currentIsGenerating || (isGeneratingAny && !hasCurrentData)) ? (
+            <WorldLoadingPage tab={activeTab} />
+          ) : (
+            <Outlet context={{ activeTab, setActiveTab: handleTabChange }} />
+          )}
+        </WorldCommandCenterProvider>
       </WorldContext.Provider>
     </div>
   );
