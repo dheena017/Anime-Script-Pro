@@ -9,7 +9,7 @@ export const TerminalOutputViewer: React.FC = () => {
     // Simulated Stream Integration
     const interval = setInterval(() => {
       setLogs((prev) => [...prev, `[${new Date().toLocaleTimeString()}] Keep-alive ping from AI Core...`].slice(-100));
-    }, 8000);
+    }, 8080);
     return () => clearInterval(interval);
   }, []);
 

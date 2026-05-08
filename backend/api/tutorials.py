@@ -5,22 +5,22 @@ from sqlmodel import select
 from typing import List
 from loguru import logger
 from backend.database.models import Tutorial
-from backend.database import AsyncSession, async_engine
+from backend.database import async_session, async_engine
 from backend.utils.deps import get_auth_user_id
-from backend.services.user_manager import current_active_user
+from backend.user_manager import current_active_user
 
 router = APIRouter(prefix="/api/tutorials", tags=["Tutorials"])
 
 @router.get("/", response_model=List[Tutorial])
 async def get_tutorials():
-    async with AsyncSession(async_engine) as session:
+    async with async_session() as session:
         statement = select(Tutorial).where(Tutorial.is_active == True)
         results = await session.exec(statement)
         return results.all()
 
 @router.post("/", response_model=Tutorial)
 async def create_tutorial(tutorial: Tutorial, user=Depends(current_active_user)):
-    async with AsyncSession(async_engine) as session:
+    async with async_session() as session:
         session.add(tutorial)
         await session.commit()
         await session.refresh(tutorial)
@@ -28,7 +28,7 @@ async def create_tutorial(tutorial: Tutorial, user=Depends(current_active_user))
 
 @router.get("/{tutorial_id}", response_model=Tutorial)
 async def get_tutorial(tutorial_id: int):
-    async with AsyncSession(async_engine) as session:
+    async with async_session() as session:
         tutorial = await session.get(Tutorial, tutorial_id)
         if not tutorial:
             raise HTTPException(status_code=404, detail="Tutorial not found")
@@ -36,7 +36,7 @@ async def get_tutorial(tutorial_id: int):
 
 @router.put("/{tutorial_id}", response_model=Tutorial)
 async def update_tutorial(tutorial_id: int, tutorial_update: Tutorial, user=Depends(current_active_user)):
-    async with AsyncSession(async_engine) as session:
+    async with async_session() as session:
         db_tutorial = await session.get(Tutorial, tutorial_id)
         if not db_tutorial:
             raise HTTPException(status_code=404, detail="Tutorial not found")
@@ -55,7 +55,7 @@ async def update_tutorial(tutorial_id: int, tutorial_update: Tutorial, user=Depe
 
 @router.delete("/{tutorial_id}")
 async def delete_tutorial(tutorial_id: int, user_id: str = Depends(get_auth_user_id)):
-    async with AsyncSession(async_engine) as session:
+    async with async_session() as session:
         tutorial = await session.get(Tutorial, tutorial_id)
         if not tutorial:
             raise HTTPException(status_code=404, detail="Tutorial not found")
@@ -73,7 +73,7 @@ async def seed_tutorials():
         with open(json_path, "r") as f:
             initial_tutorials = json.load(f)
         
-        async with AsyncSession(async_engine) as session:
+        async with async_session() as session:
             for t_data in initial_tutorials:
                 statement = select(Tutorial).where(Tutorial.title == t_data["title"])
                 results = await session.exec(statement)

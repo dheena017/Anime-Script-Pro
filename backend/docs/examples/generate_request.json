@@ -1,0 +1,6 @@
+{
+  "model": "gemini-2.5-flash",
+  "prompt": "Create a short anime pilot outline for a sci-fi world with a tragic hero.",
+  "systemInstruction": "You are a helpful narrative engine.",
+  "temperature": 0.8
+}

@@ -22,7 +22,7 @@ export const HeroPromptBar: React.FC<HeroPromptBarProps> = ({
   placeholderIndex,
   handleGenerate: onGenerate,
 }) => {
-  const [isTransmitting, setIsTransmitting] = useState(false);
+  const [isTransmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleGenerate = () => {

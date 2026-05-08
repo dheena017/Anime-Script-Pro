@@ -59,7 +59,7 @@ class NarrativeBeat(SQLModel, table=True):
 Expose the data in `backend/api/projects.py`:
 ```python
 @router.post("/beats")
-async def create_beat(beat: NarrativeBeat, session: AsyncSession = Depends(get_async_session)):
+async def create_beat(beat: NarrativeBeat, session: async_session = Depends(get_async_session)):
     session.add(beat)
     await session.commit()
     return beat

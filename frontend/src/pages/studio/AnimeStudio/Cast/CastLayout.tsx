@@ -28,6 +28,10 @@ export const CastContext = React.createContext<{
 
 export const CastTabActionsContext = React.createContext<{
   isAnalyzingCast?: boolean;
+  handleGenerateCharacter?: () => Promise<any>;
+  handleGenerateDNA?: () => Promise<any>;
+  handleGenerateDynamics?: () => Promise<any>;
+  handleGenerateIntegrity?: () => Promise<any>;
 }>({});
 
 export default function CastLayout() {
@@ -202,9 +206,10 @@ export default function CastLayout() {
 
   return (
     <CastContext.Provider value={{ setHandlers, handleLoadDemo }}>
-      <CastTabActionsContext.Provider value={{
-        isAnalyzingCast
-      }}>
+        <CastTabActionsContext.Provider value={{
+          isAnalyzingCast,
+          ...(handlers || {}),
+        }}>
       <div className="space-y-6">
         <div className="studio-module-header">
           <CastHeader

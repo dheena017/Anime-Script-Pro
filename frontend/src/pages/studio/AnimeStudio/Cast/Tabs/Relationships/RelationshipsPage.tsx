@@ -15,6 +15,7 @@ import { Input } from '@/components/ui/input';
 import { RelationshipCard } from '../../components/RelationshipCard';
 import { generateRelationships } from '@/services/api/gemini';
 import { CastEmptyState } from '../../components/CastEmptyState';
+import { StudioEmptyState } from '@/pages/studio/components/studio/shared/StudioEmptyState';
 import { CastContext } from '../../CastLayout';
 
 export default function RelationshipsPage() {

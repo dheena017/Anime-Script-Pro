@@ -16,6 +16,8 @@ interface ScreeningToolbarProps {
   content?: string | null;
   activeSession?: number;
   setActiveSession?: (session: number) => void;
+  isEditing?: boolean;
+  onEditingChange?: (isEditing: boolean) => void;
 }
 
 export const ScreeningToolbar: React.FC<ScreeningToolbarProps> = ({
@@ -25,6 +27,9 @@ export const ScreeningToolbar: React.FC<ScreeningToolbarProps> = ({
   content = null,
   activeSession = 1,
   setActiveSession = () => { }
+  ,
+  isEditing = false,
+  onEditingChange,
 }) => {
   const { isFullscreen } = useApp();
 

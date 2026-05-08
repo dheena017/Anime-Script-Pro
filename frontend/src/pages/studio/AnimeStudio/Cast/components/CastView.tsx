@@ -10,6 +10,7 @@ import { CastContext } from '../CastLayout';
 
 interface CastViewProps {
   onViewCharacter?: (charName: string) => void;
+  viewMode?: 'list' | 'grid';
 }
 
 export const CastView: React.FC<CastViewProps> = ({ 

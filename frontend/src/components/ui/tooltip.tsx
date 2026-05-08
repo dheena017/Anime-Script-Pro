@@ -20,7 +20,7 @@ function Tooltip({ ...props }: TooltipPrimitive.Root.Props) {
   return <TooltipPrimitive.Root data-slot="tooltip" {...props} />
 }
 
-function TooltipTrigger({ children, ...props }: TooltipPrimitive.Trigger.Props & { children?: ReactNode }) {
+function TooltipTrigger({ children, asChild, ...props }: TooltipPrimitive.Trigger.Props & { children?: ReactNode; asChild?: boolean }) {
   const render = isValidElement(children) ? children : undefined
   return (
     <TooltipPrimitive.Trigger

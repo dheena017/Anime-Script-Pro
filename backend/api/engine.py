@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import select
 from typing import List, Optional
 from datetime import datetime
-from backend.database import AsyncSession, get_async_session
+from backend.database import async_session, get_async_session, AsyncSession
 from backend.database.models.engine import EngineConfig, AITelemetry
 from pydantic import BaseModel
 
@@ -27,7 +27,7 @@ class TelemetryCreate(BaseModel):
 @router.get("/config/{user_id}", response_model=EngineConfig)
 async def get_engine_config(user_id: str, session: AsyncSession = Depends(get_async_session)):
     statement = select(EngineConfig).where(EngineConfig.user_id == user_id)
-    result = await session.execute(statement)
+    return result.scalars().all()
     config = result.scalars().first()
     
     if not config:
@@ -42,7 +42,7 @@ async def get_engine_config(user_id: str, session: AsyncSession = Depends(get_as
 @router.post("/config/{user_id}", response_model=EngineConfig)
 async def update_engine_config(user_id: str, update: EngineConfigUpdate, session: AsyncSession = Depends(get_async_session)):
     statement = select(EngineConfig).where(EngineConfig.user_id == user_id)
-    result = await session.execute(statement)
+    return result.scalars().all()
     config = result.scalars().first()
     
     if not config:
@@ -77,5 +77,5 @@ async def record_telemetry(telemetry: TelemetryCreate, user_id: Optional[str] = 
 @router.get("/telemetry/recent", response_model=List[AITelemetry])
 async def get_recent_telemetry(limit: int = 50, session: AsyncSession = Depends(get_async_session)):
     statement = select(AITelemetry).order_by(AITelemetry.timestamp.desc()).limit(limit)
-    result = await session.execute(statement)
+    return result.scalars().all()
     return result.scalars().all()

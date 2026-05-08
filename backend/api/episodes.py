@@ -1,9 +1,19 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlmodel import select
-from backend.database import AsyncSession, async_engine
+from backend.database import async_session, async_engine, AsyncSession, get_async_session
 from loguru import logger
 from backend.database.models import Episode, Project
 from backend.utils.deps import get_auth_user_id
+from datetime import datetime
+from typing import List, Optional, Dict, Any
+import os
+import json
+import time
+import uuid
+import zipfile
+import base64
+import asyncio
+from pydantic import BaseModel
 
 router = APIRouter(prefix="/api", tags=["Episodes"])
 
@@ -21,7 +31,7 @@ async def batch_create_episodes(payload: dict, user_id: str = Depends(get_auth_u
     except Exception:
         raise HTTPException(status_code=400, detail="project_id must be an integer")
 
-    async with AsyncSession(async_engine) as session:
+    async with async_session() as session:
         # Verify project ownership
         project = await session.get(Project, project_pk)
         if not project or project.user_id != user_id:
@@ -62,31 +72,14 @@ async def batch_create_episodes(payload: dict, user_id: str = Depends(get_auth_u
 @router.get("/episodes")
 async def get_episodes(project_id: int, user_id: str = Depends(get_auth_user_id)):
     """Get episodes for a project (ownership required)."""
-    async with AsyncSession(async_engine) as session:
+    async with async_session() as session:
         project = await session.get(Project, project_id)
         if not project or project.user_id != user_id:
             raise HTTPException(status_code=401, detail="Project access denied")
 
         statement = select(Episode).where(Episode.project_id == project_id)
-        result = await session.execute(statement)
+        result = await session.exec(statement)
         return result.scalars().all()
-from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlmodel import select
-from backend.database import AsyncSession, get_async_session
-from backend.database.models.projects import Episode
-from backend.utils.deps import get_auth_user_id
-from datetime import datetime
-from typing import List, Optional, Dict, Any
-import os
-import json
-import time
-import uuid
-import zipfile
-import base64
-import asyncio
-from pydantic import BaseModel
-
-router = APIRouter(prefix="/api/series", tags=["episodes"])
 
 
 class RenderJobRequest(BaseModel):

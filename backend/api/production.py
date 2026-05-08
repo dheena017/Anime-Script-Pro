@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import select
-from backend.database import AsyncSession, get_async_session
+from backend.database import async_session, get_async_session, AsyncSession
 from backend.database.models import ProjectContent
 from datetime import datetime
 from typing import Optional, List
@@ -14,8 +14,8 @@ async def get_production_content(user_id: str, project_id: Optional[int] = None,
         statement = statement.where(ProjectContent.project_id == project_id)
     
     statement = statement.order_by(ProjectContent.updated_at.desc())
-    result = await session.execute(statement)
-    return result.scalars().first()
+    result = await session.exec(statement)
+    return result.first()
 
 @router.post("/{user_id}", response_model=ProjectContent)
 async def update_production_content(user_id: str, update: dict, project_id: Optional[int] = None, session: AsyncSession = Depends(get_async_session)):
@@ -23,8 +23,8 @@ async def update_production_content(user_id: str, update: dict, project_id: Opti
     if project_id:
         statement = statement.where(ProjectContent.project_id == project_id)
     
-    result = await session.execute(statement)
-    db_content = result.scalars().first()
+    result = await session.exec(statement)
+    db_content = result.first()
     
     if not db_content:
         db_content = ProjectContent(user_id=user_id, project_id=project_id)

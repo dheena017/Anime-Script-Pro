@@ -183,7 +183,7 @@ function composeDetailedSystemInstruction(
     : DETAIL_DEPTH_DIRECTIVE;
 
   // Inject context blocks if provided
-  const contextBlocks = [];
+  const contextBlocks: string[] = [];
   if (worldLore?.trim()) {
     contextBlocks.push(`=== WORLD LORE SOURCE OF TRUTH ===\n${worldLore}\n`);
   }
@@ -194,8 +194,8 @@ function composeDetailedSystemInstruction(
     contextBlocks.push(`=== EPISODE MASTER BLUEPRINT ===\n${episodePlan}\n`);
   }
 
-  const contextSection = contextBlocks.length > 0 
-    ? `\n\nSTORY STATE CONTEXT:\n${contextBlocks.join('\n')}` 
+  const contextSection = contextBlocks.length > 0
+    ? `\n\nSTORY STATE CONTEXT:\n${contextBlocks.join('\n')}`
     : '';
 
   return `${trimmedInstruction}${contextSection}\n\n${detailAppendix.trim()}`;
@@ -264,14 +264,14 @@ export async function callAI(
 
     // Enhanced Neural Context Audit with detailed metrics
     const auditMetrics = {
-      "World Lore Sync": worldInjected 
-        ? `ACTIVE ✅ (${worldLore?.length || 0} chars)` 
+      "World Lore Sync": worldInjected
+        ? `ACTIVE ✅ (${worldLore?.length || 0} chars)`
         : "NONE ❌",
-      "Cast DNA Sync": castInjected 
-        ? `ACTIVE ✅ (${castDNA?.length || 0} chars)` 
+      "Cast DNA Sync": castInjected
+        ? `ACTIVE ✅ (${castDNA?.length || 0} chars)`
         : "NONE ❌",
-      "Episode Plan Sync": planInjected 
-        ? `ACTIVE ✅ (${episodePlan?.length || 0} chars)` 
+      "Episode Plan Sync": planInjected
+        ? `ACTIVE ✅ (${episodePlan?.length || 0} chars)`
         : "NONE ❌",
       "Total Instruction Volume": `${detailedSystemInstruction.length} chars`,
       "User Prompt Volume": `${prompt.length} chars`,
@@ -282,7 +282,7 @@ export async function callAI(
     try {
       const trace = traceContextFromInstruction(detailedSystemInstruction);
       AI_EVENTS.dispatchEvent(new CustomEvent('ai_context_trace', { detail: { model, trace } }));
-      console.groupCollapsed('%c[AI Core] Context Trace','color: #6366f1; font-weight:700;');
+      console.groupCollapsed('%c[AI Core] Context Trace', 'color: #6366f1; font-weight:700;');
       console.log(trace);
       console.groupEnd();
     } catch (e) {
@@ -328,7 +328,7 @@ export async function callAI(
       ...["gemini-3.1-flash-lite-preview", "gemini-2.5-flash-lite", "gemini-3-flash-preview", "gemini-2.5-flash", "gemma-3-27b-it"].filter(m => m !== primaryModel)
     ];
 
-    let lastError = null;
+    let lastError: Error | null = null;
     const attemptedFallbacks: string[] = [];
 
     for (const currentModel of modelFallbacks) {
@@ -349,7 +349,7 @@ export async function callAI(
         };
 
         console.log(`%c[AI Core] %cTrying model: %c${currentModel}`, STYLES.ai, STYLES.info, 'font-weight: bold; color: #fff;');
-        let response = null;
+        let response: Response | null = null;
         try {
           response = await fetch("/api/generate", {
             method: "POST",
@@ -451,7 +451,7 @@ export async function callAI(
         const nextModel = modelFallbacks[modelFallbacks.indexOf(currentModel) + 1];
         if (nextModel) broadcastAIFallback(currentModel, errMessage, nextModel);
 
-        lastError = error;
+        lastError = error instanceof Error ? error : new Error(String(error));
         continue; // Try next model
       }
     }

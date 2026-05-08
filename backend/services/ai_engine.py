@@ -4,7 +4,7 @@ from google import genai
 from google.genai import types
 from dotenv import load_dotenv
 from sqlmodel import select
-from backend.database import AsyncSession, async_engine
+from backend.database import async_session, async_engine
 from backend.database.models.user import UserSettings
 from backend.services.prompts.world.world import (
     MANIFEST_GENERATION_PROMPT,
@@ -60,10 +60,10 @@ class AIEngine:
         # 1. Try to get key from User Settings
         if user_id:
             try:
-                async with AsyncSession(async_engine) as session:
+                async with async_session() as session:
                     statement = select(UserSettings).where(UserSettings.user_id == user_id)
-                    result = await session.exec(statement)
-                    settings = result.first()
+                    return result.scalars().all()
+                    settings = result.scalars().first()
                     if settings and settings.ai_models:
                         api_key = settings.ai_models.get("gemini_api_key")
             except Exception as e:

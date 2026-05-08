@@ -1,5 +1,5 @@
-import { Loader2, Globe, Map, History, Users, Zap, Building2, Map as Atlas, Globe as Culture, Cpu } from 'lucide-react';
-import { WorldTab } from '../tabs/WorldTabs';
+import { Loader2, Globe, History, Users, Zap, Building2, Map as Atlas, Globe as Culture, Cpu } from 'lucide-react';
+type WorldTab = 'manifest' | 'lore' | 'factions' | 'powers' | 'architecture' | 'atlas' | 'culture' | 'systems';
 
 interface WorldLoadingPageProps {
   tab?: WorldTab;

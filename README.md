@@ -36,7 +36,7 @@ Anime Script Pro is divided into 11 specialized production modules, each managed
 The studio has been modernized to handle a complex **Image-to-Video** pipeline:
 - **Neural DNA Synthesis**: Generates persistent visual storyboard frames.
 - **Motion Engine Ignition**: Transforms static frames into cinematic 5s production clips.
-- **Async Backend Protocols**: High-concurrency production handled via FastAPI + AsyncSession.
+- **Async Backend Protocols**: High-concurrency production handled via FastAPI + async_session.
 
 ---
 
@@ -93,13 +93,7 @@ python -m uvicorn backend.fastapi_app:app --reload --port 8080
 python -m pip install -r .\backend\requirements.txt
 
 .venv/Scripts/python.exe -m uvicorn backend.fastapi_app:app --reload --port 8080
-# Run FastAPI server directly
-python -m uvicorn backend.fastapi_app:app --reload --port 8080
-```
 
-The backend will be available at `http://127.0.0.1:8080`
-
-### 3. Environment Configuration (`.env`)
 Ensure your environment is primed for autonomous generation:
 ```env
 # AI Models
@@ -163,8 +157,6 @@ npm run test
 ---
 
 ## 🎨 Design Language: NOIR
-The studio utilizes a high-contrast **Noir System** designed for focus and creative depth.
-- **Glassmorphism**: Subtle backdrops for neural stream interactions.
 - **Micro-Animations**: Real-time feedback on AI generation events.
 - **Atomic Selectors**: Precision targeting for all studio interaction pins.
 
@@ -175,17 +167,7 @@ The studio utilizes a high-contrast **Noir System** designed for focus and creat
 </div>
 
 
-# Remove the broken venv
-Remove-Item -Recurse -Force .\backend\venv
 
-# Create a fresh venv
-python -m venv .\backend\venv
-
-# Activate it
-.\backend\venv\Scripts\Activate.ps1
-
-# Install dependencies
-pip install -r .\backend\requirements.txt
 
 
 ## 🏛️ Neural Blueprint Gallery

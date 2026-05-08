@@ -1,5 +1,5 @@
 import React from 'react';
-import { Palette, Mic2, Zap, Download, Copy, Maximize, Minimize, Plus } from 'lucide-react';
+import { Palette, Mic2, Zap, Download, Copy, Maximize, Minimize, Plus, Edit3 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useApp } from '@/contexts/AppContext';
@@ -20,6 +20,8 @@ interface StoryboardToolbarProps {
   onEnhanceNarration?: () => void;
   onEnhanceVisuals?: () => void;
   isGlobalEnhancing?: boolean;
+  isEditing?: boolean;
+  onEditingChange?: (isEditing: boolean) => void;
 }
 
 export const StoryboardToolbar: React.FC<StoryboardToolbarProps> = ({
@@ -30,7 +32,9 @@ export const StoryboardToolbar: React.FC<StoryboardToolbarProps> = ({
   onAddScene,
   onEnhanceNarration,
   onEnhanceVisuals,
-  isGlobalEnhancing
+  isGlobalEnhancing,
+  isEditing = false,
+  onEditingChange
 }) => {
   const { isFullscreen } = useApp();
 
@@ -100,6 +104,29 @@ export const StoryboardToolbar: React.FC<StoryboardToolbarProps> = ({
             )}
 
             <div className="flex items-center gap-1.5 px-3 py-1.5 bg-black/60 border border-white/5 rounded-2xl backdrop-blur-md shadow-inner">
+              <Tooltip>
+                <TooltipTrigger>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className={cn(
+                      "h-8 w-8 rounded-lg transition-all duration-300 border border-transparent",
+                      isEditing 
+                        ? "text-fuchsia-400 border-fuchsia-500/40 bg-fuchsia-500/10 shadow-[0_0_10px_rgba(217,70,239,0.2)]" 
+                        : "text-zinc-400 hover:text-fuchsia-400 hover:border-fuchsia-500/40 hover:bg-fuchsia-500/10"
+                    )}
+                    onClick={() => onEditingChange?.(!isEditing)}
+                  >
+                    <Edit3 className={cn("w-4 h-4", isEditing && "animate-pulse")} />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="top">
+                  <p className="font-black uppercase tracking-widest text-[9px]">{isEditing ? "Disable Editing" : "Enable Editing"}</p>
+                </TooltipContent>
+              </Tooltip>
+
+              <div className="w-px h-4 bg-white/10 mx-0.5" />
+
               <Tooltip>
                 <TooltipTrigger>
                   <Button

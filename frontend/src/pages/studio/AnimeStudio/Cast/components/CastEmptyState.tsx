@@ -1,5 +1,5 @@
 import React from 'react';
-import { Users, Mic2, Swords, TrendingUp, GitBranch, Layout, Workflow, Fingerprint, Brain, ShieldCheck, Scale } from 'lucide-react';
+import { Users, Mic2, Swords, TrendingUp, GitBranch, Workflow, Scale } from 'lucide-react';
 import { StudioEmptyState } from '@/pages/studio/components/studio/shared/StudioEmptyState';
 import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
 import { Slider } from '@/components/ui/slider';

@@ -5,7 +5,7 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from '@/components/ui/tooltip';
-import { ChevronLeft, ChevronRight, Cpu, Users, Save, Square, Box, Sparkles } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Cpu, Users, Save, Square, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useGenerator } from '@/hooks/useGenerator';
@@ -33,8 +33,7 @@ export const CastHeader: React.FC<CastHeaderProps> = ({
   hasContent,
   isGenerating,
   session,
-  episode,
-  status = 'empty'
+  episode
 }) => {
   const { stopGeneration, numCharacters, setNumCharacters } = useGenerator();
 

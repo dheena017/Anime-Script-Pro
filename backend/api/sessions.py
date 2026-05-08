@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import select
-from backend.database import AsyncSession, async_engine
+from backend.database import async_session, async_engine
 from loguru import logger
 from backend.database.models import ProductionSession, Project
 from backend.utils.deps import get_auth_user_id
@@ -19,7 +19,7 @@ async def batch_create_sessions(payload: dict, user_id: str = Depends(get_auth_u
     except Exception:
         raise HTTPException(status_code=400, detail="project_id must be an integer")
 
-    async with AsyncSession(async_engine) as session:
+    async with async_session() as session:
         # Verify project ownership
         project = await session.get(Project, project_pk)
         if not project or project.user_id != user_id:
@@ -58,12 +58,12 @@ async def batch_create_sessions(payload: dict, user_id: str = Depends(get_auth_u
 
 @router.get("/sessions")
 async def get_sessions(project_id: int, user_id: str = Depends(get_auth_user_id)):
-    async with AsyncSession(async_engine) as session:
+    async with async_session() as session:
         # Verify project ownership
         project = await session.get(Project, project_id)
         if not project or project.user_id != user_id:
             raise HTTPException(status_code=401, detail="Project access denied")
 
         statement = select(ProductionSession).where(ProductionSession.project_id == project_id)
-        result = await session.execute(statement)
+        return result.scalars().all()
         return result.scalars().all()

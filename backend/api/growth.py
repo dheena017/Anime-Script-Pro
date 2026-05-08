@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlmodel import select
 from typing import List, Optional
 from backend.database.models.assets import GrowthStrategy
-from backend.database import AsyncSession, async_engine
+from backend.database import async_session, async_engine
 from backend.utils.deps import get_auth_user_id
 from backend.schemas import GenerationResponse
 
@@ -13,11 +13,12 @@ async def get_growth_strategies(
     track: Optional[str] = Query(None),
     is_active: bool = True
 ):
-    async with AsyncSession(async_engine) as session:
+    async with async_session() as session:
         query = select(GrowthStrategy).where(GrowthStrategy.is_active == is_active)
         if track:
             query = query.where(GrowthStrategy.track == track)
-        results = await session.exec(query)
+        results = await session.execute(query)
+        return results.scalars().all()
         return results.all()
 
 @router.post("/generate/{strategy_id}", response_model=GenerationResponse)
@@ -27,14 +28,14 @@ async def generate_specific_strategy(
     model: str = "gemini-1.5-flash-latest",
     user_id: str = Depends(get_auth_user_id)
 ):
-    async with AsyncSession(async_engine) as session:
+    async with async_session() as session:
         strategy = await session.get(GrowthStrategy, strategy_id)
         if not strategy:
             raise HTTPException(status_code=404, detail="Strategy blueprint not found")
         
         try:
             # Call AI with the specific prompt from the strategy blueprint
-            from backend.services.ai_engine import call_ai
+            from backend.ai_engine import call_ai
             system_instruction = f"{strategy.prompt}\n\nUSE THIS SCRIPT AS SOURCE DATA:\n{script_content}"
             content = await call_ai(model, "Generate the strategy blueprint based on my script.", system_instruction)
             

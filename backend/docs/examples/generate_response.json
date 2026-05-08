@@ -1,0 +1,8 @@
+{
+  "text": "Act 1: ...\nAct 2: ...\nAct 3: ...",
+  "model_used": "gemini-2.5-flash",
+  "finish_reason": "STOP",
+  "usage": { "prompt_tokens": 50, "total_tokens": 150 },
+  "latency_ms": 321.5,
+  "fallbacks": []
+}

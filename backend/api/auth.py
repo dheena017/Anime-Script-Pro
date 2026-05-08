@@ -5,9 +5,9 @@ from sqlmodel import select
 from pydantic import BaseModel
 from datetime import datetime, timezone, timedelta
 from backend.database.models import User
-from backend.database import AsyncSession, async_engine
+from backend.database import async_session, async_engine
 from backend.utils.auth_utils import verify_password, create_access_token, create_refresh_token
-from backend.services.user_manager import auth_backend, fastapi_users
+from backend.user_manager import auth_backend, fastapi_users
 from loguru import logger
 import os
 from backend.database.models import User as UserTable # For pydantic schemas if needed
@@ -48,7 +48,7 @@ async def login_for_access_token(
 
     # Real DB Login Logic
     try:
-        async with AsyncSession(async_engine) as db:
+        async with async_session() as db:
             statement = select(User).where(User.email == email)
             result = await db.execute(statement)
             user = result.scalars().first()
@@ -107,10 +107,10 @@ async def secure_login(
         }
 
     try:
-        async with AsyncSession(async_engine) as db:
+        async with async_session() as db:
             statement = select(User).where(User.email == login_data.email)
-            result = await db.execute(statement)
-            user = result.scalars().first()
+            result = await db.exec(statement)
+            user = result.first()
             
             if not user:
                 logger.warning(f"Login failed: User {login_data.email} not found")

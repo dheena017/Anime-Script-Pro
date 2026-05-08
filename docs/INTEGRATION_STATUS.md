@@ -48,7 +48,7 @@ backend/fastapi_app.py
       └─ Serves ReDoc alternative documentation
 ```
 
-**Result**: Custom schema styling applied at `http://127.0.0.1:8000/docs`
+**Result**: Custom schema styling applied at `http://127.0.0.1:8080/docs`
 
 ---
 

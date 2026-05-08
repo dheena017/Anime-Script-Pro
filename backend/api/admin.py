@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from sqlmodel import select
 from loguru import logger
 from backend.database.models import User
-from backend.database import AsyncSession, async_engine
+from backend.database import async_session, async_engine
 
 router = APIRouter(prefix="/api/admin", tags=["Admin"])
 
@@ -10,7 +10,7 @@ router = APIRouter(prefix="/api/admin", tags=["Admin"])
 async def admin_get_users():
     """Admin-only user listing."""
     logger.info("NEURAL SIGNAL: Accessing specialized user directory via Admin Protocol.")
-    async with AsyncSession(async_engine) as session:
+    async with async_session() as session:
         statement = select(User)
-        results = await session.exec(statement)
-        return results.all()
+        results = await session.execute(statement)
+        return results.scalars().all()

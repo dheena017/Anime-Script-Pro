@@ -1,6 +1,8 @@
+from unittest import result
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import select
-from backend.database import AsyncSession, async_engine
+from backend.database import async_session, async_engine
 from backend.database.models import SystemLog
 from typing import List
 from loguru import logger
@@ -12,7 +14,7 @@ async def create_log(log_entry: SystemLog):
     """
     Save a new log entry to the persistent SQLite database.
     """
-    async with AsyncSession(async_engine) as session:
+    async with async_session() as session:
         session.add(log_entry)
         await session.commit()
         await session.refresh(log_entry)
@@ -24,7 +26,7 @@ async def get_logs(limit: int = 50):
     """
     Retrieve historical logs from the database.
     """
-    async with AsyncSession(async_engine) as session:
+    async with async_session() as session:
         statement = select(SystemLog).order_by(SystemLog.timestamp.desc()).limit(limit)
-        result = await session.exec(statement)
-        return result.all()
+        return result.scalars().all()
+        return result.scalars().all()

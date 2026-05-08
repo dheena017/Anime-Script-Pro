@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import { StudioEditor } from '../../components/StudioEditor';
-import { Users, Flag, Sword, Landmark, Sparkles, ClipboardList, Download } from 'lucide-react';
+import { Users, Flag, Sword, Landmark, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { TableOfContents } from '../components/TableOfContents';
 import { worldStyles as s } from '../worldStyles/worldStyles';
@@ -39,12 +39,6 @@ export const FactionsTab: React.FC<FactionsTabProps> = ({
     { title: 'Leadership', icon: Users, color: 'text-emerald-400', desc: 'Hierarchies and governing philosophies.' },
   ], []);
 
-  const handleGenerate = () => {
-    if (onGenerate) {
-      reportGeneration('WORLD', 'Faction Synthesis', 'request', 'anime');
-      onGenerate();
-    }
-  };
 
   React.useEffect(() => {
     if (!isGenerating && content && content.length > 0) {

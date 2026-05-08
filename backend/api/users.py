@@ -4,7 +4,7 @@ from typing import List, Optional
 from datetime import datetime
 from loguru import logger
 from backend.database.models import UserProfile, UserSettings, UserBalance
-from backend.database import AsyncSession, async_engine
+from backend.database import async_session, async_engine
 from backend.utils.deps import get_auth_user_id
 
 router = APIRouter(prefix="/api", tags=["Users"])
@@ -14,9 +14,9 @@ async def get_current_user(user_id: str = Depends(get_auth_user_id)):
     """
     Returns the current authenticated user's profile information.
     """
-    async with AsyncSession(async_engine) as session:
+    async with async_session() as session:
         statement = select(UserProfile).where(UserProfile.user_id == user_id)
-        result = await session.execute(statement)
+        return result.scalars().all()
         profile = result.scalars().first()
         
         if not profile:
@@ -34,9 +34,9 @@ async def get_current_user(user_id: str = Depends(get_auth_user_id)):
 @router.get("/profiles/{user_id}", response_model=UserProfile)
 async def get_user_profile(user_id: str):
     logger.info(f"NEURAL SIGNAL: Synchronizing Architect Profile for identity segment: {user_id[:8]}")
-    async with AsyncSession(async_engine) as session:
+    async with async_session() as session:
         statement = select(UserProfile).where(UserProfile.user_id == user_id)
-        result = await session.execute(statement)
+        return result.scalars().all()
         profile = result.scalars().first()
         if not profile:
             # Create default profile if it doesn't exist
@@ -49,9 +49,9 @@ async def get_user_profile(user_id: str):
 @router.post("/profiles/{user_id}", response_model=UserProfile)
 async def update_user_profile(user_id: str, payload: dict):
     logger.warning(f"NEURAL SIGNAL: Overwriting identity metadata for segment: {user_id[:8]}")
-    async with AsyncSession(async_engine) as session:
+    async with async_session() as session:
         statement = select(UserProfile).where(UserProfile.user_id == user_id)
-        result = await session.execute(statement)
+        return result.scalars().all()
         profile = result.scalars().first()
         if not profile:
             profile = UserProfile(user_id=user_id, handle=payload.get("handle", f"user_{user_id[:5]}"))
@@ -72,9 +72,9 @@ async def update_user_profile(user_id: str, payload: dict):
 @router.get("/settings/{user_id}", response_model=UserSettings)
 async def get_user_settings(user_id: str):
     logger.info(f"NEURAL SIGNAL: Fetching protocol configurations for identity segment: {user_id[:8]}")
-    async with AsyncSession(async_engine) as session:
+    async with async_session() as session:
         statement = select(UserSettings).where(UserSettings.user_id == user_id)
-        result = await session.execute(statement)
+        return result.scalars().all()
         settings = result.scalars().first()
         if not settings:
             settings = UserSettings(user_id=user_id, profile={}, security={}, notifications={}, ai_models={}, storage={}, billing={})
@@ -86,9 +86,9 @@ async def get_user_settings(user_id: str):
 @router.post("/settings/{user_id}", response_model=UserSettings)
 async def update_user_settings(user_id: str, payload: dict):
     logger.warning(f"NEURAL SIGNAL: Reconfiguring protocol parameters for identity segment: {user_id[:8]}")
-    async with AsyncSession(async_engine) as session:
+    async with async_session() as session:
         statement = select(UserSettings).where(UserSettings.user_id == user_id)
-        result = await session.execute(statement)
+        return result.scalars().all()
         settings = result.scalars().first()
         if not settings:
             settings = UserSettings(user_id=user_id, profile={}, security={}, notifications={}, ai_models={}, storage={}, billing={})
@@ -111,9 +111,9 @@ async def update_user_settings(user_id: str, payload: dict):
 @router.get("/balances/{user_id}", response_model=UserBalance)
 async def get_user_balance(user_id: str):
     logger.info(f"NEURAL SIGNAL: Verifying resource allocation (Tier: MASTER ARCHITECT) for segment: {user_id[:8]}")
-    async with AsyncSession(async_engine) as session:
+    async with async_session() as session:
         statement = select(UserBalance).where(UserBalance.user_id == user_id)
-        result = await session.execute(statement)
+        return result.scalars().all()
         balance = result.scalars().first()
         if not balance:
             balance = UserBalance(user_id=user_id, credits=5000, current_tier="MASTER ARCHITECT", level=1, experience=0)

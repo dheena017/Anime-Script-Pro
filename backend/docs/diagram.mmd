@@ -1,0 +1,14 @@
+sequenceDiagram
+    participant Client
+    participant Auth as /api/auth
+    participant API as /api
+    participant AI as AI Engine
+    participant DB as Database
+
+    Client->>Auth: POST /api/auth/token (credentials)
+    Auth-->>Client: 200 OK (access_token)
+    Client->>API: POST /api/generate (Authorization: Bearer <token>)
+    API->>AI: Invoke AI client
+    AI-->>API: Generated text
+    API->>DB: Save project / world
+    API-->>Client: 200 OK (generation result)

@@ -157,7 +157,7 @@ export function SeriesPage() {
       );
     }
 
-    if (!generatedSeriesPlan) {
+    if (!generatedSeriesPlan && activeTab !== 'blueprint') {
       return (
         <SeriesEmptyState
           onLaunch={() => {
@@ -173,7 +173,7 @@ export function SeriesPage() {
       case 'roadmap':
         return (
           <RoadmapTab
-            plan={generatedSeriesPlan}
+            plan={generatedSeriesPlan || []}
             isEditing={isEditing}
             onUpdateEpisode={handleUpdateEpisode}
             onUpdateAssetMatrix={handleUpdateAssetMatrix}
@@ -197,19 +197,19 @@ export function SeriesPage() {
             lastSyncDate={lastSyncDate}
             productionSequence={productionSequence}
             applySequenceItem={applySequenceItem}
-            plan={generatedSeriesPlan}
+            plan={generatedSeriesPlan || []}
           />
         );
       case 'arcs':
-        return <ArcsTab plan={generatedSeriesPlan} />;
+        return <ArcsTab plan={generatedSeriesPlan || []} />;
       case 'assets':
-        return <AssetsTab plan={generatedSeriesPlan} />;
+        return <AssetsTab plan={generatedSeriesPlan || []} />;
       case 'timeline':
-        return <TimelineTab plan={generatedSeriesPlan} />;
+        return <TimelineTab plan={generatedSeriesPlan || []} />;
       default:
         return (
           <RoadmapTab
-            plan={generatedSeriesPlan}
+            plan={generatedSeriesPlan || []}
             isEditing={isEditing}
             onUpdateEpisode={handleUpdateEpisode}
             onUpdateAssetMatrix={handleUpdateAssetMatrix}

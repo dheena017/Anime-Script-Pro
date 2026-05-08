@@ -67,7 +67,7 @@ export const SEOHeader: React.FC<SEOHeaderProps> = ({
           <div className="flex flex-col sm:flex-row items-center gap-4 z-10 w-full lg:w-auto">
             {onPrev && (
               <Tooltip>
-                <TooltipTrigger asChild>
+                <TooltipTrigger >
                   <Button
                     variant="ghost"
                     className="relative w-full sm:w-auto h-10 px-6 bg-gradient-to-r from-lime-500/10 to-lime-500/5 border border-lime-500/30 text-zinc-400 hover:text-lime-500 hover:border-lime-500/60 hover:bg-gradient-to-r hover:from-lime-500/20 hover:to-lime-500/10 font-black uppercase tracking-widest text-[9px] rounded-lg transition-all duration-300 group/back shadow-lg hover:shadow-[0_0_20px_rgba(132,204,22,0.3)]"
@@ -85,7 +85,7 @@ export const SEOHeader: React.FC<SEOHeaderProps> = ({
 
             <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
               <Tooltip>
-                <TooltipTrigger asChild>
+                <TooltipTrigger >
                   {isGenerating ? (
                     <Button 
                       variant="ghost" 
@@ -115,7 +115,7 @@ export const SEOHeader: React.FC<SEOHeaderProps> = ({
 
               {onSave && hasContent && (
                 <Tooltip>
-                  <TooltipTrigger asChild>
+                  <TooltipTrigger >
                     <Button 
                       variant="ghost" 
                       className="relative w-full sm:w-auto h-10 px-6 bg-gradient-to-r from-lime-500/10 to-transparent border border-lime-500/30 text-lime-500 hover:text-lime-400 hover:border-lime-500/60 hover:bg-gradient-to-r hover:from-lime-500/20 hover:to-lime-500/10 font-black uppercase tracking-widest text-[9px] rounded-lg transition-all duration-300 shadow-lg hover:shadow-[0_0_20px_rgba(132,204,22,0.2)] group/save"
@@ -133,7 +133,7 @@ export const SEOHeader: React.FC<SEOHeaderProps> = ({
               )}
 
               <Tooltip>
-                <TooltipTrigger asChild>
+                <TooltipTrigger >
                   <Button
                     className="relative w-full sm:w-auto h-10 px-8 rounded-lg bg-gradient-to-r from-white to-zinc-100 text-black hover:from-zinc-50 hover:to-white font-black uppercase tracking-widest text-[9px] transition-all duration-300 group/next shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:shadow-[0_0_30px_rgba(255,255,255,0.4)]"
                     onClick={onNext}

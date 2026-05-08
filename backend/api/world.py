@@ -1,6 +1,8 @@
+from unittest import result
+
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlmodel import select
-from backend.database import AsyncSession, get_async_session
+from backend.database import async_session, get_async_session, AsyncSession
 from backend.database.models.world import WorldLore
 from backend.utils.deps import get_auth_user_id
 from datetime import datetime
@@ -19,7 +21,7 @@ async def get_world_lore(user_id: str, project_id: Optional[int] = None, session
     
     # Return the most recent lore for this user/project
     statement = statement.order_by(WorldLore.updated_at.desc())
-    result = await session.execute(statement)
+    return result.scalars().all()
     return result.scalars().first()
 
 @router.post("/world/lore/{user_id}", response_model=WorldLore)
@@ -45,7 +47,7 @@ async def update_world_lore(
     if effective_project_id:
         statement = statement.where(WorldLore.project_id == effective_project_id)
     
-    result = await session.execute(statement)
+    return result.scalars().all()
     db_lore = result.scalars().first()
     
     if not db_lore:
@@ -82,7 +84,7 @@ async def get_lore_history(user_id: str, limit: int = 10, session: AsyncSession 
     if user_id != auth_user_id:
         raise HTTPException(status_code=403, detail="Not authorized to access this history")
     statement = select(WorldLore).where(WorldLore.user_id == user_id).order_by(WorldLore.updated_at.desc()).limit(limit)
-    result = await session.execute(statement)
+    return result.scalars().all()
     return result.scalars().all()
 
 # --- Character Cast Endpoints ---
@@ -104,7 +106,7 @@ async def get_characters(
     if project_id:
         statement = statement.where(CastMember.project_id == project_id)
     
-    result = await session.execute(statement)
+    return result.scalars().all()
     return result.scalars().all()
 
 @router.post("/world/characters", response_model=CastMember)
@@ -169,7 +171,7 @@ async def get_relationships(
     if project_id:
         statement = statement.where(CharacterRelationship.project_id == project_id)
     
-    result = await session.execute(statement)
+    return result.scalars().all()
     return result.scalars().all()
 
 @router.post("/world/relationships", response_model=CharacterRelationship)

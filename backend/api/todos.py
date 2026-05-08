@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session, select
 from typing import List
-from backend.database import get_async_session, AsyncSession
+from backend.database import get_async_session, async_session, AsyncSession
 from backend.database.models.projects import Todo
 from pydantic import BaseModel
 

@@ -97,8 +97,8 @@ def configure_logging() -> None:
 configure_logging()
 # (This is also safe when imported as a module.)
 
-from backend.database import engine, async_engine, get_async_session, AsyncSession, Tutorial
-from backend.services.user_manager import fastapi_users, auth_backend, UserRead, UserCreate, UserUpdate
+from backend.database import engine, async_engine, async_session, get_async_session, Tutorial
+from backend.user_manager import fastapi_users, auth_backend, UserRead, UserCreate, UserUpdate
 from backend.utils.deps import get_auth_user_id
 from backend.schemas import GenerationResponse
 
@@ -306,14 +306,14 @@ from backend.api.stats import router as stats_router
 from backend.api.admin import router as admin_router
 
 # World Modules integrated into services
-from backend.services.api.world.manifest import router as manifest_router
-from backend.services.api.world.history import router as history_router
-from backend.services.api.world.factions import router as factions_router
-from backend.services.api.world.powers import router as powers_router
-from backend.services.api.world.architecture import router as architecture_router
-from backend.services.api.world.atlas import router as atlas_router
-from backend.services.api.world.culture import router as culture_router
-from backend.services.api.world.systems import router as systems_router
+from backend.api.world.manifest import router as manifest_router
+from backend.api.world.history import router as history_router
+from backend.api.world.factions import router as factions_router
+from backend.api.world.powers import router as powers_router
+from backend.api.world.architecture import router as architecture_router
+from backend.api.world.atlas import router as atlas_router
+from backend.api.world.culture import router as culture_router
+from backend.api.world.systems import router as systems_router
 
 from backend.api.ai import router as ai_router
 from backend.api.tutorials import router as tutorials_router
@@ -460,7 +460,7 @@ async def on_startup():
 
     # 2. Auto-seed if empty
     from sqlalchemy import func
-    async with AsyncSession(async_engine) as session:
+    async with async_session() as session:
         result = await session.execute(select(func.count(Tutorial.id)))
         count = result.scalar()
         if count == 0:

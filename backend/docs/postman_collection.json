@@ -1,0 +1,51 @@
+{
+  "info": {
+    "name": "Anime-Script-Pro - Learning Collection",
+    "_postman_id": "aspro-learning-collection",
+    "description": "A minimal Postman collection with example requests for login and generating content using the mock server.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Login (dev)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"email@gmail.com\",\n  \"password\": \"password\"\n}"
+        },
+        "url": {
+          "raw": "http://127.0.0.1:8082/api/auth/token",
+          "protocol": "http",
+          "host": ["127", "0", "0", "1"],
+          "port": "8082",
+          "path": ["api","auth","token"]
+        }
+      }
+    },
+    {
+      "name": "Generate (mock)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer test-token" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"model\": \"gemini-2.5-flash\",\n  \"prompt\": \"Create a short anime pilot outline.\",\n  \"systemInstruction\": \"You are a helpful narrative engine.\"\n}"
+        },
+        "url": {
+          "raw": "http://127.0.0.1:8082/api/generate",
+          "protocol": "http",
+          "host": ["127", "0", "0", "1"],
+          "port": "8082",
+          "path": ["api","generate"]
+        }
+      }
+    }
+  ]
+}

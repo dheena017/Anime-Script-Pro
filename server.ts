@@ -107,10 +107,10 @@ export async function createServer() {
       error: (err: any, req: any, res: any) => {
         console.error(`${red('[PROXY CRITICAL]')} Connection error for ${req.originalUrl}: ${err.message}`);
         if (res && !res.headersSent) {
-          res.status(502).json({ 
-            error: "Intelligence Layer Unreachable", 
+          res.status(502).json({
+            error: "Intelligence Layer Unreachable",
             details: "The FastAPI backend is not responding. Please ensure it is running with 'npm run backend'.",
-            message: err.message 
+            message: err.message
           });
         }
       }
@@ -142,13 +142,13 @@ export async function createServer() {
     const start = Date.now();
     let backendOnline = false;
     let latency = 0;
-    
+
     try {
       const response = await fetch(`${BACKEND_URL}/health`);
       backendOnline = response.ok;
       latency = Date.now() - start;
-    } catch { 
-      backendOnline = false; 
+    } catch {
+      backendOnline = false;
     }
 
     res.json({

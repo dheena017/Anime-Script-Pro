@@ -1,5 +1,7 @@
 import React, { Suspense, lazy } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { AnimatePresence } from 'framer-motion';
+import { PageTransition } from '@/components/animation/PageTransition';
 import { ProtectedRoute } from '@/pages/auth/components/ProtectedRoute';
 import { ErrorBoundary } from '@/lib/error-utils';
 import { NavigationMonitor } from '@/pages/studio/components/studio/NavigationMonitor';
@@ -91,13 +93,108 @@ const ComicWorldLayout = lazy(() => import('@/pages/studio/ComicStudio/World/Wor
 const EpisodeViewPage = lazy(() => import('@/pages/studio/AnimeStudio/Series/Episodes/EpisodeViewPage'));
 const EpisodeEditPage = lazy(() => import('@/pages/studio/AnimeStudio/Series/Episodes/EpisodeEditPage'));
 
-const CharactersPage = lazy(() => import('@/pages/studio/AnimeStudio/Cast/Tabs/Characters/CharactersPage'));
-const CharacterCreationPage = lazy(() => import('@/pages/studio/AnimeStudio/Cast/CharacterCreationPage').then(m => ({ default: m.CharacterCreationPage })));
-const DNAPage = lazy(() => import('@/pages/studio/AnimeStudio/Cast/DNAPage').then(m => ({ default: m.DNAPage })));
-const DynamicsPage = lazy(() => import('@/pages/studio/AnimeStudio/Cast/DynamicsPage').then(m => ({ default: m.DynamicsPage })));
-const AddRelationshipPage = lazy(() => import('@/pages/studio/AnimeStudio/Cast/Tabs/Relationships/AddRelationshipPage'));
-const IntegrityTab = lazy(() => import('@/pages/studio/AnimeStudio/Cast/Tabs/IntegrityTab').then(m => ({ default: m.IntegrityTab })));
-const AddLeadTab = lazy(() => import('@/pages/studio/AnimeStudio/Cast/Tabs/AddLeadTab').then(m => ({ default: m.AddLeadTab })));
+
+function AppRoutes() {
+  const location = useLocation();
+  return (
+    <AnimatePresence mode="wait">
+      <Routes location={location} key={location.pathname}>
+        {/* Public Routes */}
+        <Route path="/" element={<PageTransition><LandingPage /></PageTransition>} />
+        <Route path="/auth" element={<PageTransition><AuthPage /></PageTransition>} />
+        <Route path="/login" element={<PageTransition><LoginPage /></PageTransition>} />
+        <Route path="/register" element={<PageTransition><RegisterPage /></PageTransition>} />
+        <Route path="/forgot-password" element={<PageTransition><ForgotPasswordPage /></PageTransition>} />
+        <Route path="/pricing" element={<PageTransition><PricingPage /></PageTransition>} />
+        <Route path="/help" element={<PageTransition><HelpPage /></PageTransition>} />
+        <Route path="/contact" element={<PageTransition><ContactPage /></PageTransition>} />
+        <Route path="/terms" element={<PageTransition><TermsPage /></PageTransition>} />
+
+        {/* Studio Global Layout */}
+        <Route element={<AuthRoute><StudioLayout /></AuthRoute>}>
+          <Route path="/dashboard" element={<PageTransition><Dashboard /></PageTransition>} />
+          <Route path="/projects/*" element={<PageTransition><ProjectsPage /></PageTransition>} />
+          <Route path="/notifications/*" element={<PageTransition><NotificationsPage /></PageTransition>} />
+          <Route path="/profile" element={<PageTransition><ProfilePage /></PageTransition>} />
+          <Route path="/system/*" element={<PageTransition><SystemModule /></PageTransition>} />
+          <Route path="/discover/*" element={<PageTransition><DiscoverModule /></PageTransition>} />
+          <Route path="/community/*" element={<PageTransition><CommunityModule /></PageTransition>} />
+          <Route path="/academy/*" element={<PageTransition><AcademyModule /></PageTransition>} />
+          <Route path="/tutorials/*" element={<PageTransition><AcademyModule /></PageTransition>} />
+          <Route path="/settings/*" element={<PageTransition><SettingsModule /></PageTransition>} />
+          <Route path="/library/*" element={<PageTransition><LibraryModule /></PageTransition>} />
+        </Route>
+
+        {/* Anime Studio Context */}
+        <Route
+          path="/anime"
+          element={
+            <StudioContextWrapper>
+              <AnimeLayout />
+            </StudioContextWrapper>
+          }
+        >
+          <Route index element={<Navigate to="/anime/engine" replace />} />
+          <Route path="world" element={<WorldLayout />}>
+            <Route index element={<PageTransition><AnimeWorld /></PageTransition>} />
+          </Route>
+          <Route path="assets" element={<AssetsLayout />}>
+            <Route index element={<PageTransition><AssetsPage /></PageTransition>} />
+            <Route path="seo" element={<PageTransition><AssetsPage /></PageTransition>} />
+            <Route path="prompts" element={<PageTransition><AssetsPage /></PageTransition>} />
+          </Route>
+          <Route path="cast" element={<CastLayout />}>
+            <Route index element={<PageTransition><RegistryTab onViewCharacter={() => {}} /></PageTransition>} />
+            <Route path="registry" element={<PageTransition><RegistryTab onViewCharacter={() => {}} /></PageTransition>} />
+            <Route path="voice" element={<PageTransition><VoiceTab /></PageTransition>} />
+            <Route path="combat" element={<PageTransition><CombatTab /></PageTransition>} />
+            <Route path="arcs" element={<PageTransition><ArcsTab /></PageTransition>} />
+            <Route path="dynamics" element={<PageTransition><DynamicsTab /></PageTransition>} />
+            <Route path="relationships" element={<PageTransition><RelationshipsPage /></PageTransition>} />
+            <Route path="relationships/:id" element={<PageTransition><RelationshipViewPage /></PageTransition>} />
+            <Route path="relationships/:id/edit" element={<PageTransition><RelationshipEditPage /></PageTransition>} />
+            <Route path="technical" element={<PageTransition><TechnicalTab /></PageTransition>} />
+            <Route path="characters/:characterName" element={<PageTransition><CharacterViewPage /></PageTransition>} />
+            <Route path="characters/:characterName/edit" element={<PageTransition><CharacterEditPage /></PageTransition>} />
+          </Route>
+          <Route path="series" element={<SeriesLayout />}>
+            <Route index element={<PageTransition><AnimeSeries /></PageTransition>} />
+            <Route path="roadmap" element={<PageTransition><AnimeSeries /></PageTransition>} />
+            <Route path="arcs" element={<PageTransition><AnimeSeries /></PageTransition>} />
+            <Route path="blueprint" element={<PageTransition><AnimeSeries /></PageTransition>} />
+            <Route path="assets" element={<PageTransition><AnimeSeries /></PageTransition>} />
+            <Route path="timeline" element={<PageTransition><AnimeSeries /></PageTransition>} />
+            <Route path="episodes" element={<PageTransition><AnimeSeries /></PageTransition>} />
+            <Route path="episodes/:id" element={<PageTransition><EpisodeViewPage /></PageTransition>} />
+            <Route path="episodes/:id/edit" element={<PageTransition><EpisodeEditPage /></PageTransition>} />
+          </Route>
+          <Route path="script" element={<ScriptLayout />}>
+            <Route index element={<PageTransition><AnimeScript /></PageTransition>} />
+          </Route>
+          <Route path="storyboard" element={<StoryboardLayout />}>
+            <Route index element={<PageTransition><AnimeStoryboard /></PageTransition>} />
+            <Route path="scenes" element={<PageTransition><AnimeStoryboard /></PageTransition>} />
+            <Route path="scenes/:id" element={<PageTransition><SceneViewPage /></PageTransition>} />
+          </Route>
+          <Route path="seo" element={<SEOLayout />}>
+            <Route index element={<PageTransition><SEOPage /></PageTransition>} />
+          </Route>
+          <Route path="prompts" element={<PromptsLayout />}>
+            <Route index element={<PageTransition><PromptsPage /></PageTransition>} />
+          </Route>
+          <Route path="screening" element={<ScreeningLayout />}>
+            <Route index element={<PageTransition><AnimeScreening /></PageTransition>} />
+          </Route>
+          <Route path="engine" element={<EngineLayout />}>
+            <Route index element={<PageTransition><AnimeEngine /></PageTransition>} />
+          </Route>
+        </Route>
+
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </AnimatePresence>
+  );
+}
 
 export default function App() {
   return (
@@ -106,159 +203,7 @@ export default function App() {
         <Router>
           <NavigationMonitor />
           <Suspense fallback={<StudioLoading fullPage message="Starting Anime Script Pro" />}>
-            <Routes>
-              {/* Public Routes */}
-              <Route path="/" element={<LandingPage />} />
-              <Route path="/auth" element={<AuthPage />} />
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/register" element={<RegisterPage />} />
-              <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-              <Route path="/pricing" element={<PricingPage />} />
-              <Route path="/help" element={<HelpPage />} />
-              <Route path="/contact" element={<ContactPage />} />
-              <Route path="/terms" element={<TermsPage />} />
-
-              {/* Studio Global Layout */}
-              <Route element={<AuthRoute><StudioLayout /></AuthRoute>}>
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/projects/*" element={<ProjectsPage />} />
-                <Route path="/notifications/*" element={<NotificationsPage />} />
-                <Route path="/profile" element={<ProfilePage />} />
-                <Route path="/system/*" element={<SystemModule />} />
-                <Route path="/discover/*" element={<DiscoverModule />} />
-                <Route path="/community/*" element={<CommunityModule />} />
-                <Route path="/academy/*" element={<AcademyModule />} />
-                <Route path="/tutorials/*" element={<AcademyModule />} />
-                <Route path="/settings/*" element={<SettingsModule />} />
-
-                <Route path="/library/*" element={<LibraryModule />} />
-              </Route>
-
-              {/* INDEPENDENT STUDIO CONTEXTS (No global StudioLayout) */}
-              {/* Anime Studio Context */}
-              <Route
-                path="/anime"
-                element={
-                  <StudioContextWrapper>
-                    <AnimeLayout />
-                  </StudioContextWrapper>
-                }
-              >
-                <Route index element={<Navigate to="/anime/Engine" replace />} />
-
-                <Route path="world" element={<WorldLayout />}>
-                  <Route index element={<AnimeWorld />} />
-                </Route>
-
-           
-
-                <Route path="assets" element={<AssetsLayout />}>
-                  <Route index element={<AssetsPage />} />
-                  <Route path="seo" element={<AssetsPage />} />
-                  <Route path="prompts" element={<AssetsPage />} />
-                </Route>
-
-                <Route path="cast" element={<CastLayout />}>
-                  <Route index element={<RegistryTab onViewCharacter={() => {}} />} />
-                  <Route path="registry" element={<RegistryTab onViewCharacter={() => {}} />} />
-                  <Route path="voice" element={<VoiceTab />} />
-                  <Route path="combat" element={<CombatTab />} />
-                  <Route path="arcs" element={<ArcsTab />} />
-                  <Route path="dynamics" element={<DynamicsTab />} />
-                  <Route path="relationships" element={<RelationshipsPage />} />
-                  <Route path="relationships/:id" element={<RelationshipViewPage />} />
-                  <Route path="relationships/:id/edit" element={<RelationshipEditPage />} />
-                  <Route path="technical" element={<TechnicalTab />} />
-                  <Route path="characters/:characterName" element={<CharacterViewPage />} />
-                  <Route path="characters/:characterName/edit" element={<CharacterEditPage />} />
-                </Route>
-
-                <Route path="series" element={<SeriesLayout />}>
-                  <Route index element={<AnimeSeries />} />
-                  <Route path="roadmap" element={<AnimeSeries />} />
-                  <Route path="arcs" element={<AnimeSeries />} />
-                  <Route path="blueprint" element={<AnimeSeries />} />
-                  <Route path="assets" element={<AnimeSeries />} />
-                  <Route path="timeline" element={<AnimeSeries />} />
-                  <Route path="episodes" element={<AnimeSeries />} />
-                  <Route path="episodes/:id" element={<EpisodeViewPage />} />
-                  <Route path="episodes/:id/edit" element={<EpisodeEditPage />} />
-                </Route>
-
-                <Route path="script" element={<ScriptLayout />}>
-                  <Route index element={<AnimeScript />} />
-                </Route>
-
-                <Route path="storyboard" element={<StoryboardLayout />}>
-                  <Route index element={<AnimeStoryboard />} />
-                  <Route path="scenes" element={<AnimeStoryboard />} />
-                  <Route path="scenes/:id" element={<SceneViewPage />} />
-                </Route>
-
-                <Route path="seo" element={<SEOLayout />}>
-                  <Route index element={<SEOPage />} />
-                </Route>
-
-                <Route path="prompts" element={<PromptsLayout />}>
-                  <Route index element={<PromptsPage />} />
-                </Route>
-
-                <Route path="screening" element={<ScreeningLayout />}>
-                  <Route index element={<AnimeScreening />} />
-                </Route>
-
-                <Route path="engine" element={<EngineLayout />}>
-                  <Route index element={<AnimeEngine />} />
-                </Route>
-              </Route>
-
-              {/* Manhwa Studio Context */}
-              <Route
-                path="/manhwa"
-                element={
-                  <StudioContextWrapper>
-                    <ManhwaLayout />
-                  </StudioContextWrapper>
-                }
-              >
-                <Route index element={<Navigate to="/manhwa/world" replace />} />
-                <Route path="world" element={<ManhwaWorldLayout />} />
-                <Route path="cast" element={<ManhwaCastLayout />} />
-                <Route path="engine" element={<EngineLayout />} />
-                <Route path="script" element={<ScriptLayout />} />
-                <Route path="storyboard" element={<StoryboardLayout />} />
-                <Route path="seo" element={<SEOLayout />} />
-                <Route path="prompts" element={<PromptsLayout />} />
-                <Route path="screening" element={<ScreeningLayout />} />
-              </Route>
-
-              {/* Comic Studio Context */}
-              <Route
-                path="/comic"
-                element={
-                  <StudioContextWrapper>
-                    <ComicLayout />
-                  </StudioContextWrapper>
-                }
-              >
-                <Route index element={<Navigate to="/comic/world" replace />} />
-                <Route path="world" element={<ComicWorldLayout />} />
-                <Route path="engine" element={<EngineLayout />} />
-                <Route path="script" element={<ScriptLayout />} />
-                <Route path="storyboard" element={<StoryboardLayout />} />
-                <Route path="seo" element={<SEOLayout />} />
-                <Route path="prompts" element={<PromptsLayout />} />
-                <Route path="screening" element={<ScreeningLayout />} />
-              </Route>
-
-              {/* Legacy Redirects */}
-              <Route path="/projects/new" element={<AuthRoute><CreateProject /></AuthRoute>} />
-              <Route path="/api-reference" element={<AuthRoute><ApiReferencePage /></AuthRoute>} />
-              <Route path="/lore-database" element={<AuthRoute><LoreDatabasePage /></AuthRoute>} />
-              <Route path="/projects/wizard" element={<AuthRoute><ProjectWizard /></AuthRoute>} />
-              <Route path="/status/*" element={<Navigate to="/system" replace />} />
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
+            <AppRoutes />
           </Suspense>
         </Router>
       </RootProviders>

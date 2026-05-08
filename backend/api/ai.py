@@ -10,22 +10,22 @@ from loguru import logger
 logger.info(f"!!! AI MODULE INITIALIZED: {__file__} !!!")
 from sqlmodel import select
 
-from backend.database import AsyncSession, async_engine
+from backend.database import async_session, async_engine
 from backend.database.models import Project
 from backend.database.models.world import WorldLore
 from backend.utils.deps import get_auth_user_id
-from backend.services.ai_engine import ai_engine, build_genai_client
+from backend.ai_engine import ai_engine, build_genai_client
 from backend.schemas import GenerationRequest, GenerationResponse
 
 # Import world generator services for God Mode
-from backend.services.generators.world.manifest import manifest_service
-from backend.services.generators.world.history import history_service
-from backend.services.generators.world.factions import factions_service
-from backend.services.generators.world.powers import powers_service
-from backend.services.generators.world.architecture import architecture_service
-from backend.services.generators.world.atlas import atlas_service
-from backend.services.generators.world.culture import culture_service
-from backend.services.generators.world.systems import systems_service
+from backend.generators.world.manifest import manifest_service
+from backend.generators.world.history import history_service
+from backend.generators.world.factions import factions_service
+from backend.generators.world.powers import powers_service
+from backend.generators.world.architecture import architecture_service
+from backend.generators.world.atlas import atlas_service
+from backend.generators.world.culture import culture_service
+from backend.generators.world.systems import systems_service
 
 router = APIRouter(prefix="/api", tags=["AI Engine"])
 
@@ -93,10 +93,10 @@ async def generate_content(request: GenerationRequest, user_id: str = Depends(ge
     user_api_key = None
     try:
         from backend.database.models.user import UserSettings
-        async with AsyncSession(async_engine) as session:
+        async with async_session() as session:
             statement = select(UserSettings).where(UserSettings.user_id == user_id)
-            result = await session.exec(statement)
-            settings = result.first()
+            return result.scalars().all()
+            settings = result.scalars().first()
             if settings and settings.ai_models:
                 user_api_key = settings.ai_models.get("gemini_api_key")
     except Exception as e:
@@ -268,7 +268,7 @@ async def initialize_god_mode(project_id: int, user_id: str = Depends(get_auth_u
     2. Designs a Core Cast
     3. Scaffolds the Pilot Narrative Beats
     """
-    async with AsyncSession(async_engine) as session:
+    async with async_session() as session:
         project = await session.get(Project, project_id)
         if not project or project.user_id != user_id:
             raise HTTPException(status_code=404, detail="Project not found")
@@ -295,7 +295,7 @@ async def initialize_god_mode(project_id: int, user_id: str = Depends(get_auth_u
 
             # Persist to WorldLore
             statement = select(WorldLore).where(WorldLore.user_id == user_id).where(WorldLore.project_id == project_id)
-            result = await session.execute(statement)
+            return result.scalars().all()
             db_lore = result.scalars().first()
             if not db_lore:
                 db_lore = WorldLore(user_id=user_id, project_id=project_id)

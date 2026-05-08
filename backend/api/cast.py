@@ -5,7 +5,7 @@ Mirrors the frontend `characterApi` service at /api/cast/{user_id}.
 """
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import select
-from backend.database import AsyncSession, get_async_session
+from backend.database import async_session, get_async_session, AsyncSession
 from backend.database.models.world import CastManifest
 from backend.utils.deps import get_auth_user_id
 from datetime import datetime
@@ -30,7 +30,7 @@ async def get_cast_manifest(
     if project_id:
         statement = statement.where(CastManifest.project_id == project_id)
     statement = statement.order_by(CastManifest.updated_at.desc())
-    result = await session.execute(statement)
+    return result.scalars().all()
     manifest = result.scalars().first()
     if not manifest:
         raise HTTPException(status_code=404, detail="Cast manifest not found")
@@ -55,7 +55,7 @@ async def update_cast_manifest(
     if effective_project_id:
         statement = statement.where(CastManifest.project_id == effective_project_id)
 
-    result = await session.execute(statement)
+    return result.scalars().all()
     db_manifest = result.scalars().first()
 
     if not db_manifest:
@@ -99,5 +99,5 @@ async def get_cast_history(
         .order_by(CastManifest.updated_at.desc())
         .limit(limit)
     )
-    result = await session.execute(statement)
+    return result.scalars().all()
     return result.scalars().all()

@@ -1,5 +1,5 @@
 import React from 'react';
-import { ScrollText, Search, Layout, Volume2, Wand2, Download, RefreshCw, Copy, Maximize, Minimize, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ScrollText, Search, Layout, Volume2, Wand2, Download, RefreshCw, Copy, Maximize, Minimize, ChevronLeft, ChevronRight, Edit3 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ScriptTab } from '../../Script/Tabs/ScriptTabs';
 import { Button } from '@/components/ui/button';
@@ -27,6 +27,8 @@ interface ScriptToolbarProps {
   onListen: () => void;
   onPrev?: () => void;
   onNext?: () => void;
+  isEditing?: boolean;
+  onEditingChange?: (isEditing: boolean) => void;
   showTabsOnly?: boolean;
 }
 
@@ -41,6 +43,8 @@ export const ScriptToolbar: React.FC<ScriptToolbarProps> = ({
   onListen,
   onPrev,
   onNext,
+  isEditing = false,
+  onEditingChange,
   showTabsOnly = false
 }) => {
   const { isFullscreen } = useApp();
@@ -126,6 +130,29 @@ export const ScriptToolbar: React.FC<ScriptToolbarProps> = ({
 
             <div className="toolbar-action-group">
               <div className="toolbar-btn-group">
+                <Tooltip>
+                  <TooltipTrigger>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className={cn(
+                        "h-8 w-8 rounded-lg transition-all duration-300 border border-transparent",
+                        isEditing 
+                          ? "text-cyan-400 border-cyan-500/40 bg-cyan-500/10 shadow-[0_0_10px_rgba(6,182,212,0.2)]" 
+                          : "text-zinc-400 hover:text-cyan-400 hover:border-cyan-400/40 hover:bg-cyan-500/10"
+                      )}
+                      onClick={() => onEditingChange?.(!isEditing)}
+                    >
+                      <Edit3 className={cn("w-4 h-4", isEditing && "animate-pulse")} />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="top">
+                    <p className="font-black uppercase tracking-widest text-[9px]">{isEditing ? "Disable Editing" : "Enable Editing"}</p>
+                  </TooltipContent>
+                </Tooltip>
+
+                <div className="w-px h-4 bg-white/10 mx-1" />
+
                 <Tooltip>
                   <TooltipTrigger>
                     <Button

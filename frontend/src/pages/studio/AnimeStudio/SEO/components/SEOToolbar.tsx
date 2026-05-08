@@ -15,11 +15,16 @@ interface SEOToolbarProps {
   session?: string;
   episode?: string;
   content?: string | null;
+  isEditing?: boolean;
+  onEditingChange?: (isEditing: boolean) => void;
 }
 
 export const SEOToolbar: React.FC<SEOToolbarProps> = ({
   status,
   content = null
+  ,
+  isEditing = false,
+  onEditingChange,
 }) => {
   const { isFullscreen } = useApp();
 

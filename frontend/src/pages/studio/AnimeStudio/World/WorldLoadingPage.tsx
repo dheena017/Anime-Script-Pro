@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useGeneratorState } from '@/hooks/useGenerator';
-import { Loader2, Globe, Map, History, Users, Zap, Building2, Map as Atlas, Globe as Culture, Cpu } from 'lucide-react';
+import { Loader2, Globe, History, Users, Zap, Building2, Map as Atlas, Globe as Culture, Cpu } from 'lucide-react';
 import { WorldTab } from './tabs/WorldTabs';
 
 interface WorldLoadingPageProps {

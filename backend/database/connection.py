@@ -1,12 +1,9 @@
 import os
-from sqlmodel import create_engine, SQLModel
-from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
-from sqlalchemy.ext.asyncio import AsyncSession as SQLAlchemyAsyncSession
 from typing import AsyncGenerator
 
+from sqlmodel import create_engine, SQLModel
+from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from loguru import logger
-
-from sqlalchemy.ext.asyncio import AsyncSession
 
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///backend/database/anime_script_pro.db")
 
@@ -23,7 +20,7 @@ elif ASYNC_DB_URL.startswith("postgresql://"):
 # Create asynchronous engine
 async_engine = create_async_engine(ASYNC_DB_URL, echo=False)
 
-# Use a session factory with expire_on_commit disabled to avoid async instance reloads
+# Create async session factory with expire_on_commit disabled to avoid async instance reloads
 async_session = async_sessionmaker(
     bind=async_engine,
     class_=AsyncSession,

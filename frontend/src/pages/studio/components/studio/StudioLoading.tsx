@@ -1,5 +1,5 @@
 import { Activity, Cpu, Zap, Brain } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { useState, useEffect } from 'react';
 
 interface StudioLoadingProps {
@@ -25,6 +25,7 @@ export function StudioLoading({
   fullPage = true,
   progress
 }: StudioLoadingProps) {
+  const shouldReduceMotion = useReducedMotion();
   const [logIndex, setLogIndex] = useState(0);
 
   useEffect(() => {
@@ -56,28 +57,41 @@ export function StudioLoading({
 
         {/* Clean Typography */}
         <div className="text-center space-y-4">
-          <motion.h3 
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-2xl font-black tracking-[0.4em] text-white uppercase"
-          >
-            {message}
-          </motion.h3>
-          
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={logIndex}
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 10 }}
-              className="flex items-center justify-center gap-3"
+          {shouldReduceMotion ? (
+            <h3 className="text-2xl font-black tracking-[0.4em] text-white uppercase">{message}</h3>
+          ) : (
+            <motion.h3 
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-2xl font-black tracking-[0.4em] text-white uppercase"
             >
-              <span className="w-1.5 h-1.5 rounded-full bg-cyan-500 animate-ping" />
+              {message}
+            </motion.h3>
+          )}
+          
+          {shouldReduceMotion ? (
+            <div className="flex items-center justify-center gap-3">
+              <span className="w-1.5 h-1.5 rounded-full bg-cyan-500" />
               <p className="text-[10px] font-black tracking-[0.2em] text-zinc-500 uppercase">
                 {BOOT_LOGS[logIndex]}
               </p>
-            </motion.div>
-          </AnimatePresence>
+            </div>
+          ) : (
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={logIndex}
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 10 }}
+                className="flex items-center justify-center gap-3"
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-cyan-500 animate-ping" />
+                <p className="text-[10px] font-black tracking-[0.2em] text-zinc-500 uppercase">
+                  {BOOT_LOGS[logIndex]}
+                </p>
+              </motion.div>
+            </AnimatePresence>
+          )}
         </div>
 
         {/* Minimal Progress Bar */}
@@ -91,16 +105,23 @@ export function StudioLoading({
             )}
           </div>
           <div className="h-1 bg-white/5 rounded-full overflow-hidden border border-white/5">
-            <motion.div 
-              initial={{ width: "0%" }}
-              animate={{ width: typeof progress === 'number' ? `${progress}%` : "100%" }}
-              transition={{ 
-                duration: typeof progress === 'number' ? 0.3 : 2, 
-                repeat: typeof progress === 'number' ? 0 : Infinity,
-                ease: "easeInOut"
-              }}
-              className="h-full bg-gradient-to-r from-cyan-600 to-fuchsia-600 shadow-[0_0_15px_rgba(6,182,212,0.5)]"
-            />
+            {shouldReduceMotion ? (
+              <div
+                style={{ width: typeof progress === 'number' ? `${progress}%` : '100%' }}
+                className="h-full bg-gradient-to-r from-cyan-600 to-fuchsia-600 shadow-[0_0_15px_rgba(6,182,212,0.5)]"
+              />
+            ) : (
+              <motion.div 
+                initial={{ width: "0%" }}
+                animate={{ width: typeof progress === 'number' ? `${progress}%` : "100%" }}
+                transition={{ 
+                  duration: typeof progress === 'number' ? 0.3 : 2, 
+                  repeat: typeof progress === 'number' ? 0 : Infinity,
+                  ease: "easeInOut"
+                }}
+                className="h-full bg-gradient-to-r from-cyan-600 to-fuchsia-600 shadow-[0_0_15px_rgba(6,182,212,0.5)]"
+              />
+            )}
           </div>
         </div>
       </div>

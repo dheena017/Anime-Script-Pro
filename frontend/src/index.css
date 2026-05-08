@@ -426,13 +426,18 @@
     @apply bg-black text-[#e4e4e7] min-h-screen selection:bg-red-500/30 selection:text-red-200 antialiased;
     background-image: 
       radial-gradient(circle at 50% 0%, rgba(6, 182, 212, 0.03) 0%, transparent 70%);
-    background-attachment: scroll; /* Scroll is cheaper than fixed */
+    background-attachment: scroll; 
     font-feature-settings: "cv02", "cv03", "cv04", "cv11", "ss01";
     
-    /* Hardware Acceleration & Layout Optimization */
-    text-rendering: optimizeSpeed;
-    transform: translateZ(0); /* Force GPU layer */
+    /* Global Smoothness & Performance */
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    scroll-behavior: smooth;
+    
+    transform: translateZ(0); 
     backface-visibility: hidden;
+    perspective: 1000px;
   }
 
   /* Optimized Content Visibility for large sections */
@@ -488,6 +493,12 @@
   .studio-layout-content,
   .studio-page-container {
     will-change: transform, opacity;
+    transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  /* Smooth Focus States */
+  :focus-visible {
+    @apply outline-none ring-2 ring-studio/50 ring-offset-2 ring-offset-black transition-all duration-300;
   }
 }
 

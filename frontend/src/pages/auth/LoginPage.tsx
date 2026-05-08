@@ -56,6 +56,21 @@ export function LoginPage() {
       }}
     >
       {/* Animated Gradient Background */}
+      {/* Immersive Neural Grid Background */}
+      <div className="fixed inset-0 -z-10 pointer-events-none opacity-20">
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_500px_at_50%_200px,#06b6d410,transparent)]" />
+      </div>
+
+      {/* Animated Scanline Effect */}
+      <div className="fixed inset-0 z-50 pointer-events-none overflow-hidden opacity-[0.03]">
+        <motion.div 
+          className="w-full h-[10vh] bg-gradient-to-b from-transparent via-studio to-transparent"
+          animate={{ y: ["-100%", "1000%"] }}
+          transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+        />
+      </div>
+
       <div className="fixed inset-0 -z-10 pointer-events-none">
         <motion.div
           className="absolute top-0 -left-1/4 w-1/2 h-1/2 bg-studio/5 rounded-full blur-3xl"
@@ -136,8 +151,13 @@ export function LoginPage() {
                 className="flex items-center gap-3"
               >
                 <div className="h-[1px] w-12 bg-gradient-to-r from-studio/30 to-transparent" />
-                <p className="text-zinc-400 text-[10px] font-black uppercase tracking-[0.4em]">
-                  Access Granted
+                <p className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.4em] flex items-center gap-2">
+                  <motion.span 
+                    animate={{ opacity: [0.2, 1, 0.2] }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                    className="w-2 h-2 rounded-full bg-studio"
+                  />
+                  Secure Link Established
                 </p>
               </motion.div>
             </div>

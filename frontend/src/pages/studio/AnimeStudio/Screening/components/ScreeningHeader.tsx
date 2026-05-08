@@ -69,7 +69,7 @@ export const ScreeningHeader: React.FC<ScreeningHeaderProps> = ({
             <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
               {onPrev && (
                 <Tooltip>
-                  <TooltipTrigger asChild>
+                  <TooltipTrigger >
                     <Button 
                       variant="ghost" 
                       className="relative w-full sm:w-auto h-10 px-6 bg-gradient-to-r from-cyan-500/10 to-cyan-500/5 border border-cyan-500/30 text-zinc-400 hover:text-cyan-500 hover:border-cyan-500/60 hover:bg-gradient-to-r hover:from-cyan-500/20 hover:to-cyan-500/10 font-black uppercase tracking-widest text-[9px] rounded-lg transition-all duration-300 group/back shadow-lg hover:shadow-[0_0_20px_rgba(34,211,238,0.3)]"
@@ -88,7 +88,7 @@ export const ScreeningHeader: React.FC<ScreeningHeaderProps> = ({
 
             <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
               <Tooltip>
-                <TooltipTrigger asChild>
+                <TooltipTrigger >
                   <Button 
                     variant="ghost" 
                     className="relative w-full sm:w-auto h-10 px-6 bg-gradient-to-r from-cyan-500/15 to-cyan-500/5 border border-cyan-500/40 text-cyan-500 hover:text-cyan-400 hover:border-cyan-500/70 hover:bg-gradient-to-r hover:from-cyan-500/25 hover:to-cyan-500/15 font-black uppercase tracking-widest text-[9px] rounded-lg transition-all duration-300 group/btn shadow-lg hover:shadow-[0_0_20px_rgba(34,211,238,0.3)]"
@@ -110,7 +110,7 @@ export const ScreeningHeader: React.FC<ScreeningHeaderProps> = ({
 
               {onSave && hasContent && (
                 <Tooltip>
-                  <TooltipTrigger asChild>
+                  <TooltipTrigger >
                     <Button 
                       variant="ghost"
                       className="relative w-full sm:w-auto h-10 px-6 bg-gradient-to-r from-cyan-500/10 to-transparent border border-cyan-500/30 text-cyan-500 hover:text-cyan-400 hover:border-cyan-500/60 hover:bg-gradient-to-r hover:from-cyan-500/20 hover:to-cyan-500/10 font-black uppercase tracking-widest text-[9px] rounded-lg transition-all duration-300 shadow-lg hover:shadow-[0_0_20px_rgba(34,211,238,0.2)] group/save"
@@ -132,7 +132,7 @@ export const ScreeningHeader: React.FC<ScreeningHeaderProps> = ({
               )}
 
               <Tooltip>
-                <TooltipTrigger asChild>
+                <TooltipTrigger >
                   <Button 
                     className="relative w-full sm:w-auto h-10 px-8 rounded-lg bg-gradient-to-r from-white to-zinc-100 text-black hover:from-zinc-50 hover:to-white font-black uppercase tracking-widest text-[9px] transition-all duration-300 group/next shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:shadow-[0_0_30px_rgba(255,255,255,0.4)]"
                     onClick={onNext}

@@ -2,14 +2,14 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import select
 from typing import List, Optional, Dict, Any
 from backend.database.models import SavedPrompt, ReusableCharacter, CastMember
-from backend.database import AsyncSession, async_engine
+from backend.database import async_session, async_engine
 from backend.utils.deps import get_auth_user_id
 
 router = APIRouter(prefix="/api", tags=["Creative Library"])
 
 @router.get("/library/prompts/{user_id}")
 async def get_saved_prompts(user_id: str):
-    async with AsyncSession(async_engine) as session:
+    async with async_session() as session:
         statement = select(SavedPrompt).where(SavedPrompt.user_id == user_id)
         results = await session.exec(statement)
         return results.all()
@@ -17,7 +17,7 @@ async def get_saved_prompts(user_id: str):
 @router.post("/library/prompts")
 @router.post("/prompts")
 async def create_saved_prompt(prompt: Dict[str, Any], user_id: str = Depends(get_auth_user_id)):
-    async with AsyncSession(async_engine) as session:
+    async with async_session() as session:
         # Adapt payload if it's from Orchestrator (text/context)
         text = prompt.get("text") or prompt.get("content")
         label = prompt.get("label") or prompt.get("context") or "Saved Prompt"
@@ -36,7 +36,7 @@ async def create_saved_prompt(prompt: Dict[str, Any], user_id: str = Depends(get
 @router.get("/library/characters/{user_id}")
 @router.get("/characters/{user_id}")
 async def get_characters(user_id: str):
-    async with AsyncSession(async_engine) as session:
+    async with async_session() as session:
         statement = select(ReusableCharacter).where(ReusableCharacter.user_id == user_id)
         results = await session.exec(statement)
         return results.all()
@@ -44,7 +44,7 @@ async def get_characters(user_id: str):
 @router.post("/library/characters")
 @router.post("/characters")
 async def create_character(payload: Dict[str, Any], user_id: str = Depends(get_auth_user_id)):
-    async with AsyncSession(async_engine) as session:
+    async with async_session() as session:
         # Check if it's a batch from Orchestrator
         if "characters" in payload:
             project_id = payload.get("project_id")

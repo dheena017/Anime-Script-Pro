@@ -13,8 +13,6 @@ import { SystemsTab } from './tabs/SystemsTab';
 import { WorldEmptyState } from './components/WorldEmptyState';
 import { SpecializedTabEmptyState } from './components/SpecializedTabEmptyState';
 import { WorldTab } from './tabs/WorldTabs';
-import { Button } from '@/components/ui/button';
-import { Zap, History, Users, Sparkles, Building2, Map, Globe, Cpu } from 'lucide-react';
 import { worldApi } from '@/services/api/world';
 import { MOCK_WORLD_DATA } from '@/services/generators/mockData';
 import { useAuth } from '@/hooks/useAuth';
@@ -54,7 +52,6 @@ export function WorldPage() {
     setIsGeneratingAtlas,
     setIsGeneratingCulture,
     setIsGeneratingSystems,
-    prompt,
     promptLore,
     promptPowers,
     promptFactions,

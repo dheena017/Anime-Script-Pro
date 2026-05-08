@@ -15,11 +15,15 @@ interface PromptsToolbarProps {
   session?: string;
   episode?: string;
   content?: string | null;
+  isEditing?: boolean;
+  onEditingChange?: (isEditing: boolean) => void;
 }
 
 export const PromptsToolbar: React.FC<PromptsToolbarProps> = ({
   status,
-  content = null
+  content = null,
+  isEditing = false,
+  onEditingChange,
 }) => {
   const { isFullscreen } = useApp();
 

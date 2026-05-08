@@ -3,14 +3,14 @@ from sqlmodel import select
 from typing import List, Optional
 from loguru import logger
 from backend.database.models import Script, Storyboard, ScriptVersion, ScreeningRoomEntry, NarrativeBeat, Project
-from backend.database import AsyncSession, async_engine
+from backend.database import async_session, async_engine
 from backend.utils.deps import get_auth_user_id
 
 router = APIRouter(prefix="/api", tags=["Scripts"])
 
 @router.get("/scripts", response_model=List[Script])
 async def get_scripts(user_id: str = Depends(get_auth_user_id)):
-    async with AsyncSession(async_engine) as session:
+    async with async_session() as session:
         # Filter scripts by projects owned by the user
         statement = select(Script).join(Project).where(Project.user_id == user_id)
         results = await session.exec(statement)
@@ -18,7 +18,7 @@ async def get_scripts(user_id: str = Depends(get_auth_user_id)):
 
 @router.post("/scripts", response_model=Script)
 async def create_script(script: Script, user_id: str = Depends(get_auth_user_id)):
-    async with AsyncSession(async_engine) as session:
+    async with async_session() as session:
         # Verify project ownership if project_id is provided
         if script.project_id:
             project = await session.get(Project, script.project_id)
@@ -33,7 +33,7 @@ async def create_script(script: Script, user_id: str = Depends(get_auth_user_id)
 
 @router.get("/scripts/{script_id}", response_model=Script)
 async def get_script(script_id: int, user_id: str = Depends(get_auth_user_id)):
-    async with AsyncSession(async_engine) as session:
+    async with async_session() as session:
         script = await session.get(Script, script_id)
         if not script:
             raise HTTPException(status_code=404, detail="Script not found")
@@ -48,7 +48,7 @@ async def get_script(script_id: int, user_id: str = Depends(get_auth_user_id)):
 
 @router.put("/scripts/{script_id}", response_model=Script)
 async def update_script(script_id: int, script: Script, user_id: str = Depends(get_auth_user_id)):
-    async with AsyncSession(async_engine) as session:
+    async with async_session() as session:
         db_script = await session.get(Script, script_id)
         if not db_script:
             raise HTTPException(status_code=404, detail="Script not found")
@@ -68,7 +68,7 @@ async def update_script(script_id: int, script: Script, user_id: str = Depends(g
 
 @router.delete("/scripts/{script_id}")
 async def delete_script(script_id: int, user_id: str = Depends(get_auth_user_id)):
-    async with AsyncSession(async_engine) as session:
+    async with async_session() as session:
         script = await session.get(Script, script_id)
         if not script:
             raise HTTPException(status_code=404, detail="Script not found")
@@ -85,7 +85,7 @@ async def delete_script(script_id: int, user_id: str = Depends(get_auth_user_id)
 
 @router.get("/storyboards", response_model=List[Storyboard])
 async def get_storyboards(script_id: Optional[int] = Query(None), user_id: str = Depends(get_auth_user_id)):
-    async with AsyncSession(async_engine) as session:
+    async with async_session() as session:
         statement = select(Storyboard).join(Script).join(Project).where(Project.user_id == user_id)
         if script_id:
             statement = statement.where(Storyboard.script_id == script_id)
@@ -94,7 +94,7 @@ async def get_storyboards(script_id: Optional[int] = Query(None), user_id: str =
 
 @router.post("/storyboards", response_model=Storyboard)
 async def create_storyboard(storyboard: Storyboard, user_id: str = Depends(get_auth_user_id)):
-    async with AsyncSession(async_engine) as session:
+    async with async_session() as session:
         # Verify script ownership
         script = await session.get(Script, storyboard.script_id)
         if not script:
@@ -112,7 +112,7 @@ async def create_storyboard(storyboard: Storyboard, user_id: str = Depends(get_a
 
 @router.get("/storyboards/{storyboard_id}", response_model=Storyboard)
 async def get_storyboard(storyboard_id: int, user_id: str = Depends(get_auth_user_id)):
-    async with AsyncSession(async_engine) as session:
+    async with async_session() as session:
         storyboard = await session.get(Storyboard, storyboard_id)
         if not storyboard:
             raise HTTPException(status_code=404, detail="Storyboard not found")
@@ -129,7 +129,7 @@ async def get_storyboard(storyboard_id: int, user_id: str = Depends(get_auth_use
 # Screening Room Aliases
 @router.get("/screening_room_entries", response_model=List[ScreeningRoomEntry])
 async def get_screeningroom_entries(script_id: Optional[int] = Query(None), user_id: str = Depends(get_auth_user_id)):
-    async with AsyncSession(async_engine) as session:
+    async with async_session() as session:
         statement = select(ScreeningRoomEntry).join(Script).join(Project).where(Project.user_id == user_id)
         if script_id:
             statement = statement.where(ScreeningRoomEntry.script_id == script_id)
@@ -138,7 +138,7 @@ async def get_screeningroom_entries(script_id: Optional[int] = Query(None), user
 
 @router.post("/screening_room_entries", response_model=ScreeningRoomEntry)
 async def create_screeningroom_entry(entry: ScreeningRoomEntry, user_id: str = Depends(get_auth_user_id)):
-    async with AsyncSession(async_engine) as session:
+    async with async_session() as session:
         # Verify script ownership
         script = await session.get(Script, entry.script_id)
         if not script:
@@ -157,14 +157,14 @@ async def create_screeningroom_entry(entry: ScreeningRoomEntry, user_id: str = D
 
 @router.get("/scripts/{script_id}/versions", response_model=List[ScriptVersion])
 async def get_script_versions(script_id: int):
-    async with AsyncSession(async_engine) as session:
+    async with async_session() as session:
         statement = select(ScriptVersion).where(ScriptVersion.script_id == script_id)
         results = await session.exec(statement)
         return results.all()
 
 @router.post("/scripts/{script_id}/versions", response_model=ScriptVersion)
 async def create_script_version(script_id: int, version: ScriptVersion):
-    async with AsyncSession(async_engine) as session:
+    async with async_session() as session:
         version.script_id = script_id
         session.add(version)
         await session.commit()
@@ -173,7 +173,7 @@ async def create_script_version(script_id: int, version: ScriptVersion):
 
 @router.get("/scripts/{script_id}/narrativebeats", response_model=List[NarrativeBeat])
 async def get_narrativebeats_for_script(script_id: int):
-    async with AsyncSession(async_engine) as session:
+    async with async_session() as session:
         statement = select(NarrativeBeat).where(NarrativeBeat.script_id == script_id)
         results = await session.exec(statement)
         return results.all()

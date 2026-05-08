@@ -108,8 +108,28 @@ export function LoginForm() {
       <ErrorMessage error={errorMessage} />
 
       <SubmitButton loading={isLoading}>
-        Access System
+        Establish Connection
       </SubmitButton>
+
+      {/* System Diagnostics Footer */}
+      <div className="pt-6 border-t border-zinc-900 mt-6">
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-1">
+            <span className="text-[8px] uppercase font-black text-zinc-600 tracking-[0.2em]">Link Status</span>
+            <div className="flex items-center gap-1.5">
+              <div className="w-1.5 h-1.5 rounded-full bg-studio animate-pulse" />
+              <span className="text-[9px] font-bold text-zinc-400">ENCRYPTED_AES256</span>
+            </div>
+          </div>
+          <div className="space-y-1 text-right">
+            <span className="text-[8px] uppercase font-black text-zinc-600 tracking-[0.2em]">Neural Sync</span>
+            <div className="flex items-center gap-1.5 justify-end">
+              <span className="text-[9px] font-bold text-zinc-400">99.8% READY</span>
+              <div className="w-1.5 h-1.5 rounded-full bg-purple-500 animate-pulse" />
+            </div>
+          </div>
+        </div>
+      </div>
 
       <div className="text-center pt-4">
         <p className="text-[10px] text-zinc-500 uppercase tracking-widest font-medium">
