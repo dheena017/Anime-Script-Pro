@@ -326,7 +326,13 @@ from backend.api.production import router as production_router
 from backend.api.todos import router as todos_router
 from backend.api.growth import router as growth_router
 from backend.api.episodes import router as episodes_router
-from backend.api.cast import router as cast_router
+
+# Cast Subrouters (Generation & CRUD)
+from backend.api.cast.manifest import router as cast_manifest_router
+from backend.api.cast.core import router as cast_core_router
+from backend.api.cast.archetypes import router as cast_archetypes_router
+from backend.api.cast.relationships import router as cast_relationships_router
+from backend.api.cast.dynamics import router as cast_dynamics_router
 
 # Core system routes
 @app.get("/", tags=["system"], include_in_schema=False)
@@ -381,7 +387,13 @@ app.include_router(seo_router, tags=["Production"])
 app.include_router(todos_router, tags=["Production"])
 app.include_router(growth_router, tags=["Production"])
 app.include_router(episodes_router, tags=["Production"])
-app.include_router(cast_router, tags=["Production"])
+
+# Cast subrouters (generation + CRUD)
+app.include_router(cast_manifest_router, tags=["Cast Management"])
+app.include_router(cast_core_router, tags=["Cast Generation"])
+app.include_router(cast_archetypes_router, tags=["Cast Generation"])
+app.include_router(cast_relationships_router, tags=["Cast Generation"])
+app.include_router(cast_dynamics_router, tags=["Cast Generation"])
 
 app.include_router(users_router, tags=["Architect Context"])
 app.include_router(notifications_router, tags=["Architect Context"])

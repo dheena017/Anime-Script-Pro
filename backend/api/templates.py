@@ -19,7 +19,7 @@ async def create_template(template: TemplateIn, user_id: str = Depends(get_auth_
         return db_template
 
 @router.get("/", response_model=List[TemplateOut])
-@router.get("/api/templates_public", response_model=List[TemplateOut])
+@router.get("/templates_public", response_model=List[TemplateOut])
 async def get_templates(
     limit: int = Query(10, ge=1, le=100),
     offset: int = Query(0, ge=0),
