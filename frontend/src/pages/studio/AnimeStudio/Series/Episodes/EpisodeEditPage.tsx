@@ -6,7 +6,7 @@ import {
   Trash2,
   AlertCircle
 } from 'lucide-react';
-import { useGenerator } from '@/hooks/useGenerator';
+import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -16,7 +16,8 @@ import { Label } from '@/components/ui/label';
 export default function EpisodeEditPage() {
   const { episodeId } = useParams();
   const navigate = useNavigate();
-  const { generatedSeriesPlan, setGeneratedSeriesPlan, contentType, showNotification } = useGenerator();
+  const { generatedSeriesPlan, contentType } = useGeneratorState();
+  const { setGeneratedSeriesPlan, showNotification } = useGeneratorDispatch();
 
   const episodeIndex = generatedSeriesPlan?.findIndex(ep => 
     String(ep.episode) === String(episodeId)

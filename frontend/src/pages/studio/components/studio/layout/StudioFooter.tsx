@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { useGenerator } from '@/hooks/useGenerator';
+import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
 import { Loader2 } from 'lucide-react';
 
 const StatusIndicator = ({ label, status, colorClass, glowColor }: { label: string, status: string, colorClass: string, glowColor: string }) => (
@@ -15,7 +15,8 @@ const StatusIndicator = ({ label, status, colorClass, glowColor }: { label: stri
 );
 
 export const StudioFooter: React.FC = () => {
-  const { syncCore, isSaving } = useGenerator();
+  const { isSaving } = useGeneratorState();
+  const { syncCore } = useGeneratorDispatch();
 
   return (
     <footer className="bg-[#030303] py-8 px-10 relative z-50 overflow-hidden border-t border-white/5">

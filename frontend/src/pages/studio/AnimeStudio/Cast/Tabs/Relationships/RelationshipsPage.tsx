@@ -9,28 +9,26 @@ import {
   Sparkles,
   Loader2
 } from 'lucide-react';
-import { useGenerator } from '@/hooks/useGenerator';
+import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { RelationshipCard } from '../../components/RelationshipCard';
 import { generateRelationships } from '@/services/api/gemini';
 import { CastEmptyState } from '../../components/CastEmptyState';
 import { StudioEmptyState } from '@/pages/studio/components/studio/shared/StudioEmptyState';
 import { CastContext } from '../../CastLayout';
+import { RelationshipCard } from '../../components/RelationshipCard';
 
 export default function RelationshipsPage() {
   const navigate = useNavigate();
   const { handleLoadDemo } = React.useContext(CastContext);
   const { 
     characterRelationships, 
-    setCharacterRelationships, 
     contentType, 
     castList, 
     prompt, 
     selectedModel,
-    showNotification,
     isGeneratingCharacters
-  } = useGenerator();
+  } = useGeneratorState();
+  const { setCharacterRelationships, showNotification } = useGeneratorDispatch();
 
   const [isGenerating, setIsGenerating] = useState(false);
   const hasCast = Array.isArray(castList) && castList.length > 0;

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Outlet, useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { useGenerator } from '@/hooks/useGenerator';
+import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
 import { useAuth } from '@/hooks/useAuth';
 import { generateMetadata } from '@/services/api/gemini';
 import { useSEODispatch } from '@/contexts/generator';
@@ -9,6 +9,7 @@ import { SEOHeader } from './components/SEOHeader';
 import { SEOToolbar } from './components/SEOToolbar';
 import { SEOTabs, SEOTab } from './Tabs/SEOTabs';
 import { SEOLoadingPage } from './components/SEOLoadingPage';
+import { StudioTabsProgressBar } from '@/pages/studio/components/studio/layout/StudioTabsProgressBar';
 
 export const SEOContext = React.createContext<{
   setHandlers: React.Dispatch<React.SetStateAction<any>>;
@@ -20,16 +21,26 @@ export default function SEOLayout() {
   const [, setHandlers] = React.useState<any>({});
 
   const {
-    generatedMetadata, setGeneratedMetadata,
-    isLoading, setIsLoading,
-    generatedScript, selectedModel, session, episode,
-    showNotification, contentType,
-    syncCore,
+    generatedMetadata,
+    isLoading,
+    generatedScript,
+    selectedModel,
+    session,
+    episode,
+    contentType,
     currentScriptId,
     generationProgress,
-    isEditing, setIsEditing,
+    isEditing,
     isSaving
-  } = useGenerator();
+  } = useGeneratorState();
+  const {
+    setGeneratedMetadata,
+    setIsLoading,
+    showNotification,
+    syncCore,
+    setIsEditing,
+    setGenerationProgress
+  } = useGeneratorDispatch();
 
   const {
     setGeneratedDescription, setGeneratedAltText,
@@ -53,57 +64,66 @@ export default function SEOLayout() {
       return;
     }
     
-    setIsLoading(true);
-    try {
-      // Clear existing data to show empty states for pending tabs
-      setGeneratedMetadata(null);
-      setGeneratedDescription(null);
-      setGeneratedAltText(null);
-      setGeneratedDistributionPlan(null);
-
-      const { generateYouTubeDescription, generateAltTexts, generateDistributionStrategy } = await import('@/services/api/gemini');
-      
-      // Sequence SEO generations with Response and Report flow
-      setSearchParams({ tab: 'keywords' });
-      console.log('[SEOLayout] Requesting metadata/keywords generation...');
-      const metadata = await generateMetadata(generatedScript, selectedModel);
-      setGeneratedMetadata(metadata);
-      console.log(`[SEOLayout] Metadata generated successfully. Response length: ${JSON.stringify(metadata)?.length || 0} chars.`);
-      showNotification?.('Keywords indexed.', 'success');
-      await new Promise(r => setTimeout(r, 2000));
-
-      setSearchParams({ tab: 'description' });
-      console.log('[SEOLayout] Requesting YouTube description generation...');
-      const description = await generateYouTubeDescription(generatedScript, selectedModel);
-      setGeneratedDescription(description);
-      console.log(`[SEOLayout] Description generated successfully. Response length: ${description?.length || 0} chars.`);
-      showNotification?.('Description synthesized.', 'success');
-      await new Promise(r => setTimeout(r, 2000));
-
-      setSearchParams({ tab: 'alt-texts' });
-      console.log('[SEOLayout] Requesting alt texts generation...');
-      const altText = await generateAltTexts(generatedScript, selectedModel);
-      setGeneratedAltText(altText);
-      console.log(`[SEOLayout] Alt texts generated successfully. Response length: ${altText?.length || 0} chars.`);
-      showNotification?.('Alt texts generated.', 'success');
-      await new Promise(r => setTimeout(r, 2000));
-
-      setSearchParams({ tab: 'distribution' });
-      console.log('[SEOLayout] Requesting distribution strategy generation...');
-      const dist = await generateDistributionStrategy(generatedScript, selectedModel);
-      setGeneratedDistributionPlan(dist);
-      console.log(`[SEOLayout] Distribution strategy generated successfully. Response length: ${dist?.length || 0} chars.`);
-      showNotification?.('Distribution plan ready.', 'success');
-      await new Promise(r => setTimeout(r, 2000));
-
-      showNotification?.('Full SEO Nexus synchronized!', 'success');
-      setSearchParams({ tab: 'keywords' }); // Return to start
-    } catch (e: any) {
-      console.error('[SEOLayout] SEO synthesis failed:', e);
-      showNotification?.('SEO synthesis failed: ' + (e.message || 'Error'), 'error');
-    } finally {
-      setIsLoading(false);
-    }
+      setIsLoading(true);
+      setGenerationProgress(5);
+      try {
+        // Clear existing data to show empty states for pending tabs
+        setGeneratedMetadata(null);
+        setGeneratedDescription(null);
+        setGeneratedAltText(null);
+        setGeneratedDistributionPlan(null);
+  
+        const { generateYouTubeDescription, generateAltTexts, generateDistributionStrategy } = await import('@/services/api/gemini');
+        
+        // Sequence SEO generations with Response and Report flow
+        setSearchParams({ tab: 'keywords' });
+        console.log('[SEOLayout] Requesting metadata/keywords generation...');
+        const metadata = await generateMetadata(generatedScript, selectedModel);
+        setGeneratedMetadata(metadata);
+        console.log(`[SEOLayout] Metadata generated successfully. Response length: ${JSON.stringify(metadata)?.length || 0} chars.`);
+        showNotification?.('Keywords indexed.', 'success');
+        setGenerationProgress(25);
+        await new Promise(r => setTimeout(r, 2000));
+  
+        setSearchParams({ tab: 'description' });
+        console.log('[SEOLayout] Requesting YouTube description generation...');
+        const description = await generateYouTubeDescription(generatedScript, selectedModel);
+        setGeneratedDescription(description);
+        console.log(`[SEOLayout] Description generated successfully. Response length: ${description?.length || 0} chars.`);
+        showNotification?.('Description synthesized.', 'success');
+        setGenerationProgress(50);
+        await new Promise(r => setTimeout(r, 2000));
+  
+        setSearchParams({ tab: 'alt-texts' });
+        console.log('[SEOLayout] Requesting alt texts generation...');
+        const altText = await generateAltTexts(generatedScript, selectedModel);
+        setGeneratedAltText(altText);
+        console.log(`[SEOLayout] Alt texts generated successfully. Response length: ${altText?.length || 0} chars.`);
+        showNotification?.('Alt texts generated.', 'success');
+        setGenerationProgress(75);
+        await new Promise(r => setTimeout(r, 2000));
+  
+        setSearchParams({ tab: 'distribution' });
+        console.log('[SEOLayout] Requesting distribution strategy generation...');
+        const dist = await generateDistributionStrategy(generatedScript, selectedModel);
+        setGeneratedDistributionPlan(dist);
+        console.log(`[SEOLayout] Distribution strategy generated successfully. Response length: ${dist?.length || 0} chars.`);
+        showNotification?.('Distribution plan ready.', 'success');
+        setGenerationProgress(100);
+        await new Promise(r => setTimeout(r, 2000));
+  
+        showNotification?.('Full SEO Nexus synchronized!', 'success');
+        setSearchParams({ tab: 'keywords' }); // Return to start
+        
+        // Reset progress after a short delay
+        setTimeout(() => setGenerationProgress(0), 3000);
+      } catch (e: any) {
+        console.error('[SEOLayout] SEO synthesis failed:', e);
+        showNotification?.('SEO synthesis failed: ' + (e.message || 'Error'), 'error');
+        setGenerationProgress(0);
+      } finally {
+        setIsLoading(false);
+      }
   };
 
   React.useEffect(() => {
@@ -131,8 +151,12 @@ export default function SEOLayout() {
           <SEOHeader
             onRegenerate={handleGenerate}
             isGenerating={isLoading}
-            onNext={() => navigate(`/${contentType.toLowerCase()}/prompts`)}
-            onPrev={() => navigate(`/${contentType.toLowerCase()}/storyboard`)}
+            onNext={() => {
+              navigate(`/projects/${projectId}/prompts`);
+            }}
+            onPrev={() => {
+              navigate(`/projects/${projectId}/storyboard`);
+            }}
             onSave={handleSave}
             isSaving={isSaving}
             hasContent={!!generatedMetadata}
@@ -146,6 +170,7 @@ export default function SEOLayout() {
           <div className="relative z-10 w-full flex justify-center">
             <SEOTabs activeTab={activeTab} setActiveTab={handleTabChange} />
           </div>
+          <StudioTabsProgressBar progress={generationProgress} theme="cyan" />
         </div>
 
         {generatedMetadata && !isLoading && (

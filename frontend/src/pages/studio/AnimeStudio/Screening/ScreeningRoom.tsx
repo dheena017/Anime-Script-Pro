@@ -2,7 +2,7 @@ import { useContext, useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useOutletContext } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
-import { useGenerator } from '@/hooks/useGenerator';
+import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
 import { apiRequest } from '@/lib/api-utils';
 import { generateImagePrompts } from '@/services/api/gemini';
 
@@ -26,11 +26,13 @@ export function ScreeningRoom() {
   const {
     currentScriptId,
     generatedScript,
-    showNotification,
     selectedModel,
     session: activeSession,
+  } = useGeneratorState();
+  const {
+    showNotification,
     setSession
-  } = useGenerator();
+  } = useGeneratorDispatch();
 
   const [scenes, setScenes] = useState<Scene[]>([]);
   const [isLoading, setIsLoading] = useState(false);

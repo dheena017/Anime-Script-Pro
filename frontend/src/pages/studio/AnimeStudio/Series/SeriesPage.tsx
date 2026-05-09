@@ -1,8 +1,9 @@
 import React from 'react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
-import { useGenerator } from '@/hooks/useGenerator';
+import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
 import { generateProductionSequences } from '@/lib/sequence-utils';
+import { apiRequest } from '@/lib/api-utils';
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
 import { SeriesTab } from './Tabs/SeriesTabs';
@@ -27,19 +28,21 @@ export function SeriesPage() {
 
   const {
     generatedSeriesPlan,
-    setGeneratedSeriesPlan,
     isGeneratingSeries,
     prompt,
     currentScriptId,
     contentType,
     productionSequence,
+    isEditing,
+  } = useGeneratorState();
+  const {
+    setGeneratedSeriesPlan,
     setProductionSequence,
     setSession,
     setEpisode,
     syncCore,
-    isEditing,
     showNotification
-  } = useGenerator();
+  } = useGeneratorDispatch();
 
   const projectId = React.useMemo(() => {
     const currentProjectId = currentScriptId ? Number.parseInt(currentScriptId, 10) : undefined;
@@ -90,55 +93,39 @@ export function SeriesPage() {
     setIsSyncing(true);
 
     try {
-      if (!projectId) {
-        throw new Error('Missing project id');
+      let activeProjectId = projectId;
+      
+      if (!activeProjectId) {
+        console.info('[SeriesPage] No project ID found. Triggering proactive materialization...');
+        activeProjectId = await syncCore();
       }
 
-      const uniqueEpisodes = Array.from(new Set(sequence.map(u => u.ep)));
-      const episodesPayload = uniqueEpisodes.map(epNum => ({ episode_number: epNum, title: `Episode ${epNum}` }));
-
-      const epsRes = await fetch('/api/episodes', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ project_id: projectId, episodes: episodesPayload })
-      });
-
-      if (!epsRes.ok) throw new Error('Failed to create episodes');
-      const createdEpisodes = await epsRes.json();
-
-      const episodeMap: Record<number, number> = {};
-      (createdEpisodes || []).forEach((e: any) => {
-        if (e.episode_number != null && e.id != null) episodeMap[Number(e.episode_number)] = Number(e.id);
-        if (e.episode_number != null && e.episode_id != null) episodeMap[Number(e.episode_number)] = Number(e.episode_id);
-      });
+      if (!activeProjectId) {
+        throw new Error('Failed to resolve project identity. Please save the project manually.');
+      }
 
       const scenesPayload = sequence.map((u, idx) => {
         const sceneNumber = (u.ep - 1) * 16 + u.scen;
-        const epId = episodeMap[u.ep];
         return {
-          episode_id: epId,
           scene_number: sceneNumber,
           status: 'QUEUED',
           visual_variance_index: Math.floor(idx / 4)
         };
       });
 
-      const res = await fetch('/api/scenes', {
+      const resJson = await apiRequest<{ episodes?: Array<any>; scenes?: Array<any> }>('/api/scenes', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ project_id: projectId, scenes: scenesPayload })
+        label: 'Bulk Scene Sync',
+        body: JSON.stringify({ project_id: activeProjectId, scenes: scenesPayload })
       });
 
-      if (!res.ok) throw new Error('Bulk sync failed');
-      const resJson = await res.json();
       const createdEpisodesCount = (resJson.episodes || []).length;
       const createdScenesCount = (resJson.scenes || []).length;
-      showNotification?.(`Synced ${createdScenesCount} scenes and ${createdEpisodesCount} episodes`, 'success');
+      showNotification?.(`Successfully materialized ${createdScenesCount} scenes across ${createdEpisodesCount} episodes`, 'success');
       setLastSyncDate(new Date().toLocaleTimeString());
     } catch (error) {
-      console.error('Bulk sync failed:', error);
+      console.error('Production Matrix Sync Failed:', error);
+      showNotification?.('Failed to sync production roadmap: ' + (error as Error).message, 'error');
     } finally {
       setIsSyncing(false);
     }

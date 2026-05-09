@@ -1,4 +1,4 @@
-import { callAI } from "./core";
+import { callAI, streamAI } from "./core";
 import { cleanJson } from "@/lib/api-utils";
 import { 
   CHARACTER_GENERATION_PROMPT, 
@@ -169,10 +169,10 @@ export async function generateCharacters(
       aiPrompt,
       systemInstruction,
       0.85, // temperature
-      2048, // maxTokens
+      16000, // maxTokens — large casts (10–30 chars) need 8k–16k tokens
       0.95, // topP
       40,   // topK
-      180000 // timeoutMs
+      300000 // timeoutMs — allow up to 5 min for large casts
     );
     if (!text) return getEmptyCast();
 
@@ -197,6 +197,42 @@ export async function generateCharacters(
     return getEmptyCast();
   } finally {
     studioEnd();
+  }
+}
+
+/**
+ * High-performance streaming version of character generation.
+ */
+export async function streamCharacters(
+  prompt: string,
+  onChunk: (chunk: string) => void,
+  model: string = "gemini-3.1-flash",
+  contentType: string = "Anime",
+  worldContext?: string,
+  count: number = 8
+): Promise<string> {
+  const contextInjected = `
+    ${worldContext ? `\nWORLD LORE CONTEXT: ${worldContext}\n` : ""}
+    Characters MUST inhabit and reflect the above context's logic, history, and planned plot points.
+  `;
+  const systemInstruction = CHARACTER_GENERATION_PROMPT(contentType, contextInjected, count);
+  const userPrompt = `
+Generate a diverse cast manifesto for a ${contentType} project based on this seed:
+${prompt}
+
+CRITICAL: Return the response as a markdown document with detailed character profiles.
+`;
+
+  let fullText = "";
+  try {
+    await streamAI(model, userPrompt, systemInstruction, (chunk) => {
+      fullText += chunk;
+      onChunk(fullText);
+    });
+    return fullText;
+  } catch (error) {
+    console.error("Character streaming failed:", error);
+    throw error;
   }
 }
 

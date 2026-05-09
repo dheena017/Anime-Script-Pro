@@ -1,12 +1,13 @@
 import React from 'react';
 import { Outlet, useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { useGenerator } from '@/hooks/useGenerator';
+import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
 import { useAuth } from '@/hooks/useAuth';
 import { ScreeningHeader } from './components/ScreeningHeader';
 import { ScreeningToolbar } from './components/ScreeningToolbar';
 import { ScreeningTabs, ScreeningTab } from './Tabs/ScreeningTabs';
 import { ScreeningLoadingPage } from './components/ScreeningLoadingPage';
+import { StudioTabsProgressBar } from '@/pages/studio/components/studio/layout/StudioTabsProgressBar';
 
 export const ScreeningContext = React.createContext<{
   setHandlers: React.Dispatch<React.SetStateAction<any>>;
@@ -19,10 +20,11 @@ export default function ScreeningLayout() {
 
   const {
     session, episode, isSaving, generatedScript,
-    syncCore, contentType, currentScriptId,
+    contentType, currentScriptId,
     generationProgress,
-    isEditing, setIsEditing
-  } = useGenerator();
+    isEditing
+  } = useGeneratorState();
+  const { syncCore, setIsEditing, setGenerationProgress } = useGeneratorDispatch();
 
   useAuth();
 
@@ -62,8 +64,12 @@ export default function ScreeningLayout() {
           <ScreeningHeader
             session={session}
             episode={episode}
-            onPrev={() => navigate(`/${contentType.toLowerCase()}/prompts`)}
-            onNext={() => navigate(`/${contentType.toLowerCase()}/engine`)}
+            onPrev={() => {
+              navigate(`/projects/${projectId}/prompts`);
+            }}
+            onNext={() => {
+              navigate(`/projects/${projectId}/assets`);
+            }}
             onRender={handlers.handleFullRender}
             isRendering={handlers.isRendering}
             onSave={handleSave}
@@ -77,6 +83,7 @@ export default function ScreeningLayout() {
           <div className="relative z-10 w-full flex justify-center">
             <ScreeningTabs activeTab={activeTab} setActiveTab={handleTabChange} />
           </div>
+          <StudioTabsProgressBar progress={generationProgress} theme="cyan" />
         </div>
 
         {!handlers.isRendering && (

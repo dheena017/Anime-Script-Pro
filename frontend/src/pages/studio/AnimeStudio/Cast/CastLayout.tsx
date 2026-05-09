@@ -20,6 +20,7 @@ import {
 import { CastLoadingPage } from './CastLoadingPage';
 import { MOCK_CAST_DATA } from '@/services/generators/mockData';
 import { studioLog, reportTabChange, reportGeneration } from '@/lib/studio-logger';
+import { StudioTabsProgressBar } from '@/pages/studio/components/studio/layout/StudioTabsProgressBar';
 
 export const CastContext = React.createContext<{
   setHandlers: React.Dispatch<React.SetStateAction<any>>;
@@ -66,7 +67,8 @@ export default function CastLayout() {
   const {
     setIsGeneratingCharacters, setCastData, setCastList,
     setGeneratedCharacters, setCharacterRelationships, syncCore,
-    setCastDNA, setCastDynamics, setCastIntegrity  } = useGeneratorDispatch();
+    setCastDNA, setCastDynamics, setCastIntegrity, setGenerationProgress
+  } = useGeneratorDispatch();
 
   useAuth();
 
@@ -86,12 +88,13 @@ export default function CastLayout() {
 
   // Removed DNA, Dynamics, and Integrity generation as tabs were removed
 
-  const handleGenerateAll = async () => {
+  const handleGenerateAll = React.useCallback(async () => {
     if (!prompt.trim()) {
       showNotification?.('Please enter a story prompt first before creating characters.', 'error');
       return;
     }
 
+    setGenerationProgress(5);
     setIsGeneratingCharacters(true);
     try {
       // Clear existing data
@@ -106,6 +109,7 @@ export default function CastLayout() {
       let result: any = null;
       if (handlers && handlers.handleGenerateCharacter) {
         try {
+          studioLog('CastLayout', 'Calling registered character generation handler.', 'anime');
           await handlers.handleGenerateCharacter();
         } catch (hErr) {
           console.warn('Registered handler for character generation failed:', hErr);
@@ -115,6 +119,8 @@ export default function CastLayout() {
         result = await generateCharacters(prompt, selectedModel, contentType, generatedWorld || undefined, numCharacters);
         reportGeneration('CastLayout', 'Characters generation', 'success', 'anime', { length: JSON.stringify(result)?.length || 0 });
       }
+
+      setGenerationProgress(70);
 
       if (result) {
         if (typeof result === 'object' && result !== null) {
@@ -134,15 +140,23 @@ export default function CastLayout() {
         }
       }
 
+      setGenerationProgress(100);
       showNotification?.('Cast Nexus Synthesized.', 'success');
-      navigate(`/${contentType.toLowerCase()}/cast`);
+      
+      // Explicitly set to registry tab after generation to show the list
+      setActiveTab('registry');
+      navigate(`/projects/${projectId}/cast`);
+
+      // Reset progress after a short delay
+      setTimeout(() => setGenerationProgress(0), 3000);
     } catch (e: any) {
       reportGeneration('CastLayout', 'Full Cast Synthesization', 'failure', 'anime', e);
-      showNotification?.('Failed to create characters: ' + (e.message || 'Unknown error'), 'error');
+      showNotification?.('Failed to create cast: ' + (e.message || 'Unknown error'), 'error');
+      setGenerationProgress(0);
     } finally {
       setIsGeneratingCharacters(false);
     }
-  };
+  }, [prompt, selectedModel, contentType, generatedWorld, numCharacters, handlers, setCastData, setCastList, setGeneratedCharacters, setCharacterRelationships, setCastDNA, setCastDynamics, setCastIntegrity, setIsGeneratingCharacters, setGenerationProgress, showNotification, navigate]);
 
   const handleTabChange = (tab: CastTab) => {
     setActiveTab(tab);
@@ -159,9 +173,7 @@ export default function CastLayout() {
 
   React.useEffect(() => {
     const routeTab = getTabFromPath(location.pathname);
-    if (location.pathname !== `/${contentType.toLowerCase()}/cast`) {
-      setActiveTab(routeTab);
-    }
+    setActiveTab(routeTab);
   }, [location.pathname, contentType]);
 
   React.useEffect(() => {
@@ -185,7 +197,7 @@ export default function CastLayout() {
   };
 
   const handleViewCharacter = (charName: string) => {
-    navigate(`/${contentType.toLowerCase()}/cast/characters/${charName}`);
+    navigate(`/projects/${projectId}/cast/characters/${charName}`);
   };
 
   const renderTabContent = () => {
@@ -212,11 +224,15 @@ export default function CastLayout() {
         <div className="studio-module-header">
           <CastHeader
             isGenerating={handlers.isGenerating || isGeneratingCharacters || isAnalyzingCast}
-            onRegenerate={handlers.handleGenerateCharacter || handleGenerateAll}
+            onRegenerate={handleGenerateAll}
             session={session}
             episode={episode}
-            onPrev={() => navigate(`/${contentType.toLowerCase()}/world`)}
-            onNext={() => navigate(`/${contentType.toLowerCase()}/series`)}
+            onPrev={() => {
+              navigate(`/projects/${projectId}/world`);
+            }}
+            onNext={() => {
+              navigate(`/projects/${projectId}/series`);
+            }}
             onSave={handleSave}
             isSaving={isSaving}
             hasContent={hasContent}
@@ -228,6 +244,7 @@ export default function CastLayout() {
           <div className="relative z-10 w-full flex justify-center">
             <CastTabs activeTab={activeTab} setActiveTab={handleTabChange} loadingStates={loadingStates} />
           </div>
+          <StudioTabsProgressBar progress={generationProgress} theme="cyan" />
         </div>
 
         {/* Toolbar Section */}

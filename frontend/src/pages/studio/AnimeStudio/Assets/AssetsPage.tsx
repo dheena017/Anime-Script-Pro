@@ -4,7 +4,7 @@ import ReactMarkdown from 'react-markdown';
 import { Search, Sparkles, Image as ImageIcon, MonitorPlay, Heart, Copy, RefreshCw } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { useGenerator } from '@/hooks/useGenerator';
+import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
 import { generateMetadata, generateYouTubeDescription, generateImagePrompts } from '@/services/api/gemini';
 import { MOCK_STORY_BIBLE } from '@/services/generators/mockData';
 import { cn } from '@/lib/utils';
@@ -16,15 +16,23 @@ export function AssetsPage() {
   const location = useLocation();
   const { onLaunch } = useOutletContext<{ onLaunch: () => void }>();
   const {
-    generatedMetadata, setGeneratedMetadata,
-    generatedDescription, setGeneratedDescription,
-    generatedImagePrompts, setGeneratedImagePrompts,
-    isGeneratingMetadata, setIsGeneratingMetadata,
-    isGeneratingDescription, setIsGeneratingDescription,
-    isGeneratingImagePrompts, setIsGeneratingImagePrompts,
+    generatedMetadata,
+    generatedDescription,
+    generatedImagePrompts,
+    isGeneratingMetadata,
+    isGeneratingDescription,
+    isGeneratingImagePrompts,
     generatedScript, selectedModel, 
+  } = useGeneratorState();
+  const {
+    setGeneratedMetadata,
+    setGeneratedDescription,
+    setGeneratedImagePrompts,
+    setIsGeneratingMetadata,
+    setIsGeneratingDescription,
+    setIsGeneratingImagePrompts,
     showNotification
-  } = useGenerator();
+  } = useGeneratorDispatch();
 
   const activeTab = location.pathname.includes('prompts') ? 'prompts' : 'seo';
 

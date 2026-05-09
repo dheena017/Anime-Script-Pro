@@ -2,11 +2,16 @@ from typing import Optional, Dict
 from datetime import datetime
 from sqlmodel import SQLModel, Field, Column, JSON
 from fastapi_users_db_sqlalchemy import SQLAlchemyBaseUserTable
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, declarative_base
+from sqlalchemy import String
+import uuid
 
-class User(SQLAlchemyBaseUserTable[str]):
+Base = declarative_base(metadata=SQLModel.metadata)
+
+class User(SQLAlchemyBaseUserTable[str], Base):
     __tablename__ = "users"
     __table_args__ = {"extend_existing": True}
+    id: Mapped[str] = mapped_column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
     name: Mapped[Optional[str]] = mapped_column(nullable=True)
     failed_login_attempts: Mapped[int] = mapped_column(default=0, nullable=False)
     locked_until: Mapped[Optional[datetime]] = mapped_column(nullable=True)

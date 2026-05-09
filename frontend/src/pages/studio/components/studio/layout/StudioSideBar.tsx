@@ -17,7 +17,8 @@ import {
   Zap,
   Layout as LayoutGrid,
   Sparkles,
-  X} from 'lucide-react';
+  X
+} from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { AnimatePresence, motion } from 'framer-motion';
 
@@ -50,25 +51,23 @@ export const StudioSideBar = React.memo<StudioSideBarProps>(({ collapsed, setCol
   const location = useLocation();
 
   const getPrefix = () => {
-    if (location.pathname.startsWith('/anime')) return '/anime';
-    if (location.pathname.startsWith('/manhwa')) return '/manhwa';
-    if (location.pathname.startsWith('/comic')) return '/comic';
-    return '/anime';
+    const match = location.pathname.match(/^\/projects\/([^/]+)/);
+    if (match) return `/projects/${match[1]}`;
+    return '';
   };
-
+ 
   const prefix = getPrefix();
-
+  const projectId = location.pathname.match(/^\/projects\/([^/]+)/)?.[1];
+ 
   const studioTypes = [
-    { id: 'anime', label: 'Anime Studio', path: '/anime', icon: Brain, color: 'text-cyan-400', bg: 'bg-cyan-500/10' },
-    { id: 'manhwa', label: 'Manhwa Studio', path: '/manhwa', icon: Sparkles, color: 'text-violet-400', bg: 'bg-violet-500/10' },
-    { id: 'comic', label: 'Comic Studio', path: '/comic', icon: Zap, color: 'text-orange-400', bg: 'bg-orange-500/10' },
+    { id: 'anime', label: 'Anime Studio', path: projectId ? `/projects/${projectId}/engine` : '/projects/new', icon: Brain, color: 'text-cyan-400', bg: 'bg-cyan-500/10' },
   ];
 
 
   const renderNavGroup = (items: any[], title: string, color: string = "red") => (
     <div className="space-y-1 mt-8">
       {!collapsed && (
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, x: -10 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.2 }}
@@ -85,17 +84,17 @@ export const StudioSideBar = React.memo<StudioSideBarProps>(({ collapsed, setCol
           const fullPath = item.path.startsWith('/') ? item.path : `${prefix}/${item.path}`;
           const isActive = location.pathname === fullPath || (location.pathname.startsWith(fullPath) && item.path !== 'world');
           const Icon = item.icon;
-          
-          const activeStyles = color === "studio" 
+
+          const activeStyles = color === "studio"
             ? "text-cyan-400 bg-cyan-500/10 shadow-[0_0_25px_rgba(6,182,212,0.1)] border border-cyan-500/20"
             : "text-red-500 bg-red-500/10 shadow-[0_0_25px_rgba(220,38,38,0.1)] border border-red-500/20";
-          
+
           return (
             <motion.div
               key={item.path}
               initial={collapsed ? { opacity: 0, x: -20 } : { opacity: 0, x: -20 }}
               animate={!collapsed ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
-                transition={{ duration: 0 }} 
+              transition={{ duration: 0 }}
             >
               <NavLink
                 to={fullPath}
@@ -116,7 +115,7 @@ export const StudioSideBar = React.memo<StudioSideBarProps>(({ collapsed, setCol
                 )}
                 <Icon className={cn(
                   "w-4 h-4 transition-all duration-500",
-                  isActive 
+                  isActive
                     ? (color === "studio" ? "text-cyan-400 drop-shadow-[0_0_8px_rgba(6,182,212,0.6)]" : "text-red-500 drop-shadow-[0_0_8px_rgba(220,38,38,0.6)]")
                     : "text-zinc-700 group-hover:text-zinc-400 group-hover:scale-110 group-hover:rotate-6"
                 )} />
@@ -133,7 +132,7 @@ export const StudioSideBar = React.memo<StudioSideBarProps>(({ collapsed, setCol
   return (
     <motion.aside
       initial={false}
-      animate={{ 
+      animate={{
         x: collapsed ? -340 : 0,
         opacity: 1
       }}
@@ -146,7 +145,7 @@ export const StudioSideBar = React.memo<StudioSideBarProps>(({ collapsed, setCol
     >
       <AnimatePresence>
         {!collapsed && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
@@ -184,8 +183,8 @@ export const StudioSideBar = React.memo<StudioSideBarProps>(({ collapsed, setCol
                       to={studio.path}
                       className={cn(
                         "flex items-center gap-3 px-4 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all duration-300",
-                        isActive 
-                          ? `${studio.bg} ${studio.color} border border-white/10 shadow-lg` 
+                        isActive
+                          ? `${studio.bg} ${studio.color} border border-white/10 shadow-lg`
                           : "text-zinc-500 hover:text-zinc-300 hover:bg-white/5 border border-transparent"
                       )}
                     >
@@ -204,9 +203,9 @@ export const StudioSideBar = React.memo<StudioSideBarProps>(({ collapsed, setCol
           {renderNavGroup(navItems, "CORE INTERFACE", "red")}
 
           {!collapsed && (
-             <div className="pt-4">
-                {renderNavGroup(systemItems, "SYSTEM PROTOCOLS", "red")}
-             </div>
+            <div className="pt-4">
+              {renderNavGroup(systemItems, "SYSTEM PROTOCOLS", "red")}
+            </div>
           )}
         </nav>
       </div>

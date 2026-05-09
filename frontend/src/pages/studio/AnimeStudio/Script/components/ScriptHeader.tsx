@@ -8,7 +8,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight, Cpu, FileText, Sparkles, Save, Square, Box } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useGenerator } from '@/hooks/useGenerator';
+import { useGeneratorDispatch } from '@/hooks/useGenerator';
 
 interface ScriptHeaderProps {
   onRegenerate: () => void;
@@ -36,7 +36,7 @@ export const ScriptHeader: React.FC<ScriptHeaderProps> = ({
   episode,
   status = 'empty'
 }) => {
-  const { stopGeneration } = useGenerator();
+  const { stopGeneration } = useGeneratorDispatch();
 
   return (
     <TooltipProvider>
@@ -113,7 +113,7 @@ export const ScriptHeader: React.FC<ScriptHeaderProps> = ({
                 </TooltipContent>
               </Tooltip>
 
-              {onSave && hasContent && (
+              {onSave && (
                 <Tooltip>
                   <TooltipTrigger >
                     <Button

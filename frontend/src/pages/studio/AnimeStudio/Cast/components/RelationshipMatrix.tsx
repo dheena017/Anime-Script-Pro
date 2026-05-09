@@ -9,7 +9,7 @@ import {
   Lock,
   Minus
 } from 'lucide-react';
-import { useGenerator } from '@/hooks/useGenerator';
+import { useGeneratorState } from '@/hooks/useGenerator';
 import { cn } from '@/lib/utils';
 import { 
   Tooltip,
@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/tooltip";
 
 export const RelationshipMatrix = React.memo(() => {
-  const { characterRelationships, castProfiles, castList, castData } = useGenerator();
+  const { characterRelationships, castProfiles, castList, castData } = useGeneratorState();
   
   // Extract character names from castList or fallback to castProfiles
   const characterNames = React.useMemo(() => {

@@ -122,6 +122,10 @@ app.post("/api/generate", tags=["AI Engine"], response_model=GenerationResponse)
 async def get_docs():
     return get_swagger_ui_html(openapi_url="/openapi.json", title="Neural Engine - Docs", swagger_css_url="/static/docs/swagger-custom.css")
 
+@app.get("/health", tags=["system"])
+async def health_check():
+    return {"status": "ok", "version": "2.5.0-PRO"}
+
 @app.get("/", tags=["system"], include_in_schema=False)
 async def root(request: Request):
     return templates.TemplateResponse(request, "index.html")

@@ -1,11 +1,12 @@
 import React from 'react';
 import { Outlet, useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { useGenerator } from '@/hooks/useGenerator';
+import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
 import { useAuth } from '@/hooks/useAuth';
 import { EngineHeader } from './components/EngineHeader';
 import { EngineToolbar } from './components/EngineToolbar';
 import { EngineTab } from './tabs/EngineTabs';
+import { StudioTabsProgressBar } from '@/pages/studio/components/studio/layout/StudioTabsProgressBar';
 
 export const EngineContext = React.createContext<{
   setHandlers: React.Dispatch<React.SetStateAction<any>>;
@@ -16,11 +17,12 @@ export default function EngineLayout() {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const {
-    session, episode, generatedScript, isSaving, setIsSaving, showNotification,
+    session, episode, generatedScript, isSaving,
     temperature, maxTokens, selectedModel, tone, audience,
-    contentType
-  } = useGenerator();
-
+    contentType, currentScriptId,
+    generationProgress
+  } = useGeneratorState();
+  const { setIsSaving, showNotification, syncCore, setGenerationProgress } = useGeneratorDispatch();
   const { user } = useAuth();
 
   const handleSaveCurrent = async () => {
@@ -28,24 +30,9 @@ export default function EngineLayout() {
       showNotification?.('Authentication Required', 'error');
       return;
     }
-
-    setIsSaving(true);
-    try {
-      const { engineApi } = await import('@/services/api/engine');
-      await engineApi.updateConfig(user.id, {
-        temperature,
-        max_tokens: maxTokens,
-        selected_model: selectedModel,
-        vibe: tone,
-        audience: audience
-      });
-      showNotification?.('Engine Matrix Synchronized', 'success');
-    } catch (e) {
-      console.error("Manual sync failed:", e);
-      showNotification?.('Sync Error', 'error');
-    } finally {
-      setIsSaving(false);
-    }
+    
+    // Use the centralized syncCore which handles full project persistence and UI refresh
+    await syncCore();
   };
 
   const activeTab = (searchParams.get('tab') as EngineTab) || 'status';
@@ -54,6 +41,11 @@ export default function EngineLayout() {
     setSearchParams({ tab });
   };
 
+  const projectId = React.useMemo(() => {
+    const parsedProjectId = currentScriptId ? Number.parseInt(currentScriptId, 10) : undefined;
+    return Number.isFinite(parsedProjectId) ? parsedProjectId : undefined;
+  }, [currentScriptId]);
+
   return (
     <EngineContext.Provider value={{ setHandlers: () => {} }}>
       <div className="space-y-6">
@@ -61,8 +53,12 @@ export default function EngineLayout() {
         <EngineHeader
           session={session}
           episode={episode}
-          onPrev={() => navigate(`/${contentType.toLowerCase()}/screening`)}
-          onNext={() => navigate(`/${contentType.toLowerCase()}/world`)}
+          onPrev={() => {
+            navigate(`/projects/${projectId}/screening`);
+          }}
+          onNext={() => {
+            navigate(`/projects/${projectId}/world`);
+          }}
           onSave={handleSaveCurrent}
           isSaving={isSaving}
           hasContent={!!generatedScript}
@@ -83,6 +79,7 @@ export default function EngineLayout() {
             showTabsOnly={true}
           />
         </div>
+        <StudioTabsProgressBar progress={generationProgress} theme="cyan" />
       </div>
 
         <motion.div

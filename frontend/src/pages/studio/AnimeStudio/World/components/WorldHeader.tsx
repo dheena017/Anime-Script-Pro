@@ -8,7 +8,7 @@ import {
 } from '@/components/ui/tooltip';
 import { ChevronLeft, ChevronRight, Cpu, Globe, Save, Zap, Square, Box } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useGenerator } from '@/hooks/useGenerator';
+import { useGeneratorDispatch } from '@/hooks/useGenerator';
 
 interface WorldHeaderProps {
   onRegenerate: () => void;
@@ -37,7 +37,7 @@ export const WorldHeader: React.FC<WorldHeaderProps> = ({
   episode,
   status = 'empty'
 }) => {
-  const { stopGeneration } = useGenerator();
+  const { stopGeneration } = useGeneratorDispatch();
 
   return (
     <TooltipProvider>
@@ -85,7 +85,7 @@ export const WorldHeader: React.FC<WorldHeaderProps> = ({
             )}
 
             <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
-              {onSave && hasContent && (
+              {onSave && (
                 <Tooltip>
                   <TooltipTrigger >
                     <Button

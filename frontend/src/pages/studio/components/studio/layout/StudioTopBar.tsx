@@ -11,7 +11,7 @@ import {
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { useGenerator } from '@/hooks/useGenerator';
+import { useGeneratorState } from '@/hooks/useGenerator';
 
 export const StudioTopBar: React.FC<{ 
   showNotifications: boolean; 
@@ -26,7 +26,7 @@ export const StudioTopBar: React.FC<{
                       location.pathname.startsWith('/manhwa') || 
                       location.pathname.startsWith('/comic');
 
-  const { isLoading } = useGenerator();
+  const { isLoading } = useGeneratorState();
 
 
 

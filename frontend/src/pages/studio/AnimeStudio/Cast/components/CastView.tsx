@@ -3,7 +3,7 @@ import {
   User,
 } from 'lucide-react';
 import { StudioEditor } from '../../components/StudioEditor';
-import { useGenerator } from '@/hooks/useGenerator';
+import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
 import { CastCard } from './CastCard';
 import { CastEmptyState } from './CastEmptyState';
 import { CastContext } from '../CastLayout';
@@ -19,12 +19,11 @@ export const CastView: React.FC<CastViewProps> = ({
   const { handleLoadDemo } = React.useContext(CastContext);
   const { 
     castList, 
-    setCastList,
     generatedCharacters,
-    setGeneratedCharacters,
     isEditing,
     isGeneratingCharacters
-  } = useGenerator();
+  } = useGeneratorState();
+  const { setCastList, setGeneratedCharacters } = useGeneratorDispatch();
   
 
   const handleUpdateCharacter = (index: number, updates: any) => {

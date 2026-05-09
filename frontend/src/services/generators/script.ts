@@ -133,10 +133,10 @@ ${prompt}
       callPrompt, 
       systemInstruction,
       0.85, // temperature
-      2048, // maxTokens
+      8192, // maxTokens — scripts can be long
       0.95, // topP
       40,   // topK
-      180000, // timeoutMs
+      240000, // timeoutMs
       worldBuilding, // worldLore
       castProfiles,  // castDNA
       episodePlan    // episodePlan
@@ -148,6 +148,107 @@ ${prompt}
   } catch (error: any) {
     studioLog('ScriptEngine', 'Failed to draft script. Falling back to MOCK_SCRIPT.', 'error', error);
     return MOCK_SCRIPT;
+  } finally {
+    studioEnd();
+  }
+}
+
+/**
+ * generateScriptStream
+ * Streaming version of generateScript — calls /api/generate/stream and invokes
+ * onChunk(text) with each token as it arrives from the backend.
+ * Returns the full accumulated script string when done.
+ */
+export async function generateScriptStream(
+  prompt: string,
+  tone: string = "Hype/Energetic",
+  audience: string = "General Fans",
+  session: string = "1",
+  episode: string = "1",
+  numScenes: string = "6",
+  model: string = "gemini-1.5-flash-latest",
+  contentType: string = "Anime",
+  recapperPersona: string = "",
+  characterRelationships: string | null = null,
+  worldBuilding: string | null = null,
+  castProfiles: string | null = null,
+  episodePlan: string | null = null,
+  onChunk?: (partial: string) => void,
+): Promise<string> {
+  validateScriptInput(prompt, 'Script prompt', 20);
+  validateScriptSceneCount(numScenes);
+
+  const systemInstruction = buildScriptSystemPrompt(
+    contentType, tone, audience, session, episode, numScenes,
+    recapperPersona, characterRelationships, worldBuilding, castProfiles, episodePlan, prompt
+  );
+
+  const callPrompt = `WRITE A ${contentType.toUpperCase()} SCRIPT.
+Tone: ${tone}
+Audience: ${audience}
+Session: ${session}
+Episode: ${episode}
+Scene Count: ${numScenes}
+
+Project Prompt:
+${prompt}`;
+
+  const authToken = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token') || '';
+  const streamUrl = '/api/generate/stream';
+
+  studioGroup('ScriptEngine', `Streaming Script: S${session} E${episode}`, 'anime');
+  try {
+    const response = await fetch(streamUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
+      },
+      body: JSON.stringify({ model, prompt: callPrompt, systemInstruction }),
+    });
+
+    if (!response.ok || !response.body) {
+      studioLog('ScriptEngine', 'Stream endpoint unavailable, falling back to batch.', 'warn');
+      return generateScript(prompt, tone, audience, session, episode, numScenes, model, contentType, recapperPersona, characterRelationships, worldBuilding, castProfiles, episodePlan);
+    }
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let accumulated = '';
+    let buffer = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop() ?? '';
+
+      for (const line of lines) {
+        const trimmed = line.trim();
+        if (!trimmed.startsWith('data:')) continue;
+        const jsonStr = trimmed.slice(5).trim();
+        if (!jsonStr || jsonStr === '[DONE]') continue;
+        try {
+          const evt = JSON.parse(jsonStr);
+          if (evt.error) {
+            studioLog('ScriptEngine', `Stream error: ${evt.error}`, 'error');
+            break;
+          }
+          const chunk = evt.text || evt.chunk || '';
+          if (chunk) {
+            accumulated += chunk;
+            onChunk?.(accumulated);
+          }
+        } catch { /* malformed SSE line — skip */ }
+      }
+    }
+
+    return accumulated || 'Failed to generate script.';
+  } catch (error: any) {
+    studioLog('ScriptEngine', 'Stream failed, falling back to batch.', 'warn', error);
+    return generateScript(prompt, tone, audience, session, episode, numScenes, model, contentType, recapperPersona, worldBuilding, castProfiles, episodePlan);
   } finally {
     studioEnd();
   }

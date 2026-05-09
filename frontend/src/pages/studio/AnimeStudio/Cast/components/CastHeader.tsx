@@ -8,7 +8,7 @@ import {
 import { ChevronLeft, ChevronRight, Cpu, Users, Save, Square, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { useGenerator } from '@/hooks/useGenerator';
+import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
 
 interface CastHeaderProps {
   onRegenerate: () => void;
@@ -35,7 +35,8 @@ export const CastHeader: React.FC<CastHeaderProps> = ({
   session,
   episode
 }) => {
-  const { stopGeneration, numCharacters, setNumCharacters } = useGenerator();
+  const { numCharacters } = useGeneratorState();
+  const { stopGeneration, setNumCharacters } = useGeneratorDispatch();
 
   return (
     <TooltipProvider>
@@ -94,9 +95,9 @@ export const CastHeader: React.FC<CastHeaderProps> = ({
                     onChange={(e) => setNumCharacters(Number(e.target.value))}
                     className="bg-transparent text-[10px] font-black text-fuchsia-400 px-3 outline-none cursor-pointer hover:bg-fuchsia-500/5 transition-colors h-full"
                  >
-                    {[3, 4, 5, 6, 7, 8, 10, 12, 15].map(n => (
-                       <option key={n} value={n} className="bg-zinc-950 text-white">{n} UNITS</option>
-                    ))}
+                     {[3, 4, 5, 6, 7, 8, 10, 12, 15, 20, 25, 30].map(n => (
+                        <option key={n} value={n} className="bg-zinc-950 text-white">{n} UNITS</option>
+                     ))}
                  </select>
               </div>
 
@@ -129,7 +130,7 @@ export const CastHeader: React.FC<CastHeaderProps> = ({
                 </TooltipContent>
               </Tooltip>
 
-              {onSave && hasContent && (
+              {onSave && (
                 <Tooltip>
                   <TooltipTrigger>
                     <Button

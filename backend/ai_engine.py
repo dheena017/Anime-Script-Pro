@@ -1,7 +1,23 @@
 import os
 import json
+import asyncio
 from google import genai
 from google.genai import types
+try:
+    import anthropic
+except ImportError:
+    anthropic = None
+
+try:
+    import openai
+except ImportError:
+    openai = None
+
+try:
+    import groq
+except ImportError:
+    groq = None
+
 from dotenv import load_dotenv
 from sqlalchemy import select
 from backend.database import async_session, async_engine
@@ -68,26 +84,194 @@ class AIEngine:
 
         return build_genai_client(api_key=api_key)
 
+    async def _get_anthropic_client(self, user_id: str = None):
+        if not anthropic:
+            raise ImportError("Anthropic library not installed. Please install it with 'pip install anthropic'.")
+        
+        api_key = None
+        if user_id:
+            try:
+                async with async_session() as session:
+                    statement = select(UserSettings).where(UserSettings.user_id == user_id)
+                    res = await session.execute(statement)
+                    settings = res.scalars().first()
+                    if settings and settings.ai_models:
+                        api_key = settings.ai_models.get("anthropic_api_key")
+            except Exception as e:
+                logger.warning(f"[AI Engine] Failed to fetch user settings for {user_id}: {e}")
+        
+        if not api_key:
+            api_key = os.getenv("ANTHROPIC_API_KEY")
+            
+        if not api_key:
+            raise ValueError("No Anthropic API key found.")
+            
+        return anthropic.AsyncAnthropic(api_key=api_key)
+
+    async def _get_openai_client(self, user_id: str = None):
+        if not openai:
+            raise ImportError("OpenAI library not installed.")
+        
+        api_key = None
+        if user_id:
+            try:
+                async with async_session() as session:
+                    statement = select(UserSettings).where(UserSettings.user_id == user_id)
+                    res = await session.execute(statement)
+                    settings = res.scalars().first()
+                    if settings and settings.ai_models:
+                        api_key = settings.ai_models.get("openai_api_key")
+            except Exception as e:
+                logger.warning(f"[AI Engine] Failed to fetch user settings for {user_id}: {e}")
+        
+        if not api_key:
+            api_key = os.getenv("OPENAI_API_KEY")
+            
+        if not api_key:
+            raise ValueError("No OpenAI API key found.")
+            
+        return openai.AsyncOpenAI(api_key=api_key)
+
+    async def _get_groq_client(self, user_id: str = None):
+        if not groq:
+            raise ImportError("Groq library not installed.")
+        
+        api_key = None
+        if user_id:
+            try:
+                async with async_session() as session:
+                    statement = select(UserSettings).where(UserSettings.user_id == user_id)
+                    res = await session.execute(statement)
+                    settings = res.scalars().first()
+                    if settings and settings.ai_models:
+                        api_key = settings.ai_models.get("groq_api_key")
+            except Exception as e:
+                logger.warning(f"[AI Engine] Failed to fetch user settings for {user_id}: {e}")
+        
+        if not api_key:
+            api_key = os.getenv("GROQ_API_KEY")
+            
+        if not api_key:
+            raise ValueError("No Groq API key found.")
+            
+        return groq.AsyncGroq(api_key=api_key)
 
     async def generate_content(self, prompt: str, system_instruction: str = None, user_id: str = None):
-        logger.info(f"PROCESS: [🧠] Neural Synthesis triggered. Instruction length: {len(system_instruction or '')}")
-        client = await self._get_client(user_id)
-
-        config = None
-        if system_instruction:
-            config = types.GenerateContentConfig(
-                system_instruction=system_instruction
+        logger.info(f"PROCESS: [🧠] Neural Synthesis triggered. Model: {self.model_name}")
+        
+        if "claude" in self.model_name.lower():
+            client = await self._get_anthropic_client(user_id)
+            response = await client.messages.create(
+                model=self.model_name,
+                max_tokens=4096,
+                system=system_instruction or "",
+                messages=[{"role": "user", "content": prompt}]
             )
+            return response.content[0].text
+        elif "gpt-" in self.model_name.lower():
+            client = await self._get_openai_client(user_id)
+            messages = []
+            if system_instruction:
+                messages.append({"role": "system", "content": system_instruction})
+            messages.append({"role": "user", "content": prompt})
+            
+            response = await client.chat.completions.create(
+                model=self.model_name,
+                messages=messages
+            )
+            return response.choices[0].message.content
+        elif "llama" in self.model_name.lower() or "mixtral" in self.model_name.lower() or "deepseek" in self.model_name.lower():
+            client = await self._get_groq_client(user_id)
+            messages = []
+            if system_instruction:
+                messages.append({"role": "system", "content": system_instruction})
+            messages.append({"role": "user", "content": prompt})
+            
+            response = await client.chat.completions.create(
+                model=self.model_name,
+                messages=messages
+            )
+            return response.choices[0].message.content
+        else:
+            client = await self._get_client(user_id)
+            config = None
+            if system_instruction:
+                config = types.GenerateContentConfig(
+                    system_instruction=system_instruction
+                )
 
-        response = await client.aio.models.generate_content(
-            model=self.model_name,
-            contents=prompt,
-            config=config
-        )
-        return response.text
+            response = await client.aio.models.generate_content(
+                model=self.model_name,
+                contents=prompt,
+                config=config
+            )
+            return response.text
+
+    async def stream_content(self, prompt: str, system_instruction: str = None, user_id: str = None):
+        logger.info(f"STREAM: [🌊] Neural Stream triggered. Model: {self.model_name}")
+        
+        if "claude" in self.model_name.lower():
+            client = await self._get_anthropic_client(user_id)
+            async with client.messages.stream(
+                model=self.model_name,
+                max_tokens=4096,
+                system=system_instruction or "",
+                messages=[{"role": "user", "content": prompt}]
+            ) as stream:
+                async for text in stream.text_stream:
+                    yield text
+        elif "gpt-" in self.model_name.lower():
+            client = await self._get_openai_client(user_id)
+            messages = []
+            if system_instruction:
+                messages.append({"role": "system", "content": system_instruction})
+            messages.append({"role": "user", "content": prompt})
+            
+            stream = await client.chat.completions.create(
+                model=self.model_name,
+                messages=messages,
+                stream=True
+            )
+            async for chunk in stream:
+                if chunk.choices[0].delta.content:
+                    yield chunk.choices[0].delta.content
+        elif "llama" in self.model_name.lower() or "mixtral" in self.model_name.lower() or "deepseek" in self.model_name.lower():
+            client = await self._get_groq_client(user_id)
+            messages = []
+            if system_instruction:
+                messages.append({"role": "system", "content": system_instruction})
+            messages.append({"role": "user", "content": prompt})
+            
+            stream = await client.chat.completions.create(
+                model=self.model_name,
+                messages=messages,
+                stream=True
+            )
+            async for chunk in stream:
+                if chunk.choices[0].delta.content:
+                    yield chunk.choices[0].delta.content
+        else:
+            client = await self._get_client(user_id)
+            config = None
+            if system_instruction:
+                config = types.GenerateContentConfig(
+                    system_instruction=system_instruction
+                )
+
+            async for chunk in await client.aio.models.generate_content_stream(
+                model=self.model_name,
+                contents=prompt,
+                config=config
+            ):
+                yield chunk.text
 
 ai_engine = AIEngine()
 
 async def call_ai(model: str, prompt: str, system_instruction: str = None, user_id: str = None):
     engine = AIEngine(model_name=model)
     return await engine.generate_content(prompt, system_instruction, user_id)
+
+async def stream_ai(model: str, prompt: str, system_instruction: str = None, user_id: str = None):
+    engine = AIEngine(model_name=model)
+    async for chunk in engine.stream_content(prompt, system_instruction, user_id):
+        yield chunk

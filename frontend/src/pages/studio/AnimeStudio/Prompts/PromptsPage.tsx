@@ -2,7 +2,7 @@ import { useContext, useEffect } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { useGenerator } from '@/hooks/useGenerator';
+import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
 import { generateImagePrompts } from '@/services/api/gemini';
 import { cn } from '@/lib/utils';
 
@@ -21,11 +21,16 @@ export function PromptsPage() {
   const { setHandlers } = useContext(PromptsContext);
 
   const {
-    generatedImagePrompts, setGeneratedImagePrompts,
-    isGeneratingImagePrompts, setIsGeneratingImagePrompts,
-    generatedScript, selectedModel, showNotification,
+    generatedImagePrompts,
+    isGeneratingImagePrompts,
+    generatedScript, selectedModel
+  } = useGeneratorState();
+  const {
+    setGeneratedImagePrompts,
+    setIsGeneratingImagePrompts,
+    showNotification,
     stopGeneration
-  } = useGenerator();
+  } = useGeneratorDispatch();
 
   const handleGenerate = async () => {
     if (!generatedScript) {

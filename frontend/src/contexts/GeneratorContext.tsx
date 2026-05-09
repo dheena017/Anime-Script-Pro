@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect, useMemo, useCallback } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/api-utils';
 import { ProductionUnit } from '@/lib/sequence-utils';
 import { useAuth } from '@/hooks/useAuth';
@@ -9,10 +9,14 @@ import { worldApi, WorldLore } from '../services/api/world';
 import { productionApi } from '../services/api/production';
 import { characterApi } from '../services/api/characters';
 import { AI_EVENTS } from '../services/generators/core';
+import { projectService } from '../services/api/projects';
 import { useLogs } from './LogContext';
 
 interface GeneratorState {
   generationProgress: any;
+  storyboardScenes: any[];
+  storyboardVisuals: Record<number, string[]>;
+  storyboardVideos: Record<number, string>;
   storyboardPrompts: any;
   prompt: string;
   promptLore: string;
@@ -82,6 +86,8 @@ interface GeneratorState {
   selectedModel: string;
   tone: string;
   audience: string;
+  genre: string;
+  artStyle: string;
 
   // Cast / World compatibility
   castData?: any | null;
@@ -136,7 +142,7 @@ interface GeneratorDispatch {
   setWorldGenerationLatency: (l: number) => void;
   setGeneratedAltText: (a: string | null) => void;
   setRecapperPersona: (p: string) => void;
-  syncCore: (projectId?: number) => Promise<void>;
+  syncCore: (projectId?: number) => Promise<number | undefined>;
   addLog: (module: string, status: string, message?: string) => void;
   setEpisode: (e: string) => void;
   setSession: (s: string) => void;
@@ -168,6 +174,11 @@ interface GeneratorDispatch {
   setIsGeneratingGrowthStrategy: (l: boolean) => void;
   setGeneratedDistributionPlan: (s: string | null) => void;
   setIsGeneratingDistribution: (l: boolean) => void;
+  setGenerationProgress: (p: number) => void;
+  setStoryboardScenes: (s: any[]) => void;
+  setStoryboardVisuals: (v: Record<number, string[]>) => void;
+  setStoryboardVideos: (v: Record<number, string>) => void;
+  setStoryboardPrompts: (p: any) => void;
   showNotification: (message: string, type?: 'error' | 'success' | 'info') => void;
   // Backwards-compatible setters (no-ops or proxies)
   setTemperature: (t: number) => void;
@@ -177,6 +188,8 @@ interface GeneratorDispatch {
   setSelectedModel: (m: string) => void;
   setTone: (t: string) => void;
   setAudience: (a: string) => void;
+  setGenre: (g: string) => void;
+  setArtStyle: (a: string) => void;
 
   setCastData: (d: any | null) => void;
   setCastList: (l: any[]) => void;
@@ -200,13 +213,11 @@ interface GeneratorDispatch {
   setNumCharacters: (n: number) => void;
 }
 
-export type GeneratorContextType = GeneratorState & GeneratorDispatch;
-
 export const GeneratorStateContext = createContext<GeneratorState | undefined>(undefined);
 export const GeneratorDispatchContext = createContext<GeneratorDispatch | undefined>(undefined);
-export const GeneratorContext = createContext<GeneratorContextType | undefined>(undefined);
 
 export function GeneratorProvider({ children }: { children: React.ReactNode }) {
+  const queryClient = useQueryClient();
   const { user } = useAuth();
   const { showNotification: rawShowNotification } = useApp();
   const [prompt, setPrompt] = useState('');
@@ -248,6 +259,11 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
   const [isGeneratingGrowthStrategy, setIsGeneratingGrowthStrategy] = useState(false);
   const [generatedDistributionPlan, setGeneratedDistributionPlan] = useState<string | null>(null);
   const [isGeneratingDistribution, setIsGeneratingDistribution] = useState(false);
+  const [generationProgress, setGenerationProgress] = useState<number>(0);
+  const [storyboardScenes, setStoryboardScenes] = useState<any[]>([]);
+  const [storyboardVisuals, setStoryboardVisuals] = useState<Record<number, string[]>>({});
+  const [storyboardVideos, setStoryboardVideos] = useState<Record<number, string>>({});
+  const [storyboardPrompts, setStoryboardPrompts] = useState<any>(null);
 
   // Helper to update world manifest
   const setGeneratedWorld = useCallback((fullBlob: string | null) => {
@@ -321,49 +337,6 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     rawShowNotification(message, type);
   }, [rawShowNotification]);
 
-  // TanStack Queries for Caching
-  useQuery({
-    queryKey: ['engineConfig', user?.id],
-    queryFn: () => engineApi.getConfig(user!.id),
-    enabled: !!user?.id,
-  });
-
-  const { data: worldLore } = useQuery({
-    queryKey: ['worldLore', user?.id],
-    queryFn: () => worldApi.getLore(user!.id),
-    enabled: !!user?.id,
-  });
-
-  const { data: production } = useQuery({
-    queryKey: ['productionContent', user?.id],
-    queryFn: () => productionApi.getContent(user!.id),
-    enabled: !!user?.id,
-  });
-
-  const { data: castDataFromApi } = useQuery({
-    queryKey: ['characterCast', user?.id],
-    queryFn: () => characterApi.getCast(user!.id),
-    enabled: !!user?.id,
-  });
-
-  const { data: projectHistory = [] } = useQuery({
-    queryKey: ['projectHistory', user?.id],
-    queryFn: async () => {
-      const projects = await apiRequest<any[]>(`/api/projects?user_id=${user!.id}`, { label: 'Project History' });
-      return (projects || []).map(p => ({
-        id: p.id,
-        title: p.name || 'Untitled',
-        date: new Date(p.created_at).toLocaleDateString(),
-        createdAt: p.created_at,
-        prompt: p.prompt,
-        vibe: p.vibe,
-        contentType: p.content_type,
-        modelUsed: p.model_used
-      }));
-    },
-    enabled: !!user?.id,
-  });
-
   const [episode, setEpisode] = useState('1');
   const [session, setSession] = useState('1');
   const [numScenes, setNumScenes] = useState('6');
@@ -394,6 +367,8 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
   const [selectedModel, setSelectedModel] = useState<string>('gemini-3.1-flash');
   const [tone, setTone] = useState('Analytical');
   const [audience, setAudience] = useState('Developers');
+  const [genre, setGenre] = useState('');
+  const [artStyle, setArtStyle] = useState('');
 
   // Compatibility cast/world/visual placeholders
   const [castData, setCastData] = useState<any | null>(null);
@@ -407,7 +382,86 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
   const [castIntegrity, setCastIntegrity] = useState<any | null>(null);
   const [isAnalyzingCast, setIsAnalyzingCast] = useState(false);
   const [numCharacters, setNumCharacters] = useState<number>(8);
-  const [generationProgress, setGenerationProgress] = useState<number>(0);
+
+  // TanStack Queries for Caching
+  const { data: engineConfig } = useQuery({
+    queryKey: ['engineConfig', user?.id],
+    queryFn: () => engineApi.getConfig(user!.id),
+    enabled: !!user?.id,
+  });
+
+  const { data: worldLore } = useQuery({
+    queryKey: ['worldLore', user?.id, currentScriptId],
+    queryFn: () => worldApi.getLore(user!.id, currentScriptId ? parseInt(currentScriptId) : undefined),
+    enabled: !!user?.id,
+  });
+
+  const { data: production } = useQuery({
+    queryKey: ['productionContent', user?.id, currentScriptId],
+    queryFn: () => productionApi.getContent(user!.id, currentScriptId ? parseInt(currentScriptId) : undefined),
+    enabled: !!user?.id,
+  });
+
+  const { data: castDataFromApi } = useQuery({
+    queryKey: ['characterCast', user?.id, currentScriptId],
+    queryFn: () => characterApi.getCast(user!.id, currentScriptId ? parseInt(currentScriptId) : undefined),
+    enabled: !!user?.id,
+  });
+
+  const { data: projectHistory = [] } = useQuery({
+    queryKey: ['projectHistory', user?.id],
+    queryFn: async () => {
+      const projects = await apiRequest<any[]>(`/api/projects?user_id=${user!.id}`, { label: 'Project History' });
+      return (projects || []).map(p => ({
+        id: p.id,
+        title: p.name || 'Untitled',
+        date: new Date(p.created_at).toLocaleDateString(),
+        createdAt: p.created_at,
+        prompt: p.prompt,
+        vibe: p.vibe,
+        contentType: p.content_type,
+        modelUsed: p.model_used
+      }));
+    },
+    enabled: !!user?.id,
+  });
+
+  // Reset all loaded flags and clear memory when switching projects
+  useEffect(() => {
+    hasLoadedProduction.current = false;
+    hasLoadedWorld.current = false;
+    hasLoadedCast.current = false;
+
+    // Clear current state to avoid "ghost data" from previous projects
+    setGeneratedScript(null);
+    setGeneratedSeriesPlan(null);
+    setGeneratedMetadata(null);
+    setGeneratedGrowthStrategy(null);
+    setGeneratedDistributionPlan(null);
+    setGeneratedWorldInternal(null);
+    setGeneratedWorldLore(null);
+    setGeneratedWorldPowers(null);
+    setGeneratedWorldFactions(null);
+    setGeneratedWorldArchitecture(null);
+    setGeneratedWorldAtlas(null);
+    setGeneratedWorldCulture(null);
+    setGeneratedWorldSystems(null);
+    setGeneratedWorldContent(null);
+    setCastList([]);
+    setCastProfiles(null);
+    setCharacterRelationships('');
+    setCastDNA(null);
+    setCastDynamics(null);
+    setCastIntegrity(null);
+    setGeneratedImagePrompts(null);
+    setGeneratedDescription(null);
+    setGeneratedAltText(null);
+    setVisualData([]);
+    setVideoData([]);
+    setProductionSequence([]);
+    setGenerationProgress(0);
+  }, [currentScriptId]);
+
 
   // Sync logic moved after ALL state declarations to avoid "used before declaration" errors
   useEffect(() => {
@@ -415,14 +469,17 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     const canSync = !hasLoadedProduction.current || (!generatedScript && !isGeneratingSeries);
     
     if (production && canSync) {
-      if (production.script_content) setGeneratedScript(production.script_content);
-      if (production.series_plan) setGeneratedSeriesPlan(production.series_plan);
-      if (production.seo_metadata) setGeneratedMetadata(production.seo_metadata);
-      if (production.growth_strategy) setGeneratedGrowthStrategy(production.growth_strategy);
-      if (production.distribution_plan) setGeneratedDistributionPlan(production.distribution_plan);
+      setGeneratedScript(production.script_content || null);
+      setGeneratedSeriesPlan(production.series_plan || null);
+      setGeneratedMetadata(production.seo_metadata || null);
+      setGeneratedGrowthStrategy(production.growth_strategy || null);
+      setGeneratedDistributionPlan(production.distribution_plan || null);
+      setGeneratedImagePrompts(production.storyboard_prompts || null);
+      setGeneratedDescription(production.youtube_description || null);
+      setGeneratedAltText(production.alt_text_blob || null);
       hasLoadedProduction.current = true;
     }
-  }, [production, generatedScript, isGeneratingSeries]);
+  }, [production, generatedScript, isGeneratingSeries, currentScriptId]);
 
   useEffect(() => {
     // Prevent overwriting active world building
@@ -450,7 +507,7 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
       setGeneratedWorldContent(worldLore);
       hasLoadedWorld.current = true;
     }
-  }, [worldLore, generatedWorld, isGeneratingWorld, isGeneratingLore, isGeneratingPowers, isGeneratingFactions, isGeneratingArchitecture, isGeneratingAtlas, isGeneratingCulture, isGeneratingSystems]);
+  }, [worldLore, generatedWorld, isGeneratingWorld, isGeneratingLore, isGeneratingPowers, isGeneratingFactions, isGeneratingArchitecture, isGeneratingAtlas, isGeneratingCulture, isGeneratingSystems, currentScriptId]);
 
   useEffect(() => {
     // Prevent overwriting active cast creation
@@ -470,7 +527,7 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
       setCharacterRelationships(castDataFromApi.relationships_blob || '');
       hasLoadedCast.current = true;
     }
-  }, [castDataFromApi, castList.length, isGeneratingCharacters]);
+  }, [castDataFromApi, castList.length, isGeneratingCharacters, currentScriptId]);
 
   const resolveProjectId = useCallback((overrideProjectId?: number) => {
     if (typeof overrideProjectId === 'number' && Number.isFinite(overrideProjectId)) {
@@ -497,11 +554,25 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
           script_content: generatedScript,
           series_plan: generatedSeriesPlan,
           seo_metadata: generatedMetadata,
+          storyboard: generatedImagePrompts,
           growth_strategy: generatedGrowthStrategy,
           distribution_plan: generatedDistributionPlan,
           youtube_description: generatedDescription,
           alt_texts: generatedAltText
         }, projectId);
+
+        if (projectId) {
+          await projectService.updateProject(projectId, {
+            prompt: prompt,
+            model_used: selectedModel,
+            content_type: contentType,
+            genre: genre,
+            art_style: artStyle,
+            tone: tone,
+            description: prompt, // Use prompt as description for now
+            status: "IN_PROGRESS"
+          });
+        }
 
         // Auto-save World Lore (Modular)
         if (generatedWorld) await worldApi.manifest.update(user.id, generatedWorld, promptLore, projectId);
@@ -526,18 +597,18 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     }, 5000);
 
     return () => clearTimeout(timeout);
-  }, [user?.id, generatedScript, generatedSeriesPlan, generatedMetadata, generatedGrowthStrategy, generatedDistributionPlan, generatedWorld, generatedWorldLore, generatedWorldPowers, generatedWorldFactions, generatedWorldArchitecture, generatedWorldAtlas, generatedWorldCulture, generatedWorldSystems, production, resolveProjectId]);
+  }, [user?.id, generatedScript, generatedSeriesPlan, generatedMetadata, generatedGrowthStrategy, generatedDistributionPlan, generatedWorld, generatedWorldLore, generatedWorldPowers, generatedWorldFactions, generatedWorldArchitecture, generatedWorldAtlas, generatedWorldCulture, generatedWorldSystems, production, resolveProjectId, prompt, selectedModel, contentType, tone, genre, artStyle, castList, characterRelationships, numCharacters]);
 
   const { addLog } = useLogs();
 
-  const syncCore = useCallback(async (projectId?: number) => {
+  const syncCore = useCallback(async (projectId?: number): Promise<number | undefined> => {
     if (!user?.id) {
       showNotification("Please log in to save your work", "error");
       console.warn("[GeneratorContext] Save skipped: user is not logged in.");
-      return;
+      return undefined;
     }
 
-    const resolvedProjectId = resolveProjectId(projectId);
+    let resolvedProjectId = resolveProjectId(projectId);
 
     setIsSaving(true);
     addLog("SAVE", "START", "Starting project save...");
@@ -545,6 +616,30 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     showNotification("Saving your project...", "info");
 
     try {
+      // PHASE 0: Create Project Record if missing
+      if (!resolvedProjectId) {
+        addLog("PROJECT", "CREATING", "Creating new production record...");
+        const res = await fetch("/api/projects", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            user_id: user.id,
+            name: prompt || "Untitled Anime Project",
+            content_type: contentType || 'Anime',
+            prompt: prompt,
+            model_used: selectedModel
+          })
+        });
+        if (res.ok) {
+          const newProject = await res.json();
+          resolvedProjectId = newProject.id;
+          if (resolvedProjectId) setCurrentScriptId(resolvedProjectId.toString());
+          addLog("PROJECT", "CREATED", `New production initialized: ID ${resolvedProjectId}`);
+        } else {
+          throw new Error("Failed to initialize project record");
+        }
+      }
+
       // PHASE 1: Production Asset Sync
       addLog("PRODUCTION", "SAVING", "Saving script, series, and storyboard data...");
       console.info("[GeneratorContext] Saving production content.", { projectId: resolvedProjectId });
@@ -558,6 +653,20 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
         youtube_description: generatedDescription,
         alt_texts: generatedAltText,
       }, resolvedProjectId);
+
+      // Persist Project Baseline
+      if (resolvedProjectId) {
+        await projectService.updateProject(resolvedProjectId, {
+          prompt: prompt,
+          model_used: selectedModel,
+          content_type: contentType,
+          genre: genre,
+          art_style: artStyle,
+          tone: tone,
+          description: prompt,
+          status: "IN_PROGRESS"
+        });
+      }
 
       // PHASE 2: World Lore Sync
       if (generatedWorldContent || generatedWorld) {
@@ -589,14 +698,28 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
       console.info("[GeneratorContext] Project save completed successfully.", { projectId: resolvedProjectId });
       showNotification("Project saved successfully", "success");
       addLog("PROJECT", "COMPLETE", "Project fully saved to cloud.");
+
+      // Invalidate queries to refresh frontend data
+      queryClient.invalidateQueries({ queryKey: ['projects'] });
+      queryClient.invalidateQueries({ queryKey: ['productionContent', user.id, resolvedProjectId?.toString()] });
+      queryClient.invalidateQueries({ queryKey: ['worldLore', user.id, resolvedProjectId?.toString()] });
+      queryClient.invalidateQueries({ queryKey: ['characterCast', user.id, resolvedProjectId?.toString()] });
+
+      // Reset loaded refs so the sync effects can trigger a fresh pull from the backend
+      hasLoadedProduction.current = false;
+      hasLoadedWorld.current = false;
+      hasLoadedCast.current = false;
+
+      return resolvedProjectId;
     } catch (error: any) {
       console.error("[GeneratorContext] Save failed.", error);
       showNotification("Failed to save — please try again", "error");
       addLog("PROJECT", "ERROR", `Save failed: ${error.message || 'Network error'}`);
+      return undefined;
     } finally {
       setIsSaving(false);
     }
-  }, [user?.id, generatedScript, generatedSeriesPlan, generatedMetadata, generatedImagePrompts, generatedGrowthStrategy, generatedDistributionPlan, generatedWorld, generatedWorldContent, generatedWorldLore, generatedWorldPowers, generatedWorldFactions, generatedWorldArchitecture, generatedWorldAtlas, generatedWorldCulture, generatedWorldSystems, promptLore, promptPowers, promptFactions, promptArchitecture, promptAtlas, promptCulture, promptSystems, castList, characterRelationships, castDNA, castDynamics, castIntegrity, prompt, numCharacters, addLog, showNotification, resolveProjectId]);
+  }, [user?.id, generatedScript, generatedSeriesPlan, generatedMetadata, generatedImagePrompts, generatedGrowthStrategy, generatedDistributionPlan, generatedWorld, generatedWorldContent, generatedWorldLore, generatedWorldPowers, generatedWorldFactions, generatedWorldArchitecture, generatedWorldAtlas, generatedWorldCulture, generatedWorldSystems, promptLore, promptPowers, promptFactions, promptArchitecture, promptAtlas, promptCulture, promptSystems, castList, characterRelationships, castDNA, castDynamics, castIntegrity, prompt, contentType, selectedModel, numCharacters, tone, genre, artStyle, addLog, showNotification, resolveProjectId]);
 
   // Neural Telemetry & Thinking Stream Log Sync
   useEffect(() => {
@@ -671,7 +794,6 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
   }, [isGeneratingCharacters, isGeneratingImagePrompts, isGeneratingSeries, isGeneratingDescription, isGeneratingWorld, isGeneratingVisuals, isGeneratingMetadata, isGeneratingDistribution, isGeneratingGrowthStrategy, isGeneratingAltText]);
 
   const state = useMemo<GeneratorState>(() => ({
-    storyboardPrompts: generatedImagePrompts,
     prompt,
     promptLore,
     promptPowers,
@@ -687,15 +809,15 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     generatedImagePrompts,
     generatedSeriesPlan,
     generatedDescription,
-    generatedWorld: generatedWorld,
-    generatedWorldContent: generatedWorldContent,
-    generatedWorldLore: generatedWorldLore,
-    generatedWorldPowers: generatedWorldPowers,
-    generatedWorldFactions: generatedWorldFactions,
-    generatedWorldArchitecture: generatedWorldArchitecture,
-    generatedWorldAtlas: generatedWorldAtlas,
-    generatedWorldCulture: generatedWorldCulture,
-    generatedWorldSystems: generatedWorldSystems,
+    generatedWorld,
+    generatedWorldContent,
+    generatedWorldLore,
+    generatedWorldPowers,
+    generatedWorldFactions,
+    generatedWorldArchitecture,
+    generatedWorldAtlas,
+    generatedWorldCulture,
+    generatedWorldSystems,
     worldGenerationStatus,
     worldGenerationError,
     worldGenerationLatency,
@@ -705,6 +827,8 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     session,
     numScenes,
     contentType,
+    genre,
+    artStyle,
     isLoading,
     isGeneratingCharacters,
     isGeneratingMetadata,
@@ -731,9 +855,11 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     generatedGrowthStrategy,
     isGeneratingGrowthStrategy,
     generatedDistributionPlan,
-    isGeneratingDistribution
-    ,
-    // Engine compatibility
+    isGeneratingDistribution,
+    storyboardScenes,
+    storyboardVisuals,
+    storyboardVideos,
+    storyboardPrompts,
     temperature,
     maxTokens,
     topP,
@@ -741,18 +867,12 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     selectedModel,
     tone,
     audience,
-
-    // Cast / world compatibility
     castData,
     castList,
     castProfiles,
     characterRelationships,
-
-    // Visual / storyboard compatibility
     visualData,
     videoData,
-
-    // SEO / series
     seoMetadata: generatedMetadata,
     seriesPlan: generatedSeriesPlan,
     worldLore: null,
@@ -779,10 +899,11 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     projectHistory, productionSequence, isLiked, 
     generatedGrowthStrategy, isGeneratingGrowthStrategy, generatedDistributionPlan, isGeneratingDistribution,
     generatedWorldLore, generatedWorldPowers, generatedWorldFactions,
-    generatedWorldArchitecture, generatedWorldAtlas, generatedWorldCulture, generatedWorldSystems
-    , temperature, maxTokens, topP, topK, selectedModel, tone, audience,
-    castData, castList, castProfiles, characterRelationships, visualData, videoData, generatedMetadata, generatedSeriesPlan,
-    activeModelAttempt, fallbackHistory, castDNA, castDynamics, castIntegrity, isAnalyzingCast, generationProgress, numCharacters
+    generatedWorldArchitecture, generatedWorldAtlas, generatedWorldCulture, generatedWorldSystems,
+    temperature, maxTokens, topP, topK, selectedModel, tone, audience,
+    castData, castList, castProfiles, characterRelationships, visualData, videoData,
+    activeModelAttempt, fallbackHistory, castDNA, castDynamics, castIntegrity, isAnalyzingCast, generationProgress, numCharacters,
+    genre, artStyle, storyboardScenes, storyboardVisuals, storyboardVideos, storyboardPrompts
   ]);
 
   const dispatch = useMemo<GeneratorDispatch>(() => ({
@@ -847,9 +968,12 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     setIsGeneratingGrowthStrategy,
     setGeneratedDistributionPlan,
     setIsGeneratingDistribution,
-    showNotification
-    ,
-    // Engine setters
+    setGenerationProgress,
+    setStoryboardScenes,
+    setStoryboardVisuals,
+    setStoryboardVideos,
+    setStoryboardPrompts,
+    showNotification,
     setTemperature,
     setMaxTokens,
     setTopP,
@@ -857,16 +981,12 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     setSelectedModel,
     setTone,
     setAudience,
-
-    // Cast / world setters
+    setGenre,
+    setArtStyle,
     setCastData,
     setCastList,
     setCastProfiles,
     setCharacterRelationships,
-
-    setGenerationProgress,
-
-    // Visual setters
     setVisualData,
     setVideoData,
     setCastDNA,
@@ -876,22 +996,19 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     stopGeneration,
     getSignal,
     setNumCharacters,
-    // Aliases
     setGlobalPrompt: setPrompt,
     setGlobalContentType: setContentType,
-  }), [syncCore, addLog, showNotification, setGeneratedWorldLore, setGeneratedWorldPowers, setGeneratedWorldFactions, setGeneratedWorldArchitecture, setGeneratedWorldAtlas, setGeneratedWorldCulture, setGeneratedWorldSystems, setPromptLore, setPromptPowers, setPromptFactions, setPromptArchitecture, setPromptAtlas, setPromptCulture, setPromptSystems, stopGeneration, getSignal]);
-
-  const fullValue = useMemo(() => ({
-    ...state,
-    ...dispatch
-  }), [state, dispatch]);
+  }), [
+    syncCore, addLog, showNotification, setGeneratedWorldLore, setGeneratedWorldPowers, setGeneratedWorldFactions,
+    setGeneratedWorldArchitecture, setGeneratedWorldAtlas, setGeneratedWorldCulture, setGeneratedWorldSystems,
+    setPromptLore, setPromptPowers, setPromptFactions, setPromptArchitecture, setPromptAtlas, setPromptCulture, setPromptSystems,
+    stopGeneration, getSignal
+  ]);
 
   return (
     <GeneratorStateContext.Provider value={state}>
       <GeneratorDispatchContext.Provider value={dispatch}>
-        <GeneratorContext.Provider value={fullValue}>
-          {children}
-        </GeneratorContext.Provider>
+        {children}
       </GeneratorDispatchContext.Provider>
     </GeneratorStateContext.Provider>
   );

@@ -1,4 +1,4 @@
-import { useGenerator } from '@/hooks/useGenerator';
+import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
 import { useOutletContext } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { sharedStyles } from '@/pages/studio/components/studio/shared/sharedStyles';
@@ -12,6 +12,7 @@ import { CultureTab } from './tabs/CultureTab';
 import { SystemsTab } from './tabs/SystemsTab';
 import { WorldEmptyState } from './components/WorldEmptyState';
 import { SpecializedTabEmptyState } from './components/SpecializedTabEmptyState';
+import { WorldLoadingTab } from './components/WorldLoadingTab';
 import { WorldTab } from './tabs/WorldTabs';
 import { worldApi } from '@/services/api/world';
 import { MOCK_WORLD_DATA } from '@/services/generators/mockData';
@@ -37,6 +38,17 @@ export function WorldPage() {
     isGeneratingAtlas,
     isGeneratingCulture,
     isGeneratingSystems,
+    promptLore,
+    promptPowers,
+    promptFactions,
+    promptArchitecture,
+    promptAtlas,
+    promptCulture,
+    promptSystems,
+    currentScriptId,
+  } = useGeneratorState();
+
+  const {
     setGeneratedWorld: updateGlobalWorld,
     setGeneratedWorldLore,
     setGeneratedWorldPowers,
@@ -52,13 +64,6 @@ export function WorldPage() {
     setIsGeneratingAtlas,
     setIsGeneratingCulture,
     setIsGeneratingSystems,
-    promptLore,
-    promptPowers,
-    promptFactions,
-    promptArchitecture,
-    promptAtlas,
-    promptCulture,
-    promptSystems,
     setPromptLore,
     setPromptPowers,
     setPromptFactions,
@@ -66,9 +71,8 @@ export function WorldPage() {
     setPromptAtlas,
     setPromptCulture,
     setPromptSystems,
-    currentScriptId,
     showNotification
-  } = useGenerator();
+  } = useGeneratorDispatch();
 
   const projectId = currentScriptId ? parseInt(currentScriptId) : undefined;
 
@@ -179,7 +183,11 @@ export function WorldPage() {
     );
   };
 
-  const renderContent = () => {
+  const renderContent = (genStatus: Record<string, boolean>) => {
+    if (genStatus[activeTab]) {
+      return <WorldLoadingTab type={activeTab} />;
+    }
+
     switch (activeTab) {
       case 'manifest':
         return generatedWorld ? (
@@ -288,13 +296,44 @@ export function WorldPage() {
     }
   };
 
+  const generationStatus: Record<string, boolean> = {
+    manifest: isGeneratingWorld,
+    lore: isGeneratingLore,
+    powers: isGeneratingPowers,
+    factions: isGeneratingFactions,
+    architecture: isGeneratingArchitecture,
+    atlas: isGeneratingAtlas,
+    culture: isGeneratingCulture,
+    systems: isGeneratingSystems
+  };
+
+  const hasDataForTab = {
+    manifest: !!generatedWorld,
+    lore: !!generatedWorldLore,
+    powers: !!generatedWorldPowers,
+    factions: !!generatedWorldFactions,
+    architecture: !!generatedWorldArchitecture,
+    atlas: !!generatedWorldAtlas,
+    culture: !!generatedWorldCulture,
+    systems: !!generatedWorldSystems
+  };
+
+  const isTabGenerating = (generationStatus as any)[activeTab];
+  const isTabEmpty = !isTabGenerating && !(hasDataForTab as any)[activeTab];
+
   return (
     <div data-testid="marker-world-architecture" className="space-y-8 pb-20">
-      <div className={cn(sharedStyles.card, "!p-0 overflow-hidden border-zinc-500/30 bg-zinc-950/90")}>
-        <div className="w-full p-8 lg:p-10 max-w-[1400px] mx-auto">
-          {renderContent()}
+      {isTabEmpty || isTabGenerating ? (
+        <div className="w-full max-w-[1400px] mx-auto animate-in fade-in zoom-in-95 duration-700">
+           {renderContent(generationStatus)}
         </div>
-      </div>
+      ) : (
+        <div className={cn(sharedStyles.card, "!p-0 overflow-hidden border-zinc-500/30 bg-zinc-950/90 shadow-[0_0_60px_rgba(0,0,0,0.5)]")}>
+          <div className="w-full p-8 lg:p-10 max-w-[1400px] mx-auto">
+            {renderContent(generationStatus)}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -11,6 +11,7 @@ import {
 import { cn } from '@/lib/utils';
 import { studioTopbarOuterClass } from '@/components/layout/topbarStyles';
 import { Button } from '@/components/ui/button';
+import { useGeneratorState } from '@/hooks/useGenerator';
 
 interface AnimeStudioTopBarProps {
   onToggleEngine: () => void;
@@ -29,9 +30,12 @@ export const AnimeStudioTopBar = React.memo<AnimeStudioTopBarProps>(({
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
-
+  const { prompt } = useGeneratorState();
+ 
   // Extract current phase from path
   const currentPath = location.pathname.split('/').pop() || 'world';
+ 
+  const displayTitle = prompt && prompt.length > 0 ? prompt : "New Production";
   
   // Map path segments to phase display names
   const phaseMap: { [key: string]: { phase: string; label: string } } = {
@@ -80,7 +84,7 @@ export const AnimeStudioTopBar = React.memo<AnimeStudioTopBarProps>(({
           </div>
           <ChevronRight className="w-4 h-4 text-zinc-700 hidden sm:block" />
           <div className="flex flex-col">
-            <h1 className="text-[10px] md:text-[12px] font-black uppercase tracking-[0.2em] text-white leading-none">New Production</h1>
+            <h1 className="text-[10px] md:text-[12px] font-black uppercase tracking-[0.2em] text-white leading-none truncate max-w-[200px]">{displayTitle}</h1>
             <div className="flex flex-wrap items-center gap-2 mt-1">
               <span className="text-[8px] font-black uppercase tracking-[0.28em] text-cyan-400">
                 {phaseInfo.phase}

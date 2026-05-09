@@ -75,7 +75,9 @@ export default function ProjectWizard() {
 
       setCurrentProject(project);
       await refreshAppData();
-      navigate(opt.path);
+      // opt.path is like '/anime/script', we want '/projects/:id/script'
+      const subPath = opt.path.split('/').pop();
+      navigate(`/projects/${project.id}/${subPath}`);
     } catch (err: any) {
       console.error(err);
       setError(err.message || 'NODE INITIALIZATION FAILED');

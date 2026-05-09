@@ -1,23 +1,44 @@
 import os
+import json
+import time
 from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
-from typing import Optional, Dict
-from google import genai
+from typing import Optional, Dict, List
 from google.genai import types
 from loguru import logger
-
-logger.info(f"!!! AI MODULE INITIALIZED: {__file__} !!!")
 from sqlalchemy import select
 
-from backend.database import async_session, async_engine
+from backend.database import async_session
 from backend.database.models import Project
-from backend.database.models.world import WorldLore
+from backend.database.models.user import UserSettings
 from backend.utils.deps import get_auth_user_id
-from backend.ai_engine import ai_engine, build_genai_client
+from backend.ai_engine import ai_engine, build_genai_client, stream_ai
 from backend.schemas import GenerationRequest, GenerationResponse
+import uuid
 
 router = APIRouter(prefix="/api", tags=["AI Engine"])
+
+# --- Neural Health Registry ---
+# Tracks model performance and failures in real-time to optimize fallback selection
+class NeuralHealthRegistry:
+    def __init__(self):
+        self.health = {} # model_name -> {"failures": 0, "last_failure": 0}
+        
+    def report_failure(self, model: str):
+        stats = self.health.get(model, {"failures": 0, "last_failure": 0})
+        stats["failures"] += 1
+        stats["last_failure"] = time.time()
+        self.health[model] = stats
+        
+    def is_degraded(self, model: str) -> bool:
+        stats = self.health.get(model)
+        if not stats: return False
+        # If model failed in the last 2 minutes, consider it degraded
+        return stats["failures"] > 2 and (time.time() - stats["last_failure"] < 120)
+
+health_registry = NeuralHealthRegistry()
 
 MODEL_MAP = {
     # 3.1 Series (Highest Quota)
@@ -34,10 +55,9 @@ MODEL_MAP = {
     "gemini-2.5-pro": "gemini-2.5-pro",
 
     # 2.0 Series
-    "gemini-2.0-flash": "gemini-3.1-flash-lite-preview", # Redirecting 2.0 to 3.1 Lite due to 0 quota
+    "gemini-2.0-flash": "gemini-3.1-flash-lite-preview",
     "gemini-2.0-flash-lite": "gemini-2.0-flash-lite",
     "gemini-2.0-pro": "gemini-2.5-pro",
-    "gemini-2.0-pro-exp-02-05": "gemini-2.5-pro",
 
     # Legacy/Standard Aliases
     "gemini-flash-latest": "gemini-3.1-flash-lite-preview",
@@ -45,146 +65,168 @@ MODEL_MAP = {
     "gemini-1.5-flash": "gemini-3.1-flash-lite-preview",
     "gemini-1.5-pro": "gemini-2.5-pro",
     "gemini-1.5-flash-8b": "gemini-3.1-flash-lite-preview",
+
+    # OpenAI Models
+    "gpt-4o": "gpt-4o",
+    "gpt-4o-mini": "gpt-4o-mini",
+    "gpt-4-turbo": "gpt-4-turbo",
+    "o1-preview": "o1-preview",
+    "o1-mini": "o1-mini",
+
+    # Groq / Open Source Models
+    "llama-3-70b": "llama3-70b-8192",
+    "llama-3-8b": "llama3-8b-8192",
+    "mixtral-8x7b": "mixtral-8x7b-32768",
+    "deepseek-r1": "deepseek-r1-distill-llama-70b",
 }
 
-@router.post("/generate", response_model=GenerationResponse)
-async def generate_content(request: GenerationRequest, user_id: str = Depends(get_auth_user_id)):
-    """
-    Unified AI generation endpoint with robust model mapping and fallback.
-    Prioritizes user-provided API keys from their settings.
-    """
-    raw_model = request.model.lower().strip()
-    normalized_model = raw_model.replace(" ", "-")
+STABLE_MODELS = [
+    "gemini-2.5-flash", "gemini-2.5-pro", "gemini-2.0-flash",
+    "gemini-3-flash-preview", "gemini-3-pro-preview",
+    "gemini-3.1-flash-lite-preview", "gemini-2.0-flash-lite",
+    "gpt-4o", "gpt-4o-mini", "llama3-70b-8192", "mixtral-8x7b-32768"
+]
 
-    # Direct lookup in the map
-    target_model = MODEL_MAP.get(normalized_model, MODEL_MAP.get(raw_model, normalized_model))
-
-    # Second pass resolution (for double-aliased models)
-    if target_model in MODEL_MAP:
-        target_model = MODEL_MAP[target_model]
-
-    # Final safety check against the known stable registry
-    STABLE_MODELS = [
-        "gemini-2.5-flash", "gemini-2.5-pro", "gemini-2.0-flash",
-        "gemini-3-flash-preview", "gemini-3-pro-preview",
-        "gemini-3.1-flash-lite-preview", "gemini-2.0-flash-lite"
-    ]
-    if target_model not in STABLE_MODELS and not any(target_model.startswith(m) for m in STABLE_MODELS):
-        logger.warning(f"Resolved model '{target_model}' not in stable registry. Falling back to gemini-2.5-flash.")
-        target_model = "gemini-2.5-flash"
-
-    if target_model.startswith("models/"):
-        target_model = target_model.replace("models/", "")
-
-    logger.info(f"SYNTHESIS: Request for '{request.model}' resolved to target model: <cyan>{target_model}</cyan>")
-
-    # --- API Key Strategy ---
-    # 1. Try to fetch user-provided key from database settings
+async def get_api_key(user_id: str, target_model: str) -> str:
+    """Resolve API key from user settings or environment based on provider."""
     user_api_key = None
+    target_lower = target_model.lower()
+    
     try:
-        from backend.database.models.user import UserSettings
         async with async_session() as session:
             statement = select(UserSettings).where(UserSettings.user_id == user_id)
             result = await session.execute(statement)
             settings = result.scalars().first()
             if settings and settings.ai_models:
-                user_api_key = settings.ai_models.get("gemini_api_key")
+                if "claude" in target_lower:
+                    user_api_key = settings.ai_models.get("anthropic_api_key")
+                elif "gpt-" in target_lower or "o1-" in target_lower:
+                    user_api_key = settings.ai_models.get("openai_api_key")
+                elif any(m in target_lower for m in ["llama", "mixtral", "deepseek", "gemma"]):
+                    user_api_key = settings.ai_models.get("groq_api_key")
+                else:
+                    user_api_key = settings.ai_models.get("gemini_api_key")
     except Exception as e:
         logger.warning(f"Failed to fetch user settings for key retrieval: {e}")
 
-    # 2. Fallback to environment variables
-    api_key = user_api_key or os.getenv("GOOGLE_API_KEY") or os.getenv("VITE_GEMINI_API_KEY") or os.getenv("GEMINI_API_KEY")
+    # Fallback to environment variables
+    if "claude" in target_lower:
+        api_key = user_api_key or os.getenv("ANTHROPIC_API_KEY")
+    elif "gpt-" in target_lower or "o1-" in target_lower:
+        api_key = user_api_key or os.getenv("OPENAI_API_KEY")
+    elif any(m in target_lower for m in ["llama", "mixtral", "deepseek"]) and "gemma" not in target_lower:
+        api_key = user_api_key or os.getenv("GROQ_API_KEY")
+    else:
+        api_key = user_api_key or os.getenv("GOOGLE_API_KEY") or os.getenv("VITE_GEMINI_API_KEY") or os.getenv("GEMINI_API_KEY")
 
     if not api_key:
-        raise HTTPException(status_code=500, detail="AI Engine API key not configured. Please add your key in Settings or contact the administrator.")
+        raise HTTPException(status_code=500, detail=f"API key for {target_model} not configured. Please add your key in Settings.")
+    
+    return api_key
 
+def resolve_model(requested_model: str) -> str:
+    raw_model = requested_model.lower().strip().replace(" ", "-")
+    target_model = MODEL_MAP.get(raw_model, raw_model)
+    if target_model in MODEL_MAP:
+        target_model = MODEL_MAP[target_model]
+    
+    if target_model not in STABLE_MODELS and not any(target_model.startswith(m) for m in STABLE_MODELS):
+        logger.warning(f"Resolved model '{target_model}' not in stable registry. Falling back to gemini-2.5-flash.")
+        target_model = "gemini-2.5-flash"
+        
+    return target_model.replace("models/", "")
 
+@router.post("/generate", response_model=GenerationResponse)
+async def generate_content(request: GenerationRequest, user_id: str = Depends(get_auth_user_id)):
+    """Unified AI generation endpoint with robust model mapping and fallback."""
+    target_model = resolve_model(request.model)
+    
     # --- Ultra-Fallback Logic ---
-    # Optimized based on User Quota Table (RPM/TPM/RPD)
     FALLBACK_MODELS = [
-        target_model, # Try requested first (Likely 3.1 Flash Lite)
-        "gemini-3.1-flash-lite-preview", # 15 RPM
-        "gemini-2.5-flash-lite",         # 10 RPM
-        "gemini-3-flash-preview",        # 5 RPM
-        "gemini-2.5-flash",              # 5 RPM
-        "gemma-3-27b-it",                # 30 RPM (High availability fallback)
+        target_model,
+        "gemini-3.1-flash-lite-preview",
+        "gemini-2.5-flash-lite",
+        "gemini-3-flash-preview",
+        "gemini-2.5-flash",
+        "gemma-3-27b-it"
     ]
+    unique_fallbacks = list(dict.fromkeys(FALLBACK_MODELS))
 
-    # Remove duplicates while preserving order
-    unique_fallbacks = []
-    for m in FALLBACK_MODELS:
-        if m not in unique_fallbacks:
-            unique_fallbacks.append(m)
-
-    client = build_genai_client(api_key=api_key)
-    import time
     start_time = time.perf_counter()
-    last_error = None
     attempted_fallbacks = []
+    request_id = str(uuid.uuid4())[:8]
 
-    for current_model in unique_fallbacks:
+    # Re-sort fallbacks: Prioritize healthy models over degraded ones
+    healthy_fallbacks = [m for m in unique_fallbacks if not health_registry.is_degraded(m)]
+    degraded_fallbacks = [m for m in unique_fallbacks if health_registry.is_degraded(m)]
+    prioritized_models = healthy_fallbacks + degraded_fallbacks
+
+    logger.info(f"SYNTHESIS [#{request_id}]: Starting neural orchestration. Target: <cyan>{target_model}</cyan>")
+
+    for current_model in prioritized_models:
         try:
-            is_fallback = current_model != target_model
-            if is_fallback:
+            # We need to resolve key for each attempt if models belong to different providers (e.g. Claude fallback)
+            api_key = await get_api_key(user_id, current_model)
+            client = build_genai_client(api_key=api_key)
+
+            if current_model != target_model:
                 attempted_fallbacks.append(current_model)
-                logger.warning(f"RECOVERY: Primary model failed or exhausted. Attempting fallback: <yellow>{current_model}</yellow>")
+                logger.warning(f"RECOVERY [#{request_id}]: Attempting fallback: {current_model}")
 
-            key_source = "User-Provided" if user_api_key else "System-Global"
-            logger.info(f"PROCESS: [🧠] Neural Synthesis via {current_model} ({key_source} Key)")
-            config = {}
-            if request.systemInstruction:
-                config["system_instruction"] = request.systemInstruction
+            # Routing to specific provider logic
+            is_openai = "gpt-" in current_model.lower() or "o1-" in current_model.lower()
+            is_groq = any(m in current_model.lower() for m in ["llama", "mixtral", "deepseek"]) and "gemma" not in current_model.lower()
+            is_claude = "claude" in current_model.lower()
 
-            # Use AIO (Async) client to prevent blocking the event loop
-            response = await client.aio.models.generate_content(
-                model=current_model,
-                contents=request.prompt,
-                config=types.GenerateContentConfig(**config) if config else None
-            )
-
-            # --- Content Blocking & Safety Checks ---
-            if not response or not hasattr(response, "text"):
-                # Check for candidates and finish reasons
-                if hasattr(response, "candidates") and response.candidates:
-                    candidate = response.candidates[0]
-                    finish_reason = getattr(candidate, "finish_reason", "UNKNOWN")
-                    if finish_reason == "SAFETY":
-                        logger.warning(f"Synthesis blocked by Safety Filters for model {current_model}")
-                        raise HTTPException(
-                            status_code=400,
-                            detail="Synthesis blocked by safety filters. Please refine your prompt to avoid restricted content (e.g., extreme violence, explicit adult themes)."
-                        )
-                raise ValueError("Gemini returned an empty or malformed response.")
-
-            output_text = response.text
-
-            # Extract usage metadata
-            usage_dict = {}
-            if hasattr(response, "usage_metadata") and response.usage_metadata:
-                try:
-                    usage_dict = {
-                        "prompt_tokens": getattr(response.usage_metadata, "prompt_token_count", 0),
-                        "candidates_tokens": getattr(response.usage_metadata, "candidates_token_count", 0),
-                        "total_tokens": getattr(response.usage_metadata, "total_token_count", 0)
-                    }
-                except Exception: pass
+            if is_claude or is_openai or is_groq:
+                from backend.ai_engine import call_ai
+                output_text = await call_ai(current_model, request.prompt, request.systemInstruction, user_id)
+                usage_dict = {}
+            else:
+                config = {"system_instruction": request.systemInstruction} if request.systemInstruction else None
+                response = await client.aio.models.generate_content(
+                    model=current_model,
+                    contents=request.prompt,
+                    config=types.GenerateContentConfig(**config) if config else None
+                )
+                if not response or not hasattr(response, "text"):
+                    # Check for candidates and finish reasons
+                    if hasattr(response, "candidates") and response.candidates:
+                        candidate = response.candidates[0]
+                        finish_reason = getattr(candidate, "finish_reason", "UNKNOWN")
+                        if finish_reason == "SAFETY":
+                            logger.warning(f"Synthesis blocked by Safety Filters for model {current_model}")
+                            raise HTTPException(
+                                status_code=400,
+                                detail="Synthesis blocked by safety filters. Please refine your prompt."
+                            )
+                    raise ValueError("Gemini returned an empty or malformed response.")
+                
+                output_text = response.text
+                usage_dict = {
+                    "prompt_tokens": getattr(response.usage_metadata, "prompt_token_count", 0),
+                    "candidates_tokens": getattr(response.usage_metadata, "candidates_token_count", 0),
+                    "total_tokens": getattr(response.usage_metadata, "total_token_count", 0)
+                } if hasattr(response, "usage_metadata") else {}
 
             latency_ms = (time.perf_counter() - start_time) * 1000
-
-            # --- Architect Success Report ---
+            
+            # --- Detailed Telemetry Logging ---
             logger.success(f"COMPLETED: [✅] Neural Synthesis Successful")
             logger.info(f"   | Model: <cyan>{current_model}</cyan>")
             logger.info(f"   | Latency: <yellow>{latency_ms:.2f}ms</yellow>")
-
+            
             if usage_dict:
                 tokens = usage_dict.get('total_tokens', 0)
                 efficiency = (tokens/(latency_ms/1000)) if latency_ms > 0 else 0
                 logger.info(f"   | Usage: <magenta>{tokens}</magenta> tokens | Efficiency: <green>{efficiency:.1f}</green> tps")
-
+                logger.info(f"   | ReqID: <dim>{request_id}</dim>")
+            
             # Extract a "Developer Preview" of the output
-            preview = output_text[:100].replace("\n", " ")
+            preview = output_text[:120].replace("\n", " ").strip()
             logger.info(f"   | Preview: [📝] \"{preview}...\"")
             logger.info(f"   | Payload: {len(output_text)} characters materialized.")
+            logger.info("   " + "─" * 40)
 
             return GenerationResponse(
                 text=output_text,
@@ -192,66 +234,65 @@ async def generate_content(request: GenerationRequest, user_id: str = Depends(ge
                 finish_reason="STOP",
                 usage=usage_dict,
                 latency_ms=latency_ms,
-                fallbacks=attempted_fallbacks[:-1] if attempted_fallbacks else []
+                fallbacks=attempted_fallbacks
             )
 
-        except HTTPException:
-            # Re-raise explicit HTTPExceptions (like Safety blocks)
-            raise
         except Exception as e:
             last_error = e
-            err_msg = str(e).upper()
+            health_registry.report_failure(current_model)
+            logger.warning(f"Model {current_model} failed [ReqID: {request_id}]: {str(e)}")
+            if "401" in str(e).upper() or "INVALID" in str(e).upper():
+                # If credentials fail, we shouldn't continue fallbacks for the same provider
+                if current_model == target_model:
+                     raise HTTPException(status_code=401, detail="Invalid AI Credentials.")
+            continue
 
-            # Log the specific failure for backend diagnostics
-            logger.warning(f"Model {current_model} failed: {str(e)}")
+    raise HTTPException(status_code=500, detail=f"Neural Engine Synthesis Failed: {str(last_error)}")
 
-            # Handle Authentication issues (401)
-            if any(term in err_msg for term in ["401", "UNAUTHENTICATED", "API_KEY_INVALID", "INVALID_ARGUMENT", "API KEY NOT VALID"]):
-                # If the key is invalid, there's no point in trying fallbacks
-                logger.error("Invalid Gemini API Key detected. Aborting fallbacks.")
-                raise HTTPException(
-                    status_code=401,
-                    detail="Invalid AI Credentials. Please verify your Gemini API key in Settings."
-                )
+@router.post("/generate/stream")
+async def stream_content(request: GenerationRequest, user_id: str = Depends(get_auth_user_id)):
+    """Server-Sent Events endpoint for real-time AI streaming with intelligent health-aware failover."""
+    target_model = resolve_model(request.model)
+    request_id = str(uuid.uuid4())[:8]
+    
+    async def event_generator():
+        # Fallback list for streaming
+        FALLBACKS = [target_model, "gemini-3.1-flash-lite-preview", "gemini-2.5-flash-lite", "gemini-3-flash-preview"]
+        unique_fallbacks = list(dict.fromkeys(FALLBACKS))
+        
+        # Sort by health
+        prioritized = [m for m in unique_fallbacks if not health_registry.is_degraded(m)] + \
+                      [m for m in unique_fallbacks if health_registry.is_degraded(m)]
 
-            # Handle Rate Limiting (429) - continue to fallback
-            if "429" in err_msg or "RESOURCE_EXHAUSTED" in err_msg:
-                logger.warning(f"Model {current_model} hit rate limits.")
-                continue
+        for current_model in prioritized:
+            try:
+                logger.info(f"STREAM [#{request_id}]: Initializing pipeline via <cyan>{current_model}</cyan>")
+                async for chunk in stream_ai(current_model, request.prompt, request.systemInstruction, user_id):
+                    yield f"data: {json.dumps({'text': chunk, 'done': False})}\n\n"
+                
+                logger.success(f"STREAM [#{request_id}]: Neural stream finalized successfully.")
+                yield "data: [DONE]\n\n"
+                return # Success, exit fallback loop
+            except Exception as e:
+                health_registry.report_failure(current_model)
+                logger.warning(f"STREAM [#{request_id}]: Model {current_model} failed, attempting failover...")
+                if current_model == prioritized[-1]: # If last model fails
+                     yield f"data: {json.dumps({'error': str(e), 'done': True})}\n\n"
+        
+        yield "data: [DONE]\n\n"
 
-            # Handle Invalid Arguments (400) - usually prompt too long or invalid model
-            if "400" in err_msg or "INVALID_ARGUMENT" in err_msg:
-                logger.error(f"Invalid request for {current_model}: {str(e)}")
-                continue
-
-            # Handle Timeouts / Deadline Exceeded (504)
-            if "504" in err_msg or "DEADLINE_EXCEEDED" in err_msg:
-                logger.warning(f"Model {current_model} timed out.")
-                continue
-
-            continue # General retry/fallback
-
-    # --- Final Error Aggregation ---
-    logger.error(f"[AI SYNTHESIS] -> CRITICAL FAILURE: All fallback models exhausted.")
-    logger.error(f"Last observed error: {last_error}")
-
-    err_msg = str(last_error).upper()
-
-    if "429" in err_msg or "RESOURCE_EXHAUSTED" in err_msg:
-        raise HTTPException(
-            status_code=429,
-            detail="Neural Network Overloaded: All Gemini models have reached their quota. Please wait 60 seconds and try again."
-        )
-
-    if "INTERNAL" in err_msg or "500" in err_msg:
-        raise HTTPException(
-            status_code=502,
-            detail="Google AI Services are currently experiencing an internal outage. Check the Gemini Status page."
-        )
-
-    raise HTTPException(
-        status_code=500,
-        detail=f"Neural Engine Synthesis Failed: {str(last_error)}"
+    return StreamingResponse(
+        event_generator(), 
+        media_type="text/event-stream",
+        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"}
     )
 
-
+@router.get("/ai/health")
+async def get_neural_health():
+    """Returns the current health status of all registered AI models."""
+    return {
+        "status": "operational",
+        "timestamp": datetime.now().isoformat(),
+        "registry": health_registry.health,
+        "active_models": STABLE_MODELS
+    }

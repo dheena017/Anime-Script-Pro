@@ -9,6 +9,7 @@ import { SeriesToolbar } from './components/SeriesToolbar';
 import { SeriesTabs, SeriesTab } from './Tabs/SeriesTabs';
 import { SeriesLoadingPage } from './components/SeriesLoadingPage';
 import { cn } from '@/lib/utils';
+import { StudioTabsProgressBar } from '@/pages/studio/components/studio/layout/StudioTabsProgressBar';
 
 export default function SeriesLayout() {
   const navigate = useNavigate();
@@ -36,7 +37,8 @@ export default function SeriesLayout() {
     currentScriptId,
     isSaving,
     isGeneratingSeries,
-    generatedSeriesPlan
+    generatedSeriesPlan,
+    generationProgress
   } = useGeneratorState();
 
   const {
@@ -47,10 +49,10 @@ export default function SeriesLayout() {
     setGeneratedMetadata,
     syncCore,
     showNotification,
-    addLog: addGeneratorLog
+    addLog: addGeneratorLog,
+    setGenerationProgress
   } = useGeneratorDispatch();
 
-  const [generationProgress, setGenerationProgress] = React.useState(0);
   const [generationError, setGenerationError] = React.useState<string | null>(null);
 
   const projectId = React.useMemo(() => {
@@ -121,7 +123,7 @@ export default function SeriesLayout() {
       setGenerationProgress(100);
       
       // Response and Report Flow - Instant Impact
-      const base = `/${contentType.toLowerCase()}/series`;
+      const base = `/projects/${projectId}/series`;
       
       // We navigate directly to episodes now to avoid "one by one" delay feeling
       navigate(`${base}/episodes`); 
@@ -196,8 +198,12 @@ export default function SeriesLayout() {
             setGeneratedMetadata(null);
             showNotification?.('Production manifest cleared', 'info');
           }}
-          onPrev={() => navigate(`/${contentType.toLowerCase()}/cast`)}
-          onNext={() => navigate(`/${contentType.toLowerCase()}/script`)}
+          onPrev={() => {
+            navigate(`/projects/${projectId}/cast`);
+          }}
+          onNext={() => {
+            navigate(`/projects/${projectId}/script`);
+          }}
           onManifest={() => handleTabChange('blueprint')}
           isManifestActive={activeTab === 'blueprint'}
           onSave={handleSave}
@@ -217,6 +223,7 @@ export default function SeriesLayout() {
         <div className="relative z-10 w-full flex justify-center">
           <SeriesTabs activeTab={activeTab} setActiveTab={handleTabChange} />
         </div>
+        <StudioTabsProgressBar progress={generationProgress} theme="cyan" />
       </div>
 
       {/* Toolbar Section - Only show when content exists */}

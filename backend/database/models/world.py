@@ -22,6 +22,7 @@ class WorldLore(SQLModel, table=True):
     culture: Optional[str] = Field(default=None)
     
     prompt_lore: Optional[str] = Field(default=None)
+    prompt_history: Optional[str] = Field(default=None)
     prompt_powers: Optional[str] = Field(default=None)
     prompt_factions: Optional[str] = Field(default=None)
     prompt_architecture: Optional[str] = Field(default=None)

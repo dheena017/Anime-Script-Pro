@@ -104,9 +104,9 @@ function AppRoutes() {
         <Route path="/terms" element={<PageTransition><TermsPage /></PageTransition>} />
 
         {/* Studio Global Layout */}
+        {/* Studio Global Layout */}
         <Route element={<AuthRoute><StudioLayout /></AuthRoute>}>
           <Route path="/dashboard" element={<PageTransition><Dashboard /></PageTransition>} />
-          <Route path="/projects/*" element={<PageTransition><ProjectsPage /></PageTransition>} />
           <Route path="/notifications/*" element={<PageTransition><NotificationsPage /></PageTransition>} />
           <Route path="/profile" element={<PageTransition><ProfilePage /></PageTransition>} />
           <Route path="/system/*" element={<PageTransition><SystemModule /></PageTransition>} />
@@ -116,25 +116,36 @@ function AppRoutes() {
           <Route path="/tutorials/*" element={<PageTransition><AcademyModule /></PageTransition>} />
           <Route path="/settings/*" element={<PageTransition><SettingsModule /></PageTransition>} />
           <Route path="/library/*" element={<PageTransition><LibraryModule /></PageTransition>} />
+          
+          {/* Projects Management */}
+          <Route path="/projects">
+            <Route index element={<Navigate to="all" replace />} />
+            <Route path="new" element={<PageTransition><CreateProject /></PageTransition>} />
+            <Route path="all" element={<PageTransition><ProjectsPage /></PageTransition>} />
+            <Route path="draft" element={<PageTransition><ProjectsPage /></PageTransition>} />
+            <Route path="active" element={<PageTransition><ProjectsPage /></PageTransition>} />
+            <Route path="completed" element={<PageTransition><ProjectsPage /></PageTransition>} />
+            <Route path="history" element={<PageTransition><ProjectsPage /></PageTransition>} />
+          </Route>
         </Route>
 
-        {/* Anime Studio Context */}
+        {/* Project Studio Context (Studio Environment) */}
         <Route
-          path="/anime"
+          path="/projects/:projectId"
           element={
-            <StudioContextWrapper>
-              <AnimeLayout />
-            </StudioContextWrapper>
+            <AuthRoute>
+              <StudioContextWrapper>
+                <AnimeLayout />
+              </StudioContextWrapper>
+            </AuthRoute>
           }
         >
-          <Route index element={<Navigate to="/anime/engine" replace />} />
+          <Route index element={<Navigate to="engine" replace />} />
+          <Route path="engine" element={<EngineLayout />}>
+            <Route index element={<PageTransition><AnimeEngine /></PageTransition>} />
+          </Route>
           <Route path="world" element={<WorldLayout />}>
             <Route index element={<PageTransition><AnimeWorld /></PageTransition>} />
-          </Route>
-          <Route path="assets" element={<AssetsLayout />}>
-            <Route index element={<PageTransition><AssetsPage /></PageTransition>} />
-            <Route path="seo" element={<PageTransition><AssetsPage /></PageTransition>} />
-            <Route path="prompts" element={<PageTransition><AssetsPage /></PageTransition>} />
           </Route>
           <Route path="cast" element={<CastLayout />}>
             <Route index element={<PageTransition><RegistryTab onViewCharacter={() => {}} /></PageTransition>} />
@@ -178,9 +189,11 @@ function AppRoutes() {
           <Route path="screening" element={<ScreeningLayout />}>
             <Route index element={<PageTransition><AnimeScreening /></PageTransition>} />
           </Route>
-          <Route path="engine" element={<EngineLayout />}>
-            <Route index element={<PageTransition><AnimeEngine /></PageTransition>} />
+          <Route path="assets" element={<AssetsLayout />}>
+            <Route index element={<PageTransition><AssetsPage /></PageTransition>} />
           </Route>
+          <Route path="api" element={<PageTransition><ApiReferencePage /></PageTransition>} />
+          <Route path="lore" element={<PageTransition><LoreDatabasePage /></PageTransition>} />
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />

@@ -311,35 +311,7 @@ export const ProductionCore = React.memo<ProductionCoreProps>((props) => {
                 </div>
               </div>
 
-              {/* ACTIONS */}
-              <div className="pt-8 space-y-4">
-                <Button
-                  onClick={handleMasterGenerate || handleGenerate}
-                  disabled={isLoading || !prompt}
-                  className={cn(
-                    "btn-genesis w-full h-14 text-[9px] tracking-[0.4em] transition-all",
-                    (isLoading || !prompt) && "opacity-20 grayscale pointer-events-none",
-                    colors.btn
-                  )}
-                >
-                  <Sparkles className="w-4 h-4 fill-white/20" />
-                  GENERATE PRODUCTION PLAN
-                </Button>
-
-                {generatedScript && (
-                  <Button
-                    onClick={handleSaveCurrent}
-                    disabled={isSaving || !user}
-                    className={cn(
-                      "w-full h-12 text-[10px] font-black uppercase tracking-[0.2em] border rounded-xl transition-all flex items-center justify-center gap-3 group",
-                      colors.bg, colors.border, colors.primary
-                    )}
-                  >
-                    <History className="w-4 h-4 group-hover:rotate-12 transition-transform" />
-                    {isSaving ? 'Synchronizing...' : (currentScriptId ? 'Update Manifest' : 'Commit to Library')}
-                  </Button>
-                )}
-              </div>
+              {/* ACTIONS: removed per request (generate & commit buttons) */}
             </div>
           </motion.aside>
         </>

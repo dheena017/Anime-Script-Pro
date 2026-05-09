@@ -1,13 +1,13 @@
 import React from 'react';
 
 import { Card } from '@/components/ui/card';
-import { useGenerator } from '@/hooks/useGenerator';
+import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
 import { continueScript, generateScript, generateMetadata, generateImagePrompts } from '@/services/api/gemini';
 import { jsPDF } from "jspdf";
 import autoTable from 'jspdf-autotable';
 import { useAuth } from '@/hooks/useAuth';
 import { apiRequest } from '@/lib/api-utils';
-import { useOutletContext, useNavigate } from 'react-router-dom';
+import { useOutletContext, useNavigate, useParams } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { ScriptTab } from './Tabs/ScriptTabs';
 
@@ -28,22 +28,28 @@ import { AudioTab } from './Tabs/AudioTab';
 export function ScriptPage() {
   const { user } = useAuth();
   const {
-    generatedScript, setGeneratedScript,
+    generatedScript,
     selectedModel,
-    isLoading, setIsLoading,
-    setIsContinuingScript,
-    setIsGeneratingMetadata, setGeneratedMetadata,
-    setIsGeneratingImagePrompts, setGeneratedImagePrompts,
-    setIsGeneratingVisuals,
-    currentScriptId, setCurrentScriptId,
-    visualData, setVisualData,
-    setEpisode, setSession,
+    isLoading,
     recapperPersona,
     tone, audience, prompt, episode, session, contentType, numScenes,
     generatedWorld, generatedCharacters, characterRelationships,
     generatedSeriesPlan,
+    currentScriptId,
+    visualData
+  } = useGeneratorState();
+  const {
+    setGeneratedScript,
+    setIsLoading,
+    setIsContinuingScript,
+    setIsGeneratingMetadata, setGeneratedMetadata,
+    setIsGeneratingImagePrompts, setGeneratedImagePrompts,
+    setIsGeneratingVisuals,
+    setCurrentScriptId,
+    setVisualData,
+    setEpisode, setSession,
     showNotification
-  } = useGenerator();
+  } = useGeneratorDispatch();
 
 
 
@@ -190,11 +196,7 @@ export function ScriptPage() {
     }
   };
 
-
-
-
-
-
+  const { projectId } = useParams();
   const navigate = useNavigate();
 
   const handleGenerateSEO = async () => {
@@ -202,7 +204,7 @@ export function ScriptPage() {
 
     // If we already have metadata, just navigate
     if (recapperPersona) {
-      navigate('/anime/seo');
+      navigate(`/projects/${projectId}/seo`);
       return;
     }
 
@@ -211,7 +213,7 @@ export function ScriptPage() {
       const seo = await generateMetadata(generatedScript, selectedModel);
       setGeneratedMetadata(seo);
       showNotification?.('SEO data generated successfully!', 'success');
-      navigate('/anime/seo');
+      navigate(`/projects/${projectId}/seo`);
     } catch (e: any) {
       showNotification?.('Failed to generate SEO data: ' + (e.message || 'Error'), 'error');
     } finally {
@@ -227,7 +229,7 @@ export function ScriptPage() {
       const prompts = await generateImagePrompts(generatedScript, selectedModel);
       setGeneratedImagePrompts(prompts);
       showNotification?.('Image prompts generated successfully!', 'success');
-      navigate('/anime/prompts');
+      navigate(`/projects/${projectId}/prompts`);
     } catch (e: any) {
       showNotification?.('Failed to generate prompts: ' + (e.message || 'Error'), 'error');
     } finally {
@@ -240,7 +242,7 @@ export function ScriptPage() {
     setIsGeneratingVisuals(true);
     try {
       showNotification?.('Navigating to Storyboard Generator...', 'success');
-      navigate('/anime/storyboard');
+      navigate(`/projects/${projectId}/storyboard`);
     } catch (e: any) {
       showNotification?.('Failed to generate storyboard: ' + (e.message || 'Error'), 'error');
     } finally {
@@ -293,7 +295,10 @@ export function ScriptPage() {
   }, [generatedScript, visualData, episode, session]);
 
   const renderTabContent = () => {
-    if (isLoading) {
+    // During streaming: show script as it arrives (don't block on isLoading)
+    const isStreaming = isLoading && !!generatedScript;
+
+    if (isLoading && !generatedScript) {
       return (
         <div className="flex flex-col items-center justify-center h-[500px] space-y-8">
           <div className="relative">

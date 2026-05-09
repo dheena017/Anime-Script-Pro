@@ -1,4 +1,4 @@
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink, useLocation, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -6,7 +6,6 @@ import {
   ScrollText,
   UserPlus,
   Layers,
-  Globe,
   Zap,
   Loader2,
   SlidersHorizontal,
@@ -15,7 +14,10 @@ import {
   Search,
   ImageIcon,
   Play,
-  Layout as LayoutIcon
+  LayoutDashboard,
+  Layout as LayoutIcon,
+  Cpu,
+  Globe
 } from 'lucide-react';
 import React from 'react';
 
@@ -59,6 +61,8 @@ export const AnimeStudioSideBar = React.memo<AnimeStudioSideBarProps>(({
   const distributionItems = [
     { icon: Search, label: 'SEO', path: '/seo' },
     { icon: ImageIcon, label: 'Prompts', path: '/prompts' },
+    { icon: Globe, label: 'World Lore', path: '/lore' },
+    {icon: Cpu, label: 'API Reference', path: '/api'},
     { icon: Play, label: 'Screening Room', path: '/screening' },
   ];
 
@@ -142,13 +146,15 @@ export const AnimeStudioSideBar = React.memo<AnimeStudioSideBarProps>(({
             transition={{ duration: 0 }}
             className="flex items-center gap-4 px-6 h-[80px] shrink-0 bg-black"
           >
-            <div className="w-10 h-10 bg-black border border-cyan-500/30 rounded-xl flex items-center justify-center shadow-[0_0_25px_rgba(6,182,212,0.2)]">
-              <Zap className="text-cyan-500 w-6 h-6" />
-            </div>
-            <div className="flex flex-col">
-              <span className="font-black tracking-[0.2em] text-[12px] uppercase text-white leading-none italic">Anime <span className="text-cyan-500">Studio</span></span>
-              <span className="text-[8px] font-bold text-zinc-600 uppercase tracking-[0.3em] mt-1.5">Studio v2.5</span>
-            </div>
+            <Link to="/dashboard" className="flex items-center gap-4 group cursor-pointer transition-all active:scale-95">
+              <div className="w-10 h-10 bg-black border border-cyan-500/30 rounded-xl flex items-center justify-center shadow-[0_0_25px_rgba(6,182,212,0.2)] group-hover:border-cyan-400 group-hover:shadow-[0_0_35px_rgba(6,182,212,0.4)] transition-all duration-500">
+                <Zap className="text-cyan-500 w-6 h-6 group-hover:scale-110 transition-transform" />
+              </div>
+              <div className="flex flex-col">
+                <span className="font-black tracking-[0.2em] text-[12px] uppercase text-white leading-none italic group-hover:text-cyan-400 transition-colors">Anime <span className="text-cyan-500">Studio</span></span>
+                <span className="text-[8px] font-bold text-zinc-600 uppercase tracking-[0.3em] mt-1.5">Studio v2.5</span>
+              </div>
+            </Link>
             <button
               onClick={(e) => {
                 e.stopPropagation();
@@ -166,8 +172,16 @@ export const AnimeStudioSideBar = React.memo<AnimeStudioSideBarProps>(({
         <nav className="p-4">
           <div className="space-y-1 mb-8">
             {!collapsed && (
-               <div className="px-5 mb-6">
+               <div className="px-5 mb-6 space-y-4">
                   <p className="text-[8px] font-black text-cyan-500 uppercase tracking-[0.5em]">Production Studio</p>
+                  <Link 
+                    to="/dashboard"
+                    className="flex items-center gap-4 px-5 py-3 rounded-2xl text-[10px] font-black transition-all duration-300 group uppercase tracking-[0.2em] text-zinc-500 hover:text-cyan-400 hover:bg-cyan-500/5 border border-transparent hover:border-cyan-500/20"
+                  >
+                    <LayoutDashboard className="w-4 h-4 text-zinc-700 group-hover:text-cyan-400 group-hover:scale-110 transition-all duration-500" />
+                    <span>Return to Dashboard</span>
+                  </Link>
+                  <div className="h-px bg-zinc-800/50 mx-2" />
                </div>
             )}
             

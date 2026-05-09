@@ -8,7 +8,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight, Cpu, Layout, Save, Sparkles, Square, Box } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useGenerator } from '@/hooks/useGenerator';
+import { useGeneratorDispatch } from '@/hooks/useGenerator';
 
 interface SeriesHeaderProps {
   onRegenerate: () => void;
@@ -42,7 +42,7 @@ export const SeriesHeader: React.FC<SeriesHeaderProps> = ({
   episode,
   status = 'empty'
 }) => {
-  const { stopGeneration } = useGenerator();
+  const { stopGeneration } = useGeneratorDispatch();
 
   return (
     <TooltipProvider>
@@ -162,7 +162,7 @@ export const SeriesHeader: React.FC<SeriesHeaderProps> = ({
                 </Tooltip>
               )}
 
-              {onSave && hasContent && (
+              {onSave && (
                 <Tooltip>
                   <TooltipTrigger  >
                     <Button

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { useGenerator } from '@/hooks/useGenerator';
+import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
 import { generateEpisodeAssets, generateScene, generateImagePrompts, generateVideoPrompts, generateSceneImage, generateSceneVideo } from '@/services/api/gemini';
 import { seriesRenderService, type ServerRenderJobStatus } from '@/services/api/seriesRender';
 
@@ -13,9 +13,11 @@ export default function EpisodePackager() {
     episode,
     session,
     selectedModel,
+  } = useGeneratorState();
+  const {
     setGeneratedImagePrompts,
     setGeneratedScript,
-  } = useGenerator();
+  } = useGeneratorDispatch();
 
   const [isLoading, setIsLoading] = React.useState(false);
   const [packageJson, setPackageJson] = React.useState<any | null>(null);

@@ -10,6 +10,9 @@ jinja2
 
 # AI Engine
 google-genai
+anthropic
+openai
+groq
 
 # Database Drivers
 aiosqlite

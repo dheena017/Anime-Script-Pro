@@ -1,7 +1,7 @@
 import { useContext, useEffect } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
-import { useGenerator } from '@/hooks/useGenerator';
+import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
 import { useSEOState, useSEODispatch, useEngineState } from '@/contexts/generator';
 import {
   generateMetadata,
@@ -32,9 +32,8 @@ export function SEOPage() {
   const { activeTab } = useOutletContext<{ activeTab: SEOTab }>();
   const { setHandlers } = useContext(SEOContext);
 
-  const {
-    generatedScript, showNotification
-  } = useGenerator();
+  const { generatedScript } = useGeneratorState();
+  const { showNotification } = useGeneratorDispatch();
 
   const {
     generatedMetadata, generatedDescription, generatedAltText,

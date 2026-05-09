@@ -3,7 +3,7 @@ import { Layout as LayoutGrid, List } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AnimatePresence } from 'framer-motion';
 import { Card } from '@/components/ui/card';
-import { useGenerator } from '@/hooks/useGenerator';
+import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
 import { useStoryboard, useEngineState } from '@/contexts/generator';
 import { useOutletContext } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -46,10 +46,13 @@ interface Scene {
 
 export function StoryboardPage() {
   const {
-    generatedScript, setGeneratedScript,
+    generatedScript,
     generatedImagePrompts,
+  } = useGeneratorState();
+  const {
+    setGeneratedScript,
     addLog
-  } = useGenerator();
+  } = useGeneratorDispatch();
 
   const { state: storyboardState, dispatch: storyboardDispatch } = useStoryboard();
   const { scenes, visualData, videoData, isGeneratingVisuals, enhancingSceneIds } = storyboardState;

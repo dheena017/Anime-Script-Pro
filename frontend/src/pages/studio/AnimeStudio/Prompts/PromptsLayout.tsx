@@ -2,7 +2,7 @@ import React from 'react';
 import { Outlet, useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import EpisodePackager from './components/EpisodePackager';
-import { useGenerator } from '@/hooks/useGenerator';
+import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
 import { useAuth } from '@/hooks/useAuth';
 import { useLogs } from '@/contexts/LogContext';
 import { generateImagePrompts, generateVideoPrompts } from '@/services/api/gemini';
@@ -11,6 +11,7 @@ import { PromptsToolbar } from './components/PromptsToolbar';
 import { PromptsTabs, PromptsTab } from './Tabs/PromptsTabs';
 import { PromptsLoadingPage } from './components/PromptsLoadingPage';
 import { PromptsEmptyState } from './components/PromptsEmptyState';
+import { StudioTabsProgressBar } from '@/pages/studio/components/studio/layout/StudioTabsProgressBar';
 
 export const PromptsContext = React.createContext<{
   setHandlers: React.Dispatch<React.SetStateAction<any>>;
@@ -22,18 +23,27 @@ export default function PromptsLayout() {
   const [handlers, setHandlers] = React.useState<any>({});
 
   const {
-    generatedImagePrompts, setGeneratedImagePrompts,
-    videoData, setVideoData,
-    isLoading, setIsLoading,
+    generatedImagePrompts,
+    videoData,
+    isLoading,
     generatedScript, selectedModel, session, episode,
-    showNotification,
-    isSaving, setIsSaving,
+    isSaving,
     castProfiles, castData, generatedSeriesPlan, generatedMetadata,
     contentType,
     generationProgress,
-    isEditing, setIsEditing,
+    isEditing,
     currentScriptId
-  } = useGenerator();
+  } = useGeneratorState();
+  const {
+    setGeneratedImagePrompts,
+    setVideoData,
+    setIsLoading,
+    showNotification,
+    setIsSaving,
+    setIsEditing,
+    syncCore,
+    setGenerationProgress
+  } = useGeneratorDispatch();
 
   const { user } = useAuth();
   const { addLog } = useLogs();
@@ -83,14 +93,17 @@ export default function PromptsLayout() {
     }
 
     setIsLoading(true);
+    setGenerationProgress(10);
     try {
       // Image prompts first (switch to image tab)
       setSearchParams({ tab: 'image' });
       console.log('[PromptsLayout] Requesting image prompts generation...');
+      setGenerationProgress(40);
       const prompts = await generateImagePrompts(generatedScript, selectedModel);
       setGeneratedImagePrompts(prompts as any);
       console.log(`[PromptsLayout] Image prompts generated successfully. Response length: ${prompts?.length || 0} chars.`);
       showNotification?.('Image prompts synthesized.', 'success');
+      setGenerationProgress(70);
       await new Promise((r) => setTimeout(r, 2000));
 
       // Then video prompts (switch to video tab)
@@ -100,9 +113,12 @@ export default function PromptsLayout() {
       setVideoData(vprompts as any);
       console.log(`[PromptsLayout] Video prompts generated successfully. Response length: ${JSON.stringify(vprompts)?.length || 0} chars.`);
       showNotification?.('Video prompts synthesized.', 'success');
+      setGenerationProgress(100);
       await new Promise((r) => setTimeout(r, 2000));
 
       showNotification?.('All prompts generated successfully!', 'success');
+      // Reset progress after a short delay
+      setTimeout(() => setGenerationProgress(0), 3000);
     } catch (e: any) {
       console.error('[PromptsLayout] Failed to generate prompts:', e);
       showNotification?.('Failed to generate prompts: ' + (e.message || 'Unknown error'), 'error');
@@ -128,8 +144,12 @@ export default function PromptsLayout() {
           <PromptsHeader
             onRegenerate={handlers.handleGenerate || handleGenerateAll}
             isGenerating={handlers.isGenerating || isLoading}
-            onNext={() => navigate(`/${contentType.toLowerCase()}/screening`)}
-            onPrev={() => navigate(`/${contentType.toLowerCase()}/seo`)}
+            onNext={() => {
+              navigate(`/projects/${projectId}/screening`);
+            }}
+            onPrev={() => {
+              navigate(`/projects/${projectId}/seo`);
+            }}
             onSave={handleSave}
             isSaving={isSaving}
             hasContent={activeTab === 'video' ? !!videoData : !!generatedImagePrompts}
@@ -143,6 +163,7 @@ export default function PromptsLayout() {
           <div className="relative z-10 w-full flex justify-center">
             <PromptsTabs activeTab={activeTab} setActiveTab={handleTabChange} />
           </div>
+          <StudioTabsProgressBar progress={generationProgress} theme="cyan" />
         </div>
 
         {((activeTab === 'image' && generatedImagePrompts) || (activeTab === 'video' && videoData)) && !isLoading && !handlers.isGenerating && (

@@ -2,7 +2,7 @@ import pytest
 from httpx import AsyncClient, ASGITransport
 from fastapi import status
 from backend.fastapi_app import app
-from backend.database import engine
+from backend.database import async_engine
 import sqlalchemy
 
 
@@ -16,14 +16,12 @@ async def test_production_creation_flow():
     Test the full production data flow from Project creation to Scene scaffolding.
     Ensures that the backend correctly handles the data and persists it (to a test DB).
     """
-    # Create tables
-    from sqlmodel import SQLModel
-    SQLModel.metadata.create_all(engine)
+    # Tables are created by the FastAPI app on startup, no need to do it manually
     
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
         # 1. Create a Project (Initial Foundation)
         project_data = {
-            "user_id": "test_user_123",
+            "user_id": "local-dev-architect-id",
             "name": "E2E Test Production",
             "content_type": "Anime",
             "prompt": "Gravity controlled by music.",
@@ -40,15 +38,16 @@ async def test_production_creation_flow():
 
         # 2. Add World Lore
         lore_content = "The Umbra Realm coexists with the light."
-    # Update manifest via world manifest endpoint
-    user_id = project_data.get("user_id") if project_data.get("user_id") else "test_user_123"
-    resp = await ac.post(f"/api/world/manifest/{user_id}", json={"content": lore_content, "project_id": project_id})
-    assert_success(resp)
-    assert resp.json()["data"]["manifest_blob"] == lore_content
+        # Update manifest via world manifest endpoint
+        user_id = project_data.get("user_id") if project_data.get("user_id") else "local-dev-architect-id"
+        resp = await ac.post(f"/api/world/manifest/{user_id}", json={"content": lore_content, "project_id": project_id}, headers={"x-bypass-auth": "true"})
+        assert_success(resp)
+        assert resp.json()["data"]["manifest_blob"] == lore_content
 
-    world_resp = await ac.get(f"/api/world/manifest/{user_id}?project_id={project_id}")
-    assert_success(world_resp)
-    assert world_resp.json()["data"]["manifest_blob"] == lore_content
+        world_resp = await ac.get(f"/api/world/manifest/{user_id}?project_id={project_id}", headers={"x-bypass-auth": "true"})
+        assert_success(world_resp)
+        assert world_resp.json()["data"]["manifest_blob"] == lore_content
+        
         # 3. Add Characters (Cast Profiles)
         cast_data = {
             "project_id": project_id,

@@ -108,7 +108,7 @@ export const ScreeningHeader: React.FC<ScreeningHeaderProps> = ({
                 </TooltipContent>
               </Tooltip>
 
-              {onSave && hasContent && (
+              {onSave && (
                 <Tooltip>
                   <TooltipTrigger >
                     <Button 

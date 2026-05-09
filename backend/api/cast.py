@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Header
 from sqlalchemy import select
 from backend.database import async_session, get_async_session, AsyncSession
 from backend.database.models.world import CastManifest
@@ -8,6 +8,9 @@ from typing import Optional, Any
 from loguru import logger
 
 router = APIRouter(prefix="/api/cast", tags=["Cast Management"])
+
+def resolve_project_id(route_project_id: Optional[int], header_project_id: Optional[int]) -> Optional[int]:
+    return route_project_id or header_project_id
 
 # --- Neural Response Wrapper ---
 def wrap_response(data: Any, message: str = "Success"):
@@ -22,6 +25,7 @@ def wrap_response(data: Any, message: str = "Success"):
 async def get_cast_manifest(
     user_id: str,
     project_id: Optional[int] = None,
+    x_project_id: Optional[int] = Header(default=None, alias="X-Project-Id"),
     session: AsyncSession = Depends(get_async_session),
     auth_user_id: str = Depends(get_auth_user_id),
 ):
@@ -29,9 +33,11 @@ async def get_cast_manifest(
     if user_id != auth_user_id:
         raise HTTPException(status_code=403, detail="Unauthorized Cast Access")
 
+    effective_project_id = resolve_project_id(project_id, x_project_id)
+
     statement = select(CastManifest).where(CastManifest.user_id == user_id)
-    if project_id:
-        statement = statement.where(CastManifest.project_id == project_id)
+    if effective_project_id:
+        statement = statement.where(CastManifest.project_id == effective_project_id)
     statement = statement.order_by(CastManifest.updated_at.desc())
     
     result = await session.execute(statement)
@@ -50,6 +56,7 @@ async def update_cast_manifest(
     user_id: str,
     update: dict,
     project_id: Optional[int] = None,
+    x_project_id: Optional[int] = Header(default=None, alias="X-Project-Id"),
     session: AsyncSession = Depends(get_async_session),
     auth_user_id: str = Depends(get_auth_user_id),
 ):
@@ -57,7 +64,7 @@ async def update_cast_manifest(
     if user_id != auth_user_id:
         raise HTTPException(status_code=403, detail="Unauthorized Cast Update")
 
-    effective_project_id = project_id or update.get("project_id")
+    effective_project_id = resolve_project_id(project_id, x_project_id) or update.get("project_id")
 
     statement = select(CastManifest).where(CastManifest.user_id == user_id)
     if effective_project_id:

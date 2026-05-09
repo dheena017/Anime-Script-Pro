@@ -9,7 +9,7 @@ import {
    History,
    AlertTriangle
 } from 'lucide-react';
-import { useGenerator } from '@/hooks/useGenerator';
+import { useGeneratorState } from '@/hooks/useGenerator';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { getTypeIcon } from '../../components/RelationshipCard';
@@ -17,7 +17,7 @@ import { getTypeIcon } from '../../components/RelationshipCard';
 export default function RelationshipViewPage() {
    const { relationshipId } = useParams();
    const navigate = useNavigate();
-   const { characterRelationships, contentType } = useGenerator();
+   const { characterRelationships, contentType } = useGeneratorState();
 
    const connections = React.useMemo(() => {
       if (typeof characterRelationships === 'string') {

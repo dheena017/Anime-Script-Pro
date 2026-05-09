@@ -7,7 +7,7 @@ import {
   TooltipTrigger
 } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
-import { useGenerator } from '@/hooks/useGenerator';
+import { useGeneratorDispatch } from '@/hooks/useGenerator';
 
 interface StoryboardHeaderProps {
   isLiked?: boolean;
@@ -44,7 +44,7 @@ export const StoryboardHeader: React.FC<StoryboardHeaderProps> = ({
   status = 'empty',
   progress = 0
 }) => {
-  const { stopGeneration } = useGenerator();
+  const { stopGeneration } = useGeneratorDispatch();
 
   return (
     <TooltipProvider>
@@ -122,7 +122,7 @@ export const StoryboardHeader: React.FC<StoryboardHeaderProps> = ({
                 </TooltipContent>
               </Tooltip>
 
-              {onSave && hasContent && (
+              {onSave && (
                 <Tooltip>
                   <TooltipTrigger  >
                     <Button

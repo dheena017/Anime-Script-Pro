@@ -7,8 +7,10 @@ import { ScriptHeader } from './components/ScriptHeader';
 import { ScriptToolbar } from './components/ScriptToolbar';
 import { ScriptLoadingPage } from './components/ScriptLoadingPage';
 import { generateScript, generateMetadata } from '@/services/api/gemini';
+import { generateScriptStream } from '@/services/generators/script';
 import { ScriptTabs, ScriptTab } from './Tabs/ScriptTabs';
 import { studioLog, reportTabChange, reportGeneration } from '@/lib/studio-logger';
+import { StudioTabsProgressBar } from '@/pages/studio/components/studio/layout/StudioTabsProgressBar';
 
 export const ScriptContext = React.createContext<{
   setHandlers: React.Dispatch<React.SetStateAction<any>>;
@@ -29,8 +31,13 @@ export default function ScriptLayout() {
   } = useGeneratorState();
 
   const {
-    setGeneratedScript, setIsLoading, syncCore,
-    setGeneratedImagePrompts, setGeneratedMetadata, setIsEditing
+    setGeneratedScript,
+    setGeneratedImagePrompts,
+    setGeneratedMetadata,
+    setIsLoading,
+    setGenerationProgress,
+    syncCore,
+    setIsEditing
   } = useGeneratorDispatch();
 
   useAuth();
@@ -50,35 +57,46 @@ export default function ScriptLayout() {
       return;
     }
 
+    setGenerationProgress(5);
     setIsLoading(true);
-    // Clear existing data to show empty states for pending tabs
     setGeneratedScript(null);
     setGeneratedImagePrompts(null);
     setGeneratedMetadata(null);
+
+    // Switch to teleprompter immediately so the user sees the stream
+    setSearchParams({ tab: 'teleprompter' });
+
     try {
       const currentEpisodePlan = generatedSeriesPlan?.find((ep: any) => parseInt(ep.episode) === parseInt(episode));
       reportGeneration('ScriptLayout', `Script generation for Session ${session}, Episode ${episode}`, 'request', 'anime');
-      const script = await generateScript(
+
+      const script = await generateScriptStream(
         prompt, tone, audience, session, episode, numScenes, selectedModel, contentType,
         recapperPersona, characterRelationships, generatedWorld, generatedCharacters,
-        currentEpisodePlan ? JSON.stringify(currentEpisodePlan) : null
+        currentEpisodePlan ? JSON.stringify(currentEpisodePlan) : null,
+        // onChunk: update the script live as tokens arrive
+        (partial) => setGeneratedScript(partial),
       );
-      setSearchParams({ tab: 'teleprompter' });
+
       setGeneratedScript(script);
+      setGenerationProgress(50);
       reportGeneration('ScriptLayout', 'Script generation', 'success', 'anime', { length: script?.length || 0 });
       showNotification?.('Script drafted.', 'success');
       await new Promise((r) => setTimeout(r, 2000));
 
       // Review linguistics analysis
       setSearchParams({ tab: 'linguistics' });
+      setGenerationProgress(60);
       await new Promise((r) => setTimeout(r, 2000));
 
       // Review beat sheet
       setSearchParams({ tab: 'beats' });
+      setGenerationProgress(70);
       await new Promise((r) => setTimeout(r, 2000));
 
       // Review dialogue
       setSearchParams({ tab: 'dialogue' });
+      setGenerationProgress(80);
       await new Promise((r) => setTimeout(r, 2000));
 
       // Generate & review metadata/SEO
@@ -93,6 +111,7 @@ export default function ScriptLayout() {
           setGeneratedMetadata(metadata as any);
           reportGeneration('ScriptLayout', 'Metadata generation', 'success', 'anime', { length: JSON.stringify(metadata)?.length || 0 });
         }
+        setGenerationProgress(95);
         showNotification?.('Script metadata indexed.', 'success');
         await new Promise((r) => setTimeout(r, 2000));
       } catch (metaErr) {
@@ -100,10 +119,14 @@ export default function ScriptLayout() {
       }
 
       setSearchParams({ tab: 'teleprompter' });
+      setGenerationProgress(100);
       showNotification?.('Full Script Synthesized!', 'success');
+      // Reset progress after a short delay
+      setTimeout(() => setGenerationProgress(0), 3000);
     } catch (e: any) {
       reportGeneration('ScriptLayout', 'Script Synthesization', 'failure', 'anime', e);
       showNotification?.('Failed to write script: ' + (e.message || 'Unknown error'), 'error');
+      setGenerationProgress(0);
     } finally {
       setIsLoading(false);
     }
@@ -135,8 +158,12 @@ export default function ScriptLayout() {
           <ScriptHeader
             onRegenerate={handleGenerateAll}
             isGenerating={isLoading}
-            onNext={() => navigate(`/${contentType.toLowerCase()}/storyboard`)}
-            onPrev={() => navigate(`/${contentType.toLowerCase()}/series`)}
+            onNext={() => {
+              navigate(`/projects/${projectId}/storyboard`);
+            }}
+            onPrev={() => {
+              navigate(`/projects/${projectId}/series`);
+            }}
             onSave={handleSave}
             isSaving={isSaving}
             hasContent={!!generatedScript}
@@ -150,6 +177,7 @@ export default function ScriptLayout() {
           <div className="relative z-10 w-full flex justify-center">
             <ScriptTabs activeTab={activeTab} setActiveTab={handleTabChange} />
           </div>
+          <StudioTabsProgressBar progress={generationProgress} theme="cyan" />
         </div>
 
         {/* Toolbar Section */}

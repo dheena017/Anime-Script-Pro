@@ -15,14 +15,14 @@ import {
   Scale
 } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { useGenerator } from '@/hooks/useGenerator';
+import { useGeneratorState } from '@/hooks/useGenerator';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 
 export default function CharacterViewPage() {
   const { characterName } = useParams();
   const navigate = useNavigate();
-  const { castData, castList, contentType } = useGenerator();
+  const { castData, castList, contentType } = useGeneratorState();
 
   const displayCast = castData?.characters || castList || [];
   const character = displayCast.find((c: any) => c.name === characterName);

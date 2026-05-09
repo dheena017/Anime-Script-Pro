@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { UserPlus, Sparkles, Fingerprint, Brain, RefreshCcw } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { useGenerator } from '@/hooks/useGenerator';
+import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
 import { StudioEmptyState } from '@/pages/studio/components/studio/shared/StudioEmptyState';
 import { generateCharacters } from '@/services/api/gemini';
 import { cn } from '@/lib/utils';
 
 export const AddLeadTab: React.FC = () => {
-  const { castList, setCastList, showNotification, prompt, selectedModel, contentType, generatedWorld } = useGenerator();
+  const { castList, prompt, selectedModel, contentType, generatedWorld } = useGeneratorState();
+  const { setCastList, showNotification } = useGeneratorDispatch();
   const hasCast = Array.isArray(castList) && castList.length > 0;
   const [showForm, setShowForm] = useState(hasCast);
   const [name, setName] = useState('');

@@ -1,4 +1,4 @@
-import { callAI } from "./core";
+import { callAI, streamAI } from "./core";
 import { MOCK_WORLD } from "./mockData";
 import { 
   WORLD_GENERATION_PROMPT, 
@@ -251,6 +251,33 @@ export async function generateWorld(prompt: string, model: string = "gemini-2.5-
   } catch (error: any) {
     console.error("Error generating world:", error);
     return MOCK_WORLD;
+  }
+}
+
+/**
+ * High-performance streaming version of world generation.
+ */
+export async function streamWorld(
+  prompt: string, 
+  onChunk: (chunk: string) => void,
+  model: string = "gemini-3.1-flash", 
+  contentType: string = "Anime"
+): Promise<string> {
+  validateWorldPrompt(prompt);
+  const normalizedContentType = normalizeContentType(contentType);
+  const enhancedPrompt = buildWorldPrompt(prompt, normalizedContentType);
+  const systemInstruction = WORLD_GENERATION_PROMPT(normalizedContentType);
+
+  let fullText = "";
+  try {
+    await streamAI(model, enhancedPrompt, systemInstruction, (chunk) => {
+      fullText += chunk;
+      onChunk(fullText);
+    });
+    return fullText;
+  } catch (error) {
+    console.error("World streaming failed:", error);
+    throw error;
   }
 }
 

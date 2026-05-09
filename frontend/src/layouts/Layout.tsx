@@ -13,10 +13,7 @@ export function Layout() {
   const location = useLocation();
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
 
-
-  const isStudioMode = location.pathname.startsWith('/anime') ||
-    location.pathname.startsWith('/manhwa') ||
-    location.pathname.startsWith('/comic');
+  const isStudioMode = location.pathname.startsWith('/projects/') && !location.pathname.endsWith('/new') && !location.pathname.endsWith('/projects');
 
   return (
     <div className={cn(
@@ -24,8 +21,7 @@ export function Layout() {
       isFullscreen && "studio-fullscreen-mode"
     )}>
 
-
-      {/* Unified Sidebar (hidden on studio-mode-less routes like /anime) */}
+      {/* Unified Sidebar (hidden on studio-mode-less routes like /projects/:id) */}
       {!isStudioMode && (
         <Sidebar collapsed={!isSidebarOpen} setCollapsed={(val) => setIsSidebarOpen(!val)} />
       )}

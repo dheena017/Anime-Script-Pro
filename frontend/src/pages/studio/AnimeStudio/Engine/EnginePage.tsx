@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from 'react';
-import { useOutletContext, useSearchParams } from 'react-router-dom';
+import { useOutletContext, useSearchParams, useNavigate } from 'react-router-dom';
 import {
   Settings,
   Cpu, Layout as LayoutGrid, Activity, Zap, Search,
@@ -7,12 +7,11 @@ import {
 } from 'lucide-react';
 import { getIconComponent, useTemplates, Template } from '@/hooks/useTemplates';
 import { cn } from '@/lib/utils';
-import { useGenerator } from '@/hooks/useGenerator';
+import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
 import { useEngineState, useEngineDispatch } from '@/contexts/generator';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { generateImagePrompts, generateScript } from '@/services/api/gemini';
 import { useProjects } from '@/hooks/useProjects';
 import { Project } from '@/services/api/projects';
 // Context
@@ -37,26 +36,26 @@ import { EngineLogs } from './tabs/EngineLogs';
 export function EnginePage() {
   const { activeTab } = useOutletContext<{ activeTab: EngineTab }>();
   const { setHandlers } = useContext(EngineContext);
-  const [, setSearchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
   const { user } = useAuth();
 
   const {
-    setIsSaving,
     generatedScript,
-    setCurrentScriptId,
     prompt: globalPrompt,
-    setPrompt: setGlobalPrompt,
-    setGeneratedScript,
-    setGeneratedImagePrompts,
-    setIsGeneratingSeries,
     isGeneratingCharacters,
     isGeneratingMetadata,
     isGeneratingImagePrompts,
-    isGeneratingSeries,
-    isGeneratingDescription,
     isGeneratingWorld,
     isGeneratingVisuals,
-  } = useGenerator();
+  } = useGeneratorState();
+  const {
+    setIsSaving,
+    setCurrentScriptId,
+    setPrompt: setGlobalPrompt,
+    setGeneratedScript,
+    syncCore,
+  } = useGeneratorDispatch();
 
   const { tone, selectedModel, contentType: localContentType } = useEngineState();
   const { templates, loading: loadingTemplates } = useTemplates();
@@ -66,43 +65,10 @@ export function EnginePage() {
 
   const [prompt, setPrompt] = useState(globalPrompt || '');
 
-  const isGeneratingScript = isGeneratingCharacters || isGeneratingMetadata || isGeneratingImagePrompts || isGeneratingSeries || isGeneratingDescription || isGeneratingWorld || isGeneratingVisuals;
+  const isGeneratingScript = isGeneratingCharacters || isGeneratingMetadata || isGeneratingImagePrompts || isGeneratingWorld || isGeneratingVisuals;
 
-  const handleCreateNew = async () => {
-    if (!user) return;
-
-    setIsSaving(true);
-    try {
-      const newProjectData = {
-        user_id: user.id,
-        title: "New Architectural Manifest",
-        content_type: localContentType,
-        prompt: "",
-        vibe: tone,
-        model_used: selectedModel,
-        status: "INITIALIZING"
-      };
-
-      const res = await fetch("/api/projects", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newProjectData)
-      });
-
-      if (!res.ok) throw new Error("Creation failed");
-      const project = await res.json();
-
-      if (project?.id) {
-        setPrompt('');
-        setSearchParams({ project_id: project.id.toString() });
-        setCurrentScriptId(project.id);
-        refetchProjects();
-      }
-    } catch (error) {
-      console.error("Failed to create new project:", error);
-    } finally {
-      setIsSaving(false);
-    }
+  const handleCreateNew = () => {
+    navigate('/projects/new');
   };
 
   const handleApplyProject = (proj: Project) => {
@@ -125,25 +91,11 @@ export function EnginePage() {
   };
 
   const handleSaveCurrent = async () => {
-    if (!generatedScript || !user) return;
+    if (!user) return;
     setIsSaving(true);
     try {
-      const res = await fetch("/api/projects", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          user_id: user.id,
-          name: prompt || "Untitled Script",
-          content_type: localContentType,
-          prompt: prompt,
-          vibe: tone,
-          model_used: selectedModel
-        })
-      });
-
-      if (!res.ok) throw new Error("Failed to save project");
-      const project = await res.json();
-      setCurrentScriptId(project.id);
+      await syncCore();
+      refetchProjects();
     } catch (error) {
       console.error("Save failed:", error);
     } finally {
@@ -177,33 +129,11 @@ export function EnginePage() {
 
     switch (activeTab) {
       case 'status':
-        async function handleGenerate() {
+        const handleGenerate = () => {
           if (!prompt.trim()) return;
-
-          setIsGeneratingSeries(true);
           setGlobalPrompt(prompt);
-
-          try {
-            const res = await generateProductionAssets({
-              prompt,
-              tone,
-              model: selectedModel,
-              contentType: localContentType
-            });
-
-
-            if (res) {
-              setGeneratedScript(res.script);
-              if (res.episodeImagePrompts) {
-                setGeneratedImagePrompts(res.episodeImagePrompts);
-              }
-              // Successfully synthesized
-            }
-          } catch (error) {
-            console.error("Synthesis failed:", error);
-          } finally {
-            setIsGeneratingSeries(false);
-          }
+          // Dispatch global event that Layout listens to
+          window.dispatchEvent(new CustomEvent('studio-generate-all'));
         }
 
         return (
@@ -653,23 +583,5 @@ export function EnginePage() {
   );
 }
 
-async function generateProductionAssets(args: { prompt: string; tone: string; model: string; contentType: string; }) {
-  const script = await generateScript(
-    args.prompt,
-    args.tone,
-    'General Fans',
-    '1',
-    '1',
-    '6',
-    args.model,
-    args.contentType
-  );
 
-  const episodeImagePrompts = await generateImagePrompts(script, args.model);
-
-  return {
-    script,
-    episodeImagePrompts,
-  };
-}
 

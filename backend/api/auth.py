@@ -110,8 +110,8 @@ async def secure_login(
     try:
         async with async_session() as db:
             statement = select(User).where(User.email == login_data.email)
-            result = await db.exec(statement)
-            user = result.first()
+            result = await db.execute(statement)
+            user = result.scalars().first()
             
             if not user:
                 logger.warning(f"Login failed: User {login_data.email} not found")

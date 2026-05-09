@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { Plus, ListFilter, Search, Layout as LayoutGrid, List, User, Camera } from 'lucide-react';
-import { useGenerator } from '@/hooks/useGenerator';
+import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
 import { StudioEditor } from '../../../components/StudioEditor';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
@@ -13,14 +13,16 @@ export default function CharactersPage() {
   const navigate = useNavigate();
   const { 
     castList, 
-    setCastList,
     isEditing,
-    setIsEditing,
     contentType,
     generatedCharacters,
+  } = useGeneratorState();
+  const {
+    setCastList,
+    setIsEditing,
     setGeneratedCharacters,
     showNotification: notify
-  } = useGenerator();
+  } = useGeneratorDispatch();
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
   const displayCast = castList || [];

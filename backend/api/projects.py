@@ -3,6 +3,7 @@ from fastapi import Body
 from sqlalchemy import select
 from backend.database import async_session
 from typing import List, Optional
+from datetime import datetime
 from loguru import logger
 from backend.database.models import Project, Series, ProductionSession, Episode, PromptLibrary, Category, Script, CastMember
 from backend.utils.deps import get_auth_user_id
@@ -36,6 +37,57 @@ async def create_project(project: Project, user_id: str = Depends(get_auth_user_
         await session.commit()
         await session.refresh(project)
         logger.info(f"[PROJECT] Production Initialized: {project.title}")
+        return project
+
+@router.patch("/projects/{project_id}", response_model=Project)
+@router.put("/projects/{project_id}", response_model=Project)
+async def update_project(
+    project_id: int,
+    payload: dict = Body(...),
+    user_id: str = Depends(get_auth_user_id)
+):
+    """Partially update a production project by ID."""
+    async with async_session() as session:
+        project = await session.get(Project, project_id)
+        if not project or project.user_id != user_id:
+            raise HTTPException(status_code=404, detail="Production project not found")
+
+        if not payload:
+            raise HTTPException(status_code=400, detail="No update payload provided")
+
+        blocked_fields = {"id", "user_id", "created_at"}
+        mutable_fields = {
+            "title",
+            "name",
+            "vibe",
+            "content_type",
+            "genre",
+            "art_style",
+            "episode_length",
+            "description",
+            "prompt",
+            "status",
+            "model_used",
+            "prod_metadata",
+            "is_active",
+        }
+
+        has_updates = False
+        for key, value in payload.items():
+            if key in blocked_fields:
+                continue
+            if key in mutable_fields:
+                setattr(project, key, value)
+                has_updates = True
+
+        if not has_updates:
+            raise HTTPException(status_code=400, detail="No valid fields to update")
+
+        project.updated_at = datetime.utcnow()
+        session.add(project)
+        await session.commit()
+        await session.refresh(project)
+        logger.info(f"[PROJECT] Production Updated: {project_id}")
         return project
 
 @router.delete("/projects/{project_id}")

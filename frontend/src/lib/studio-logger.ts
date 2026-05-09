@@ -12,11 +12,12 @@ const STYLES = {
   system: 'color: #ef4444; font-weight: bold; background: rgba(239, 68, 68, 0.1); padding: 2px 4px; border-radius: 4px;',
   success: 'color: #10b981; font-weight: bold;',
   error: 'color: #ef4444; font-weight: bold;',
+  warn: 'color: #f59e0b; font-weight: bold;',
   info: 'color: #94a3b8; font-weight: normal;',
   timestamp: 'color: #64748b; font-size: 10px; font-family: monospace;'
 };
 
-export type LogLevel = 'anime' | 'manhwa' | 'comic' | 'system' | 'success' | 'error' | 'info';
+export type LogLevel = 'anime' | 'manhwa' | 'comic' | 'system' | 'success' | 'error' | 'warn' | 'info';
 
 export interface StudioLogEvent {
   module: string;

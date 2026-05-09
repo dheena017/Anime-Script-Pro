@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { useGenerator } from '@/hooks/useGenerator';
+import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
 import { 
   ChevronLeft, 
   ChevronRight, 
@@ -35,12 +35,15 @@ export function SceneViewPage() {
   const { sceneId } = useParams();
   const navigate = useNavigate();
   const { 
-    generatedScript, setGeneratedScript,
+    generatedScript,
     visualData, 
     videoData, 
+  } = useGeneratorState();
+  const {
+    setGeneratedScript,
     showNotification,
     addLog
-  } = useGenerator();
+  } = useGeneratorDispatch();
 
   const [scenes, setScenes] = useState<Scene[]>([]);
   const [currentSceneIndex, setCurrentSceneIndex] = useState<number>(-1);

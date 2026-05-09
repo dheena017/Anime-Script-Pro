@@ -68,7 +68,7 @@ export default function CreateProject() {
 
       setCurrentProject(project);
       await refreshAppData();
-      navigate('/library', { state: { newlyCreated: true } });
+      navigate(`/projects/${project.id}/engine`);
     } catch (err: any) {
       console.error('Project Initialization Failed:', err);
       setError(err.message || 'TRANSMISSION ERROR: NODE INITIALIZATION FAILED');
@@ -77,266 +77,136 @@ export default function CreateProject() {
     }
   };
 
-  // Complexity Calculation
-  const complexity = (title.length * 2) + (description.length / 5) + (artStyle ? 20 : 0);
-  const expectedNodes = Math.floor(complexity / 10) + 5;
-
   return (
     <div className={s.pageContainer}>
       {/* Visual Decor */}
       <div className={s.decorBgTopRight} />
       <div className={s.decorBgBottomLeft} />
 
-      <div className={s.contentWrapper}>
+      <div className="max-w-3xl mx-auto space-y-16 relative z-10 py-24">
         
-        {/* 1. HERO TITLE SECTION */}
-        <header className={s.heroSection}>
-          <div className={s.heroTag}>
-            <div className={s.heroTagLine} />
-            <span className={s.heroTagText}>Initialization Protocol</span>
+        {/* HEADER */}
+        <header className="text-center space-y-6">
+          <div className="flex items-center justify-center gap-3 opacity-50">
+            <div className="w-8 h-[1px] bg-studio" />
+            <span className="text-[9px] font-black uppercase tracking-[0.6em] text-studio">Node Initialization</span>
+            <div className="w-8 h-[1px] bg-studio" />
           </div>
-          <div className={s.heroTitleWrapper}>
-            <div className={s.heroTitleSection}>
-              <h1 className={s.heroTitle}>
-                Initialize <span className={s.heroTitleAccent}>Production.</span>
-              </h1>
-              <p className={s.heroSubtitle}>
-                Systematic establishment of multi-dimensional narrative blueprints and architectural assets.
-              </p>
-            </div>
-
-            <div className={s.metricsGroup}>
-               <div className={s.metricCard}>
-                  <span className={s.metricLabel}>Expected Nodes</span>
-                  <span className={s.metricValue}>{expectedNodes}</span>
-               </div>
-               <div className={s.metricCard}>
-                  <span className={s.metricLabel}>Complexity Index</span>
-                  <div className={s.metricComplexity}>
-                    <div className={s.metricIndicator} />
-                    <span className={s.metricPercentage}>{Math.min(complexity, 100)}%</span>
-                  </div>
-               </div>
-            </div>
-          </div>
+          <h1 className="text-6xl md:text-8xl font-black uppercase italic tracking-tighter leading-none">
+            New <span className="text-studio">Nexus.</span>
+          </h1>
         </header>
 
-        {/* 3. CONFIGURATION MATRIX */}
-        <div className={s.configGrid}>
+        {/* MAIN FORM */}
+        <div className="space-y-12">
           
-          <div className={s.configLeftCol}>
-            
-            {/* NODE-P1: PROJECT IDENTITY */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className={s.configCard}
-            >
-              <div className="absolute top-0 right-0 p-10 opacity-5 group-hover:opacity-10 transition-opacity">
-                 <Terminal className="w-32 h-32 text-studio" />
-              </div>
-              <div className={s.configHeader}>
-                <div className="flex items-center gap-4">
-                  <div className={s.configIcon}>
-                    <Database className="w-5 h-5 text-studio" />
-                  </div>
-                  <h2 className={s.configTitle}>Project Identity</h2>
-                </div>
-                <span className={s.configBadge}>NODE-P1-REGISTRY</span>
-              </div>
-
-              <div className="space-y-10">
-                <div className="relative">
-                  <input
-                    required
-                    type="text"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    placeholder="ENTER PRODUCTION TITLE..."
-                    className={s.textInput}
-                  />
-                  <AnimatePresence>
-                     {title.length > 0 && (
-                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute right-6 top-1/2 -translate-y-1/2 text-studio">
-                           <CheckCircle2 className="w-6 h-6" />
-                        </motion.div>
-                     )}
-                  </AnimatePresence>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  <div className="space-y-4">
-                    <label className="text-[9px] font-black uppercase text-zinc-700 tracking-[0.4em] ml-2">Production Genre</label>
-                    <div className="relative">
-                       <select
-                        value={genre}
-                        onChange={(e) => setGenre(e.target.value)}
-                        className={s.selectInput}
-                       >
-                         {GENRES.map(g => <option key={g} value={g}>{g.toUpperCase()}</option>)}
-                       </select>
-                       <ChevronRight className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-700 rotate-90 pointer-events-none" />
-                    </div>
-                  </div>
-                  <div className="space-y-4">
-                    <label className="text-[9px] font-black uppercase text-zinc-700 tracking-[0.4em] ml-2 flex items-center gap-2">
-                      <Clock className="w-3.5 h-3.5" />
-                      Protocol Length
-                    </label>
-                    <div className={s.toggleButtonGroup}>
-                      {['SHORT', 'FULL'].map((type) => (
-                        <button
-                          key={type}
-                          onClick={() => setEpisodeLength(type as any)}
-                          className={cn(
-                            s.toggleButton,
-                            episodeLength === type ? s.toggleButtonActive : s.toggleButtonInactive
-                          )}
-                        >
-                          {type}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-
-            {/* NODE-P2: VISUAL DIRECTIVE */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className={s.configCard}
-            >
-              <div className="absolute top-0 right-0 p-10 opacity-5 group-hover:opacity-10 transition-opacity">
-                 <Palette className="w-32 h-32 text-studio" />
-              </div>
-              <div className="flex items-center gap-4 mb-12">
-                <div className={s.configIcon}>
-                  <Film className="w-5 h-5 text-studio" />
-                </div>
-                <h2 className={s.configTitle}>Visual Directive</h2>
-              </div>
-
-              <div className="space-y-10">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="space-y-12"
+          >
+            {/* TITLE */}
+            <div className="space-y-4">
+              <label className="text-[9px] font-black uppercase text-zinc-500 tracking-[0.4em] ml-2">Project Identifier</label>
+              <div className="relative">
                 <input
+                  required
                   type="text"
-                  value={artStyle}
-                  onChange={(e) => setArtStyle(e.target.value)}
-                  placeholder="STYLE REFERENCE (E.G. STUDIO GHIBLI)..."
-                  className={s.textInput}
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="ENTER PROJECT TITLE..."
+                  className={cn(s.textInput, "text-4xl md:text-5xl py-10 border-white/5 bg-white/[0.02]")}
                 />
-                <div className="flex flex-wrap gap-3">
-                  {STYLE_PRESETS.map(styleOption => (
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+              {/* GENRE */}
+              <div className="space-y-4">
+                <label className="text-[9px] font-black uppercase text-zinc-500 tracking-[0.4em] ml-2">Production Genre</label>
+                <div className="relative">
+                   <select
+                    value={genre}
+                    onChange={(e) => setGenre(e.target.value)}
+                    className={cn(s.selectInput, "bg-white/[0.02] border-white/5")}
+                   >
+                     {GENRES.map(g => <option key={g} value={g}>{g.toUpperCase()}</option>)}
+                   </select>
+                   <ChevronRight className="absolute right-6 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-700 rotate-90 pointer-events-none" />
+                </div>
+              </div>
+
+              {/* PROTOCOL LENGTH */}
+              <div className="space-y-4">
+                <label className="text-[9px] font-black uppercase text-zinc-500 tracking-[0.4em] ml-2">Protocol Length</label>
+                <div className={cn(s.toggleButtonGroup, "bg-white/[0.02] border-white/5 p-2")}>
+                  {['SHORT', 'FULL'].map((type) => (
                     <button
-                      key={styleOption}
-                      onClick={() => setArtStyle(styleOption)}
+                      key={type}
+                      onClick={() => setEpisodeLength(type as any)}
                       className={cn(
-                        s.presetButton,
-                        artStyle === styleOption ? "bg-studio text-black border-studio shadow-[0_10px_30px_rgba(6,182,212,0.3)]" : ""
+                        s.toggleButton,
+                        "py-4",
+                        episodeLength === type ? s.toggleButtonActive : "text-zinc-600"
                       )}
                     >
-                      {styleOption}
+                      {type}
                     </button>
                   ))}
                 </div>
               </div>
-            </motion.div>
+            </div>
 
-            {/* NODE-P3: NARRATIVE CORE */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className={s.configCard}
-            >
-              <div className="flex items-center gap-4 mb-12">
-                <div className={s.configIcon}>
-                  <ScrollText className="w-5 h-5 text-studio" />
-                </div>
-                <h2 className={s.configTitle}>Narrative Core</h2>
-              </div>
-
+            {/* DESCRIPTION */}
+            <div className="space-y-4">
+              <label className="text-[9px] font-black uppercase text-zinc-500 tracking-[0.4em] ml-2">Narrative Core</label>
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="DEFINE PRODUCTION DIRECTIVE..."
                 rows={6}
-                className="w-full bg-black/40 border border-zinc-900 rounded-[2.5rem] px-10 py-10 text-xs font-black uppercase tracking-widest text-white placeholder:text-zinc-800 focus:border-studio/50 outline-none transition-all resize-none leading-relaxed shadow-inner"
+                className="w-full bg-white/[0.02] border border-white/5 rounded-[2.5rem] px-10 py-10 text-lg font-bold uppercase tracking-widest text-white placeholder:text-zinc-800 focus:border-studio/50 outline-none transition-all resize-none leading-relaxed"
               />
-            </motion.div>
-          </div>
+            </div>
+          </motion.div>
 
-          {/* 4. SIDEBAR: ANALYSIS ENGINE */}
-          <div className={s.configRightCol}>
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className={cn(s.sidebarCard, "glass bg-gradient-to-br from-studio/5 to-transparent")}
+          {/* ERROR & SUBMIT */}
+          <div className="space-y-6 pt-12">
+            <AnimatePresence>
+              {error && (
+                <motion.div 
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 10 }}
+                  className="p-8 rounded-3xl bg-red-500/5 border border-red-500/10 flex items-center justify-center"
+                >
+                   <p className="text-red-500 text-[10px] font-black uppercase tracking-[0.2em]">{error}</p>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            <button
+              disabled={!title || loading}
+              onClick={handleInitialize}
+              className={cn(
+                "w-full h-28 rounded-[2.5rem] font-black uppercase tracking-[0.8em] transition-all flex items-center justify-center gap-6 text-sm relative overflow-hidden group",
+                loading ? "bg-zinc-900 text-zinc-700" : "bg-studio hover:scale-[1.01] active:scale-[0.99] text-black shadow-[0_30px_60px_rgba(6,182,212,0.2)]"
+              )}
             >
-              <div className="flex items-center gap-4 mb-12">
-                <div className="w-10 h-10 rounded-xl bg-studio flex items-center justify-center">
-                  <Zap className="w-5 h-5 text-black fill-black" />
-                </div>
-                <h3 className="text-xs font-black uppercase tracking-[0.3em] text-white italic">Analysis Engine</h3>
-              </div>
-
-              <div className="space-y-4 mb-12">
-                {[
-                  { icon: CpuIcon, label: 'Expected Nodes', value: expectedNodes },
-                  { icon: Sparkles, label: 'Complexity Index', value: `${Math.min(complexity, 100)}%` },
-                  { icon: Layers, label: 'Render Protocol', value: 'ULTRA-L' },
-                  { icon: Lock, label: 'Encryption', value: 'AES-256' }
-                ].map((stat, i) => (
-                  <div key={i} className="flex items-center justify-between p-5 bg-white/[0.02] rounded-2xl border border-white/5 hover:bg-white/[0.04] transition-all">
-                    <div className="flex items-center gap-4">
-                      <stat.icon className="w-4 h-4 text-zinc-700" />
-                      <span className="text-[10px] font-black uppercase text-zinc-600 tracking-widest">{stat.label}</span>
-                    </div>
-                    <span className="text-[10px] font-black text-white italic tracking-widest">{stat.value}</span>
-                  </div>
-                ))}
-              </div>
-
-              {/* Error Display Protocol */}
-              <AnimatePresence>
-                {error && (
-                  <motion.div 
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 10 }}
-                    className="p-6 rounded-2xl bg-red-500/10 border border-red-500/20 mb-8 flex items-start gap-4"
-                  >
-                     <AlertCircle className="w-5 h-5 text-red-500 shrink-0" />
-                     <p className={s.errorMessage}>{error}</p>
+              <AnimatePresence mode="wait">
+                {loading ? (
+                  <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-center gap-6">
+                    <div className="w-6 h-6 border-2 border-zinc-700 border-t-white rounded-full animate-spin" />
+                    SYNCING NODE...
+                  </motion.div>
+                ) : (
+                  <motion.div key="create" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-center gap-6">
+                    Establish Nexus
+                    <ArrowRight className="w-8 h-8 group-hover:translate-x-3 transition-transform duration-500" />
                   </motion.div>
                 )}
               </AnimatePresence>
-
-              <button
-                disabled={!title || loading}
-                onClick={handleInitialize}
-                className={cn(
-                  "w-full h-20 rounded-3xl font-black uppercase tracking-[0.3em] transition-all flex items-center justify-center gap-4 text-xs",
-                  loading ? "bg-zinc-900 text-zinc-600" : "bg-studio hover:bg-studio/80 shadow-[0_0_30px_rgba(255,255,255,0.1)]"
-                )}
-              >
-                <AnimatePresence mode="wait">
-                  {loading ? (
-                    <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-center gap-4">
-                      <div className="w-5 h-5 border-2 border-zinc-600 border-t-white rounded-full animate-spin" />
-                      INITIALIZING...
-                    </motion.div>
-                  ) : (
-                    <motion.div key="create" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-center gap-4">
-                      INITIALIZE NODE
-                      <ArrowRight className="w-5 h-5" />
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </button>
-            </motion.div>
+            </button>
           </div>
         </div>
       </div>

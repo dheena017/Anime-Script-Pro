@@ -1,6 +1,6 @@
 import { createContext, useEffect, useState } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
-import { useGenerator } from '@/hooks/useGenerator';
+import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
 import { useAuth } from '@/hooks/useAuth';
 import { WorldHeader } from './components/WorldHeader';
 import { WorldToolbar } from './components/WorldToolbar';
@@ -15,6 +15,7 @@ import {
   generateSystems
 } from '@/services/api/gemini';
 import { WorldTabs, WorldTab } from './tabs/WorldTabs';
+import { StudioTabsProgressBar } from '@/pages/studio/components/studio/layout/StudioTabsProgressBar';
 
 import { studioLog, reportTabChange, reportGeneration } from '@/lib/studio-logger';
 import React from 'react';
@@ -32,14 +33,14 @@ export default function WorldLayout() {
   const [activeTab, setActiveTab] = useState<WorldTab>('manifest');
 
   const {
-    isGeneratingWorld, setIsGeneratingWorld,
-    isGeneratingLore, setIsGeneratingLore,
-    isGeneratingPowers, setIsGeneratingPowers,
-    isGeneratingFactions, setIsGeneratingFactions,
-    isGeneratingArchitecture, setIsGeneratingArchitecture,
-    isGeneratingAtlas, setIsGeneratingAtlas,
-    isGeneratingCulture, setIsGeneratingCulture,
-    isGeneratingSystems, setIsGeneratingSystems,
+    isGeneratingWorld,
+    isGeneratingLore,
+    isGeneratingPowers,
+    isGeneratingFactions,
+    isGeneratingArchitecture,
+    isGeneratingAtlas,
+    isGeneratingCulture,
+    isGeneratingSystems,
     prompt, 
     promptLore, 
     promptPowers, 
@@ -49,15 +50,7 @@ export default function WorldLayout() {
     promptCulture, 
     promptSystems,
     selectedModel, contentType,
-    setGeneratedWorld,
-    setGeneratedWorldLore,
-    setGeneratedWorldPowers,
-    setGeneratedWorldFactions,
-    setGeneratedWorldArchitecture,
-    setGeneratedWorldAtlas,
-    setGeneratedWorldCulture,
-    setGeneratedWorldSystems,
-    session, episode, showNotification,
+    session, episode,
     generatedWorld,
     generatedWorldLore,
     generatedWorldPowers,
@@ -67,8 +60,30 @@ export default function WorldLayout() {
     generatedWorldCulture,
     generatedWorldSystems,
     isSaving,
-    syncCore,
     currentScriptId,
+    isEditing,
+    generationProgress
+  } = useGeneratorState();
+
+  const {
+    setIsGeneratingWorld,
+    setIsGeneratingLore,
+    setIsGeneratingPowers,
+    setIsGeneratingFactions,
+    setIsGeneratingArchitecture,
+    setIsGeneratingAtlas,
+    setIsGeneratingCulture,
+    setIsGeneratingSystems,
+    setGeneratedWorld,
+    setGeneratedWorldLore,
+    setGeneratedWorldPowers,
+    setGeneratedWorldFactions,
+    setGeneratedWorldArchitecture,
+    setGeneratedWorldAtlas,
+    setGeneratedWorldCulture,
+    setGeneratedWorldSystems,
+    showNotification,
+    syncCore,
     setCastData,
     setCastList,
     setGeneratedCharacters,
@@ -79,10 +94,9 @@ export default function WorldLayout() {
     setGeneratedScript,
     setGeneratedImagePrompts,
     setGeneratedMetadata,
-    isEditing,
     setIsEditing,
-    generationProgress
-  } = useGenerator();
+    setGenerationProgress
+  } = useGeneratorDispatch();
 
   useAuth();
 
@@ -149,12 +163,14 @@ export default function WorldLayout() {
     };
 
     // Generate manifest/world
+    setGenerationProgress(5);
     setActiveTab('manifest');
     setIsGeneratingWorld(true);
     reportGeneration('WorldLayout', 'World Manifest', 'request', 'anime');
     try {
       const world = await generateWorld(prompt, selectedModel, contentType);
       setGeneratedWorld(world);
+      setGenerationProgress(15);
       reportGeneration('WorldLayout', 'World Manifest', 'success', 'anime', { length: world?.length || 0 });
       showNotification?.('World created successfully!', 'success');
     } catch (e: any) {
@@ -168,34 +184,43 @@ export default function WorldLayout() {
     // Run specialized modules sequentially with auto-tab flow
     setActiveTab('lore');
     await runModule('History', generateLoreHistory, setGeneratedWorldLore, setIsGeneratingLore, promptLore);
+    setGenerationProgress(30);
     await new Promise(r => setTimeout(r, 2000));
     
     setActiveTab('factions');
     await runModule('Factions', generateFactionSystem, setGeneratedWorldFactions, setIsGeneratingFactions, promptFactions);
+    setGenerationProgress(45);
     await new Promise(r => setTimeout(r, 2000));
 
     setActiveTab('powers');
     await runModule('Powers', generatePowerSystem, setGeneratedWorldPowers, setIsGeneratingPowers, promptPowers);
+    setGenerationProgress(60);
     await new Promise(r => setTimeout(r, 2000));
     
     setActiveTab('architecture');
     await runModule('Architecture', generateArchitecture, setGeneratedWorldArchitecture, setIsGeneratingArchitecture, promptArchitecture);
+    setGenerationProgress(70);
     await new Promise(r => setTimeout(r, 2000));
     
     setActiveTab('atlas');
     await runModule('Atlas', generateAtlas, setGeneratedWorldAtlas, setIsGeneratingAtlas, promptAtlas);
+    setGenerationProgress(80);
     await new Promise(r => setTimeout(r, 2000));
     
     setActiveTab('culture');
     await runModule('Culture', generateCulture, setGeneratedWorldCulture, setIsGeneratingCulture, promptCulture);
+    setGenerationProgress(90);
     await new Promise(r => setTimeout(r, 2000));
     
     setActiveTab('systems');
     await runModule('Systems', generateSystems, setGeneratedWorldSystems, setIsGeneratingSystems, promptSystems);
+    setGenerationProgress(100);
     await new Promise(r => setTimeout(r, 2000));
 
     showNotification?.('Full World Manifest Sequence Complete!', 'success');
     setActiveTab('manifest');
+    // Reset progress after a short delay
+    setTimeout(() => setGenerationProgress(0), 3000);
   };
 
   const handleTabChange = (tab: WorldTab) => {
@@ -250,8 +275,12 @@ export default function WorldLayout() {
           prompt={prompt}
           session={session}
           episode={episode}
-          onPrev={() => navigate(`/${contentType.toLowerCase()}/engine`)}
-          onNext={() => navigate(`/${contentType.toLowerCase()}/cast`)}
+          onPrev={() => {
+            navigate(`/projects/${projectId}/engine`);
+          }}
+          onNext={() => {
+            navigate(`/projects/${projectId}/cast`);
+          }}
           onSave={handleSave}
           isSaving={isSaving}
           hasContent={!!generatedWorld}
@@ -263,6 +292,7 @@ export default function WorldLayout() {
         <div className="relative z-10 w-full flex justify-center">
           <WorldTabs activeTab={activeTab} setActiveTab={handleTabChange} loadingStates={generationStatus} />
         </div>
+        <StudioTabsProgressBar progress={generationProgress} theme="cyan" />
       </div>
 
       {/* Toolbar Section */}

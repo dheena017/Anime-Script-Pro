@@ -2,22 +2,24 @@ import React, { useEffect, useState } from 'react';
 import { Sparkles, Fingerprint, Star, Zap, Brain, Shield, Flame, Eye } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { useGenerator } from '@/hooks/useGenerator';
+import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
 import { CastContext } from './CastLayout';
 import { generateCharacters } from '@/services/api/gemini';
 import { cn } from '@/lib/utils';
 
 export function CharacterCreationPage() {
   const {
-    showNotification,
     prompt,
     selectedModel,
-    setCastList,
-    setCastData,
     contentType,
     generatedWorld,
+  } = useGeneratorState();
+  const {
+    showNotification,
+    setCastList,
+    setCastData,
     setIsGeneratingCharacters
-  } = useGenerator();
+  } = useGeneratorDispatch();
   
   const { setHandlers } = React.useContext(CastContext);
   const [isGenerating, setIsGenerating] = useState(false);

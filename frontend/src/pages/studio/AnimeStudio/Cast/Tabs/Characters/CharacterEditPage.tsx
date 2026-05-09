@@ -11,7 +11,7 @@ import {
   Lock,
   Trash2
 } from 'lucide-react';
-import { useGenerator } from '@/hooks/useGenerator';
+import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -21,7 +21,8 @@ import { Textarea } from '@/components/ui/textarea';
 export default function CharacterEditPage() {
   const { characterName } = useParams();
   const navigate = useNavigate();
-  const { castData, castList, setCastList, contentType } = useGenerator();
+  const { castData, castList, contentType } = useGeneratorState();
+  const { setCastList } = useGeneratorDispatch();
 
   const displayCast = castData?.characters || castList || [];
   const characterIndex = displayCast.findIndex((c: any) => c.name === characterName);

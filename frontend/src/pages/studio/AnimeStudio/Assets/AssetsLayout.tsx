@@ -2,10 +2,11 @@ import React from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Search } from 'lucide-react';
-import { useGenerator } from '@/hooks/useGenerator';
+import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
 import { AssetsHeader } from '../components/Assets/AssetsHeader';  
 import { generateMetadata, generateYouTubeDescription, generateImagePrompts } from '@/services/api/gemini';
 import { AssetsLoadingPage } from './AssetsLoadingPage';
+import { StudioTabsProgressBar } from '@/pages/studio/components/studio/layout/StudioTabsProgressBar';
 
 export default function AssetsLayout() {
   const navigate = useNavigate();
@@ -15,17 +16,25 @@ export default function AssetsLayout() {
     generatedMetadata,
     generatedDescription,
     generatedImagePrompts,
+    isGeneratingMetadata,
+    isGeneratingDescription,
+    isGeneratingImagePrompts,
+    generatedScript, selectedModel, session, episode,
+    contentType,
+    generationProgress,
+    isSaving, currentScriptId
+  } = useGeneratorState();
+  const {
     setGeneratedMetadata,
     setGeneratedDescription,
     setGeneratedImagePrompts,
-    isGeneratingMetadata, setIsGeneratingMetadata,
-    isGeneratingDescription, setIsGeneratingDescription,
-    isGeneratingImagePrompts, setIsGeneratingImagePrompts,
-    generatedScript, selectedModel, session, episode,
-    showNotification, contentType,
-    generationProgress,
-    syncCore, isSaving, currentScriptId
-  } = useGenerator();
+    setIsGeneratingMetadata,
+    setIsGeneratingDescription,
+    setIsGeneratingImagePrompts,
+    showNotification,
+    setGenerationProgress,
+    syncCore
+  } = useGeneratorDispatch();
 
   const projectId = React.useMemo(() => {
     const parsedProjectId = currentScriptId ? Number.parseInt(currentScriptId, 10) : undefined;
@@ -42,6 +51,7 @@ export default function AssetsLayout() {
       return;
     }
     
+    setGenerationProgress(10);
     setIsGeneratingMetadata(true);
     setIsGeneratingDescription(true);
     setIsGeneratingImagePrompts(true);
@@ -55,13 +65,20 @@ export default function AssetsLayout() {
       ]);
       
       setGeneratedMetadata(meta);
+      setGenerationProgress(40);
       setGeneratedDescription(desc);
+      setGenerationProgress(70);
       setGeneratedImagePrompts(prompts);
+      setGenerationProgress(100);
       console.log(`[AssetsLayout] Assets generated successfully.`);
       showNotification?.('All assets generated successfully!', 'success');
+      
+      // Reset progress after a short delay
+      setTimeout(() => setGenerationProgress(0), 3000);
     } catch (e: any) {
       console.error('[AssetsLayout] Failed to generate assets:', e);
       showNotification?.('Failed to generate assets: ' + (e.message || 'Error'), 'error');
+      setGenerationProgress(0);
     } finally {
       setIsGeneratingMetadata(false);
       setIsGeneratingDescription(false);
@@ -85,8 +102,12 @@ export default function AssetsLayout() {
         <AssetsHeader 
           onRegenerate={handleGenerateAll}
           isGenerating={isGeneratingMetadata || isGeneratingDescription || isGeneratingImagePrompts}
-          onNext={() => navigate(`/${contentType.toLowerCase()}/screening`)}
-          onPrev={() => navigate(`/${contentType.toLowerCase()}/storyboard`)}
+          onPrev={() => {
+            navigate(`/projects/${projectId}/screening`);
+          }}
+          onNext={() => {
+            navigate(`/projects/${projectId}/engine`);
+          }}
           onSave={handleSave}
           isSaving={isSaving}
           session={session}
@@ -107,6 +128,7 @@ export default function AssetsLayout() {
             </div>
           </div>
         </div>
+        <StudioTabsProgressBar progress={generationProgress} theme="cyan" />
       </div>
 
       {(isGeneratingMetadata || isGeneratingDescription || isGeneratingImagePrompts) ? (

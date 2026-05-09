@@ -77,7 +77,7 @@ export default function ProjectsPage() {
   const handleDelete = async (id: number) => {
     if (!confirm('Purge this production blueprint from the archive?')) return;
     try {
-      await apiRequest(`/api/projects?id=${id}`, { method: 'DELETE' });
+      await apiRequest(`/api/projects/${id}`, { method: 'DELETE' });
       setProjects(projects.filter(p => p.id !== id));
       refreshAppData();
     } catch (err) {
@@ -87,7 +87,7 @@ export default function ProjectsPage() {
 
   const handleOpenProject = (project: any) => {
     setCurrentProject(project);
-    navigate('/studio');
+    navigate(`/projects/${project.id}/engine`);
   };
 
   const renderTabContent = () => {

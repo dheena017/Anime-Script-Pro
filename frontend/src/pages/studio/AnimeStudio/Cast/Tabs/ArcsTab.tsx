@@ -1,15 +1,14 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { TrendingUp, Sparkles, AlertTriangle, Flag, Scale } from 'lucide-react';
-import { useGenerator } from '@/hooks/useGenerator';
-import { cn } from '@/lib/utils';
+import { useGeneratorState } from '@/hooks/useGenerator';
 
 import { CastEmptyState } from '../components/CastEmptyState';
 import { CastContext } from '../CastLayout';
 
 export const ArcsTab: React.FC = () => {
   const { handleLoadDemo } = React.useContext(CastContext);
-  const { castList, isGeneratingCharacters } = useGenerator();
+  const { castList, isGeneratingCharacters } = useGeneratorState();
 
   if (!castList || castList.length === 0) {
     return (

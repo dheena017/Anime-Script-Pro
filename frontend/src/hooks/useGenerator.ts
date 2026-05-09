@@ -1,21 +1,8 @@
 import { useContext } from 'react';
-import { 
-  GeneratorContext, 
-  GeneratorStateContext, 
-  GeneratorDispatchContext 
+import {
+  GeneratorStateContext,
+  GeneratorDispatchContext
 } from '@/contexts/GeneratorContext';
-
-/**
- * Hook to access the full Generator context (State + Dispatch).
- * @deprecated Use useGeneratorState or useGeneratorDispatch for better performance.
- */
-export function useGenerator() {
-  const context = useContext(GeneratorContext);
-  if (context === undefined) {
-    throw new Error('useGenerator must be used within a GeneratorProvider');
-  }
-  return context;
-}
 
 /**
  * Hook to access ONLY the Generator state.

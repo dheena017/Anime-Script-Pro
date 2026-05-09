@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Mic2, MessageSquare, Music, Volume2 } from 'lucide-react';
-import { useGenerator } from '@/hooks/useGenerator';
+import { useGeneratorState } from '@/hooks/useGenerator';
 import { cn } from '@/lib/utils';
 
 import { CastEmptyState } from '../components/CastEmptyState';
@@ -9,7 +9,7 @@ import { CastContext } from '../CastLayout';
 
 export const VoiceTab: React.FC = () => {
   const { handleLoadDemo } = React.useContext(CastContext);
-  const { castList, isGeneratingCharacters } = useGenerator();
+  const { castList, isGeneratingCharacters } = useGeneratorState();
 
   if (!castList || castList.length === 0) {
     return (

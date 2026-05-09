@@ -1,7 +1,7 @@
 import React from 'react';
 import { Outlet, useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { useGenerator } from '@/hooks/useGenerator';
+import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
 import { useAuth } from '@/hooks/useAuth';
 import { generateImagePrompts } from '@/services/api/gemini';
 
@@ -11,6 +11,7 @@ import { StoryboardTabs, StoryboardTab } from './Tabs/StoryboardTabs';
 
 import { StoryboardLoadingPage } from './components/StoryboardLoadingPage';
 import { StoryboardEmptyState } from './components/StoryboardEmptyState';
+import { StudioTabsProgressBar } from '@/pages/studio/components/studio/layout/StudioTabsProgressBar';
 
 export const StoryboardContext = React.createContext<{
   setHandlers: (handlers: any) => void;
@@ -23,16 +24,25 @@ export default function StoryboardLayout() {
 
   const {
     generatedScript,
-    generatedImagePrompts, setGeneratedImagePrompts,
-    isGeneratingImagePrompts, setIsGeneratingImagePrompts,
-    selectedModel, showNotification,
-    isSaving, contentType,
+    generatedImagePrompts,
+    isGeneratingImagePrompts,
+    selectedModel,
+    isSaving,
+    contentType,
     generationProgress,
-    syncCore,
     currentScriptId,
-    session, episode,
-    isEditing, setIsEditing
-  } = useGenerator();
+    session,
+    episode,
+    isEditing
+  } = useGeneratorState();
+  const {
+    setGeneratedImagePrompts,
+    setIsGeneratingImagePrompts,
+    showNotification,
+    syncCore,
+    setIsEditing,
+    setGenerationProgress
+  } = useGeneratorDispatch();
 
   useAuth();
 
@@ -50,32 +60,43 @@ export default function StoryboardLayout() {
       showNotification?.('Please write a script first before creating your storyboard.', 'error');
       return;
     }
+    setGenerationProgress(5);
     setIsGeneratingImagePrompts(true);
     console.log('[StoryboardLayout] Requesting image prompts generation...');
     try {
       setSearchParams({ tab: 'frames' });
       const prompts = await generateImagePrompts(generatedScript, selectedModel);
       setGeneratedImagePrompts(prompts);
+      setGenerationProgress(30);
       console.log(`[StoryboardLayout] Image prompts generated successfully. Response length: ${prompts?.length || 0} chars.`);
       await new Promise(r => setTimeout(r, 2000));
       
       setSearchParams({ tab: 'angles' });
+      setGenerationProgress(45);
       await new Promise(r => setTimeout(r, 2000));
       
       setSearchParams({ tab: 'composition' });
+      setGenerationProgress(60);
       await new Promise(r => setTimeout(r, 2000));
       
       setSearchParams({ tab: 'animatic' });
+      setGenerationProgress(75);
       await new Promise(r => setTimeout(r, 2000));
       
       setSearchParams({ tab: 'audio' });
+      setGenerationProgress(90);
       await new Promise(r => setTimeout(r, 2000));
       
       setSearchParams({ tab: 'frames' });
+      setGenerationProgress(100);
       showNotification?.('Full Storyboard Sequence Generated!', 'success');
+      
+      // Reset progress after a short delay
+      setTimeout(() => setGenerationProgress(0), 3000);
     } catch (e: any) {
       console.error('[StoryboardLayout] Failed to generate visuals:', e);
       showNotification?.('Failed to generate visuals: ' + (e.message || 'Error'), 'error');
+      setGenerationProgress(0);
     } finally {
       setIsGeneratingImagePrompts(false);
     }
@@ -111,8 +132,12 @@ export default function StoryboardLayout() {
           <StoryboardHeader
             onRegenerate={handlers.handleGenerateAll || handleGenerate}
             isGenerating={handlers.isGenerating || isGeneratingImagePrompts}
-            onNext={() => navigate(`/${contentType.toLowerCase()}/seo`)}
-            onPrev={() => navigate(`/${contentType.toLowerCase()}/script`)}
+            onNext={() => {
+              navigate(`/projects/${projectId}/seo`);
+            }}
+            onPrev={() => {
+              navigate(`/projects/${projectId}/script`);
+            }}
             onSave={handleSave}
             isSaving={isSaving}
             hasContent={!!generatedImagePrompts}
@@ -127,6 +152,7 @@ export default function StoryboardLayout() {
           <div className="relative z-10 w-full flex justify-center">
             <StoryboardTabs activeTab={activeTab} setActiveTab={handleTabChange} />
           </div>
+          <StudioTabsProgressBar progress={generationProgress} theme="cyan" />
         </div>
 
         {/* Toolbar Section */}

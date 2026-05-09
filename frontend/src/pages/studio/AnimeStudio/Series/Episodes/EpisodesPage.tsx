@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Plus, ListFilter, Search, Layout as LayoutGrid, List, Film } from 'lucide-react';
-import { useGenerator } from '@/hooks/useGenerator';
+import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { SeriesView } from '../components/SeriesView';
@@ -13,10 +13,10 @@ export default function EpisodesPage() {
   const navigate = useNavigate();
   const {
     generatedSeriesPlan,
-    setGeneratedSeriesPlan,
     isEditing,
     contentType
-  } = useGenerator();
+  } = useGeneratorState();
+  const { setGeneratedSeriesPlan } = useGeneratorDispatch();
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
   const handleUpdateEpisode = (index: number, updates: any) => {

@@ -16,7 +16,7 @@ import {
   Camera,
   Activity
 } from 'lucide-react';
-import { useGenerator } from '@/hooks/useGenerator';
+import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
 import { SceneCard } from '../components/SceneCard';
 import SceneView from '../components/SceneView';
 import { generateScene } from '@/services/api/gemini';
@@ -29,7 +29,8 @@ import React from 'react';
 export default function EpisodeViewPage() {
   const { episodeId } = useParams();
   const navigate = useNavigate();
-  const { generatedSeriesPlan, contentType, setEpisode, selectedModel, setGeneratedSeriesPlan } = useGenerator();
+  const { generatedSeriesPlan, contentType, selectedModel } = useGeneratorState();
+  const { setEpisode, setGeneratedSeriesPlan } = useGeneratorDispatch();
 
   const episode = generatedSeriesPlan?.find(ep =>
     String(ep.episode) === String(episodeId)

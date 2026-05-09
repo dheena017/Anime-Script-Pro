@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import { LucideIcon, Sparkles, Box, Layout as LayoutIcon, Layers, Zap, Film, Map, Database, Activity } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { useGenerator } from '@/hooks/useGenerator';
+import { useGeneratorState } from '@/hooks/useGenerator';
 
 interface SeriesEmptyTabProps {
   icon: LucideIcon;
@@ -19,7 +19,7 @@ export function SeriesEmptyTab({
   accentColor = "studio",
   onGenerate
 }: SeriesEmptyTabProps) {
-  const { isGeneratingSeries } = useGenerator();
+  const { isGeneratingSeries } = useGeneratorState();
 
   const triggerGenerate = () => {
     if (onGenerate) {

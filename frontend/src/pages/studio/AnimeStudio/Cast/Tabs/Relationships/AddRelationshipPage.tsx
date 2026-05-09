@@ -12,7 +12,7 @@ import {
   ArrowRight,
   Info
 } from 'lucide-react';
-import { useGenerator } from '@/hooks/useGenerator';
+import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
@@ -22,7 +22,8 @@ import { Slider } from "@/components/ui/slider";
 
 export default function AddRelationshipPage() {
   const navigate = useNavigate();
-  const { castData, castList, characterRelationships, setCharacterRelationships, contentType } = useGenerator();
+  const { castData, castList, characterRelationships, contentType } = useGeneratorState();
+  const { setCharacterRelationships } = useGeneratorDispatch();
 
   const displayCast = castData?.characters || castList || [];
   

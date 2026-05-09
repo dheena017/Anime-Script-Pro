@@ -18,9 +18,7 @@ export const GlobalTopBar: React.FC = () => {
   const searchInputRef = useRef<HTMLInputElement>(null);
   const [searchQuery, setSearchQuery] = useState('');
 
-  const isStudioMode = location.pathname.startsWith('/anime') ||
-    location.pathname.startsWith('/manhwa') ||
-    location.pathname.startsWith('/comic');
+  const isStudioMode = location.pathname.startsWith('/projects/') && !location.pathname.endsWith('/new') && !location.pathname.endsWith('/projects');
 
   // Keyboard shortcut for search focus (Cmd/Ctrl + K)
   useEffect(() => {
@@ -126,7 +124,7 @@ export const GlobalTopBar: React.FC = () => {
           <div className="flex items-center gap-2 lg:gap-3">
             {!isStudioMode && (
               <button 
-                onClick={() => navigate('/create-project')}
+                onClick={() => navigate('/projects/new')}
                 className="hidden sm:flex items-center gap-2 bg-red-600/10 hover:bg-red-600 hover:text-white text-red-500 border border-red-500/20 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 hover:shadow-[0_0_20px_rgba(220,38,38,0.3)] active:scale-95"
               >
                 <Plus className="w-3.5 h-3.5" />

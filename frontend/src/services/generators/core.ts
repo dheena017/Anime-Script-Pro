@@ -606,6 +606,78 @@ export async function callAI(
 }
 
 /**
+ * Stream AI Response from the backend.
+ */
+export async function* streamAI(
+  model: string,
+  prompt: string,
+  systemInstruction: string,
+  temperature: number = 0.85,
+  maxTokens: number = 2048,
+  topP: number = 0.95,
+  topK: number = 40,
+  worldLore?: string | null,
+  castDNA?: string | null,
+  episodePlan?: string | null
+): AsyncGenerator<string> {
+  const detailedSystemInstruction = composeDetailedSystemInstruction(
+    systemInstruction,
+    worldLore,
+    castDNA,
+    episodePlan
+  );
+
+  const payload = {
+    model,
+    prompt,
+    systemInstruction: detailedSystemInstruction,
+    temperature,
+    max_tokens: maxTokens,
+    top_p: topP,
+    top_k: topK
+  };
+
+  const response = await fetch("/api/generate/stream", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  });
+
+  if (!response.ok) {
+    throw new Error(`Streaming failed: ${response.statusText}`);
+  }
+
+  const reader = response.body?.getReader();
+  if (!reader) throw new Error("No reader available");
+
+  const decoder = new TextDecoder();
+  let buffer = "";
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split("\n");
+    buffer = lines.pop() || "";
+
+    for (const line of lines) {
+      if (line.startsWith("data: ")) {
+        const dataStr = line.slice(6).trim();
+        if (dataStr === "[DONE]") return;
+        try {
+          const data = JSON.parse(dataStr);
+          if (data.error) throw new Error(data.error);
+          if (data.text) yield data.text;
+        } catch (e) {
+          console.error("Failed to parse stream data:", e);
+        }
+      }
+    }
+  }
+}
+
+/**
  * Returns a configured Gemini API client using the best available key.
  */
 export const getAIClient = (userKey?: string) => {

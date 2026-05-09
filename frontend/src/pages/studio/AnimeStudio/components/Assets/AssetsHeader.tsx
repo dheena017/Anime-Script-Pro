@@ -61,7 +61,7 @@ export const AssetsHeader: React.FC<AssetsHeaderProps> = ({
           {hasContent ? 'Regenerate Assets' : 'Synthesize All Assets'}
         </Button>
 
-        {onSave && hasContent && (
+        {onSave && (
           <Button 
             variant="outline" 
             className="bg-studio/5 border-studio/20 text-studio hover:bg-studio/10 font-black uppercase tracking-widest text-[10px] h-10 px-6 rounded-xl transition-all"

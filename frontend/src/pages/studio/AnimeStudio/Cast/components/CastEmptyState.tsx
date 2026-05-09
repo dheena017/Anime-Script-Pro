@@ -33,6 +33,9 @@ export const CastEmptyState: React.FC<CastEmptyStateProps> = ({
         icon={Users}
         title="Build Your Cast"
         description="Your cast registry is empty. Generate characters, relationships, and deep trait analysis to bring your story’s people to life."
+        actionLabel={isGenerating ? "Synthesizing..." : "Launch Synthesis"}
+        onAction={onLaunch}
+        isLoading={isGenerating}
         secondaryActionLabel="Load Demo Cast"
         onSecondaryAction={onLoadDemo}
         features={features}
@@ -64,7 +67,7 @@ export const CastEmptyState: React.FC<CastEmptyStateProps> = ({
                  value={[numCharacters]}
                  onValueChange={(val) => setNumCharacters(Array.isArray(val) ? val[0] : val)}
                  min={3}
-                 max={15}
+                 max={30}
                  step={1}
                  className="py-4"
                />
@@ -72,7 +75,8 @@ export const CastEmptyState: React.FC<CastEmptyStateProps> = ({
                <div className="flex justify-between text-[8px] font-black text-zinc-700 uppercase tracking-widest">
                   <span>Minimum (3)</span>
                   <span>Standard (8)</span>
-                  <span>Maximum (15)</span>
+                  <span>Epic (20)</span>
+                  <span>Maximum (30)</span>
                </div>
             </div>
          </div>

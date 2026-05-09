@@ -16,7 +16,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
-import { useGenerator } from '@/hooks/useGenerator';
+import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
 import { generateRelationships } from '@/services/api/gemini';
 
 interface Connection {
@@ -34,12 +34,12 @@ import { RelationshipCard } from './RelationshipCard';
 export function RelationshipLab() {
   const {
     characterRelationships,
-    setCharacterRelationships,
     prompt,
     selectedModel,
     contentType,
     castList
-  } = useGenerator();
+  } = useGeneratorState();
+  const { setCharacterRelationships } = useGeneratorDispatch();
   const [connections, setConnections] = React.useState<Connection[]>([]);
   const [newConn, setNewConn] = React.useState<Partial<Connection>>({ type: 'Ally', tension: 5 });
   const [viewMode, setViewMode] = React.useState<'list' | 'matrix'>('list');

@@ -17,14 +17,65 @@ export interface NeuralSignalEvent {
 }
 
 export function cleanJson(content: string): any {
+  // Strip markdown backticks if present
+  const cleaned = content.replace(/```json/g, '').replace(/```/g, '').trim();
+
+  // First pass: straightforward parse
   try {
-    // Strip markdown backticks if present
-    const cleaned = content.replace(/```json/g, '').replace(/```/g, '').trim();
     return JSON.parse(cleaned);
-  } catch (error) {
-    console.error('Failed to parse JSON content:', content);
-    throw new ApiError('Invalid AI output format. Could not parse JSON.');
+  } catch (_firstError) {
+    // Second pass: attempt truncation repair
+    // Strip anything after the last complete value (trailing comma, incomplete string, etc.)
+    try {
+      const repaired = repairTruncatedJson(cleaned);
+      const result = JSON.parse(repaired);
+      console.warn('[cleanJson] Repaired truncated JSON response. Some data may be missing.');
+      return result;
+    } catch (_repairError) {
+      console.error('Failed to parse JSON content:', content);
+      throw new ApiError('Invalid AI output format. Could not parse JSON.');
+    }
   }
+}
+
+/**
+ * Attempts to close an incomplete JSON string that was truncated mid-output.
+ * Handles unclosed arrays, objects, and strings.
+ */
+function repairTruncatedJson(raw: string): string {
+  // Remove trailing incomplete tokens: partial strings, trailing commas, dangling keys
+  let s = raw
+    .replace(/,\s*$/, '')           // trailing comma
+    .replace(/,\s*[\]}]$/g, (m) => m.slice(m.indexOf(']') !== -1 ? m.indexOf(']') : m.indexOf('}')))
+    .trimEnd();
+
+  // Track open brackets/braces to know how many to close
+  const stack: string[] = [];
+  let inString = false;
+  let escape = false;
+
+  for (let i = 0; i < s.length; i++) {
+    const ch = s[i];
+    if (escape) { escape = false; continue; }
+    if (ch === '\\' && inString) { escape = true; continue; }
+    if (ch === '"') { inString = !inString; continue; }
+    if (inString) continue;
+    if (ch === '{' || ch === '[') stack.push(ch);
+    else if (ch === '}' || ch === ']') stack.pop();
+  }
+
+  // If we ended up inside a string, close it
+  if (inString) s += '"';
+
+  // Remove trailing comma before we start closing
+  s = s.replace(/,\s*$/, '');
+
+  // Close any open brackets in reverse order
+  for (let i = stack.length - 1; i >= 0; i--) {
+    s += stack[i] === '{' ? '}' : ']';
+  }
+
+  return s;
 }
 
 const trimTrailingSlash = (value: string) => value.replace(/\/$|^\s+|\s+$/g, '');

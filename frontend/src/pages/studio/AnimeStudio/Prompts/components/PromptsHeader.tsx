@@ -8,7 +8,7 @@ import {
 } from '@/components/ui/tooltip';
 import { ChevronLeft, ChevronRight, Cpu, Terminal, Sparkles, Save, Square, Box } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useGenerator } from '@/hooks/useGenerator';
+import { useGeneratorDispatch } from '@/hooks/useGenerator';
 
 interface PromptsHeaderProps {
   onRegenerate: () => void;
@@ -36,7 +36,7 @@ export const PromptsHeader: React.FC<PromptsHeaderProps> = ({
   episode,
   status = 'empty'
 }) => {
-  const { stopGeneration } = useGenerator();
+  const { stopGeneration } = useGeneratorDispatch();
 
 
 
@@ -116,7 +116,7 @@ export const PromptsHeader: React.FC<PromptsHeaderProps> = ({
                 </TooltipContent>
               </Tooltip>
 
-              {onSave && hasContent && (
+              {onSave && (
                 <Tooltip>
                   <TooltipTrigger>
                     <Button 

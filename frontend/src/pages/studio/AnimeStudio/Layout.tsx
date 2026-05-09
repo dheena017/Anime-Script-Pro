@@ -1,5 +1,5 @@
 import React, { useEffect, useCallback } from 'react';
-import { Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { Outlet, useNavigate, useLocation, useSearchParams, useParams } from 'react-router-dom';
 import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
 import { useAuth } from '@/hooks/useAuth';
 import { useApp } from '@/contexts/AppContext';
@@ -25,7 +25,12 @@ export default function AnimeLayout() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const { projectId } = useParams();
+  const [searchParams] = useSearchParams();
   const { showNotification } = useApp();
+
+  const basePath = `/projects/${projectId}`;
+  const projectIdFromUrl = projectId;
   const { addLog } = useLogs();
 
   // Sync Creative Engine state with URL query parameter
@@ -74,15 +79,20 @@ export default function AnimeLayout() {
     setGeneratedCharacters, setGeneratedSeriesPlan, setGeneratedWorld,
     setCurrentScriptId, setContentType, setCastData, setCastList,
     setCharacterRelationships, setVisualData, setGeneratedMetadata,
-    setGeneratedImagePrompts, addLog: addGeneratorLog, setTheme, setRecapperPersona
+    setGeneratedImagePrompts, addLog: addGeneratorLog, setTheme, setRecapperPersona,
+    syncCore, setGenerationProgress
   } = useGeneratorDispatch();
 
-  // Initialize content type for this layout
+  // Initialize content type and handle "Fresh Entry" reset
   useEffect(() => {
     setContentType('Anime');
-  }, [setContentType]);
-
-  const basePath = '/anime';
+    
+    // With path-based routing, the projectId should always be present if we are in this layout.
+    if (projectId && projectId !== currentScriptId) {
+      console.info('[AnimeLayout] Syncing project from URL parameter:', projectId);
+      setCurrentScriptId(projectId);
+    }
+  }, [setContentType, projectId, currentScriptId, setCurrentScriptId]);
 
   const handleSaveCurrent = async () => {
     if (!generatedScript || !user) return;
@@ -128,6 +138,7 @@ export default function AnimeLayout() {
       return;
     }
     setIsLoading(true);
+    setGenerationProgress(2);
     addGeneratorLog("MASTER_GENERATOR", "INITIALIZED", "Starting Full Production Cycle...");
     showNotification?.('Full Production Active — Generating all modules in sequence...', 'success');
 
@@ -139,12 +150,14 @@ export default function AnimeLayout() {
       const { generateScript, generateImagePrompts, generateMetadata } = await import('@/services/api/gemini');
 
       // PHASE 1: WORLD Architecture
+      setGenerationProgress(5);
       addGeneratorLog("WORLD", "STARTING", "Building World Foundation and Setting...");
       const world = await generateWorld(prompt, selectedModel, 'Anime');
       setGeneratedWorld(world);
       addGeneratorLog("WORLD", "COMPLETED", "World foundation ready.");
 
       // PHASE 2: Character Creation
+      setGenerationProgress(25);
       addGeneratorLog("CAST", "STARTING", "Designing Character Profiles and Traits...");
       const castResult = await generateCharacters(prompt, selectedModel, 'Anime', world);
       if (typeof castResult === 'object' && castResult.characters) {
@@ -158,24 +171,36 @@ export default function AnimeLayout() {
         setGeneratedCharacters(castResult as string);
       }
       addGeneratorLog("CAST", "COMPLETED", "Cast manifest generated.");
+      void syncCore(); // Incremental save
 
       // PHASE 3: Series Structure
+      setGenerationProgress(40);
       addGeneratorLog("SERIES", "STARTING", "Designing Series Overall Structure...");
       const seriesPlan = await generateSeriesPlan(prompt, selectedModel, 'Anime', 12, world, typeof castResult === 'string' ? castResult : castResult.markdown);
       setGeneratedSeriesPlan(seriesPlan);
       addGeneratorLog("SERIES", "COMPLETED", "Series structure and beats mapped.");
+      void syncCore(); // Incremental save
 
       // PHASE 4: Script Writing
-      addGeneratorLog("SCRIPT", "STARTING", "Generating Episode 1 Script...");
+      setGenerationProgress(55);
+      addGeneratorLog("SCRIPT", "STARTING", "Generating Episode 1 Script (Streaming)...");
       const ep1Plan = seriesPlan?.find((ep: any) => parseInt(ep.episode) === 1);
-      const script = await generateScript(
+      
+      const { generateScriptStream } = await import('@/services/generators/script');
+      
+      const script = await generateScriptStream(
         prompt, tone, audience, "1", "1", numScenes, selectedModel, 'Anime',
-        recapperPersona, characterRelationships, world, typeof castResult === 'string' ? castResult : castResult.markdown, ep1Plan ? JSON.stringify(ep1Plan) : null
+        recapperPersona, characterRelationships, world, typeof castResult === 'string' ? castResult : castResult.markdown, ep1Plan ? JSON.stringify(ep1Plan) : null,
+        (partial) => {
+          setGeneratedScript(partial);
+          // Optional: we could update progress based on chunk count, but simpler to just keep trickling
+        }
       );
       setGeneratedScript(script);
-      addGeneratorLog("SCRIPT", "COMPLETED", "Script generated successfully.");
+      addGeneratorLog("SCRIPT", "COMPLETED", `Script generated successfully (${script.length} characters).`);
 
       // PHASE 5: Visual Planning (Storyboard)
+      setGenerationProgress(75);
       addGeneratorLog("STORYBOARD", "STARTING", "Creating Visual Descriptions for Scenes...");
       const visualPrompts = await generateImagePrompts(script, selectedModel);
       setGeneratedImagePrompts(visualPrompts);
@@ -183,21 +208,28 @@ export default function AnimeLayout() {
       addGeneratorLog("STORYBOARD", "COMPLETED", "Visual prompts created.");
 
       // PHASE 6: Content Metadata
+      setGenerationProgress(90);
       addGeneratorLog("SEO", "STARTING", "Generating Content Metadata and Tags...");
       const seo = await generateMetadata(script, selectedModel);
       setGeneratedMetadata(seo);
       addGeneratorLog("SEO", "COMPLETED", "Metadata generation complete.");
+      setGenerationProgress(100);
 
       showNotification?.('Production Process Complete: All Modules Prepared', 'success');
+      // Final Sync
+      await syncCore();
+      setGenerationProgress(100);
+      setTimeout(() => setGenerationProgress(0), 3000);
       navigate(`${basePath}/world`);
     } catch (error: any) {
       console.error("Production Failed:", error);
       addGeneratorLog("CORE", "FAILURE", error.message || "Unknown error during production");
       showNotification?.(`Production Failure: ${error.message || 'Check logs'}`, 'error');
+      setGenerationProgress(0);
     } finally {
       setIsLoading(false);
     }
-  }, [prompt, user, selectedModel, tone, audience, numScenes, recapperPersona, characterRelationships, setGeneratedWorld, setGeneratedCharacters, setCastData, setCastList, setCharacterRelationships, setGeneratedSeriesPlan, setGeneratedScript, setGeneratedImagePrompts, setVisualData, setGeneratedMetadata, showNotification, addGeneratorLog, navigate, basePath, setIsLoading]);
+  }, [prompt, user, selectedModel, tone, audience, numScenes, recapperPersona, characterRelationships, setGeneratedWorld, setGeneratedCharacters, setCastData, setCastList, setCharacterRelationships, setGeneratedSeriesPlan, setGeneratedScript, setGeneratedImagePrompts, setVisualData, setGeneratedMetadata, showNotification, addGeneratorLog, navigate, basePath, setIsLoading, syncCore]);
 
   const handleWorldGenerate = useCallback(async () => {
     if (!prompt.trim() || !user) {
@@ -205,6 +237,7 @@ export default function AnimeLayout() {
       return;
     }
     setIsLoading(true);
+    setGenerationProgress(10);
     addGeneratorLog("WORLD", "INITIALIZED", "Generating World Foundation...");
 
     try {
@@ -212,11 +245,15 @@ export default function AnimeLayout() {
       const world = await generateWorld(prompt, selectedModel, 'Anime');
       setGeneratedWorld(world);
       addGeneratorLog("WORLD", "COMPLETED", "Lore synchronized to core.");
+      void syncCore(); // Incremental save
       showNotification?.('World Lore synthesized successfully!', 'success');
+      setGenerationProgress(100);
+      setTimeout(() => setGenerationProgress(0), 3000);
     } catch (error: any) {
       console.error("World Generation Failed:", error);
       addGeneratorLog("WORLD", "FAILURE", error.message || "Unknown error");
       showNotification?.(`World Generation Failure: ${error.message}`, 'error');
+      setGenerationProgress(0);
     } finally {
       setIsLoading(false);
     }
@@ -242,13 +279,21 @@ export default function AnimeLayout() {
       return;
     }
     setIsLoading(true);
+    setGenerationProgress(10);
     navigate(`${basePath}/script`);
 
     try {
-      const { generateScript } = await import('@/services/api/gemini');
+      const { generateScriptStream } = await import('@/services/generators/script');
       const currentEpisodePlan = generatedSeriesPlan?.find((ep: any) => parseInt(ep.episode) === parseInt(episode));
-      const script = await generateScript(prompt, tone, audience, session, episode, numScenes, selectedModel, 'Anime', recapperPersona, characterRelationships, generatedWorld, generatedCharacters, currentEpisodePlan ? JSON.stringify(currentEpisodePlan) : null);
+      const script = await generateScriptStream(
+        prompt, tone, audience, session, episode, numScenes, selectedModel, 'Anime', recapperPersona, characterRelationships, generatedWorld, generatedCharacters, 
+        currentEpisodePlan ? JSON.stringify(currentEpisodePlan) : null,
+        (partial) => {
+          setGeneratedScript(partial);
+        }
+      );
       setGeneratedScript(script);
+      setGenerationProgress(100);
       setCurrentScriptId(null);
       showNotification?.('Script written successfully!', 'success');
 
@@ -303,9 +348,12 @@ export default function AnimeLayout() {
           });
         }
       }
+      setGenerationProgress(100);
+      setTimeout(() => setGenerationProgress(0), 3000);
     } catch (error) {
       console.error("Single generation persistence failed:", error);
       showNotification?.('Generation failed. Please try again.', 'error');
+      setGenerationProgress(0);
     } finally {
       setIsLoading(false);
     }

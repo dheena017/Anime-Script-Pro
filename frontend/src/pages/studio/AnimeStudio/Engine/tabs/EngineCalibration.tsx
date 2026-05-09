@@ -1,18 +1,24 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Zap, Target, Cpu, Sparkles, RefreshCw, Layers, ShieldCheck } from 'lucide-react';
-import { useGenerator } from '@/hooks/useGenerator';
+import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
 import { useEngineState } from '@/contexts/generator';
 import { cn } from '@/lib/utils';
 
 export const EngineCalibration: React.FC = () => {
   const { 
-    temperature = 0.85, setTemperature,
-    maxTokens = 2048, setMaxTokens,
-    topP = 0.95, setTopP,
-    topK = 40, setTopK,
+    temperature = 0.85,
+    maxTokens = 2048,
+    topP = 0.95,
+    topK = 40,
     isGeneratingDescription
-  } = useGenerator();
+  } = useGeneratorState();
+  const {
+    setTemperature,
+    setMaxTokens,
+    setTopP,
+    setTopK
+  } = useGeneratorDispatch();
 
   const { selectedModel, contentType } = useEngineState();
 
