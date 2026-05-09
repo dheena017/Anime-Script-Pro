@@ -44,8 +44,6 @@ const LibraryModule = lazy(() => import('@/pages/studio/Library/LibraryPage'));
 
 // Studio Layouts
 const AnimeLayout = lazy(() => import('@/pages/studio/AnimeStudio/Layout'));
-const ManhwaLayout = lazy(() => import('@/pages/studio/ManhwaStudio/ManhwaStudioLayout'));
-const ComicLayout = lazy(() => import('@/pages/studio/ComicStudio/Layout'));
 
 // Anime Studio Pages
 const AnimeScript = lazy(() => import('@/pages/studio/AnimeStudio/Script/ScriptPage').then(m => ({ default: m.ScriptPage })));
@@ -83,12 +81,7 @@ const EngineLayout = lazy(() => import('@/pages/studio/AnimeStudio/Engine/Engine
 const AssetsLayout = lazy(() => import('@/pages/studio/AnimeStudio/Assets/AssetsLayout'));
 const AssetsPage = lazy(() => import('@/pages/studio/AnimeStudio/Assets/AssetsPage').then(m => ({ default: m.AssetsPage })));
 
-// Manhwa Studio Phase Layouts
-const ManhwaWorldLayout = lazy(() => import('@/pages/studio/ManhwaStudio/World/WorldLayout'));
-const ManhwaCastLayout = lazy(() => import('@/pages/studio/ManhwaStudio/Cast/CastLayout'));
-
-// Comic Studio Phase Layouts
-const ComicWorldLayout = lazy(() => import('@/pages/studio/ComicStudio/World/WorldLayout'));
+// (Manhwa and Comic studios removed)
 
 const EpisodeViewPage = lazy(() => import('@/pages/studio/AnimeStudio/Series/Episodes/EpisodeViewPage'));
 const EpisodeEditPage = lazy(() => import('@/pages/studio/AnimeStudio/Series/Episodes/EpisodeEditPage'));

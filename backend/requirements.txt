@@ -2,9 +2,10 @@
 fastapi
 uvicorn
 python-dotenv
+sqlalchemy
 sqlmodel
-fastapi-users[sqlmodel]
-fastapi-users-db-sqlmodel
+fastapi-users[sqlalchemy]
+fastapi-users-db-sqlalchemy
 jinja2
 
 # AI Engine

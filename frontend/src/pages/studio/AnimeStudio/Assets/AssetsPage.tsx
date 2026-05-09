@@ -9,11 +9,12 @@ import { generateMetadata, generateYouTubeDescription, generateImagePrompts } fr
 import { MOCK_STORY_BIBLE } from '@/services/generators/mockData';
 import { cn } from '@/lib/utils';
 
-import { useLocation } from 'react-router-dom';
+import { useLocation, useOutletContext } from 'react-router-dom';
 import { SEOEmptyState } from '../SEO/components/SEOEmptyState';
 
 export function AssetsPage() {
   const location = useLocation();
+  const { onLaunch } = useOutletContext<{ onLaunch: () => void }>();
   const {
     generatedMetadata, setGeneratedMetadata,
     generatedDescription, setGeneratedDescription,
@@ -102,34 +103,36 @@ export function AssetsPage() {
 
   return (
     <div data-testid="marker-assets-production">
-      <div className="mb-6 grid gap-4 rounded-[2rem] border border-studio/20 bg-studio/5 p-6 lg:grid-cols-[1.6fr_1fr] lg:items-center">
-        <div className="space-y-2">
-          <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.35em] text-studio">
-            <Sparkles className="w-4 h-4" />
-            Shared story bible
+      {hasAnyAsset && (
+        <div className="mb-6 grid gap-4 rounded-[2rem] border border-studio/20 bg-studio/5 p-6 lg:grid-cols-[1.6fr_1fr] lg:items-center animate-in fade-in slide-in-from-top-4 duration-700">
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.35em] text-studio">
+              <Sparkles className="w-4 h-4" />
+              Shared story bible
+            </div>
+            <h2 className="text-2xl font-black uppercase italic tracking-tighter text-white">
+              Asset generation for {MOCK_STORY_BIBLE.title}
+            </h2>
+            <p className="max-w-3xl text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-500">
+              {MOCK_STORY_BIBLE.logline}
+            </p>
           </div>
-          <h2 className="text-2xl font-black uppercase italic tracking-tighter text-white">
-            Asset generation for {MOCK_STORY_BIBLE.title}
-          </h2>
-          <p className="max-w-3xl text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-500">
-            {MOCK_STORY_BIBLE.logline}
-          </p>
+          <div className="grid grid-cols-3 gap-3 text-[9px] font-black uppercase tracking-[0.25em] text-zinc-600">
+            <div className="rounded-2xl border border-white/5 bg-black/40 p-4 text-center">
+              <Search className="mx-auto mb-2 h-4 w-4 text-studio" />
+              Metadata
+            </div>
+            <div className="rounded-2xl border border-white/5 bg-black/40 p-4 text-center">
+              <MonitorPlay className="mx-auto mb-2 h-4 w-4 text-fuchsia-400" />
+              Description
+            </div>
+            <div className="rounded-2xl border border-white/5 bg-black/40 p-4 text-center">
+              <ImageIcon className="mx-auto mb-2 h-4 w-4 text-emerald-400" />
+              Visual DNA
+            </div>
+          </div>
         </div>
-        <div className="grid grid-cols-3 gap-3 text-[9px] font-black uppercase tracking-[0.25em] text-zinc-600">
-          <div className="rounded-2xl border border-white/5 bg-black/40 p-4 text-center">
-            <Search className="mx-auto mb-2 h-4 w-4 text-studio" />
-            Metadata
-          </div>
-          <div className="rounded-2xl border border-white/5 bg-black/40 p-4 text-center">
-            <MonitorPlay className="mx-auto mb-2 h-4 w-4 text-fuchsia-400" />
-            Description
-          </div>
-          <div className="rounded-2xl border border-white/5 bg-black/40 p-4 text-center">
-            <ImageIcon className="mx-auto mb-2 h-4 w-4 text-emerald-400" />
-            Visual DNA
-          </div>
-        </div>
-      </div>
+      )}
 
       <Card className="bg-[#030303] border-studio/30 shadow-[0_0_40px_rgba(6,182,212,0.1)] overflow-hidden rounded-[2.5rem] relative group/card transition-all duration-700 hover:border-studio/50">
         <div className="absolute inset-0 border-[1px] border-studio/20 rounded-[2.5rem] pointer-events-none group-hover/card:border-studio/40 transition-colors duration-700" />
@@ -140,7 +143,7 @@ export function AssetsPage() {
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
               {!hasAnyAsset && !isGeneratingMetadata ? (
                 <SEOEmptyState 
-                  onLaunch={handleGenerateAll}
+                  onLaunch={onLaunch}
                   isGenerating={isGeneratingMetadata || isGeneratingDescription || isGeneratingImagePrompts}
                 />
               ) : (

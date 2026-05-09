@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
-from sqlmodel import select
+from sqlalchemy import select
 from typing import List, Optional, Dict, Any
 from backend.database.models import SavedPrompt, ReusableCharacter, CastMember
 from backend.database import async_session, async_engine
@@ -11,8 +11,8 @@ router = APIRouter(prefix="/api", tags=["Creative Library"])
 async def get_saved_prompts(user_id: str):
     async with async_session() as session:
         statement = select(SavedPrompt).where(SavedPrompt.user_id == user_id)
-        results = await session.exec(statement)
-        return results.all()
+        result = await session.execute(statement)
+        return result.scalars().all()
 
 @router.post("/library/prompts")
 @router.post("/prompts")
@@ -38,8 +38,8 @@ async def create_saved_prompt(prompt: Dict[str, Any], user_id: str = Depends(get
 async def get_characters(user_id: str):
     async with async_session() as session:
         statement = select(ReusableCharacter).where(ReusableCharacter.user_id == user_id)
-        results = await session.exec(statement)
-        return results.all()
+        result = await session.execute(statement)
+        return result.scalars().all()
 
 @router.post("/library/characters")
 @router.post("/characters")

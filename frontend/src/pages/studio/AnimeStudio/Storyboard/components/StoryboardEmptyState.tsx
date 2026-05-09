@@ -22,10 +22,6 @@ export const StoryboardEmptyState: React.FC<StoryboardEmptyStateProps> = ({
       icon={Layout}
       title="Optics Not Synthesized"
       description="The visual flow of your production is currently invisible. Initialize the Storyboard Engine to render cinematic frames based on your script."
-      actionLabel="Initialize Storyboard"
-      loadingLabel="Rendering Optics..."
-      onAction={onLaunch}
-      isLoading={isGenerating}
       features={features}
       accentColor="rose"
     />

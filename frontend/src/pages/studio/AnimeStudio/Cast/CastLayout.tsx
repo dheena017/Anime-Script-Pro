@@ -56,6 +56,12 @@ export default function CastLayout() {
     prompt, selectedModel, contentType, generatedWorld,
     session, episode, generatedCharacters, isSaving, isGeneratingCharacters, isAnalyzingCast,
     generationProgress, numCharacters, castList  } = useGeneratorState();
+  const { currentScriptId } = useGeneratorState();
+
+  const projectId = React.useMemo(() => {
+    const parsedProjectId = currentScriptId ? Number.parseInt(currentScriptId, 10) : undefined;
+    return Number.isFinite(parsedProjectId) ? parsedProjectId : undefined;
+  }, [currentScriptId]);
 
   const {
     setIsGeneratingCharacters, setCastData, setCastList,
@@ -75,7 +81,7 @@ export default function CastLayout() {
   };
 
   const handleSave = async () => {
-    await syncCore();
+    await syncCore(projectId);
   };
 
   // Removed DNA, Dynamics, and Integrity generation as tabs were removed
@@ -183,16 +189,6 @@ export default function CastLayout() {
   };
 
   const renderTabContent = () => {
-    if (!castList || castList.length === 0) {
-      return (
-        <CastEmptyState 
-          onLaunch={handleGenerateAll} 
-          onLoadDemo={handleLoadDemo} 
-          isGenerating={isGeneratingCharacters} 
-        />
-      );
-    }
-
     switch (activeTab) {
       case 'voice': return <VoiceTab />;
       case 'combat': return <CombatTab />;
@@ -203,6 +199,8 @@ export default function CastLayout() {
       default: return <RegistryTab onViewCharacter={handleViewCharacter} />;
     }
   };
+
+  const hasContent = castList && castList.length > 0;
 
   return (
     <CastContext.Provider value={{ setHandlers, handleLoadDemo }}>
@@ -221,7 +219,7 @@ export default function CastLayout() {
             onNext={() => navigate(`/${contentType.toLowerCase()}/series`)}
             onSave={handleSave}
             isSaving={isSaving}
-            hasContent={!!generatedCharacters}
+            hasContent={hasContent}
           />
         </div>
 
@@ -233,10 +231,10 @@ export default function CastLayout() {
         </div>
 
         {/* Toolbar Section */}
-        {generatedCharacters && (
+        {hasContent && (
           <div className="mb-8 relative z-30">
             <CastToolbar
-              status={generatedCharacters ? 'active' : 'empty'}
+              status={hasContent ? 'active' : 'empty'}
               session={session}
               episode={episode}
               activeTab={activeTab}
@@ -248,6 +246,12 @@ export default function CastLayout() {
 
         {(isGeneratingCharacters || isAnalyzingCast) ? (
           <CastLoadingPage tab={activeTab} progress={generationProgress} />
+        ) : !hasContent ? (
+          <CastEmptyState 
+            onLaunch={handleGenerateAll} 
+            onLoadDemo={handleLoadDemo} 
+            isGenerating={isGeneratingCharacters} 
+          />
         ) : shouldRenderOutlet ? (
           <Outlet context={{
             activeTab,

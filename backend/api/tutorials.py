@@ -1,7 +1,7 @@
 import os
 import json
 from fastapi import APIRouter, Depends, HTTPException
-from sqlmodel import select
+from sqlalchemy import select
 from typing import List
 from loguru import logger
 from backend.database.models import Tutorial
@@ -15,8 +15,8 @@ router = APIRouter(prefix="/api/tutorials", tags=["Tutorials"])
 async def get_tutorials():
     async with async_session() as session:
         statement = select(Tutorial).where(Tutorial.is_active == True)
-        results = await session.exec(statement)
-        return results.all()
+        result = await session.execute(statement)
+        return result.scalars().all()
 
 @router.post("/", response_model=Tutorial)
 async def create_tutorial(tutorial: Tutorial, user=Depends(current_active_user)):
@@ -76,8 +76,8 @@ async def seed_tutorials():
         async with async_session() as session:
             for t_data in initial_tutorials:
                 statement = select(Tutorial).where(Tutorial.title == t_data["title"])
-                results = await session.exec(statement)
-                if not results.first():
+                result = await session.execute(statement)
+                if not result.scalars().first():
                     tutorial = Tutorial(**t_data)
                     session.add(tutorial)
             await session.commit()

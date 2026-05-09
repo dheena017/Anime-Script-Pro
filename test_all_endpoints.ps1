@@ -2,7 +2,7 @@
 
 $ErrorActionPreference = "SilentlyContinue"
 
-$BASE_URL = "http://localhost:8080"
+$BASE_URL = "http://localhost:3050"
 $AUTH_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJsb2NhbC1kZXYtYXJjaGl0ZWN0LWlkIiwiZXhwIjoxNzc4MDY0NDc5fQ.wC0dItoyO0vrKnjIG-S1wbAooocHJTOT91q6PizYY9w"
 $USER_ID = "local-dev-architect-id"
 

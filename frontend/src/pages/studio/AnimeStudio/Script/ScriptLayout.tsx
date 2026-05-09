@@ -25,7 +25,7 @@ export default function ScriptLayout() {
     session, episode, numScenes, selectedModel, contentType,
     recapperPersona, characterRelationships, generatedWorld,
     generatedCharacters, generatedSeriesPlan, isSaving, generatedMetadata,
-    generationProgress, isEditing
+    generationProgress, isEditing, currentScriptId
   } = useGeneratorState();
 
   const {
@@ -35,8 +35,13 @@ export default function ScriptLayout() {
 
   useAuth();
 
+  const projectId = React.useMemo(() => {
+    const parsedProjectId = currentScriptId ? Number.parseInt(currentScriptId, 10) : undefined;
+    return Number.isFinite(parsedProjectId) ? parsedProjectId : undefined;
+  }, [currentScriptId]);
+
   const handleSave = async () => {
-    await syncCore();
+    await syncCore(projectId);
   };
 
   const handleGenerateAll = async () => {

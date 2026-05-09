@@ -1,14 +1,20 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
 from backend.database import get_async_session, AsyncSession
 from backend.database.models.world import WorldLore
 from backend.utils.deps import get_auth_user_id
 from datetime import datetime
-from typing import Optional, Any
+from typing import Optional, Any, Dict
 from loguru import logger
+from backend.database.models import Project
+from backend.ai_engine import call_ai
 
 router = APIRouter(prefix="/api/world", tags=["World Lore"])
+
+FIELD_ALIASES = {
+    "manifest_blob": "full_lore_blob",
+}
 
 # --- Neural Response Wrapper ---
 def wrap_response(data: Any, message: str = "Success"):
@@ -42,6 +48,12 @@ def validate_update_payload(payload: dict) -> None:
 
     if "content" not in payload and "prompt" not in payload:
         raise HTTPException(status_code=400, detail="Payload must include at least one of: content, prompt")
+
+
+def serialize_lore(db_lore: WorldLore) -> Dict[str, Any]:
+    data = db_lore.model_dump()
+    data["manifest_blob"] = data.get("full_lore_blob")
+    return data
 
 
 # --- Helper: Universal Lore Resolver ---
@@ -91,9 +103,10 @@ async def safe_update_lore(
         validate_update_payload(payload)
         effective_project_id = get_effective_project_id(project_id, payload)
         db_lore = await resolve_lore(session, user_id, effective_project_id)
+        resolved_content_field = FIELD_ALIASES.get(content_field, content_field)
 
         if "content" in payload:
-            setattr(db_lore, content_field, payload["content"])
+            setattr(db_lore, resolved_content_field, payload["content"])
         if "prompt" in payload:
             setattr(db_lore, prompt_field, payload["prompt"])
 
@@ -117,101 +130,188 @@ async def safe_update_lore(
 async def get_manifest(user_id: str, project_id: Optional[int] = None, session: AsyncSession = Depends(get_async_session), auth_user_id: str = Depends(get_auth_user_id)):
     ensure_authorized(user_id, auth_user_id)
     db_lore = await safe_get_lore(user_id, project_id, session, "Manifest")
-    return wrap_response(db_lore)
+    return wrap_response(serialize_lore(db_lore))
 
 @router.post("/manifest/{user_id}")
 async def update_manifest(user_id: str, payload: dict, project_id: Optional[int] = None, session: AsyncSession = Depends(get_async_session), auth_user_id: str = Depends(get_auth_user_id)):
     ensure_authorized(user_id, auth_user_id)
     db_lore = await safe_update_lore(user_id, payload, project_id, session, "Manifest", "manifest_blob", "prompt_history")
-    return wrap_response(db_lore, "Manifest Updated")
+    return wrap_response(serialize_lore(db_lore), "Manifest Updated")
 
 # --- 2. History ---
 @router.get("/history/{user_id}")
 async def get_history(user_id: str, project_id: Optional[int] = None, session: AsyncSession = Depends(get_async_session), auth_user_id: str = Depends(get_auth_user_id)):
     ensure_authorized(user_id, auth_user_id)
     db_lore = await safe_get_lore(user_id, project_id, session, "History")
-    return wrap_response(db_lore)
+    return wrap_response(serialize_lore(db_lore))
 
 @router.post("/history/{user_id}")
 async def update_history(user_id: str, payload: dict, project_id: Optional[int] = None, session: AsyncSession = Depends(get_async_session), auth_user_id: str = Depends(get_auth_user_id)):
     ensure_authorized(user_id, auth_user_id)
     db_lore = await safe_update_lore(user_id, payload, project_id, session, "History", "history_blob", "prompt_history")
-    return wrap_response(db_lore, "History Updated")
+    return wrap_response(serialize_lore(db_lore), "History Updated")
 
 # --- 3. Factions ---
 @router.get("/factions/{user_id}")
 async def get_factions(user_id: str, project_id: Optional[int] = None, session: AsyncSession = Depends(get_async_session), auth_user_id: str = Depends(get_auth_user_id)):
     ensure_authorized(user_id, auth_user_id)
     db_lore = await safe_get_lore(user_id, project_id, session, "Factions")
-    return wrap_response(db_lore)
+    return wrap_response(serialize_lore(db_lore))
 
 @router.post("/factions/{user_id}")
 async def update_factions(user_id: str, payload: dict, project_id: Optional[int] = None, session: AsyncSession = Depends(get_async_session), auth_user_id: str = Depends(get_auth_user_id)):
     ensure_authorized(user_id, auth_user_id)
     db_lore = await safe_update_lore(user_id, payload, project_id, session, "Factions", "factions_blob", "prompt_factions")
-    return wrap_response(db_lore, "Factions Updated")
+    return wrap_response(serialize_lore(db_lore), "Factions Updated")
 
 # --- 4. Powers ---
 @router.get("/powers/{user_id}")
 async def get_powers(user_id: str, project_id: Optional[int] = None, session: AsyncSession = Depends(get_async_session), auth_user_id: str = Depends(get_auth_user_id)):
     ensure_authorized(user_id, auth_user_id)
     db_lore = await safe_get_lore(user_id, project_id, session, "Powers")
-    return wrap_response(db_lore)
+    return wrap_response(serialize_lore(db_lore))
 
 @router.post("/powers/{user_id}")
 async def update_powers(user_id: str, payload: dict, project_id: Optional[int] = None, session: AsyncSession = Depends(get_async_session), auth_user_id: str = Depends(get_auth_user_id)):
     ensure_authorized(user_id, auth_user_id)
     db_lore = await safe_update_lore(user_id, payload, project_id, session, "Powers", "powers_blob", "prompt_powers")
-    return wrap_response(db_lore, "Powers Updated")
+    return wrap_response(serialize_lore(db_lore), "Powers Updated")
 
 # --- 5. Architecture ---
 @router.get("/architecture/{user_id}")
 async def get_architecture(user_id: str, project_id: Optional[int] = None, session: AsyncSession = Depends(get_async_session), auth_user_id: str = Depends(get_auth_user_id)):
     ensure_authorized(user_id, auth_user_id)
     db_lore = await safe_get_lore(user_id, project_id, session, "Architecture")
-    return wrap_response(db_lore)
+    return wrap_response(serialize_lore(db_lore))
 
 @router.post("/architecture/{user_id}")
 async def update_architecture(user_id: str, payload: dict, project_id: Optional[int] = None, session: AsyncSession = Depends(get_async_session), auth_user_id: str = Depends(get_auth_user_id)):
     ensure_authorized(user_id, auth_user_id)
     db_lore = await safe_update_lore(user_id, payload, project_id, session, "Architecture", "architecture_blob", "prompt_architecture")
-    return wrap_response(db_lore, "Architecture Updated")
+    return wrap_response(serialize_lore(db_lore), "Architecture Updated")
 
 # --- 6. Atlas ---
 @router.get("/atlas/{user_id}")
 async def get_atlas(user_id: str, project_id: Optional[int] = None, session: AsyncSession = Depends(get_async_session), auth_user_id: str = Depends(get_auth_user_id)):
     ensure_authorized(user_id, auth_user_id)
     db_lore = await safe_get_lore(user_id, project_id, session, "Atlas")
-    return wrap_response(db_lore)
+    return wrap_response(serialize_lore(db_lore))
 
 @router.post("/atlas/{user_id}")
 async def update_atlas(user_id: str, payload: dict, project_id: Optional[int] = None, session: AsyncSession = Depends(get_async_session), auth_user_id: str = Depends(get_auth_user_id)):
     ensure_authorized(user_id, auth_user_id)
     db_lore = await safe_update_lore(user_id, payload, project_id, session, "Atlas", "atlas_blob", "prompt_atlas")
-    return wrap_response(db_lore, "Atlas Updated")
+    return wrap_response(serialize_lore(db_lore), "Atlas Updated")
 
 # --- 7. Culture ---
 @router.get("/culture/{user_id}")
 async def get_culture(user_id: str, project_id: Optional[int] = None, session: AsyncSession = Depends(get_async_session), auth_user_id: str = Depends(get_auth_user_id)):
     ensure_authorized(user_id, auth_user_id)
     db_lore = await safe_get_lore(user_id, project_id, session, "Culture")
-    return wrap_response(db_lore)
+    return wrap_response(serialize_lore(db_lore))
 
 @router.post("/culture/{user_id}")
 async def update_culture(user_id: str, payload: dict, project_id: Optional[int] = None, session: AsyncSession = Depends(get_async_session), auth_user_id: str = Depends(get_auth_user_id)):
     ensure_authorized(user_id, auth_user_id)
     db_lore = await safe_update_lore(user_id, payload, project_id, session, "Culture", "culture_blob", "prompt_culture")
-    return wrap_response(db_lore, "Culture Updated")
+    return wrap_response(serialize_lore(db_lore), "Culture Updated")
 
 # --- 8. Systems ---
 @router.get("/systems/{user_id}")
 async def get_systems(user_id: str, project_id: Optional[int] = None, session: AsyncSession = Depends(get_async_session), auth_user_id: str = Depends(get_auth_user_id)):
     ensure_authorized(user_id, auth_user_id)
     db_lore = await safe_get_lore(user_id, project_id, session, "Systems")
-    return wrap_response(db_lore)
+    return wrap_response(serialize_lore(db_lore))
 
 @router.post("/systems/{user_id}")
 async def update_systems(user_id: str, payload: dict, project_id: Optional[int] = None, session: AsyncSession = Depends(get_async_session), auth_user_id: str = Depends(get_auth_user_id)):
     ensure_authorized(user_id, auth_user_id)
     db_lore = await safe_update_lore(user_id, payload, project_id, session, "Systems", "systems_blob", "prompt_systems")
-    return wrap_response(db_lore, "Systems Updated")
+    return wrap_response(serialize_lore(db_lore), "Systems Updated")
+
+
+    
+# --- Generation Logic ---
+PROMPTS = {
+    "history": "Develop a comprehensive historical timeline and lore expansion. Establish the history and eras that led to the world described in the context.",
+    "factions": "Develop a detailed faction and political system. Create factions, ideologies, and political tensions that feel like a natural consequence of the world.",
+    "powers": "Develop a detailed power system. Design the power mechanics so they align perfectly with the established world context. Focus on mechanics, tiers, and limitations.",
+    "architecture": "Develop a visual architectural style. Design the architectural and visual language of this world.",
+    "atlas": "Develop a geographical atlas and climate system. Map out the physical geography and environmental logic.",
+    "culture": "Develop a cultural profile and societal ethos. Design the rituals, daily life, and social hierarchies.",
+    "systems": "Develop world systems, technology, and ecosystem. Architect the mechanical logic and technological infrastructure."
+}
+
+FIELD_MAP = {
+    "history": ("history_blob", "prompt_history"),
+    "factions": ("factions_blob", "prompt_factions"),
+    "powers": ("powers_blob", "prompt_powers"),
+    "architecture": ("architecture_blob", "prompt_architecture"),
+    "atlas": ("atlas_blob", "prompt_atlas"),
+    "culture": ("culture_blob", "prompt_culture"),
+    "systems": ("systems_blob", "prompt_systems")
+}
+
+async def generate_modular_lore(
+    module: str,
+    user_id: str,
+    project_id: int,
+    session: AsyncSession
+):
+    if module not in PROMPTS:
+        raise HTTPException(status_code=400, detail=f"Invalid module: {module}")
+
+    # 1. Fetch Project for prompt context
+    project = await session.get(Project, project_id)
+    if not project or project.user_id != user_id:
+        raise HTTPException(status_code=404, detail="Project not found or unauthorized")
+    
+    # 2. Get existing lore for context
+    db_lore = await resolve_lore(session, user_id, project_id)
+    world_context = db_lore.full_lore_blob or getattr(db_lore, "manifest_blob", None) or "No established world manifest yet."
+
+    # 3. Call AI
+    system_instruction = f"You are a master world builder for {project.content_type or 'Anime'} projects. Your task is to generate {module.capitalize()}."
+    user_prompt = f"""
+    CORE STORY SEED: {project.prompt}
+    
+    WORLD CONTEXT (MANIFEST):
+    {world_context}
+    
+    TASK: {PROMPTS[module]}
+    """
+    
+    try:
+        content = await call_ai(
+            model=project.model_used or "gemini-3.1-flash",
+            prompt=user_prompt,
+            system_instruction=system_instruction,
+            user_id=user_id
+        )
+        
+        # 4. Save to DB
+        content_field, prompt_field = FIELD_MAP[module]
+        setattr(db_lore, content_field, content)
+        setattr(db_lore, prompt_field, PROMPTS[module])
+        db_lore.updated_at = datetime.utcnow()
+        await session.commit()
+        
+        return content
+    except Exception as e:
+        logger.error(f"[WORLD] Generation failed for {module}: {e}")
+        raise HTTPException(status_code=500, detail=f"Neural synthesis failed: {str(e)}")
+
+@router.post("/{module}/generate/{user_id}")
+async def generate_endpoint(
+    module: str,
+    user_id: str,
+    project_id: Optional[int] = Query(None),
+    session: AsyncSession = Depends(get_async_session),
+    auth_user_id: str = Depends(get_auth_user_id)
+):
+    ensure_authorized(user_id, auth_user_id)
+    if not project_id:
+        raise HTTPException(status_code=400, detail="project_id is required for generation")
+    
+    content = await generate_modular_lore(module, user_id, project_id, session)
+    return wrap_response({"content": content}, f"{module.capitalize()} Generated")

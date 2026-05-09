@@ -16,6 +16,9 @@ interface SeriesHeaderProps {
   onNext: () => void;
   onPrev?: () => void;
   onSave?: () => void;
+  onManifest?: () => void;
+  onClear?: () => void;
+  isManifestActive?: boolean;
   isSaving?: boolean;
   hasContent?: boolean;
   session: string;
@@ -30,6 +33,9 @@ export const SeriesHeader: React.FC<SeriesHeaderProps> = ({
   onNext,
   onPrev,
   onSave,
+  onManifest,
+  onClear,
+  isManifestActive,
   isSaving,
   hasContent,
   session,
@@ -113,6 +119,48 @@ export const SeriesHeader: React.FC<SeriesHeaderProps> = ({
                   </p>
                 </TooltipContent>
               </Tooltip>
+
+              {!isManifestActive && (
+                <Tooltip>
+                  <TooltipTrigger  >
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "relative w-full sm:w-auto h-12 px-6 bg-[#050505] border-white/10 text-zinc-400 hover:text-emerald-500 hover:border-emerald-500/50 font-black uppercase tracking-widest text-[11px] rounded-full transition-all duration-500 shadow-2xl group/blueprint"
+                      )}
+                      onClick={onManifest}
+                    >
+                      <Box className="w-4 h-4 mr-2" />
+                      BLUEPRINT
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="top">
+                    <p className="font-black uppercase tracking-widest text-[9px]">Open Production Blueprint</p>
+                  </TooltipContent>
+                </Tooltip>
+              )}
+
+              {onClear && hasContent && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="w-12 h-12 rounded-full border border-red-500/10 text-red-500/50 hover:text-red-500 hover:bg-red-500/10 transition-all duration-300"
+                      onClick={() => {
+                        if (window.confirm('Are you sure you want to clear the entire production manifest? This action cannot be undone.')) {
+                          onClear();
+                        }
+                      }}
+                    >
+                      <Square className="w-4 h-4 fill-current opacity-20" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="top">
+                    <p className="font-black uppercase tracking-widest text-[9px]">Clear Manifest (Reset to Empty)</p>
+                  </TooltipContent>
+                </Tooltip>
+              )}
 
               {onSave && hasContent && (
                 <Tooltip>

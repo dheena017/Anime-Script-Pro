@@ -4,17 +4,23 @@ from alembic import context
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from backend.database.models import SQLModel
+from sqlmodel import SQLModel
 from backend.database import DATABASE_URL
+from backend.database import models  # Ensure all models are loaded into SQLModel.metadata
 
 config = context.config
 fileConfig(config.config_file_name)
+config.set_main_option("sqlalchemy.url", DATABASE_URL)
 target_metadata = SQLModel.metadata
 
 def run_migrations_offline():
     url = DATABASE_URL
     context.configure(
-        url=url, target_metadata=target_metadata, literal_binds=True, compare_type=True
+        url=url, 
+        target_metadata=target_metadata, 
+        literal_binds=True, 
+        compare_type=True,
+        render_as_batch=True
     )
     with context.begin_transaction():
         context.run_migrations()
@@ -27,7 +33,10 @@ def run_migrations_online():
     )
     with connectable.connect() as connection:
         context.configure(
-            connection=connection, target_metadata=target_metadata, compare_type=True
+            connection=connection, 
+            target_metadata=target_metadata, 
+            compare_type=True,
+            render_as_batch=True
         )
         with context.begin_transaction():
             context.run_migrations()

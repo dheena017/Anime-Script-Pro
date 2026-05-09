@@ -55,14 +55,6 @@ export const IntegrityTab: React.FC = () => {
   return (
     <div className="py-20 text-center space-y-12">
       <div className="flex justify-center mb-8">
-        <Button
-          onClick={handleGenerateIntegrity}
-          disabled={isAnalyzingCast}
-          className="bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-500 border border-emerald-500/20 rounded-xl px-8 py-3 flex gap-3 font-black uppercase tracking-widest text-[11px]"
-        >
-          <RefreshCcw className={cn("w-4 h-4", isAnalyzingCast && "animate-spin")} />
-          {isAnalyzingCast ? "Auditing System..." : "Run AI Integrity Audit"}
-        </Button>
       </div>
 
       <div className="relative inline-block">

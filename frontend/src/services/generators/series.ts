@@ -147,6 +147,67 @@ function buildSeriesFallback(episodeCount: number) {
   ];
 }
 
+async function expandEpisodeDetails(
+  episodeSummary: any,
+  model: string,
+  contentType: string,
+  worldLore: string,
+  castProfiles: string
+): Promise<any> {
+  const epId = episodeSummary?.episode || episodeSummary?.episode_number || '01';
+  const prompt = `
+EXPAND_EPISODE_DETAIL:
+Produce a JSON object named "detailed_episode_spec" for the following episode summary.
+Return only the JSON object for "detailed_episode_spec" (no markdown, no commentary).
+
+Episode Summary:
+${JSON.stringify(episodeSummary, null, 2)}
+
+REQUIREMENTS:
+- Provide "cold_open" (2-4 cinematic sentences).
+- Provide "acts": array of 3 acts, each with "act", "purpose", "key_turn", and "scenes" (3-5 scenes).
+- Each scene must include: scene_id, location, summary, conflict, character_focus, visual_direction, audio_direction, estimated_minutes.
+- Provide continuity_dependencies, foreshadowing, payoffs, thumbnail_prompts, video_prompts as arrays.
+
+Ensure scene IDs are deterministic (e.g., E${epId}_A1_S01).
+`;
+
+  try {
+    const res = await callAI(
+      model,
+      prompt,
+      SERIES_PLAN_GENERATION_PROMPT(contentType, 1, worldLore, castProfiles),
+      0.8,
+      1024,
+      0.9,
+      20,
+      120000,
+      worldLore,
+      castProfiles
+    );
+
+    if (!res) return episodeSummary;
+
+    const cleaned = res.replace(/```json|```/g, '').trim();
+    let parsed = null;
+    try {
+      parsed = JSON.parse(cleaned);
+    } catch (e) {
+      // Attempt to extract the first object match
+      const objMatch = cleaned.match(/\{[\s\S]*\}/);
+      if (objMatch) parsed = JSON.parse(objMatch[0]);
+    }
+
+    if (parsed) {
+      return { ...episodeSummary, detailed_episode_spec: parsed };
+    }
+    return episodeSummary;
+  } catch (err) {
+    console.error('expandEpisodeDetails failed:', err);
+    return episodeSummary;
+  }
+}
+
 export async function generateSeriesPlan(
   prompt: string,
   model: string = "gemini-1.5-flash-latest",
@@ -155,6 +216,7 @@ export async function generateSeriesPlan(
   worldLore?: string,
   castProfiles?: string,
 
+  expandSequentially: boolean = false,
 ) {
   validateSeriesPrompt(prompt);
   validateSeriesContentType(contentType);
@@ -194,6 +256,30 @@ export async function generateSeriesPlan(
 
     if (!Array.isArray(parsed)) {
       throw new Error('Series synthesis did not return a JSON array.');
+    }
+
+    // Optionally expand each episode sequentially into detailed_episode_spec
+    if (expandSequentially) {
+      const expanded: any[] = [];
+      for (const ep of parsed) {
+        try {
+          // Try to expand only when detailed_episode_spec is missing
+          if (!ep.detailed_episode_spec) {
+            // expandEpisodeDetails will call the AI to produce scene-by-scene output for this episode
+            // We pass minimal context to avoid heavy payloads
+            // eslint-disable-next-line no-await-in-loop
+            const full = await expandEpisodeDetails(ep, model, contentType, worldFallback, castFallback);
+            expanded.push(full);
+          } else {
+            expanded.push(ep);
+          }
+        } catch (e) {
+          console.warn('Episode expansion failed, falling back to original summary:', e);
+          expanded.push(ep);
+        }
+      }
+
+      return expanded;
     }
 
     return parsed;

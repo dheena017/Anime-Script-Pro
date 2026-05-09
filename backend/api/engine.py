@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
-from sqlmodel import select
+from sqlalchemy import select
 from typing import List, Optional
 from datetime import datetime
 from backend.database import async_session, get_async_session, AsyncSession
@@ -27,31 +27,31 @@ class TelemetryCreate(BaseModel):
 @router.get("/config/{user_id}", response_model=EngineConfig)
 async def get_engine_config(user_id: str, session: AsyncSession = Depends(get_async_session)):
     statement = select(EngineConfig).where(EngineConfig.user_id == user_id)
-    return result.scalars().all()
+    result = await session.execute(statement)
     config = result.scalars().first()
-    
+
     if not config:
         # Create default config for new users
         config = EngineConfig(user_id=user_id)
         session.add(config)
         await session.commit()
         await session.refresh(config)
-    
+
     return config
 
 @router.post("/config/{user_id}", response_model=EngineConfig)
 async def update_engine_config(user_id: str, update: EngineConfigUpdate, session: AsyncSession = Depends(get_async_session)):
     statement = select(EngineConfig).where(EngineConfig.user_id == user_id)
-    return result.scalars().all()
+    result = await session.execute(statement)
     config = result.scalars().first()
-    
+
     if not config:
         config = EngineConfig(user_id=user_id)
         session.add(config)
 
     for key, value in update.dict(exclude_unset=True).items():
         setattr(config, key, value)
-    
+
     config.updated_at = datetime.utcnow()
     session.add(config)
     await session.commit()
@@ -77,5 +77,5 @@ async def record_telemetry(telemetry: TelemetryCreate, user_id: Optional[str] = 
 @router.get("/telemetry/recent", response_model=List[AITelemetry])
 async def get_recent_telemetry(limit: int = 50, session: AsyncSession = Depends(get_async_session)):
     statement = select(AITelemetry).order_by(AITelemetry.timestamp.desc()).limit(limit)
-    return result.scalars().all()
+    result = await session.execute(statement)
     return result.scalars().all()

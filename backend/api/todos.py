@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session, select
 from typing import List
 from backend.database import get_async_session, async_session, AsyncSession
-from backend.database.models.projects import Todo
+from backend.database.models.user import Todo
 from pydantic import BaseModel
 
 router = APIRouter(prefix="/api/todos", tags=["Production Queue"])
@@ -16,8 +16,8 @@ class TodoUpdate(BaseModel):
 @router.get("/{user_id}", response_model=List[Todo])
 async def get_todos(user_id: str, session: AsyncSession = Depends(get_async_session)):
     statement = select(Todo).where(Todo.user_id == user_id).order_by(Todo.created_at)
-    results = await session.exec(statement)
-    return results.all()
+    result = await session.execute(statement)
+    return result.scalars().all()
 
 @router.post("/{user_id}", response_model=Todo)
 async def create_todo(user_id: str, todo_in: TodoCreate, session: AsyncSession = Depends(get_async_session)):

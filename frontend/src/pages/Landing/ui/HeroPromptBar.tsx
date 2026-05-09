@@ -51,7 +51,7 @@ export const HeroPromptBar: React.FC<HeroPromptBarProps> = ({
         {/* Focus Aura */}
         <div className="absolute -inset-[2px] bg-gradient-to-r from-studio/40 via-fuchsia-500/40 to-studio/40 rounded-[2rem] blur-xl opacity-0 group-focus-within:opacity-40 transition-opacity duration-700" />
         
-        <div className="relative bg-[#0a0a0b]/80 backdrop-blur-2xl border border-white/10 rounded-[2rem] p-4 shadow-[0_30px_70px_rgba(0,0,0,0.8)]">
+        <div className="relative bg-[#0a0a0b]/90 backdrop-blur-md border border-white/10 rounded-[2rem] p-4 shadow-[0_30px_70px_rgba(0,0,0,0.8)]">
           <div className="flex flex-col gap-4">
               <div className="flex items-start gap-4 p-2">
                 <div className="w-12 h-12 rounded-2xl bg-white/[0.03] border border-white/5 flex items-center justify-center shrink-0">
@@ -72,7 +72,7 @@ export const HeroPromptBar: React.FC<HeroPromptBarProps> = ({
                   placeholder={PLACEHOLDER_PROMPTS[placeholderIndex]}
                   aria-label="Describe the anime art you want to generate"
                   rows={2}
-                  className="flex-1 bg-transparent border-none outline-none text-white text-lg md:text-xl font-bold placeholder:text-zinc-700 py-2 resize-none max-h-[12rem] overflow-y-auto hide-scrollbar leading-relaxed uppercase tracking-tight"
+                  className="flex-1 bg-transparent border-none outline-none text-white text-base md:text-lg font-bold placeholder:text-zinc-700 py-2 resize-none max-h-[12rem] overflow-y-auto hide-scrollbar leading-relaxed uppercase tracking-wide"
                 />
               </div>
 
@@ -157,7 +157,7 @@ export const HeroPromptBar: React.FC<HeroPromptBarProps> = ({
               onClick={() => setSelectedStyle(style.label)}
               title={style.desc}
               className={cn(
-                "px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] border transition-all relative group overflow-hidden",
+                "px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-[0.2em] border transition-all relative group overflow-hidden",
                 selectedStyle === style.label
                   ? style.color + " ring-1 ring-white/10 scale-105 shadow-xl"
                   : "bg-zinc-900/50 text-zinc-600 border-zinc-800 hover:text-zinc-300 hover:border-zinc-700"

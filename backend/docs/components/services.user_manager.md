@@ -6,7 +6,7 @@ Purpose
 Key classes / functions
 - `UserRead`, `UserCreate`, `UserUpdate` — Pydantic schemas for users.
 - `UserManager` — subclass of `BaseUserManager` for password reset and verification token secrets.
-- `get_user_db(session)` — dependency to yield `SQLModelUserDatabase`.
+- `get_user_db(session)` — dependency to yield `sqlalchemyUserDatabase`.
 - `get_user_manager(user_db)` — yields configured `UserManager`.
 - `auth_backend` and `fastapi_users` — reusable auth objects for route dependencies.
 

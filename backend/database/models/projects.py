@@ -142,6 +142,8 @@ class ProjectContent(SQLModel, table=True):
     seo_metadata: Optional[str] = Field(default=None)
     growth_strategy: Optional[str] = Field(default=None)
     distribution_plan: Optional[str] = Field(default=None)
+    youtube_description: Optional[str] = Field(default=None)
+    alt_texts: Optional[str] = Field(default=None)
     
     # Protocols & Prompts
     custom_prompts: Dict[str, str] = Field(default_factory=dict, sa_type=JSON)
@@ -154,10 +156,3 @@ class ProjectContent(SQLModel, table=True):
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 
-class Todo(SQLModel, table=True):
-    __tablename__ = "todos"
-    id: Optional[int] = Field(default=None, primary_key=True)
-    user_id: str = Field(index=True)
-    text: str
-    completed: bool = Field(default=False)
-    created_at: datetime = Field(default_factory=datetime.utcnow)

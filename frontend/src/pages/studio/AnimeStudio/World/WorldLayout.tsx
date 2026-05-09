@@ -15,8 +15,9 @@ import {
   generateSystems
 } from '@/services/api/gemini';
 import { WorldTabs, WorldTab } from './tabs/WorldTabs';
-import { WorldLoadingPage } from './WorldLoadingPage';
+
 import { studioLog, reportTabChange, reportGeneration } from '@/lib/studio-logger';
+import React from 'react';
 
 export const WorldContext = createContext<{
   activeTab: WorldTab;
@@ -67,6 +68,7 @@ export default function WorldLayout() {
     generatedWorldSystems,
     isSaving,
     syncCore,
+    currentScriptId,
     setCastData,
     setCastList,
     setGeneratedCharacters,
@@ -84,8 +86,13 @@ export default function WorldLayout() {
 
   useAuth();
 
+  const projectId = React.useMemo(() => {
+    const parsedProjectId = currentScriptId ? Number.parseInt(currentScriptId, 10) : undefined;
+    return Number.isFinite(parsedProjectId) ? parsedProjectId : undefined;
+  }, [currentScriptId]);
+
   const handleSave = async () => {
-    await syncCore();
+    await syncCore(projectId);
   };
 
   // Generate the entire world and all specialized modules (lore, powers, factions, architecture, atlas, culture, systems)
@@ -283,11 +290,7 @@ export default function WorldLayout() {
       )}
 
       <WorldContext.Provider value={{ activeTab, setActiveTab: handleTabChange }}>
-        {(currentIsGenerating || (isGeneratingAny && !hasCurrentData)) ? (
-          <WorldLoadingPage tab={activeTab} progress={generationProgress} />
-        ) : (
-          <Outlet context={{ activeTab, setActiveTab: handleTabChange }} />
-        )}
+        <Outlet context={{ activeTab, setActiveTab: handleTabChange }} />
       </WorldContext.Provider>
     </div>
   );

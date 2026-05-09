@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends
-from sqlmodel import select
+from sqlalchemy import select
 from loguru import logger
 from backend.database.models import User
 from backend.database import async_session, async_engine

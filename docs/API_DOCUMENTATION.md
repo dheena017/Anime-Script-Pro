@@ -18,7 +18,7 @@ These endpoints are served directly by the Express orchestrator and are used for
 ---
 
 ## 🧠 2. Intelligence Layer Endpoints (FastAPI)
-All frontend requests to `/api/*` are proxied to the Python backend. The backend is 100% asynchronous and utilizes SQLModel for persistence.
+All frontend requests to `/api/*` are proxied to the Python backend. The backend is 100% asynchronous and utilizes sqlalchemy for persistence.
 
 ### 🛠️ Core System
 | Endpoint | Method | Description |
@@ -62,7 +62,7 @@ The following resource modules are proxied to the backend and handle the bulk of
 
 ## 🛠️ 4. Proxy Configuration
 The Orchestrator uses `http-proxy-middleware` to route traffic.
-- **Target**: `http://localhost:8080` (Default Backend URL)
+-- **Target**: `http://localhost:3050` (Default Backend URL)
 - **Timeout**: 90 seconds (Optimized for heavy AI generation)
 - **Bypass**: In development, requests include the `x-bypass-auth` header to facilitate local testing.
 

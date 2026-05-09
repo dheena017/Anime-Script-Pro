@@ -136,7 +136,7 @@ interface GeneratorDispatch {
   setWorldGenerationLatency: (l: number) => void;
   setGeneratedAltText: (a: string | null) => void;
   setRecapperPersona: (p: string) => void;
-  syncCore: () => Promise<void>;
+  syncCore: (projectId?: number) => Promise<void>;
   addLog: (module: string, status: string, message?: string) => void;
   setEpisode: (e: string) => void;
   setSession: (s: string) => void;
@@ -472,9 +472,24 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     }
   }, [castDataFromApi, castList.length, isGeneratingCharacters]);
 
+  const resolveProjectId = useCallback((overrideProjectId?: number) => {
+    if (typeof overrideProjectId === 'number' && Number.isFinite(overrideProjectId)) {
+      return overrideProjectId;
+    }
+
+    if (!currentScriptId) {
+      return undefined;
+    }
+
+    const parsedProjectId = Number.parseInt(currentScriptId, 10);
+    return Number.isFinite(parsedProjectId) ? parsedProjectId : undefined;
+  }, [currentScriptId]);
+
   // Auto-save Production Content (Remaining global fields)
   useEffect(() => {
     if (!user?.id || !production) return;
+
+    const projectId = resolveProjectId();
 
     const timeout = setTimeout(async () => {
       try {
@@ -483,47 +498,20 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
           series_plan: generatedSeriesPlan,
           seo_metadata: generatedMetadata,
           growth_strategy: generatedGrowthStrategy,
-          distribution_plan: generatedDistributionPlan
-        });
+          distribution_plan: generatedDistributionPlan,
+          youtube_description: generatedDescription,
+          alt_texts: generatedAltText
+        }, projectId);
 
-        if (generatedWorldContent) {
-          await worldApi.updateLore(user.id, {
-            ...generatedWorldContent,
-            manifest_blob: generatedWorld,
-            history_blob: generatedWorldLore,
-            powers_blob: generatedWorldPowers,
-            factions_blob: generatedWorldFactions,
-            architecture_blob: generatedWorldArchitecture,
-            atlas_blob: generatedWorldAtlas,
-            culture_blob: generatedWorldCulture,
-            systems_blob: generatedWorldSystems,
-            prompt_history: promptLore,
-            prompt_powers: promptPowers,
-            prompt_factions: promptFactions,
-            prompt_architecture: promptArchitecture,
-            prompt_atlas: promptAtlas,
-            prompt_culture: promptCulture,
-            prompt_systems: promptSystems
-          });
-        } else if (generatedWorld) {
-          await worldApi.updateLore(user.id, { 
-            manifest_blob: generatedWorld,
-            history_blob: generatedWorldLore,
-            powers_blob: generatedWorldPowers,
-            factions_blob: generatedWorldFactions,
-            architecture_blob: generatedWorldArchitecture,
-            atlas_blob: generatedWorldAtlas,
-            culture_blob: generatedWorldCulture,
-            systems_blob: generatedWorldSystems,
-            prompt_history: promptLore,
-            prompt_powers: promptPowers,
-            prompt_factions: promptFactions,
-            prompt_architecture: promptArchitecture,
-            prompt_atlas: promptAtlas,
-            prompt_culture: promptCulture,
-            prompt_systems: promptSystems
-          });
-        }
+        // Auto-save World Lore (Modular)
+        if (generatedWorld) await worldApi.manifest.update(user.id, generatedWorld, promptLore, projectId);
+        if (generatedWorldLore) await worldApi.history.update(user.id, generatedWorldLore, promptLore, projectId);
+        if (generatedWorldPowers) await worldApi.powers.update(user.id, generatedWorldPowers, promptPowers, projectId);
+        if (generatedWorldFactions) await worldApi.factions.update(user.id, generatedWorldFactions, promptFactions, projectId);
+        if (generatedWorldArchitecture) await worldApi.architecture.update(user.id, generatedWorldArchitecture, promptArchitecture, projectId);
+        if (generatedWorldAtlas) await worldApi.atlas.update(user.id, generatedWorldAtlas, promptAtlas, projectId);
+        if (generatedWorldCulture) await worldApi.culture.update(user.id, generatedWorldCulture, promptCulture, projectId);
+        if (generatedWorldSystems) await worldApi.systems.update(user.id, generatedWorldSystems, promptSystems, projectId);
 
         // Auto-save Cast Content
         await characterApi.updateCast(user.id, {
@@ -531,30 +519,35 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
           relationships_blob: characterRelationships,
           prompt_cast: prompt, // Using global prompt as baseline for cast logic
           num_characters: numCharacters,
-        });
+        }, projectId);
       } catch (error) {
         console.error("%c[System] %cFailed to sync production/cast content:", 'color: #ef4444; font-weight: bold', 'color: #94a3b8', error);
       }
     }, 5000);
 
     return () => clearTimeout(timeout);
-  }, [user?.id, generatedScript, generatedSeriesPlan, generatedMetadata, generatedGrowthStrategy, generatedDistributionPlan, generatedWorld, generatedWorldLore, generatedWorldPowers, generatedWorldFactions, generatedWorldArchitecture, generatedWorldAtlas, generatedWorldCulture, generatedWorldSystems, production]);
+  }, [user?.id, generatedScript, generatedSeriesPlan, generatedMetadata, generatedGrowthStrategy, generatedDistributionPlan, generatedWorld, generatedWorldLore, generatedWorldPowers, generatedWorldFactions, generatedWorldArchitecture, generatedWorldAtlas, generatedWorldCulture, generatedWorldSystems, production, resolveProjectId]);
 
   const { addLog } = useLogs();
 
-  const syncCore = useCallback(async () => {
+  const syncCore = useCallback(async (projectId?: number) => {
     if (!user?.id) {
       showNotification("Please log in to save your work", "error");
+      console.warn("[GeneratorContext] Save skipped: user is not logged in.");
       return;
     }
 
+    const resolvedProjectId = resolveProjectId(projectId);
+
     setIsSaving(true);
     addLog("SAVE", "START", "Starting project save...");
+    console.info("[GeneratorContext] Project save started.", { projectId: resolvedProjectId });
     showNotification("Saving your project...", "info");
 
     try {
       // PHASE 1: Production Asset Sync
       addLog("PRODUCTION", "SAVING", "Saving script, series, and storyboard data...");
+      console.info("[GeneratorContext] Saving production content.", { projectId: resolvedProjectId });
       await productionApi.updateContent(user.id, {
         script_content: generatedScript,
         series_plan: generatedSeriesPlan,
@@ -562,33 +555,27 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
         storyboard: generatedImagePrompts,
         growth_strategy: generatedGrowthStrategy,
         distribution_plan: generatedDistributionPlan,
-      });
+        youtube_description: generatedDescription,
+        alt_texts: generatedAltText,
+      }, resolvedProjectId);
 
       // PHASE 2: World Lore Sync
       if (generatedWorldContent || generatedWorld) {
-        addLog("WORLD", "SAVING", "Saving world data...");
-        await worldApi.updateLore(user.id, {
-          ...(generatedWorldContent || {}),
-          manifest_blob: generatedWorld,
-          history_blob: generatedWorldLore,
-          powers_blob: generatedWorldPowers,
-          factions_blob: generatedWorldFactions,
-          architecture_blob: generatedWorldArchitecture,
-          atlas_blob: generatedWorldAtlas,
-          culture_blob: generatedWorldCulture,
-          systems_blob: generatedWorldSystems,
-          prompt_history: promptLore,
-          prompt_powers: promptPowers,
-          prompt_factions: promptFactions,
-          prompt_architecture: promptArchitecture,
-          prompt_atlas: promptAtlas,
-          prompt_culture: promptCulture,
-          prompt_systems: promptSystems,
-        });
+        // Full Modular Sync
+        console.info("[GeneratorContext] Saving modular world content.", { projectId: resolvedProjectId });
+        if (generatedWorld) await worldApi.manifest.update(user.id, generatedWorld, promptLore, resolvedProjectId);
+        if (generatedWorldLore) await worldApi.history.update(user.id, generatedWorldLore, promptLore, resolvedProjectId);
+        if (generatedWorldPowers) await worldApi.powers.update(user.id, generatedWorldPowers, promptPowers, resolvedProjectId);
+        if (generatedWorldFactions) await worldApi.factions.update(user.id, generatedWorldFactions, promptFactions, resolvedProjectId);
+        if (generatedWorldArchitecture) await worldApi.architecture.update(user.id, generatedWorldArchitecture, promptArchitecture, resolvedProjectId);
+        if (generatedWorldAtlas) await worldApi.atlas.update(user.id, generatedWorldAtlas, promptAtlas, resolvedProjectId);
+        if (generatedWorldCulture) await worldApi.culture.update(user.id, generatedWorldCulture, promptCulture, resolvedProjectId);
+        if (generatedWorldSystems) await worldApi.systems.update(user.id, generatedWorldSystems, promptSystems, resolvedProjectId);
       }
 
       // PHASE 3: Cast Manifest Sync (full: characters + DNA + dynamics + integrity)
       addLog("CAST", "SAVING", "Saving characters and relationships...");
+      console.info("[GeneratorContext] Saving cast content.", { projectId: resolvedProjectId });
       await characterApi.updateCast(user.id, {
         cast_list_blob: castList ? JSON.stringify(castList) : null,
         relationships_blob: characterRelationships,
@@ -596,19 +583,20 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
         dynamics_blob: castDynamics ? JSON.stringify(castDynamics) : null,
         integrity_blob: castIntegrity ? JSON.stringify(castIntegrity) : null,
         prompt_cast: prompt,
-      });
+      }, resolvedProjectId);
 
       addLog("PRODUCTION", "SUCCESS", "All project data saved successfully.");
+      console.info("[GeneratorContext] Project save completed successfully.", { projectId: resolvedProjectId });
       showNotification("Project saved successfully", "success");
       addLog("PROJECT", "COMPLETE", "Project fully saved to cloud.");
     } catch (error: any) {
-      console.error("Save Failed:", error);
+      console.error("[GeneratorContext] Save failed.", error);
       showNotification("Failed to save — please try again", "error");
       addLog("PROJECT", "ERROR", `Save failed: ${error.message || 'Network error'}`);
     } finally {
       setIsSaving(false);
     }
-  }, [user?.id, generatedScript, generatedSeriesPlan, generatedMetadata, generatedImagePrompts, generatedGrowthStrategy, generatedDistributionPlan, generatedWorld, generatedWorldContent, generatedWorldLore, generatedWorldPowers, generatedWorldFactions, generatedWorldArchitecture, generatedWorldAtlas, generatedWorldCulture, generatedWorldSystems, promptLore, promptPowers, promptFactions, promptArchitecture, promptAtlas, promptCulture, promptSystems, castList, characterRelationships, castDNA, castDynamics, castIntegrity, prompt, numCharacters, addLog, showNotification]);
+  }, [user?.id, generatedScript, generatedSeriesPlan, generatedMetadata, generatedImagePrompts, generatedGrowthStrategy, generatedDistributionPlan, generatedWorld, generatedWorldContent, generatedWorldLore, generatedWorldPowers, generatedWorldFactions, generatedWorldArchitecture, generatedWorldAtlas, generatedWorldCulture, generatedWorldSystems, promptLore, promptPowers, promptFactions, promptArchitecture, promptAtlas, promptCulture, promptSystems, castList, characterRelationships, castDNA, castDynamics, castIntegrity, prompt, numCharacters, addLog, showNotification, resolveProjectId]);
 
   // Neural Telemetry & Thinking Stream Log Sync
   useEffect(() => {

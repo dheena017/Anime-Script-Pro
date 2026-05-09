@@ -71,9 +71,6 @@ export const SpecializedTabEmptyState: React.FC<SpecializedTabEmptyStateProps> =
       icon={config.icon}
       title={config.label}
       description={config.description}
-      actionLabel={isGenerating ? `Generating ${config.label}...` : `Generate ${config.label}`}
-      onAction={onGenerate}
-      isLoading={isGenerating}
       accentColor={config.accentColor}
       footerLabel="AI will create this section based on your world foundation"
     />

@@ -8,7 +8,7 @@ from google.genai import types
 from loguru import logger
 
 logger.info(f"!!! AI MODULE INITIALIZED: {__file__} !!!")
-from sqlmodel import select
+from sqlalchemy import select
 
 from backend.database import async_session, async_engine
 from backend.database.models import Project
@@ -16,16 +16,6 @@ from backend.database.models.world import WorldLore
 from backend.utils.deps import get_auth_user_id
 from backend.ai_engine import ai_engine, build_genai_client
 from backend.schemas import GenerationRequest, GenerationResponse
-
-# Import world generator services for God Mode
-from backend.generators.world.manifest import manifest_service
-from backend.generators.world.history import history_service
-from backend.generators.world.factions import factions_service
-from backend.generators.world.powers import powers_service
-from backend.generators.world.architecture import architecture_service
-from backend.generators.world.atlas import atlas_service
-from backend.generators.world.culture import culture_service
-from backend.generators.world.systems import systems_service
 
 router = APIRouter(prefix="/api", tags=["AI Engine"])
 
@@ -95,7 +85,7 @@ async def generate_content(request: GenerationRequest, user_id: str = Depends(ge
         from backend.database.models.user import UserSettings
         async with async_session() as session:
             statement = select(UserSettings).where(UserSettings.user_id == user_id)
-            return result.scalars().all()
+            result = await session.execute(statement)
             settings = result.scalars().first()
             if settings and settings.ai_models:
                 user_api_key = settings.ai_models.get("gemini_api_key")
@@ -181,15 +171,20 @@ async def generate_content(request: GenerationRequest, user_id: str = Depends(ge
 
             latency_ms = (time.perf_counter() - start_time) * 1000
 
-            # Professional Success Report
-            logger.success(f"COMPLETED: [✅] Synthesis Successful | Model: {current_model} | Latency: {latency_ms:.2f}ms")
+            # --- Architect Success Report ---
+            logger.success(f"COMPLETED: [✅] Neural Synthesis Successful")
+            logger.info(f"   | Model: <cyan>{current_model}</cyan>")
+            logger.info(f"   | Latency: <yellow>{latency_ms:.2f}ms</yellow>")
 
             if usage_dict:
                 tokens = usage_dict.get('total_tokens', 0)
-                logger.info(f"METRICS: [📊] Usage: {tokens} tokens | Efficiency: {(tokens/(latency_ms/1000)):.1f} tps")
+                efficiency = (tokens/(latency_ms/1000)) if latency_ms > 0 else 0
+                logger.info(f"   | Usage: <magenta>{tokens}</magenta> tokens | Efficiency: <green>{efficiency:.1f}</green> tps")
 
-            preview = output_text[:120].replace("\n", " ")
-            logger.info(f"PREVIEW: [📝] \"{preview}...\" ({len(output_text)} chars generated)")
+            # Extract a "Developer Preview" of the output
+            preview = output_text[:100].replace("\n", " ")
+            logger.info(f"   | Preview: [📝] \"{preview}...\"")
+            logger.info(f"   | Payload: {len(output_text)} characters materialized.")
 
             return GenerationResponse(
                 text=output_text,
@@ -260,91 +255,3 @@ async def generate_content(request: GenerationRequest, user_id: str = Depends(ge
     )
 
 
-@router.post("/generate/god-mode/{project_id}")
-async def initialize_god_mode(project_id: int, user_id: str = Depends(get_auth_user_id)):
-    """
-    MASTER GENERATION LOOP:
-    1. Generates 8 World Modules (Manifest, History, Factions, Powers, Architecture, Atlas, Culture, Systems)
-    2. Designs a Core Cast
-    3. Scaffolds the Pilot Narrative Beats
-    """
-    async with async_session() as session:
-        project = await session.get(Project, project_id)
-        if not project or project.user_id != user_id:
-            raise HTTPException(status_code=404, detail="Project not found")
-
-        try:
-            # --- Phase 1: Neural World Architecture (8 Modules) ---
-            logger.info(f"GOD_MODE: Initializing 8-module World Architecture for project {project_id}")
-
-            project_prompt = project.prompt or project.description or "A new creative production."
-            content_type = project.content_type or "Anime"
-            tone = project.vibe or "Standard"
-
-            # 1. Manifest (The Foundation)
-            manifest = await manifest_service.generate(project.title, project_prompt, tone, content_type, user_id)
-
-            # 2-8: Specialized Modules
-            history = await history_service.generate(project_prompt, "", manifest, content_type, user_id)
-            factions = await factions_service.generate(project_prompt, "", manifest, content_type, user_id)
-            powers = await powers_service.generate(project_prompt, "", manifest, content_type, user_id)
-            architecture = await architecture_service.generate(project_prompt, "", manifest, content_type, user_id)
-            atlas = await atlas_service.generate(project_prompt, "", manifest, content_type, user_id)
-            culture = await culture_service.generate(project_prompt, "", manifest, content_type, user_id)
-            systems = await systems_service.generate(project_prompt, "", manifest, content_type, user_id)
-
-            # Persist to WorldLore
-            statement = select(WorldLore).where(WorldLore.user_id == user_id).where(WorldLore.project_id == project_id)
-            return result.scalars().all()
-            db_lore = result.scalars().first()
-            if not db_lore:
-                db_lore = WorldLore(user_id=user_id, project_id=project_id)
-
-            db_lore.manifest_blob = manifest
-            db_lore.history_blob = history
-            db_lore.factions_blob = factions
-            db_lore.powers_blob = powers
-            db_lore.architecture_blob = architecture
-            db_lore.atlas_blob = atlas
-            db_lore.culture_blob = culture
-            db_lore.systems_blob = systems
-            db_lore.updated_at = datetime.utcnow()
-
-            session.add(db_lore)
-
-            # --- Phase 2: Character DNA Synthesis ---
-            cast_raw = await ai_engine.generate_characters(
-                manifest,
-                tone=tone,
-                content_type=content_type,
-                user_id=user_id
-            )
-            project.prod_metadata["cast_dna"] = cast_raw
-
-            # --- Phase 3: Narrative Beat Scaffolding ---
-            beats_raw = await ai_engine.generate_script_beats(
-                project.title,
-                manifest,
-                cast_raw,
-                tone=tone,
-                content_type=content_type,
-                user_id=user_id
-            )
-            project.prod_metadata["narrative_scaffolding"] = beats_raw
-
-            project.status = "INITIALIZED"
-            project.updated_at = datetime.utcnow()
-            session.add(project)
-
-            await session.commit()
-
-            return {
-                "status": "READY",
-                "project_id": project_id,
-                "workflow": "GOD_MODE_SYNC_COMPLETE",
-                "modules_initialized": 8
-            }
-        except Exception as e:
-            logger.error(f"God Mode Global Failure for project {project_id}: {str(e)}")
-            await session.rollback()
-            raise HTTPException(status_code=500, detail=f"Global neural synthesis failed: {str(e)}")

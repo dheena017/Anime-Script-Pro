@@ -22,10 +22,6 @@ export const SEOEmptyState: React.FC<SEOEmptyStateProps> = ({
       icon={Search}
       title="No Asset Metadata"
       description="Your production is missing SEO and metadata. Generate optimized keywords, descriptions, and tags for better visibility."
-      actionLabel="Generate Assets"
-      loadingLabel="Creating Metadata..."
-      onAction={onLaunch}
-      isLoading={isGenerating}
       features={features}
       accentColor="emerald"
     />

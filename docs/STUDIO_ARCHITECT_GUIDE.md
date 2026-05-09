@@ -67,7 +67,7 @@ Our validation suite is organized into three specific technical sectors:
 npm run dev
 
 # Backend (Async Mode)
-uvicorn backend.fastapi_app:app --reload --port 8080
+uvicorn backend.fastapi_app:app --reload --port 3050
 ```
 
 ### Production Build

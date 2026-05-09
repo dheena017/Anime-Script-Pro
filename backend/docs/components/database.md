@@ -1,7 +1,7 @@
 # `backend/database/` — Database overview
 
 Purpose
-- Houses database connection code, migrations (alembic), models, and seed data. Uses SQLModel/SQLAlchemy with async sessions.
+- Houses database connection code, migrations (alembic), models, and seed data. Uses sqlalchemy/SQLAlchemy with async sessions.
 
 Key files
 - `backend/database/connection.py` — connection helpers.

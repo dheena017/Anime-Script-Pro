@@ -122,7 +122,7 @@ export const ScreeningHeader: React.FC<ScreeningHeaderProps> = ({
                       ) : (
                         <Save className="w-4 h-4 mr-2 group-hover/save:scale-110 transition-transform" />
                       )}
-                      <span>{isSaving ? "SAVING" : "SAVE"}</span>
+                      <span>{isSaving ? "SAVING..." : "SAVE ALL"}</span>
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent side="top">

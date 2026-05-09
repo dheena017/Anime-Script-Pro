@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlmodel import select
+from sqlalchemy import select
 from typing import List
 from backend.database.models import Category, Scene
 from backend.database import async_session, async_engine

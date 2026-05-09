@@ -11,7 +11,7 @@ The system operates on a dual-engine architecture:
 | :--- | :--- | :--- |
 | **Frontend** | React (Vite) + TS | The "Interface" (Nexus Studio) |
 | **Backend** | FastAPI (Python) | The "Core" (AI Logic & Database) |
-| **Database** | SQLModel + SQLite | The "Memory" (Persistent Lore & Projects) |
+| **Database** | sqlalchemy + SQLite | The "Memory" (Persistent Lore & Projects) |
 | **Styling** | Tailwind + Vanilla CSS | The "Aesthetic" (Glassmorphism & Glow) |
 
 ---
@@ -34,7 +34,7 @@ The system operates on a dual-engine architecture:
 ### ⚙️ Backend (`/backend`)
 *   `fastapi_app.py`: Main entry point. Handles middleware (CORS, Logging, Auth).
 *   `api/`: Route controllers. Each file corresponds to a production feature.
-*   `models/`: Database schema definitions using SQLModel.
+*   `models/`: Database schema definitions using sqlalchemy.
     *   `projects.py`: **Core Model.** Contains Projects, Sessions, Episodes, and Lore.
     *   `user.py`: Authentication and user settings.
 *   `database.py`: Manages the SQLite connection and Async Sessions.
@@ -49,7 +49,7 @@ When adding a new feature (e.g., "Narrative Beats"), follow this strict pattern 
 ### Step 1: Memory (Database Model)
 Define the structure in `backend/models/projects.py`:
 ```python
-class NarrativeBeat(SQLModel, table=True):
+class NarrativeBeat(sqlalchemy, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     project_id: int = Field(foreign_key="projects.id")
     content: str

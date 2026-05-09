@@ -1,6 +1,6 @@
 import os
 import sys
-from sqlmodel import Session, create_engine, select, SQLModel
+from sqlalchemy import Session, create_engine, select, sqlalchemy
 from datetime import datetime, timedelta
 from loguru import logger
 
@@ -127,7 +127,7 @@ PRODUCTION_TEMPLATES = [
 
 def seed_all():
     logger.info("Initializing Full Studio Ecosystem...")
-    # SQLModel.metadata.create_all(engine) # Handled by fastapi_app.py
+    # sqlalchemy.metadata.create_all(engine) # Handled by fastapi_app.py
     
     with Session(engine) as session:
         # 1. Seed Tutorials

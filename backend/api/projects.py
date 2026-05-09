@@ -1,11 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi import Body
-from sqlmodel import select
-from backend.database import async_session, async_engine
+from sqlalchemy import select
+from backend.database import async_session
 from typing import List, Optional
 from loguru import logger
 from backend.database.models import Project, Series, ProductionSession, Episode, PromptLibrary, Category, Script, CastMember
-from backend.database import async_session, async_engine
 from backend.utils.deps import get_auth_user_id
 
 router = APIRouter(prefix="/api", tags=["Projects"])
@@ -16,7 +15,7 @@ async def get_projects(user_id: str = Depends(get_auth_user_id)):
     """Get all active projects for the authenticated user."""
     async with async_session() as session:
         statement = select(Project).where(Project.user_id == user_id, Project.is_active == True)
-        return result.scalars().all()
+        result = await session.execute(statement)
         return result.scalars().all()
 
 @router.get("/projects/{project_id}", response_model=Project)
@@ -56,7 +55,7 @@ async def delete_project(project_id: int, user_id: str = Depends(get_auth_user_i
 async def get_series(user_id: str = Depends(get_auth_user_id)):
     async with async_session() as session:
         statement = select(Series).where(Series.user_id == user_id)
-        return result.scalars().all()
+        result = await session.execute(statement)
         return result.scalars().all()
 
 @router.post("/series", response_model=Series)
@@ -66,6 +65,7 @@ async def create_series(series: Series, user_id: str = Depends(get_auth_user_id)
         session.add(series)
         await session.commit()
         await session.refresh(series)
+        logger.success(f"[SERIES] New production blueprint established: {series.title}")
         return series
 
 @router.get("/series/{series_id}", response_model=Series)
@@ -98,7 +98,7 @@ async def get_scripts_for_series(series_id: int, user_id: str = Depends(get_auth
             raise HTTPException(status_code=404, detail="Series not found")
             
         statement = select(Script).where(Script.series_id == series_id)
-        return result.scalars().all()
+        result = await session.execute(statement)
         return result.scalars().all()
 
 @router.get("/series/{series_id}/cast", response_model=List[CastMember])
@@ -110,9 +110,8 @@ async def get_cast_for_series(series_id: int, user_id: str = Depends(get_auth_us
             raise HTTPException(status_code=404, detail="Series not found")
 
         statement = select(CastMember).where(CastMember.series_id == series_id)
+        result = await session.execute(statement)
         return result.scalars().all()
-        return result.scalars().all()
-
 
 # --- Sessions ---
 @router.post("/sessions")
@@ -140,7 +139,7 @@ async def batch_create_sessions(payload: dict, user_id: str = Depends(get_auth_u
             session.add(db_session)
             created.append(db_session)
         await session.commit()
-        logger.info(f"[SESSIONS] Batch generated for project {project_id}")
+        logger.success(f"[SESSIONS] Neural Matrix deployment successful: {len(created)} sessions materialized for project {project_id}")
         return created
 
 @router.get("/sessions")
@@ -152,7 +151,7 @@ async def get_sessions(project_id: int, user_id: str = Depends(get_auth_user_id)
             raise HTTPException(status_code=401, detail="Project access denied")
 
         statement = select(ProductionSession).where(ProductionSession.project_id == project_id)
-        return result.scalars().all()
+        result = await session.execute(statement)
         return result.scalars().all()
 
 # Episodes endpoints have been moved to `backend/api/episodes.py` to keep

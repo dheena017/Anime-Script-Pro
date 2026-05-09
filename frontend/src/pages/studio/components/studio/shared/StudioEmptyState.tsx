@@ -14,8 +14,8 @@ interface StudioEmptyStateProps {
   icon: LucideIcon;
   title: string;
   description: string;
-  actionLabel: string;
-  onAction: () => void;
+  actionLabel?: string;
+  onAction?: () => void;
   isLoading?: boolean;
   isActionDisabled?: boolean;
   loadingLabel?: string;
@@ -88,24 +88,26 @@ export const StudioEmptyState: React.FC<StudioEmptyStateProps> = ({
 
         {/* Actions */}
         <div className="flex flex-col items-center gap-6">
-          <Button
-            onClick={onAction}
-            disabled={isLoading || isActionDisabled}
-            className={cn(
-              "h-14 px-10 rounded-full font-black uppercase tracking-widest text-[11px] gap-3 transition-all duration-500",
-              "bg-gradient-to-r from-studio to-cyan-500 text-black hover:shadow-[0_0_30px_rgba(6,182,212,0.4)] hover:scale-105 active:scale-95",
-              (isLoading || isActionDisabled) && "opacity-20 grayscale pointer-events-none"
-            )}
-          >
-            {isLoading ? (
-              <div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />
-            ) : (
-              <>
-                {actionLabel}
-                <ArrowRight className="w-4 h-4" />
-              </>
-            )}
-          </Button>
+          {actionLabel && onAction && (
+            <Button
+              onClick={onAction}
+              disabled={isLoading || isActionDisabled}
+              className={cn(
+                "h-14 px-10 rounded-full font-black uppercase tracking-widest text-[11px] gap-3 transition-all duration-500",
+                "bg-gradient-to-r from-studio to-cyan-500 text-black hover:shadow-[0_0_30px_rgba(6,182,212,0.4)] hover:scale-105 active:scale-95",
+                (isLoading || isActionDisabled) && "opacity-20 grayscale pointer-events-none"
+              )}
+            >
+              {isLoading ? (
+                <div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />
+              ) : (
+                <>
+                  {actionLabel}
+                  <ArrowRight className="w-4 h-4" />
+                </>
+              )}
+            </Button>
+          )}
 
           {secondaryActionLabel && (
             <button

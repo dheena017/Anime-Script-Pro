@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
-from sqlmodel import select
+from sqlalchemy import select
 from typing import List, Optional
 from backend.database.models import CommunityPost
 from backend.database import async_session, async_engine

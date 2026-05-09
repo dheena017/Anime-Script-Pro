@@ -10,6 +10,7 @@ interface SeriesLoadingPageProps {
   message?: string;
   subtext?: string;
   progress?: number;
+  error?: string | null;
 }
 
 const TAB_META: Record<string, { title: string; description: string; icon: any; color: string; accentColor: string; borderColor: string; bgColor: string; shadowColor: string }> = {
@@ -29,7 +30,7 @@ const LoadingDots = ({ color }: { color: string }) => (
   </div>
 );
 
-export function SeriesLoadingPage({ tab, title, description, progress }: SeriesLoadingPageProps) {
+export function SeriesLoadingPage({ tab, title, description, progress, error }: SeriesLoadingPageProps) {
   const gen = useGeneratorState();
   const isActive = gen.isGeneratingSeries || gen.isLoading;
 
@@ -84,10 +85,26 @@ export function SeriesLoadingPage({ tab, title, description, progress }: SeriesL
 
         {/* Loading Title */}
         <div className="mb-8 flex items-center justify-center gap-3">
-          <Loader2 className={`h-5 w-5 animate-spin ${meta.accentColor}`} />
-          <p className={`text-[12px] font-black uppercase tracking-[0.28em] text-white ${meta.accentColor}`}>
-            {meta.title}
-          </p>
+          {error ? (
+            <div className="flex flex-col items-center gap-4">
+              <div className="flex items-center gap-3">
+                <div className="h-2 w-2 rounded-full bg-red-500 animate-pulse" />
+                <p className="text-[12px] font-black uppercase tracking-[0.28em] text-red-500">
+                  Generation Error
+                </p>
+              </div>
+              <p className="text-[10px] font-bold text-red-400 bg-red-500/10 px-4 py-2 rounded-xl border border-red-500/20 max-w-md">
+                {error}
+              </p>
+            </div>
+          ) : (
+            <>
+              <Loader2 className={`h-5 w-5 animate-spin ${meta.accentColor}`} />
+              <p className={`text-[12px] font-black uppercase tracking-[0.28em] text-white ${meta.accentColor}`}>
+                {meta.title}
+              </p>
+            </>
+          )}
         </div>
 
         {/* Description */}
@@ -109,10 +126,10 @@ export function SeriesLoadingPage({ tab, title, description, progress }: SeriesL
         </div>
 
         {/* Status Text */}
-        <div className={`flex items-center justify-center gap-2 text-[9px] font-black uppercase tracking-[0.2em] ${meta.color}`}>
-          <div className={`h-2 w-2 rounded-full ${meta.accentColor} animate-pulse`} />
-          AI is planning your series
-          <span className="ml-2 text-[10px] font-black text-zinc-400">{Math.round(typeof progress === 'number' ? progress : localProgress)}%</span>
+        <div className={`flex items-center justify-center gap-2 text-[9px] font-black uppercase tracking-[0.2em] ${error ? 'text-red-400' : meta.color}`}>
+          {!error && <div className={`h-2 w-2 rounded-full ${meta.accentColor} animate-pulse`} />}
+          {error ? 'Production process halted' : 'AI is planning your series'}
+          {!error && <span className="ml-2 text-[10px] font-black text-zinc-400">{Math.round(typeof progress === 'number' ? progress : localProgress)}%</span>}
         </div>
       </div>
     </div>

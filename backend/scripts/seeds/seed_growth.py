@@ -1,5 +1,5 @@
 import asyncio
-from sqlmodel import Session, select
+from sqlalchemy import Session, select
 from backend.database import engine
 from backend.database.models.assets import GrowthStrategy
 

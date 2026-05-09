@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
-from sqlmodel import select
+from sqlalchemy import select
 from typing import List
 from backend.database.models import Notification
-from backend.database import async_session, async_engine
+from backend.database import async_session
 from backend.utils.deps import get_auth_user_id
 
 router = APIRouter(prefix="/api/notifications", tags=["Notifications"])
@@ -11,7 +11,7 @@ router = APIRouter(prefix="/api/notifications", tags=["Notifications"])
 async def get_notifications(user_id: str):
     async with async_session() as session:
         statement = select(Notification).where(Notification.user_id == user_id)
-        return result.scalars().all()
+        result = await session.execute(statement)
         return result.scalars().all()
 
 @router.post("/{notification_id}/read")

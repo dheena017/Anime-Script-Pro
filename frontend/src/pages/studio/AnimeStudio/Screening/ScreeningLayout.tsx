@@ -19,15 +19,20 @@ export default function ScreeningLayout() {
 
   const {
     session, episode, isSaving, generatedScript,
-    syncCore, contentType,
+    syncCore, contentType, currentScriptId,
     generationProgress,
     isEditing, setIsEditing
   } = useGenerator();
 
   useAuth();
 
+  const projectId = React.useMemo(() => {
+    const parsedProjectId = currentScriptId ? Number.parseInt(currentScriptId, 10) : undefined;
+    return Number.isFinite(parsedProjectId) ? parsedProjectId : undefined;
+  }, [currentScriptId]);
+
   const handleSave = async () => {
-    await syncCore();
+    await syncCore(projectId);
   };
 
   React.useEffect(() => {

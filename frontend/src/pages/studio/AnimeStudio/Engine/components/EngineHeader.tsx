@@ -85,7 +85,7 @@ export const EngineHeader: React.FC<EngineHeaderProps> = ({
                       disabled={isSaving}
                     >
                       <Save className={cn("w-4 h-4 mr-2", isSaving && "animate-pulse")} />
-                      {isSaving ? "SAVING" : "SAVE"}
+                      {isSaving ? "SAVING..." : "SAVE ALL"}
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent side="top">

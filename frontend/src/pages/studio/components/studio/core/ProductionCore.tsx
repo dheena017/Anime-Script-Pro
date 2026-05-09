@@ -135,12 +135,17 @@ export const ProductionCore = React.memo<ProductionCoreProps>((props) => {
 
   React.useEffect(() => {
     if (isOpen) {
+      // Calculate scrollbar width to prevent layout shift
+      const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
       document.body.style.overflow = 'hidden';
+      document.body.style.paddingRight = `${scrollbarWidth}px`;
     } else {
       document.body.style.overflow = '';
+      document.body.style.paddingRight = '';
     }
     return () => {
       document.body.style.overflow = '';
+      document.body.style.paddingRight = '';
     };
   }, [isOpen]);
 
@@ -149,9 +154,9 @@ export const ProductionCore = React.memo<ProductionCoreProps>((props) => {
       {isOpen && (
         <>
           <motion.aside
-            initial={{ x: "100%", opacity: 0 }}
+            initial={{ x: 500, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
-            exit={{ x: "100%", opacity: 0 }}
+            exit={{ x: 500, opacity: 0 }}
             transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
             className={cn(
               "fixed right-0 top-0 h-screen w-full sm:w-[420px] lg:w-[480px] glass-panel border-l flex flex-col z-[400] shadow-[-20px_0_100px_rgba(0,0,0,1)] overflow-hidden",

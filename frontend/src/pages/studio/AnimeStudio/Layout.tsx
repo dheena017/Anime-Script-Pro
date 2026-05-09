@@ -3,6 +3,7 @@ import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
 import { useAuth } from '@/hooks/useAuth';
 import { useApp } from '@/contexts/AppContext';
+import { useLogs } from '@/contexts/LogContext';
 
 // Local Studio Components
 import { ProductionCore } from '@/pages/studio/components/studio/core/ProductionCore';
@@ -25,6 +26,7 @@ export default function AnimeLayout() {
   const navigate = useNavigate();
   const location = useLocation();
   const { showNotification } = useApp();
+  const { addLog } = useLogs();
 
   // Sync Creative Engine state with URL query parameter
   const [sidebarOpen, setSidebarOpen] = React.useState(false); // Default closed
@@ -72,7 +74,7 @@ export default function AnimeLayout() {
     setGeneratedCharacters, setGeneratedSeriesPlan, setGeneratedWorld,
     setCurrentScriptId, setContentType, setCastData, setCastList,
     setCharacterRelationships, setVisualData, setGeneratedMetadata,
-    setGeneratedImagePrompts, addLog, setTheme, setRecapperPersona
+    setGeneratedImagePrompts, addLog: addGeneratorLog, setTheme, setRecapperPersona
   } = useGeneratorDispatch();
 
   // Initialize content type for this layout
@@ -86,6 +88,8 @@ export default function AnimeLayout() {
     if (!generatedScript || !user) return;
     setIsSaving(true);
     try {
+      console.info('[AnimeLayout] Creating or updating project record.', { prompt });
+      addLog('SAVE', 'START', 'Saving current anime project...');
       const res = await fetch("/api/projects", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -102,8 +106,13 @@ export default function AnimeLayout() {
       if (!res.ok) throw new Error("Failed to save project");
       const project = await res.json();
       setCurrentScriptId(project.id);
+      console.info('[AnimeLayout] Project save completed.', { projectId: project.id });
+      showNotification?.('Project saved successfully', 'success');
+      addLog('SAVE', 'SUCCESS', 'Current anime project saved.');
     } catch (error) {
-      console.error("Save failed:", error);
+      console.error('[AnimeLayout] Save failed.', error);
+      showNotification?.('Failed to save project', 'error');
+      addLog('SAVE', 'ERROR', `Project save failed: ${(error as any)?.message || 'Network error'}`);
     } finally {
       setIsSaving(false);
     }
@@ -119,7 +128,7 @@ export default function AnimeLayout() {
       return;
     }
     setIsLoading(true);
-    addLog("MASTER_GENERATOR", "INITIALIZED", "Starting Full Production Cycle...");
+    addGeneratorLog("MASTER_GENERATOR", "INITIALIZED", "Starting Full Production Cycle...");
     showNotification?.('Full Production Active — Generating all modules in sequence...', 'success');
 
     try {
@@ -130,13 +139,13 @@ export default function AnimeLayout() {
       const { generateScript, generateImagePrompts, generateMetadata } = await import('@/services/api/gemini');
 
       // PHASE 1: WORLD Architecture
-      addLog("WORLD", "STARTING", "Building World Foundation and Setting...");
+      addGeneratorLog("WORLD", "STARTING", "Building World Foundation and Setting...");
       const world = await generateWorld(prompt, selectedModel, 'Anime');
       setGeneratedWorld(world);
-      addLog("WORLD", "COMPLETED", "World foundation ready.");
+      addGeneratorLog("WORLD", "COMPLETED", "World foundation ready.");
 
       // PHASE 2: Character Creation
-      addLog("CAST", "STARTING", "Designing Character Profiles and Traits...");
+      addGeneratorLog("CAST", "STARTING", "Designing Character Profiles and Traits...");
       const castResult = await generateCharacters(prompt, selectedModel, 'Anime', world);
       if (typeof castResult === 'object' && castResult.characters) {
         setGeneratedCharacters(castResult.markdown);
@@ -148,47 +157,47 @@ export default function AnimeLayout() {
       } else {
         setGeneratedCharacters(castResult as string);
       }
-      addLog("CAST", "COMPLETED", "Cast manifest generated.");
+      addGeneratorLog("CAST", "COMPLETED", "Cast manifest generated.");
 
       // PHASE 3: Series Structure
-      addLog("SERIES", "STARTING", "Designing Series Overall Structure...");
+      addGeneratorLog("SERIES", "STARTING", "Designing Series Overall Structure...");
       const seriesPlan = await generateSeriesPlan(prompt, selectedModel, 'Anime', 12, world, typeof castResult === 'string' ? castResult : castResult.markdown);
       setGeneratedSeriesPlan(seriesPlan);
-      addLog("SERIES", "COMPLETED", "Series structure and beats mapped.");
+      addGeneratorLog("SERIES", "COMPLETED", "Series structure and beats mapped.");
 
       // PHASE 4: Script Writing
-      addLog("SCRIPT", "STARTING", "Generating Episode 1 Script...");
+      addGeneratorLog("SCRIPT", "STARTING", "Generating Episode 1 Script...");
       const ep1Plan = seriesPlan?.find((ep: any) => parseInt(ep.episode) === 1);
       const script = await generateScript(
         prompt, tone, audience, "1", "1", numScenes, selectedModel, 'Anime',
         recapperPersona, characterRelationships, world, typeof castResult === 'string' ? castResult : castResult.markdown, ep1Plan ? JSON.stringify(ep1Plan) : null
       );
       setGeneratedScript(script);
-      addLog("SCRIPT", "COMPLETED", "Script generated successfully.");
+      addGeneratorLog("SCRIPT", "COMPLETED", "Script generated successfully.");
 
       // PHASE 5: Visual Planning (Storyboard)
-      addLog("STORYBOARD", "STARTING", "Creating Visual Descriptions for Scenes...");
+      addGeneratorLog("STORYBOARD", "STARTING", "Creating Visual Descriptions for Scenes...");
       const visualPrompts = await generateImagePrompts(script, selectedModel);
       setGeneratedImagePrompts(visualPrompts);
       setVisualData({ 0: ["pending"] });
-      addLog("STORYBOARD", "COMPLETED", "Visual prompts created.");
+      addGeneratorLog("STORYBOARD", "COMPLETED", "Visual prompts created.");
 
       // PHASE 6: Content Metadata
-      addLog("SEO", "STARTING", "Generating Content Metadata and Tags...");
+      addGeneratorLog("SEO", "STARTING", "Generating Content Metadata and Tags...");
       const seo = await generateMetadata(script, selectedModel);
       setGeneratedMetadata(seo);
-      addLog("SEO", "COMPLETED", "Metadata generation complete.");
+      addGeneratorLog("SEO", "COMPLETED", "Metadata generation complete.");
 
       showNotification?.('Production Process Complete: All Modules Prepared', 'success');
       navigate(`${basePath}/world`);
     } catch (error: any) {
       console.error("Production Failed:", error);
-      addLog("CORE", "FAILURE", error.message || "Unknown error during production");
+      addGeneratorLog("CORE", "FAILURE", error.message || "Unknown error during production");
       showNotification?.(`Production Failure: ${error.message || 'Check logs'}`, 'error');
     } finally {
       setIsLoading(false);
     }
-  }, [prompt, user, selectedModel, tone, audience, numScenes, recapperPersona, characterRelationships, setGeneratedWorld, setGeneratedCharacters, setCastData, setCastList, setCharacterRelationships, setGeneratedSeriesPlan, setGeneratedScript, setGeneratedImagePrompts, setVisualData, setGeneratedMetadata, showNotification, addLog, navigate, basePath, setIsLoading]);
+  }, [prompt, user, selectedModel, tone, audience, numScenes, recapperPersona, characterRelationships, setGeneratedWorld, setGeneratedCharacters, setCastData, setCastList, setCharacterRelationships, setGeneratedSeriesPlan, setGeneratedScript, setGeneratedImagePrompts, setVisualData, setGeneratedMetadata, showNotification, addGeneratorLog, navigate, basePath, setIsLoading]);
 
   const handleWorldGenerate = useCallback(async () => {
     if (!prompt.trim() || !user) {
@@ -196,22 +205,22 @@ export default function AnimeLayout() {
       return;
     }
     setIsLoading(true);
-    addLog("WORLD", "INITIALIZED", "Generating World Foundation...");
+    addGeneratorLog("WORLD", "INITIALIZED", "Generating World Foundation...");
 
     try {
       const { generateWorld } = await import('@/services/generators/world');
       const world = await generateWorld(prompt, selectedModel, 'Anime');
       setGeneratedWorld(world);
-      addLog("WORLD", "COMPLETED", "Lore synchronized to core.");
+      addGeneratorLog("WORLD", "COMPLETED", "Lore synchronized to core.");
       showNotification?.('World Lore synthesized successfully!', 'success');
     } catch (error: any) {
       console.error("World Generation Failed:", error);
-      addLog("WORLD", "FAILURE", error.message || "Unknown error");
+      addGeneratorLog("WORLD", "FAILURE", error.message || "Unknown error");
       showNotification?.(`World Generation Failure: ${error.message}`, 'error');
     } finally {
       setIsLoading(false);
     }
-  }, [prompt, user, selectedModel, setGeneratedWorld, addLog, showNotification, setIsLoading]);
+  }, [prompt, user, selectedModel, setGeneratedWorld, addGeneratorLog, showNotification, setIsLoading]);
 
   useEffect(() => {
     const handleGenerateSignal = () => handleMasterGenerate();
@@ -373,11 +382,9 @@ export default function AnimeLayout() {
                       transition={{ duration: 0.2, ease: "easeOut" }}
                       className="flex-1 flex flex-col"
                     >
-                      <React.Suspense fallback={<StudioLoading fullPage={false} message="Opening Anime Studio" submessage="Connecting to the studio..." />}>
                         <div className="flex-1 flex flex-col">
                           <Outlet />
                         </div>
-                      </React.Suspense>
                     </motion.div>
                   </AnimatePresence>
                 </div>

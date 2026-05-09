@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
-from sqlmodel import select
+from sqlalchemy import select
 from backend.database import async_session, async_engine
 from loguru import logger
 from backend.database.models import ProductionSession, Project
@@ -65,5 +65,5 @@ async def get_sessions(project_id: int, user_id: str = Depends(get_auth_user_id)
             raise HTTPException(status_code=401, detail="Project access denied")
 
         statement = select(ProductionSession).where(ProductionSession.project_id == project_id)
-        return result.scalars().all()
-        return result.scalars().all()
+        res = await session.execute(statement)
+        return res.scalars().all()

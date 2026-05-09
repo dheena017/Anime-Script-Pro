@@ -1,7 +1,5 @@
-from unittest import result
-
 from fastapi import APIRouter, Depends, HTTPException
-from sqlmodel import select
+from sqlalchemy import select
 from backend.database import async_session, async_engine
 from backend.database.models import SystemLog
 from typing import List
@@ -28,5 +26,5 @@ async def get_logs(limit: int = 50):
     """
     async with async_session() as session:
         statement = select(SystemLog).order_by(SystemLog.timestamp.desc()).limit(limit)
-        return result.scalars().all()
+        result = await session.execute(statement)
         return result.scalars().all()

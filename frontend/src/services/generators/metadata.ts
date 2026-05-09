@@ -57,7 +57,12 @@ function buildFallbackDistribution(script: string): string {
   ].join("\n");
 }
 
-export async function generateMetadata(script: string, model: string = "gemini-1.5-flash-latest") {
+export async function generateMetadata(
+  script: string, 
+  model: string = "gemini-3.1-pro",
+  worldLore?: string,
+  castDNA?: string
+) {
   const systemInstruction = METADATA_GENERATION_PROMPT(script);
 
   try {
@@ -69,7 +74,9 @@ export async function generateMetadata(script: string, model: string = "gemini-1
       2048, // maxTokens
       0.95, // topP
       40,   // topK
-      180000 // timeoutMs
+      180000, // timeoutMs
+      worldLore,
+      castDNA
     );
     return text || buildFallbackMetadata(script);
   } catch (error) {
@@ -78,7 +85,13 @@ export async function generateMetadata(script: string, model: string = "gemini-1
   }
 }
 
-export async function generateYouTubeDescription(script: string, model: string = "gemini-1.5-flash-latest", contentType: string = "Anime") {
+export async function generateYouTubeDescription(
+  script: string, 
+  model: string = "gemini-3.1-pro", 
+  contentType: string = "Anime",
+  worldLore?: string,
+  castDNA?: string
+) {
   const systemInstruction = YOUTUBE_DESCRIPTION_GENERATION_PROMPT(contentType, script);
 
   try {
@@ -90,7 +103,9 @@ export async function generateYouTubeDescription(script: string, model: string =
       2048, // maxTokens
       0.95, // topP
       40,   // topK
-      180000 // timeoutMs
+      180000, // timeoutMs
+      worldLore,
+      castDNA
     );
     return text || buildFallbackDescription(contentType, script);
   } catch (error) {
@@ -99,7 +114,12 @@ export async function generateYouTubeDescription(script: string, model: string =
   }
 }
 
-export async function generateAltTexts(script: string, model: string = "gemini-1.5-flash-latest") {
+export async function generateAltTexts(
+  script: string, 
+  model: string = "gemini-3.1-pro",
+  worldLore?: string,
+  castDNA?: string
+) {
   const systemInstruction = ALT_TEXT_GENERATION_PROMPT(script);
 
   try {
@@ -111,7 +131,9 @@ export async function generateAltTexts(script: string, model: string = "gemini-1
       2048, // maxTokens
       0.95, // topP
       40,   // topK
-      180000 // timeoutMs
+      180000, // timeoutMs
+      worldLore,
+      castDNA
     );
     return text || buildFallbackAltText(script);
   } catch (error) {
@@ -120,7 +142,13 @@ export async function generateAltTexts(script: string, model: string = "gemini-1
   }
 }
 
-export async function generateGrowthStrategy(script: string, model: string = "gemini-1.5-flash-latest", contentType: string = "Anime") {
+export async function generateGrowthStrategy(
+  script: string, 
+  model: string = "gemini-3.1-pro", 
+  contentType: string = "Anime",
+  worldLore?: string,
+  castDNA?: string
+) {
   const { GROWTH_STRATEGY_PROMPT } = await import("../prompts/metadata");
   const systemInstruction = GROWTH_STRATEGY_PROMPT(contentType, script);
 
@@ -133,7 +161,9 @@ export async function generateGrowthStrategy(script: string, model: string = "ge
       2048, // maxTokens
       0.95, // topP
       40,   // topK
-      180000 // timeoutMs
+      180000, // timeoutMs
+      worldLore,
+      castDNA
     );
     return text || buildFallbackGrowthStrategy(script);
   } catch (error) {
@@ -142,7 +172,12 @@ export async function generateGrowthStrategy(script: string, model: string = "ge
   }
 }
 
-export async function generateDistributionStrategy(script: string, model: string = "gemini-1.5-flash-latest") {
+export async function generateDistributionStrategy(
+  script: string, 
+  model: string = "gemini-3.1-pro",
+  worldLore?: string,
+  castDNA?: string
+) {
   const { REPURPOSE_MATRIX_PROMPT } = await import("../prompts/youtube_strategies");
   const systemInstruction = REPURPOSE_MATRIX_PROMPT(script);
 
@@ -155,7 +190,9 @@ export async function generateDistributionStrategy(script: string, model: string
       2048, // maxTokens
       0.95, // topP
       40,   // topK
-      180000 // timeoutMs
+      180000, // timeoutMs
+      worldLore,
+      castDNA
     );
     return text || buildFallbackDistribution(script);
   } catch (error) {

@@ -1,19 +1,21 @@
 import pytest
-from backend.api.world.manifest import router as manifest_router
-from backend.api.world.history import router as history_router
-from backend.api.world.factions import router as factions_router
-from backend.api.world.powers import router as powers_router
-from backend.api.world.architecture import router as architecture_router
-from backend.api.world.atlas import router as atlas_router
-from backend.api.world.culture import router as culture_router
-from backend.api.world.systems import router as systems_router
+from backend.api import world as world_mod
 
-def test_module_routers():
-    assert manifest_router.prefix == "/api/world/manifest"
-    assert history_router.prefix == "/api/world/history"
-    assert factions_router.prefix == "/api/world/factions"
-    assert powers_router.prefix == "/api/world/powers"
-    assert architecture_router.prefix == "/api/world/architecture"
-    assert atlas_router.prefix == "/api/world/atlas"
-    assert culture_router.prefix == "/api/world/culture"
-    assert systems_router.prefix == "/api/world/systems"
+
+def _has_route_prefix(router, prefix):
+    for r in router.routes:
+        if r.path.startswith(prefix):
+            return True
+    return False
+
+
+def test_world_module_routes():
+    world_router = world_mod.router
+    assert _has_route_prefix(world_router, "/api/world/manifest")
+    assert _has_route_prefix(world_router, "/api/world/history")
+    assert _has_route_prefix(world_router, "/api/world/factions")
+    assert _has_route_prefix(world_router, "/api/world/powers")
+    assert _has_route_prefix(world_router, "/api/world/architecture")
+    assert _has_route_prefix(world_router, "/api/world/atlas")
+    assert _has_route_prefix(world_router, "/api/world/culture")
+    assert _has_route_prefix(world_router, "/api/world/systems")

@@ -10,6 +10,7 @@ import { StoryboardToolbar } from './components/StoryboardToolbar';
 import { StoryboardTabs, StoryboardTab } from './Tabs/StoryboardTabs';
 
 import { StoryboardLoadingPage } from './components/StoryboardLoadingPage';
+import { StoryboardEmptyState } from './components/StoryboardEmptyState';
 
 export const StoryboardContext = React.createContext<{
   setHandlers: (handlers: any) => void;
@@ -28,14 +29,20 @@ export default function StoryboardLayout() {
     isSaving, contentType,
     generationProgress,
     syncCore,
+    currentScriptId,
     session, episode,
     isEditing, setIsEditing
   } = useGenerator();
 
   useAuth();
 
+  const projectId = React.useMemo(() => {
+    const parsedProjectId = currentScriptId ? Number.parseInt(currentScriptId, 10) : undefined;
+    return Number.isFinite(parsedProjectId) ? parsedProjectId : undefined;
+  }, [currentScriptId]);
+
   const handleSave = async () => {
-    await syncCore();
+    await syncCore(projectId);
   };
 
   const handleGenerate = async () => {
@@ -142,6 +149,11 @@ export default function StoryboardLayout() {
 
         {(handlers.isGenerating || isGeneratingImagePrompts) ? (
           <StoryboardLoadingPage tab={activeTab} progress={generationProgress} />
+        ) : !generatedImagePrompts ? (
+          <StoryboardEmptyState 
+            onLaunch={handleGenerate}
+            isGenerating={isGeneratingImagePrompts}
+          />
         ) : (
           <motion.div
             initial={{ opacity: 0, y: 10 }}

@@ -10,9 +10,7 @@ import { SeriesTab } from './Tabs/SeriesTabs';
 // Modularized Tab Components
 import { RoadmapTab } from './Tabs/RoadmapTab';
 import { BlueprintTab } from './Tabs/BlueprintTab';
-import { ArcsTab } from './Tabs/ArcsTab';
 import { AssetsTab } from './Tabs/AssetsTab';
-import { TimelineTab } from './Tabs/TimelineTab';
 import { SeriesEmptyState } from './components/SeriesEmptyState';
 import EpisodesPage from './Episodes/EpisodesPage';
 
@@ -24,21 +22,34 @@ export function SeriesPage() {
   const { user } = useAuth();
   const [isSyncing, setIsSyncing] = React.useState(false);
   const [lastSyncDate, setLastSyncDate] = React.useState<string | null>(null);
-  const { activeTab } = useOutletContext<{ activeTab: SeriesTab }>();
+  const context = useOutletContext<{ activeTab?: SeriesTab }>();
+  const activeTab = context?.activeTab || 'episodes';
 
   const {
     generatedSeriesPlan,
     setGeneratedSeriesPlan,
     isGeneratingSeries,
     prompt,
+    currentScriptId,
     contentType,
     productionSequence,
     setProductionSequence,
     setSession,
     setEpisode,
+    syncCore,
     isEditing,
     showNotification
   } = useGenerator();
+
+  const projectId = React.useMemo(() => {
+    const currentProjectId = currentScriptId ? Number.parseInt(currentScriptId, 10) : undefined;
+    if (Number.isFinite(currentProjectId)) {
+      return currentProjectId;
+    }
+
+    const promptProjectId = Number.parseInt(prompt, 10);
+    return Number.isFinite(promptProjectId) ? promptProjectId : undefined;
+  }, [currentScriptId, prompt]);
 
   const handleLoadDemo = () => {
     setGeneratedSeriesPlan(MOCK_SERIES_PLAN);
@@ -79,12 +90,10 @@ export function SeriesPage() {
     setIsSyncing(true);
 
     try {
-      // Validate project id
-      if (!prompt || String(prompt).trim() === '') {
+      if (!projectId) {
         throw new Error('Missing project id');
       }
 
-      // Create any missing episodes first so we have their ids
       const uniqueEpisodes = Array.from(new Set(sequence.map(u => u.ep)));
       const episodesPayload = uniqueEpisodes.map(epNum => ({ episode_number: epNum, title: `Episode ${epNum}` }));
 
@@ -92,19 +101,18 @@ export function SeriesPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ project_id: prompt, episodes: episodesPayload })
+        body: JSON.stringify({ project_id: projectId, episodes: episodesPayload })
       });
 
       if (!epsRes.ok) throw new Error('Failed to create episodes');
       const createdEpisodes = await epsRes.json();
-      // createdEpisodes may be an array of episode objects with id and episode_number
+
       const episodeMap: Record<number, number> = {};
       (createdEpisodes || []).forEach((e: any) => {
         if (e.episode_number != null && e.id != null) episodeMap[Number(e.episode_number)] = Number(e.id);
         if (e.episode_number != null && e.episode_id != null) episodeMap[Number(e.episode_number)] = Number(e.episode_id);
       });
 
-      // Build scenes payload including per-scene episode_id
       const scenesPayload = sequence.map((u, idx) => {
         const sceneNumber = (u.ep - 1) * 16 + u.scen;
         const epId = episodeMap[u.ep];
@@ -120,7 +128,7 @@ export function SeriesPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ project_id: prompt, scenes: scenesPayload })
+        body: JSON.stringify({ project_id: projectId, scenes: scenesPayload })
       });
 
       if (!res.ok) throw new Error('Bulk sync failed');
@@ -136,11 +144,13 @@ export function SeriesPage() {
     }
   };
 
+  const handleSave = async () => {
+    await syncCore(projectId);
+  };
+
   const getLoadingMessage = () => {
     switch (activeTab) {
-      case 'arcs': return "Synthesizing Narrative Arcs...";
       case 'assets': return "Calculating Resource Matrix...";
-      case 'timeline': return "Estimating Production Schedule...";
       case 'blueprint': return "Architecting Production Sequence...";
       case 'episodes': return "Indexing Episodes Library...";
       default: return "Mapping Production Roadmap...";
@@ -153,18 +163,6 @@ export function SeriesPage() {
         <SeriesLoadingPage
           message={getLoadingMessage()}
           subtext="AI model is processing episodic metadata"
-        />
-      );
-    }
-
-    if (!generatedSeriesPlan && activeTab !== 'blueprint') {
-      return (
-        <SeriesEmptyState
-          onLaunch={() => {
-            window.dispatchEvent(new CustomEvent('studio-generate-series'));
-          }}
-          onLoadDemo={handleLoadDemo}
-          isGenerating={isGeneratingSeries}
         />
       );
     }
@@ -200,28 +198,10 @@ export function SeriesPage() {
             plan={generatedSeriesPlan || []}
           />
         );
-      case 'arcs':
-        return <ArcsTab plan={generatedSeriesPlan || []} />;
       case 'assets':
         return <AssetsTab plan={generatedSeriesPlan || []} />;
-      case 'timeline':
-        return <TimelineTab plan={generatedSeriesPlan || []} />;
       default:
-        return (
-          <RoadmapTab
-            plan={generatedSeriesPlan || []}
-            isEditing={isEditing}
-            onUpdateEpisode={handleUpdateEpisode}
-            onUpdateAssetMatrix={handleUpdateAssetMatrix}
-            onFocusEpisode={(epNum) => {
-              setEpisode(epNum);
-              navigate(`/${contentType.toLowerCase()}/script`);
-            }}
-            onViewEpisode={(epNum) => {
-              navigate(`/${contentType.toLowerCase()}/series/episodes/${epNum}`);
-            }}
-          />
-        );
+        return <EpisodesPage />;
     }
   };
 

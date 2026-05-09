@@ -1,8 +1,9 @@
 import pytest
 from httpx import AsyncClient, ASGITransport
 from fastapi import status
-from backend.fastapi_app import app, engine
-from sqlmodel import SQLModel
+from backend.fastapi_app import app
+from backend.database import engine
+import sqlalchemy
 
 
 def assert_success(response, allowed=(status.HTTP_200_OK, status.HTTP_201_CREATED)):
@@ -16,6 +17,7 @@ async def test_production_creation_flow():
     Ensures that the backend correctly handles the data and persists it (to a test DB).
     """
     # Create tables
+    from sqlmodel import SQLModel
     SQLModel.metadata.create_all(engine)
     
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
@@ -38,18 +40,15 @@ async def test_production_creation_flow():
 
         # 2. Add World Lore
         lore_content = "The Umbra Realm coexists with the light."
-        lore_data = {
-            "project_id": project_id,
-            "markdown_content": lore_content,
-        }
-        resp = await ac.post("/api/world-lore", json=lore_data)
-        assert_success(resp)
-        assert resp.json()["content"] == lore_content
+    # Update manifest via world manifest endpoint
+    user_id = project_data.get("user_id") if project_data.get("user_id") else "test_user_123"
+    resp = await ac.post(f"/api/world/manifest/{user_id}", json={"content": lore_content, "project_id": project_id})
+    assert_success(resp)
+    assert resp.json()["data"]["manifest_blob"] == lore_content
 
-        world_resp = await ac.get(f"/api/world-lore/{project_id}")
-        assert_success(world_resp)
-        assert world_resp.json()["content"] == lore_content
-
+    world_resp = await ac.get(f"/api/world/manifest/{user_id}?project_id={project_id}")
+    assert_success(world_resp)
+    assert world_resp.json()["data"]["manifest_blob"] == lore_content
         # 3. Add Characters (Cast Profiles)
         cast_data = {
             "project_id": project_id,

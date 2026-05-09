@@ -48,7 +48,7 @@ backend/fastapi_app.py
       └─ Serves ReDoc alternative documentation
 ```
 
-**Result**: Custom schema styling applied at `http://127.0.0.1:8080/docs`
+**Result**: Custom schema styling applied at `http://127.0.0.1:3050/docs`
 
 ---
 
@@ -178,7 +178,7 @@ The `/docs` endpoint is styled by backend Swagger CSS and does not require front
 - `backend/static/docs/schemas-index.css` imports the docs CSS files
 
 ### **Already Loaded In**
-- `http://127.0.0.1:8080/docs` ✅ via `swagger-custom.css`
+- `http://127.0.0.1:3050/docs` ✅ via `swagger-custom.css`
 
 ---
 
@@ -200,7 +200,7 @@ The `/docs` endpoint is styled by backend Swagger CSS and does not require front
 ## 🔧 Troubleshooting
 
 ### Styles Not Appearing?
-1. ✅ Check backend is running: `http://127.0.0.1:8080/docs`
+1. ✅ Check backend is running: `http://127.0.0.1:3050/docs`
 2. ✅ Verify `swagger-custom.css` exists in `backend/static/`
 3. ✅ Verify `backend/static/docs/schemas-index.css` exists and imports the docs CSS files
 4. ✅ Check browser dev tools for `/static/swagger-custom.css` and `/static/docs/schemas-index.css`

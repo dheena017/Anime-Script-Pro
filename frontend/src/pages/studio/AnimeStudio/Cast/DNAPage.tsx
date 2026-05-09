@@ -59,14 +59,6 @@ export function DNAPage() {
           <h2 className="text-2xl font-black text-white uppercase tracking-widest italic">Character Trait Analysis</h2>
           <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em] mt-1">Deep psychological and personality profiling</p>
         </div>
-        <Button
-          onClick={handleGenerateDNA}
-          disabled={isAnalyzingCast}
-          className="bg-studio/10 hover:bg-studio/20 text-studio border border-studio/20 rounded-xl px-6 py-2 flex gap-2 font-black uppercase tracking-widest text-[10px]"
-        >
-          <RefreshCcw className={cn("w-3.5 h-3.5", isAnalyzingCast && "animate-spin")} />
-          {isAnalyzingCast ? "Analyzing..." : "Update Analysis"}
-        </Button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

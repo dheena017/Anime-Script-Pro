@@ -19,10 +19,6 @@ export const EmptyState: React.FC<EmptyStateProps> = ({ onLaunch, isGenerating =
       icon={Layout}
       title="Void Terminal"
       description="Storyboard buffer is empty. Initiate Production Core or inject a manual unit to begin visualization."
-      actionLabel="Inject Scene"
-      loadingLabel="Rendering Optics..."
-      onAction={onLaunch}
-      isLoading={isGenerating}
       features={features}
       accentColor="studio"
     />

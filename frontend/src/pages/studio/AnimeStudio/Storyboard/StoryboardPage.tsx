@@ -518,7 +518,7 @@ export function StoryboardPage() {
           : "border-zinc-800/30 hover:border-zinc-700"
       )}>
         <div className="w-full p-8 lg:p-10 max-w-[1400px] mx-auto">
-          {activeTab === 'frames' && (
+          {activeTab === 'frames' && scenes.length > 0 && (
             <div className="flex justify-end mb-6">
               <div className="flex items-center gap-1 bg-black/40 p-1 rounded-xl border border-white/5">
                 <Button

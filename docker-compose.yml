@@ -11,7 +11,7 @@ services:
       - "3000:3000"
     environment:
       - NODE_ENV=production
-      - BACKEND_URL=http://fastapi:8080
+      - BACKEND_URL=http://fastapi:3050
       - GEMINI_API_KEY=${GEMINI_API_KEY}
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
@@ -31,7 +31,7 @@ services:
       dockerfile: backend/Dockerfile
     container_name: anime-script-fastapi
     ports:
-      - "8080:8080"
+      - "3050:3050"
     volumes:
       - ./backend:/app
     environment:

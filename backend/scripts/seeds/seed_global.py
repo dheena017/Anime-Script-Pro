@@ -1,7 +1,7 @@
 import asyncio
 import os
 import sys
-from sqlmodel import Session, create_engine, select, SQLModel
+from sqlalchemy import Session, create_engine, select, sqlalchemy
 from datetime import datetime
 from loguru import logger
 
@@ -48,7 +48,7 @@ TUTORIALS_DATA = [
 
 def seed_global():
     # Force table creation
-    SQLModel.metadata.create_all(engine)
+    sqlalchemy.metadata.create_all(engine)
     
     with Session(engine) as session:
         # 1. Seed Tutorials

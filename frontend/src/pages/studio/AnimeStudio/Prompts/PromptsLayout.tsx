@@ -4,11 +4,13 @@ import { motion } from 'framer-motion';
 import EpisodePackager from './components/EpisodePackager';
 import { useGenerator } from '@/hooks/useGenerator';
 import { useAuth } from '@/hooks/useAuth';
+import { useLogs } from '@/contexts/LogContext';
 import { generateImagePrompts, generateVideoPrompts } from '@/services/api/gemini';
 import { PromptsHeader } from './components/PromptsHeader';
 import { PromptsToolbar } from './components/PromptsToolbar';
 import { PromptsTabs, PromptsTab } from './Tabs/PromptsTabs';
 import { PromptsLoadingPage } from './components/PromptsLoadingPage';
+import { PromptsEmptyState } from './components/PromptsEmptyState';
 
 export const PromptsContext = React.createContext<{
   setHandlers: React.Dispatch<React.SetStateAction<any>>;
@@ -29,19 +31,29 @@ export default function PromptsLayout() {
     castProfiles, castData, generatedSeriesPlan, generatedMetadata,
     contentType,
     generationProgress,
-    isEditing, setIsEditing
+    isEditing, setIsEditing,
+    currentScriptId
   } = useGenerator();
 
   const { user } = useAuth();
+  const { addLog } = useLogs();
+
+  const projectId = React.useMemo(() => {
+    const parsedProjectId = currentScriptId ? Number.parseInt(currentScriptId, 10) : undefined;
+    return Number.isFinite(parsedProjectId) ? parsedProjectId : undefined;
+  }, [currentScriptId]);
 
   const handleSave = async () => {
     if (!user?.id) {
       showNotification?.('Authentication Required', 'error');
+      console.warn('[PromptsLayout] Save skipped: user is not authenticated.');
       return;
     }
 
     setIsSaving(true);
     try {
+      console.info('[PromptsLayout] Saving prompts content.', { projectId });
+      addLog('SAVE', 'START', 'Saving prompts content...');
       const { productionApi } = await import('@/services/api/production');
       await productionApi.updateContent(user.id, {
         cast_profiles: castProfiles,
@@ -49,11 +61,14 @@ export default function PromptsLayout() {
         script_content: generatedScript,
         series_plan: generatedSeriesPlan,
         seo_metadata: generatedMetadata
-      });
+      }, projectId);
       showNotification?.('Prompts saved successfully!', 'success');
+      console.info('[PromptsLayout] Prompts saved successfully.', { projectId });
+      addLog('SAVE', 'SUCCESS', 'Prompts saved successfully.');
     } catch (e) {
-      console.error("Manual sync failed:", e);
+      console.error('[PromptsLayout] Manual save failed.', e);
       showNotification?.('Sync Error', 'error');
+      addLog('SAVE', 'ERROR', `Prompts save failed: ${(e as any)?.message || 'Network error'}`);
     } finally {
       setIsSaving(false);
     }
@@ -145,6 +160,11 @@ export default function PromptsLayout() {
 
         {(handlers.isGenerating || isLoading) ? (
           <PromptsLoadingPage tab={activeTab} progress={generationProgress} />
+        ) : (!generatedImagePrompts && !videoData) ? (
+          <PromptsEmptyState 
+            onLaunch={handleGenerateAll}
+            isGenerating={isLoading}
+          />
         ) : (
           <motion.div
             initial={{ opacity: 0, y: 10 }}

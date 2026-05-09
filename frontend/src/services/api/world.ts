@@ -1,12 +1,4 @@
 import { apiRequest } from '@/lib/api-utils';
-import { manifestApi } from '@/services/api/world/manifest';
-import { historyApi } from '@/services/api/world/history';
-import { factionsApi } from '@/services/api/world/factions';
-import { powersApi } from '@/services/api/world/powers';
-import { architectureApi } from '@/services/api/world/architecture';
-import { atlasApi } from '@/services/api/world/atlas';
-import { cultureApi } from '@/services/api/world/culture';
-import { systemsApi } from '@/services/api/world/systems';
 
 const API_BASE = '/api/world';
 
@@ -39,32 +31,53 @@ export interface WorldLore {
   prompt_lore?: string | null;
 }
 
+// Factory function to create standardized CRUD methods for each lore module
+const createLoreModule = (moduleName: string) => ({
+  get: async (userId: string, projectId?: number) => {
+    const res = await apiRequest<any>(
+      `${API_BASE}/${moduleName}/${userId}${projectId ? `?project_id=${projectId}` : ''}`,
+      { method: 'GET', label: `Get World ${moduleName}` }
+    );
+    return res.data;
+  },
+  update: async (userId: string, content: string, prompt?: string, projectId?: number) => {
+    const res = await apiRequest<any>(
+      `${API_BASE}/${moduleName}/${userId}${projectId ? `?project_id=${projectId}` : ''}`,
+      {
+        method: 'POST',
+        label: `Update World ${moduleName}`,
+        body: JSON.stringify({ content, prompt, project_id: projectId })
+      }
+    );
+    return res.data;
+  },
+  generate: async (userId: string, projectId?: number) => {
+    const res = await apiRequest<any>(
+      `${API_BASE}/${moduleName}/generate/${userId}${projectId ? `?project_id=${projectId}` : ''}`,
+      { method: 'POST', label: `Generate World ${moduleName}` }
+    );
+    return res.data;
+  }
+});
+
 export const worldApi = {
   // Legacy unified endpoints (still useful for full sync)
   getLore: async (userId: string, projectId?: number): Promise<WorldLore | null> => {
-    return apiRequest<WorldLore>(`${API_BASE}/manifest/${userId}`, {
+    const res = await apiRequest<any>(`${API_BASE}/manifest/${userId}`, {
       method: 'GET',
       label: 'Get World Lore',
       headers: projectId ? { 'X-Project-Id': projectId.toString() } : {}
     });
+    return res.data;
   },
 
-  updateLore: async (userId: string, update: Partial<WorldLore>, projectId?: number): Promise<WorldLore> => {
-    return apiRequest<WorldLore>(`${API_BASE}/manifest/${userId}`, {
-      method: 'POST',
-      label: 'Update World Lore',
-      body: JSON.stringify(update),
-      headers: projectId ? { 'X-Project-Id': projectId.toString() } : {}
-    });
-  },
-
-  // Modular exports
-  manifest: manifestApi,
-  history: historyApi,
-  factions: factionsApi,
-  powers: powersApi,
-  architecture: architectureApi,
-  atlas: atlasApi,
-  culture: cultureApi,
-  systems: systemsApi
+  // Modular endpoints via Factory
+  manifest: createLoreModule('manifest'),
+  history: createLoreModule('history'),
+  factions: createLoreModule('factions'),
+  powers: createLoreModule('powers'),
+  architecture: createLoreModule('architecture'),
+  atlas: createLoreModule('atlas'),
+  culture: createLoreModule('culture'),
+  systems: createLoreModule('systems')
 };

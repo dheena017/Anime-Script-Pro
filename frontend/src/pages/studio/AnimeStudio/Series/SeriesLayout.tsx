@@ -1,12 +1,14 @@
 import React from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { useGenerator } from '@/hooks/useGenerator';
+import { motion } from 'framer-motion';
+import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
 import { useAuth } from '@/hooks/useAuth';
 import { generateSeriesPlan } from '@/services/api/gemini';
 import { SeriesHeader } from './components/SeriesHeader';
 import { SeriesToolbar } from './components/SeriesToolbar';
 import { SeriesTabs, SeriesTab } from './Tabs/SeriesTabs';
 import { SeriesLoadingPage } from './components/SeriesLoadingPage';
+import { cn } from '@/lib/utils';
 
 export default function SeriesLayout() {
   const navigate = useNavigate();
@@ -20,39 +22,46 @@ export default function SeriesLayout() {
     session,
     episode,
     generatedWorld,
+    generatedWorldLore,
+    generatedWorldPowers,
+    generatedWorldFactions,
+    generatedWorldArchitecture,
+    generatedWorldAtlas,
+    generatedWorldCulture,
+    generatedWorldSystems,
     generatedCharacters,
-    showNotification,
+    castList,
+    characterRelationships,
+    castDNA,
+    currentScriptId,
     isSaving,
-    syncCore,
-    generationProgress,
     isGeneratingSeries,
+    generatedSeriesPlan
+  } = useGeneratorState();
+
+  const {
     setIsGeneratingSeries,
-    generatedSeriesPlan,
     setGeneratedSeriesPlan,
-    setGeneratedWorld,
-    setGeneratedWorldLore,
-    setGeneratedWorldPowers,
-    setGeneratedWorldFactions,
-    setGeneratedWorldArchitecture,
-    setGeneratedWorldAtlas,
-    setGeneratedWorldCulture,
-    setGeneratedWorldSystems,
-    setCastData,
-    setCastList,
-    setGeneratedCharacters,
-    setCharacterRelationships,
-    setCastDNA,
-    setCastDynamics,
-    setCastIntegrity,
     setGeneratedScript,
     setGeneratedImagePrompts,
-    setGeneratedMetadata
-  } = useGenerator();
+    setGeneratedMetadata,
+    syncCore,
+    showNotification,
+    addLog: addGeneratorLog
+  } = useGeneratorDispatch();
+
+  const [generationProgress, setGenerationProgress] = React.useState(0);
+  const [generationError, setGenerationError] = React.useState<string | null>(null);
+
+  const projectId = React.useMemo(() => {
+    const parsedProjectId = currentScriptId ? Number.parseInt(currentScriptId, 10) : undefined;
+    return Number.isFinite(parsedProjectId) ? parsedProjectId : undefined;
+  }, [currentScriptId]);
 
   useAuth();
 
   const handleSave = async () => {
-    await syncCore();
+    await syncCore(projectId);
   };
 
   const handleGenerate = async () => {
@@ -60,77 +69,94 @@ export default function SeriesLayout() {
       showNotification?.('Please enter a story prompt first before creating the series plan.', 'error');
       return;
     }
+    setGenerationError(null);
     setIsGeneratingSeries(true);
+    setGenerationProgress(5);
+    addGeneratorLog?.("SERIES", "STARTING", "Synthesizing full series roadmap and episode beats...");
+
     try {
-      // Full Project Reset: Clear all downstream data at the start of series generation
+      // We only reset the Series Plan, not the World or Cast. 
+      // This allows the AI to use existing World/Cast data as the "Blueprint".
       setGeneratedSeriesPlan(null);
-      setGeneratedWorld(null);
-      setGeneratedWorldLore(null);
-      setGeneratedWorldPowers(null);
-      setGeneratedWorldFactions(null);
-      setGeneratedWorldArchitecture(null);
-      setGeneratedWorldAtlas(null);
-      setGeneratedWorldCulture(null);
-      setGeneratedWorldSystems(null);
-      setCastData(null);
-      setCastList([]);
-      setGeneratedCharacters(null);
-      setCharacterRelationships(null);
-      setCastDNA(null);
-      setCastDynamics(null);
-      setCastIntegrity(null);
       setGeneratedScript(null);
       setGeneratedImagePrompts(null);
       setGeneratedMetadata(null);
 
       const totalEpisodes = 12; // Default
-      console.log(`[SeriesLayout] Requesting series plan generation for ${totalEpisodes} episodes...`);
-      const plan = await generateSeriesPlan(prompt, selectedModel, contentType, totalEpisodes, generatedWorld || undefined, generatedCharacters || undefined);
-      setGeneratedSeriesPlan(plan);
-      console.log(`[SeriesLayout] Series plan generated successfully. Response length: ${JSON.stringify(plan)?.length || 0} chars.`);
       
-      // Response and Report Flow
-      const base = `/${contentType.toLowerCase()}/series`;
-      navigate(base); // roadmap
-      await new Promise(r => setTimeout(r, 2000));
-      
-      navigate(`${base}/blueprint`);
-      await new Promise(r => setTimeout(r, 2000));
-      
-      navigate(`${base}/episodes`);
-      await new Promise(r => setTimeout(r, 2000));
-      
-      navigate(`${base}/timeline`);
-      await new Promise(r => setTimeout(r, 2000));
-      
-      navigate(`${base}/arcs`);
-      await new Promise(r => setTimeout(r, 2000));
-      
-      navigate(`${base}/assets`);
-      await new Promise(r => setTimeout(r, 2000));
+      // BUILD THE SOURCE OF TRUTH (WORLD BIBLE)
+      const worldBible = [
+        `MANIFEST: ${generatedWorld || 'N/A'}`,
+        `HISTORY: ${generatedWorldLore || 'N/A'}`,
+        `POWERS: ${generatedWorldPowers || 'N/A'}`,
+        `FACTIONS: ${generatedWorldFactions || 'N/A'}`,
+        `ARCHITECTURE: ${generatedWorldArchitecture || 'N/A'}`,
+        `ATLAS: ${generatedWorldAtlas || 'N/A'}`,
+        `CULTURE: ${generatedWorldCulture || 'N/A'}`,
+        `SYSTEMS: ${generatedWorldSystems || 'N/A'}`
+      ].join('\n\n');
 
-      navigate(base); // Return to roadmap
+      // BUILD THE CAST DNA
+      const castContext = [
+        `CHARACTERS: ${JSON.stringify(castList || [])}`,
+        `RELATIONSHIPS: ${characterRelationships || 'N/A'}`,
+        `DNA METADATA: ${JSON.stringify(castDNA || {})}`
+      ].join('\n\n');
+
+      console.log(`[SeriesLayout] Requesting series plan generation for ${totalEpisodes} episodes using full story bible...`);
+      const rawPlan = await generateSeriesPlan(
+        prompt, 
+        selectedModel, 
+        contentType, 
+        totalEpisodes, 
+        worldBible, 
+        castContext
+      );
+
+      // Ensure we have a valid array
+      const plan = Array.isArray(rawPlan) ? rawPlan : [];
+      setGeneratedSeriesPlan(plan);
+      console.log(`[SeriesLayout] Series plan synthesized. Count: ${plan.length} episodes.`);
+      addGeneratorLog?.("SERIES", "SUCCESS", `Blueprint ready with ${plan.length} episodes.`);
+      setGenerationProgress(100);
+      
+      // Response and Report Flow - Instant Impact
+      const base = `/${contentType.toLowerCase()}/series`;
+      
+      // We navigate directly to episodes now to avoid "one by one" delay feeling
+      navigate(`${base}/episodes`); 
+      
+      console.log('[SeriesLayout] UI Transition complete. Final plan state:', {
+        exists: !!plan,
+        count: plan?.length,
+        firstTitle: plan?.[0]?.title
+      });
       showNotification?.('Full Series Blueprint Synthesized!', 'success');
     } catch (error: any) {
+      const msg = error.message || 'Unknown error during synthesis';
       console.error('[SeriesLayout] Failed to create series plan:', error);
-      showNotification?.('Failed to create series plan: ' + (error.message || 'Unknown error'), 'error');
+      setGenerationError(msg);
+      addGeneratorLog?.("SERIES", "ERROR", `Synthesis failed: ${msg}`);
+      showNotification?.('Failed to create series plan: ' + msg, 'error');
+      
+      // Stay on loading page for a few seconds to show the error before closing
+      await new Promise(r => setTimeout(r, 4000));
     } finally {
       setIsGeneratingSeries(false);
+      setGenerationProgress(0);
     }
   };
 
   const getActiveTab = (): SeriesTab => {
     const path = location.pathname;
     if (path.includes('/series/episodes')) return 'episodes';
-    if (path.includes('/series/arcs')) return 'arcs';
     if (path.includes('/series/blueprint')) return 'blueprint';
     if (path.includes('/series/assets')) return 'assets';
-    if (path.includes('/series/timeline')) return 'timeline';
-
-    if (path.endsWith('/series') || path.includes('/series/blueprint')) return 'blueprint';
     if (path.includes('/series/roadmap')) return 'roadmap';
 
-    return 'blueprint';
+    if (path.endsWith('/series')) return 'episodes';
+
+    return 'episodes';
   };
 
   const [activeTab, setActiveTab] = React.useState<SeriesTab>(() => getActiveTab());
@@ -157,33 +183,47 @@ export default function SeriesLayout() {
   }, [handleGenerate]);
 
   return (
-    <div className="space-y-6">
+    <div className={cn("transition-all duration-700", generatedSeriesPlan && generatedSeriesPlan.length > 0 ? "space-y-6" : "space-y-0")}>
+      {/* Global Header - Always visible for context and navigation */}
       <div className="studio-module-header">
         <SeriesHeader
           onRegenerate={handleGenerate}
           isGenerating={isGeneratingSeries}
+          onClear={() => {
+            setGeneratedSeriesPlan(null);
+            setGeneratedScript(null);
+            setGeneratedImagePrompts(null);
+            setGeneratedMetadata(null);
+            showNotification?.('Production manifest cleared', 'info');
+          }}
           onPrev={() => navigate(`/${contentType.toLowerCase()}/cast`)}
           onNext={() => navigate(`/${contentType.toLowerCase()}/script`)}
+          onManifest={() => handleTabChange('blueprint')}
+          isManifestActive={activeTab === 'blueprint'}
           onSave={handleSave}
           isSaving={isSaving}
-          hasContent={!!generatedSeriesPlan}
+          hasContent={Boolean(generatedSeriesPlan && generatedSeriesPlan.length > 0)}
           session={session}
           episode={episode}
         />
       </div>
 
-      <div className="studio-tabs-bar sticky top-0 z-40 flex items-center justify-center p-3 md:p-4 bg-[#050505]/95 backdrop-blur-md border border-white/10 rounded-[2rem] shadow-2xl mb-8 relative group overflow-hidden">
+      {/* Tabs Bar - Always visible but clean and sticky */}
+      <div className={cn(
+        "studio-tabs-bar sticky top-0 z-40 flex items-center justify-center py-4 px-3 md:px-4 bg-[#050505]/80 backdrop-blur-xl border-b border-white/10 group transition-all duration-500",
+        !(generatedSeriesPlan && generatedSeriesPlan.length > 0) && "border-t"
+      )}>
         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-studio/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
         <div className="relative z-10 w-full flex justify-center">
           <SeriesTabs activeTab={activeTab} setActiveTab={handleTabChange} />
         </div>
       </div>
 
-      {/* Toolbar Section */}
-      {generatedSeriesPlan && (
+      {/* Toolbar Section - Only show when content exists */}
+      {generatedSeriesPlan && generatedSeriesPlan.length > 0 && (
         <div className="mb-8 relative z-30">
           <SeriesToolbar
-            status={generatedSeriesPlan ? 'active' : 'empty'}
+            status="active"
             session={session}
             episode={episode}
             onManifestClick={() => handleTabChange('roadmap')}
@@ -197,19 +237,37 @@ export default function SeriesLayout() {
               a.click();
               URL.revokeObjectURL(url);
             }}
-            content={generatedSeriesPlan ? JSON.stringify(generatedSeriesPlan, null, 2) : null}
+            content={JSON.stringify(generatedSeriesPlan, null, 2)}
           />
         </div>
       )}
 
-      {isGeneratingSeries ? (
-        <SeriesLoadingPage tab={activeTab} progress={generationProgress} />
-      ) : (
-        <Outlet context={{ showScaffolder, setShowScaffolder, activeTab }} />
-      )}
+      {/* Content Area */}
+      <div className="relative flex-1">
+        {isGeneratingSeries ? (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="w-full"
+          >
+            <SeriesLoadingPage 
+              tab={activeTab} 
+              progress={generationProgress} 
+              error={generationError}
+              title="Generating All Series Tabs"
+              description="Orchestrating Roadmap, Episodes, Blueprint, and Assets..."
+            />
+          </motion.div>
+        ) : (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="w-full"
+          >
+            <Outlet context={{ showScaffolder, setShowScaffolder, activeTab }} />
+          </motion.div>
+        )}
+      </div>
     </div>
   );
 }
-
-
-

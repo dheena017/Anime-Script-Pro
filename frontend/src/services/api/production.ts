@@ -16,6 +16,8 @@ export interface ProjectContent {
   series_plan: any[] | null;
   storyboard: any;
   seo_metadata: string | null;
+  youtube_description: string | null;
+  alt_texts: string | null;
   custom_prompts: Record<string, string>;
   active_protocols: string[];
   screening_logs: any[];
@@ -40,4 +42,3 @@ export const productionApi = {
     });
   }
 };
-

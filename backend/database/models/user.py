@@ -1,13 +1,15 @@
 from typing import Optional, Dict
 from datetime import datetime
 from sqlmodel import SQLModel, Field, Column, JSON
-from fastapi_users_db_sqlmodel import SQLModelBaseUserDB
+from fastapi_users_db_sqlalchemy import SQLAlchemyBaseUserTable
+from sqlalchemy.orm import Mapped, mapped_column
 
-class User(SQLModelBaseUserDB, table=True):
+class User(SQLAlchemyBaseUserTable[str]):
     __tablename__ = "users"
     __table_args__ = {"extend_existing": True}
-    failed_login_attempts: int = Field(default=0, nullable=False)
-    locked_until: Optional[datetime] = Field(default=None)
+    name: Mapped[Optional[str]] = mapped_column(nullable=True)
+    failed_login_attempts: Mapped[int] = mapped_column(default=0, nullable=False)
+    locked_until: Mapped[Optional[datetime]] = mapped_column(nullable=True)
 
 class UserProfile(SQLModel, table=True):
     __tablename__ = "user_profiles"
@@ -49,3 +51,11 @@ class UserSettings(SQLModel, table=True):
         return f"<UserSettings(id={self.id}, user_id={self.user_id})>"
     def __str__(self):
         return self.user_id
+
+class Todo(SQLModel, table=True):
+    __tablename__ = "todos"
+    id: Optional[int] = Field(default=None, primary_key=True)
+    user_id: str = Field(index=True)
+    text: str
+    completed: bool = Field(default=False)
+    created_at: datetime = Field(default_factory=datetime.utcnow)

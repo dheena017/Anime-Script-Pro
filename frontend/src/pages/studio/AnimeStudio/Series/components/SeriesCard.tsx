@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Milestone, Activity, Volume2, Camera, Video, Layout as LayoutGrid, PlayCircle, MapPin, Clock, Users, Heart, Eye } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 export interface SeriesAssetMatrix {
   sound: string;
@@ -12,6 +13,7 @@ export interface SeriesAssetMatrix {
 }
 
 export interface SeriesEpisode {
+  detailed_episode_spec: any;
   episode: string;
   title: string;
   hook: string;
@@ -227,8 +229,33 @@ export const SeriesCard = React.memo<SeriesCardProps>(({
                       onChange={(e) => onUpdateAssetMatrix(idx, { scene_count: parseInt(e.target.value) || 0 })}
                     />
                   ) : (
-                    <p className="mt-1 text-[11px] text-amber-500 font-black tracking-tighter">{ep.asset_matrix.scene_count} SCENES SYNCED</p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <p className="text-[11px] text-amber-500 font-black tracking-tighter">{ep.asset_matrix.scene_count} UNITS</p>
+                      <div className="flex gap-0.5">
+                        {Array.from({ length: 3 }).map((_, i) => (
+                          <div key={i} className={cn("w-1 h-1 rounded-full", i < (Number(ep.asset_matrix?.scene_count) / 4) ? "bg-amber-500" : "bg-zinc-800")} />
+                        ))}
+                      </div>
+                    </div>
                   )}
+                </div>
+              </div>
+            )}
+
+            {/* Asset Status Quick Indicators */}
+            {!isEditing && ep.asset_matrix && (
+              <div className="flex items-center gap-6 px-2">
+                <div className="flex items-center gap-2">
+                  <div className={cn("w-2 h-2 rounded-full", ep.asset_matrix.sound ? "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" : "bg-zinc-800")} />
+                  <span className="text-[9px] font-black uppercase tracking-widest text-zinc-500">Audio Forge</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className={cn("w-2 h-2 rounded-full", ep.asset_matrix.image ? "bg-purple-500 shadow-[0_0_8px_rgba(168,85,247,0.5)]" : "bg-zinc-800")} />
+                  <span className="text-[9px] font-black uppercase tracking-widest text-zinc-500">Visual DNA</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className={cn("w-2 h-2 rounded-full", ep.asset_matrix.video ? "bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]" : "bg-zinc-800")} />
+                  <span className="text-[9px] font-black uppercase tracking-widest text-zinc-500">Motion Eng</span>
                 </div>
               </div>
             )}

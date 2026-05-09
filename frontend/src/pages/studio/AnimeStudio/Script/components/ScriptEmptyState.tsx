@@ -22,10 +22,6 @@ export const ScriptEmptyState: React.FC<ScriptEmptyStateProps> = ({
       icon={FileText}
       title="Empty Script"
       description="Your project has a story, but the script is unwritten. Generate a comprehensive script with dialogue, scenes, and stage directions."
-      actionLabel="Write Script"
-      loadingLabel="Drafting Your Script..."
-      onAction={onLaunch}
-      isLoading={isGenerating}
       features={features}
       accentColor="studio"
     />

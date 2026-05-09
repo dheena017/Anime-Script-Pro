@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { StudioEditor } from '../../components/StudioEditor';
-import { Cpu, Zap, Activity, ShieldCheck, Sparkles, ClipboardList, Download } from 'lucide-react';
+import { Cpu, Zap, Activity, ShieldCheck, Sparkles } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { TableOfContents } from '../components/TableOfContents';
 import { useAutoResizeTextarea } from '../hooks/useAutoResizeTextarea';

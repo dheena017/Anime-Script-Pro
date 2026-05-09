@@ -15,8 +15,9 @@ export interface ValidationResult {
  * Focuses on format checks for metadata and scene outputs.
  */
 export class ValidationEngine {
-  determineType(systemInstruction: string): 'metadata' | 'scene' | 'generic' {
+  determineType(systemInstruction: string): 'metadata' | 'scene' | 'series' | 'generic' {
     const s = (systemInstruction || '').toLowerCase();
+    if (s.includes('episode') && s.includes('runtime')) return 'series';
     if (s.includes('title options') || s.includes('metadata') || s.includes('seo tags')) return 'metadata';
     if (s.includes('scene') && s.includes('narration')) return 'scene';
     return 'generic';
@@ -26,7 +27,29 @@ export class ValidationEngine {
     const type = this.determineType(systemInstruction);
     if (type === 'metadata') return this.validateMetadata(text);
     if (type === 'scene') return this.validateScene(text);
+    if (type === 'series') return this.validateSeries(text);
     return this.validateGeneric(text);
+  }
+
+  validateSeries(text: string): ValidationResult {
+    const violations: ValidationViolation[] = [];
+    let parsed: any = null;
+    try {
+      parsed = JSON.parse(text.replace(/```json|```/g, '').trim());
+    } catch {
+      violations.push({ rule: 'JSON_PARSE_ERROR', severity: 'error', message: 'Failed to parse Series JSON array.' });
+    }
+
+    if (parsed && !Array.isArray(parsed)) {
+      violations.push({ rule: 'NOT_AN_ARRAY', severity: 'error', message: 'Series output should be a JSON array.' });
+    }
+
+    if (parsed && Array.isArray(parsed) && parsed.length === 0) {
+      violations.push({ rule: 'EMPTY_ARRAY', severity: 'warning', message: 'Series array is empty.' });
+    }
+
+    const score = violations.length === 0 ? 100 : Math.max(0, 100 - violations.length * 30);
+    return { isValid: violations.length === 0, score, violations };
   }
 
   validateMetadata(text: string): ValidationResult {

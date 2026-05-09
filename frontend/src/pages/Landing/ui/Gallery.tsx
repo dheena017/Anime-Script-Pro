@@ -78,7 +78,6 @@ export const Gallery: React.FC<GalleryProps> = ({
         <AnimatePresence mode="popLayout">
           {filteredImages.map((item) => (
             <motion.div
-              layout
               key={item.src}
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -96,7 +95,7 @@ export const Gallery: React.FC<GalleryProps> = ({
               />
               
               {/* METADATA OVERLAY (IDLE) */}
-              <div className="absolute top-4 left-4 z-20 flex items-center gap-2 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10 opacity-100 group-hover:opacity-0 transition-opacity">
+              <div className="absolute top-4 left-4 z-20 flex items-center gap-2 bg-black/80 px-3 py-1.5 rounded-full border border-white/10 opacity-100 group-hover:opacity-0 transition-opacity">
                  <Globe className="w-3 h-3 text-studio" />
                  <span className="text-[9px] font-black text-white uppercase tracking-widest">{item.node || 'NODE-01'}</span>
               </div>

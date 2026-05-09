@@ -78,10 +78,11 @@ export async function createServer() {
   // Mounted at /api to handle all /api routes including /api/generate and auth routes.
 
   app.use('/api', createProxyMiddleware({
-    target: process.env.BACKEND_URL || "http://localhost:8080",
+    target: process.env.BACKEND_URL || "http://localhost:3050",
     changeOrigin: true,
-    proxyTimeout: 90000,
-    timeout: 90000,
+    // reduce proxy timeout to fail fast and return earlier errors to the client
+    proxyTimeout: 20000,
+    timeout: 20000,
     pathRewrite: (path) => {
       const rewritten = path.startsWith('/api') ? path : `/api${path}`;
       console.log('[PROXY DEBUG] rewrite:', path, '=>', rewritten);
@@ -138,7 +139,7 @@ export async function createServer() {
 
   // --- Orchestrator Health Dashboard ---
   app.get('/_orchestrator/health', async (_req, res) => {
-    const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:8080";
+    const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:3050";
     const start = Date.now();
     let backendOnline = false;
     let latency = 0;
@@ -175,7 +176,7 @@ export async function createServer() {
   });
 
   app.get('/_orchestrator/ai', (_req, res) => {
-    const backendUrl = process.env.BACKEND_URL || "http://localhost:8080";
+    const backendUrl = process.env.BACKEND_URL || "http://localhost:3050";
     res.json({
       ai: {
         openai: openai ? "CONNECTED" : (process.env.OPENAI_API_KEY ? "AUTH OK" : "MISSING API KEY"),
@@ -196,9 +197,15 @@ export async function createServer() {
       appType: "spa",
     });
     app.use(vite.middlewares);
-  } else {
+    } else {
     const distPath = path.join(process.cwd(), 'dist');
-    app.use(express.static(distPath));
+    // Serve static assets with a 1 day cache in production
+    app.use(express.static(distPath, {
+      maxAge: '1d',
+      setHeaders: (res) => {
+        res.setHeader('Cache-Control', 'public, max-age=86400');
+      }
+    }));
     app.get('*', (_, res) => {
       res.sendFile(path.join(distPath, 'index.html'));
     });
@@ -219,7 +226,7 @@ export async function createServer() {
 async function startServer() {
   const { app, openai, anthropic, groq } = await createServer();
   const PORT = Number(process.env.PORT) || 3000;
-  const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:8080";
+  const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:3050";
 
   app.listen(PORT, "0.0.0.0", async () => {
     // Using global styling utilities

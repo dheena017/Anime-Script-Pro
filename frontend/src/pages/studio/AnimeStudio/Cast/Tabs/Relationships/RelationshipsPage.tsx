@@ -163,9 +163,6 @@ export default function RelationshipsPage() {
                 icon={Workflow}
                 title="Matrix Empty"
                 description="No relationship threads exist yet. Synthesize the social web or manually register the first connection."
-                actionLabel={isGenerating ? "Synthesizing..." : "Synthesize Social Web"}
-                onAction={handleSynthesizeSocialWeb}
-                isActionDisabled={isGenerating}
                 features={[
                   { icon: Sparkles, title: 'Auto Synthesis', description: 'Generate conflicts and alliances from cast data' },
                   { icon: Filter, title: 'Thread Controls', description: 'Classify bonds by emotional intensity' },

@@ -7,7 +7,7 @@
     "dev": "tsx server.ts",
     "serve": "vite --host 0.0.0.0 --port 5173 --config frontend/vite.config.ts",
     "studio": "concurrently \"npm run dev\" \"npm run backend\"",
-    "backend": "node scripts/run-python.mjs -m uvicorn backend.fastapi_app:app --port 8080 --reload",
+    "backend": "node scripts/run-python.mjs -m uvicorn backend.fastapi_app:app --port 3050 --reload",
     "setup:backend": "node scripts/setup-backend.mjs",
     "db:seed": "node scripts/run-python.mjs backend/scripts/seeds/seed_all.py",
     "db:reset": "node scripts/run-python.mjs -c \"import os; os.remove('backend/database/anime_script_pro.db') if os.path.exists('backend/database/anime_script_pro.db') else None\" && npm run db:seed",

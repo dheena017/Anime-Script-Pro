@@ -42,7 +42,7 @@ The studio has been modernized to handle a complex **Image-to-Video** pipeline:
 
 ## 🛠️ Integrated Tech Stack
 - **Frontend**: React + Vite + Cinematic Noir Design (Glassmorphism & Neural Pulse)
-- **Intelligence Layer**: FastAPI + Python (100% Async / SQLModel)
+- **Intelligence Layer**: FastAPI + Python (100% Async / sqlalchemy)
 - **Neural Models**: Multi-Model Swarm (Gemini 2.5 Pro / Flash, Imagen-3, Veo-2.0)
 - **Verification**: Playwright E2E + Backend Unit/Integration Suite
 - **Feature Docs**: See [FEATURES.md](./docs/FEATURES.md) for a detailed feature catalog.
@@ -75,24 +75,27 @@ npm run dev
 **Option A: Using Virtual Environment (Recommended)**
 ```powershell
 # Create virtual environment (first time only)
-python -m venv .\backend\venv
+py -m venv .\backend\venv
 
 # Activate it
 .\backend\venv\Scripts\Activate.ps1
 
 # Install dependencies
-pip install -r .\backend\requirements.txt
+.\backend\venv\Scripts\python.exe -m pip install -r .\backend\requirements.txt
 
 # Run FastAPI server
-python -m uvicorn backend.fastapi_app:app --reload --port 8080
+.\backend\venv\Scripts\python.exe -m uvicorn backend.fastapi_app:app --reload --port 3050
 ```
+
+> ⚠️ If you ever see `http://_vscodecontentref_...` in your PowerShell command, you pasted a clickable link. Re-type the raw command exactly (for example: `.\backend\venv\Scripts\python.exe -m uvicorn ...`).
 
 **Option B: Using System Python (If venv has issues)**
 ```powershell
 # Install dependencies globally
-python -m pip install -r .\backend\requirements.txt
+py -m pip install -r .\backend\requirements.txt
 
-.venv/Scripts/python.exe -m uvicorn backend.fastapi_app:app --reload --port 8080
+py -m uvicorn backend.fastapi_app:app --reload --port 3050
+```
 
 Ensure your environment is primed for autonomous generation:
 ```env
@@ -134,8 +137,8 @@ npm run test
 | `npm run dev` | Start the Express server + Vite Frontend in hybrid mode. |
 | `npm run build` | Generate the optimized production-grade bundle. |
 | `npm run start` | Launch the production server bundle. |
-| `npm run backend` | Start the FastAPI backend server on port 8080. |
-| `python -m uvicorn backend.fastapi_app:app --reload --port 8080` | Start FastAPI with auto-reload on code changes. |
+| `npm run backend` | Start the FastAPI backend server on port 3050. |
+| `py -m uvicorn backend.fastapi_app:app --reload --port 3050` | Start FastAPI with auto-reload on code changes. |
 | `docker compose up -d` | Launch the entire 3-tier studio architecture. |
 
 ### 🛡️ Sovereign Audit (Testing)
@@ -196,7 +199,3 @@ The following blueprints document the high-fidelity architecture and production 
 ### ⚙️ Backend Core
 ![Neural Engine Deep Dive](docs/flow-images/neural_engine_deep_dive_blueprint_final_1778055992557.png)
 ![Backend Infrastructure Flow](docs/flow-images/backend_neural_infrastructure_flow_1778056103418.png)
-
-#   A n i m e - S c r i p t - P r o 
- 
- 

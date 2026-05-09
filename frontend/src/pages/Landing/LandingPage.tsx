@@ -5,15 +5,14 @@ import { Gallery } from './ui/Gallery';
 import { landingStyles as s } from './landingStyles';
 import { Features } from './ui/Features';
 import FooterLanding from './FooterLanding';
+import LandingTopBar from './LandingTopBar';
 import { GALLERY_DATA, PLACEHOLDER_PROMPTS } from './constants';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
-import { LifeBuoy, Mail, BookOpen, Video, Globe, X, Menu, Play, Code, Palette, Download, ChevronDown, Sparkles, CreditCard } from 'lucide-react';
+import { Play, Code, Palette, Download, ChevronDown, Sparkles, CreditCard, Video } from 'lucide-react';
 
 export default function LandingPage() {
   const navigate = useNavigate();
-  const [activeMenu, setActiveMenu] = React.useState<string | null>(null);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
   const [galleryImages] = React.useState(GALLERY_DATA);
   const [activePrompt, setActivePrompt] = React.useState<string>('');
   const [promptText, setPromptText] = React.useState<string>('');
@@ -28,7 +27,7 @@ export default function LandingPage() {
     navigate(`/login?prompt=${encodeURIComponent(promptText || PLACEHOLDER_PROMPTS[placeholderIndex])}&style=${encodeURIComponent(selectedStyle)}`);
   };
 
-  const toggleMenu = (menu: string) => setActiveMenu(activeMenu === menu ? null : menu);
+
 
   return (
     <div className={s.page}>
@@ -38,37 +37,7 @@ export default function LandingPage() {
         <div className={s.decorBottom} />
       </div>
 
-      <header className={s.header}>
-        <nav className={s.nav}>
-          <div className="flex items-center gap-12">
-            <a href="/" className={s.navBrand}>
-              <span className={s.brandText}>AnimeScript <span className={s.brandAccent}>Pro</span></span>
-            </a>
-
-            <div className={s.navLinks}>
-              <NavItem label="Support" isOpen={activeMenu === 'support'} onClick={() => toggleMenu('support')}>
-                <DropdownLink icon={LifeBuoy} title="Contact support" description="Get help from our technical specialists." href="#" />
-                <DropdownLink icon={Mail} title="Email us" description="Direct line to our support inbox." href="mailto:support@animescript.pro" />
-              </NavItem>
-
-              <NavItem label="Tutorials" isOpen={activeMenu === 'tutorials'} onClick={() => toggleMenu('tutorials')}>
-                <DropdownLink icon={BookOpen} title="Learn" description="Master the God Mode engine mechanics." href="/tutorials" />
-                <DropdownLink icon={Video} title="Youtube Channel" description="Visual guides and production workflows." href="https://youtube.com" />
-                <DropdownLink icon={Globe} title="Instagram Inspiration" description="Daily art and narrative snippets." href="https://instagram.com" />
-              </NavItem>
-
-              <a href="/community" className={s.navLink}>Community</a>
-              <a href="/pricing" className={s.navLink}>Pricing</a>
-            </div>
-          </div>
-
-          <div className={s.navActions}>
-            <button onClick={() => navigate('/login')} className={s.navLogin}>Login</button>
-            <Button onClick={() => navigate('/login')} className={s.navSignupButton}>Sign up</Button>
-            <button className={s.mobileToggle} onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>{isMobileMenuOpen ? <X /> : <Menu />}</button>
-          </div>
-        </nav>
-      </header>
+      <LandingTopBar />
 
       <main className={s.heroSection}>
         <div className={s.heroContent}>

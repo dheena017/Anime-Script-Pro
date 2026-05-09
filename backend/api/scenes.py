@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
-from sqlmodel import select
+from sqlalchemy import select
 from backend.database import async_session, async_engine
 from loguru import logger
 from backend.database.models import Scene, Episode, Project
@@ -47,8 +47,8 @@ async def batch_create_scenes(payload: dict, user_id: str = Depends(get_auth_use
 
             # If not in map, double check DB (though pre-fetch should have got it)
             statement = select(Episode).where(Episode.project_id == project_pk, Episode.episode_number == ep_num)
-            return result.scalars().all()
-            existing = result.scalars().first()
+            res = await session.execute(statement)
+            existing = res.scalars().first()
             if existing:
                 episode_map[ep_num] = existing.id
                 return existing.id
@@ -126,5 +126,5 @@ async def get_scenes(project_id: int, user_id: str = Depends(get_auth_user_id)):
             raise HTTPException(status_code=401, detail="Project access denied")
 
         statement = select(Scene).where(Scene.project_id == project_id)
-        return result.scalars().all()
-        return result.scalars().all()
+        res = await session.execute(statement)
+        return res.scalars().all()

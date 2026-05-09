@@ -22,10 +22,6 @@ export const PromptsEmptyState: React.FC<PromptsEmptyStateProps> = ({
       icon={Terminal}
       title="No Prompts Available"
       description="Your production is missing generation prompts. Create optimized prompts to guide visual and audio generation engines."
-      actionLabel="Generate Prompts"
-      loadingLabel="Writing Prompts..."
-      onAction={onLaunch}
-      isLoading={isGenerating}
       features={features}
       accentColor="cyan"
     />

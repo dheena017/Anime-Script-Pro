@@ -9,11 +9,17 @@ import {
   Activity, 
   ShieldCheck, 
   LayoutGrid,
-  ArrowRight
+  ArrowRight,
+  LifeBuoy,
+  Mail,
+  BookOpen,
+  Video,
+  Globe
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
+import { NavItem, DropdownLink } from './ui/NavComponents';
 
 export const LandingTopBar: React.FC = () => {
   const navigate = useNavigate();
@@ -22,42 +28,51 @@ export const LandingTopBar: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  // Scroll detection protocol (rAF-throttled + passive to avoid main-thread jank)
+  // Scroll detection protocol (optimized with threshold check)
   useEffect(() => {
     let ticking = false;
+    const threshold = 20;
+
     const onScroll = () => {
       if (!ticking) {
         ticking = true;
         window.requestAnimationFrame(() => {
-          setIsScrolled(window.scrollY > 20);
+          const isOverThreshold = window.scrollY > threshold;
+          setIsScrolled(prev => {
+            if (prev !== isOverThreshold) return isOverThreshold;
+            return prev;
+          });
           ticking = false;
         });
       }
     };
+    
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
+  const [activeMenu, setActiveMenu] = useState<string | null>(null);
+  const toggleMenu = (menu: string) => setActiveMenu(activeMenu === menu ? null : menu);
+
   const navLinks = [
-    { label: 'Solutions', href: '/#solutions' },
-    { label: 'Pricing', href: '/pricing' },
-    { label: 'Academy', href: '/tutorials' },
     { label: 'Community', href: '/community' },
+    { label: 'Pricing', href: '/pricing' },
+    { label: 'Tutorials', href: '/tutorials' },
   ];
 
   return (
     <header 
       className={cn(
-        "fixed top-0 left-0 right-0 z-[100] transition-all duration-500 px-6",
-        isScrolled ? "pt-4" : "pt-8"
+        "fixed top-0 left-0 right-0 z-[100] transition-[background-color,padding] duration-300",
+        isScrolled 
+          ? "bg-black border-b border-white/5 pt-0 px-0" 
+          : "pt-8 px-6 bg-transparent"
       )}
     >
       <nav 
         className={cn(
-          "max-w-7xl mx-auto h-20 px-8 rounded-[2rem] border transition-all duration-500 flex items-center justify-between",
-          isScrolled 
-            ? "bg-black/60 backdrop-blur-xl border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.5)]" 
-            : "bg-transparent border-transparent"
+          "max-w-7xl mx-auto transition-[height] duration-300 flex items-center justify-between px-8",
+          isScrolled ? "h-16" : "h-20 rounded-[2rem] border border-transparent bg-transparent"
         )}
       >
         {/* 1. BRAND TERMINAL */}
@@ -74,20 +89,36 @@ export const LandingTopBar: React.FC = () => {
             </span>
           </a>
 
-          {/* 2. NAVIGATION NODES (DESKTOP) */}
           <div className="hidden lg:flex items-center gap-2">
-            {navLinks.map((link) => (
-              <a
-                key={link.label}
-                href={link.href}
-                className={cn(
-                  "px-5 py-2 text-[10px] font-black uppercase tracking-[0.2em] transition-colors no-underline",
-                  location.pathname === link.href ? "text-studio" : "text-zinc-500 hover:text-white"
-                )}
-              >
-                {link.label}
-              </a>
-            ))}
+            <NavItem label="Support" isOpen={activeMenu === 'support'} onClick={() => toggleMenu('support')}>
+              <DropdownLink icon={LifeBuoy} title="Contact support" description="Get help from our technical specialists." href="#" />
+              <DropdownLink icon={Mail} title="Email us" description="Direct line to our support inbox." href="mailto:support@animescript.pro" />
+            </NavItem>
+
+            <NavItem label="Tutorials" isOpen={activeMenu === 'tutorials'} onClick={() => toggleMenu('tutorials')}>
+              <DropdownLink icon={BookOpen} title="Learn" description="Master the God Mode engine mechanics." href="/tutorials" />
+              <DropdownLink icon={Video} title="Youtube Channel" description="Visual guides and production workflows." href="https://youtube.com" />
+              <DropdownLink icon={Globe} title="Instagram Inspiration" description="Daily art and narrative snippets." href="https://instagram.com" />
+            </NavItem>
+
+            <a
+              href="/community"
+              className={cn(
+                "px-5 py-2 text-[10px] font-black uppercase tracking-[0.2em] transition-colors no-underline",
+                location.pathname === '/community' ? "text-studio" : "text-zinc-500 hover:text-white"
+              )}
+            >
+              Community
+            </a>
+            <a
+              href="/pricing"
+              className={cn(
+                "px-5 py-2 text-[10px] font-black uppercase tracking-[0.2em] transition-colors no-underline",
+                location.pathname === '/pricing' ? "text-studio" : "text-zinc-500 hover:text-white"
+              )}
+            >
+              Pricing
+            </a>
           </div>
         </div>
 

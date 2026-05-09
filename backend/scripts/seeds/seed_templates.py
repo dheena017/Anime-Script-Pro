@@ -1,6 +1,6 @@
 import os
 import sys
-from sqlmodel import Session, create_engine, select, SQLModel
+from sqlalchemy import Session, create_engine, select, sqlalchemy
 from loguru import logger
 
 # Add parent directory to path to import models
@@ -16,12 +16,12 @@ from backend.scripts.seeds.seed_all import PRODUCTION_TEMPLATES
 def seed():
     # Force table creation
     logger.info("Ensuring tables are created...")
-    SQLModel.metadata.create_all(engine)
+    sqlalchemy.metadata.create_all(engine)
     
     with Session(engine) as session:
         # Clear existing templates
         logger.info("Cleaning up old blueprints...")
-        existing = session.exec(select(Template)).all()
+        existing = session.execute(select(Template)).all()
         for e in existing:
             session.delete(e)
         session.commit()
@@ -29,7 +29,7 @@ def seed():
         logger.info(f"Injecting {len(PRODUCTION_TEMPLATES)} fresh blueprints...")
         for template in PRODUCTION_TEMPLATES:
             # Create a new instance for this session if needed, 
-            # or just add the existing one (SQLModel might complain if attached to another session)
+            # or just add the existing one (sqlalchemy might complain if attached to another session)
             # Since seed_all is likely not running at the same time, we can just add them.
             # However, PRODUCTION_TEMPLATES are already Template objects created in seed_all.
             # We need to make sure they are not bound to another session.

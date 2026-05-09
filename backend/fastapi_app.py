@@ -2,278 +2,94 @@ import logging
 import os
 import sys
 import warnings
-
-# Ensure project root and backend package roots are importable when running this module directly
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-BACKEND_ROOT = os.path.dirname(os.path.abspath(__file__))
-if PROJECT_ROOT not in sys.path:
-    sys.path.insert(0, PROJECT_ROOT)
-if BACKEND_ROOT not in sys.path:
-    sys.path.insert(0, BACKEND_ROOT)
-
-# Suppress all runtime user warnings during backend startup
-warnings.filterwarnings(
-    "ignore",
-    category=UserWarning,
-)
-
 from datetime import datetime
-from typing import List, Optional, Dict
-from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException, status, Response, Request, WebSocket, WebSocketDisconnect, Depends
+from typing import List, Optional
+
+from fastapi import FastAPI, HTTPException, Response, Request, WebSocket, WebSocketDisconnect, Depends
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse, HTMLResponse
+from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError as FastAPIRequestValidationError
-from sqlmodel import SQLModel, Session, select
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
+from sqlmodel import SQLModel, select, func
 from sqlalchemy.exc import SQLAlchemyError
 from loguru import logger
 from slowapi import Limiter
-from slowapi.errors import RateLimitExceeded
 from slowapi.util import get_remote_address
-from fastapi.openapi.docs import get_swagger_ui_html, get_redoc_html
-from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
+from slowapi.errors import RateLimitExceeded
+from fastapi.openapi.docs import get_swagger_ui_html
 
+from backend.database import async_engine, async_session, get_async_session, Tutorial
+from backend.user_manager import fastapi_users, auth_backend, UserRead, UserCreate, UserUpdate
+from backend.schemas import GenerationResponse
+from backend.utils.docs import TAGS_METADATA, DESCRIPTION
+from backend.api import api_router
+from backend.api.ai import generate_content
 
-_logging_configured = False
-
-def configure_logging() -> None:
-    global _logging_configured
-    if _logging_configured:
-        return
+# --- Neural Logging Configuration ---
+def configure_logging():
+    BACKEND_ROOT = os.path.dirname(os.path.abspath(__file__))
+    log_dir = os.path.join(BACKEND_ROOT, "logs")
+    os.makedirs(log_dir, exist_ok=True)
+    log_file = os.path.join(log_dir, "backend.log")
 
     logger.remove()
-    logger.add(
-        sys.stderr,
-        level="INFO",
-        colorize=True,
-        format="<magenta>[BACKEND]</magenta> <green>{time:HH:mm:ss}</green> | <level>{level: <8}</level> | <cyan>{name}</cyan> - <level>{message}</level>",
-        backtrace=False,
-        diagnose=False,
-    )
+    # 1. Console Sink (For the Architect's Terminal)
+    logger.add(sys.stderr, colorize=True, format="<magenta>[NEURAL]</magenta> <green>{time:HH:mm:ss}</green> | <level>{level: <8}</level> | <cyan>{name}</cyan> - <level>{message}</level>")
+    
+    # 2. File Sink (For Persistent Audit Trails)
+    logger.add(log_file, rotation="10 MB", retention="1 week", level="DEBUG", format="{time:YYYY-MM-DD HH:mm:ss} | {level: <8} | {name}:{function}:{line} - {message}", enqueue=True)
 
     class InterceptHandler(logging.Handler):
-        def emit(self, record: logging.LogRecord) -> None:
-            try:
-                level = logger.level(record.levelname).name
-            except ValueError:
-                level = record.levelno
-            frame, depth = logging.currentframe(), 2
-            while frame is not None and frame.f_code.co_filename == logging.__file__:
-                frame = frame.f_back
-                depth += 1
-            logger.opt(depth=depth, exception=record.exc_info).log(level, record.getMessage())
-
-    intercept_loggers = [
-        "uvicorn",
-        "uvicorn.error",
-        "uvicorn.access",
-        "fastapi",
-        "sqlalchemy",
-        "sqlmodel",
-    ]
-    for name in intercept_loggers:
+        def emit(self, record):
+            try: level = logger.level(record.levelname).name
+            except ValueError: level = record.levelno
+            logger.opt(depth=6, exception=record.exc_info).log(level, record.getMessage())
+    for name in ["uvicorn", "uvicorn.error", "uvicorn.access", "fastapi", "sqlalchemy"]:
         logging.getLogger(name).handlers = [InterceptHandler()]
         logging.getLogger(name).propagate = False
 
-    # Also add a file sink for persistence
-    log_file = os.path.join(BACKEND_ROOT, "logs", "backend.log")
-    try:
-        logger.add(
-            log_file,
-            rotation="10 MB",
-            retention="1 week",
-            level="DEBUG",
-            format="{time:YYYY-MM-DD HH:mm:ss} | {level: <8} | {name}:{function}:{line} - {message}",
-            enqueue=True, # Use queue for thread-safety and better performance
-        )
-        logger.info(f"LOGGING: System synchronized. File sink active at {log_file}")
-    except Exception as e:
-        logger.error(f"LOGGING: Could not initialize file sink: {e}")
-
-    _logging_configured = True
-
-
 configure_logging()
-# (This is also safe when imported as a module.)
+warnings.filterwarnings("ignore", category=UserWarning)
 
-from backend.database import engine, async_engine, async_session, get_async_session, Tutorial
-from backend.user_manager import fastapi_users, auth_backend, UserRead, UserCreate, UserUpdate
-from backend.utils.deps import get_auth_user_id
-from backend.schemas import GenerationResponse
+# --- Initialize App ---
+app = FastAPI(title="NEURAL ENGINE", description=DESCRIPTION, version="2.5.0-PRO", openapi_tags=TAGS_METADATA, docs_url=None, redoc_url=None)
 
-logger.success("🚀 NEURAL ENGINE: Logging protocols initialized successfully.")
-
-# --- FastAPI app initialization ---
-logging.getLogger('sqlalchemy.engine').setLevel(logging.WARNING)
-logging.getLogger('sqlalchemy.pool').setLevel(logging.WARNING)
-logging.getLogger('sqlalchemy').setLevel(logging.WARNING)
-logging.getLogger('sqlmodel').setLevel(logging.WARNING)
-
-# --- Studio Architect Metadata ---
-tags_metadata = [
-    {
-        "name": "Neural Engine",
-        "description": "Core AI synthesis operations for world building, character DNA, and script materialization.",
-    },
-    {
-        "name": "Production",
-        "description": "Project lifecycle management and autonomous production cycles.",
-    },
-    {
-        "name": "Architect Context",
-        "description": "User profiles, settings, and resource allocation (balances).",
-    },
-    {
-        "name": "Neural Admin",
-        "description": "High-level protocols for system administration and user oversight.",
-    },
-]
-
-app = FastAPI(
-    title="NEURAL ENGINE // Studio Architect Suite",
-    description="""
-## 🚀 Autonomous Production Protocol v2.5.0
-**The backbone of Anime Script Pro's generative architecture.**
-
-### 📡 Core Subsystems
-* **Lore Oracle**: Narrative consistency and world-building logic.
-* **Soul Forge**: Character DNA synthesis and social matrix mapping.
-* **Visual Synthesizer**: Prompt engineering and aesthetic enforcement.
-* **Motion Choreographer**: Spatial awareness and scene orchestration.
-
----
-
-### 🛡️ Architect Authorization Protocol
-This interface serves as your **Neural Uplink**. It allows you to authenticate and interact with protected production nodes directly.
-
-#### 1. Purpose of the Uplink
-The **Neural Uplink** allows architects to bypass third-party terminals (like Postman) and validate protected endpoints in real-time. It is the primary diagnostic interface for high-clearance production tasks.
-
-#### 2. Synchronization Mechanism (JWT)
-When you initialize the `Authorize` sequence with your architect credentials:
-* **Credential Dispatch**: Swagger UI transmits your identity to the central authentication node (`/api/auth/jwt/login`).
-* **Neural Verification**: The backend validates your cryptographic signature.
-* **Signal Token Generation**: Upon success, you are issued a **JSON Web Token (JWT)**—a temporary digital VIP pass that grants access to high-tier neural operations.
-* **Local Persistence**: The token is stored within your session buffer, ensuring seamless interaction across the entire architect suite.
-
-#### 3. Diagnostic Testing
-Once your status is marked as **"Authorized"**:
-* You may exit the authorization terminal.
-* Every subsequent `Execute` command on locked nodes will automatically attach your **Signal Token** to the request header (`Authorization: Bearer <token>`).
-* The system will recognize your architect signature, permitting access to restricted data streams instead of returning a `401 Unauthorized` breach alert.
-
-### 🛠 System Architecture
-This API utilizes **Neural Signal Tracing (Signal ID)** for every request.
-All endpoints are strictly monitored by the **Studio Monitor** diagnostic layer.
-    """,
-    version="2.5.0-GODMODE",
-    openapi_tags=tags_metadata,
-    docs_url=None,
-    redoc_url=None,
-    openapi_url="/openapi.json"
-)
-
-# Mount local static files for Swagger UI
-static_dir = os.path.join(os.path.dirname(__file__), "static")
-app.mount("/static", StaticFiles(directory=static_dir), name="static")
-
-# Setup templates
+# --- Static & Templates ---
+BACKEND_ROOT = os.path.dirname(os.path.abspath(__file__))
+app.mount("/static", StaticFiles(directory=os.path.join(BACKEND_ROOT, "static")), name="static")
 templates = Jinja2Templates(directory=os.path.join(BACKEND_ROOT, "templates"))
 
-# --- CORS Middleware ---
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # Loosen for local development debugging
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-# Load environment variables
-load_dotenv(os.path.join(os.path.dirname(__file__), "..", ".env"))
-
-# --- SlowAPI Limiter ---
+# --- Middleware ---
+app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
 limiter = Limiter(key_func=get_remote_address)
 app.state.limiter = limiter
-
-@app.exception_handler(RateLimitExceeded)
-async def rate_limit_handler(request: Request, exc: RateLimitExceeded):
-    return JSONResponse(
-        status_code=429,
-        content={"detail": "Rate limit exceeded", "error": str(exc)},
-    )
-
-# --- Exception Handlers ---
-from backend.utils.neural_utils import wrap_neural_response, log_neural_event
-
-def error_response(status_code: int, detail: str, request: Request, error: str = None, body=None):
-    signal_id = log_neural_event(f"ERROR: {detail}", category="FAILURE", level="ERROR")
-    content = wrap_neural_response({
-        "detail": detail,
-        "path": request.url.path,
-        "error": error,
-        "body": body
-    }, signal_id=signal_id)
-    return JSONResponse(status_code=status_code, content=content)
-
-@app.exception_handler(Exception)
-async def global_exception_handler(request: Request, exc: Exception):
-    return error_response(500, "Internal server error", request, error=str(exc))
-
-@app.exception_handler(FastAPIRequestValidationError)
-async def validation_exception_handler(request: Request, exc: FastAPIRequestValidationError):
-    return error_response(422, "Validation error", request, error=str(exc), body=exc.body)
-
-@app.exception_handler(SQLAlchemyError)
-async def sqlalchemy_exception_handler(request: Request, exc: SQLAlchemyError):
-    err_str = str(exc) if getattr(app, 'debug', False) else "A database error occurred."
-    return error_response(500, "Database synchronization failure", request, error=err_str)
-
-# --- Custom Swagger UI with Schema Styling ---
-@app.get("/docs", include_in_schema=False)
-async def get_swagger_ui_with_custom_css():
-    """Custom Swagger UI with neural schema styling."""
-    return get_swagger_ui_html(
-        openapi_url=app.openapi_url,
-        title=app.title + " - Neural Uplink",
-        oauth2_redirect_url=app.swagger_ui_oauth2_redirect_url,
-        swagger_ui_parameters={"url": app.openapi_url},
-        swagger_css_url="/static/swagger-custom.css",
-    )
-
-@app.get("/redoc", include_in_schema=False)
-async def get_redoc_with_custom_styling():
-    """ReDoc with neural schema styling."""
-    return get_redoc_html(
-        openapi_url=app.openapi_url,
-        title=app.title + " - Neural Reference",
-    )
-
-# --- Middleware ---
-from backend.utils.neural_utils import NeuralTracer
 
 @app.middleware("http")
 async def log_requests(request: Request, call_next):
     import time
+    import uuid
     start_time = time.perf_counter()
-
-    signal_id = NeuralTracer.generate_signal_id()
+    
+    # Generate a tracking ID for this specific request cycle
+    signal_id = str(uuid.uuid4())[:8].upper()
     method = request.method
     path = request.url.path
     query = request.url.query
     client_ip = request.client.host if request.client else "unknown"
 
-    # 1. LOG THE INCOMING REQUEST (The "Trigger")
-    print(f"DEBUG: INCOMING {method} {path}")
+    # Skip verbose logging for static files or rapid health checks if desired, 
+    # but for development, seeing everything is usually better.
+    
+    # 1. THE TRIGGER: What is the Frontend asking for?
     logger.info(f"📥 INCOMING [{signal_id}]: {method} {path}{'?' + query if query else ''} from {client_ip}")
 
     try:
-        # 2. THE LOGIC (The "Processing")
+        # 2. THE PROCESSING: Let the API handle the request
         response = await call_next(request)
-        process_time = (time.perf_counter() - start_time) * 1000
-
-        # Determine status color
+        latency = (time.perf_counter() - start_time) * 1000
+        
+        # Color code the status for easy visual scanning
         if response.status_code < 400:
             status_tag = f"<green>{response.status_code}</green>"
         elif response.status_code < 500:
@@ -281,215 +97,86 @@ async def log_requests(request: Request, call_next):
         else:
             status_tag = f"<red>{response.status_code}</red>"
 
-        # 3. LOG THE OUTGOING RESPONSE (The "Response")
-        logger.info(f"📤 OUTGOING [{signal_id}]: {method} {path} | Status: {status_tag} | Latency: {process_time:.2f}ms")
-
-        # Add Signal ID to headers for frontend tracing
+        # 3. THE RESULT: What is the Backend sending back?
+        logger.info(f"📤 OUTGOING [{signal_id}]: {method} {path} | Status: {status_tag} | Latency: {latency:.2f}ms")
+        
+        # Attach the tracking ID to the response headers so the Frontend can see it
         response.headers["X-Signal-ID"] = signal_id
-
         return response
+        
     except Exception as e:
-        logger.error(f"❌ CRITICAL [{signal_id}]: Cycle broken during {method} {path}")
+        # 4. THE FAILURE: Catch and loudly log any crashes during the cycle
+        logger.error(f"❌ CRITICAL [{signal_id}]: Request cycle broken during {method} {path}")
         logger.error(f"   Reason: {str(e)}")
         raise
 
 # --- Routers ---
-from backend.api.templates import router as templates_router
-from backend.api.projects import router as projects_router
-from backend.api.scripts import router as scripts_router
-from backend.api.users import router as users_router
-from backend.api.media import router as media_router
-from backend.api.notifications import router as notifications_router
-from backend.api.auth import router as auth_router
-from backend.api.logs import router as logs_router
-from backend.api.stats import router as stats_router
-from backend.api.admin import router as admin_router
-
-# World Modules integrated into services
-from backend.api.world.manifest import router as manifest_router
-from backend.api.world.history import router as history_router
-from backend.api.world.factions import router as factions_router
-from backend.api.world.powers import router as powers_router
-from backend.api.world.architecture import router as architecture_router
-from backend.api.world.atlas import router as atlas_router
-from backend.api.world.culture import router as culture_router
-from backend.api.world.systems import router as systems_router
-
-from backend.api.ai import router as ai_router
-from backend.api.tutorials import router as tutorials_router
-from backend.api.library import router as library_router
-from backend.api.seo import router as seo_router
-from backend.api.community import router as community_router
-from backend.api.help import router as help_router
-from backend.api.engine import router as engine_router
-from backend.api.production import router as production_router
-from backend.api.todos import router as todos_router
-from backend.api.growth import router as growth_router
-from backend.api.episodes import router as episodes_router
-
-# Cast Subrouters (Generation & CRUD)
-from backend.api.cast.manifest import router as cast_manifest_router
-from backend.api.cast.core import router as cast_core_router
-from backend.api.cast.archetypes import router as cast_archetypes_router
-from backend.api.cast.relationships import router as cast_relationships_router
-from backend.api.cast.dynamics import router as cast_dynamics_router
-
-# Core system routes
-@app.get("/", tags=["system"], include_in_schema=False)
-async def root(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
-
-@app.get("/test-reload")
-async def test_reload():
-    return {"status": "reloaded"}
-
-@app.get("/health", tags=["system"])
-async def health():
-    return {"status": "ok"}
-
-@app.get("/health", tags=["system"])
-async def health():
-    return {"status": "ok"}
-
-@app.get("/api/health", tags=["system"], include_in_schema=False)
-async def api_health():
-    return {"status": "ok"}
-
-@app.get("/favicon.ico", include_in_schema=False)
-async def favicon():
-    return Response(status_code=204)
-
-
-
-# --- Compatibility Aliases ---
-from backend.api.ai import generate_content
+app.include_router(api_router)
+app.include_router(fastapi_users.get_auth_router(auth_backend), prefix="/api/auth/jwt", tags=["auth"])
+app.include_router(fastapi_users.get_register_router(UserRead, UserCreate), prefix="/api/auth", tags=["auth"])
+app.include_router(fastapi_users.get_users_router(UserRead, UserUpdate), prefix="/api/identity", tags=["users"])
 app.post("/api/generate", tags=["AI Engine"], response_model=GenerationResponse)(generate_content)
 
-# Include routers with specialized tags
-app.include_router(ai_router, tags=["Neural Engine"])
-app.include_router(engine_router, tags=["Neural Engine"])
-app.include_router(scripts_router, tags=["Neural Engine"])
+# --- Documentation ---
+@app.get("/docs", include_in_schema=False)
+async def get_docs():
+    return get_swagger_ui_html(openapi_url="/openapi.json", title="Neural Engine - Docs", swagger_css_url="/static/docs/swagger-custom.css")
 
-app.include_router(manifest_router, tags=["Neural Engine"])
-app.include_router(history_router, tags=["Neural Engine"])
-app.include_router(factions_router, tags=["Neural Engine"])
-app.include_router(powers_router, tags=["Neural Engine"])
-app.include_router(architecture_router, tags=["Neural Engine"])
-app.include_router(atlas_router, tags=["Neural Engine"])
-app.include_router(culture_router, tags=["Neural Engine"])
-app.include_router(systems_router, tags=["Neural Engine"])
-
-app.include_router(projects_router, tags=["Production"])
-app.include_router(production_router, tags=["Production"])
-app.include_router(media_router, tags=["Production"])
-app.include_router(library_router, tags=["Production"])
-app.include_router(seo_router, tags=["Production"])
-app.include_router(todos_router, tags=["Production"])
-app.include_router(growth_router, tags=["Production"])
-app.include_router(episodes_router, tags=["Production"])
-
-# Cast subrouters (generation + CRUD)
-app.include_router(cast_manifest_router, tags=["Cast Management"])
-app.include_router(cast_core_router, tags=["Cast Generation"])
-app.include_router(cast_archetypes_router, tags=["Cast Generation"])
-app.include_router(cast_relationships_router, tags=["Cast Generation"])
-app.include_router(cast_dynamics_router, tags=["Cast Generation"])
-
-app.include_router(users_router, tags=["Architect Context"])
-app.include_router(notifications_router, tags=["Architect Context"])
-app.include_router(stats_router, tags=["Architect Context"])
-app.include_router(tutorials_router, tags=["Architect Context"])
-app.include_router(help_router, tags=["Architect Context"])
-app.include_router(community_router, tags=["Architect Context"])
-app.include_router(templates_router, tags=["Architect Context"])
-
-app.include_router(admin_router, tags=["Neural Admin"])
-app.include_router(logs_router, tags=["Neural Admin"])
-
-app.include_router(auth_router, tags=["Auth Protocols"])
-
-# FastAPI Users Auth Routers
-app.include_router(
-    fastapi_users.get_auth_router(auth_backend),
-    prefix="/api/auth/jwt",
-    tags=["auth"],
-)
-app.include_router(
-    fastapi_users.get_register_router(UserRead, UserCreate),
-    prefix="/api/auth",
-    tags=["auth"],
-)
-app.include_router(
-    fastapi_users.get_users_router(UserRead, UserUpdate),
-    prefix="/api/identity",
-    tags=["users"],
-)
+@app.get("/", tags=["system"], include_in_schema=False)
+async def root(request: Request):
+    return templates.TemplateResponse(request, "index.html")
 
 # --- WebSocket ---
 class ConnectionManager:
-    def __init__(self):
-        self.active_connections: List[WebSocket] = []
-    async def connect(self, websocket: WebSocket):
-        await websocket.accept()
-        self.active_connections.append(websocket)
-    def disconnect(self, websocket: WebSocket):
-        self.active_connections.remove(websocket)
-    async def broadcast(self, message: str):
-        for connection in self.active_connections:
-            await connection.send_text(message)
+    def __init__(self): self.active_connections = []
+    async def connect(self, ws: WebSocket):
+        await ws.accept()
+        self.active_connections.append(ws)
+    def disconnect(self, ws: WebSocket): self.active_connections.remove(ws)
+    async def broadcast(self, msg: str):
+        for conn in self.active_connections: await conn.send_text(msg)
 
 manager = ConnectionManager()
-
 @app.websocket("/ws/templates/notifications")
-async def websocket_template_notifications(websocket: WebSocket):
+async def ws_notifications(websocket: WebSocket):
     await manager.connect(websocket)
     try:
-        while True:
-            await websocket.receive_text()
-    except WebSocketDisconnect:
-        manager.disconnect(websocket)
+        while True: await websocket.receive_text()
+    except WebSocketDisconnect: manager.disconnect(websocket)
 
-# --- Startup Events ---
+# --- Lifecycle & Seeding ---
 @app.on_event("startup")
 async def on_startup():
     banner = """
     +------------------------------------------------------------------------------+
     |                                                                              |
-    |   ANIME SCRIPT PRO | NEURAL ENGINE v1.0.0                                    |
+    |   ANIME SCRIPT PRO | NEURAL ENGINE v2.5.0-PRO                                |
     |   STATUS: INITIALIZING CORE PRODUCTION SUITE...                              |
     |                                                                              |
     +------------------------------------------------------------------------------+
     """
     logger.info(f"\n{banner.strip()}")
+    logger.info("📡 SIGNAL: Loading environment and preparing database...")
 
-    logger.info("Starting Anime Script Pro backend...")
-    logger.info("Loading environment variables and preparing database...")
-
-    # 1. Initialize Database & Sync Metadata (Async)
-    async with async_engine.begin() as conn:
+    # 1. Sync Metadata
+    async with async_engine.begin() as conn: 
         await conn.run_sync(SQLModel.metadata.create_all)
     logger.success("DATABASE: Metadata synced successfully.")
-
-    # 2. Auto-seed if empty
-    from sqlalchemy import func
+    
+    # 2. Auto-Seed (Background Thread)
     async with async_session() as session:
-        result = await session.execute(select(func.count(Tutorial.id)))
-        count = result.scalar()
+        count = (await session.execute(select(func.count(Tutorial.id)))).scalar()
         if count == 0:
-            logger.warning("DATABASE: Studio data missing. Initializing core templates...")
-            # We run the seed script in a separate thread to avoid blocking the event loop
             import anyio
             from backend.scripts.seeds.seed_all import seed_all
-            try:
-                await anyio.to_thread.run_sync(seed_all)
-                logger.success("DATABASE: Auto-seeding complete. Studio assets deployed.")
-            except Exception as e:
-                logger.error(f"DATABASE: Auto-seeding failed: {e}")
+            logger.warning("DATABASE: Studio data missing. Initializing core templates...")
+            await anyio.to_thread.run_sync(seed_all)
+            logger.success("DATABASE: Studio assets deployed successfully.")
         else:
-            logger.info(f"DATABASE: Persistence verified ({count} tutorials found). Skipping seed.")
-
-    logger.success("🚀 SYSTEM ONLINE: Anime Script Pro Production Suite is ready for requests.")
+            logger.info(f"DATABASE: Persistence verified ({count} records found).")
+    
+    logger.success("🚀 NEURAL ENGINE ONLINE: Production Suite is ready for Architect requests.")
 
 @app.on_event("shutdown")
-async def on_shutdown():
-    logger.info("Anime Script Pro backend is shutting down.")
+async def on_shutdown(): 
+    logger.warning("🔴 SIGNAL: Neural Engine is shutting down. Closing all data streams.")

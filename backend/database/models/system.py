@@ -115,3 +115,10 @@ class CommunityPost(SQLModel, table=True):
     tags: List[str] = Field(default_factory=list, sa_column=Column(JSON))
     created_at: datetime = Field(default_factory=datetime.utcnow)
     is_active: bool = Field(default=True, index=True)
+
+class SiteConfig(SQLModel, table=True):
+    __tablename__ = "site_config"
+    key: str = Field(primary_key=True)
+    value: Dict = Field(sa_column=Column(JSON))
+    description: Optional[str] = None
+    updated_at: datetime = Field(default_factory=datetime.utcnow)

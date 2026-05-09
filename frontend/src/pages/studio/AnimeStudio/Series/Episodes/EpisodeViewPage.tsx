@@ -1,6 +1,7 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   ChevronLeft,
+  ChevronRight,
   Edit3,
   Play,
   Clock,
@@ -16,14 +17,19 @@ import {
   Activity
 } from 'lucide-react';
 import { useGenerator } from '@/hooks/useGenerator';
+import { SceneCard } from '../components/SceneCard';
+import SceneView from '../components/SceneView';
+import { generateScene } from '@/services/api/gemini';
+import { SeriesEpisode } from '../components/SeriesCard';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import React from 'react';
 
 export default function EpisodeViewPage() {
   const { episodeId } = useParams();
   const navigate = useNavigate();
-  const { generatedSeriesPlan, contentType, setEpisode } = useGenerator();
+  const { generatedSeriesPlan, contentType, setEpisode, selectedModel, setGeneratedSeriesPlan } = useGenerator();
 
   const episode = generatedSeriesPlan?.find(ep =>
     String(ep.episode) === String(episodeId)
@@ -43,33 +49,115 @@ export default function EpisodeViewPage() {
     navigate(`/${contentType.toLowerCase()}/script`);
   };
 
+  // Flatten scenes from detailed_episode_spec
+  const scenes: any[] = React.useMemo(() => {
+    const spec = episode.detailed_episode_spec;
+    if (!spec || !Array.isArray(spec.acts)) return [];
+    const out: any[] = [];
+    spec.acts.forEach((act: any, ai: number) => {
+      (act.scenes || []).forEach((s: any, si: number) => {
+        out.push({
+          ...s,
+          act: act.act || ai + 1,
+          index: out.length + 1
+        });
+      });
+    });
+    return out;
+  }, [episode]);
+
+  const [selectedSceneIndex, setSelectedSceneIndex] = React.useState<number | null>(scenes.length > 0 ? scenes[0].index : null);
+
+  React.useEffect(() => {
+    if (scenes.length > 0 && selectedSceneIndex === null) setSelectedSceneIndex(scenes[0].index);
+  }, [scenes, selectedSceneIndex]);
+
+  const handleSelectScene = (index: number) => {
+    setSelectedSceneIndex(index);
+  };
+
+  const handleRegenerateScene = async (index: number) => {
+    const scene = scenes.find(s => s.index === index);
+    if (!scene) return;
+
+    try {
+      const beat = scene.summary || scene.visual_direction || '';
+      const output = await generateScene(episode.title || contentType || 'Anime', beat, selectedModel || undefined, null, null, { temperature: 0.7, maxTokens: 1024 });
+
+      // update generatedSeriesPlan with new sceneOutput
+      const planCopy: SeriesEpisode[] = JSON.parse(JSON.stringify(generatedSeriesPlan || []));
+      const epIndex = planCopy.findIndex((e: any) => String(e.episode) === String(episode.episode));
+      if (epIndex >= 0) {
+        const spec = planCopy[epIndex].detailed_episode_spec;
+        if (spec && Array.isArray(spec.acts)) {
+          for (const act of spec.acts) {
+            const s = (act.scenes || []).find((ss: any) => ss.scene_id === scene.scene_id || ss.index === index);
+            if (s) {
+              s.sceneOutput = output;
+              break;
+            }
+          }
+        }
+
+        setGeneratedSeriesPlan(planCopy as any);
+      }
+    } catch (err) {
+      console.error('Regenerate scene failed', err);
+    }
+  };
+
   return (
     <div className="space-y-8 pb-20">
       {/* Header Navigation */}
       <div className="flex items-center justify-between">
-        <Button
-          variant="ghost"
-          onClick={() => navigate(-1)}
-          className="text-zinc-500 hover:text-white"
-        >
-          <ChevronLeft className="w-4 h-4 mr-2" /> Back to Roadmap
-        </Button>
+        <div className="flex items-center gap-4">
+          <Button
+            variant="ghost"
+            onClick={() => navigate(-1)}
+            className="text-zinc-500 hover:text-white h-12 px-6 rounded-2xl"
+          >
+            <ChevronLeft className="w-4 h-4 mr-2" /> Back
+          </Button>
+          
+          <div className="flex items-center gap-1 bg-white/[0.03] border border-white/10 p-1 rounded-2xl">
+            <Button
+              variant="ghost"
+              disabled={parseInt(episodeId || '1') <= 1}
+              onClick={() => navigate(`/${contentType.toLowerCase()}/series/episodes/${parseInt(episodeId || '1') - 1}`)}
+              className="w-10 h-10 rounded-xl text-zinc-500 hover:text-white"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </Button>
+            <span className="px-3 text-[10px] font-black text-zinc-500 uppercase tracking-widest">
+              EP {episodeId} / {generatedSeriesPlan?.length}
+            </span>
+            <Button
+              variant="ghost"
+              disabled={parseInt(episodeId || '1') >= (generatedSeriesPlan?.length || 0)}
+              onClick={() => navigate(`/${contentType.toLowerCase()}/series/episodes/${parseInt(episodeId || '1') + 1}`)}
+              className="w-10 h-10 rounded-xl text-zinc-500 hover:text-white"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </Button>
+          </div>
+        </div>
+
         <div className="flex items-center gap-3">
-          <Button variant="outline" className="border-zinc-800 text-zinc-400">
+          <Button variant="outline" className="h-12 border-zinc-800 text-zinc-400 rounded-2xl px-5">
             <Share2 className="w-4 h-4" />
           </Button>
-          <Button variant="outline" className="border-zinc-800 text-zinc-400">
+          <Button variant="outline" className="h-12 border-zinc-800 text-zinc-400 rounded-2xl px-5">
             <MoreHorizontal className="w-4 h-4" />
           </Button>
           <Button
             onClick={() => navigate(`/${contentType.toLowerCase()}/series/episodes/${episodeId}/edit`)}
-            className="bg-zinc-800 text-white hover:bg-zinc-700"
+            className="h-12 bg-zinc-800 text-white hover:bg-zinc-700 rounded-2xl px-6"
           >
             <Edit3 className="w-4 h-4 mr-2" /> Edit Details
           </Button>
           <Button
             onClick={handleFocus}
-            className="bg-studio text-black font-black uppercase hover:bg-studio/80 shadow-studio"
+            className="h-12 bg-studio text-black font-black uppercase hover:bg-studio/80 shadow-studio rounded-2xl px-8"
           >
             <Play className="w-4 h-4 mr-2" /> Focus Episode
           </Button>
@@ -134,6 +222,40 @@ export default function EpisodeViewPage() {
               </div>
               <p className="text-white font-medium">{episode.emotional_arc || 'Neutral'}</p>
             </Card>
+          </div>
+
+          {/* Scenes */}
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <h3 className="text-xl font-black text-white">Scene Breakdown</h3>
+              <p className="text-sm text-zinc-500">{scenes.length} scenes</p>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {scenes.map((s, i) => (
+                  <SceneCard
+                    key={s.scene_id || i}
+                    scene={s}
+                    index={s.index}
+                    onSelect={() => handleSelectScene(s.index)}
+                    onRegenerate={() => handleRegenerateScene(s.index)}
+                  />
+                ))}
+              </div>
+
+              <div className="lg:col-span-1">
+                <SceneView
+                  scene={scenes.find(s => s.index === selectedSceneIndex) || null}
+                  index={selectedSceneIndex || undefined}
+                  onClose={() => setSelectedSceneIndex(null)}
+                  onRegenerate={() => selectedSceneIndex && handleRegenerateScene(selectedSceneIndex)}
+                  onNext={() => selectedSceneIndex && selectedSceneIndex < scenes.length && setSelectedSceneIndex(selectedSceneIndex + 1)}
+                  onPrev={() => selectedSceneIndex && selectedSceneIndex > 1 && setSelectedSceneIndex(selectedSceneIndex - 1)}
+                  totalScenes={scenes.length}
+                />
+              </div>
+            </div>
           </div>
         </div>
 

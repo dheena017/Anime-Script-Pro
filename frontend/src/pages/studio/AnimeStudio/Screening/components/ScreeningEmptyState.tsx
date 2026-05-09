@@ -22,10 +22,6 @@ export const ScreeningEmptyState: React.FC<ScreeningEmptyStateProps> = ({
       icon={Play}
       title="Projector Inactive"
       description="The final assembly of your anime assets has not been synthesized. Initialize the Screening Room to combine script, storyboard, and audio into a final production."
-      actionLabel="Initialize Screening"
-      loadingLabel="Synthesizing Final Cut..."
-      onAction={onLaunch}
-      isLoading={isGenerating}
       features={features}
       accentColor="emerald"
     />

@@ -54,7 +54,7 @@ This document extends the architecture docs to cover **all 24 API routers**, com
 
 ### `backend/database/models/user.py`
 **Purpose:** User identity, authentication, settings, balance
-- `User` (from `fastapi_users_db_sqlmodel.SQLModelBaseUserDB`) — user account, email, password hash
+- `User` (from `fastapi_users_db_sqlalchemy.sqlalchemyBaseUserDB`) — user account, email, password hash
 - `UserProfile` — display name, avatar, bio
 - `UserSettings` — preferences, AI API keys, features enabled
 - `UserBalance` — credits, subscription tier, usage quotas
@@ -321,7 +321,7 @@ manifest_service = ManifestService()
 |-----------|-------|---------|
 | **API Routers** | 24 | HTTP endpoints organized by domain |
 | **World Subrouters** | 8 | AI generation endpoints for world-building |
-| **Database Models** | 50+ | SQLModel definitions across 8 model files |
+| **Database Models** | 50+ | sqlalchemy definitions across 8 model files |
 | **Generator Services** | 8 | Wrapper services for world generation |
 | **Prompt Templates** | 8 | System instructions for AI (MANIFEST, HISTORY, FACTIONS, etc.) |
 | **Utility Modules** | 3 | Auth, deps, neural tracing |

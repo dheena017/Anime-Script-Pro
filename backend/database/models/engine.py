@@ -27,3 +27,13 @@ class AITelemetry(SQLModel, table=True):
     error_message: Optional[str] = None
     timestamp: datetime = Field(default_factory=datetime.utcnow)
     extra_metadata: Dict = Field(default_factory=dict, sa_column=Column(JSON))
+
+class AIModel(SQLModel, table=True):
+    __tablename__ = "ai_models"
+    id: Optional[int] = Field(default=None, primary_key=True)
+    model_id: str = Field(unique=True, index=True)
+    provider: Optional[str] = None
+    display_name: Optional[str] = None
+    capabilities: Dict = Field(default_factory=dict, sa_column=Column(JSON))
+    is_active: bool = Field(default=True)
+    cost_per_token: float = Field(default=0.0)

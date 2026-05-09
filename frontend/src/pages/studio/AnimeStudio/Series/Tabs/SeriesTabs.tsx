@@ -3,14 +3,12 @@ import {
   ListChecks, 
   Film,
   Network, 
-  GitMerge, 
-  Box, 
-  Clock 
+  Box
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 
-export type SeriesTab = 'roadmap' | 'episodes' | 'blueprint' | 'arcs' | 'assets' | 'timeline';
+export type SeriesTab = 'roadmap' | 'episodes' | 'blueprint' | 'assets';
 
 interface SeriesTabsProps {
   activeTab: SeriesTab;
@@ -21,18 +19,14 @@ const GLOW_COLORS: Record<SeriesTab, string> = {
   roadmap: 'bg-studio',
   episodes: 'bg-cyan-400',
   blueprint: 'bg-amber-400',
-  arcs: 'bg-fuchsia-400',
   assets: 'bg-emerald-400',
-  timeline: 'bg-blue-400',
 };
 
 const UNDERLINE_COLORS: Record<SeriesTab, string> = {
   roadmap: 'from-studio/0 via-studio to-studio/0',
   episodes: 'from-cyan-400/0 via-cyan-400 to-cyan-400/0',
   blueprint: 'from-amber-400/0 via-amber-400 to-amber-400/0',
-  arcs: 'from-fuchsia-400/0 via-fuchsia-400 to-fuchsia-400/0',
   assets: 'from-emerald-400/0 via-emerald-400 to-emerald-400/0',
-  timeline: 'from-blue-400/0 via-blue-400 to-blue-400/0',
 };
 
 export const SeriesTabs: React.FC<SeriesTabsProps> = ({
@@ -40,12 +34,9 @@ export const SeriesTabs: React.FC<SeriesTabsProps> = ({
   setActiveTab
 }) => {
   const tabs: { id: SeriesTab; label: string; icon: any; color: string }[] = [
-    { id: 'blueprint', label: 'Blueprint', icon: Network, color: 'text-amber-400' },
-    { id: 'roadmap', label: 'Roadmap', icon: ListChecks, color: 'text-studio' },
     { id: 'episodes', label: 'Episodes', icon: Film, color: 'text-cyan-400' },
-    { id: 'arcs', label: 'Arcs', icon: GitMerge, color: 'text-fuchsia-400' },
+    { id: 'roadmap', label: 'Scene', icon: ListChecks, color: 'text-studio' },
     { id: 'assets', label: 'Assets', icon: Box, color: 'text-emerald-400' },
-    { id: 'timeline', label: 'Timeline', icon: Clock, color: 'text-blue-400' },
   ];
 
   return (

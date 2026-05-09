@@ -37,8 +37,6 @@ export default function CharactersPage() {
         icon={User}
         title="Manifest Empty"
         description="No character manifest exists yet. Start by adding a lead to build your cast lineup."
-        actionLabel="Add Lead Character"
-        onAction={() => navigate(`/${contentType.toLowerCase()}/cast/add-lead`)}
         features={[
           { icon: Camera, title: 'Visual DNA', description: 'Prepare image prompts and style metadata' },
           { icon: ListFilter, title: 'Manifest Filters', description: 'Enable role-based cast segmentation' },
@@ -81,22 +79,6 @@ export default function CharactersPage() {
             onClick={() => setIsEditing?.(!isEditing)}
           >
             {isEditing ? "Save Bios" : "Manual Edit"}
-          </Button>
-          <Button 
-            variant="outline" 
-            className="h-10 px-6 rounded-xl border border-studio/20 text-studio font-black uppercase tracking-widest text-[10px] hover:bg-studio/10"
-            onClick={async () => {
-              const missing = displayCast.filter(c => !c.imageUrl);
-              if (missing.length === 0) {
-                notify?.("All character DNA has already been manifested.", "info");
-                return;
-              }
-              notify?.(`Manifesting Visual DNA for ${missing.length} characters...`, "info");
-              // This logic would ideally be handled in a batch, but for now we signal the user.
-              // In a real implementation, we would loop and update the castList.
-            }}
-          >
-            <Camera className="w-4 h-4 mr-2" /> Manifest All
           </Button>
           <Button 
             className="bg-studio text-black font-black uppercase tracking-wider hover:bg-studio/80 shadow-studio"

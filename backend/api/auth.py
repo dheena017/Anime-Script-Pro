@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Response, Request
 from fastapi.security import OAuth2PasswordRequestForm
 
-from sqlmodel import select
+from sqlalchemy import select
 from pydantic import BaseModel
 from datetime import datetime, timezone, timedelta
 from backend.database.models import User
@@ -38,12 +38,13 @@ async def login_for_access_token(
     is_dev = os.getenv("ENV") == "development" or os.getenv("BYPASS_AUTH") == "true" or request.headers.get('x-bypass-auth') == 'true'
     
     if is_dev and email == "email@gmail.com" and password == "password":
-        logger.info(f"Development TOKEN login successful for: {email}")
+        logger.warning(f"[AUTH] Development ARCHITECT BYPASS triggered for: {email}")
         user_id = "local-dev-architect-id"
         access_token = create_access_token(data={"sub": user_id})
         return {
             "access_token": access_token,
-            "token_type": "bearer"
+            "token_type": "bearer",
+            "message": "Architect Bypass Authorized"
         }
 
     # Real DB Login Logic
@@ -156,11 +157,12 @@ async def secure_login(
                 max_age=7 * 24 * 60 * 60
             )
             
-            logger.info(f"User logged in successfully: {login_data.email}")
+            logger.success(f"[AUTH] Architect Authorized: {login_data.email}")
             return {
                 "access_token": access_token,
                 "token_type": "bearer",
-                "expires_in": 15 * 60
+                "expires_in": 15 * 60,
+                "status": "Authorized"
             }
     except HTTPException:
         raise

@@ -65,14 +65,6 @@ export function DynamicsPage() {
           <h2 className="text-2xl font-black text-white uppercase tracking-widest italic">Character Dynamics</h2>
           <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em] mt-1">Growth simulation and conflict mapping</p>
         </div>
-        <Button
-          onClick={handleGenerateDynamics}
-          disabled={isAnalyzingCast}
-          className="bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 border border-rose-500/20 rounded-xl px-6 py-2 flex gap-2 font-black uppercase tracking-widest text-[10px]"
-        >
-          <RefreshCcw className={cn("w-3.5 h-3.5", isAnalyzingCast && "animate-spin")} />
-          {isAnalyzingCast ? "Simulating..." : "Recalculate Dynamics"}
-        </Button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">

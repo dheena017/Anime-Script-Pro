@@ -1,9 +1,11 @@
 import { useNavigate } from 'react-router-dom';
-import { Plus, ListFilter, Search, Layout as LayoutGrid, List } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Plus, ListFilter, Search, Layout as LayoutGrid, List, Film } from 'lucide-react';
 import { useGenerator } from '@/hooks/useGenerator';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { SeriesView } from '../components/SeriesView';
+import { SeriesEmptyTab } from '../components/SeriesEmptyTab';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
@@ -59,67 +61,90 @@ export default function EpisodesPage() {
 
   return (
     <div className="space-y-8 pb-20">
-      {/* Page Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-        <div className="space-y-2">
-          <div className="inline-block px-3 py-1 bg-studio/10 border border-studio/20 rounded-full text-[10px] uppercase tracking-widest text-studio font-bold">
-            Production Manifest
+      {/* Cinematic Header Section */}
+      {generatedSeriesPlan && generatedSeriesPlan.length > 0 && (
+        <>
+          <div className="relative border-b border-white/5 pb-16 overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/5 via-transparent to-cyan-500/5 opacity-30" />
+            <div className="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-10">
+              <div className="space-y-6">
+                <motion.div 
+                  initial={{ x: -20, opacity: 0 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  className="inline-block px-5 py-2 bg-studio/10 border border-studio/30 rounded-full text-[10px] uppercase tracking-[0.5em] text-studio font-black shadow-[0_0_30px_rgba(6,182,212,0.1)] backdrop-blur-md"
+                >
+                  Production Manifest // Archive v{generatedSeriesPlan?.length || 0}.0
+                </motion.div>
+                <div className="space-y-2">
+                  <motion.h1 
+                    initial={{ y: 20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ delay: 0.1 }}
+                    className="text-6xl md:text-8xl font-black text-white uppercase tracking-tighter leading-none"
+                  >
+                    Episodes <span className="text-studio italic">Library</span>
+                  </motion.h1>
+                  <motion.p 
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.2 }}
+                    className="text-zinc-500 text-xs font-bold uppercase tracking-[0.3em] max-w-xl leading-loose"
+                  >
+                    Manage your series hierarchy, narrative milestones, and production assets for each episode.
+                  </motion.p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-4">
+                <Button
+                  variant="outline"
+                  className="h-14 px-8 border-white/5 bg-black/40 text-zinc-400 hover:text-white hover:border-zinc-700 rounded-2xl font-black uppercase tracking-widest text-[10px]"
+                >
+                  <ListFilter className="w-4 h-4 mr-3" /> Filter Archive
+                </Button>
+                <Button
+                  className="h-14 px-10 bg-studio text-black font-black uppercase tracking-widest hover:bg-studio/80 shadow-studio rounded-2xl transition-all"
+                  onClick={handleAddEpisode}
+                >
+                  <Plus className="w-4 h-4 mr-3" /> New Episode
+                </Button>
+              </div>
+            </div>
           </div>
-          <h1 className="text-5xl font-black text-white uppercase tracking-tighter">
-            Episodes <span className="text-studio">Library</span>
-          </h1>
-          <p className="text-zinc-500 text-sm font-medium max-w-md">
-            Manage your series hierarchy, narrative milestones, and production assets for each episode.
-          </p>
-        </div>
 
-        <div className="flex items-center gap-3">
-          <Button
-            variant="outline"
-            className="border-zinc-800 bg-black/40 text-zinc-400 hover:text-white hover:border-zinc-700"
-          >
-            <ListFilter className="w-4 h-4 mr-2" /> Filter
-          </Button>
-          <Button
-            className="bg-studio text-black font-black uppercase tracking-wider hover:bg-studio/80 shadow-studio"
-            onClick={handleAddEpisode}
-          >
-            <Plus className="w-4 h-4 mr-2" /> New Episode
-          </Button>
-        </div>
-      </div>
-
-      {/* Search & View Toggle */}
-      <div className="flex items-center justify-between gap-4 p-4 bg-zinc-900/40 border border-white/5 rounded-2xl backdrop-blur-md">
-        <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
-          <Input
-            placeholder="Search episodes by title or hook..."
-            className="pl-12 bg-black/40 border-zinc-800 focus:border-studio/50"
-          />
-        </div>
-        <div className="flex items-center gap-1 bg-black/40 p-1 rounded-xl border border-white/5">
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            onClick={() => setViewMode('grid')}
-            className={cn("w-9 h-9 rounded-lg transition-all", viewMode === 'grid' ? "bg-studio text-black hover:bg-studio" : "text-zinc-500 hover:text-white")}
-          >
-            <LayoutGrid className="w-4 h-4" />
-          </Button>
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            onClick={() => setViewMode('list')}
-            className={cn("w-9 h-9 rounded-lg transition-all", viewMode === 'list' ? "bg-studio text-black hover:bg-studio" : "text-zinc-500 hover:text-white")}
-          >
-            <List className="w-4 h-4" />
-          </Button>
-        </div>
-      </div>
+          {/* Search & View Toggle */}
+          <div className="flex items-center justify-between gap-4 p-4 bg-zinc-900/40 border border-white/5 rounded-2xl backdrop-blur-md">
+            <div className="relative flex-1 max-w-md">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
+              <Input
+                placeholder="Search episodes by title or hook..."
+                className="pl-12 bg-black/40 border-zinc-800 focus:border-studio/50"
+              />
+            </div>
+            <div className="flex items-center gap-1 bg-black/40 p-1 rounded-xl border border-white/5">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={() => setViewMode('grid')}
+                className={cn("w-9 h-9 rounded-lg transition-all", viewMode === 'grid' ? "bg-studio text-black hover:bg-studio" : "text-zinc-500 hover:text-white")}
+              >
+                <LayoutGrid className="w-4 h-4" />
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={() => setViewMode('list')}
+                className={cn("w-9 h-9 rounded-lg transition-all", viewMode === 'list' ? "bg-studio text-black hover:bg-studio" : "text-zinc-500 hover:text-white")}
+              >
+                <List className="w-4 h-4" />
+              </Button>
+            </div>
+          </div>
+        </>
+      )}
 
       {/* Episodes List */}
-      {generatedSeriesPlan ? (
+      {generatedSeriesPlan && generatedSeriesPlan.length > 0 ? (
         <SeriesView
           plan={generatedSeriesPlan}
           isEditing={isEditing}
@@ -131,15 +156,12 @@ export default function EpisodesPage() {
           }}
         />
       ) : (
-        <div className="h-[400px] flex flex-col items-center justify-center border-2 border-dashed border-zinc-800 rounded-[3rem] text-center space-y-4">
-          <div className="w-16 h-16 rounded-full bg-zinc-900 flex items-center justify-center">
-            <Plus className="w-8 h-8 text-zinc-700" />
-          </div>
-          <div className="space-y-1">
-            <p className="text-white font-bold uppercase tracking-widest text-sm">No Episodes Manifested</p>
-            <p className="text-zinc-600 text-xs">Initialize your production roadmap to begin sequencing.</p>
-          </div>
-        </div>
+        <SeriesEmptyTab 
+          icon={Film}
+          title="Episodes Library Empty"
+          description="No episodes have been sequenced yet. Generate a series plan first to unlock episode synthesis."
+          accentColor="cyan"
+        />
       )}
     </div>
   );

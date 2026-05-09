@@ -7,6 +7,7 @@ import { generateMetadata, generateYouTubeDescription, generateAltTexts, generat
 import { generateImagePrompts } from "./generators/image";
 import { generateProductionSequences, ProductionUnit } from "@/lib/sequence-utils";
 import { apiRequest } from "@/lib/api-utils";
+import { seoApi } from "@/services/api/seo";
 import { VIBE_LIBRARY } from "@/lib/vibe-presets";
 
 import { callAI } from "./generators/core";
@@ -341,12 +342,9 @@ export class ProductionOrchestrator {
   }
 
   private async prepareSEO() {
-    await apiRequest("/api/seo_entries", {
-      method: "POST",
-      body: JSON.stringify({
-        keyword: `ANIME_${this.project.id}_${this.context.prompt.slice(0, 10).toUpperCase()}`,
-        description: `Autonomous production metadata for ${this.context.prompt}`
-      })
+    await seoApi.createSeoEntry({
+      keyword: `ANIME_${this.project.id}_${this.context.prompt.slice(0, 10).toUpperCase()}`,
+      description: `Autonomous production metadata for ${this.context.prompt}`,
     });
   }
 

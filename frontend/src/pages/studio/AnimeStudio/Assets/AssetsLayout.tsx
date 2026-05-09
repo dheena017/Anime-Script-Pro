@@ -12,6 +12,9 @@ export default function AssetsLayout() {
   const [isLiked, setIsLiked] = React.useState(false);
   
   const {
+    generatedMetadata,
+    generatedDescription,
+    generatedImagePrompts,
     setGeneratedMetadata,
     setGeneratedDescription,
     setGeneratedImagePrompts,
@@ -20,8 +23,18 @@ export default function AssetsLayout() {
     isGeneratingImagePrompts, setIsGeneratingImagePrompts,
     generatedScript, selectedModel, session, episode,
     showNotification, contentType,
-    generationProgress
+    generationProgress,
+    syncCore, isSaving, currentScriptId
   } = useGenerator();
+
+  const projectId = React.useMemo(() => {
+    const parsedProjectId = currentScriptId ? Number.parseInt(currentScriptId, 10) : undefined;
+    return Number.isFinite(parsedProjectId) ? parsedProjectId : undefined;
+  }, [currentScriptId]);
+
+  const handleSave = async () => {
+    await syncCore(projectId);
+  };
 
   const handleGenerateAll = async () => {
     if (!generatedScript) {
@@ -44,7 +57,7 @@ export default function AssetsLayout() {
       setGeneratedMetadata(meta);
       setGeneratedDescription(desc);
       setGeneratedImagePrompts(prompts);
-      console.log(`[AssetsLayout] Assets generated successfully. Meta: ${JSON.stringify(meta)?.length || 0} chars, Desc: ${desc?.length || 0} chars, Prompts: ${prompts?.length || 0} chars.`);
+      console.log(`[AssetsLayout] Assets generated successfully.`);
       showNotification?.('All assets generated successfully!', 'success');
     } catch (e: any) {
       console.error('[AssetsLayout] Failed to generate assets:', e);
@@ -56,26 +69,42 @@ export default function AssetsLayout() {
     }
   };
 
+  React.useEffect(() => {
+    const handleGlobalGenerate = () => {
+      console.log('[AssetsLayout] Global assets generation event received.');
+      handleGenerateAll();
+    };
+    window.addEventListener('studio-generate-assets', handleGlobalGenerate);
+    return () => window.removeEventListener('studio-generate-assets', handleGlobalGenerate);
+  }, [handleGenerateAll]);
+
 
   return (
     <div className="space-y-6">
-      <AssetsHeader 
-        onRegenerate={handleGenerateAll}
-        isGenerating={isGeneratingMetadata || isGeneratingDescription || isGeneratingImagePrompts}
-        onNext={() => navigate(`/${contentType.toLowerCase()}/screening`)}
-        onPrev={() => navigate(`/${contentType.toLowerCase()}/storyboard`)}
-        session={session}
-        episode={episode}
-        isLiked={isLiked}
-        setIsLiked={setIsLiked}
-      />
+      <div className="studio-module-header">
+        <AssetsHeader 
+          onRegenerate={handleGenerateAll}
+          isGenerating={isGeneratingMetadata || isGeneratingDescription || isGeneratingImagePrompts}
+          onNext={() => navigate(`/${contentType.toLowerCase()}/screening`)}
+          onPrev={() => navigate(`/${contentType.toLowerCase()}/storyboard`)}
+          onSave={handleSave}
+          isSaving={isSaving}
+          session={session}
+          episode={episode}
+          isLiked={isLiked}
+          setIsLiked={setIsLiked}
+          hasContent={!!generatedMetadata || !!generatedDescription || !!generatedImagePrompts}
+        />
+      </div>
 
-      <div className="flex items-center justify-between p-4 bg-[#050505]/60 backdrop-blur-md border border-studio/20 rounded-2xl mb-8 shadow-2xl relative overflow-hidden group">
-        <div className="absolute inset-0 bg-gradient-to-r from-studio/5 via-transparent to-studio/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
-        <div className="flex items-center gap-12 z-10 w-full">
-          <div className="flex items-center gap-3 px-4 py-2 bg-studio/10 border border-studio/20 rounded-xl">
-            <Search className="w-4 h-4 text-studio" />
-            <span className="text-[10px] font-black text-studio uppercase tracking-[0.2em]">Assets_Nexus</span>
+      <div className="studio-tabs-bar sticky top-0 z-40 flex items-center justify-center p-3 md:p-4 bg-[#050505]/95 backdrop-blur-md border border-white/10 rounded-[2rem] shadow-2xl mb-8 relative group overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-studio/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
+        <div className="relative z-10 w-full flex justify-center">
+          <div className="flex items-center gap-12">
+            <div className="flex items-center gap-3 px-4 py-2 bg-studio/10 border border-studio/20 rounded-xl">
+              <Search className="w-4 h-4 text-studio" />
+              <span className="text-[10px] font-black text-studio uppercase tracking-[0.2em]">Assets_Nexus</span>
+            </div>
           </div>
         </div>
       </div>
@@ -88,10 +117,9 @@ export default function AssetsLayout() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
         >
-          <Outlet />
+          <Outlet context={{ onLaunch: handleGenerateAll }} />
         </motion.div>
       )}
     </div>
   );
 }
-

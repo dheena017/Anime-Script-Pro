@@ -25,6 +25,7 @@ export default function SEOLayout() {
     generatedScript, selectedModel, session, episode,
     showNotification, contentType,
     syncCore,
+    currentScriptId,
     generationProgress,
     isEditing, setIsEditing,
     isSaving
@@ -37,8 +38,13 @@ export default function SEOLayout() {
 
   useAuth();
 
+  const projectId = React.useMemo(() => {
+    const parsedProjectId = currentScriptId ? Number.parseInt(currentScriptId, 10) : undefined;
+    return Number.isFinite(parsedProjectId) ? parsedProjectId : undefined;
+  }, [currentScriptId]);
+
   const handleSave = async () => {
-    await syncCore();
+    await syncCore(projectId);
   };
 
   const handleGenerateAll = async () => {

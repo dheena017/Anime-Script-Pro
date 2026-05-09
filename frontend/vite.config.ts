@@ -66,10 +66,14 @@ export default defineConfig(({ mode }) => {
       host: '0.0.0.0',
       port: 5173,
       strictPort: true,
-      hmr: false, // Auto-reloading is intentionally disabled
+      // Enable HMR so frontend code changes apply live without manual reload
+      hmr: {
+        protocol: 'ws',
+        host: 'localhost'
+      },
       proxy: {
         '/api': {
-          target: 'http://127.0.0.1:8080',
+          target: 'http://127.0.0.1:3050',
           changeOrigin: true,
           secure: false,
         },

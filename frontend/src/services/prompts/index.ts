@@ -6,6 +6,7 @@ import * as videoPrompts from './video';
 import * as scenePrompts from './scene';
 import * as seriesPrompts from './series';
 import * as metadataPrompts from './metadata';
+import * as seoPrompts from './seo';
 import * as utilsPrompts from './utils';
 import * as uiPrompts from './ui';
 import * as youtubeStrategiesPrompts from './youtube_strategies';
@@ -18,6 +19,7 @@ export * from './video';
 export * from './scene';
 export * from './series';
 export * from './metadata';
+export * from './seo';
 export * from './utils';
 export * from './ui';
 export * from './youtube_strategies';
@@ -31,6 +33,7 @@ export const PROMPT_REGISTRY = {
 	scene: scenePrompts,
 	series: seriesPrompts,
 	metadata: metadataPrompts,
+	seo: seoPrompts,
 	utils: utilsPrompts,
 	ui: uiPrompts,
 	youtubeStrategies: youtubeStrategiesPrompts,
