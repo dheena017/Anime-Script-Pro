@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { 
   Brain, 
   Globe, 
@@ -14,6 +14,22 @@ import { cn } from '@/lib/utils';
 
 export function StudioIntelligenceHUD() {
   const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    }
+    
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isOpen]);
   const { 
     generatedWorld, 
     castList, 
@@ -57,7 +73,7 @@ export function StudioIntelligenceHUD() {
   ];
 
   return (
-    <div className="fixed right-0 top-1/2 -translate-y-1/2 z-[100] flex items-center">
+    <div ref={containerRef} className="fixed right-0 top-1/2 -translate-y-1/2 z-[100] flex items-center">
       {/* Trigger Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
