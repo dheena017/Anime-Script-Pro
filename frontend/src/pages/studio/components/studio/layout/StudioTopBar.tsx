@@ -77,28 +77,7 @@ export const StudioTopBar: React.FC<{
       {/* Center Production Controls - Only visible in Studio Mode */}
       {isStudioMode && (
         <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-2 bg-black/40 border border-zinc-800/50 p-1.5 rounded-2xl backdrop-blur-md shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
-           <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => {
-              const params = new URLSearchParams(location.search);
-              const isOpen = params.get('engine') === 'open';
-              if (isOpen) params.delete('engine');
-              else params.set('engine', 'open');
-              navigate({ search: params.toString() }, { replace: true });
-            }}
-            className={cn(
-              "h-8 px-3 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all duration-300",
-              location.search.includes('engine=open')
-                ? "bg-cyan-500/10 text-cyan-400 border border-cyan-500/30"
-                : "text-zinc-500 hover:text-cyan-400 hover:bg-cyan-500/5 border border-transparent"
-            )}
-          >
-            <SlidersHorizontal className="w-3 h-3 mr-2" />
-            Creative Engine
-          </Button>
 
-          <div className="w-px h-4 bg-zinc-800/50 mx-1" />
 
           <Button
             variant="default"
