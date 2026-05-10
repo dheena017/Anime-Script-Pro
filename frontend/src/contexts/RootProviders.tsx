@@ -9,7 +9,7 @@ import { MotionConfig } from 'framer-motion';
 
 export function RootProviders({ children }: { children: React.ReactNode }) {
   return (
-    <MotionConfig transition={{ duration: 0 }} reducedMotion="always">
+    <MotionConfig reducedMotion="user">
       <AuthProvider>
         <AppProvider>
           <TooltipProvider>

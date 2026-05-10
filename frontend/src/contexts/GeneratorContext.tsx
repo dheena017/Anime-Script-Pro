@@ -1,4 +1,5 @@
 import React, { createContext, useState, useEffect, useMemo, useCallback } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/api-utils';
 import { ProductionUnit } from '@/lib/sequence-utils';
@@ -10,7 +11,7 @@ import { productionApi } from '../services/api/production';
 import { characterApi } from '../services/api/characters';
 import { AI_EVENTS } from '../services/generators/core';
 import { projectService } from '../services/api/projects';
-import { useLogs } from './LogContext';
+import { useLogs, useLogDispatch } from './LogContext';
 
 interface GeneratorState {
   generationProgress: any;
@@ -142,7 +143,7 @@ interface GeneratorDispatch {
   setWorldGenerationLatency: (l: number) => void;
   setGeneratedAltText: (a: string | null) => void;
   setRecapperPersona: (p: string) => void;
-  syncCore: (projectId?: number) => Promise<number | undefined>;
+  syncCore: (projectId?: number, projectName?: string) => Promise<number | undefined>;
   addLog: (module: string, status: string, message?: string) => void;
   setEpisode: (e: string) => void;
   setSession: (s: string) => void;
@@ -218,6 +219,7 @@ export const GeneratorDispatchContext = createContext<GeneratorDispatch | undefi
 
 export function GeneratorProvider({ children }: { children: React.ReactNode }) {
   const queryClient = useQueryClient();
+  const location = useLocation();
   const { user } = useAuth();
   const { showNotification: rawShowNotification } = useApp();
   const [prompt, setPrompt] = useState('');
@@ -229,6 +231,7 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
   const [promptCulture, setPromptCulture] = useState('');
   const [promptSystems, setPromptSystems] = useState('');
   const [theme, setTheme] = useState('');
+  const [currentScriptId, setCurrentScriptId] = useState<string | null>(null);
   const [generatedScript, setGeneratedScript] = useState<string | null>(null);
   const [generatedCharacters, setGeneratedCharacters] = useState<string | null>(null);
   const [generatedMetadata, setGeneratedMetadata] = useState<string | null>(null);
@@ -301,6 +304,15 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     hasLoadedCast.current = false;
   }, [user?.id]);
 
+  // Sync currentScriptId from navigation state (e.g. when coming from Dashboard)
+  useEffect(() => {
+    const state = location.state as { projectId?: string | number } | null;
+    const incomingId = state?.projectId?.toString();
+    if (incomingId && incomingId !== currentScriptId) {
+      setCurrentScriptId(incomingId);
+    }
+  }, [location.state, currentScriptId]);
+
   const getSignal = useCallback(() => {
     if (abortController.signal.aborted) {
       const newController = new AbortController();
@@ -354,7 +366,6 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
   const [isContinuingScript, setIsContinuingScript] = useState(false);
   const [isGeneratingVisuals, setIsGeneratingVisuals] = useState(false);
   const [isGeneratingAltText, setIsGeneratingAltText] = useState(false);
-  const [currentScriptId, setCurrentScriptId] = useState<string | null>(null);
   const [isLiked, setIsLiked] = useState(false);
   const [productionSequence, setProductionSequence] = useState<ProductionUnit[]>([]);
 
@@ -599,9 +610,9 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     return () => clearTimeout(timeout);
   }, [user?.id, generatedScript, generatedSeriesPlan, generatedMetadata, generatedGrowthStrategy, generatedDistributionPlan, generatedWorld, generatedWorldLore, generatedWorldPowers, generatedWorldFactions, generatedWorldArchitecture, generatedWorldAtlas, generatedWorldCulture, generatedWorldSystems, production, resolveProjectId, prompt, selectedModel, contentType, tone, genre, artStyle, castList, characterRelationships, numCharacters]);
 
-  const { addLog } = useLogs();
+  const { addLog } = useLogDispatch();
 
-  const syncCore = useCallback(async (projectId?: number): Promise<number | undefined> => {
+  const syncCore = useCallback(async (projectId?: number, projectName?: string): Promise<number | undefined> => {
     if (!user?.id) {
       showNotification("Please log in to save your work", "error");
       console.warn("[GeneratorContext] Save skipped: user is not logged in.");
@@ -619,12 +630,14 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
       // PHASE 0: Create Project Record if missing
       if (!resolvedProjectId) {
         addLog("PROJECT", "CREATING", "Creating new production record...");
+        const title = projectName || prompt || "Untitled Anime Project";
         const res = await fetch("/api/projects", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             user_id: user.id,
-            name: prompt || "Untitled Anime Project",
+            title: title,
+            name: title,
             content_type: contentType || 'Anime',
             prompt: prompt,
             model_used: selectedModel
@@ -636,7 +649,9 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
           if (resolvedProjectId) setCurrentScriptId(resolvedProjectId.toString());
           addLog("PROJECT", "CREATED", `New production initialized: ID ${resolvedProjectId}`);
         } else {
-          throw new Error("Failed to initialize project record");
+          const errBody = await res.text();
+          console.error("[GeneratorContext] Project creation failed:", errBody);
+          throw new Error(`Failed to initialize project record: ${errBody}`);
         }
       }
 

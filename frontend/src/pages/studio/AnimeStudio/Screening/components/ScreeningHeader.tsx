@@ -7,6 +7,7 @@ import {
   TooltipProvider, 
   TooltipTrigger 
 } from '@/components/ui/tooltip';
+import { SaveProjectDialog } from '../../components/layout/SaveProjectDialog';
 
 interface ScreeningHeaderProps {
   activeSession?: number;
@@ -86,6 +87,8 @@ export const ScreeningHeader: React.FC<ScreeningHeaderProps> = ({
               )}
             </div>
 
+            {/* Save Project */}
+            <SaveProjectDialog />
 
           </div>
         </div>

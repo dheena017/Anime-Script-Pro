@@ -13,7 +13,6 @@ import { studioTopbarOuterClass } from '@/components/layout/topbarStyles';
 import { Button } from '@/components/ui/button';
 import { useGeneratorState } from '@/hooks/useGenerator';
 
-import { SaveProjectDialog } from './SaveProjectDialog';
 
 interface AnimeStudioTopBarProps {
   onToggleEngine: () => void;
@@ -98,11 +97,6 @@ export const AnimeStudioTopBar = React.memo<AnimeStudioTopBarProps>(({
             </div>
           </div>
         </div>
-      </div>
-
-      {/* Right: Actions */}
-      <div className="ml-auto flex items-center gap-3">
-         <SaveProjectDialog />
       </div>
 
     </header>

@@ -207,15 +207,15 @@ function AppRoutes() {
 
 export default function App() {
   return (
-    <ErrorBoundary>
-      <RootProviders>
-        <Router>
+    <Router>
+      <ErrorBoundary>
+        <RootProviders>
           <NavigationMonitor />
           <Suspense fallback={<StudioLoading fullPage message="Starting Anime Script Pro" />}>
             <AppRoutes />
           </Suspense>
-        </Router>
-      </RootProviders>
-    </ErrorBoundary>
+        </RootProviders>
+      </ErrorBoundary>
+    </Router>
   );
 }
