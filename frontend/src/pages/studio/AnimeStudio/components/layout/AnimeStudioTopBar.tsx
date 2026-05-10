@@ -98,25 +98,7 @@ export const AnimeStudioTopBar = React.memo<AnimeStudioTopBarProps>(({
         </div>
       </div>
 
-      {/* Right: Controls */}
-      <div className="flex items-center gap-2 md:gap-4">
 
-
-        <div className="flex items-center gap-1">
-          <button className="w-9 h-9 hidden sm:flex items-center justify-center text-zinc-500 hover:text-white hover:bg-white/5 rounded-xl transition-all">
-            <Bell className="w-4 h-4" />
-          </button>
-          <button className="w-9 h-9 hidden sm:flex items-center justify-center text-zinc-500 hover:text-white hover:bg-white/5 rounded-xl transition-all">
-            <Maximize2 className="w-4 h-4" />
-          </button>
-          <button
-            onClick={() => navigate('/profile')}
-            className="ml-2 w-9 h-9 rounded-xl bg-zinc-900 border border-zinc-800 overflow-hidden hover:border-red-500/50 transition-all p-0.5"
-          >
-            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Architect" alt="Profile" className="w-full h-full object-cover rounded-lg" />
-          </button>
-        </div>
-      </div>
     </header>
   );
 });
