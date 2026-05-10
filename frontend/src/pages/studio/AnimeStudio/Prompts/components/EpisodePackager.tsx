@@ -144,7 +144,7 @@ export default function EpisodePackager() {
 
       const newSceneOutput = await generateScene(packageJson.script, beatDescription, selectedModel, null, null, { temperature: 0.7, maxTokens: 1024 });
       const newImagePrompts = await generateImagePrompts(newSceneOutput.visuals || newSceneOutput.narration, selectedModel);
-      let newVideoPrompts = null;
+      let newVideoPrompts: string | null = null;
       try {
         newVideoPrompts = await generateVideoPrompts(newSceneOutput.narration || newSceneOutput.visuals, selectedModel);
       } catch (e) {

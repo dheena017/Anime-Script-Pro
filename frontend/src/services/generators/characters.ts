@@ -225,10 +225,11 @@ CRITICAL: Return the response as a markdown document with detailed character pro
 
   let fullText = "";
   try {
-    await streamAI(model, userPrompt, systemInstruction, (chunk) => {
+    const stream = streamAI(model, userPrompt, systemInstruction);
+    for await (const chunk of stream) {
       fullText += chunk;
       onChunk(fullText);
-    });
+    }
     return fullText;
   } catch (error) {
     console.error("Character streaming failed:", error);

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { UserPlus, Sparkles, Fingerprint, Brain, RefreshCcw } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
 import { StudioEmptyState } from '@/pages/studio/components/studio/shared/StudioEmptyState';
 import { generateCharacters } from '@/services/api/gemini';

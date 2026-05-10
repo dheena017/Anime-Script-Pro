@@ -270,10 +270,11 @@ export async function streamWorld(
 
   let fullText = "";
   try {
-    await streamAI(model, enhancedPrompt, systemInstruction, (chunk) => {
+    const stream = streamAI(model, enhancedPrompt, systemInstruction);
+    for await (const chunk of stream) {
       fullText += chunk;
       onChunk(fullText);
-    });
+    }
     return fullText;
   } catch (error) {
     console.error("World streaming failed:", error);

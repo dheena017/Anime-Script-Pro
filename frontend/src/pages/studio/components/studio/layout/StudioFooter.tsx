@@ -94,7 +94,7 @@ export const StudioFooter: React.FC = () => {
             <motion.button 
               whileHover={{ scale: 1.02, backgroundColor: 'rgba(16,185,129,0.05)' }}
               whileTap={{ scale: 0.98 }}
-              onClick={syncCore}
+              onClick={() => syncCore()}
               disabled={isSaving}
               className="w-full lg:w-auto flex items-center justify-center gap-4 px-10 py-5 bg-white/[0.01] border border-white/10 rounded-2xl group transition-all duration-500 disabled:opacity-50 hover:border-emerald-500/40"
             >

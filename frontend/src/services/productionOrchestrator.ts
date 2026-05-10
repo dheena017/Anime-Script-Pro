@@ -342,7 +342,7 @@ export class ProductionOrchestrator {
   }
 
   private async prepareSEO() {
-    await seoApi.createSeoEntry({
+    await seoApi.createEntry({
       keyword: `ANIME_${this.project.id}_${this.context.prompt.slice(0, 10).toUpperCase()}`,
       description: `Autonomous production metadata for ${this.context.prompt}`,
     });
