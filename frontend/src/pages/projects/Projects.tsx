@@ -87,7 +87,7 @@ export default function ProjectsPage() {
 
   const handleOpenProject = (project: any) => {
     setCurrentProject(project);
-    navigate(`/projects/${project.id}/engine`);
+    navigate(`/studio/engine`, { state: { projectId: project.id } });
   };
 
   const renderTabContent = () => {

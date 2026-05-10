@@ -145,10 +145,10 @@ export default function PromptsLayout() {
             onRegenerate={handlers.handleGenerate || handleGenerateAll}
             isGenerating={handlers.isGenerating || isLoading}
             onNext={() => {
-              navigate(`/projects/${projectId}/screening`);
+              navigate(`/studio/screening`);
             }}
             onPrev={() => {
-              navigate(`/projects/${projectId}/seo`);
+              navigate(`/studio/seo`);
             }}
             onSave={handleSave}
             isSaving={isSaving}

@@ -130,71 +130,74 @@ function AppRoutes() {
         </Route>
 
         {/* Project Studio Context (Studio Environment) */}
-        <Route
-          path="/projects/:projectId"
-          element={
-            <AuthRoute>
-              <StudioContextWrapper>
-                <AnimeLayout />
-              </StudioContextWrapper>
-            </AuthRoute>
-          }
-        >
-          <Route index element={<Navigate to="engine" replace />} />
-          <Route path="engine" element={<EngineLayout />}>
-            <Route index element={<PageTransition><AnimeEngine /></PageTransition>} />
+        {['/projects/:projectId', '/studio'].map(basePath => (
+          <Route
+            key={basePath}
+            path={basePath}
+            element={
+              <AuthRoute>
+                <StudioContextWrapper>
+                  <AnimeLayout />
+                </StudioContextWrapper>
+              </AuthRoute>
+            }
+          >
+            <Route index element={<Navigate to="engine" replace />} />
+            <Route path="engine" element={<EngineLayout />}>
+              <Route index element={<PageTransition><AnimeEngine /></PageTransition>} />
+            </Route>
+            <Route path="world" element={<WorldLayout />}>
+              <Route index element={<PageTransition><AnimeWorld /></PageTransition>} />
+            </Route>
+            <Route path="cast" element={<CastLayout />}>
+              <Route index element={<PageTransition><RegistryTab onViewCharacter={() => {}} /></PageTransition>} />
+              <Route path="registry" element={<PageTransition><RegistryTab onViewCharacter={() => {}} /></PageTransition>} />
+              <Route path="voice" element={<PageTransition><VoiceTab /></PageTransition>} />
+              <Route path="combat" element={<PageTransition><CombatTab /></PageTransition>} />
+              <Route path="arcs" element={<PageTransition><ArcsTab /></PageTransition>} />
+              <Route path="dynamics" element={<PageTransition><DynamicsTab /></PageTransition>} />
+              <Route path="relationships" element={<PageTransition><RelationshipsPage /></PageTransition>} />
+              <Route path="relationships/:id" element={<PageTransition><RelationshipViewPage /></PageTransition>} />
+              <Route path="relationships/:id/edit" element={<PageTransition><RelationshipEditPage /></PageTransition>} />
+              <Route path="technical" element={<PageTransition><TechnicalTab /></PageTransition>} />
+              <Route path="characters/:characterName" element={<PageTransition><CharacterViewPage /></PageTransition>} />
+              <Route path="characters/:characterName/edit" element={<PageTransition><CharacterEditPage /></PageTransition>} />
+            </Route>
+            <Route path="series" element={<SeriesLayout />}>
+              <Route index element={<PageTransition><AnimeSeries /></PageTransition>} />
+              <Route path="roadmap" element={<PageTransition><AnimeSeries /></PageTransition>} />
+              <Route path="arcs" element={<PageTransition><AnimeSeries /></PageTransition>} />
+              <Route path="blueprint" element={<PageTransition><AnimeSeries /></PageTransition>} />
+              <Route path="assets" element={<PageTransition><AnimeSeries /></PageTransition>} />
+              <Route path="timeline" element={<PageTransition><AnimeSeries /></PageTransition>} />
+              <Route path="episodes" element={<PageTransition><AnimeSeries /></PageTransition>} />
+              <Route path="episodes/:id" element={<PageTransition><EpisodeViewPage /></PageTransition>} />
+              <Route path="episodes/:id/edit" element={<PageTransition><EpisodeEditPage /></PageTransition>} />
+            </Route>
+            <Route path="script" element={<ScriptLayout />}>
+              <Route index element={<PageTransition><AnimeScript /></PageTransition>} />
+            </Route>
+            <Route path="storyboard" element={<StoryboardLayout />}>
+              <Route index element={<PageTransition><AnimeStoryboard /></PageTransition>} />
+              <Route path="scenes" element={<PageTransition><AnimeStoryboard /></PageTransition>} />
+              <Route path="scenes/:id" element={<PageTransition><SceneViewPage /></PageTransition>} />
+            </Route>
+            <Route path="seo" element={<SEOLayout />}>
+              <Route index element={<PageTransition><SEOPage /></PageTransition>} />
+            </Route>
+            <Route path="prompts" element={<PromptsLayout />}>
+              <Route index element={<PageTransition><PromptsPage /></PageTransition>} />
+            </Route>
+            <Route path="screening" element={<ScreeningLayout />}>
+              <Route index element={<PageTransition><AnimeScreening /></PageTransition>} />
+            </Route>
+            <Route path="assets" element={<AssetsLayout />}>
+              <Route index element={<PageTransition><AssetsPage /></PageTransition>} />
+            </Route>
+            <Route path="api" element={<PageTransition><ApiReferencePage /></PageTransition>} />
+            <Route path="lore" element={<PageTransition><LoreDatabasePage /></PageTransition>} />
           </Route>
-          <Route path="world" element={<WorldLayout />}>
-            <Route index element={<PageTransition><AnimeWorld /></PageTransition>} />
-          </Route>
-          <Route path="cast" element={<CastLayout />}>
-            <Route index element={<PageTransition><RegistryTab onViewCharacter={() => {}} /></PageTransition>} />
-            <Route path="registry" element={<PageTransition><RegistryTab onViewCharacter={() => {}} /></PageTransition>} />
-            <Route path="voice" element={<PageTransition><VoiceTab /></PageTransition>} />
-            <Route path="combat" element={<PageTransition><CombatTab /></PageTransition>} />
-            <Route path="arcs" element={<PageTransition><ArcsTab /></PageTransition>} />
-            <Route path="dynamics" element={<PageTransition><DynamicsTab /></PageTransition>} />
-            <Route path="relationships" element={<PageTransition><RelationshipsPage /></PageTransition>} />
-            <Route path="relationships/:id" element={<PageTransition><RelationshipViewPage /></PageTransition>} />
-            <Route path="relationships/:id/edit" element={<PageTransition><RelationshipEditPage /></PageTransition>} />
-            <Route path="technical" element={<PageTransition><TechnicalTab /></PageTransition>} />
-            <Route path="characters/:characterName" element={<PageTransition><CharacterViewPage /></PageTransition>} />
-            <Route path="characters/:characterName/edit" element={<PageTransition><CharacterEditPage /></PageTransition>} />
-          </Route>
-          <Route path="series" element={<SeriesLayout />}>
-            <Route index element={<PageTransition><AnimeSeries /></PageTransition>} />
-            <Route path="roadmap" element={<PageTransition><AnimeSeries /></PageTransition>} />
-            <Route path="arcs" element={<PageTransition><AnimeSeries /></PageTransition>} />
-            <Route path="blueprint" element={<PageTransition><AnimeSeries /></PageTransition>} />
-            <Route path="assets" element={<PageTransition><AnimeSeries /></PageTransition>} />
-            <Route path="timeline" element={<PageTransition><AnimeSeries /></PageTransition>} />
-            <Route path="episodes" element={<PageTransition><AnimeSeries /></PageTransition>} />
-            <Route path="episodes/:id" element={<PageTransition><EpisodeViewPage /></PageTransition>} />
-            <Route path="episodes/:id/edit" element={<PageTransition><EpisodeEditPage /></PageTransition>} />
-          </Route>
-          <Route path="script" element={<ScriptLayout />}>
-            <Route index element={<PageTransition><AnimeScript /></PageTransition>} />
-          </Route>
-          <Route path="storyboard" element={<StoryboardLayout />}>
-            <Route index element={<PageTransition><AnimeStoryboard /></PageTransition>} />
-            <Route path="scenes" element={<PageTransition><AnimeStoryboard /></PageTransition>} />
-            <Route path="scenes/:id" element={<PageTransition><SceneViewPage /></PageTransition>} />
-          </Route>
-          <Route path="seo" element={<SEOLayout />}>
-            <Route index element={<PageTransition><SEOPage /></PageTransition>} />
-          </Route>
-          <Route path="prompts" element={<PromptsLayout />}>
-            <Route index element={<PageTransition><PromptsPage /></PageTransition>} />
-          </Route>
-          <Route path="screening" element={<ScreeningLayout />}>
-            <Route index element={<PageTransition><AnimeScreening /></PageTransition>} />
-          </Route>
-          <Route path="assets" element={<AssetsLayout />}>
-            <Route index element={<PageTransition><AssetsPage /></PageTransition>} />
-          </Route>
-          <Route path="api" element={<PageTransition><ApiReferencePage /></PageTransition>} />
-          <Route path="lore" element={<PageTransition><LoreDatabasePage /></PageTransition>} />
-        </Route>
+        ))}
 
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

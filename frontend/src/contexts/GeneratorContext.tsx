@@ -393,19 +393,19 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
   const { data: worldLore } = useQuery({
     queryKey: ['worldLore', user?.id, currentScriptId],
     queryFn: () => worldApi.getLore(user!.id, currentScriptId ? parseInt(currentScriptId) : undefined),
-    enabled: !!user?.id,
+    enabled: !!user?.id && !!currentScriptId,
   });
 
   const { data: production } = useQuery({
     queryKey: ['productionContent', user?.id, currentScriptId],
     queryFn: () => productionApi.getContent(user!.id, currentScriptId ? parseInt(currentScriptId) : undefined),
-    enabled: !!user?.id,
+    enabled: !!user?.id && !!currentScriptId,
   });
 
   const { data: castDataFromApi } = useQuery({
     queryKey: ['characterCast', user?.id, currentScriptId],
     queryFn: () => characterApi.getCast(user!.id, currentScriptId ? parseInt(currentScriptId) : undefined),
-    enabled: !!user?.id,
+    enabled: !!user?.id && !!currentScriptId,
   });
 
   const { data: projectHistory = [] } = useQuery({

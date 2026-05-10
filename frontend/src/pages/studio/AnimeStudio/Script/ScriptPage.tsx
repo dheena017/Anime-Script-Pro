@@ -204,7 +204,7 @@ export function ScriptPage() {
 
     // If we already have metadata, just navigate
     if (recapperPersona) {
-      navigate(`/projects/${projectId}/seo`);
+      navigate(`/studio/seo`);
       return;
     }
 
@@ -213,7 +213,7 @@ export function ScriptPage() {
       const seo = await generateMetadata(generatedScript, selectedModel);
       setGeneratedMetadata(seo);
       showNotification?.('SEO data generated successfully!', 'success');
-      navigate(`/projects/${projectId}/seo`);
+      navigate(`/studio/seo`);
     } catch (e: any) {
       showNotification?.('Failed to generate SEO data: ' + (e.message || 'Error'), 'error');
     } finally {
@@ -229,7 +229,7 @@ export function ScriptPage() {
       const prompts = await generateImagePrompts(generatedScript, selectedModel);
       setGeneratedImagePrompts(prompts);
       showNotification?.('Image prompts generated successfully!', 'success');
-      navigate(`/projects/${projectId}/prompts`);
+      navigate(`/studio/prompts`);
     } catch (e: any) {
       showNotification?.('Failed to generate prompts: ' + (e.message || 'Error'), 'error');
     } finally {
@@ -242,7 +242,7 @@ export function ScriptPage() {
     setIsGeneratingVisuals(true);
     try {
       showNotification?.('Navigating to Storyboard Generator...', 'success');
-      navigate(`/projects/${projectId}/storyboard`);
+      navigate(`/studio/storyboard`);
     } catch (e: any) {
       showNotification?.('Failed to generate storyboard: ' + (e.message || 'Error'), 'error');
     } finally {

@@ -67,7 +67,7 @@ export const AnimeStudioSideBar = React.memo<AnimeStudioSideBarProps>(({
   const renderNavGroup = (items: any[], title: string, _color: string = "studio") => (
     <div className="space-y-1 mt-8">
       {!collapsed && (
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, x: -10 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.2 }}
@@ -83,13 +83,13 @@ export const AnimeStudioSideBar = React.memo<AnimeStudioSideBarProps>(({
           const fullPath = `${basePath}${item.path}`;
           const isActive = location.pathname.startsWith(fullPath);
           const Icon = item.icon;
-          
+
           return (
             <motion.div
               key={item.path}
               initial={collapsed ? { opacity: 0, x: -20 } : { opacity: 0, x: -20 }}
               animate={!collapsed ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
-                transition={{ duration: 0 }} 
+              transition={{ duration: 0 }}
             >
               <NavLink
                 to={fullPath}
@@ -97,8 +97,8 @@ export const AnimeStudioSideBar = React.memo<AnimeStudioSideBarProps>(({
                 onClick={() => { if (!collapsed) onToggleCollapse?.(); }}
                 className={({ isActive: _isActive }) => cn(
                   "flex items-center gap-4 px-5 py-3 rounded-2xl text-[10px] font-black transition-all duration-300 group uppercase tracking-[0.2em] relative overflow-hidden mx-2",
-                  isActive 
-                    ? "text-cyan-400 bg-cyan-500/10 shadow-[0_0_25px_rgba(6,182,212,0.1)] border border-cyan-500/20" 
+                  isActive
+                    ? "text-cyan-400 bg-cyan-500/10 shadow-[0_0_25px_rgba(6,182,212,0.1)] border border-cyan-500/20"
                     : "text-zinc-500 hover:text-zinc-200 hover:bg-white/[0.04]",
                   collapsed && "opacity-40"
                 )}
@@ -108,7 +108,7 @@ export const AnimeStudioSideBar = React.memo<AnimeStudioSideBarProps>(({
                 )}
                 <Icon className={cn(
                   "w-4 h-4 transition-all duration-500",
-                  isActive 
+                  isActive
                     ? "text-cyan-400 drop-shadow-[0_0_8px_rgba(6,182,212,0.6)]"
                     : "text-zinc-700 group-hover:text-zinc-400 group-hover:scale-110 group-hover:rotate-6"
                 )} />
@@ -124,10 +124,10 @@ export const AnimeStudioSideBar = React.memo<AnimeStudioSideBarProps>(({
   return (
     <motion.aside
       initial={false}
-      animate={{ 
-          width: collapsed ? 0 : 340,
-          opacity: 1
-        }}
+      animate={{
+        width: collapsed ? 0 : 340,
+        opacity: 1
+      }}
       transition={{ duration: 0 }}
       className={cn(
         "fixed top-0 left-0 h-full bg-black flex flex-col z-[500] overflow-hidden transition-all duration-300",
@@ -137,7 +137,7 @@ export const AnimeStudioSideBar = React.memo<AnimeStudioSideBarProps>(({
     >
       <AnimatePresence mode="wait">
         {!collapsed && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
@@ -170,19 +170,19 @@ export const AnimeStudioSideBar = React.memo<AnimeStudioSideBarProps>(({
         <nav className="p-4">
           <div className="space-y-1 mb-8">
             {!collapsed && (
-               <div className="px-5 mb-6 space-y-4">
-                  <p className="text-[8px] font-black text-cyan-500 uppercase tracking-[0.5em]">Production Studio</p>
-                  <Link 
-                    to="/dashboard"
-                    className="flex items-center gap-4 px-5 py-3 rounded-2xl text-[10px] font-black transition-all duration-300 group uppercase tracking-[0.2em] text-zinc-500 hover:text-cyan-400 hover:bg-cyan-500/5 border border-transparent hover:border-cyan-500/20"
-                  >
-                    <LayoutDashboard className="w-4 h-4 text-zinc-700 group-hover:text-cyan-400 group-hover:scale-110 transition-all duration-500" />
-                    <span>Return to Dashboard</span>
-                  </Link>
-                  <div className="h-px bg-zinc-800/50 mx-2" />
-               </div>
+              <div className="px-5 mb-6 space-y-4">
+                <p className="text-[8px] font-black text-cyan-500 uppercase tracking-[0.5em]">Production Studio</p>
+                <Link
+                  to="/dashboard"
+                  className="flex items-center gap-4 px-5 py-3 rounded-2xl text-[10px] font-black transition-all duration-300 group uppercase tracking-[0.2em] text-zinc-500 hover:text-cyan-400 hover:bg-cyan-500/5 border border-transparent hover:border-cyan-500/20"
+                >
+                  <LayoutDashboard className="w-4 h-4 text-zinc-700 group-hover:text-cyan-400 group-hover:scale-110 transition-all duration-500" />
+                  <span>Return to Dashboard</span>
+                </Link>
+                <div className="h-px bg-zinc-800/50 mx-2" />
+              </div>
             )}
-            
+
             {renderNavGroup(foundationItems, "PHASE 1: FOUNDATION")}
             {renderNavGroup(architectureItems, "PHASE 2: STRUCTURE")}
             {renderNavGroup(generationItems, "PHASE 3: PRODUCTION")}

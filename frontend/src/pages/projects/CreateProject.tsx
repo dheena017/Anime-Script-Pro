@@ -49,30 +49,22 @@ export default function CreateProject() {
     setLoading(true);
     
     try {
-      const project = await apiRequest<any>('/api/projects', {
-        method: 'POST',
-        body: JSON.stringify({
-          title,
-          genre,
-          art_style: artStyle,
-          description,
-          episode_length: episodeLength,
-          status: 'draft',
-          content_type: 'ANIME'
-        })
-      });
-
-      await apiRequest(`/api/generate/god-mode/${project.id}`, {
-        method: 'POST'
-      });
-
-      setCurrentProject(project);
-      await refreshAppData();
-      navigate(`/projects/${project.id}/engine`);
+      // Route directly to the unsaved studio view
+      // The user will save the project at the end of their workflow
+      setTimeout(() => {
+        navigate('/studio/engine', {
+          state: {
+            title,
+            genre,
+            artStyle,
+            description,
+            episodeLength
+          }
+        });
+      }, 800);
     } catch (err: any) {
-      console.error('Project Initialization Failed:', err);
+      console.error('Routing Failed:', err);
       setError(err.message || 'TRANSMISSION ERROR: NODE INITIALIZATION FAILED');
-    } finally {
       setLoading(false);
     }
   };

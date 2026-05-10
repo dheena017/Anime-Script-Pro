@@ -54,10 +54,10 @@ export default function EngineLayout() {
           session={session}
           episode={episode}
           onPrev={() => {
-            navigate(`/projects/${projectId}/screening`);
+            navigate(`/studio/screening`);
           }}
           onNext={() => {
-            navigate(`/projects/${projectId}/world`);
+            navigate(`/studio/world`);
           }}
           onSave={handleSaveCurrent}
           isSaving={isSaving}

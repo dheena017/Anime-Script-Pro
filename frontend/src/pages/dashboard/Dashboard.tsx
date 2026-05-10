@@ -206,7 +206,7 @@ export default function Dashboard() {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {[
-                  { name: 'Anime Studio', type: 'Anime', path: stats.recent ? `/projects/${stats.recent.id}/engine` : '/projects/new', icon: Zap, color: 'hover:border-studio/50', glow: 'bg-studio/5', desc: 'Master configuration & blueprinting.', accent: 'text-studio' },
+                  { name: 'Anime Studio', type: 'Anime', path: '/studio/engine', icon: Zap, color: 'hover:border-studio/50', glow: 'bg-studio/5', desc: 'Master configuration & blueprinting.', accent: 'text-studio' },
                   { name: 'Manhwa Studio', type: 'Manhwa', path: '/projects/new', icon: Globe, color: 'hover:border-emerald-500/50', glow: 'bg-emerald-500/5', desc: 'Master configuration & blueprinting.', accent: 'text-emerald-500' },
                   { name: 'Comic Studio', type: 'Comic', path: '/projects/new', icon: ShieldCheck, color: 'hover:border-fuchsia-500/50', glow: 'bg-fuchsia-500/5', desc: 'Master configuration & blueprinting.', accent: 'text-fuchsia-500' },
                 ].map((studio) => (
@@ -261,7 +261,7 @@ export default function Dashboard() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {recentProjects.length > 0 ? (
                     recentProjects.map((project) => (
-                      <Card key={project.id} className={cn(lightweightCardClass, "p-6 group hover:border-studio/30 transition-all duration-300 rounded-[2rem] cursor-pointer hover:bg-white/[0.02]")} onClick={() => navigate(`/projects/${project.id}/engine`)}>
+                      <Card key={project.id} className={cn(lightweightCardClass, "p-6 group hover:border-studio/30 transition-all duration-300 rounded-[2rem] cursor-pointer hover:bg-white/[0.02]")} onClick={() => navigate('/studio/engine', { state: { projectId: project.id } })}>
                         <div className="flex items-center gap-6">
                           <div className="w-16 h-16 rounded-2xl bg-zinc-900 border border-white/5 flex items-center justify-center shrink-0 group-hover:border-studio/20 transition-colors">
                             <Layers className="w-6 h-6 text-zinc-600 group-hover:text-studio transition-colors" />

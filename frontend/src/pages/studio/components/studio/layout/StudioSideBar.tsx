@@ -60,7 +60,7 @@ export const StudioSideBar = React.memo<StudioSideBarProps>(({ collapsed, setCol
   const projectId = location.pathname.match(/^\/projects\/([^/]+)/)?.[1];
  
   const studioTypes = [
-    { id: 'anime', label: 'Anime Studio', path: projectId ? `/projects/${projectId}/engine` : '/projects/new', icon: Brain, color: 'text-cyan-400', bg: 'bg-cyan-500/10' },
+    { id: 'anime', label: 'Anime Studio', path: '/studio/engine', icon: Brain, color: 'text-cyan-400', bg: 'bg-cyan-500/10' },
   ];
 
 

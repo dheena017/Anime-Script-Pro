@@ -145,7 +145,7 @@ export default function CastLayout() {
       
       // Explicitly set to registry tab after generation to show the list
       setActiveTab('registry');
-      navigate(`/projects/${projectId}/cast`);
+      navigate('/studio/cast');
 
       // Reset progress after a short delay
       setTimeout(() => setGenerationProgress(0), 3000);
@@ -197,7 +197,7 @@ export default function CastLayout() {
   };
 
   const handleViewCharacter = (charName: string) => {
-    navigate(`/projects/${projectId}/cast/characters/${charName}`);
+    navigate(`/studio/cast/characters/${charName}`);
   };
 
   const renderTabContent = () => {
@@ -228,10 +228,10 @@ export default function CastLayout() {
             session={session}
             episode={episode}
             onPrev={() => {
-              navigate(`/projects/${projectId}/world`);
+              navigate('/studio/world');
             }}
             onNext={() => {
-              navigate(`/projects/${projectId}/series`);
+              navigate('/studio/series');
             }}
             onSave={handleSave}
             isSaving={isSaving}

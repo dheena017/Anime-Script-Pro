@@ -159,10 +159,10 @@ export default function ScriptLayout() {
             onRegenerate={handleGenerateAll}
             isGenerating={isLoading}
             onNext={() => {
-              navigate(`/projects/${projectId}/storyboard`);
+              navigate(`/studio/storyboard`);
             }}
             onPrev={() => {
-              navigate(`/projects/${projectId}/series`);
+              navigate(`/studio/series`);
             }}
             onSave={handleSave}
             isSaving={isSaving}

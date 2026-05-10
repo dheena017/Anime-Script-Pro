@@ -25,11 +25,11 @@ export default function AnimeLayout() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const { projectId } = useParams();
   const [searchParams] = useSearchParams();
   const { showNotification } = useApp();
-
-  const basePath = `/projects/${projectId}`;
+  const { projectId: urlProjectId } = useParams();
+  const projectId = urlProjectId || location.state?.projectId;
+  const basePath = '/studio'; // Force clean URL path
   const projectIdFromUrl = projectId;
   const { addLog } = useLogs();
 
@@ -87,10 +87,17 @@ export default function AnimeLayout() {
   useEffect(() => {
     setContentType('Anime');
     
-    // With path-based routing, the projectId should always be present if we are in this layout.
-    if (projectId && projectId !== currentScriptId) {
-      console.info('[AnimeLayout] Syncing project from URL parameter:', projectId);
-      setCurrentScriptId(projectId);
+    if (projectId) {
+      if (projectId !== currentScriptId) {
+        console.info('[AnimeLayout] Syncing project from URL parameter:', projectId);
+        setCurrentScriptId(projectId);
+      }
+    } else {
+      // If we're at /studio without an ID, ensure we are in a fresh, empty state
+      if (currentScriptId !== null) {
+        console.info('[AnimeLayout] Starting fresh session. Clearing project context.');
+        setCurrentScriptId(null);
+      }
     }
   }, [setContentType, projectId, currentScriptId, setCurrentScriptId]);
 

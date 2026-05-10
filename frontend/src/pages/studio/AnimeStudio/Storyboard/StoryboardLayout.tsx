@@ -133,10 +133,10 @@ export default function StoryboardLayout() {
             onRegenerate={handlers.handleGenerateAll || handleGenerate}
             isGenerating={handlers.isGenerating || isGeneratingImagePrompts}
             onNext={() => {
-              navigate(`/projects/${projectId}/seo`);
+              navigate(`/studio/seo`);
             }}
             onPrev={() => {
-              navigate(`/projects/${projectId}/script`);
+              navigate(`/studio/script`);
             }}
             onSave={handleSave}
             isSaving={isSaving}

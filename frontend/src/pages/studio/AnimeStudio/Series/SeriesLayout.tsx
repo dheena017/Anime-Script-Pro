@@ -123,7 +123,7 @@ export default function SeriesLayout() {
       setGenerationProgress(100);
       
       // Response and Report Flow - Instant Impact
-      const base = `/projects/${projectId}/series`;
+      const base = `/studio/series`;
       
       // We navigate directly to episodes now to avoid "one by one" delay feeling
       navigate(`${base}/episodes`); 
@@ -199,10 +199,10 @@ export default function SeriesLayout() {
             showNotification?.('Production manifest cleared', 'info');
           }}
           onPrev={() => {
-            navigate(`/projects/${projectId}/cast`);
+            navigate(`/studio/cast`);
           }}
           onNext={() => {
-            navigate(`/projects/${projectId}/script`);
+            navigate(`/studio/script`);
           }}
           onManifest={() => handleTabChange('blueprint')}
           isManifestActive={activeTab === 'blueprint'}

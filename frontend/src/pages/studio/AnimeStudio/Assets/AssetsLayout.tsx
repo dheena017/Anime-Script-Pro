@@ -103,10 +103,10 @@ export default function AssetsLayout() {
           onRegenerate={handleGenerateAll}
           isGenerating={isGeneratingMetadata || isGeneratingDescription || isGeneratingImagePrompts}
           onPrev={() => {
-            navigate(`/projects/${projectId}/screening`);
+            navigate(`/studio/screening`);
           }}
           onNext={() => {
-            navigate(`/projects/${projectId}/engine`);
+            navigate(`/studio/engine`);
           }}
           onSave={handleSave}
           isSaving={isSaving}

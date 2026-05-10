@@ -65,10 +65,10 @@ export default function ScreeningLayout() {
             session={session}
             episode={episode}
             onPrev={() => {
-              navigate(`/projects/${projectId}/prompts`);
+              navigate(`/studio/prompts`);
             }}
             onNext={() => {
-              navigate(`/projects/${projectId}/assets`);
+              navigate(`/studio/assets`);
             }}
             onRender={handlers.handleFullRender}
             isRendering={handlers.isRendering}

@@ -276,10 +276,10 @@ export default function WorldLayout() {
           session={session}
           episode={episode}
           onPrev={() => {
-            navigate(`/projects/${projectId}/engine`);
+            navigate(`/studio/engine`);
           }}
           onNext={() => {
-            navigate(`/projects/${projectId}/cast`);
+            navigate(`/studio/cast`);
           }}
           onSave={handleSave}
           isSaving={isSaving}

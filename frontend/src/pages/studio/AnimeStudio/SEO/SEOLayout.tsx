@@ -152,10 +152,10 @@ export default function SEOLayout() {
             onRegenerate={handleGenerate}
             isGenerating={isLoading}
             onNext={() => {
-              navigate(`/projects/${projectId}/prompts`);
+              navigate(`/studio/prompts`);
             }}
             onPrev={() => {
-              navigate(`/projects/${projectId}/storyboard`);
+              navigate(`/studio/storyboard`);
             }}
             onSave={handleSave}
             isSaving={isSaving}
