@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from 'react';
-import { useOutletContext, useSearchParams, useNavigate } from 'react-router-dom';
+import { useOutletContext, useSearchParams, useNavigate, useLocation } from 'react-router-dom';
 import {
   Settings,
   Cpu, Layout as LayoutGrid, Activity, Zap, Search,
@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useProjects } from '@/hooks/useProjects';
 import { Project } from '@/services/api/projects';
+import { studioLog } from '@/lib/studio-logger';
 // Context
 
 import { EngineContext } from './EngineLayout';
@@ -38,6 +39,7 @@ export function EnginePage() {
   const { setHandlers } = useContext(EngineContext);
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useAuth();
 
   const {
@@ -102,6 +104,38 @@ export function EnginePage() {
   };
 
   useEffect(() => {
+    // Neural Link: Ingest parameters from URL (e.g. from Landing Page or Dashboard redirect)
+    const urlPrompt = searchParams.get('prompt');
+    const urlStyle = searchParams.get('style');
+    const urlTone = searchParams.get('tone') || urlStyle; // Style maps to Tone in this engine
+    const urlModel = searchParams.get('model');
+    const urlContentType = searchParams.get('type') || searchParams.get('contentType');
+    const urlProjectId = searchParams.get('project_id');
+
+    // Handle state from Dashboard navigation
+    if (location.state?.projectId && !urlProjectId) {
+      setSearchParams({ project_id: location.state.projectId.toString() }, { replace: true });
+    }
+
+    if (urlPrompt && urlPrompt !== prompt) {
+      setPrompt(urlPrompt);
+      studioLog('Engine', `Ingested creative directive: ${urlPrompt.substring(0, 30)}...`, 'info');
+    }
+    
+    if (urlTone && urlTone !== tone) {
+      setTone(urlTone);
+    }
+
+    if (urlModel && urlModel !== selectedModel) {
+      setSelectedModel(urlModel);
+    }
+
+    if (urlContentType && urlContentType !== localContentType) {
+      setLocalContentType(urlContentType);
+    }
+  }, [searchParams, location.state]);
+
+  useEffect(() => {
     setHandlers({ handleSaveCurrent, isGenerating: isGeneratingScript });
   }, [generatedScript, user, prompt, tone, selectedModel, isGeneratingScript]);
 
@@ -129,8 +163,13 @@ export function EnginePage() {
       case 'status':
         const handleGenerate = () => {
           if (!prompt.trim()) return;
-          // Navigate to World Builder phase directly as requested
-          navigate('/studio/world');
+          // Determine the correct navigation prefix (project-specific or global studio)
+          const pathPrefix = location.pathname.startsWith('/projects/') 
+            ? location.pathname.split('/').slice(0, 3).join('/') 
+            : '/studio';
+            
+          studioLog('Engine', `Initializing neural transition to World Builder...`, 'info');
+          navigate(`${pathPrefix}/world`);
         }
 
         return (

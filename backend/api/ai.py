@@ -41,13 +41,14 @@ class NeuralHealthRegistry:
 health_registry = NeuralHealthRegistry()
 
 MODEL_MAP = {
-    # 3.1 Series (Highest Quota)
-    "gemini-3.1-flash": "gemini-3.1-flash-lite-preview",
-    "gemini-3.1-pro": "gemini-3.1-pro-preview",
+    # 3.1 Series (Newest)
+    "gemini-3.1-flash": "gemini-3.1-flash",
+    "gemini-3.1-flash-lite": "gemini-3.1-flash-lite",
+    "gemini-3.1-pro": "gemini-3.1-pro",
 
     # 3.0 Series
-    "gemini-3-flash": "gemini-3-flash-preview",
-    "gemini-3-pro": "gemini-3-pro-preview",
+    "gemini-3-flash": "gemini-3-flash",
+    "gemini-3-pro": "gemini-3-pro",
 
     # 2.5 Series
     "gemini-2.5-flash": "gemini-2.5-flash",
@@ -55,16 +56,24 @@ MODEL_MAP = {
     "gemini-2.5-pro": "gemini-2.5-pro",
 
     # 2.0 Series
-    "gemini-2.0-flash": "gemini-3.1-flash-lite-preview",
+    "gemini-2.0-flash": "gemini-2.0-flash",
     "gemini-2.0-flash-lite": "gemini-2.0-flash-lite",
-    "gemini-2.0-pro": "gemini-2.5-pro",
+    "gemini-2.0-pro": "gemini-2.0-pro",
 
-    # Legacy/Standard Aliases
-    "gemini-flash-latest": "gemini-3.1-flash-lite-preview",
-    "gemini-pro-latest": "gemini-2.5-pro",
-    "gemini-1.5-flash": "gemini-3.1-flash-lite-preview",
-    "gemini-1.5-pro": "gemini-2.5-pro",
-    "gemini-1.5-flash-8b": "gemini-3.1-flash-lite-preview",
+    # Standard / LTS
+    "gemini-1.5-flash": "gemini-1.5-flash",
+    "gemini-1.5-pro": "gemini-1.5-pro",
+    "gemini-1.5-flash-8b": "gemini-1.5-flash-8b",
+
+    # Specialized
+    "nano-banana": "gemini-2.5-flash", 
+    "nano-banana-pro": "gemini-3-pro",
+
+    # Gemma Series
+    "gemma-3-1b": "gemma-3-1b",
+    "gemma-3-4b": "gemma-3-4b",
+    "gemma-3-12b": "gemma-3-12b",
+    "gemma-3-27b": "gemma-3-27b",
 
     # OpenAI Models
     "gpt-4o": "gpt-4o",
@@ -81,10 +90,11 @@ MODEL_MAP = {
 }
 
 STABLE_MODELS = [
-    "gemini-2.5-flash", "gemini-2.5-pro", "gemini-2.0-flash",
-    "gemini-3-flash-preview", "gemini-3-pro-preview",
-    "gemini-3.1-flash-lite-preview", "gemini-2.0-flash-lite",
-    "gpt-4o", "gpt-4o-mini", "llama3-70b-8192", "mixtral-8x7b-32768"
+    "gemini-3.1-flash", "gemini-3.1-flash-lite", "gemini-3-flash", 
+    "gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-1.5-flash",
+    "gemini-3.1-pro", "gemini-3-pro", "gemini-2.5-pro", "gemini-1.5-pro",
+    "gemini-2.0-flash", "gemini-2.0-flash-lite", "gemini-2.0-pro",
+    "gemma-3-27b", "gpt-4o", "gpt-4o-mini"
 ]
 
 async def get_api_key(user_id: str, target_model: str) -> str:
@@ -131,8 +141,8 @@ def resolve_model(requested_model: str) -> str:
         target_model = MODEL_MAP[target_model]
     
     if target_model not in STABLE_MODELS and not any(target_model.startswith(m) for m in STABLE_MODELS):
-        logger.warning(f"Resolved model '{target_model}' not in stable registry. Falling back to gemini-2.5-flash.")
-        target_model = "gemini-2.5-flash"
+        logger.warning(f"Resolved model '{target_model}' not in stable registry. Falling back to gemini-1.5-flash.")
+        target_model = "gemini-1.5-flash"
         
     return target_model.replace("models/", "")
 
@@ -144,13 +154,12 @@ async def generate_content(request: GenerationRequest, user_id: str = Depends(ge
     # --- Ultra-Fallback Logic ---
     FALLBACK_MODELS = [
         target_model,
-        "gemini-3.1-flash-lite-preview",
-        "gemini-2.5-flash-lite",
-        "gemini-3-flash-preview",
-        "gemini-2.5-flash",
-        "gemma-3-27b-it"
+        "gemini-1.5-flash",
+        "gemini-1.5-pro",
+        "gemini-2.0-flash",
+        "gemini-2.0-flash-lite-preview"
     ]
-    unique_fallbacks = list(dict.fromkeys(FALLBACK_MODELS))
+    unique_fallbacks = [m for m in list(dict.fromkeys(FALLBACK_MODELS)) if m != "gemma-3-27b-it"]
 
     start_time = time.perf_counter()
     attempted_fallbacks = []
@@ -167,7 +176,9 @@ async def generate_content(request: GenerationRequest, user_id: str = Depends(ge
         try:
             # We need to resolve key for each attempt if models belong to different providers (e.g. Claude fallback)
             api_key = await get_api_key(user_id, current_model)
-            client = build_genai_client(api_key=api_key)
+            client = build_genai_client(api_key=api_key) # This is now cached inside build_genai_client if we update it, or better yet, just use a local one for now if we want to stay simple.
+            # Wait, I should update build_genai_client to use the cache too or just use engine.
+            # For now, let's just use the engine's client retrieval.
 
             if current_model != target_model:
                 attempted_fallbacks.append(current_model)
@@ -257,8 +268,8 @@ async def stream_content(request: GenerationRequest, user_id: str = Depends(get_
     
     async def event_generator():
         # Fallback list for streaming
-        FALLBACKS = [target_model, "gemini-3.1-flash-lite-preview", "gemini-2.5-flash-lite", "gemini-3-flash-preview"]
-        unique_fallbacks = list(dict.fromkeys(FALLBACKS))
+        FALLBACKS = [target_model, "gemini-1.5-flash", "gemini-1.5-pro", "gemini-2.0-flash"]
+        unique_fallbacks = [m for m in list(dict.fromkeys(FALLBACKS)) if m != "gemma-3-27b-it"]
         
         # Sort by health
         prioritized = [m for m in unique_fallbacks if not health_registry.is_degraded(m)] + \
@@ -267,6 +278,7 @@ async def stream_content(request: GenerationRequest, user_id: str = Depends(get_
         for current_model in prioritized:
             try:
                 logger.info(f"STREAM [#{request_id}]: Initializing pipeline via <cyan>{current_model}</cyan>")
+                
                 async for chunk in stream_ai(current_model, request.prompt, request.systemInstruction, user_id):
                     yield f"data: {json.dumps({'text': chunk, 'done': False})}\n\n"
                 

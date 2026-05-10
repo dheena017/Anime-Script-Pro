@@ -5,10 +5,10 @@ from loguru import logger
 from backend.database.models import ProductionSession, Project
 from backend.utils.deps import get_auth_user_id
 
-router = APIRouter(prefix="/api", tags=["Sessions"])
+router = APIRouter(prefix="/api/sessions", tags=["Sessions"])
 
 
-@router.post("/sessions")
+@router.post("")
 async def batch_create_sessions(payload: dict, user_id: str = Depends(get_auth_user_id)):
     project_id = payload.get("project_id")
     if not project_id:
@@ -56,7 +56,7 @@ async def batch_create_sessions(payload: dict, user_id: str = Depends(get_auth_u
         return sessions_out
 
 
-@router.get("/sessions")
+@router.get("")
 async def get_sessions(project_id: int, user_id: str = Depends(get_auth_user_id)):
     async with async_session() as session:
         # Verify project ownership

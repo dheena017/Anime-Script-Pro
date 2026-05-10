@@ -117,10 +117,10 @@ export const FooterLanding: React.FC = () => {
             <div className="space-y-8">
               <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-white">Platform</h4>
               <ul className="space-y-4">
-                <li><a href="/anime" className="text-zinc-600 hover:text-studio text-[11px] font-black uppercase tracking-widest transition-all no-underline">Anime Studio</a></li>
+                <li><a href="/studio/engine" className="text-zinc-600 hover:text-studio text-[11px] font-black uppercase tracking-widest transition-all no-underline">Anime Studio</a></li>
                 <li><a href="/pricing" className="text-zinc-600 hover:text-studio text-[11px] font-black uppercase tracking-widest transition-all no-underline">Pricing Plans</a></li>
                 <li><a href="/community" className="text-zinc-600 hover:text-studio text-[11px] font-black uppercase tracking-widest transition-all no-underline">Community</a></li>
-                <li><a href="/library" className="text-zinc-600 hover:text-studio text-[11px] font-black uppercase tracking-widest transition-all no-underline">Asset Library</a></li>
+                <li><a href="/studio/engine?tab=template" className="text-zinc-600 hover:text-studio text-[11px] font-black uppercase tracking-widest transition-all no-underline">Asset Library</a></li>
               </ul>
             </div>
 
@@ -128,9 +128,9 @@ export const FooterLanding: React.FC = () => {
               <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-white">Academy</h4>
               <ul className="space-y-4">
                 <li><a href="/tutorials" className="text-zinc-600 hover:text-studio text-[11px] font-black uppercase tracking-widest transition-all no-underline">Production Docs</a></li>
-                <li><a href="#" className="text-zinc-600 hover:text-studio text-[11px] font-black uppercase tracking-widest transition-all no-underline">Youtube Guides</a></li>
-                <li><a href="/api-reference" className="text-zinc-600 hover:text-studio text-[11px] font-black uppercase tracking-widest transition-all no-underline">API Interface</a></li>
-                <li><a href="/lore-database" className="text-zinc-600 hover:text-studio text-[11px] font-black uppercase tracking-widest transition-all no-underline">World Oracle</a></li>
+                <li><a href="https://youtube.com" className="text-zinc-600 hover:text-studio text-[11px] font-black uppercase tracking-widest transition-all no-underline">Youtube Guides</a></li>
+                <li><a href="/studio/api" className="text-zinc-600 hover:text-studio text-[11px] font-black uppercase tracking-widest transition-all no-underline">API Interface</a></li>
+                <li><a href="/studio/lore" className="text-zinc-600 hover:text-studio text-[11px] font-black uppercase tracking-widest transition-all no-underline">World Oracle</a></li>
               </ul>
             </div>
 

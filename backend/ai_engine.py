@@ -25,6 +25,14 @@ from backend.database.models.user import UserSettings
 
 from loguru import logger
 
+# Global Client Cache to prevent connection pool exhaustion and reduce overhead
+CLIENT_CACHE = {
+    "gemini": {},    # api_key -> genai.Client
+    "anthropic": {}, # api_key -> anthropic.AsyncAnthropic
+    "openai": {},    # api_key -> openai.AsyncOpenAI
+    "groq": {}       # api_key -> groq.AsyncGroq
+}
+
 # Load .env from root directory
 dotenv_path = os.path.join(os.path.dirname(__file__), "..", ".env")
 load_dotenv(dotenv_path)
@@ -50,7 +58,9 @@ def build_genai_client(api_key: str | None = None) -> genai.Client:
         return genai.Client(**client_kwargs)
 
     if api_key:
-        return genai.Client(api_key=api_key)
+        if api_key not in CLIENT_CACHE["gemini"]:
+            CLIENT_CACHE["gemini"][api_key] = genai.Client(api_key=api_key)
+        return CLIENT_CACHE["gemini"][api_key]
 
     return genai.Client()
 
@@ -82,7 +92,10 @@ class AIEngine:
         if not api_key and not _use_vertexai():
             raise ValueError("No Gemini API key found in user settings or environment.")
 
-        return build_genai_client(api_key=api_key)
+        if api_key not in CLIENT_CACHE["gemini"]:
+            CLIENT_CACHE["gemini"][api_key] = build_genai_client(api_key=api_key)
+        
+        return CLIENT_CACHE["gemini"][api_key]
 
     async def _get_anthropic_client(self, user_id: str = None):
         if not anthropic:
@@ -106,7 +119,10 @@ class AIEngine:
         if not api_key:
             raise ValueError("No Anthropic API key found.")
             
-        return anthropic.AsyncAnthropic(api_key=api_key)
+        if api_key not in CLIENT_CACHE["anthropic"]:
+            CLIENT_CACHE["anthropic"][api_key] = anthropic.AsyncAnthropic(api_key=api_key)
+            
+        return CLIENT_CACHE["anthropic"][api_key]
 
     async def _get_openai_client(self, user_id: str = None):
         if not openai:
@@ -130,7 +146,10 @@ class AIEngine:
         if not api_key:
             raise ValueError("No OpenAI API key found.")
             
-        return openai.AsyncOpenAI(api_key=api_key)
+        if api_key not in CLIENT_CACHE["openai"]:
+            CLIENT_CACHE["openai"][api_key] = openai.AsyncOpenAI(api_key=api_key)
+            
+        return CLIENT_CACHE["openai"][api_key]
 
     async def _get_groq_client(self, user_id: str = None):
         if not groq:
@@ -154,7 +173,10 @@ class AIEngine:
         if not api_key:
             raise ValueError("No Groq API key found.")
             
-        return groq.AsyncGroq(api_key=api_key)
+        if api_key not in CLIENT_CACHE["groq"]:
+            CLIENT_CACHE["groq"][api_key] = groq.AsyncGroq(api_key=api_key)
+            
+        return CLIENT_CACHE["groq"][api_key]
 
     async def generate_content(self, prompt: str, system_instruction: str = None, user_id: str = None):
         logger.info(f"PROCESS: [🧠] Neural Synthesis triggered. Model: {self.model_name}")
@@ -197,15 +219,25 @@ class AIEngine:
             config = None
             if system_instruction:
                 config = types.GenerateContentConfig(
-                    system_instruction=system_instruction
+                    system_instruction=system_instruction,
+                    max_output_tokens=8192
                 )
+            else:
+                config = types.GenerateContentConfig(max_output_tokens=8192)
 
             response = await client.aio.models.generate_content(
                 model=self.model_name,
                 contents=prompt,
                 config=config
             )
-            return response.text
+            text = response.text
+            
+            # Simple Neural Repair: If the AI output looks like truncated JSON, try to close it.
+            if text.strip().startswith("{") and not text.strip().endswith("}"):
+                logger.warning(f"[AI Engine] Detected truncated JSON in response. Attempting neural repair...")
+                text = self._repair_json(text)
+            
+            return text
 
     async def stream_content(self, prompt: str, system_instruction: str = None, user_id: str = None):
         logger.info(f"STREAM: [🌊] Neural Stream triggered. Model: {self.model_name}")
@@ -261,9 +293,43 @@ class AIEngine:
             async for chunk in await client.aio.models.generate_content_stream(
                 model=self.model_name,
                 contents=prompt,
-                config=config
+                config=config or types.GenerateContentConfig(max_output_tokens=8192)
             ):
                 yield chunk.text
+
+    def _repair_json(self, json_str: str) -> str:
+        """Attempts to fix truncated JSON by closing open structures, ignoring characters inside quotes."""
+        stack = []
+        in_string = False
+        escape = False
+        
+        for char in json_str:
+            if escape:
+                escape = False
+                continue
+            if char == '\\':
+                escape = True
+                continue
+            if char == '"':
+                in_string = not in_string
+                continue
+            
+            if not in_string:
+                if char == "{": stack.append("}")
+                elif char == "[": stack.append("]")
+                elif char in ("}", "]") and stack:
+                    if stack[-1] == char: stack.pop()
+        
+        repaired = json_str.strip()
+        
+        # If we ended inside a string, close it first
+        if in_string:
+            repaired += '"'
+            
+        while stack:
+            closer = stack.pop()
+            repaired += closer
+        return repaired
 
 ai_engine = AIEngine()
 

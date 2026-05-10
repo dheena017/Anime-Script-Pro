@@ -5,10 +5,10 @@ from loguru import logger
 from backend.database.models import Scene, Episode, Project
 from backend.utils.deps import get_auth_user_id
 
-router = APIRouter(prefix="/api", tags=["Scenes"])
+router = APIRouter(prefix="/api/scenes", tags=["Scenes"])
 
 
-@router.post("/scenes")
+@router.post("")
 async def batch_create_scenes(payload: dict, user_id: str = Depends(get_auth_user_id)):
     """Batch create or update scenes.
 
@@ -117,7 +117,7 @@ async def batch_create_scenes(payload: dict, user_id: str = Depends(get_auth_use
         return {"episodes": episodes_out, "scenes": scenes_out}
 
 
-@router.get("/scenes")
+@router.get("")
 async def get_scenes(project_id: int, user_id: str = Depends(get_auth_user_id)):
     """Get scenes for a project (ownership required)."""
     async with async_session() as session:

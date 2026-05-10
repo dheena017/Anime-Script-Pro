@@ -165,54 +165,9 @@ async def get_cast_for_series(series_id: int, user_id: str = Depends(get_auth_us
         result = await session.execute(statement)
         return result.scalars().all()
 
-# --- Sessions ---
-@router.post("/sessions")
-async def batch_create_sessions(payload: dict, user_id: str = Depends(get_auth_user_id)):
-    project_id = payload.get("project_id")
-    if not project_id:
-        raise HTTPException(status_code=400, detail="project_id is required")
-    
-    async with async_session() as session:
-        # Verify project ownership
-        project = await session.get(Project, project_id)
-        if not project or project.user_id != user_id:
-            raise HTTPException(status_code=401, detail="Project access denied")
-
-        sessions_data = payload.get("sessions", [])
-        created = []
-        for s in sessions_data:
-            db_session = ProductionSession(
-                project_id=int(project_id),
-                session_number=s.get("session_number"),
-                title=s.get("title"),
-                summary=s.get("summary"),
-                prod_metadata=s.get("prod_metadata", {})
-            )
-            session.add(db_session)
-            created.append(db_session)
-        await session.commit()
-        logger.success(f"[SESSIONS] Neural Matrix deployment successful: {len(created)} sessions materialized for project {project_id}")
-        return created
-
-@router.get("/sessions")
-async def get_sessions(project_id: int, user_id: str = Depends(get_auth_user_id)):
-    async with async_session() as session:
-        # Verify project ownership
-        project = await session.get(Project, project_id)
-        if not project or project.user_id != user_id:
-            raise HTTPException(status_code=401, detail="Project access denied")
-
-        statement = select(ProductionSession).where(ProductionSession.project_id == project_id)
-        result = await session.execute(statement)
-        return result.scalars().all()
-
-# Episodes endpoints have been moved to `backend/api/episodes.py` to keep
-# project routes focused. See that module for `POST /episodes` and
-# `GET /episodes` implementations (including ownership checks and
-# consistent response shapes).
-
-# Scenes endpoints moved to `backend/api/scenes.py` to keep this module focused
-# on project/series-level routes.
+# Episodes endpoints have been moved to `backend/api/episodes.py`
+# Scenes endpoints moved to `backend/api/scenes.py`
+# Sessions endpoints moved to `backend/api/sessions.py`
 
 @router.post("/prompt-library")
 async def create_prompt_library_entry(entry: PromptLibrary):

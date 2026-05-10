@@ -78,11 +78,11 @@ export async function createServer() {
   // Mounted at /api to handle all /api routes including /api/generate and auth routes.
 
   app.use('/api', createProxyMiddleware({
-    target: process.env.BACKEND_URL || "http://localhost:3050",
+    target: process.env.BACKEND_URL || "http://127.0.0.1:3050",
     changeOrigin: true,
     // reduce proxy timeout to fail fast and return earlier errors to the client
-    proxyTimeout: 300000,
-    timeout: 300000,
+    proxyTimeout: 600000,
+    timeout: 600000,
     pathRewrite: (path) => {
       const rewritten = path.startsWith('/api') ? path : `/api${path}`;
       console.log('[PROXY DEBUG] rewrite:', path, '=>', rewritten);
@@ -139,7 +139,7 @@ export async function createServer() {
 
   // --- Orchestrator Health Dashboard ---
   app.get('/_orchestrator/health', async (_req, res) => {
-    const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:3050";
+    const BACKEND_URL = process.env.BACKEND_URL || "http://127.0.0.1:3050";
     const start = Date.now();
     let backendOnline = false;
     let latency = 0;
@@ -176,7 +176,7 @@ export async function createServer() {
   });
 
   app.get('/_orchestrator/ai', (_req, res) => {
-    const backendUrl = process.env.BACKEND_URL || "http://localhost:3050";
+    const backendUrl = process.env.BACKEND_URL || "http://127.0.0.1:3050";
     res.json({
       ai: {
         openai: openai ? "CONNECTED" : (process.env.OPENAI_API_KEY ? "AUTH OK" : "MISSING API KEY"),
@@ -226,7 +226,7 @@ export async function createServer() {
 async function startServer() {
   const { app, openai, anthropic, groq } = await createServer();
   const PORT = Number(process.env.PORT) || 3000;
-  const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:3050";
+  const BACKEND_URL = process.env.BACKEND_URL || "http://127.0.0.1:3050";
 
   app.listen(PORT, "0.0.0.0", async () => {
     // Using global styling utilities

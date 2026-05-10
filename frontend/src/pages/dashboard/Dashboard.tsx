@@ -16,7 +16,7 @@ import {
   ShieldCheck,
   SignalHigh
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -34,6 +34,10 @@ import React from 'react';
 export default function Dashboard() {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const incomingPrompt = searchParams.get('prompt');
+  const incomingStyle = searchParams.get('style');
 
   React.useEffect(() => {
     studioLog('Dashboard', 'Primary interface synchronized and active.', 'success');
@@ -86,6 +90,10 @@ export default function Dashboard() {
     window.location.reload();
   };
 
+  const handleInitializeIncoming = () => {
+    navigate(`/studio/engine?prompt=${encodeURIComponent(incomingPrompt || '')}&style=${encodeURIComponent(incomingStyle || '')}`);
+  };
+
   return (
     <div className={cn("min-h-screen bg-[#050505] text-zinc-100 max-w-[1600px] mx-auto relative overflow-hidden")}>
       {/* Fullscreen loader only during auth phase */}
@@ -96,6 +104,28 @@ export default function Dashboard() {
       )}
 
       <div className={cn("space-y-10 pt-16 pb-20 px-6 transition-opacity duration-200", showFullscreenLoader ? "opacity-0 pointer-events-none" : "opacity-100")}>
+        
+        {/* INCOMING DIRECTIVE CTA */}
+        {incomingPrompt && (
+          <div className="p-8 rounded-[2.5rem] border border-studio/30 bg-studio/5 flex flex-col md:flex-row items-center justify-between gap-6 animate-in slide-in-from-top-4 duration-500">
+             <div className="flex items-center gap-6">
+                <div className="w-14 h-14 rounded-2xl bg-studio/10 border border-studio/20 flex items-center justify-center">
+                   <Zap className="w-7 h-7 text-studio fill-studio" />
+                </div>
+                <div className="space-y-1">
+                   <h3 className="text-xl font-black text-white uppercase italic tracking-tighter">Incoming Production Directive</h3>
+                   <p className="text-xs text-zinc-500 font-bold uppercase tracking-widest max-w-lg truncate italic">"{incomingPrompt}"</p>
+                </div>
+             </div>
+             <Button 
+              onClick={handleInitializeIncoming}
+              className="bg-studio text-black hover:bg-white h-14 px-10 rounded-2xl font-black uppercase tracking-widest transition-all shadow-xl"
+             >
+                Initialize Transmission <ArrowRight className="ml-2 w-4 h-4" />
+             </Button>
+          </div>
+        )}
+
         {/* 1. TOP HEADER / SYSTEM STATUS */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 border-b border-white/5 pb-10 relative">
           <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
