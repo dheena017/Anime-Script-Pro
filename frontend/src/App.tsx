@@ -91,7 +91,7 @@ function AppRoutes() {
   const location = useLocation();
   return (
     <AnimatePresence mode="wait">
-      <Routes location={location} key={location.pathname}>
+      <Routes location={location}>
         {/* Public Routes */}
         <Route path="/" element={<PageTransition><LandingPage /></PageTransition>} />
         <Route path="/auth" element={<PageTransition><AuthPage /></PageTransition>} />

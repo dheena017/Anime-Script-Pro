@@ -42,7 +42,7 @@ export function EnginePage() {
 
   const {
     generatedScript,
-    prompt: globalPrompt,
+    prompt,
     isGeneratingCharacters,
     isGeneratingMetadata,
     isGeneratingImagePrompts,
@@ -52,7 +52,7 @@ export function EnginePage() {
   const {
     setIsSaving,
     setCurrentScriptId,
-    setPrompt: setGlobalPrompt,
+    setPrompt,
     setGeneratedScript,
     syncCore,
   } = useGeneratorDispatch();
@@ -62,8 +62,6 @@ export function EnginePage() {
   const { projects, loading: loadingProjects, refetch: refetchProjects } = useProjects();
   const { setTone, setSelectedModel, setContentType: setLocalContentType } = useEngineDispatch();
   const { deleteProject } = useProjects();
-
-  const [prompt, setPrompt] = useState(globalPrompt || '');
 
   const isGeneratingScript = isGeneratingCharacters || isGeneratingMetadata || isGeneratingImagePrompts || isGeneratingWorld || isGeneratingVisuals;
 
@@ -131,7 +129,6 @@ export function EnginePage() {
       case 'status':
         const handleGenerate = () => {
           if (!prompt.trim()) return;
-          setGlobalPrompt(prompt);
           // Navigate to World Builder phase directly as requested
           navigate('/studio/world');
         }
