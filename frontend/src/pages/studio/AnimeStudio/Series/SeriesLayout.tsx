@@ -161,15 +161,13 @@ export default function SeriesLayout() {
     return 'episodes';
   };
 
-  const [activeTab, setActiveTab] = React.useState<SeriesTab>(() => getActiveTab());
+  const activeTab = getActiveTab();
 
   const handleTabChange = (tab: SeriesTab) => {
-    setActiveTab(tab);
+    navigate(`/studio/series${tab === 'episodes' ? '' : `/${tab}`}`);
   };
 
-  React.useEffect(() => {
-    setActiveTab(getActiveTab());
-  }, [location.pathname]);
+
 
   React.useEffect(() => {
     console.log(`[SeriesLayout] Active tab changed to: ${activeTab.toUpperCase()}`);

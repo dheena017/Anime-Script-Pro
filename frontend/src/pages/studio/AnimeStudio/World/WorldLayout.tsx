@@ -1,5 +1,5 @@
 import { createContext, useEffect, useState } from 'react';
-import { Outlet, useNavigate } from 'react-router-dom';
+import { Outlet, useNavigate, useSearchParams } from 'react-router-dom';
 import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
 import { useAuth } from '@/hooks/useAuth';
 import { WorldHeader } from './components/WorldHeader';
@@ -30,7 +30,8 @@ export const WorldContext = createContext<{
 
 export default function WorldLayout() {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<WorldTab>('manifest');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeTab = (searchParams.get('tab') as WorldTab) || 'manifest';
 
   const {
     isGeneratingWorld,
@@ -164,7 +165,7 @@ export default function WorldLayout() {
 
     // Generate manifest/world
     setGenerationProgress(5);
-    setActiveTab('manifest');
+    setSearchParams({ tab: 'manifest' });
     setIsGeneratingWorld(true);
     reportGeneration('WorldLayout', 'World Manifest', 'request', 'anime');
     try {
@@ -182,49 +183,49 @@ export default function WorldLayout() {
     await new Promise(r => setTimeout(r, 2000));
 
     // Run specialized modules sequentially with auto-tab flow
-    setActiveTab('lore');
+    setSearchParams({ tab: 'lore' });
     await runModule('History', generateLoreHistory, setGeneratedWorldLore, setIsGeneratingLore, promptLore);
     setGenerationProgress(30);
     await new Promise(r => setTimeout(r, 2000));
     
-    setActiveTab('factions');
+    setSearchParams({ tab: 'factions' });
     await runModule('Factions', generateFactionSystem, setGeneratedWorldFactions, setIsGeneratingFactions, promptFactions);
     setGenerationProgress(45);
     await new Promise(r => setTimeout(r, 2000));
 
-    setActiveTab('powers');
+    setSearchParams({ tab: 'powers' });
     await runModule('Powers', generatePowerSystem, setGeneratedWorldPowers, setIsGeneratingPowers, promptPowers);
     setGenerationProgress(60);
     await new Promise(r => setTimeout(r, 2000));
     
-    setActiveTab('architecture');
+    setSearchParams({ tab: 'architecture' });
     await runModule('Architecture', generateArchitecture, setGeneratedWorldArchitecture, setIsGeneratingArchitecture, promptArchitecture);
     setGenerationProgress(70);
     await new Promise(r => setTimeout(r, 2000));
     
-    setActiveTab('atlas');
+    setSearchParams({ tab: 'atlas' });
     await runModule('Atlas', generateAtlas, setGeneratedWorldAtlas, setIsGeneratingAtlas, promptAtlas);
     setGenerationProgress(80);
     await new Promise(r => setTimeout(r, 2000));
     
-    setActiveTab('culture');
+    setSearchParams({ tab: 'culture' });
     await runModule('Culture', generateCulture, setGeneratedWorldCulture, setIsGeneratingCulture, promptCulture);
     setGenerationProgress(90);
     await new Promise(r => setTimeout(r, 2000));
     
-    setActiveTab('systems');
+    setSearchParams({ tab: 'systems' });
     await runModule('Systems', generateSystems, setGeneratedWorldSystems, setIsGeneratingSystems, promptSystems);
     setGenerationProgress(100);
     await new Promise(r => setTimeout(r, 2000));
 
     showNotification?.('Full World Manifest Sequence Complete!', 'success');
-    setActiveTab('manifest');
+    setSearchParams({ tab: 'manifest' });
     // Reset progress after a short delay
     setTimeout(() => setGenerationProgress(0), 3000);
   };
 
   const handleTabChange = (tab: WorldTab) => {
-    setActiveTab(tab);
+    setSearchParams({ tab });
   };
 
   useEffect(() => {

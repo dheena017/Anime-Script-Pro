@@ -50,7 +50,7 @@ export default function CastLayout() {
     return 'registry';
   };
 
-  const [activeTab, setActiveTab] = React.useState<CastTab>(() => getTabFromPath(location.pathname));
+  const activeTab = getTabFromPath(location.pathname);
 
   const { showNotification } = useApp();
   const {
@@ -143,8 +143,7 @@ export default function CastLayout() {
       setGenerationProgress(100);
       showNotification?.('Cast Nexus Synthesized.', 'success');
       
-      // Explicitly set to registry tab after generation to show the list
-      setActiveTab('registry');
+      // Navigate explicitly to registry tab
       navigate('/studio/cast');
 
       // Reset progress after a short delay
@@ -159,7 +158,7 @@ export default function CastLayout() {
   }, [prompt, selectedModel, contentType, generatedWorld, numCharacters, handlers, setCastData, setCastList, setGeneratedCharacters, setCharacterRelationships, setCastDNA, setCastDynamics, setCastIntegrity, setIsGeneratingCharacters, setGenerationProgress, showNotification, navigate]);
 
   const handleTabChange = (tab: CastTab) => {
-    setActiveTab(tab);
+    navigate(`/studio/cast${tab === 'registry' ? '' : `/${tab}`}`);
   };
 
   React.useEffect(() => {
@@ -171,10 +170,7 @@ export default function CastLayout() {
     return () => window.removeEventListener('studio-generate-cast', handleTriggerGenerate);
   }, [handleGenerateAll]);
 
-  React.useEffect(() => {
-    const routeTab = getTabFromPath(location.pathname);
-    setActiveTab(routeTab);
-  }, [location.pathname, contentType]);
+
 
   React.useEffect(() => {
     reportTabChange('CastLayout', activeTab, 'anime');

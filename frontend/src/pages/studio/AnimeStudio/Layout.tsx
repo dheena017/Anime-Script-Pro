@@ -1,5 +1,5 @@
 import React, { useEffect, useCallback } from 'react';
-import { Outlet, useNavigate, useLocation, useSearchParams, useParams } from 'react-router-dom';
+import { Outlet, useNavigate, useLocation, useSearchParams, useParams, useOutlet } from 'react-router-dom';
 import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
 import { useAuth } from '@/hooks/useAuth';
 import { useApp } from '@/contexts/AppContext';
@@ -25,6 +25,7 @@ export default function AnimeLayout() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const outlet = useOutlet();
   const [searchParams] = useSearchParams();
   const { showNotification } = useApp();
   const { projectId: urlProjectId } = useParams();
@@ -438,7 +439,7 @@ export default function AnimeLayout() {
                       className="flex-1 flex flex-col"
                     >
                         <div className="flex-1 flex flex-col">
-                          <Outlet />
+                          {outlet ? React.cloneElement(outlet as React.ReactElement, { key: location.pathname }) : <Outlet />}
                         </div>
                     </motion.div>
                   </AnimatePresence>
