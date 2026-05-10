@@ -10,6 +10,7 @@ lerna-debug.log*
 lint_output.txt
 pip-log.txt
 tsc_errors.log
+.llm-chat-history
 
 # Dependencies & Build
 node_modules/
