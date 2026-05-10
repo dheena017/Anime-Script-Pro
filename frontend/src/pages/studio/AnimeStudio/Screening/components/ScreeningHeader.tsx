@@ -86,46 +86,7 @@ export const ScreeningHeader: React.FC<ScreeningHeaderProps> = ({
               )}
             </div>
 
-            <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
-              <Tooltip>
-                <TooltipTrigger >
-                  <Button 
-                    variant="ghost" 
-                    className="relative w-full sm:w-auto h-10 px-6 bg-gradient-to-r from-cyan-500/15 to-cyan-500/5 border border-cyan-500/40 text-cyan-500 hover:text-cyan-400 hover:border-cyan-500/70 hover:bg-gradient-to-r hover:from-cyan-500/25 hover:to-cyan-500/15 font-black uppercase tracking-widest text-[9px] rounded-lg transition-all duration-300 group/btn shadow-lg hover:shadow-[0_0_20px_rgba(34,211,238,0.3)]"
-                    onClick={onRender}
-                    disabled={isRendering || !hasScript}
-                  >
-                    {isRendering ? (
-                      <RefreshCw className="w-4 h-4 animate-spin mr-2" />
-                    ) : (
-                      <Zap className="w-4 h-4 mr-2 group-hover/btn:scale-110 transition-transform duration-300" />
-                    )}
-                    <span className="relative z-10">{isRendering ? "RENDERING" : "RENDER"}</span>
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent side="top">
-                  <p className="font-black uppercase tracking-widest text-[9px]">Execute Cinema Rendering</p>
-                </TooltipContent>
-              </Tooltip>
 
-
-
-              <Tooltip>
-                <TooltipTrigger >
-                  <Button 
-                    className="relative w-full sm:w-auto h-10 px-8 rounded-lg bg-gradient-to-r from-white to-zinc-100 text-black hover:from-zinc-50 hover:to-white font-black uppercase tracking-widest text-[9px] transition-all duration-300 group/next shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:shadow-[0_0_30px_rgba(255,255,255,0.4)]"
-                    onClick={onNext}
-                  >
-                    <span className="relative z-10 flex items-center gap-2">
-                      NEXT <ChevronRight className="w-4 h-4 group-hover/next:translate-x-1 transition-transform" />
-                    </span>
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent side="top">
-                  <p className="font-black uppercase tracking-widest text-[9px]">Proceed to Engine Controls</p>
-                </TooltipContent>
-              </Tooltip>
-            </div>
           </div>
         </div>
       </div>
