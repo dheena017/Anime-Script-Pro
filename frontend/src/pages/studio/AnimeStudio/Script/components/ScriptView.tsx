@@ -16,6 +16,7 @@ interface ScriptViewProps {
 
 // Parse scene data rows out of markdown table string
 function parseSceneRows(script: string): string[][] {
+  if (!script) return [];
   const lines = script.split('\n').filter(l => l.includes('|') && !l.includes('---'));
   if (lines.length < 2) return [];
   return lines.slice(1).map(l =>
@@ -25,6 +26,7 @@ function parseSceneRows(script: string): string[][] {
 
 // Extract header cells from markdown table
 function parseHeaderRow(script: string): string[] {
+  if (!script) return [];
   const lines = script.split('\n').filter(l => l.includes('|') && !l.includes('---'));
   if (!lines.length) return [];
   return lines[0].split('|').map(c => c.trim()).filter((_, i, arr) => i > 0 && i < arr.length - 1);
@@ -32,8 +34,12 @@ function parseHeaderRow(script: string): string[] {
 
 // Get content before and after the table
 function splitScriptParts(script: string): { before: string; after: string } {
-  const tableStart = script.indexOf('|');
+  if (!script) return { before: '', after: '' };
   const tableLines = script.split('\n').filter(l => l.includes('|'));
+  if (tableLines.length === 0) {
+    return { before: script.trim(), after: '' };
+  }
+  const tableStart = script.indexOf('|');
   const lastTableLine = tableLines[tableLines.length - 1];
   const tableEnd = script.lastIndexOf(lastTableLine) + lastTableLine.length;
   return {
