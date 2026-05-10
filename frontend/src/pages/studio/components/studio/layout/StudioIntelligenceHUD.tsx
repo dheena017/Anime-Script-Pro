@@ -220,18 +220,15 @@ export function StudioIntelligenceHUD() {
       <button
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
-          "w-10 h-24 bg-black/80 backdrop-blur-xl border-r border-y border-white/10 rounded-r-2xl flex flex-col items-center justify-center gap-4 transition-all duration-500 group overflow-hidden",
-          isOpen ? "-translate-x-full opacity-0 absolute left-0" : "translate-x-0 opacity-100 shadow-[0_0_30px_rgba(0,0,0,0.5)] relative"
+          "w-14 h-14 bg-black/90 backdrop-blur-xl border border-white/10 rounded-full flex items-center justify-center transition-all duration-500 group overflow-hidden hover:scale-105 hover:border-studio/30",
+          isOpen ? "scale-0 opacity-0 absolute left-6" : "scale-100 opacity-100 shadow-[0_0_30px_rgba(0,0,0,0.5)] hover:shadow-[0_0_30px_rgba(6,182,212,0.3)] relative ml-6"
         )}
       >
-        <div className="absolute inset-0 bg-gradient-to-b from-studio/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+        <div className="absolute inset-0 bg-gradient-to-tr from-studio/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
         <Brain className={cn(
-          "w-4 h-4 text-studio animate-pulse-slow",
-          (isGeneratingWorld || isGeneratingCharacters || isGeneratingSeries) && "animate-spin-slow"
+          "w-6 h-6 text-studio group-hover:scale-110 transition-transform duration-300",
+          (isGeneratingWorld || isGeneratingCharacters || isGeneratingSeries) ? "animate-spin-slow" : "animate-pulse-slow"
         )} />
-        <span className="[writing-mode:vertical-lr] text-[8px] font-black uppercase tracking-[0.3em] text-zinc-500 group-hover:text-studio transition-colors rotate-180">
-          INTELLIGENCE
-        </span>
       </button>
     </div>
   );

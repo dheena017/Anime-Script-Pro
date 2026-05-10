@@ -61,8 +61,6 @@ export const AnimeStudioSideBar = React.memo<AnimeStudioSideBarProps>(({
   const distributionItems = [
     { icon: Search, label: 'SEO', path: '/seo' },
     { icon: ImageIcon, label: 'Prompts', path: '/prompts' },
-    { icon: Globe, label: 'World Lore', path: '/lore' },
-    {icon: Cpu, label: 'API Reference', path: '/api'},
     { icon: Play, label: 'Screening Room', path: '/screening' },
   ];
 
