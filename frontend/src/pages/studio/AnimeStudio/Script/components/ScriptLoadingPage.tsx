@@ -48,7 +48,7 @@ export function ScriptLoadingPage({ tab, title, description, progress }: ScriptL
     return () => { if (interval) clearInterval(interval); };
   }, [isActive, progress]);
 
-  const meta = tab ? TAB_META[tab] : { 
+  const defaultMeta = { 
     title: title || 'Synthesizing Script', 
     description: description || 'Generating episodic dialogue and visual directions',
     icon: FileText,
@@ -58,8 +58,10 @@ export function ScriptLoadingPage({ tab, title, description, progress }: ScriptL
     bgColor: 'bg-cyan-500/5',
     shadowColor: 'rgba(34, 211, 238, 0.1)'
   };
+
+  const meta = (tab && TAB_META[tab]) ? TAB_META[tab] : defaultMeta;
   
-  const Icon = meta?.icon || FileText;
+  const Icon = meta.icon || FileText;
 
   return (
     <div className="w-full py-20 flex items-center justify-center min-h-[500px]">
