@@ -103,8 +103,7 @@
       "server.ts"
     ],
     "win": {
-      "target": "nsis",
-      "icon": "frontend/public/favicon.ico"
+      "target": "nsis"
     },
     "nsis": {
       "oneClick": false,
