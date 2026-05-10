@@ -81,8 +81,8 @@ export async function createServer() {
     target: process.env.BACKEND_URL || "http://localhost:3050",
     changeOrigin: true,
     // reduce proxy timeout to fail fast and return earlier errors to the client
-    proxyTimeout: 20000,
-    timeout: 20000,
+    proxyTimeout: 300000,
+    timeout: 300000,
     pathRewrite: (path) => {
       const rewritten = path.startsWith('/api') ? path : `/api${path}`;
       console.log('[PROXY DEBUG] rewrite:', path, '=>', rewritten);

@@ -108,7 +108,17 @@ async def log_requests(request: Request, call_next):
         # 4. THE FAILURE: Catch and loudly log any crashes during the cycle
         logger.error(f"❌ CRITICAL [{signal_id}]: Request cycle broken during {method} {path}")
         logger.error(f"   Reason: {str(e)}")
-        raise
+        import traceback
+        logger.error(traceback.format_exc())
+        
+        return JSONResponse(
+            status_code=500,
+            content={
+                "error": "Internal Production Error",
+                "detail": str(e),
+                "signal_id": signal_id
+            }
+        )
 
 # --- Routers ---
 app.include_router(api_router)
