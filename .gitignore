@@ -30,6 +30,9 @@ out/
 .next/
 .nuxt/
 .svelte-kit/
+dist-electron/
+build-backend/
+*.spec
 
 # Python (Backend & Virtual Environments)
 __pycache__/

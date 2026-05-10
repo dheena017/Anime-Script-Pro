@@ -46,6 +46,27 @@ The studio has been modernized to handle a complex **Image-to-Video** pipeline:
 - **Neural Models**: Multi-Model Swarm (Gemini 2.5 Pro / Flash, Imagen-3, Veo-2.0)
 - **Verification**: Playwright E2E + Backend Unit/Integration Suite
 - **Feature Docs**: See [FEATURES.md](./docs/FEATURES.md) for a detailed feature catalog.
+- **Desktop Architecture**: See [STANDALONE_BUILD_PLAN.md](./desktop/STANDALONE_BUILD_PLAN.md) for bundling details.
+
+---
+
+## 🖥️ Desktop Application
+
+Anime Script Pro now supports a native desktop experience for Windows, macOS, and Linux via **Electron**.
+
+### 🛠️ Desktop Development
+To run the studio in a native window with hot-reloading:
+```bash
+npm run desktop
+```
+*This launches the Python backend and the Electron shell in a unified creative environment.*
+
+### 📦 Building the Installer
+To generate a standalone, professional installer (`.exe`) that includes both the frontend and the Python engine:
+```bash
+node scripts/build-desktop.mjs
+```
+The output will be available in the `dist-electron/` directory.
 
 ---
 
@@ -138,6 +159,8 @@ npm run test
 | `npm run build` | Generate the optimized production-grade bundle. |
 | `npm run start` | Launch the production server bundle. |
 | `npm run backend` | Start the FastAPI backend server on port 3050. |
+| `npm run desktop` | Start the Full Studio in a native Desktop window (Dev Mode). |
+| `node scripts/build-desktop.mjs` | Generate a standalone (.exe) Desktop installer. |
 | `py -m uvicorn backend.fastapi_app:app --reload --port 3050` | Start FastAPI with auto-reload on code changes. |
 | `docker compose up -d` | Launch the entire 3-tier studio architecture. |
 
