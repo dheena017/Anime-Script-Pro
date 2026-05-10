@@ -1,17 +1,21 @@
 import React, { createContext, useState, useEffect, useMemo, useCallback } from 'react';
 import { useLocation } from 'react-router-dom';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { apiRequest } from '@/lib/api-utils';
+import { useQueryClient } from '@tanstack/react-query';
 import { ProductionUnit } from '@/lib/sequence-utils';
 import { useAuth } from '@/hooks/useAuth';
 import { useApp } from '@/contexts/AppContext';
-import { engineApi } from '../services/api/engine';
-import { worldApi, WorldLore } from '../services/api/world';
-import { productionApi } from '../services/api/production';
-import { characterApi } from '../services/api/characters';
+import { WorldLore } from '../services/api/world';
+import { useLogDispatch } from './LogContext';
+import {
+  useGeneratorAutoSave,
+  useGeneratorProgressEffect,
+  useGeneratorQueries,
+  useResolveProjectId,
+  useGeneratorSaveCore,
+  useGeneratorSyncEffects,
+  useGeneratorTelemetryEffects,
+} from './generator/useGeneratorLifecycle';
 import { AI_EVENTS } from '../services/generators/core';
-import { projectService } from '../services/api/projects';
-import { useLogs, useLogDispatch } from './LogContext';
 
 interface GeneratorState {
   generationProgress: any;
@@ -111,6 +115,7 @@ interface GeneratorState {
   castIntegrity?: any | null;
   isAnalyzingCast: boolean;
   numCharacters: number;
+  numEpisodes: number;
 }
 
 interface GeneratorDispatch {
@@ -212,6 +217,7 @@ interface GeneratorDispatch {
   setGlobalPrompt: (p: string) => void;
   setGlobalContentType: (t: string) => void;
   setNumCharacters: (n: number) => void;
+  setNumEpisodes: (n: number) => void;
 }
 
 export const GeneratorStateContext = createContext<GeneratorState | undefined>(undefined);
@@ -297,13 +303,6 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
   const hasLoadedWorld = React.useRef(false);
   const hasLoadedCast = React.useRef(false);
 
-  // Reset load flags when user changes
-  useEffect(() => {
-    hasLoadedProduction.current = false;
-    hasLoadedWorld.current = false;
-    hasLoadedCast.current = false;
-  }, [user?.id]);
-
   // Sync currentScriptId from navigation state (e.g. when coming from Dashboard)
   useEffect(() => {
     const state = location.state as { projectId?: string | number } | null;
@@ -321,6 +320,10 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     }
     return abortController.signal;
   }, [abortController]);
+
+  const showNotification = useCallback((message: string, type?: 'error' | 'success' | 'info') => {
+    rawShowNotification(message, type);
+  }, [rawShowNotification]);
 
   const stopGeneration = useCallback(() => {
     abortController.abort();
@@ -343,11 +346,7 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     setIsGeneratingDistribution(false);
     showNotification("Generation stopped", "info");
     setAbortController(new AbortController());
-  }, [abortController, rawShowNotification]);
-
-  const showNotification = useCallback((message: string, type?: 'error' | 'success' | 'info') => {
-    rawShowNotification(message, type);
-  }, [rawShowNotification]);
+  }, [abortController, showNotification]);
 
   const [episode, setEpisode] = useState('1');
   const [session, setSession] = useState('1');
@@ -393,420 +392,182 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
   const [castIntegrity, setCastIntegrity] = useState<any | null>(null);
   const [isAnalyzingCast, setIsAnalyzingCast] = useState(false);
   const [numCharacters, setNumCharacters] = useState<number>(8);
+  const [numEpisodes, setNumEpisodes] = useState<number>(12);
 
-  // TanStack Queries for Caching
-  const { data: engineConfig } = useQuery({
-    queryKey: ['engineConfig', user?.id],
-    queryFn: () => engineApi.getConfig(user!.id),
-    enabled: !!user?.id,
+  const { worldLore, production, castDataFromApi, projectHistory } = useGeneratorQueries({
+    userId: user?.id,
+    currentScriptId,
   });
 
-  const { data: worldLore } = useQuery({
-    queryKey: ['worldLore', user?.id, currentScriptId],
-    queryFn: () => worldApi.getLore(user!.id, currentScriptId ? parseInt(currentScriptId) : undefined),
-    enabled: !!user?.id && !!currentScriptId,
+  useGeneratorSyncEffects({
+    userId: user?.id,
+    currentScriptId,
+    production,
+    worldLore,
+    castDataFromApi,
+    generatedScript,
+    generatedWorld,
+    castListLength: castList.length,
+    isGeneratingSeries,
+    isGeneratingCharacters,
+    isGeneratingWorld,
+    isGeneratingLore,
+    isGeneratingPowers,
+    isGeneratingFactions,
+    isGeneratingArchitecture,
+    isGeneratingAtlas,
+    isGeneratingCulture,
+    isGeneratingSystems,
+    hasLoadedProduction,
+    hasLoadedWorld,
+    hasLoadedCast,
+    setGeneratedScript,
+    setGeneratedSeriesPlan,
+    setGeneratedMetadata,
+    setGeneratedGrowthStrategy,
+    setGeneratedDistributionPlan,
+    setGeneratedWorldInternal,
+    setGeneratedWorldLore,
+    setGeneratedWorldPowers,
+    setGeneratedWorldFactions,
+    setGeneratedWorldArchitecture,
+    setGeneratedWorldAtlas,
+    setGeneratedWorldCulture,
+    setGeneratedWorldSystems,
+    setGeneratedWorldContent,
+    setCastList,
+    setCastProfiles,
+    setCharacterRelationships,
+    setCastDNA,
+    setCastDynamics,
+    setCastIntegrity,
+    setGeneratedImagePrompts,
+    setGeneratedDescription,
+    setGeneratedAltText,
+    setVisualData,
+    setVideoData,
+    setProductionSequence,
+    setGenerationProgress,
+    setPromptLore,
+    setPromptPowers,
+    setPromptFactions,
+    setPromptArchitecture,
+    setPromptAtlas,
+    setPromptCulture,
+    setPromptSystems,
+    setNumCharacters,
   });
 
-  const { data: production } = useQuery({
-    queryKey: ['productionContent', user?.id, currentScriptId],
-    queryFn: () => productionApi.getContent(user!.id, currentScriptId ? parseInt(currentScriptId) : undefined),
-    enabled: !!user?.id && !!currentScriptId,
+  const resolveProjectId = useResolveProjectId(currentScriptId);
+
+  useGeneratorAutoSave({
+    userId: user?.id,
+    production,
+    resolveProjectId: () => resolveProjectId(),
+    generatedScript,
+    generatedSeriesPlan,
+    generatedMetadata,
+    generatedImagePrompts,
+    generatedGrowthStrategy,
+    generatedDistributionPlan,
+    generatedDescription,
+    generatedAltText,
+    generatedWorld,
+    generatedWorldLore,
+    generatedWorldPowers,
+    generatedWorldFactions,
+    generatedWorldArchitecture,
+    generatedWorldAtlas,
+    generatedWorldCulture,
+    generatedWorldSystems,
+    promptLore,
+    promptPowers,
+    promptFactions,
+    promptArchitecture,
+    promptAtlas,
+    promptCulture,
+    promptSystems,
+    prompt,
+    selectedModel,
+    contentType,
+    tone,
+    genre,
+    artStyle,
+    castList,
+    characterRelationships,
+    numCharacters,
   });
-
-  const { data: castDataFromApi } = useQuery({
-    queryKey: ['characterCast', user?.id, currentScriptId],
-    queryFn: () => characterApi.getCast(user!.id, currentScriptId ? parseInt(currentScriptId) : undefined),
-    enabled: !!user?.id && !!currentScriptId,
-  });
-
-  const { data: projectHistory = [] } = useQuery({
-    queryKey: ['projectHistory', user?.id],
-    queryFn: async () => {
-      const projects = await apiRequest<any[]>(`/api/projects?user_id=${user!.id}`, { label: 'Project History' });
-      return (projects || []).map(p => ({
-        id: p.id,
-        title: p.name || 'Untitled',
-        date: new Date(p.created_at).toLocaleDateString(),
-        createdAt: p.created_at,
-        prompt: p.prompt,
-        vibe: p.vibe,
-        contentType: p.content_type,
-        modelUsed: p.model_used
-      }));
-    },
-    enabled: !!user?.id,
-  });
-
-  // Reset all loaded flags and clear memory when switching projects
-  useEffect(() => {
-    hasLoadedProduction.current = false;
-    hasLoadedWorld.current = false;
-    hasLoadedCast.current = false;
-
-    // Clear current state to avoid "ghost data" from previous projects
-    setGeneratedScript(null);
-    setGeneratedSeriesPlan(null);
-    setGeneratedMetadata(null);
-    setGeneratedGrowthStrategy(null);
-    setGeneratedDistributionPlan(null);
-    setGeneratedWorldInternal(null);
-    setGeneratedWorldLore(null);
-    setGeneratedWorldPowers(null);
-    setGeneratedWorldFactions(null);
-    setGeneratedWorldArchitecture(null);
-    setGeneratedWorldAtlas(null);
-    setGeneratedWorldCulture(null);
-    setGeneratedWorldSystems(null);
-    setGeneratedWorldContent(null);
-    setCastList([]);
-    setCastProfiles(null);
-    setCharacterRelationships('');
-    setCastDNA(null);
-    setCastDynamics(null);
-    setCastIntegrity(null);
-    setGeneratedImagePrompts(null);
-    setGeneratedDescription(null);
-    setGeneratedAltText(null);
-    setVisualData([]);
-    setVideoData([]);
-    setProductionSequence([]);
-    setGenerationProgress(0);
-  }, [currentScriptId]);
-
-
-  // Sync logic moved after ALL state declarations to avoid "used before declaration" errors
-  useEffect(() => {
-    // Only sync from server on initial load or if local state is empty and we aren't currently generating
-    const canSync = !hasLoadedProduction.current || (!generatedScript && !isGeneratingSeries);
-    
-    if (production && canSync) {
-      setGeneratedScript(production.script_content || null);
-      setGeneratedSeriesPlan(production.series_plan || null);
-      setGeneratedMetadata(production.seo_metadata || null);
-      setGeneratedGrowthStrategy(production.growth_strategy || null);
-      setGeneratedDistributionPlan(production.distribution_plan || null);
-      setGeneratedImagePrompts(production.storyboard_prompts || null);
-      setGeneratedDescription(production.youtube_description || null);
-      setGeneratedAltText(production.alt_text_blob || null);
-      hasLoadedProduction.current = true;
-    }
-  }, [production, generatedScript, isGeneratingSeries, currentScriptId]);
-
-  useEffect(() => {
-    // Prevent overwriting active world building
-    const isGeneratingAnyWorld = isGeneratingWorld || isGeneratingLore || isGeneratingPowers || isGeneratingFactions || isGeneratingArchitecture || isGeneratingAtlas || isGeneratingCulture || isGeneratingSystems;
-    const canSync = !hasLoadedWorld.current || (!generatedWorld && !isGeneratingAnyWorld);
-
-    if (worldLore && canSync) {
-      setGeneratedWorldInternal(worldLore.manifest_blob || null);
-      setGeneratedWorldLore(worldLore.history_blob || null);
-      setGeneratedWorldPowers(worldLore.powers_blob || null);
-      setGeneratedWorldFactions(worldLore.factions_blob || null);
-      setGeneratedWorldArchitecture(worldLore.architecture_blob || null);
-      setGeneratedWorldAtlas(worldLore.atlas_blob || null);
-      setGeneratedWorldCulture(worldLore.culture_blob || null);
-      setGeneratedWorldSystems(worldLore.systems_blob || null);
-      
-      setPromptLore(worldLore.prompt_history || '');
-      setPromptPowers(worldLore.prompt_powers || '');
-      setPromptFactions(worldLore.prompt_factions || '');
-      setPromptArchitecture(worldLore.prompt_architecture || '');
-      setPromptAtlas(worldLore.prompt_atlas || '');
-      setPromptCulture(worldLore.prompt_culture || '');
-      setPromptSystems(worldLore.prompt_systems || '');
-      
-      setGeneratedWorldContent(worldLore);
-      hasLoadedWorld.current = true;
-    }
-  }, [worldLore, generatedWorld, isGeneratingWorld, isGeneratingLore, isGeneratingPowers, isGeneratingFactions, isGeneratingArchitecture, isGeneratingAtlas, isGeneratingCulture, isGeneratingSystems, currentScriptId]);
-
-  useEffect(() => {
-    // Prevent overwriting active cast creation
-    const canSync = !hasLoadedCast.current || (castList.length === 0 && !isGeneratingCharacters);
-
-    if (castDataFromApi && canSync) {
-      if (castDataFromApi.cast_list_blob || castDataFromApi.num_characters) {
-        try {
-          if (castDataFromApi.num_characters) {
-            setNumCharacters(castDataFromApi.num_characters);
-          }
-          setCastList(castDataFromApi.cast_list_blob ? JSON.parse(castDataFromApi.cast_list_blob) : []);
-        } catch (e) {
-          console.error("Failed to parse cast list from API", e);
-        }
-      }
-      setCharacterRelationships(castDataFromApi.relationships_blob || '');
-      hasLoadedCast.current = true;
-    }
-  }, [castDataFromApi, castList.length, isGeneratingCharacters, currentScriptId]);
-
-  const resolveProjectId = useCallback((overrideProjectId?: number) => {
-    if (typeof overrideProjectId === 'number' && Number.isFinite(overrideProjectId)) {
-      return overrideProjectId;
-    }
-
-    if (!currentScriptId) {
-      return undefined;
-    }
-
-    const parsedProjectId = Number.parseInt(currentScriptId, 10);
-    return Number.isFinite(parsedProjectId) ? parsedProjectId : undefined;
-  }, [currentScriptId]);
-
-  // Auto-save Production Content (Remaining global fields)
-  useEffect(() => {
-    if (!user?.id || !production) return;
-
-    const projectId = resolveProjectId();
-
-    const timeout = setTimeout(async () => {
-      try {
-        await productionApi.updateContent(user.id, {
-          script_content: generatedScript,
-          series_plan: generatedSeriesPlan,
-          seo_metadata: generatedMetadata,
-          storyboard: generatedImagePrompts,
-          growth_strategy: generatedGrowthStrategy,
-          distribution_plan: generatedDistributionPlan,
-          youtube_description: generatedDescription,
-          alt_texts: generatedAltText
-        }, projectId);
-
-        if (projectId) {
-          await projectService.updateProject(projectId, {
-            prompt: prompt,
-            model_used: selectedModel,
-            content_type: contentType,
-            genre: genre,
-            art_style: artStyle,
-            tone: tone,
-            description: prompt, // Use prompt as description for now
-            status: "IN_PROGRESS"
-          });
-        }
-
-        // Auto-save World Lore (Modular)
-        if (generatedWorld) await worldApi.manifest.update(user.id, generatedWorld, promptLore, projectId);
-        if (generatedWorldLore) await worldApi.history.update(user.id, generatedWorldLore, promptLore, projectId);
-        if (generatedWorldPowers) await worldApi.powers.update(user.id, generatedWorldPowers, promptPowers, projectId);
-        if (generatedWorldFactions) await worldApi.factions.update(user.id, generatedWorldFactions, promptFactions, projectId);
-        if (generatedWorldArchitecture) await worldApi.architecture.update(user.id, generatedWorldArchitecture, promptArchitecture, projectId);
-        if (generatedWorldAtlas) await worldApi.atlas.update(user.id, generatedWorldAtlas, promptAtlas, projectId);
-        if (generatedWorldCulture) await worldApi.culture.update(user.id, generatedWorldCulture, promptCulture, projectId);
-        if (generatedWorldSystems) await worldApi.systems.update(user.id, generatedWorldSystems, promptSystems, projectId);
-
-        // Auto-save Cast Content
-        await characterApi.updateCast(user.id, {
-          cast_list_blob: castList ? JSON.stringify(castList) : null,
-          relationships_blob: characterRelationships,
-          prompt_cast: prompt, // Using global prompt as baseline for cast logic
-          num_characters: numCharacters,
-        }, projectId);
-      } catch (error) {
-        console.error("%c[System] %cFailed to sync production/cast content:", 'color: #ef4444; font-weight: bold', 'color: #94a3b8', error);
-      }
-    }, 5000);
-
-    return () => clearTimeout(timeout);
-  }, [user?.id, generatedScript, generatedSeriesPlan, generatedMetadata, generatedGrowthStrategy, generatedDistributionPlan, generatedWorld, generatedWorldLore, generatedWorldPowers, generatedWorldFactions, generatedWorldArchitecture, generatedWorldAtlas, generatedWorldCulture, generatedWorldSystems, production, resolveProjectId, prompt, selectedModel, contentType, tone, genre, artStyle, castList, characterRelationships, numCharacters]);
 
   const { addLog } = useLogDispatch();
 
-  const syncCore = useCallback(async (projectId?: number, projectName?: string): Promise<number | undefined> => {
-    if (!user?.id) {
-      showNotification("Please log in to save your work", "error");
-      console.warn("[GeneratorContext] Save skipped: user is not logged in.");
-      return undefined;
-    }
+  const syncCore = useGeneratorSaveCore({
+    userId: user?.id,
+    resolveProjectId,
+    setIsSaving,
+    addLog,
+    showNotification,
+    prompt,
+    contentType,
+    selectedModel,
+    genre,
+    artStyle,
+    tone,
+    generatedScript,
+    generatedSeriesPlan,
+    generatedMetadata,
+    generatedImagePrompts,
+    generatedGrowthStrategy,
+    generatedDistributionPlan,
+    generatedDescription,
+    generatedAltText,
+    generatedWorldContent,
+    generatedWorld,
+    generatedWorldLore,
+    generatedWorldPowers,
+    generatedWorldFactions,
+    generatedWorldArchitecture,
+    generatedWorldAtlas,
+    generatedWorldCulture,
+    generatedWorldSystems,
+    promptLore,
+    promptPowers,
+    promptFactions,
+    promptArchitecture,
+    promptAtlas,
+    promptCulture,
+    promptSystems,
+    castList,
+    characterRelationships,
+    castDNA,
+    castDynamics,
+    castIntegrity,
+    setCurrentScriptId,
+    queryClient,
+    hasLoadedProduction,
+    hasLoadedWorld,
+    hasLoadedCast,
+  });
 
-    let resolvedProjectId = resolveProjectId(projectId);
+  useGeneratorTelemetryEffects({
+    userId: user?.id,
+    addLog,
+    setActiveModelAttempt,
+    setFallbackHistory,
+  });
 
-    setIsSaving(true);
-    addLog("SAVE", "START", "Starting project save...");
-    console.info("[GeneratorContext] Project save started.", { projectId: resolvedProjectId });
-    showNotification("Saving your project...", "info");
-
-    try {
-      // PHASE 0: Create Project Record if missing
-      if (!resolvedProjectId) {
-        addLog("PROJECT", "CREATING", "Creating new production record...");
-        const title = projectName || prompt || "Untitled Anime Project";
-        const res = await fetch("/api/projects", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            user_id: user.id,
-            title: title,
-            name: title,
-            content_type: contentType || 'Anime',
-            prompt: prompt,
-            model_used: selectedModel
-          })
-        });
-        if (res.ok) {
-          const newProject = await res.json();
-          resolvedProjectId = newProject.id;
-          if (resolvedProjectId) setCurrentScriptId(resolvedProjectId.toString());
-          addLog("PROJECT", "CREATED", `New production initialized: ID ${resolvedProjectId}`);
-        } else {
-          const errBody = await res.text();
-          console.error("[GeneratorContext] Project creation failed:", errBody);
-          throw new Error(`Failed to initialize project record: ${errBody}`);
-        }
-      }
-
-      // PHASE 1: Production Asset Sync
-      addLog("PRODUCTION", "SAVING", "Saving script, series, and storyboard data...");
-      console.info("[GeneratorContext] Saving production content.", { projectId: resolvedProjectId });
-      await productionApi.updateContent(user.id, {
-        script_content: generatedScript,
-        series_plan: generatedSeriesPlan,
-        seo_metadata: generatedMetadata,
-        storyboard: generatedImagePrompts,
-        growth_strategy: generatedGrowthStrategy,
-        distribution_plan: generatedDistributionPlan,
-        youtube_description: generatedDescription,
-        alt_texts: generatedAltText,
-      }, resolvedProjectId);
-
-      // Persist Project Baseline
-      if (resolvedProjectId) {
-        await projectService.updateProject(resolvedProjectId, {
-          prompt: prompt,
-          model_used: selectedModel,
-          content_type: contentType,
-          genre: genre,
-          art_style: artStyle,
-          tone: tone,
-          description: prompt,
-          status: "IN_PROGRESS"
-        });
-      }
-
-      // PHASE 2: World Lore Sync
-      if (generatedWorldContent || generatedWorld) {
-        // Full Modular Sync
-        console.info("[GeneratorContext] Saving modular world content.", { projectId: resolvedProjectId });
-        if (generatedWorld) await worldApi.manifest.update(user.id, generatedWorld, promptLore, resolvedProjectId);
-        if (generatedWorldLore) await worldApi.history.update(user.id, generatedWorldLore, promptLore, resolvedProjectId);
-        if (generatedWorldPowers) await worldApi.powers.update(user.id, generatedWorldPowers, promptPowers, resolvedProjectId);
-        if (generatedWorldFactions) await worldApi.factions.update(user.id, generatedWorldFactions, promptFactions, resolvedProjectId);
-        if (generatedWorldArchitecture) await worldApi.architecture.update(user.id, generatedWorldArchitecture, promptArchitecture, resolvedProjectId);
-        if (generatedWorldAtlas) await worldApi.atlas.update(user.id, generatedWorldAtlas, promptAtlas, resolvedProjectId);
-        if (generatedWorldCulture) await worldApi.culture.update(user.id, generatedWorldCulture, promptCulture, resolvedProjectId);
-        if (generatedWorldSystems) await worldApi.systems.update(user.id, generatedWorldSystems, promptSystems, resolvedProjectId);
-      }
-
-      // PHASE 3: Cast Manifest Sync (full: characters + DNA + dynamics + integrity)
-      addLog("CAST", "SAVING", "Saving characters and relationships...");
-      console.info("[GeneratorContext] Saving cast content.", { projectId: resolvedProjectId });
-      await characterApi.updateCast(user.id, {
-        cast_list_blob: castList ? JSON.stringify(castList) : null,
-        relationships_blob: characterRelationships,
-        dna_config_blob: castDNA ? JSON.stringify(castDNA) : null,
-        dynamics_blob: castDynamics ? JSON.stringify(castDynamics) : null,
-        integrity_blob: castIntegrity ? JSON.stringify(castIntegrity) : null,
-        prompt_cast: prompt,
-      }, resolvedProjectId);
-
-      addLog("PRODUCTION", "SUCCESS", "All project data saved successfully.");
-      console.info("[GeneratorContext] Project save completed successfully.", { projectId: resolvedProjectId });
-      showNotification("Project saved successfully", "success");
-      addLog("PROJECT", "COMPLETE", "Project fully saved to cloud.");
-
-      // Invalidate queries to refresh frontend data
-      queryClient.invalidateQueries({ queryKey: ['projects'] });
-      queryClient.invalidateQueries({ queryKey: ['productionContent', user.id, resolvedProjectId?.toString()] });
-      queryClient.invalidateQueries({ queryKey: ['worldLore', user.id, resolvedProjectId?.toString()] });
-      queryClient.invalidateQueries({ queryKey: ['characterCast', user.id, resolvedProjectId?.toString()] });
-
-      // Reset loaded refs so the sync effects can trigger a fresh pull from the backend
-      hasLoadedProduction.current = false;
-      hasLoadedWorld.current = false;
-      hasLoadedCast.current = false;
-
-      return resolvedProjectId;
-    } catch (error: any) {
-      console.error("[GeneratorContext] Save failed.", error);
-      showNotification("Failed to save — please try again", "error");
-      addLog("PROJECT", "ERROR", `Save failed: ${error.message || 'Network error'}`);
-      return undefined;
-    } finally {
-      setIsSaving(false);
-    }
-  }, [user?.id, generatedScript, generatedSeriesPlan, generatedMetadata, generatedImagePrompts, generatedGrowthStrategy, generatedDistributionPlan, generatedWorld, generatedWorldContent, generatedWorldLore, generatedWorldPowers, generatedWorldFactions, generatedWorldArchitecture, generatedWorldAtlas, generatedWorldCulture, generatedWorldSystems, promptLore, promptPowers, promptFactions, promptArchitecture, promptAtlas, promptCulture, promptSystems, castList, characterRelationships, castDNA, castDynamics, castIntegrity, prompt, contentType, selectedModel, numCharacters, tone, genre, artStyle, addLog, showNotification, resolveProjectId]);
-
-  // Neural Telemetry & Thinking Stream Log Sync
-  useEffect(() => {
-    const handleTelemetry = async (e: any) => {
-      try {
-        await engineApi.recordTelemetry({
-          model: e.detail.model,
-          latency_ms: e.detail.latency,
-          status: e.detail.error ? 'ERROR' : 'SUCCESS',
-          endpoint: 'studio_general',
-          request_summary: e.detail.text?.substring(0, 100),
-          error_message: e.detail.error,
-          metadata: { fallbacks: e.detail.fallbacks }
-        }, user?.id);
-      } catch (err) {
-        console.warn("%c[System] %cFailed to record remote telemetry:", 'color: #f59e0b; font-weight: bold', 'color: #94a3b8', err);
-      }
-    };
-
-    const handleStart = (e: any) => {
-      addLog("AI_ENGINE", "STARTED", `Starting generation with ${e.detail.model}...`);
-      setActiveModelAttempt(e.detail.model);
-      setFallbackHistory([]);
-    };
-
-    const handleComplete = (e: any) => {
-      addLog("AI_ENGINE", "COMPLETED", `Generation complete via ${e.detail.model} (${e.detail.latency.toFixed(0)}ms)`);
-      setActiveModelAttempt(null);
-    };
-
-    const handleFallback = (e: any) => {
-      addLog("AI_ENGINE", "RETRYING", `Retrying with ${e.detail.nextModel} (${e.detail.failedModel} was unavailable)`);
-      setActiveModelAttempt(e.detail.nextModel);
-      setFallbackHistory(prev => [...prev, e.detail.failedModel]);
-    };
-
-    AI_EVENTS.addEventListener('ai_generation_complete', handleTelemetry);
-    AI_EVENTS.addEventListener('ai_generation_start', handleStart as EventListener);
-    AI_EVENTS.addEventListener('ai_generation_complete', handleComplete as EventListener);
-    AI_EVENTS.addEventListener('ai_fallback', handleFallback as EventListener);
-
-    return () => {
-      AI_EVENTS.removeEventListener('ai_generation_complete', handleTelemetry);
-      AI_EVENTS.removeEventListener('ai_generation_start', handleStart as EventListener);
-      AI_EVENTS.removeEventListener('ai_generation_complete', handleComplete as EventListener);
-      AI_EVENTS.removeEventListener('ai_fallback', handleFallback as EventListener);
-    };
-  }, [user?.id, addLog]);
-
-  // Auto-progress: when any generation flag is active, animate generationProgress
-  useEffect(() => {
-    const isAnyGenerating = isGeneratingCharacters || isGeneratingImagePrompts || isGeneratingSeries || isGeneratingDescription || isGeneratingWorld || isGeneratingVisuals || isGeneratingMetadata || isGeneratingDistribution || isGeneratingGrowthStrategy || isGeneratingAltText;
-    let interval: NodeJS.Timeout | null = null;
-
-    if (isAnyGenerating) {
-      setGenerationProgress(p => (p > 0 ? p : 3));
-      interval = setInterval(() => {
-        setGenerationProgress(prev => {
-          if (prev >= 95) return prev;
-          const inc = Math.random() * 6 + 1;
-          return Math.min(95, Math.round((prev + inc) * 10) / 10);
-        });
-      }, 700);
-    } else if (!isAnyGenerating) {
-      // finish and reset
-      setGenerationProgress(prev => (prev > 0 && prev < 100 ? 100 : prev));
-      const t = setTimeout(() => setGenerationProgress(0), 800);
-      return () => clearTimeout(t);
-    }
-
-    return () => { if (interval) clearInterval(interval); };
-  }, [isGeneratingCharacters, isGeneratingImagePrompts, isGeneratingSeries, isGeneratingDescription, isGeneratingWorld, isGeneratingVisuals, isGeneratingMetadata, isGeneratingDistribution, isGeneratingGrowthStrategy, isGeneratingAltText]);
+  useGeneratorProgressEffect({
+    isGeneratingCharacters,
+    isGeneratingImagePrompts,
+    isGeneratingSeries,
+    isGeneratingDescription,
+    isGeneratingWorld,
+    isGeneratingVisuals,
+    isGeneratingMetadata,
+    isGeneratingDistribution,
+    isGeneratingGrowthStrategy,
+    isGeneratingAltText,
+    setGenerationProgress,
+  });
 
   const state = useMemo<GeneratorState>(() => ({
     prompt,
@@ -841,6 +602,7 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     episode,
     session,
     numScenes,
+    numEpisodes,
     contentType,
     genre,
     artStyle,
@@ -890,7 +652,6 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     videoData,
     seoMetadata: generatedMetadata,
     seriesPlan: generatedSeriesPlan,
-    worldLore: null,
     generationProgress,
     activeModelAttempt,
     fallbackHistory,
@@ -903,6 +664,8 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     prompt, promptLore, promptPowers, promptFactions, promptArchitecture, promptAtlas, promptCulture, promptSystems,
     theme, generatedScript, generatedCharacters, generatedMetadata, 
     generatedImagePrompts, generatedSeriesPlan, generatedDescription, generatedWorld, generatedWorldContent,
+    generatedWorldLore, generatedWorldPowers, generatedWorldFactions, generatedWorldArchitecture, 
+    generatedWorldAtlas, generatedWorldCulture, generatedWorldSystems,
     worldGenerationStatus, worldGenerationError, worldGenerationLatency, generatedAltText,
     recapperPersona, episode, session, numScenes, contentType, 
     isLoading, isGeneratingCharacters, isGeneratingMetadata, isGeneratingImagePrompts,
@@ -1011,6 +774,7 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     stopGeneration,
     getSignal,
     setNumCharacters,
+    setNumEpisodes,
     setGlobalPrompt: setPrompt,
     setGlobalContentType: setContentType,
   }), [
