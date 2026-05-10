@@ -193,46 +193,7 @@ export const AnimeStudioSideBar = React.memo<AnimeStudioSideBarProps>(({
         </nav>
       </div>
 
-      {!collapsed && (
-        <div className="p-6 bg-black space-y-4">
-          <div className="bg-gradient-to-br from-zinc-900 to-black rounded-3xl p-5 border border-zinc-800 shadow-[0_10px_30px_rgba(0,0,0,0.5)] group relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-24 h-24 bg-cyan-500/5 blur-[40px] -z-10 group-hover:bg-cyan-500/10 transition-colors" />
-            <div className="flex items-center gap-3 mb-3">
-              <div className="p-2 bg-cyan-500/10 rounded-xl border border-cyan-500/20">
-                <Brain className="w-4 h-4 text-cyan-500 animate-pulse" />
-              </div>
-              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-200">AI Engine</span>
-            </div>
-            <p className="text-[9px] text-zinc-500 font-bold leading-relaxed mb-4 uppercase tracking-wider">
-              Level 42 Sync Established. Multi-Session Persistence Online.
-            </p>
-            <Button 
-              onClick={handleGenerate}
-              disabled={isLoading}
-              className={cn(
-                "btn-genesis w-full h-11 text-[9px] tracking-[0.3em]",
-                isLoading && "opacity-20 grayscale pointer-events-none"
-              )}
-            >
-              {isLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : "GENERATE WORLD"}
-            </Button>
-          </div>
 
-          <Button
-            variant="ghost"
-            onClick={onToggleRightSidebar}
-            className={cn(
-              "w-full h-10 rounded-xl transition-all duration-500 font-black uppercase tracking-[0.2em] text-[9px] flex items-center justify-start gap-4 px-4",
-              rightSidebarOpen
-                ? "bg-cyan-500/20 text-cyan-400 border border-cyan-500/30"
-                : "text-zinc-500 hover:text-cyan-400 hover:bg-cyan-500/5 border border-transparent"
-            )}
-          >
-            <SlidersHorizontal className="w-4 h-4" />
-            <span>Creative Engine</span>
-          </Button>
-        </div>
-      )}
     </motion.aside>
   );
 });
