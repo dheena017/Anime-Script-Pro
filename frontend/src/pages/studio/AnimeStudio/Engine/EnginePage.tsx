@@ -132,8 +132,8 @@ export function EnginePage() {
         const handleGenerate = () => {
           if (!prompt.trim()) return;
           setGlobalPrompt(prompt);
-          // Dispatch global event that Layout listens to
-          window.dispatchEvent(new CustomEvent('studio-generate-all'));
+          // Navigate to World Builder phase directly as requested
+          navigate('/studio/world');
         }
 
         return (
