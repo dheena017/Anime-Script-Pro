@@ -141,8 +141,8 @@ def resolve_model(requested_model: str) -> str:
         target_model = MODEL_MAP[target_model]
     
     if target_model not in STABLE_MODELS and not any(target_model.startswith(m) for m in STABLE_MODELS):
-        logger.warning(f"Resolved model '{target_model}' not in stable registry. Falling back to gemini-1.5-flash.")
-        target_model = "gemini-1.5-flash"
+        logger.warning(f"Resolved model '{target_model}' not in stable registry. Falling back to gemini-3.1-flash-lite.")
+        target_model = "gemini-3.1-flash-lite"
         
     return target_model.replace("models/", "")
 
@@ -151,38 +151,43 @@ async def generate_content(request: GenerationRequest, user_id: str = Depends(ge
     """Unified AI generation endpoint with robust model mapping and fallback."""
     target_model = resolve_model(request.model)
     
-    # --- Ultra-Fallback Logic ---
+    # --- Ultra-Testing Fallback Loop ---
+    # Includes experimental and stable models for comprehensive dev testing
     FALLBACK_MODELS = [
         target_model,
-        "gemini-1.5-flash",
-        "gemini-1.5-pro",
+        "gemini-3.1-flash",
+        "gemini-3.1-flash-lite",
+        "gemini-3-flash",
+        "gemini-2.5-flash",
         "gemini-2.0-flash",
-        "gemini-2.0-flash-lite-preview"
+        "gemini-1.5-flash",
+        "gemini-3.1-pro",
+        "gemini-3-pro",
+        "gemini-2.5-pro",
+        "gemini-2.0-pro",
+        "gemini-1.5-pro",
+        "gemma-3-27b",
+        "gemma-3-12b",
+        "gemma-3-4b"
     ]
-    unique_fallbacks = [m for m in list(dict.fromkeys(FALLBACK_MODELS)) if m != "gemma-3-27b-it"]
+    unique_fallbacks = [m for m in list(dict.fromkeys(FALLBACK_MODELS))]
 
     start_time = time.perf_counter()
     attempted_fallbacks = []
     request_id = str(uuid.uuid4())[:8]
 
-    # Re-sort fallbacks: Prioritize healthy models over degraded ones
-    healthy_fallbacks = [m for m in unique_fallbacks if not health_registry.is_degraded(m)]
-    degraded_fallbacks = [m for m in unique_fallbacks if health_registry.is_degraded(m)]
-    prioritized_models = healthy_fallbacks + degraded_fallbacks
-
     logger.info(f"SYNTHESIS [#{request_id}]: Starting neural orchestration. Target: <cyan>{target_model}</cyan>")
 
-    for current_model in prioritized_models:
+    last_error = None
+    for current_model in unique_fallbacks:
         try:
-            # We need to resolve key for each attempt if models belong to different providers (e.g. Claude fallback)
-            api_key = await get_api_key(user_id, current_model)
-            client = build_genai_client(api_key=api_key) # This is now cached inside build_genai_client if we update it, or better yet, just use a local one for now if we want to stay simple.
-            # Wait, I should update build_genai_client to use the cache too or just use engine.
-            # For now, let's just use the engine's client retrieval.
-
             if current_model != target_model:
+                logger.warning(f"RECOVERY [#{request_id}]: Primary model failed. Attempting failover to: <yellow>{current_model}</yellow>")
                 attempted_fallbacks.append(current_model)
-                logger.warning(f"RECOVERY [#{request_id}]: Attempting fallback: {current_model}")
+
+            # We need to resolve key for each attempt
+            api_key = await get_api_key(user_id, current_model)
+            client = build_genai_client(api_key=api_key)
 
             # Routing to specific provider logic
             is_openai = "gpt-" in current_model.lower() or "o1-" in current_model.lower()
@@ -201,17 +206,7 @@ async def generate_content(request: GenerationRequest, user_id: str = Depends(ge
                     config=types.GenerateContentConfig(**config) if config else None
                 )
                 if not response or not hasattr(response, "text"):
-                    # Check for candidates and finish reasons
-                    if hasattr(response, "candidates") and response.candidates:
-                        candidate = response.candidates[0]
-                        finish_reason = getattr(candidate, "finish_reason", "UNKNOWN")
-                        if finish_reason == "SAFETY":
-                            logger.warning(f"Synthesis blocked by Safety Filters for model {current_model}")
-                            raise HTTPException(
-                                status_code=400,
-                                detail="Synthesis blocked by safety filters. Please refine your prompt."
-                            )
-                    raise ValueError("Gemini returned an empty or malformed response.")
+                    raise ValueError(f"Model {current_model} returned an empty response.")
                 
                 output_text = response.text
                 usage_dict = {
@@ -231,14 +226,7 @@ async def generate_content(request: GenerationRequest, user_id: str = Depends(ge
                 tokens = usage_dict.get('total_tokens', 0)
                 efficiency = (tokens/(latency_ms/1000)) if latency_ms > 0 else 0
                 logger.info(f"   | Usage: <magenta>{tokens}</magenta> tokens | Efficiency: <green>{efficiency:.1f}</green> tps")
-                logger.info(f"   | ReqID: <dim>{request_id}</dim>")
             
-            # Extract a "Developer Preview" of the output
-            preview = output_text[:120].replace("\n", " ").strip()
-            logger.info(f"   | Preview: [📝] \"{preview}...\"")
-            logger.info(f"   | Payload: {len(output_text)} characters materialized.")
-            logger.info("   " + "─" * 40)
-
             return GenerationResponse(
                 text=output_text,
                 model_used=current_model,
@@ -251,13 +239,11 @@ async def generate_content(request: GenerationRequest, user_id: str = Depends(ge
         except Exception as e:
             last_error = e
             health_registry.report_failure(current_model)
-            logger.warning(f"Model {current_model} failed [ReqID: {request_id}]: {str(e)}")
-            if "401" in str(e).upper() or "INVALID" in str(e).upper():
-                # If credentials fail, we shouldn't continue fallbacks for the same provider
-                if current_model == target_model:
-                     raise HTTPException(status_code=401, detail="Invalid AI Credentials.")
+            logger.warning(f"SYNTHESIS [#{request_id}]: Model {current_model} failed. Error: {str(e)}")
             continue
 
+    # If all fail
+    logger.error(f"SYNTHESIS [#{request_id}]: All connections failed.")
     raise HTTPException(status_code=500, detail=f"Neural Engine Synthesis Failed: {str(last_error)}")
 
 @router.post("/generate/stream")
@@ -267,16 +253,26 @@ async def stream_content(request: GenerationRequest, user_id: str = Depends(get_
     request_id = str(uuid.uuid4())[:8]
     
     async def event_generator():
-        # Fallback list for streaming
-        FALLBACKS = [target_model, "gemini-1.5-flash", "gemini-1.5-pro", "gemini-2.0-flash"]
-        unique_fallbacks = [m for m in list(dict.fromkeys(FALLBACKS)) if m != "gemma-3-27b-it"]
+        # Fallback list for streaming - Ultra-Testing Suite
+        FALLBACKS = [
+            target_model,
+            "gemini-3.1-flash",
+            "gemini-3.1-flash-lite",
+            "gemini-3-flash",
+            "gemini-2.5-flash",
+            "gemini-2.0-flash",
+            "gemini-1.5-flash",
+            "gemini-3.1-pro",
+            "gemini-2.5-pro",
+            "gemma-3-27b"
+        ]
+        unique_fallbacks = [m for m in list(dict.fromkeys(FALLBACKS))]
         
-        # Sort by health
-        prioritized = [m for m in unique_fallbacks if not health_registry.is_degraded(m)] + \
-                      [m for m in unique_fallbacks if health_registry.is_degraded(m)]
-
-        for current_model in prioritized:
+        for current_model in unique_fallbacks:
             try:
+                if current_model != target_model:
+                    logger.warning(f"STREAM RECOVERY [#{request_id}]: Failing over to: <yellow>{current_model}</yellow>")
+
                 logger.info(f"STREAM [#{request_id}]: Initializing pipeline via <cyan>{current_model}</cyan>")
                 
                 async for chunk in stream_ai(current_model, request.prompt, request.systemInstruction, user_id):
@@ -286,10 +282,11 @@ async def stream_content(request: GenerationRequest, user_id: str = Depends(get_
                 yield "data: [DONE]\n\n"
                 return # Success, exit fallback loop
             except Exception as e:
+                logger.warning(f"STREAM [#{request_id}]: Model {current_model} failed. Error: {str(e)}")
                 health_registry.report_failure(current_model)
-                logger.warning(f"STREAM [#{request_id}]: Model {current_model} failed, attempting failover...")
-                if current_model == prioritized[-1]: # If last model fails
+                if current_model == unique_fallbacks[-1]: # If last model fails
                      yield f"data: {json.dumps({'error': str(e), 'done': True})}\n\n"
+                continue
         
         yield "data: [DONE]\n\n"
 
