@@ -113,24 +113,7 @@ export const SEOHeader: React.FC<SEOHeaderProps> = ({
                 </TooltipContent>
               </Tooltip>
 
-              {onSave && (
-                <Tooltip>
-                  <TooltipTrigger >
-                    <Button 
-                      variant="ghost" 
-                      className="relative w-full sm:w-auto h-10 px-6 bg-gradient-to-r from-lime-500/10 to-transparent border border-lime-500/30 text-lime-500 hover:text-lime-400 hover:border-lime-500/60 hover:bg-gradient-to-r hover:from-lime-500/20 hover:to-lime-500/10 font-black uppercase tracking-widest text-[9px] rounded-lg transition-all duration-300 shadow-lg hover:shadow-[0_0_20px_rgba(132,204,22,0.2)] group/save"
-                      onClick={onSave}
-                      disabled={isSaving}
-                    >
-                      <Save className={cn("w-4 h-4 mr-2", isSaving && "animate-pulse")} />
-                      {isSaving ? "SAVING..." : "SAVE ALL"}
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent side="top">
-                    <p className="font-black uppercase tracking-widest text-[9px]">Save all tabs (sync to cloud)</p>
-                  </TooltipContent>
-                </Tooltip>
-              )}
+
 
               <Tooltip>
                 <TooltipTrigger >

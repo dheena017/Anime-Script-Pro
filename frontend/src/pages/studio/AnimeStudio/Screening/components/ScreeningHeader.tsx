@@ -108,28 +108,7 @@ export const ScreeningHeader: React.FC<ScreeningHeaderProps> = ({
                 </TooltipContent>
               </Tooltip>
 
-              {onSave && (
-                <Tooltip>
-                  <TooltipTrigger >
-                    <Button 
-                      variant="ghost"
-                      className="relative w-full sm:w-auto h-10 px-6 bg-gradient-to-r from-cyan-500/10 to-transparent border border-cyan-500/30 text-cyan-500 hover:text-cyan-400 hover:border-cyan-500/60 hover:bg-gradient-to-r hover:from-cyan-500/20 hover:to-cyan-500/10 font-black uppercase tracking-widest text-[9px] rounded-lg transition-all duration-300 shadow-lg hover:shadow-[0_0_20px_rgba(34,211,238,0.2)] group/save"
-                      onClick={onSave}
-                      disabled={isSaving}
-                    >
-                      {isSaving ? (
-                        <RefreshCw className="w-4 h-4 animate-spin mr-2" />
-                      ) : (
-                        <Save className="w-4 h-4 mr-2 group-hover/save:scale-110 transition-transform" />
-                      )}
-                      <span>{isSaving ? "SAVING..." : "SAVE ALL"}</span>
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent side="top">
-                    <p className="font-black uppercase tracking-widest text-[9px]">Save all tabs (sync to cloud)</p>
-                  </TooltipContent>
-                </Tooltip>
-              )}
+
 
               <Tooltip>
                 <TooltipTrigger >

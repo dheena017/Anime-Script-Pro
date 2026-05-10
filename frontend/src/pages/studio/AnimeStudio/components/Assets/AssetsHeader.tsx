@@ -61,17 +61,7 @@ export const AssetsHeader: React.FC<AssetsHeaderProps> = ({
           {hasContent ? 'Regenerate Assets' : 'Synthesize All Assets'}
         </Button>
 
-        {onSave && (
-          <Button 
-            variant="outline" 
-            className="bg-studio/5 border-studio/20 text-studio hover:bg-studio/10 font-black uppercase tracking-widest text-[10px] h-10 px-6 rounded-xl transition-all"
-            onClick={onSave}
-            disabled={isSaving}
-          >
-            <Save className={cn("w-3 h-3 mr-2", isSaving && "animate-pulse")} />
-            {isSaving ? 'Saving...' : 'Save All'}
-          </Button>
-        )}
+
 
         <Button 
           className="bg-studio/10 hover:bg-studio text-studio hover:text-black font-black uppercase tracking-widest text-[10px] h-10 px-6 rounded-xl border border-studio/30 transition-all shadow-studio/20"

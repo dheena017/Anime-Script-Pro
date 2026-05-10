@@ -4,7 +4,7 @@ import {
   Brain, 
   Globe, 
   Users, 
-  ChevronRight,
+  ChevronLeft,
   Database,
   Activity,
   Zap
@@ -73,34 +73,16 @@ export function StudioIntelligenceHUD() {
   ];
 
   return (
-    <div ref={containerRef} className="fixed right-0 top-1/2 -translate-y-1/2 z-[100] flex items-center">
-      {/* Trigger Button */}
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className={cn(
-          "w-10 h-24 bg-black/80 backdrop-blur-xl border-l border-y border-white/10 rounded-l-2xl flex flex-col items-center justify-center gap-4 transition-all duration-500 group overflow-hidden",
-          isOpen ? "translate-x-full opacity-0" : "translate-x-0 opacity-100 shadow-[0_0_30px_rgba(0,0,0,0.5)]"
-        )}
-      >
-        <div className="absolute inset-0 bg-gradient-to-b from-studio/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-        <Brain className={cn(
-          "w-4 h-4 text-studio animate-pulse-slow",
-          (isGeneratingWorld || isGeneratingCharacters || isGeneratingSeries) && "animate-spin-slow"
-        )} />
-        <span className="[writing-mode:vertical-lr] text-[8px] font-black uppercase tracking-[0.3em] text-zinc-500 group-hover:text-studio transition-colors">
-          INTELLIGENCE
-        </span>
-      </button>
-
+    <div ref={containerRef} className="fixed left-0 bottom-12 z-[100] flex items-center">
       {/* Main HUD Panel */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ x: '100%' }}
+            initial={{ x: '-100%' }}
             animate={{ x: 0 }}
-            exit={{ x: '100%' }}
+            exit={{ x: '-100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="w-80 bg-black/90 backdrop-blur-2xl border-l border-white/10 shadow-[-20px_0_50px_rgba(0,0,0,0.8)] flex flex-col h-[600px] rounded-l-[2rem] overflow-hidden"
+            className="w-80 bg-black/90 backdrop-blur-2xl border-r border-white/10 shadow-[20px_0_50px_rgba(0,0,0,0.8)] flex flex-col h-[600px] rounded-r-[2rem] overflow-hidden"
           >
             {/* Header */}
             <div className="p-6 border-b border-white/5 flex items-center justify-between">
@@ -117,7 +99,7 @@ export function StudioIntelligenceHUD() {
                 onClick={() => setIsOpen(false)}
                 className="w-8 h-8 rounded-lg hover:bg-white/5 flex items-center justify-center text-zinc-500 hover:text-white transition-all"
               >
-                <ChevronRight className="w-4 h-4" />
+                <ChevronLeft className="w-4 h-4" />
               </button>
             </div>
 
@@ -233,6 +215,24 @@ export function StudioIntelligenceHUD() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Trigger Button */}
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className={cn(
+          "w-10 h-24 bg-black/80 backdrop-blur-xl border-r border-y border-white/10 rounded-r-2xl flex flex-col items-center justify-center gap-4 transition-all duration-500 group overflow-hidden",
+          isOpen ? "-translate-x-full opacity-0 absolute left-0" : "translate-x-0 opacity-100 shadow-[0_0_30px_rgba(0,0,0,0.5)] relative"
+        )}
+      >
+        <div className="absolute inset-0 bg-gradient-to-b from-studio/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+        <Brain className={cn(
+          "w-4 h-4 text-studio animate-pulse-slow",
+          (isGeneratingWorld || isGeneratingCharacters || isGeneratingSeries) && "animate-spin-slow"
+        )} />
+        <span className="[writing-mode:vertical-lr] text-[8px] font-black uppercase tracking-[0.3em] text-zinc-500 group-hover:text-studio transition-colors rotate-180">
+          INTELLIGENCE
+        </span>
+      </button>
     </div>
   );
 }

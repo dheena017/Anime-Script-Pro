@@ -116,24 +116,7 @@ export const PromptsHeader: React.FC<PromptsHeaderProps> = ({
                 </TooltipContent>
               </Tooltip>
 
-              {onSave && (
-                <Tooltip>
-                  <TooltipTrigger>
-                    <Button 
-                      variant="outline" 
-                      className="relative w-full sm:w-auto h-12 px-6 bg-red-500/5 border-red-500/20 text-red-500 hover:bg-red-500/10 font-black uppercase tracking-widest text-[11px] rounded-full transition-all duration-500 shadow-[0_0_20px_rgba(239,68,68,0.1)] group/save"
-                      onClick={onSave}
-                      disabled={isSaving}
-                    >
-                      <Save className={cn("w-4 h-4 mr-2", isSaving && "animate-pulse")} />
-                      {isSaving ? "SAVING..." : "SAVE ALL"}
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent side="top">
-                    <p className="font-black uppercase tracking-widest text-[9px]">Save all tabs (sync to cloud)</p>
-                  </TooltipContent>
-                </Tooltip>
-              )}
+
 
               <Tooltip>
                 <TooltipTrigger>

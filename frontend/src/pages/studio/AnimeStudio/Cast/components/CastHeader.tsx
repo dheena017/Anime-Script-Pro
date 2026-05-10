@@ -130,24 +130,7 @@ export const CastHeader: React.FC<CastHeaderProps> = ({
                 </TooltipContent>
               </Tooltip>
 
-              {onSave && (
-                <Tooltip>
-                  <TooltipTrigger>
-                    <Button
-                      variant="ghost"
-                      className="relative w-full sm:w-auto h-10 px-6 bg-gradient-to-r from-fuchsia-500/10 to-transparent border border-fuchsia-500/30 text-fuchsia-500 hover:text-fuchsia-400 hover:border-fuchsia-500/60 hover:bg-gradient-to-r hover:from-fuchsia-500/20 hover:to-fuchsia-500/10 font-black uppercase tracking-widest text-[9px] rounded-lg transition-all duration-300 shadow-lg hover:shadow-[0_0_20px_rgba(217,70,239,0.2)] group/save"
-                      onClick={onSave}
-                      disabled={isSaving}
-                    >
-                      <Save className={cn("w-4 h-4 mr-2", isSaving && "animate-pulse")} />
-                      {isSaving ? "SAVING..." : "SAVE ALL"}
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent side="top">
-                    <p className="font-black uppercase tracking-widest text-[9px]">Save all tabs (sync to cloud)</p>
-                  </TooltipContent>
-                </Tooltip>
-              )}
+
 
               <Tooltip>
                 <TooltipTrigger>

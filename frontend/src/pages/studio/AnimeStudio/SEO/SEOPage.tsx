@@ -254,34 +254,7 @@ export function SEOPage() {
 
   return (
     <div data-testid="marker-seo-nexus">
-      <div className="mb-6 grid gap-4 rounded-[2rem] border border-studio/20 bg-studio/5 p-6 lg:grid-cols-[1.6fr_1fr] lg:items-center">
-        <div className="space-y-2">
-          <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.35em] text-studio">
-            <Sparkles className="w-4 h-4" />
-            Shared story bible
-          </div>
-          <h2 className="text-2xl font-black uppercase italic tracking-tighter text-white">
-            SEO aligned to {MOCK_STORY_BIBLE.worldName}
-          </h2>
-          <p className="max-w-3xl text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-500">
-            {MOCK_STORY_BIBLE.logline}
-          </p>
-        </div>
-        <div className="grid grid-cols-3 gap-3 text-[9px] font-black uppercase tracking-[0.25em] text-zinc-600">
-          <div className="rounded-2xl border border-white/5 bg-black/40 p-4 text-center">
-            <Globe2 className="mx-auto mb-2 h-4 w-4 text-studio" />
-            {MOCK_STORY_BIBLE.worldName}
-          </div>
-          <div className="rounded-2xl border border-white/5 bg-black/40 p-4 text-center">
-            <Film className="mx-auto mb-2 h-4 w-4 text-fuchsia-400" />
-            {MOCK_STORY_BIBLE.visualPalette}
-          </div>
-          <div className="rounded-2xl border border-white/5 bg-black/40 p-4 text-center">
-            <Sparkles className="mx-auto mb-2 h-4 w-4 text-emerald-400" />
-            {MOCK_STORY_BIBLE.theme}
-          </div>
-        </div>
-      </div>
+
 
       <Card className={cn(
         "bg-[#030303] overflow-hidden rounded-[2.5rem] relative group/card transition-all duration-700",
