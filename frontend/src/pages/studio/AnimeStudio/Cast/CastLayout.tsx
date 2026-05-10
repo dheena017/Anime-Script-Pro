@@ -1,5 +1,5 @@
 import React from 'react';
-import { Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { Outlet, useNavigate, useLocation, useOutlet } from 'react-router-dom';
 import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
 import { useAuth } from '@/hooks/useAuth';
 import { useApp } from '@/contexts/AppContext';
@@ -7,12 +7,7 @@ import { CastHeader } from './components/CastHeader';
 import { CastEmptyState } from './components/CastEmptyState';
 import { CastToolbar, CastTab } from './components/CastToolbar';
 import { CastTabs } from './Tabs/CastTabs';
-import { RegistryTab } from './Tabs/RegistryTab';
-import { VoiceTab } from './Tabs/VoiceTab';
-import { CombatTab } from './Tabs/CombatTab';
-import { ArcsTab } from './Tabs/ArcsTab';
 import { DynamicsTab } from './Tabs/DynamicsTab';
-import { TechnicalTab } from './Tabs/TechnicalTab';
 import RelationshipsPage from './Tabs/Relationships/RelationshipsPage';
 import {
   generateCharacters
@@ -38,6 +33,7 @@ export const CastTabActionsContext = React.createContext<{
 export default function CastLayout() {
   const navigate = useNavigate();
   const location = useLocation();
+  const outlet = useOutlet();
   const [handlers, setHandlers] = React.useState<any>({});
 
   const getTabFromPath = (path: string): CastTab => {
@@ -185,28 +181,11 @@ export default function CastLayout() {
     return () => window.removeEventListener('studio-generate-cast', handleGlobalGenerate);
   }, [handleGenerateAll]);
 
-  const routeTab = getTabFromPath(location.pathname);
-  const isDetailRoute = location.pathname.includes('/cast/characters/') || location.pathname.includes('/cast/relationships/');
-  const shouldRenderOutlet = isDetailRoute && activeTab === routeTab;
   const loadingStates = {
     registry: isGeneratingCharacters,
   };
 
-  const handleViewCharacter = (charName: string) => {
-    navigate(`/studio/cast/characters/${charName}`);
-  };
 
-  const renderTabContent = () => {
-    switch (activeTab) {
-      case 'voice': return <VoiceTab />;
-      case 'combat': return <CombatTab />;
-      case 'arcs': return <ArcsTab />;
-      case 'dynamics': return <DynamicsTab />;
-      case 'relationships': return <RelationshipsPage />;
-      case 'technical': return <TechnicalTab />;
-      default: return <RegistryTab onViewCharacter={handleViewCharacter} />;
-    }
-  };
 
   const hasContent = castList && castList.length > 0;
 
@@ -265,15 +244,21 @@ export default function CastLayout() {
             onLoadDemo={handleLoadDemo} 
             isGenerating={isGeneratingCharacters} 
           />
-        ) : shouldRenderOutlet ? (
-          <Outlet context={{
+        ) : (
+          outlet ? React.cloneElement(outlet as React.ReactElement<any>, {
+            key: location.pathname,
+            context: {
+              activeTab,
+              setActiveTab: handleTabChange,
+              handleGenerateCharacter: handlers.handleGenerateCharacter,
+              isAnalyzingCast
+            }
+          }) : <Outlet context={{
             activeTab,
             setActiveTab: handleTabChange,
             handleGenerateCharacter: handlers.handleGenerateCharacter,
             isAnalyzingCast
           }} />
-        ) : (
-          renderTabContent()
         )}
       </div>
       </CastTabActionsContext.Provider>

@@ -665,13 +665,15 @@ export async function* streamAI(
       if (line.startsWith("data: ")) {
         const dataStr = line.slice(6).trim();
         if (dataStr === "[DONE]") return;
+        let parsedData: any;
         try {
-          const data = JSON.parse(dataStr);
-          if (data.error) throw new Error(data.error);
-          if (data.text) yield data.text;
+          parsedData = JSON.parse(dataStr);
         } catch (e) {
-          console.error("Failed to parse stream data:", e);
+          console.error("Failed to parse stream data:", dataStr, e);
+          continue;
         }
+        if (parsedData?.error) throw new Error(parsedData.error);
+        if (parsedData?.text) yield parsedData.text;
       }
     }
   }

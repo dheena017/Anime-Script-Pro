@@ -1,8 +1,11 @@
 import { useContext } from 'react';
+// Import from the stable refs file — NOT from GeneratorContext.tsx.
+// This ensures the same context object is used across Vite HMR reloads.
+// See contexts/GeneratorContextRefs.ts for the explanation.
 import {
   GeneratorStateContext,
   GeneratorDispatchContext
-} from '@/contexts/GeneratorContext';
+} from '@/contexts/GeneratorContextRefs';
 
 /**
  * Hook to access ONLY the Generator state.

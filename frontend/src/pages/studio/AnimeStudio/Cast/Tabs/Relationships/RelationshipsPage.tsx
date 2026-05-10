@@ -33,19 +33,7 @@ export default function RelationshipsPage() {
   const [isGenerating, setIsGenerating] = useState(false);
   const hasCast = Array.isArray(castList) && castList.length > 0;
 
-  if (!hasCast) {
-    return (
-      <CastEmptyState
-        onLaunch={() => {
-          window.dispatchEvent(new CustomEvent('studio-generate-cast'));
-        }}
-        onLoadDemo={handleLoadDemo}
-        isGenerating={isGeneratingCharacters}
-      />
-    );
-  }
-
-  // Parse relationships if they are stored as JSON string
+  // ⚠️ HOOK RULE: useMemo must be called at the top level — BEFORE any early return
   const connections = React.useMemo(() => {
     if (typeof characterRelationships === 'string' && characterRelationships.trim()) {
       try {
@@ -57,6 +45,18 @@ export default function RelationshipsPage() {
     }
     return Array.isArray(characterRelationships) ? characterRelationships : [];
   }, [characterRelationships]);
+
+  if (!hasCast) {
+    return (
+      <CastEmptyState
+        onLaunch={() => {
+          window.dispatchEvent(new CustomEvent('studio-generate-cast'));
+        }}
+        onLoadDemo={handleLoadDemo}
+        isGenerating={isGeneratingCharacters}
+      />
+    );
+  }
 
   const handleRemove = (id: string) => {
     const newList = connections.filter((c: any) => c.id !== id);

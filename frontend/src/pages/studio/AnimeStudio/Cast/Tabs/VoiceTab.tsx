@@ -135,7 +135,7 @@ export const VoiceTab: React.FC = () => {
                       Signature Catchphrases
                     </div>
                     <div className="p-6 bg-cyan-500/5 border border-cyan-500/10 rounded-3xl space-y-3">
-                       {Array.isArray(char.speakingStyle?.catchphrases) ? char.speakingStyle.catchphrases.map((phrase: string, pIdx: number) => (
+                       {Array.isArray(char.speakingStyle?.catchphrases) ? char.speakingStyle?.catchphrases.map((phrase: string, pIdx: number) => (
                          <div key={pIdx} className="flex items-start gap-3">
                             <MessageSquare className="w-3.5 h-3.5 text-cyan-500 mt-0.5 shrink-0" />
                             <p className="text-sm font-black text-white italic">"{phrase}"</p>

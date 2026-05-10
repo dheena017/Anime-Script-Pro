@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { ProductionUnit } from '@/lib/sequence-utils';
@@ -16,6 +16,8 @@ import {
   useGeneratorTelemetryEffects,
 } from './generator/useGeneratorLifecycle';
 import { AI_EVENTS } from '../services/generators/core';
+// ── Stable context refs ── must be imported at the top of the file, not mid-module ──
+import { GeneratorStateContext, GeneratorDispatchContext } from './GeneratorContextRefs';
 
 interface GeneratorState {
   generationProgress: any;
@@ -220,8 +222,9 @@ interface GeneratorDispatch {
   setNumEpisodes: (n: number) => void;
 }
 
-export const GeneratorStateContext = createContext<GeneratorState | undefined>(undefined);
-export const GeneratorDispatchContext = createContext<GeneratorDispatch | undefined>(undefined);
+// Re-export so other modules can still do:
+//   import { GeneratorStateContext } from '@/contexts/GeneratorContext'
+export { GeneratorStateContext, GeneratorDispatchContext };
 
 export function GeneratorProvider({ children }: { children: React.ReactNode }) {
   const queryClient = useQueryClient();
