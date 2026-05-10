@@ -12,6 +12,7 @@ import { useGeneratorDispatch } from '@/hooks/useGenerator';
 
 interface ScriptHeaderProps {
   onRegenerate: () => void;
+  onGenerateAll?: () => void;
   isGenerating: boolean;
   onNext: () => void;
   onPrev?: () => void;
@@ -26,6 +27,7 @@ interface ScriptHeaderProps {
 
 export const ScriptHeader: React.FC<ScriptHeaderProps> = ({
   onRegenerate,
+  onGenerateAll,
   isGenerating,
   onNext,
   onPrev,
@@ -84,34 +86,54 @@ export const ScriptHeader: React.FC<ScriptHeaderProps> = ({
             )}
 
             <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
-              <Tooltip>
-                <TooltipTrigger >
-                  {isGenerating ? (
-                    <Button
-                      variant="ghost"
-                      className="relative w-full sm:w-auto h-10 px-6 bg-red-500/10 border border-red-500/40 text-red-400 hover:text-red-300 hover:border-red-500/60 hover:bg-red-500/15 font-black uppercase tracking-widest text-[9px] rounded-lg transition-all duration-300 group/stop shadow-lg hover:shadow-[0_0_20px_rgba(239,68,68,0.2)]"
-                      onClick={stopGeneration}
-                    >
-                      <Square className="w-4 h-4 mr-2 fill-current group-hover/stop:scale-110 transition-transform" />
-                      <span className="relative z-10">STOP</span>
-                    </Button>
-                  ) : (
-                    <Button
-                      variant="ghost"
-                      className="relative w-full sm:w-auto h-10 px-6 bg-gradient-to-r from-emerald-500/15 to-emerald-500/5 border border-emerald-500/40 text-emerald-500 hover:text-emerald-400 hover:border-emerald-500/70 hover:bg-gradient-to-r hover:from-emerald-500/25 hover:to-emerald-500/15 font-black uppercase tracking-widest text-[9px] rounded-lg transition-all duration-300 group/btn shadow-lg hover:shadow-[0_0_20px_rgba(16,185,129,0.3)]"
-                      onClick={onRegenerate}
-                    >
-                      <Sparkles className="w-4 h-4 mr-2 group-hover/btn:scale-125 transition-transform duration-300" />
-                      <span className="relative z-10">GENERATE</span>
-                    </Button>
-                  )}
-                </TooltipTrigger>
-                <TooltipContent side="top">
-                  <p className="font-black uppercase tracking-widest text-[9px]">
-                    {isGenerating ? "Terminate Active Process" : "Generate AI Script"}
-                  </p>
-                </TooltipContent>
-              </Tooltip>
+              <div className="flex items-center gap-2">
+                <Tooltip>
+                  <TooltipTrigger >
+                    {isGenerating ? (
+                      <Button
+                        variant="ghost"
+                        className="relative w-full sm:w-auto h-10 px-6 bg-red-500/10 border border-red-500/40 text-red-400 hover:text-red-300 hover:border-red-500/60 hover:bg-red-500/15 font-black uppercase tracking-widest text-[9px] rounded-lg transition-all duration-300 group/stop shadow-lg hover:shadow-[0_0_20px_rgba(239,68,68,0.2)]"
+                        onClick={stopGeneration}
+                      >
+                        <Square className="w-4 h-4 mr-2 fill-current group-hover/stop:scale-110 transition-transform" />
+                        <span className="relative z-10">STOP</span>
+                      </Button>
+                    ) : (
+                      <Button
+                        variant="ghost"
+                        className="relative w-full sm:w-auto h-10 px-6 bg-gradient-to-r from-emerald-500/15 to-emerald-500/5 border border-emerald-500/40 text-emerald-500 hover:text-emerald-400 hover:border-emerald-500/70 hover:bg-gradient-to-r hover:from-emerald-500/25 hover:to-emerald-500/15 font-black uppercase tracking-widest text-[9px] rounded-lg transition-all duration-300 group/btn shadow-lg hover:shadow-[0_0_20px_rgba(16,185,129,0.3)]"
+                        onClick={onRegenerate}
+                      >
+                        <Sparkles className="w-4 h-4 mr-2 group-hover/btn:scale-125 transition-transform duration-300" />
+                        <span className="relative z-10">GENERATE</span>
+                      </Button>
+                    )}
+                  </TooltipTrigger>
+                  <TooltipContent side="top">
+                    <p className="font-black uppercase tracking-widest text-[9px]">
+                      {isGenerating ? "Terminate Active Process" : "Generate Current AI Script"}
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+
+                {!isGenerating && onGenerateAll && (
+                  <Tooltip>
+                    <TooltipTrigger >
+                      <Button
+                        variant="ghost"
+                        className="relative w-full sm:w-auto h-10 px-6 bg-gradient-to-r from-blue-500/15 to-blue-500/5 border border-blue-500/40 text-blue-500 hover:text-blue-400 hover:border-blue-500/70 hover:bg-gradient-to-r hover:from-blue-500/25 hover:to-blue-500/15 font-black uppercase tracking-widest text-[9px] rounded-lg transition-all duration-300 group/batch shadow-lg hover:shadow-[0_0_20px_rgba(59,130,246,0.3)]"
+                        onClick={onGenerateAll}
+                      >
+                        <Box className="w-4 h-4 mr-2 group-hover/batch:rotate-12 transition-transform duration-300" />
+                        <span className="relative z-10">GENERATE ALL</span>
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent side="top">
+                      <p className="font-black uppercase tracking-widest text-[9px]">Batch Generate Entire Series</p>
+                    </TooltipContent>
+                  </Tooltip>
+                )}
+              </div>
 
 
 

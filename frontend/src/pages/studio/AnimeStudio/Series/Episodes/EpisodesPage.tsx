@@ -14,10 +14,13 @@ export default function EpisodesPage() {
   const {
     generatedSeriesPlan,
     isEditing,
-    contentType
+    contentType,
+    currentScriptId
   } = useGeneratorState();
-  const { setGeneratedSeriesPlan } = useGeneratorDispatch();
+  const { setGeneratedSeriesPlan, setEpisode } = useGeneratorDispatch();
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+
+  const studioBase = currentScriptId ? `/projects/${currentScriptId}` : '/studio';
 
   const handleUpdateEpisode = (index: number, updates: any) => {
     if (!generatedSeriesPlan) return;
@@ -46,7 +49,7 @@ export default function EpisodesPage() {
     
     const newPlan = [...(generatedSeriesPlan || []), newEpisode];
     setGeneratedSeriesPlan(newPlan);
-    navigate(`/${contentType.toLowerCase()}/series/episodes/${nextNum}/edit`);
+    navigate(`${studioBase}/series/episodes/${nextNum}/edit`);
   };
 
   const handleUpdateAssetMatrix = (index: number, updates: any) => {
@@ -151,8 +154,12 @@ export default function EpisodesPage() {
           viewMode={viewMode}
           onUpdateEpisode={handleUpdateEpisode}
           onUpdateAssetMatrix={handleUpdateAssetMatrix}
+          onViewEpisode={(epNum: string) => {
+            navigate(`${studioBase}/series/episodes/${epNum}`);
+          }}
           onFocusEpisode={(epNum: string) => {
-            navigate(`/${contentType.toLowerCase()}/series/episodes/${epNum}`);
+            setEpisode(epNum);
+            navigate(`${studioBase}/script`);
           }}
         />
       ) : (

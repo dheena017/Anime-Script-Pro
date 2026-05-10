@@ -7,7 +7,6 @@ import { useApp } from '@/contexts/AppContext';
 import { WorldLore } from '../services/api/world';
 import { useLogDispatch } from './LogContext';
 import {
-  useGeneratorAutoSave,
   useGeneratorProgressEffect,
   useGeneratorQueries,
   useResolveProjectId,
@@ -400,11 +399,13 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
   const { worldLore, production, castDataFromApi, projectHistory } = useGeneratorQueries({
     userId: user?.id,
     currentScriptId,
+    episode,
   });
 
   useGeneratorSyncEffects({
     userId: user?.id,
     currentScriptId,
+    episode,
     production,
     worldLore,
     castDataFromApi,
@@ -462,44 +463,6 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
   });
 
   const resolveProjectId = useResolveProjectId(currentScriptId);
-
-  useGeneratorAutoSave({
-    userId: user?.id,
-    production,
-    resolveProjectId: () => resolveProjectId(),
-    generatedScript,
-    generatedSeriesPlan,
-    generatedMetadata,
-    generatedImagePrompts,
-    generatedGrowthStrategy,
-    generatedDistributionPlan,
-    generatedDescription,
-    generatedAltText,
-    generatedWorld,
-    generatedWorldLore,
-    generatedWorldPowers,
-    generatedWorldFactions,
-    generatedWorldArchitecture,
-    generatedWorldAtlas,
-    generatedWorldCulture,
-    generatedWorldSystems,
-    promptLore,
-    promptPowers,
-    promptFactions,
-    promptArchitecture,
-    promptAtlas,
-    promptCulture,
-    promptSystems,
-    prompt,
-    selectedModel,
-    contentType,
-    tone,
-    genre,
-    artStyle,
-    castList,
-    characterRelationships,
-    numCharacters,
-  });
 
   const { addLog } = useLogDispatch();
 

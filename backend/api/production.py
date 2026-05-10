@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Header
+from fastapi import APIRouter, Depends, HTTPException, Header, Query
 from sqlalchemy import select
 from backend.database import async_session, get_async_session, AsyncSession
 from backend.database.models import Project, ProjectContent
@@ -15,11 +15,13 @@ def resolve_project_id(route_project_id: Optional[int], header_project_id: Optio
 @router.get("/{user_id}", response_model=Optional[ProjectContent])
 async def get_production_content(
     user_id: str,
+    episode: Optional[str] = Query(None),
     project_id: Optional[int] = None,
     x_project_id: Optional[int] = Header(default=None, alias="X-Project-Id"),
     session: AsyncSession = Depends(get_async_session),
     auth_user_id: str = Depends(get_auth_user_id),
 ):
+    from backend.database.models import Script
     if user_id != auth_user_id:
         raise HTTPException(status_code=403, detail="Unauthorized Production Access")
 
@@ -34,7 +36,20 @@ async def get_production_content(
     
     statement = statement.order_by(ProjectContent.updated_at.desc())
     result = await session.execute(statement)
-    return result.scalars().first()
+    db_content = result.scalars().first()
+
+    # If an episode is requested, try to find a specific script for it
+    if db_content and episode and effective_project_id:
+        script_stmt = select(Script).where(
+            Script.project_id == effective_project_id,
+            Script.title == f"EPISODE_{episode}"
+        )
+        script_res = await session.execute(script_stmt)
+        found_script = script_res.scalars().first()
+        if found_script:
+            db_content.script_content = found_script.content
+
+    return db_content
 
 @router.post("/{user_id}", response_model=ProjectContent)
 async def update_production_content(

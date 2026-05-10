@@ -27,7 +27,9 @@ export default function ScriptLayout() {
     session, episode, numScenes, selectedModel, contentType,
     recapperPersona, characterRelationships, generatedWorld,
     generatedCharacters, generatedSeriesPlan, isSaving, generatedMetadata,
-    generationProgress, isEditing, currentScriptId
+    generationProgress, isEditing, currentScriptId,
+    promptLore, promptPowers, promptFactions, promptArchitecture,
+    promptAtlas, promptCulture, promptSystems
   } = useGeneratorState();
 
   const {
@@ -37,7 +39,8 @@ export default function ScriptLayout() {
     setIsLoading,
     setGenerationProgress,
     syncCore,
-    setIsEditing
+    setIsEditing,
+    setEpisode
   } = useGeneratorDispatch();
 
   useAuth();
@@ -70,9 +73,21 @@ export default function ScriptLayout() {
       const currentEpisodePlan = generatedSeriesPlan?.find((ep: any) => parseInt(ep.episode) === parseInt(episode));
       reportGeneration('ScriptLayout', `Script generation for Session ${session}, Episode ${episode}`, 'request', 'anime');
 
+      // Combine all world building context
+      const worldBuilding = [
+        generatedWorld,
+        promptLore,
+        promptPowers,
+        promptFactions,
+        promptArchitecture,
+        promptAtlas,
+        promptCulture,
+        promptSystems
+      ].filter(Boolean).join('\n\n');
+
       const script = await generateScriptStream(
         prompt, tone, audience, session, episode, numScenes, selectedModel, contentType,
-        recapperPersona, characterRelationships, generatedWorld, generatedCharacters,
+        recapperPersona, characterRelationships, worldBuilding, generatedCharacters,
         currentEpisodePlan ? JSON.stringify(currentEpisodePlan) : null,
         // onChunk: update the script live as tokens arrive
         (partial) => setGeneratedScript(partial),
@@ -132,6 +147,65 @@ export default function ScriptLayout() {
     }
   };
 
+  const handleGenerateFullSeries = async () => {
+    if (!generatedSeriesPlan || generatedSeriesPlan.length === 0) {
+      showNotification?.('No series roadmap detected. Generate a series plan first.', 'error');
+      return;
+    }
+
+    setSearchParams({ tab: 'teleprompter' });
+    setIsLoading(true);
+    setGenerationProgress(5);
+
+    try {
+      const worldBuilding = [
+        generatedWorld,
+        promptLore,
+        promptPowers,
+        promptFactions,
+        promptArchitecture,
+        promptAtlas,
+        promptCulture,
+        promptSystems
+      ].filter(Boolean).join('\n\n');
+
+      for (let i = 0; i < generatedSeriesPlan.length; i++) {
+        const ep = generatedSeriesPlan[i];
+        const epNum = ep.episode;
+        
+        setEpisode(epNum);
+        showNotification?.(`Synthesizing Episode ${epNum} (${i + 1}/${generatedSeriesPlan.length})...`, 'info');
+        setGenerationProgress(((i) / generatedSeriesPlan.length) * 100);
+
+        const script = await generateScriptStream(
+          prompt, tone, audience, session, epNum, numScenes, selectedModel, contentType,
+          recapperPersona, characterRelationships, worldBuilding, generatedCharacters,
+          JSON.stringify(ep),
+          (partial) => setGeneratedScript(partial),
+        );
+
+        setGeneratedScript(script);
+        
+        // Auto-save this episode
+        if (projectId) {
+          await syncCore(projectId);
+        }
+
+        // Delay to allow UI to breathe and prevent rate limiting
+        await new Promise(r => setTimeout(r, 1500));
+      }
+
+      setGenerationProgress(100);
+      showNotification?.('Full Series Script Manifest Synthesized!', 'success');
+    } catch (e: any) {
+      showNotification?.('Batch generation failed: ' + e.message, 'error');
+      setGenerationProgress(0);
+    } finally {
+      setIsLoading(false);
+      setTimeout(() => setGenerationProgress(0), 4000);
+    }
+  };
+
   const activeTab = (searchParams.get('tab') as ScriptTab) || 'teleprompter';
 
   const handleTabChange = (tab: ScriptTab) => {
@@ -157,6 +231,7 @@ export default function ScriptLayout() {
         <div className="studio-module-header">
           <ScriptHeader
             onRegenerate={handleGenerateAll}
+            onGenerateAll={handleGenerateFullSeries}
             isGenerating={isLoading}
             onNext={() => {
               navigate(`/studio/storyboard`);

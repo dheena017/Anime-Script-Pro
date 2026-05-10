@@ -29,8 +29,9 @@ export interface ProjectContent {
 }
 
 export const productionApi = {
-  getContent: async (userId: string, projectId?: number): Promise<ProjectContent | null> => {
-    return apiRequest<ProjectContent>(`${API_BASE}/${userId}`, {
+  getContent: async (userId: string, projectId?: number, episode?: string): Promise<ProjectContent | null> => {
+    const query = episode ? `?episode=${episode}` : '';
+    return apiRequest<ProjectContent>(`${API_BASE}/${userId}${query}`, {
       method: 'GET',
       label: 'Get Production Content',
       headers: projectId ? { 'X-Project-Id': projectId.toString() } : {}

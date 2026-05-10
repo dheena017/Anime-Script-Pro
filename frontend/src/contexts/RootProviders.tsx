@@ -10,17 +10,19 @@ import { MotionConfig } from 'framer-motion';
 export function RootProviders({ children }: { children: React.ReactNode }) {
   return (
     <MotionConfig reducedMotion="user">
-      <AuthProvider>
-        <AppProvider>
+      <AppProvider>
+        <AuthProvider>
           <TooltipProvider>
             <LogProvider>
               <GlobalGeneratorProvider>
-                <ModularGeneratorProvider>{children}</ModularGeneratorProvider>
+                <ModularGeneratorProvider>
+                  {children}
+                </ModularGeneratorProvider>
               </GlobalGeneratorProvider>
             </LogProvider>
           </TooltipProvider>
-        </AppProvider>
-      </AuthProvider>
+        </AuthProvider>
+      </AppProvider>
     </MotionConfig>
   );
 }

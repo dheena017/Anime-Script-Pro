@@ -29,8 +29,10 @@ import React from 'react';
 export default function EpisodeViewPage() {
   const { episodeId } = useParams();
   const navigate = useNavigate();
-  const { generatedSeriesPlan, contentType, selectedModel } = useGeneratorState();
+  const { generatedSeriesPlan, contentType, selectedModel, currentScriptId } = useGeneratorState();
   const { setEpisode, setGeneratedSeriesPlan } = useGeneratorDispatch();
+
+  const studioBase = currentScriptId ? `/projects/${currentScriptId}` : '/studio';
 
   const episode = generatedSeriesPlan?.find(ep =>
     String(ep.episode) === String(episodeId)
@@ -47,7 +49,7 @@ export default function EpisodeViewPage() {
 
   const handleFocus = () => {
     setEpisode(episode.episode);
-    navigate(`/${contentType.toLowerCase()}/script`);
+    navigate(`${studioBase}/script`);
   };
 
   // Flatten scenes from detailed_episode_spec
@@ -124,7 +126,7 @@ export default function EpisodeViewPage() {
             <Button
               variant="ghost"
               disabled={parseInt(episodeId || '1') <= 1}
-              onClick={() => navigate(`/${contentType.toLowerCase()}/series/episodes/${parseInt(episodeId || '1') - 1}`)}
+              onClick={() => navigate(`${studioBase}/series/episodes/${parseInt(episodeId || '1') - 1}`)}
               className="w-10 h-10 rounded-xl text-zinc-500 hover:text-white"
             >
               <ChevronLeft className="w-4 h-4" />
@@ -135,7 +137,7 @@ export default function EpisodeViewPage() {
             <Button
               variant="ghost"
               disabled={parseInt(episodeId || '1') >= (generatedSeriesPlan?.length || 0)}
-              onClick={() => navigate(`/${contentType.toLowerCase()}/series/episodes/${parseInt(episodeId || '1') + 1}`)}
+              onClick={() => navigate(`${studioBase}/series/episodes/${parseInt(episodeId || '1') + 1}`)}
               className="w-10 h-10 rounded-xl text-zinc-500 hover:text-white"
             >
               <ChevronRight className="w-4 h-4" />
@@ -151,7 +153,7 @@ export default function EpisodeViewPage() {
             <MoreHorizontal className="w-4 h-4" />
           </Button>
           <Button
-            onClick={() => navigate(`/${contentType.toLowerCase()}/series/episodes/${episodeId}/edit`)}
+            onClick={() => navigate(`${studioBase}/series/episodes/${episodeId}/edit`)}
             className="h-12 bg-zinc-800 text-white hover:bg-zinc-700 rounded-2xl px-6"
           >
             <Edit3 className="w-4 h-4 mr-2" /> Edit Details
@@ -311,4 +313,3 @@ export default function EpisodeViewPage() {
     </div>
   );
 }
-

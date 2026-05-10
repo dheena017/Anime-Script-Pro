@@ -17,24 +17,58 @@ export interface NeuralSignalEvent {
 }
 
 export function cleanJson(content: string): any {
-  // Strip markdown backticks if present
-  const cleaned = content.replace(/```json/g, '').replace(/```/g, '').trim();
+  // Strip markdown backticks if present, but keep the core content
+  let cleaned = content.replace(/```json/g, '').replace(/```/g, '').trim();
 
-  // First pass: straightforward parse
+  // If there's leading/trailing text outside the JSON, try to extract just the JSON part
+  const firstBrace = cleaned.indexOf('{');
+  const firstBracket = cleaned.indexOf('[');
+  let startIndex = -1;
+  
+  if (firstBrace !== -1 && (firstBracket === -1 || firstBrace < firstBracket)) {
+    startIndex = firstBrace;
+  } else if (firstBracket !== -1) {
+    startIndex = firstBracket;
+  }
+
+  if (startIndex !== -1) {
+    // If we have a start, we might have a complete or truncated JSON
+    const potentialJson = cleaned.slice(startIndex);
+    
+    // Attempt straightforward parse first
+    try {
+      return JSON.parse(potentialJson);
+    } catch (_firstError) {
+      // If it fails, try to find the last closing brace/bracket and trim
+      const lastBrace = potentialJson.lastIndexOf('}');
+      const lastBracket = potentialJson.lastIndexOf(']');
+      const endIndex = Math.max(lastBrace, lastBracket);
+      
+      if (endIndex !== -1) {
+        try {
+          return JSON.parse(potentialJson.slice(0, endIndex + 1));
+        } catch (_secondError) {
+          // Still failing, fallback to repair logic
+        }
+      }
+      
+      // Attempt truncation repair
+      try {
+        const repaired = repairTruncatedJson(potentialJson);
+        return JSON.parse(repaired);
+      } catch (_repairError) {
+        console.error('Failed to parse JSON content:', content);
+        throw new ApiError('Invalid AI output format. Could not parse JSON.');
+      }
+    }
+  }
+
+  // Fallback for when no braces/brackets are found or other edge cases
   try {
     return JSON.parse(cleaned);
-  } catch (_firstError) {
-    // Second pass: attempt truncation repair
-    // Strip anything after the last complete value (trailing comma, incomplete string, etc.)
-    try {
-      const repaired = repairTruncatedJson(cleaned);
-      const result = JSON.parse(repaired);
-      console.warn('[cleanJson] Repaired truncated JSON response. Some data may be missing.');
-      return result;
-    } catch (_repairError) {
-      console.error('Failed to parse JSON content:', content);
-      throw new ApiError('Invalid AI output format. Could not parse JSON.');
-    }
+  } catch (e) {
+    console.error('Failed to parse JSON content (no structure found):', content);
+    throw new ApiError('Invalid AI output format. No JSON structure detected.');
   }
 }
 
@@ -43,16 +77,14 @@ export function cleanJson(content: string): any {
  * Handles unclosed arrays, objects, and strings.
  */
 function repairTruncatedJson(raw: string): string {
-  // Remove trailing incomplete tokens: partial strings, trailing commas, dangling keys
-  let s = raw
-    .replace(/,\s*$/, '')           // trailing comma
-    .replace(/,\s*[\]}]$/g, (m) => m.slice(m.indexOf(']') !== -1 ? m.indexOf(']') : m.indexOf('}')))
-    .trimEnd();
-
-  // Track open brackets/braces to know how many to close
+  // 1. Initial cleanup
+  let s = raw.trimEnd();
+  
+  // 2. Track nesting and string state
   const stack: string[] = [];
   let inString = false;
   let escape = false;
+  let lastValidIndex = -1;
 
   for (let i = 0; i < s.length; i++) {
     const ch = s[i];
@@ -60,19 +92,56 @@ function repairTruncatedJson(raw: string): string {
     if (ch === '\\' && inString) { escape = true; continue; }
     if (ch === '"') { inString = !inString; continue; }
     if (inString) continue;
-    if (ch === '{' || ch === '[') stack.push(ch);
-    else if (ch === '}' || ch === ']') stack.pop();
+
+    if (ch === '{' || ch === '[') {
+      stack.push(ch);
+      lastValidIndex = i;
+    } else if (ch === '}' || ch === ']') {
+      stack.pop();
+      lastValidIndex = i;
+    } else if (ch === ',') {
+      lastValidIndex = i;
+    } else if (ch === ':') {
+      // Don't mark colon as a valid "cut point" for objects, 
+      // but it helps us know we're between key and value
+    }
   }
 
-  // If we ended up inside a string, close it
-  if (inString) s += '"';
+  // 3. If we are in a string, we were cut off mid-key or mid-value.
+  // 4. If we are NOT in a string, but the last char isn't a structural closer or comma,
+  // it means we were cut off mid-number or mid-boolean or mid-key (without quotes).
+  
+  // Strategy: Backtrack to the last "safe" separator (comma, opening brace, opening bracket)
+  if (lastValidIndex !== -1 && lastValidIndex < s.length - 1) {
+    // Only strip if the current state is "unstable"
+    // (i.e., we are in a string or the text after the last valid index is just alphanumeric junk)
+    const trailingText = s.slice(lastValidIndex + 1).trim();
+    if (inString || /^[a-zA-Z0-9_\s:"']+$/.test(trailingText)) {
+       s = s.slice(0, lastValidIndex + 1);
+       // If we ended on a comma, strip it too to avoid trailing comma error
+       if (s.endsWith(',')) {
+         s = s.slice(0, -1);
+       }
+    }
+  }
 
-  // Remove trailing comma before we start closing
-  s = s.replace(/,\s*$/, '');
+  // 5. Re-evaluate the stack after trimming
+  const finalStack: string[] = [];
+  let finalInString = false;
+  let finalEscape = false;
+  for (let i = 0; i < s.length; i++) {
+    const ch = s[i];
+    if (finalEscape) { finalEscape = false; continue; }
+    if (ch === '\\' && finalInString) { finalEscape = true; continue; }
+    if (ch === '"') { finalInString = !finalInString; continue; }
+    if (finalInString) continue;
+    if (ch === '{' || ch === '[') finalStack.push(ch);
+    else if (ch === '}' || ch === ']') finalStack.pop();
+  }
 
   // Close any open brackets in reverse order
-  for (let i = stack.length - 1; i >= 0; i--) {
-    s += stack[i] === '{' ? '}' : ']';
+  for (let i = finalStack.length - 1; i >= 0; i--) {
+    s += finalStack[i] === '{' ? '}' : ']';
   }
 
   return s;

@@ -16,8 +16,10 @@ import { Label } from '@/components/ui/label';
 export default function EpisodeEditPage() {
   const { episodeId } = useParams();
   const navigate = useNavigate();
-  const { generatedSeriesPlan, contentType } = useGeneratorState();
+  const { generatedSeriesPlan, contentType, currentScriptId } = useGeneratorState();
   const { setGeneratedSeriesPlan, showNotification } = useGeneratorDispatch();
+
+  const studioBase = currentScriptId ? `/projects/${currentScriptId}` : '/studio';
 
   const episodeIndex = generatedSeriesPlan?.findIndex(ep => 
     String(ep.episode) === String(episodeId)
@@ -45,7 +47,7 @@ export default function EpisodeEditPage() {
     newPlan[episodeIndex] = formData;
     setGeneratedSeriesPlan(newPlan);
     showNotification?.('Episode updated successfully!', 'success');
-    navigate(`/${contentType.toLowerCase()}/series/episodes/${formData.episode}`);
+    navigate(`${studioBase}/series/episodes/${formData.episode}`);
   };
 
   const handleRemove = () => {
@@ -53,7 +55,7 @@ export default function EpisodeEditPage() {
     const newPlan = generatedSeriesPlan.filter((_, i) => i !== episodeIndex);
     setGeneratedSeriesPlan(newPlan);
     showNotification?.('Episode removed from the series.', 'info');
-    navigate(`/${contentType.toLowerCase()}/series/episodes`);
+    navigate(`${studioBase}/series/episodes`);
   };
 
   return (

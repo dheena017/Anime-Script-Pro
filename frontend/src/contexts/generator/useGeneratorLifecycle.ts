@@ -11,6 +11,7 @@ import { AI_EVENTS } from '@/services/generators/core';
 interface GeneratorQueriesParams {
   userId?: string;
   currentScriptId: string | null;
+  episode: string;
 }
 
 interface ProjectHistoryItem {
@@ -46,7 +47,7 @@ export function useResolveProjectId(currentScriptId: string | null) {
   }, [currentScriptId]);
 }
 
-export function useGeneratorQueries({ userId, currentScriptId }: GeneratorQueriesParams): GeneratorQueriesResult {
+export function useGeneratorQueries({ userId, currentScriptId, episode }: GeneratorQueriesParams): GeneratorQueriesResult {
   useQuery({
     queryKey: ['engineConfig', userId],
     queryFn: () => engineApi.getConfig(userId!),
@@ -60,8 +61,8 @@ export function useGeneratorQueries({ userId, currentScriptId }: GeneratorQuerie
   });
 
   const { data: production } = useQuery({
-    queryKey: ['productionContent', userId, currentScriptId],
-    queryFn: () => productionApi.getContent(userId!, currentScriptId ? parseInt(currentScriptId, 10) : undefined),
+    queryKey: ['productionContent', userId, currentScriptId, episode],
+    queryFn: () => productionApi.getContent(userId!, currentScriptId ? parseInt(currentScriptId, 10) : undefined, episode),
     enabled: !!userId && !!currentScriptId,
   });
 
@@ -100,6 +101,7 @@ export function useGeneratorQueries({ userId, currentScriptId }: GeneratorQuerie
 interface GeneratorSyncEffectsParams {
   userId?: string;
   currentScriptId: string | null;
+  episode: string;
   production: any;
   worldLore: any;
   castDataFromApi: any;
@@ -160,6 +162,7 @@ export function useGeneratorSyncEffects(params: GeneratorSyncEffectsParams) {
   const {
     userId,
     currentScriptId,
+    episode,
     production,
     worldLore,
     castDataFromApi,
@@ -256,6 +259,7 @@ export function useGeneratorSyncEffects(params: GeneratorSyncEffectsParams) {
     setGenerationProgress(0);
   }, [
     currentScriptId,
+    episode,
     hasLoadedProduction,
     hasLoadedWorld,
     hasLoadedCast,

@@ -264,7 +264,7 @@ export const SeriesCard = React.memo<SeriesCardProps>(({
             <div className="flex items-center justify-end gap-3 pt-4 border-t border-white/5">
               <Button
                 variant="outline"
-                onClick={() => onViewEpisode?.(parseInt(ep.episode).toString())}
+                onClick={() => onViewEpisode?.(ep.episode)}
                 className="flex items-center gap-2 h-10 px-6 rounded-xl bg-transparent border-white/10 text-[11px] font-black uppercase tracking-widest text-zinc-400 hover:text-white hover:bg-white/5 transition-all duration-300 group/btn"
               >
                 <Eye className="w-4 h-4" />
@@ -272,7 +272,7 @@ export const SeriesCard = React.memo<SeriesCardProps>(({
               </Button>
               <Button
                 variant="outline"
-                onClick={() => onFocusEpisode(parseInt(ep.episode).toString())} // This will be handled by the parent to navigate
+                onClick={() => onFocusEpisode(ep.episode)} // This will be handled by the parent to navigate
                 className="h-10 px-6 rounded-xl bg-transparent border-studio/20 text-[11px] font-black uppercase tracking-widest text-studio hover:text-black hover:bg-studio hover:border-studio hover:shadow-[0_0_20px_rgba(6,182,212,0.4)] transition-all duration-300 group/btn"
               >
                 Focus Episode <PlayCircle className="w-4 h-4 ml-2 opacity-50 group-hover/btn:opacity-100 transition-opacity" />

@@ -163,11 +163,13 @@ export function SeriesPage() {
             onUpdateEpisode={handleUpdateEpisode}
             onUpdateAssetMatrix={handleUpdateAssetMatrix}
             onFocusEpisode={(epNum) => {
+              const studioBase = currentScriptId ? `/projects/${currentScriptId}` : '/studio';
               setEpisode(epNum);
-              navigate(`/${contentType.toLowerCase()}/script`);
+              navigate(`${studioBase}/script`);
             }}
             onViewEpisode={(epNum) => {
-              navigate(`/${contentType.toLowerCase()}/series/episodes/${epNum}`);
+              const studioBase = currentScriptId ? `/projects/${currentScriptId}` : '/studio';
+              navigate(`${studioBase}/series/episodes/${epNum}`);
             }}
           />
         );
