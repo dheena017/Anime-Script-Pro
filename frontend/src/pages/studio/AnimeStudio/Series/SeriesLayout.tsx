@@ -10,6 +10,7 @@ import { SeriesTabs, SeriesTab } from './Tabs/SeriesTabs';
 import { SeriesLoadingPage } from './components/SeriesLoadingPage';
 import { cn } from '@/lib/utils';
 import { StudioTabsProgressBar } from '@/pages/studio/components/studio/layout/StudioTabsProgressBar';
+import { seriesStyles as s } from './seriesStyles';
 
 export default function SeriesLayout() {
   const navigate = useNavigate();
@@ -212,12 +213,9 @@ export default function SeriesLayout() {
       </div>
 
       {/* Tabs Bar - Always visible but clean and sticky */}
-      <div className={cn(
-        "studio-tabs-bar sticky top-0 z-40 flex items-center justify-center py-4 px-3 md:px-4 bg-[#050505]/80 backdrop-blur-xl border-b border-white/10 group transition-all duration-500",
-        !(generatedSeriesPlan && generatedSeriesPlan.length > 0) && "border-t"
-      )}>
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-studio/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
-        <div className="relative z-10 w-full flex justify-center">
+      <div className={s.tabs.tabsBar}>
+        <div className={s.tabs.tabsBarGlow} />
+        <div className={s.tabs.tabsBarInner}>
           <SeriesTabs activeTab={activeTab} setActiveTab={handleTabChange} />
         </div>
         <StudioTabsProgressBar progress={generationProgress} theme="cyan" />

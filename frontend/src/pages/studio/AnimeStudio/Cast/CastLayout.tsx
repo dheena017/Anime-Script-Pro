@@ -31,6 +31,8 @@ export const CastTabActionsContext = React.createContext<{
   handleGenerateIntegrity?: () => Promise<any>;
 }>({});
 
+import { castStyles as s } from './castStyles';
+
 export default function CastLayout() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -174,8 +176,6 @@ export default function CastLayout() {
     return () => window.removeEventListener('studio-generate-cast', handleTriggerGenerate);
   }, [handleGenerateAll]);
 
-
-
   React.useEffect(() => {
     reportTabChange('CastLayout', activeTab, 'anime');
   }, [activeTab]);
@@ -193,8 +193,6 @@ export default function CastLayout() {
     registry: isGeneratingCharacters,
   };
 
-
-
   const hasContent = castList && castList.length > 0;
 
   return (
@@ -203,8 +201,8 @@ export default function CastLayout() {
           isAnalyzingCast,
           ...(handlers || {}),
         }}>
-      <div className="space-y-6">
-        <div className="studio-module-header">
+      <div className={s.container}>
+        <div className={s.layout.moduleHeader}>
           <CastHeader
             isGenerating={handlers.isGenerating || isGeneratingCharacters || isAnalyzingCast}
             onRegenerate={handleGenerateAll}
@@ -226,9 +224,9 @@ export default function CastLayout() {
           />
         </div>
 
-        <div className="studio-tabs-bar sticky top-0 z-40 flex items-center justify-center p-3 md:p-4 bg-[#050505]/95 backdrop-blur-md border border-white/10 rounded-[2rem] shadow-2xl mb-8 relative group overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-studio/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
-          <div className="relative z-10 w-full flex justify-center">
+        <div className={s.tabs.tabsBar}>
+          <div className={s.tabs.tabsBarGlow} />
+          <div className={s.tabs.tabsBarInner}>
             <CastTabs activeTab={activeTab} setActiveTab={handleTabChange} loadingStates={loadingStates} />
           </div>
           <StudioTabsProgressBar progress={generationProgress} theme="cyan" />

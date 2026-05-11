@@ -1,9 +1,9 @@
 /**
- * SEO Module Styles
+ * Screening Module Styles
  * Consolidated styles for Header, Toolbar, Page, and Tabs
  */
 
-export const seoStyles = {
+export const screeningStyles = {
   // --- HEADER SECTION ---
   header: {
     wrapper: "relative group",
@@ -36,7 +36,6 @@ export const seoStyles = {
 
   // --- PAGE LAYOUT ---
   page: {
-    container: "space-y-12 pb-24",
     mainCard: "bg-[#030303]/40 backdrop-blur-md overflow-hidden rounded-3xl relative group/card transition-all duration-700",
     mainCardActive: "border-studio/30 shadow-[0_0_50px_rgba(6,182,212,0.15)] hover:border-studio/50",
     mainCardInactive: "border-zinc-800/30 hover:border-zinc-700",
@@ -49,17 +48,17 @@ export const seoStyles = {
 
   // --- TABS SECTION ---
   tabs: {
-    container: 'flex items-center gap-1 bg-black/50 border border-white/10 p-1.5 rounded-full backdrop-blur-xl shadow-2xl relative group overflow-hidden',
-    overlay: 'absolute inset-0 bg-gradient-to-r from-white/5 via-transparent to-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000',
-    button: 'relative px-5 py-2 text-[10px] font-black tracking-[0.2em] transition-all duration-500 uppercase flex items-center gap-2.5',
-    buttonActive: 'text-emerald-400',
+    container: 'tabs-nav-container group',
+    overlay: 'absolute inset-0 bg-gradient-to-r from-studio/5 via-transparent to-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000 rounded-[1.5rem]',
+    button: 'tabs-nav-button group/tab',
+    buttonActive: 'text-studio',
     buttonInactive: 'text-zinc-500 hover:text-zinc-300',
-    pill: 'absolute inset-0 bg-white/10 border border-white/20 rounded-full z-0',
-    icon: 'w-3.5 h-3.5 transition-all duration-500',
+    glow: 'storyboard-tab-glow',
+    glowMotion: 'absolute inset-0 rounded-xl bg-white/[0.04] border border-white/10',
+    icon: 'w-3.5 h-3.5 transition-all duration-300',
     iconActive: 'opacity-100 scale-110',
-    iconInactive: 'opacity-40',
-    spinner: 'w-3.5 h-3.5 border-2 border-transparent border-t-current rounded-full animate-spin',
-    label: 'hidden lg:inline',
+    iconInactive: 'opacity-40 group-hover/tab:opacity-70 group-hover/tab:scale-105',
+    underline: 'absolute bottom-0 left-4 right-4 h-[2px] bg-gradient-to-r rounded-full',
     tabsBar: "studio-tabs-bar sticky top-0 z-40 flex items-center justify-center p-3 md:p-4 bg-[#050505]/95 backdrop-blur-md border border-white/10 rounded-[2rem] shadow-2xl mb-8 relative group overflow-hidden",
     tabsBarGlow: "absolute inset-0 bg-gradient-to-r from-transparent via-studio/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000",
     tabsBarInner: "relative z-10 w-full flex justify-center",

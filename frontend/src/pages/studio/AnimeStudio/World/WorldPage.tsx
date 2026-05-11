@@ -18,6 +18,8 @@ import { worldApi } from '@/services/api/world';
 import { MOCK_WORLD_DATA } from '@/services/generators/mockData';
 import { useAuth } from '@/hooks/useAuth';
 
+import { worldStyles as s } from './worldStyles';
+
 export function WorldPage() {
   const { user } = useAuth();
   const {
@@ -322,14 +324,14 @@ export function WorldPage() {
   const isTabEmpty = !isTabGenerating && !(hasDataForTab as any)[activeTab];
 
   return (
-    <div data-testid="marker-world-architecture" className="space-y-8 pb-20">
+    <div data-testid="marker-world-architecture" className={s.page.container}>
       {isTabEmpty || isTabGenerating ? (
-        <div className="w-full max-w-[1400px] mx-auto animate-in fade-in zoom-in-95 duration-700">
+        <div className={s.page.emptyWrapper}>
            {renderContent(generationStatus)}
         </div>
       ) : (
-        <div className={cn(sharedStyles.card, "!p-0 overflow-hidden border-zinc-500/30 bg-zinc-950/90 shadow-[0_0_60px_rgba(0,0,0,0.5)]")}>
-          <div className="w-full p-8 lg:p-10 max-w-[1400px] mx-auto">
+        <div className={s.page.mainCard}>
+          <div className={s.page.mainCardInner}>
             {renderContent(generationStatus)}
           </div>
         </div>

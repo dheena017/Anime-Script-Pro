@@ -3,6 +3,7 @@ import { Palette, Mic2, Zap, Download, Copy, Maximize, Minimize, Plus, Edit3 } f
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useApp } from '@/contexts/AppContext';
+import { storyboardStyles as s } from '../storyboardStyles';
 
 import {
   Tooltip,
@@ -63,12 +64,12 @@ export const StoryboardToolbar: React.FC<StoryboardToolbarProps> = ({
 
   return (
     <TooltipProvider>
-      <div className="toolbar-container">
-        <div className="toolbar-header">
+      <div className={s.toolbar.container}>
+        <div className={s.toolbar.header}>
           {/* Identity */}
-          <div className="toolbar-status-box">
-            <div className="toolbar-status-icon">
-              <Palette className={cn("w-5 h-5 transition-all duration-500", status === 'active' ? "text-fuchsia-400 drop-shadow-[0_0_8px_rgba(217,70,239,0.6)]" : "text-zinc-600")} />
+          <div className={s.toolbar.statusBox}>
+            <div className={s.toolbar.statusIcon}>
+              <Palette className={cn("w-5 h-5 transition-all duration-500", status === 'active' ? s.toolbar.statusActive : s.toolbar.statusInactive)} />
             </div>
             <div className="flex flex-col gap-1">
               <span className={cn(
@@ -77,7 +78,7 @@ export const StoryboardToolbar: React.FC<StoryboardToolbarProps> = ({
               )}>
                 Storyboard Nexus {status === 'active' ? 'Active' : 'Standby'}
               </span>
-              <span className="text-[8px] font-bold text-zinc-500 uppercase tracking-widest">
+              <span className={s.toolbar.statusSubtitle}>
                 Visual Design Engine // Frame_Ready
               </span>
             </div>
@@ -90,7 +91,7 @@ export const StoryboardToolbar: React.FC<StoryboardToolbarProps> = ({
                 <TooltipTrigger>
                   <Button
                     variant="outline"
-                    className="h-9 px-4 rounded-xl font-black uppercase tracking-widest text-[9px] text-zinc-300 border-zinc-700 hover:text-fuchsia-400 hover:border-fuchsia-500/50 hover:bg-fuchsia-500/10 transition-all duration-300 group"
+                    className={s.toolbar.primaryButton}
                     onClick={onAddScene}
                   >
                     <Plus className="w-3.5 h-3.5 mr-2 group-hover:rotate-90 transition-transform duration-300" />
@@ -110,9 +111,9 @@ export const StoryboardToolbar: React.FC<StoryboardToolbarProps> = ({
                     variant="ghost"
                     size="icon"
                     className={cn(
-                      "h-8 w-8 rounded-lg transition-all duration-300 border border-transparent",
-                      isEditing 
-                        ? "text-fuchsia-400 border-fuchsia-500/40 bg-fuchsia-500/10 shadow-[0_0_10px_rgba(217,70,239,0.2)]" 
+                      s.toolbar.iconButton,
+                      isEditing
+                        ? "text-fuchsia-400 border-fuchsia-500/40 bg-fuchsia-500/10 shadow-[0_0_10px_rgba(217,70,239,0.2)]"
                         : "text-zinc-400 hover:text-fuchsia-400 hover:border-fuchsia-500/40 hover:bg-fuchsia-500/10"
                     )}
                     onClick={() => onEditingChange?.(!isEditing)}
@@ -132,7 +133,7 @@ export const StoryboardToolbar: React.FC<StoryboardToolbarProps> = ({
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-8 w-8 rounded-lg text-zinc-400 hover:text-fuchsia-400 border border-transparent hover:border-fuchsia-500/40 hover:bg-fuchsia-500/10 transition-all duration-300"
+                    className={s.toolbar.iconButton}
                     onClick={onEnhanceNarration}
                     disabled={isGlobalEnhancing}
                   >
@@ -149,7 +150,7 @@ export const StoryboardToolbar: React.FC<StoryboardToolbarProps> = ({
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-8 w-8 rounded-lg text-zinc-400 hover:text-fuchsia-400 border border-transparent hover:border-fuchsia-500/40 hover:bg-fuchsia-500/10 transition-all duration-300"
+                    className={s.toolbar.iconButton}
                     onClick={onEnhanceVisuals}
                     disabled={isGlobalEnhancing}
                   >
@@ -163,15 +164,15 @@ export const StoryboardToolbar: React.FC<StoryboardToolbarProps> = ({
             </div>
           </div>
 
-          <div className="toolbar-action-group">
-            <div className="toolbar-btn-group">
+          <div className={s.toolbar.actionGroup}>
+            <div className={s.toolbar.btnGroup}>
               <Tooltip>
                 <TooltipTrigger>
                   <Button
                     onClick={handleCopy}
                     size="icon"
                     variant="ghost"
-                    className="h-9 w-9 rounded-lg text-zinc-400 hover:text-fuchsia-400 border border-transparent hover:border-fuchsia-500/40 hover:bg-fuchsia-500/10 transition-all duration-300"
+                    className={s.toolbar.iconButton}
                     disabled={!content}
                   >
                     <Copy className="w-4 h-4" />
@@ -188,7 +189,7 @@ export const StoryboardToolbar: React.FC<StoryboardToolbarProps> = ({
                     onClick={handleDownload}
                     size="icon"
                     variant="ghost"
-                    className="h-9 w-9 rounded-lg text-zinc-400 hover:text-fuchsia-400 border border-transparent hover:border-fuchsia-500/40 hover:bg-fuchsia-500/10 transition-all duration-300"
+                    className={s.toolbar.iconButton}
                     disabled={!content}
                   >
                     <Download className="w-4 h-4" />
@@ -205,7 +206,7 @@ export const StoryboardToolbar: React.FC<StoryboardToolbarProps> = ({
                     onClick={toggleFullscreen}
                     size="icon"
                     variant="ghost"
-                    className="h-9 w-9 rounded-lg text-zinc-400 hover:text-fuchsia-400 border border-transparent hover:border-fuchsia-500/40 hover:bg-fuchsia-500/10 transition-all duration-300"
+                    className={s.toolbar.iconButton}
                   >
                     {isFullscreen ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
                   </Button>

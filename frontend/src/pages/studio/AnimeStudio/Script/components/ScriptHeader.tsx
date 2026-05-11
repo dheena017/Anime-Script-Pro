@@ -7,8 +7,8 @@ import {
 } from '@/components/ui/tooltip';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight, Cpu, FileText, Sparkles, Save, Square, Box } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import { useGeneratorDispatch } from '@/hooks/useGenerator';
+import { scriptStyles as s } from '../scriptStyles';
 
 interface ScriptHeaderProps {
   onRegenerate: () => void;
@@ -42,26 +42,27 @@ export const ScriptHeader: React.FC<ScriptHeaderProps> = ({
 
   return (
     <TooltipProvider>
-      <div className="relative group">
-        <div className="header-container">
+      <div className={s.header.wrapper}>
+        <div className={s.header.glow} />
+        <div className={s.header.container}>
           <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-8 z-10 w-full lg:w-auto">
             <div className="relative shrink-0">
-              <div className="header-icon-box group/icon !bg-blue-500/10 !border-blue-500/30">
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-transparent opacity-0 group-hover/icon:opacity-100 transition-opacity duration-500" />
-                <FileText className="w-7 h-7 text-blue-500 relative z-10 animate-pulse-slow" />
-                <div className="absolute inset-0 border-2 border-blue-500/50 rounded-2xl animate-ping opacity-20" />
+              <div className={s.header.iconBox}>
+                <div className={s.header.iconGlow} />
+                <FileText className={s.header.icon} />
+                <div className="absolute inset-0 border-2 border-blue-500/40 rounded-2xl opacity-20" />
               </div>
             </div>
 
             <div className="flex flex-col items-center sm:items-start text-center sm:text-left">
               <div className="flex items-center gap-3">
-                <h1 className="header-title">
+                <h1 className={s.header.title}>
                    Script Editor
                 </h1>
               </div>
               <div className="flex items-center gap-2 mt-2">
-                <Cpu className="w-3.5 h-3.5 text-blue-500/40 shrink-0" />
-                <p className="header-subtitle !text-blue-500/40">S{session} // EP{episode} // AI Script Engine</p>
+                <Cpu className="w-3.5 h-3.5 text-blue-300/50 shrink-0" />
+                <p className={s.header.subtitle}>S{session} // EP{episode} // AI Script Engine</p>
               </div>
             </div>
           </div>
@@ -72,7 +73,7 @@ export const ScriptHeader: React.FC<ScriptHeaderProps> = ({
                 <TooltipTrigger >
                   <Button
                     variant="ghost"
-                    className="relative w-full sm:w-auto h-10 px-6 bg-gradient-to-r from-emerald-500/10 to-emerald-500/5 border border-emerald-500/30 text-zinc-400 hover:text-emerald-500 hover:border-emerald-500/60 hover:bg-gradient-to-r hover:from-emerald-500/20 hover:to-emerald-500/10 font-black uppercase tracking-widest text-[9px] rounded-lg transition-all duration-300 group/back shadow-lg hover:shadow-[0_0_20px_rgba(16,185,129,0.3)]"
+                    className={s.header.actionButton}
                     onClick={onPrev}
                   >
                     <ChevronLeft className="w-4 h-4 mr-2 group-hover/back:-translate-x-1 transition-transform" />
@@ -92,7 +93,7 @@ export const ScriptHeader: React.FC<ScriptHeaderProps> = ({
                     {isGenerating ? (
                       <Button
                         variant="ghost"
-                        className="relative w-full sm:w-auto h-10 px-6 bg-red-500/10 border border-red-500/40 text-red-400 hover:text-red-300 hover:border-red-500/60 hover:bg-red-500/15 font-black uppercase tracking-widest text-[9px] rounded-lg transition-all duration-300 group/stop shadow-lg hover:shadow-[0_0_20px_rgba(239,68,68,0.2)]"
+                        className={s.header.actionButtonDanger}
                         onClick={stopGeneration}
                       >
                         <Square className="w-4 h-4 mr-2 fill-current group-hover/stop:scale-110 transition-transform" />
@@ -101,7 +102,7 @@ export const ScriptHeader: React.FC<ScriptHeaderProps> = ({
                     ) : (
                       <Button
                         variant="ghost"
-                        className="relative w-full sm:w-auto h-10 px-6 bg-gradient-to-r from-emerald-500/15 to-emerald-500/5 border border-emerald-500/40 text-emerald-500 hover:text-emerald-400 hover:border-emerald-500/70 hover:bg-gradient-to-r hover:from-emerald-500/25 hover:to-emerald-500/15 font-black uppercase tracking-widest text-[9px] rounded-lg transition-all duration-300 group/btn shadow-lg hover:shadow-[0_0_20px_rgba(16,185,129,0.3)]"
+                        className={s.header.actionButtonPrimary}
                         onClick={onRegenerate}
                       >
                         <Sparkles className="w-4 h-4 mr-2 group-hover/btn:scale-125 transition-transform duration-300" />
@@ -121,7 +122,7 @@ export const ScriptHeader: React.FC<ScriptHeaderProps> = ({
                     <TooltipTrigger >
                       <Button
                         variant="ghost"
-                        className="relative w-full sm:w-auto h-10 px-6 bg-gradient-to-r from-blue-500/15 to-blue-500/5 border border-blue-500/40 text-blue-500 hover:text-blue-400 hover:border-blue-500/70 hover:bg-gradient-to-r hover:from-blue-500/25 hover:to-blue-500/15 font-black uppercase tracking-widest text-[9px] rounded-lg transition-all duration-300 group/batch shadow-lg hover:shadow-[0_0_20px_rgba(59,130,246,0.3)]"
+                        className={s.header.actionButtonPrimary}
                         onClick={onGenerateAll}
                       >
                         <Box className="w-4 h-4 mr-2 group-hover/batch:rotate-12 transition-transform duration-300" />
@@ -135,12 +136,10 @@ export const ScriptHeader: React.FC<ScriptHeaderProps> = ({
                 )}
               </div>
 
-
-
               <Tooltip>
                 <TooltipTrigger >
                   <Button
-                    className="relative w-full sm:w-auto h-10 px-8 rounded-lg bg-gradient-to-r from-white to-zinc-100 text-black hover:from-zinc-50 hover:to-white font-black uppercase tracking-widest text-[9px] transition-all duration-300 group/next shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:shadow-[0_0_30px_rgba(255,255,255,0.4)]"
+                    className={s.header.actionButtonPrimary}
                     onClick={onNext}
                   >
                     <span className="relative z-10 flex items-center gap-2">

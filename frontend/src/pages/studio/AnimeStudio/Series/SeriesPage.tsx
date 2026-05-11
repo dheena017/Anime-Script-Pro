@@ -18,6 +18,8 @@ import EpisodesPage from './Episodes/EpisodesPage';
 import { MOCK_SERIES_PLAN } from '@/services/generators/mockData';
 import { SeriesLoadingPage } from './components/SeriesLoadingPage';
 
+import { seriesStyles as s } from './seriesStyles';
+
 export function SeriesPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -197,17 +199,15 @@ export function SeriesPage() {
   return (
     <div data-testid="marker-series-planning">
       <Card className={cn(
-        "bg-[#030303]/40 backdrop-blur-md overflow-hidden rounded-3xl relative group/card transition-all duration-700",
-        activeTab === 'roadmap'
-          ? "border-studio/30 shadow-[0_0_50px_rgba(6,182,212,0.15)] hover:border-studio/50"
-          : "border-zinc-800/30 hover:border-zinc-700"
+        s.page.mainCard,
+        activeTab === 'roadmap' ? "border-studio/30 shadow-[0_0_50px_rgba(6,182,212,0.15)] hover:border-studio/50" : ""
       )}>
         <div className={cn(
-          "absolute inset-0 border-[1px] rounded-3xl pointer-events-none transition-colors duration-700",
-          activeTab === 'roadmap' ? "border-studio/20 group-hover/card:border-studio/40" : "border-white/5"
+          s.page.innerBorder,
+          activeTab === 'roadmap' ? "border-studio/20 group-hover/card:border-studio/40" : ""
         )} />
 
-        <div className="w-full p-8 lg:p-10 max-w-[1400px] mx-auto">
+        <div className={s.page.contentWrapper}>
           {renderTabContent()}
         </div>
       </Card>

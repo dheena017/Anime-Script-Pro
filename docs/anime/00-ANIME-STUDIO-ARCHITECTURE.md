@@ -26,7 +26,7 @@ flowchart TD
 
 ## Module Tabs
 
-### World Builder
+<h3 style="margin: 24px 0 12px; padding: 10px 14px; border-left: 4px solid #06b6d4; background: #0f172a; color: #e2e8f0; border-radius: 8px; font-weight: 700; letter-spacing: 0.02em;">World Builder</h3>
 
 | Order | Tab | Purpose |
 |---|---|---|
@@ -39,7 +39,7 @@ flowchart TD
 | 7 | Culture | Customs, beliefs, and norms |
 | 8 | Systems | World logic and governing rules |
 
-### Cast System
+<h3 style="margin: 24px 0 12px; padding: 10px 14px; border-left: 4px solid #06b6d4; background: #0f172a; color: #e2e8f0; border-radius: 8px; font-weight: 700; letter-spacing: 0.02em;">Cast System</h3>
 
 | Order | Tab | Purpose |
 |---|---|---|
@@ -51,7 +51,7 @@ flowchart TD
 | 6 | Integrity | Continuity and consistency checks |
 | 7 | Add Lead | Fast lead creation |
 
-### Series Manager
+<h3 style="margin: 24px 0 12px; padding: 10px 14px; border-left: 4px solid #06b6d4; background: #0f172a; color: #e2e8f0; border-radius: 8px; font-weight: 700; letter-spacing: 0.02em;">Series Manager</h3>
 
 | Order | Tab | Purpose |
 |---|---|---|
@@ -62,7 +62,7 @@ flowchart TD
 | 5 | Assets | Linked production resources |
 | 6 | Timeline | Chronological planning |
 
-### Script Editor
+<h3 style="margin: 24px 0 12px; padding: 10px 14px; border-left: 4px solid #06b6d4; background: #0f172a; color: #e2e8f0; border-radius: 8px; font-weight: 700; letter-spacing: 0.02em;">Script Editor</h3>
 
 | Order | Tab | Purpose |
 |---|---|---|
@@ -72,7 +72,7 @@ flowchart TD
 | 4 | Dialogue | Conversation and line management |
 | 5 | Metadata | Script configuration and technical data |
 
-### Storyboard
+<h3 style="margin: 24px 0 12px; padding: 10px 14px; border-left: 4px solid #06b6d4; background: #0f172a; color: #e2e8f0; border-radius: 8px; font-weight: 700; letter-spacing: 0.02em;">Storyboard</h3>
 
 | Order | Tab | Purpose |
 |---|---|---|
@@ -82,7 +82,7 @@ flowchart TD
 | 4 | Animatic | Motion preview and sequencing |
 | 5 | Audio Sync | Sound and timing alignment |
 
-### SEO Manager
+<h3 style="margin: 24px 0 12px; padding: 10px 14px; border-left: 4px solid #06b6d4; background: #0f172a; color: #e2e8f0; border-radius: 8px; font-weight: 700; letter-spacing: 0.02em;">SEO Manager</h3>
 
 | Order | Tab | Purpose |
 |---|---|---|
@@ -93,7 +93,7 @@ flowchart TD
 | 5 | Distribution | Publishing and sharing strategy |
 | 6 | Growth Strategy | Analytics and performance planning |
 
-### Screening Room
+<h3 style="margin: 24px 0 12px; padding: 10px 14px; border-left: 4px solid #06b6d4; background: #0f172a; color: #e2e8f0; border-radius: 8px; font-weight: 700; letter-spacing: 0.02em;">Screening Room</h3>
 
 | Order | Tab | Purpose |
 |---|---|---|
@@ -103,7 +103,7 @@ flowchart TD
 | 4 | Archives | Version history |
 | 5 | Exports | Final export configuration |
 
-### Assets Manager
+<h3 style="margin: 24px 0 12px; padding: 10px 14px; border-left: 4px solid #06b6d4; background: #0f172a; color: #e2e8f0; border-radius: 8px; font-weight: 700; letter-spacing: 0.02em;">Assets Manager</h3>
 
 | Order | Tab | Purpose |
 |---|---|---|

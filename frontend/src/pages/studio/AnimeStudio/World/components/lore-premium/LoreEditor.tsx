@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { Bold, Italic, Heading2, Code, List, Quote, Sparkles } from 'lucide-react';
 import { useAutoResizeTextarea } from '../../hooks/useAutoResizeTextarea';
+import { worldStyles as s } from '../../worldStyles/worldStyles';
 
 interface LoreEditorProps {
   content: string;
@@ -77,7 +78,7 @@ export const LoreEditor: React.FC<LoreEditorProps> = ({
           <button
             key={i}
             onClick={btn.action}
-            className="flex items-center gap-2 px-3 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-all group"
+            className={s.actionToolbarButton}
           >
             <btn.icon className="w-3.5 h-3.5 text-zinc-400 group-hover:text-white transition-colors" />
             <span className="text-[10px] font-bold text-zinc-500 group-hover:text-white transition-colors uppercase tracking-widest">{btn.label}</span>

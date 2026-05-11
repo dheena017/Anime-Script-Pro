@@ -5,7 +5,7 @@ import { Cpu, Zap, Activity, ShieldCheck, Sparkles } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { TableOfContents } from '../components/TableOfContents';
 import { useAutoResizeTextarea } from '../hooks/useAutoResizeTextarea';
-import { worldStyles as s } from '../worldStyles/worldStyles';
+import { worldStyles as s } from '../worldStyles';
 
 interface SystemsTabProps {
   isEditing: boolean;
@@ -55,7 +55,7 @@ export const SystemsTab: React.FC<SystemsTabProps> = ({
   }), []);
 
   return (
-    <div className="world-container">
+    <div className={s.content.container}>
 
 
       {isEditing ? (
@@ -66,19 +66,19 @@ export const SystemsTab: React.FC<SystemsTabProps> = ({
           placeholder="Define your world systems and mechanics here..."
         />
       ) : (
-        <div className="world-content-area">
-          <div className="world-main-column">
-            <div className="world-prose" style={{ '--prose-accent-color': '#10b981' } as React.CSSProperties}>
+        <div className={s.content.contentArea}>
+          <div className={s.content.mainColumn}>
+            <div className={s.content.prose} style={{ '--prose-accent-color': '#10b981' } as React.CSSProperties}>
               <ReactMarkdown components={customComponents}>{sectionContent}</ReactMarkdown>
             </div>
           </div>
 
-          <div className="world-sidebar space-y-8">
-            <div className={s.sidebarCard}>
-              <div className={s.sidebarGlow + " bg-emerald-500/5 group-hover:bg-emerald-500/10"} />
-              <div className={s.sidebarContent}>
+          <div className={s.content.sidebar + " space-y-8"}>
+            <div className={s.content.sidebarCard}>
+              <div className={s.content.sidebarGlow + " bg-emerald-500/5 group-hover:bg-emerald-500/10"} />
+              <div className={s.content.sidebarContent}>
                 <div className="flex items-center justify-between">
-                  <h4 className={s.sidebarTitle}>
+                  <h4 className={s.content.sidebarTitle}>
                     <Sparkles className="w-3 h-3 text-emerald-500" /> Core Seed
                   </h4>
                   {isEditing && <span className="text-[8px] font-bold text-emerald-500/50 uppercase">Modular Prompt</span>}
@@ -87,7 +87,7 @@ export const SystemsTab: React.FC<SystemsTabProps> = ({
                 {isEditing ? (
                   <textarea
                     ref={promptTextareaRef}
-                    className={s.sidebarPromptInput + " focus:border-emerald-500/30"}
+                    className={s.content.sidebarPromptInput + " focus:border-emerald-500/30"}
                     value={prompt || ''}
                     onChange={(e) => {
                       onPromptChange?.(e.target.value);
@@ -97,14 +97,14 @@ export const SystemsTab: React.FC<SystemsTabProps> = ({
                     placeholder="Refine the system mechanics with specific instructions..."
                   />
                 ) : (
-                  <div className={s.sidebarPromptBox}>
-                    <p className={s.sidebarPromptText}>
+                  <div className={s.content.sidebarPromptBox}>
+                    <p className={s.content.sidebarPromptText}>
                       {prompt ? `"${prompt.substring(0, 120)}${prompt.length > 120 ? '...' : ''}"` : 'Using global project seed for synthesis.'}
                     </p>
                   </div>
                 )}
                 
-                <p className={s.sidebarNote}>
+                <p className={s.content.sidebarNote}>
                   Focus the AI on specific economic models, governance structures, or technological laws unique to this world.
                 </p>
               </div>
@@ -117,10 +117,10 @@ export const SystemsTab: React.FC<SystemsTabProps> = ({
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: i * 0.1 }}
-                  className={s.statCard + " hover:border-emerald-500/30"}
+                  className={s.content.statCard + " hover:border-emerald-500/30"}
                 >
                   <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 blur-[40px] pointer-events-none" />
-                  <div className={s.statIconBox + " " + sys.color}>
+                  <div className={s.content.statIconBox + " " + sys.color}>
                     <sys.icon className="w-5 h-5" />
                   </div>
                   <div className="space-y-2">

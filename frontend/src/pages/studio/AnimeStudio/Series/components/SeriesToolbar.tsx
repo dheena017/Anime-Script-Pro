@@ -3,6 +3,7 @@ import { Layers, Copy, Download, Maximize, Minimize, FileText } from 'lucide-rea
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useApp } from '@/contexts/AppContext';
+import { seriesStyles as s } from '../seriesStyles';
 
 import {
   Tooltip,
@@ -73,32 +74,32 @@ export const SeriesToolbar: React.FC<SeriesToolbarProps> = ({
 
   return (
     <TooltipProvider>
-      <div className="toolbar-container">
-        <div className="toolbar-header">
+      <div className={s.toolbar.container}>
+        <div className={s.toolbar.header}>
           {/* Identity */}
-          <div className="toolbar-status-box">
-            <div className="toolbar-status-icon">
-              <Layers className={cn("w-5 h-5 transition-all duration-500", status === 'active' ? "text-cyan-400 drop-shadow-[0_0_8px_rgba(6,182,212,0.6)]" : "text-zinc-600")} />
+          <div className={s.toolbar.statusBox}>
+            <div className={s.toolbar.statusIcon}>
+              <Layers className={cn("w-5 h-5 transition-all duration-500", status === 'active' ? s.toolbar.statusActive : s.toolbar.statusInactive)} />
             </div>
             <div className="flex flex-col gap-1">
-              <span className="text-[10px] font-black uppercase tracking-[0.2em] bg-gradient-to-r from-cyan-300 to-studio bg-clip-text text-transparent">
+              <span className={s.toolbar.statusTitle}>
                 Series Nexus {status === 'active' ? 'Active' : 'Standby'}
               </span>
-              <span className="text-[8px] font-bold text-zinc-500 uppercase tracking-widest">
+              <span className={s.toolbar.statusSubtitle}>
                 System Status: Optimal // Series_Sync_01
               </span>
             </div>
           </div>
 
-          <div className="toolbar-action-group">
-            <div className="toolbar-btn-group">
+          <div className={s.toolbar.actionGroup}>
+            <div className={s.toolbar.btnGroup}>
               <Tooltip>
                 <TooltipTrigger>
                   <Button
                     onClick={handleManifestClick}
                     size="icon"
                     variant="ghost"
-                    className="h-9 w-9 rounded-lg text-zinc-400 hover:text-cyan-400 border border-transparent hover:border-cyan-400/40 hover:bg-cyan-500/10 transition-all duration-300 group relative overflow-hidden"
+                    className={s.toolbar.iconButton}
                     disabled={!onManifestClick}
                   >
                     <FileText className="w-4 h-4 relative z-10 group-hover:scale-110 transition-transform duration-300" />
@@ -115,7 +116,7 @@ export const SeriesToolbar: React.FC<SeriesToolbarProps> = ({
                     onClick={handleCopy}
                     size="icon"
                     variant="ghost"
-                    className="h-9 w-9 rounded-lg text-zinc-400 hover:text-cyan-400 border border-transparent hover:border-cyan-400/40 hover:bg-cyan-500/10 transition-all duration-300 group relative overflow-hidden"
+                    className={s.toolbar.iconButton}
                     disabled={!content}
                   >
                     <Copy className="w-4 h-4 relative z-10 group-hover:scale-110 transition-transform duration-300" />
@@ -132,7 +133,7 @@ export const SeriesToolbar: React.FC<SeriesToolbarProps> = ({
                     onClick={handleDownload}
                     size="icon"
                     variant="ghost"
-                    className="h-9 w-9 rounded-lg text-zinc-400 hover:text-cyan-400 border border-transparent hover:border-cyan-400/40 hover:bg-cyan-500/10 transition-all duration-300 group relative overflow-hidden"
+                    className={s.toolbar.iconButton}
                     disabled={!content}
                   >
                     <Download className="w-4 h-4 relative z-10 group-hover:scale-110 transition-transform duration-300" />
@@ -149,7 +150,7 @@ export const SeriesToolbar: React.FC<SeriesToolbarProps> = ({
                     onClick={toggleFullscreen}
                     size="icon"
                     variant="ghost"
-                    className="h-9 w-9 rounded-lg text-zinc-400 hover:text-cyan-400 border border-transparent hover:border-cyan-400/40 hover:bg-cyan-500/10 transition-all duration-300 group relative overflow-hidden"
+                    className={s.toolbar.iconButton}
                   >
                     {isFullscreen ? <Minimize className="w-4 h-4 relative z-10 group-hover:scale-110 transition-transform duration-300" /> : <Maximize className="w-4 h-4 relative z-10 group-hover:scale-110 transition-transform duration-300" />}
                   </Button>

@@ -8,6 +8,7 @@ import {
   TooltipTrigger
 } from '@/components/ui/tooltip';
 import { useApp } from '@/contexts/AppContext';
+import { screeningStyles as s } from '../screeningStyles';
 
 interface ScreeningToolbarProps {
   status: 'active' | 'draft' | 'empty';
@@ -53,18 +54,18 @@ export const ScreeningToolbar: React.FC<ScreeningToolbarProps> = ({
 
   return (
     <TooltipProvider>
-      <div className="toolbar-container">
-        <div className="toolbar-header">
+      <div className={s.toolbar.container}>
+        <div className={s.toolbar.header}>
           {/* Identity */}
-          <div className="toolbar-status-box">
-            <div className="toolbar-status-icon">
-              <Monitor className={cn("w-5 h-5 transition-all duration-500", status === 'active' ? "text-studio drop-shadow-[0_0_8px_rgba(6,182,212,0.6)]" : "text-zinc-600")} />
+          <div className={s.toolbar.statusBox}>
+            <div className={s.toolbar.statusIcon}>
+              <Monitor className={cn("w-5 h-5 transition-all duration-500", status === 'active' ? s.toolbar.statusActive : s.toolbar.statusInactive)} />
             </div>
             <div className="flex flex-col gap-1">
-              <span className="text-[10px] font-black uppercase tracking-[0.2em] bg-gradient-to-r from-studio/80 to-cyan-400/60 bg-clip-text text-transparent">
+              <span className={s.toolbar.statusTitle}>
                 Screening Nexus {status === 'active' ? 'Active' : 'Standby'}
               </span>
-              <span className="text-[8px] font-bold text-zinc-500 uppercase tracking-widest">
+              <span className={s.toolbar.statusSubtitle}>
                 Production Viewport // Cinema_Control
               </span>
             </div>
@@ -72,31 +73,31 @@ export const ScreeningToolbar: React.FC<ScreeningToolbarProps> = ({
 
           {/* Session Navigation */}
           <div className="flex items-center bg-black/60 border border-white/5 p-1 rounded-full backdrop-blur-md shadow-inner">
-            {[1, 2, 3, 4].map((s) => (
+            {[1, 2, 3, 4].map((s_num) => (
               <button
-                key={s}
-                onClick={() => setActiveSession(s)}
+                key={s_num}
+                onClick={() => setActiveSession(s_num)}
                 className={cn(
                   "relative h-8 flex items-center px-4 rounded-full text-[9px] font-black uppercase tracking-widest transition-all duration-300",
-                  activeSession === s
+                  activeSession === s_num
                     ? "text-black bg-gradient-to-br from-studio to-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.4)]"
                     : "text-zinc-500 hover:text-studio/80 hover:bg-studio/5"
                 )}
               >
-                S{s}
+                S{s_num}
               </button>
             ))}
           </div>
 
-          <div className="toolbar-action-group">
-            <div className="toolbar-btn-group">
+          <div className={s.toolbar.actionGroup}>
+            <div className={s.toolbar.btnGroup}>
               <Tooltip>
                 <TooltipTrigger>
                   <Button
                     onClick={handleCopy}
                     size="icon"
                     variant="ghost"
-                    className="h-9 w-9 rounded-lg text-zinc-400 hover:text-studio border border-transparent hover:border-studio/40 hover:bg-studio/10 transition-all duration-300"
+                    className={s.toolbar.iconButton}
                     disabled={!content}
                   >
                     <Copy className="w-4 h-4" />
@@ -112,7 +113,7 @@ export const ScreeningToolbar: React.FC<ScreeningToolbarProps> = ({
                   <Button
                     size="icon"
                     variant="ghost"
-                    className="h-9 w-9 rounded-lg text-zinc-400 hover:text-studio border border-transparent hover:border-studio/40 hover:bg-studio/10 transition-all duration-300"
+                    className={s.toolbar.iconButton}
                     disabled={!content}
                   >
                     <Download className="w-4 h-4" />
@@ -129,7 +130,7 @@ export const ScreeningToolbar: React.FC<ScreeningToolbarProps> = ({
                     onClick={toggleFullscreen}
                     size="icon"
                     variant="ghost"
-                    className="h-9 w-9 rounded-lg text-zinc-400 hover:text-studio border border-transparent hover:border-studio/40 hover:bg-studio/10 transition-all duration-300"
+                    className={s.toolbar.iconButton}
                   >
                     {isFullscreen ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
                   </Button>

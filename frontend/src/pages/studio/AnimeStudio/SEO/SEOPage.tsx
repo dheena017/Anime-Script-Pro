@@ -28,6 +28,8 @@ import { DistributionTab } from './Tabs/DistributionTab';
 import { SEOLoadingPage } from './components/SEOLoadingPage';
 import { SEOEmptyState } from './components/SEOEmptyState';
 
+import { seoStyles as s } from './seoStyles';
+
 export function SEOPage() {
   const { activeTab } = useOutletContext<{ activeTab: SEOTab }>();
   const { setHandlers } = useContext(SEOContext);
@@ -254,16 +256,11 @@ export function SEOPage() {
 
   return (
     <div data-testid="marker-seo-nexus">
+      <Card className={s.page.container}>
+        <div className={s.page.innerBorder} />
 
-
-      <Card className={cn(
-        "bg-[#030303] overflow-hidden rounded-[2.5rem] relative group/card transition-all duration-700",
-        "border-studio/20 shadow-[0_0_40px_rgba(6,182,212,0.08)] hover:border-studio/40"
-      )}>
-        <div className="absolute inset-0 border-[1px] border-white/5 rounded-[2.5rem] pointer-events-none group-hover/card:border-white/10 transition-colors duration-700" />
-
-        <div className="w-full p-0">
-          <div className="p-12 max-w-6xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <div className={s.page.contentWrapper}>
+          <div className={s.page.contentArea}>
             {renderTabContent()}
           </div>
         </div>

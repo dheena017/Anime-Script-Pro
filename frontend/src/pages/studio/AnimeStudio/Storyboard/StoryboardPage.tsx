@@ -44,6 +44,8 @@ interface Scene {
   linkedPrompt?: string;
 }
 
+import { storyboardStyles as s } from './storyboardStyles';
+
 export function StoryboardPage() {
   const {
     generatedScript,
@@ -515,12 +517,15 @@ export function StoryboardPage() {
       </AnimatePresence>
 
       <Card className={cn(
-        "bg-[#030303]/40 backdrop-blur-md overflow-hidden rounded-[3rem] relative group/card transition-all duration-700",
-        activeTab === 'frames'
-          ? "border-fuchsia-500/20 shadow-[0_0_50px_rgba(217,70,239,0.15)] hover:border-fuchsia-500/40"
-          : "border-zinc-800/30 hover:border-zinc-700"
+        s.page.mainCard,
+        activeTab === 'frames' ? s.page.mainCardFrames : s.page.mainCardNormal
       )}>
-        <div className="w-full p-8 lg:p-10 max-w-[1400px] mx-auto">
+        <div className={cn(
+          s.page.innerBorder,
+          activeTab === 'frames' ? "border-fuchsia-500/20 group-hover/card:border-fuchsia-500/40" : "border-white/5"
+        )} />
+
+        <div className={s.page.mainCardInner}>
           {activeTab === 'frames' && scenes.length > 0 && (
             <div className="flex justify-end mb-6">
               <div className="flex items-center gap-1 bg-black/40 p-1 rounded-xl border border-white/5">
@@ -549,8 +554,5 @@ export function StoryboardPage() {
         </div>
       </Card>
     </div>
-
   );
 }
-
-

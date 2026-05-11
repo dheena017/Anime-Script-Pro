@@ -7,6 +7,7 @@ import { EngineHeader } from './components/EngineHeader';
 import { EngineToolbar } from './components/EngineToolbar';
 import { EngineTab } from './tabs/EngineTabs';
 import { StudioTabsProgressBar } from '@/pages/studio/components/studio/layout/StudioTabsProgressBar';
+import { engineStyles as s } from './engineStyles';
 
 export const EngineContext = React.createContext<{
   setHandlers: React.Dispatch<React.SetStateAction<any>>;
@@ -50,7 +51,7 @@ export default function EngineLayout() {
   return (
     <EngineContext.Provider value={{ setHandlers: () => {} }}>
       <div className="space-y-6">
-<div className="studio-module-header">
+<div className={s.layout.moduleHeader}>
         <EngineHeader
           session={session}
           episode={episode}
@@ -70,10 +71,10 @@ export default function EngineLayout() {
         />
       </div>
 
-      <div className="studio-tabs-bar sticky top-0 z-40 flex items-center justify-center p-3 md:p-4 bg-[#050505]/95 backdrop-blur-md border border-white/10 rounded-[2rem] shadow-2xl mb-8 relative group overflow-hidden">
-         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-studio/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
+      <div className={s.tabs.tabsBar}>
+         <div className={s.tabs.tabsBarGlow} />
          
-         <div className="relative z-10 w-full flex justify-center">
+         <div className={s.tabs.tabsBarInner}>
           <EngineToolbar
             status={generatedScript ? 'active' : 'empty'}
             activeTab={activeTab}

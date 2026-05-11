@@ -2,6 +2,8 @@ import React from 'react';
 import { Map, Layers, Maximize2, MapPin } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
+import { worldStyles as s } from '../worldStyles/worldStyles';
 
 export const WorldMapPreview: React.FC = () => {
   return (
@@ -12,10 +14,10 @@ export const WorldMapPreview: React.FC = () => {
           Cartographic Projection
         </h3>
         <div className="flex gap-1">
-          <Button variant="ghost" size="icon" className="h-7 w-7 text-zinc-600 hover:text-emerald-500">
+          <Button variant="ghost" size="icon" className={cn(s.actionIconButtonSmall, "hover:text-emerald-500") }>
             <Layers className="w-3.5 h-3.5" />
           </Button>
-          <Button variant="ghost" size="icon" className="h-7 w-7 text-zinc-600 hover:text-emerald-500">
+          <Button variant="ghost" size="icon" className={cn(s.actionIconButtonSmall, "hover:text-emerald-500") }>
             <Maximize2 className="w-3.5 h-3.5" />
           </Button>
         </div>

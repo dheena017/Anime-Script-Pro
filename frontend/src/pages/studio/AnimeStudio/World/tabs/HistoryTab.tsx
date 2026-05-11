@@ -1,11 +1,11 @@
 import React from 'react';
-import { StudioEditor } from '../../components/StudioEditor';
 import { motion } from 'framer-motion';
-import { History, Hourglass, Landmark, ScrollText, Sparkles, ClipboardList, Download } from 'lucide-react';
+import { StudioEditor } from '../../components/StudioEditor';
+import { History, Calendar, Sword, Sparkles, BookOpen } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { studioLog, reportGeneration } from '@/lib/studio-logger';
 import { useAutoResizeTextarea } from '../hooks/useAutoResizeTextarea';
-import { worldStyles as s } from '../worldStyles/worldStyles';
+import { worldStyles as s } from '../worldStyles';
 
 interface HistoryTabProps {
   isEditing: boolean;
@@ -29,28 +29,28 @@ export const HistoryTab: React.FC<HistoryTabProps> = ({
   const sectionContent = content;
   const { textareaRef: promptTextareaRef, scheduleResizeTextarea: schedulePromptResize } = useAutoResizeTextarea(prompt || '', isEditing);
 
-  const timeline = React.useMemo(() => {
-    // Extract era-like lines or use fallback
-    const eraRegex = /- \*\*(.*?)\*\*:\s*(.*)/g;
-    const matches = Array.from((sectionContent || '').matchAll(eraRegex));
-    
-    if (matches.length > 0) {
-      return matches.slice(0, 3).map((m, i) => ({
-        era: m[1],
-        date: i === 0 ? 'Ancient' : i === 1 ? 'Expansion' : 'Modern',
-        desc: m[2].substring(0, 100) + '...',
-        icon: [Landmark, ScrollText, Hourglass][i % 3]
-      }));
-    }
+  const timelineEvents = React.useMemo(() => {
+    const findEvents = (regex: RegExp) => {
+      const matches = content?.matchAll(regex);
+      return matches ? Array.from(matches).map(m => m[1].trim()).slice(0, 3) : [];
+    };
+    return findEvents(/(?:Year|Era|Event):\s*(.*)/gi);
+  }, [content]);
 
-    return [
-      { era: 'The First Spark', date: '3000 B.E.', desc: 'The discovery of the Etheric core and the dawn of civilizations.', icon: Landmark },
-      { era: 'The Great Regression', date: '500 B.E.', desc: 'A global conflict that shattered the old kingdoms.', icon: ScrollText },
-      { era: 'Current Epoch', date: 'Year 0', desc: 'The stabilization of the mega-metropolises.', icon: Hourglass },
-    ];
-  }, [sectionContent]);
+  const customComponents = React.useMemo(() => ({
+    h2: ({ node, ...props }: any) => {
+      const text = React.Children.toArray(props.children)
+        .map((child) => (typeof child === 'string' ? child : '')).join('');
+      const id = text.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '');
+      return <motion.h2 id={id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-100px' }} transition={{ duration: 0.6, ease: 'easeOut' }} {...props} />;
+    },
+    p: ({ node, ...props }: any) => (
+      <motion.p initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5, delay: 0.1 }} {...props} />
+    )
+  }), []);
+
   return (
-    <div className="world-container">
+    <div className={s.content.container}>
 
 
       {isEditing ? (
@@ -58,22 +58,22 @@ export const HistoryTab: React.FC<HistoryTabProps> = ({
           content={content}
           onContentChange={onContentChange}
           isEditing={isEditing}
-          placeholder="Archive your world history here..."
+          placeholder="Write the history and timeline of your world here..."
         />
       ) : (
-        <div className="world-content-area">
-          <div className="world-main-column">
-            <div className="world-prose" style={{ '--prose-accent-color': '#d946ef' } as React.CSSProperties}>
-              <ReactMarkdown>{sectionContent}</ReactMarkdown>
+        <div className={s.content.contentArea}>
+          <div className={s.content.mainColumn}>
+            <div className={s.content.prose} style={{ '--prose-accent-color': '#d946ef' } as React.CSSProperties}>
+              <ReactMarkdown components={customComponents}>{sectionContent}</ReactMarkdown>
             </div>
           </div>
 
-          <div className="world-sidebar space-y-8">
-            <div className={s.sidebarCard}>
-              <div className={s.sidebarGlow + " bg-fuchsia-500/5 group-hover:bg-fuchsia-500/10"} />
-              <div className={s.sidebarContent}>
+          <div className={s.content.sidebar + " space-y-8"}>
+            <div className={s.content.sidebarCard}>
+              <div className={s.content.sidebarGlow + " bg-fuchsia-500/5 group-hover:bg-fuchsia-500/10"} />
+              <div className={s.content.sidebarContent}>
                 <div className="flex items-center justify-between">
-                  <h4 className={s.sidebarTitle}>
+                  <h4 className={s.content.sidebarTitle}>
                     <Sparkles className="w-3 h-3 text-fuchsia-500" /> Core Seed
                   </h4>
                   {isEditing && <span className="text-[8px] font-bold text-fuchsia-500/50 uppercase">Modular Prompt</span>}
@@ -82,50 +82,44 @@ export const HistoryTab: React.FC<HistoryTabProps> = ({
                 {isEditing ? (
                   <textarea
                     ref={promptTextareaRef}
-                    className={s.sidebarPromptInput + " focus:border-fuchsia-500/30"}
+                    className={s.content.sidebarPromptInput + " focus:border-fuchsia-500/30"}
                     value={prompt || ''}
                     onChange={(e) => {
-                      const val = e.target.value;
-                      studioLog('HistoryTab', `Refining Lore Seed. Length: ${val.length} chars.`, 'info');
-                      onPromptChange?.(val);
+                      onPromptChange?.(e.target.value);
                       schedulePromptResize();
                     }}
                     onInput={schedulePromptResize}
                     placeholder="Refine the history synthesis with specific instructions..."
                   />
                 ) : (
-                  <div className={s.sidebarPromptBox}>
-                    <p className={s.sidebarPromptText}>
+                  <div className={s.content.sidebarPromptBox}>
+                    <p className={s.content.sidebarPromptText}>
                       {prompt ? `"${prompt.substring(0, 120)}${prompt.length > 120 ? '...' : ''}"` : 'Using global project seed for synthesis.'}
                     </p>
                   </div>
                 )}
                 
-                <p className={s.sidebarNote}>
-                  Refining this seed will specialize the AI's focus for this specific module without affecting other tabs.
+                <p className={s.content.sidebarNote}>
+                  Focus the AI on specific eras, cataclysmic events, or historical turning points.
                 </p>
               </div>
             </div>
 
-            <div className="relative border-l border-white/5 ml-4 pl-12 space-y-16">
-              {timeline.map((item, i) => (
-                <motion.div 
-                  key={i}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.2 }}
-                  className="relative"
-                >
-                  <div className="absolute -left-[61px] top-0 w-6 h-6 rounded-full bg-zinc-950 border-2 border-fuchsia-500 flex items-center justify-center">
-                    <div className="w-2 h-2 rounded-full bg-fuchsia-500 animate-pulse" />
-                  </div>
-                  <div className="space-y-2">
-                    <span className="text-[9px] font-black text-fuchsia-500 uppercase tracking-widest">{item.date}</span>
-                    <h3 className="text-sm font-black text-white uppercase tracking-tighter line-clamp-1">{item.era}</h3>
-                    <p className="text-[10px] font-medium text-zinc-500 leading-relaxed">{item.desc}</p>
-                  </div>
-                </motion.div>
-              ))}
+            <div className="space-y-4">
+              <h5 className="text-[10px] font-black text-zinc-500 uppercase tracking-widest flex items-center gap-2 mb-4">
+                <Calendar className="w-3 h-3" /> Key Timeline Events
+              </h5>
+              {timelineEvents.length > 0 ? timelineEvents.map((event, i) => (
+                <div key={i} className="p-4 bg-white/[0.02] border border-white/5 rounded-2xl group hover:border-fuchsia-500/20 transition-all">
+                  <p className="text-[10px] font-medium text-zinc-400 group-hover:text-zinc-200 transition-colors leading-relaxed">
+                    {event}
+                  </p>
+                </div>
+              )) : (
+                <div className="p-4 bg-white/[0.01] border border-white/5 border-dashed rounded-2xl text-center">
+                  <p className="text-[9px] font-bold text-zinc-600 uppercase">No major events identified</p>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -133,5 +127,3 @@ export const HistoryTab: React.FC<HistoryTabProps> = ({
     </div>
   );
 };
-
-

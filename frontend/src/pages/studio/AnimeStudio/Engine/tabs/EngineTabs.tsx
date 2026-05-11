@@ -2,6 +2,7 @@ import React from 'react';
 import { Cpu, Terminal, Zap, Activity, Settings, Layout as LayoutGrid } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
+import { engineStyles as s } from '../engineStyles';
 
 export type EngineTab = 'status' | 'template' | 'console' | 'calibration' | 'optimization' | 'logs';
 
@@ -24,33 +25,28 @@ export const EngineTabs: React.FC<EngineTabsProps> = ({
   ];
 
   return (
-    <div className="flex items-center justify-center gap-10 p-2 relative overflow-x-auto hide-scrollbar">
-      <div className="absolute inset-0 bg-gradient-to-r from-studio/5 via-transparent to-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
+    <div className={s.tabs.container}>
+      <div className={s.tabs.overlay} />
       
       {tabs.map((tab) => (
         <button
           key={tab.id}
           onClick={() => setActiveTab(tab.id)}
-          className={cn(
-            "relative flex items-center gap-2.5 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-300 shrink-0 whitespace-nowrap",
-            activeTab === tab.id 
-              ? cn(tab.color, "bg-white/[0.03] shadow-[0_0_20px_rgba(255,255,255,0.02)]") 
-              : "text-zinc-500 hover:text-zinc-300 hover:bg-white/[0.01]"
-          )}
+          className={cn(s.tabs.button, activeTab === tab.id ? cn(tab.color, s.tabs.buttonActive) : s.tabs.buttonInactive)}
         >
           {activeTab === tab.id && (
             <motion.div
               layoutId="engine-tab-glow"
-              className="absolute inset-0 border border-white/10 rounded-xl shadow-[0_0_30px_rgba(255,255,255,0.02)]"
+              className={s.tabs.glow}
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
             />
           )}
-          <tab.icon className={cn("w-3.5 h-3.5 transition-all duration-500", activeTab === tab.id ? "opacity-100 scale-110 rotate-[360deg]" : "opacity-40")} />
+          <tab.icon className={cn(s.tabs.icon, activeTab === tab.id ? s.tabs.iconActive : s.tabs.iconInactive)} />
           <span className="relative z-10">{tab.label}</span>
           {activeTab === tab.id && (
             <motion.div 
               layoutId="engine-tab-underline"
-              className="absolute -bottom-1 left-4 right-4 h-0.5 bg-current rounded-full opacity-50 blur-[1px]"
+              className={s.tabs.underline}
             />
           )}
         </button>

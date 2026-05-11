@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { StudioEditor } from '../../components/StudioEditor';
 import ReactMarkdown from 'react-markdown';
+import { worldStyles as s } from '../worldStyles';
 
 interface ManifestTabProps {
   isEditing: boolean;
@@ -23,7 +24,7 @@ export const ManifestTab: React.FC<ManifestTabProps> = ({
   ), [content]);
 
   return (
-    <div className="world-container will-change-transform transform-gpu">
+    <div className={s.content.container + " will-change-transform transform-gpu"}>
 
 
       {isEditing ? (
@@ -42,17 +43,17 @@ Use markdown formatting:
 • > Quotes for important notes"
         />
       ) : (
-        <div className="world-content-area relative">
+        <div className={s.content.contentArea + " relative"}>
           {/* Blueprint Background */}
           <div className="absolute inset-0 world-bible-blueprint pointer-events-none opacity-30 rounded-3xl" />
           
           {/* Content */}
-          <div className="world-main-column relative z-10">
+          <div className={s.content.mainColumn + " relative z-10"}>
             <div className="bg-gradient-to-b from-white/[0.02] to-transparent border border-white/5 rounded-3xl p-8 lg:p-16 backdrop-blur-sm relative overflow-hidden group">
               {/* Hover glow effect */}
               <div className="absolute inset-0 bg-gradient-to-r from-studio/0 via-studio/[0.02] to-studio/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-3xl" />
               
-              <div className="world-prose max-w-none relative z-10">
+              <div className={s.content.prose + " max-w-none relative z-10"}>
                 {MemoizedMarkdown}
               </div>
 

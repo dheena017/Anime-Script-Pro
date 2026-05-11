@@ -16,6 +16,8 @@ import { MotionPromptsTab } from './Tabs/MotionPromptsTab';
 import { StylePromptsTab } from './Tabs/StylePromptsTab';
 import { NegativePromptsTab } from './Tabs/NegativePromptsTab';
 
+import { promptsStyles as s } from './promptsStyles';
+
 export function PromptsPage() {
   const { activeTab } = useOutletContext<{ activeTab: PromptsTab }>();
   const { setHandlers } = useContext(PromptsContext);
@@ -74,7 +76,7 @@ export function PromptsPage() {
               variant="outline"
               size="sm"
               onClick={stopGeneration}
-              className="mt-6 bg-red-500/10 border-red-500/30 text-red-500 hover:bg-red-500 hover:text-black font-black uppercase tracking-widest text-[9px] rounded-full px-8 h-10 transition-all duration-500"
+              className={cn(s.header.actionButtonDanger, "mt-6 h-10 px-8 rounded-full")}
             >
               Terminate Synthesis
             </Button>
@@ -83,6 +85,7 @@ export function PromptsPage() {
       );
     }
 
+    3
     switch (activeTab) {
       case 'image':
         return (
@@ -92,7 +95,7 @@ export function PromptsPage() {
             onGenerate={handleGenerate}
           />
         );
-      case 'video':
+      case 'motion':
         return <MotionPromptsTab />;
       case 'style':
         return <StylePromptsTab />;
@@ -111,14 +114,11 @@ export function PromptsPage() {
 
   return (
     <div data-testid="marker-ai-image-prompts">
-      <Card className={cn(
-        "bg-[#030303] overflow-hidden rounded-[2.5rem] relative group/card transition-all duration-700",
-        "border-studio/20 shadow-[0_0_40px_rgba(6,182,212,0.08)] hover:border-studio/40"
-      )}>
-        <div className="absolute inset-0 border-[1px] border-white/5 rounded-[2.5rem] pointer-events-none group-hover/card:border-white/10 transition-colors duration-700" />
+      <Card className={s.page.mainCard}>
+        <div className={s.page.innerBorder} />
 
         <div className="w-full p-0">
-          <div className="p-12 max-w-6xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-700">
+          <div className={s.page.contentWrapper}>
             {renderTabContent()}
           </div>
         </div>

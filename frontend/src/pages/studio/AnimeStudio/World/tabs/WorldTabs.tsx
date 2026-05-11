@@ -12,6 +12,7 @@ import {
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import { reportTabChange } from '@/lib/studio-logger';
+import { worldStyles as s } from '../worldStyles';
 
 export type WorldTab = 'manifest' | 'lore' | 'factions' | 'powers' | 'architecture' | 'atlas' | 'culture' | 'systems';
 
@@ -69,8 +70,8 @@ export const WorldTabs: React.FC<WorldTabsProps> = ({
   const isTabLoading = (tabId: WorldTab) => loadingStates[tabId] || false;
 
   return (
-    <div className="flex items-center gap-1 bg-black/50 border border-white/10 p-1.5 rounded-full backdrop-blur-xl shadow-2xl relative group overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-r from-white/5 via-transparent to-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
+    <div className={s.tabs.container}>
+      <div className={s.tabs.overlay} />
 
       {tabs.map((tab) => {
         const loading = isTabLoading(tab.id);
@@ -81,30 +82,24 @@ export const WorldTabs: React.FC<WorldTabsProps> = ({
             key={tab.id}
             type="button"
             onClick={() => handleTabClick(tab.id)}
-            className={cn(
-              "relative px-5 py-2 text-[10px] font-black tracking-[0.2em] transition-all duration-500 uppercase flex items-center gap-2.5",
-              isActive ? "text-white" : "text-zinc-500 hover:text-zinc-300"
-            )}
+            className={cn(s.tabs.button, isActive ? s.tabs.buttonActive : s.tabs.buttonInactive)}
           >
             {/* The sliding "Pill" background */}
             {isActive && (
               <motion.div
                 layoutId="world-active-pill"
-                className={cn(
-                  "absolute inset-0 bg-white/10 border border-white/20 rounded-full z-0",
-                  tab.glow
-                )}
+                className={cn(s.tabs.pill, tab.glow)}
                 transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
               />
             )}
 
             <div className="relative z-10 flex items-center gap-2.5">
               {loading ? (
-                <div className="w-3.5 h-3.5 border-2 border-transparent border-t-current rounded-full animate-spin" />
+                <div className={s.tabs.spinner} />
               ) : (
-                <tab.icon className={cn("w-3.5 h-3.5 transition-all duration-500", isActive ? "opacity-100 scale-110" : "opacity-40 group-hover:opacity-70")} />
+                <tab.icon className={cn(s.tabs.icon, isActive ? s.tabs.iconActive : s.tabs.iconInactive)} />
               )}
-              <span className="hidden lg:inline">{tab.label}</span>
+              <span className={s.tabs.label}>{tab.label}</span>
             </div>
           </button>
         );

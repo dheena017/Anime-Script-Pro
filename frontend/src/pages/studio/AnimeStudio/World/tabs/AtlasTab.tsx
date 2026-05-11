@@ -1,12 +1,11 @@
 import React from 'react';
-import { Map, Compass, Globe, Navigation, Sparkles, ClipboardList, Download } from 'lucide-react';
 import { motion } from 'framer-motion';
-import ReactMarkdown from 'react-markdown';
 import { StudioEditor } from '../../components/StudioEditor';
-import { studioLog, reportGeneration } from '@/lib/studio-logger';
+import { Map, MapPin, Compass, Globe, Sparkles, Navigation } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
 import { TableOfContents } from '../components/TableOfContents';
 import { useAutoResizeTextarea } from '../hooks/useAutoResizeTextarea';
-import { worldStyles as s } from '../worldStyles/worldStyles';
+import { worldStyles as s } from '../worldStyles';
 
 interface AtlasTabProps {
   isEditing: boolean;
@@ -30,16 +29,12 @@ export const AtlasTab: React.FC<AtlasTabProps> = ({
   const sectionContent = content;
   const { textareaRef: promptTextareaRef, scheduleResizeTextarea: schedulePromptResize } = useAutoResizeTextarea(prompt || '', isEditing);
 
-  const stats = React.useMemo(() => {
-    const findVal = (regex: RegExp, fallback: string) => {
-      const match = content?.match(regex);
-      return match ? match[1].trim() : fallback;
+  const locations = React.useMemo(() => {
+    const findLocs = (regex: RegExp) => {
+      const matches = content?.matchAll(regex);
+      return matches ? Array.from(matches).map(m => m[1].trim()).slice(0, 4) : [];
     };
-    return [
-      { label: 'Primary Continent', val: findVal(/(?:Primary Continent|Continent):\s*(.*)/i, 'Neo-Pangea'), icon: Compass },
-      { label: 'Climate Profile', val: findVal(/(?:Climate Profile|Climate):\s*(.*)/i, 'Bioluminescent Tropical'), icon: Navigation },
-      { label: 'Resource Density', val: findVal(/(?:Resource Density|Resources):\s*(.*)/i, 'High / Etheric'), icon: Map },
-    ];
+    return findLocs(/(?:Location|Landmark|Region):\s*(.*)/gi);
   }, [content]);
 
   const customComponents = React.useMemo(() => ({
@@ -55,7 +50,7 @@ export const AtlasTab: React.FC<AtlasTabProps> = ({
   }), []);
 
   return (
-    <div className="world-container">
+    <div className={s.content.container}>
 
 
       {isEditing ? (
@@ -63,22 +58,22 @@ export const AtlasTab: React.FC<AtlasTabProps> = ({
           content={content}
           onContentChange={onContentChange}
           isEditing={isEditing}
-          placeholder="Map out your world geography here..."
+          placeholder="Map out your world regions, landmarks, and geography here..."
         />
       ) : (
-        <div className="world-content-area">
-          <div className="world-main-column">
-            <div className="world-prose" style={{ '--prose-accent-color': '#3b82f6' } as React.CSSProperties}>
+        <div className={s.content.contentArea}>
+          <div className={s.content.mainColumn}>
+            <div className={s.content.prose} style={{ '--prose-accent-color': '#22d3ee' } as React.CSSProperties}>
               <ReactMarkdown components={customComponents}>{sectionContent}</ReactMarkdown>
             </div>
           </div>
 
-          <div className="world-sidebar space-y-8">
-            <div className={s.sidebarCard}>
-              <div className={s.sidebarGlow + " bg-blue-500/5 group-hover:bg-blue-500/10"} />
-              <div className={s.sidebarContent}>
+          <div className={s.content.sidebar + " space-y-8"}>
+            <div className={s.content.sidebarCard}>
+              <div className={s.content.sidebarGlow + " bg-blue-500/5 group-hover:bg-blue-500/10"} />
+              <div className={s.content.sidebarContent}>
                 <div className="flex items-center justify-between">
-                  <h4 className={s.sidebarTitle}>
+                  <h4 className={s.content.sidebarTitle}>
                     <Sparkles className="w-3 h-3 text-blue-500" /> Core Seed
                   </h4>
                   {isEditing && <span className="text-[8px] font-bold text-blue-500/50 uppercase">Modular Prompt</span>}
@@ -87,62 +82,45 @@ export const AtlasTab: React.FC<AtlasTabProps> = ({
                 {isEditing ? (
                   <textarea
                     ref={promptTextareaRef}
-                    className={s.sidebarPromptInput + " focus:border-blue-500/30"}
+                    className={s.content.sidebarPromptInput + " focus:border-blue-500/30"}
                     value={prompt || ''}
                     onChange={(e) => {
-                      const val = e.target.value;
-                      studioLog('AtlasTab', `Refining Atlas Seed. Length: ${val.length} chars.`, 'info');
-                      onPromptChange?.(val);
+                      onPromptChange?.(e.target.value);
                       schedulePromptResize();
                     }}
                     onInput={schedulePromptResize}
-                    placeholder="Refine the geographic synthesis with specific instructions..."
+                    placeholder="Refine the atlas synthesis with specific instructions..."
                   />
                 ) : (
-                  <div className={s.sidebarPromptBox}>
-                    <p className={s.sidebarPromptText}>
+                  <div className={s.content.sidebarPromptBox}>
+                    <p className={s.content.sidebarPromptText}>
                       {prompt ? `"${prompt.substring(0, 120)}${prompt.length > 120 ? '...' : ''}"` : 'Using global project seed for synthesis.'}
                     </p>
                   </div>
                 )}
                 
-                <p className={s.sidebarNote}>
-                  Focus the AI on specific biomes, landmark names, or environmental hazards unique to this world.
-                </p>
-              </div>
-            </div>
-
-            <div className="p-10 bg-[#050505] border border-white/5 rounded-[2.5rem] flex items-center justify-center relative overflow-hidden group">
-              <div className="absolute inset-0 bg-blue-500/5 blur-[100px] group-hover:bg-blue-500/10 transition-all duration-700" />
-              <div className="relative z-10 text-center space-y-6">
-                <div className="w-20 h-20 mx-auto rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center animate-pulse">
-                  <Globe className="w-10 h-10 text-blue-400" />
-                </div>
-                <h3 className="text-xl font-black text-white uppercase tracking-widest">World Map Generation</h3>
-                <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest max-w-[280px] mx-auto leading-relaxed">
-                  Creating your world's geography and regional boundaries based on your story.
+                <p className={s.content.sidebarNote}>
+                  Focus the AI on specific terrain types, climate anomalies, or strategic landmarks.
                 </p>
               </div>
             </div>
 
             <div className="space-y-4">
-              {stats.map((item, i) => (
-                <motion.div 
-                  key={i} 
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.1 }}
-                  className="p-6 bg-[#050505] border border-white/5 rounded-[2rem] flex items-center gap-6 group hover:border-blue-500/30 transition-all"
-                >
-                  <div className="w-10 h-10 rounded-2xl bg-white/[0.03] border border-white/10 flex items-center justify-center text-blue-400 group-hover:scale-110 transition-transform">
-                    <item.icon className="w-5 h-5" />
+              <h5 className={s.content.sidebarTitle}>
+                <Navigation className="w-3 h-3" /> Key Strategic Points
+              </h5>
+              <div className="grid grid-cols-1 gap-3">
+                {locations.length > 0 ? locations.map((loc, i) => (
+                  <div key={i} className="flex items-center gap-3 p-3 bg-white/[0.02] border border-white/5 rounded-xl group hover:border-blue-500/30 transition-all">
+                    <MapPin className="w-3 h-3 text-blue-500/50 group-hover:text-blue-400" />
+                    <span className="text-[10px] font-bold text-zinc-500 group-hover:text-zinc-300 uppercase tracking-tight">{loc}</span>
                   </div>
-                  <div>
-                    <span className="text-[8px] font-black text-zinc-500 uppercase tracking-widest">{item.label}</span>
-                    <p className="text-sm font-black text-white uppercase tracking-tighter mt-1 line-clamp-1">{item.val}</p>
+                )) : (
+                  <div className="p-4 bg-white/[0.01] border border-white/5 border-dashed rounded-xl text-center">
+                    <p className="text-[9px] font-bold text-zinc-600 uppercase">Geographic data scanning...</p>
                   </div>
-                </motion.div>
-              ))}
+                )}
+              </div>
             </div>
 
             <div className="pt-2">

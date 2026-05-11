@@ -8,11 +8,13 @@ import { generateMetadata, generateYouTubeDescription, generateImagePrompts } fr
 import { AssetsLoadingPage } from './AssetsLoadingPage';
 import { StudioTabsProgressBar } from '@/pages/studio/components/studio/layout/StudioTabsProgressBar';
 
+import { assetsStyles as s } from './assetsStyles';
+
 export default function AssetsLayout() {
   const navigate = useNavigate();
   const location = useLocation();
   const [isLiked, setIsLiked] = React.useState(false);
-  
+
   const {
     generatedMetadata,
     generatedDescription,
@@ -98,7 +100,7 @@ export default function AssetsLayout() {
 
 
   return (
-    <div className="space-y-6">
+    <div className={s.container}>
       <div className="studio-module-header">
         <AssetsHeader 
           onRegenerate={handleGenerateAll}
@@ -123,13 +125,13 @@ export default function AssetsLayout() {
         />
       </div>
 
-      <div className="studio-tabs-bar sticky top-0 z-40 flex items-center justify-center p-3 md:p-4 bg-[#050505]/95 backdrop-blur-md border border-white/10 rounded-[2rem] shadow-2xl mb-8 relative group overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-studio/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
-        <div className="relative z-10 w-full flex justify-center">
+      <div className={s.tabs.tabsBar}>
+        <div className={s.tabs.tabsBarGlow} />
+        <div className={s.tabs.tabsBarInner}>
           <div className="flex items-center gap-12">
-            <div className="flex items-center gap-3 px-4 py-2 bg-studio/10 border border-studio/20 rounded-xl">
-              <Search className="w-4 h-4 text-studio" />
-              <span className="text-[10px] font-black text-studio uppercase tracking-[0.2em]">Assets_Nexus</span>
+            <div className={s.tabs.nexusBadge}>
+              <Search className={s.tabs.nexusIcon} />
+              <span className={s.tabs.nexusLabel}>Assets_Nexus</span>
             </div>
           </div>
         </div>

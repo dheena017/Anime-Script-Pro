@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils';
 import { ScriptTab } from '../../Script/Tabs/ScriptTabs';
 import { Button } from '@/components/ui/button';
 import { useApp } from '@/contexts/AppContext';
+import { scriptStyles as s } from '../scriptStyles';
 
 import {
   Tooltip,
@@ -70,18 +71,18 @@ export const ScriptToolbar: React.FC<ScriptToolbarProps> = ({
   return (
     <TooltipProvider>
       {!showTabsOnly && (
-        <div className="toolbar-container">
-          <div className="toolbar-header">
+        <div className={s.toolbar.container}>
+          <div className={s.toolbar.header}>
             {/* Identity */}
-            <div className="toolbar-status-box">
-              <div className="toolbar-status-icon">
-                <ScrollText className={cn("w-5 h-5 transition-all duration-500", status === 'active' ? "text-cyan-400 drop-shadow-[0_0_8px_rgba(6,182,212,0.6)]" : "text-zinc-600")} />
+            <div className={s.toolbar.statusBox}>
+              <div className={s.toolbar.statusIcon}>
+                <ScrollText className={cn("w-5 h-5 transition-all duration-500", status === 'active' ? s.toolbar.statusActive : s.toolbar.statusInactive)} />
               </div>
               <div className="flex flex-col gap-1">
-                <span className="text-[10px] font-black uppercase tracking-[0.2em] bg-gradient-to-r from-cyan-300 to-studio bg-clip-text text-transparent">
+                <span className={s.toolbar.statusTitle}>
                   Script Nexus {status === 'active' ? 'Active' : 'Standby'}
                 </span>
-                <span className="text-[8px] font-bold text-zinc-500 uppercase tracking-widest">
+                <span className={s.toolbar.statusSubtitle}>
                   Synthesis Mode: Sequential // Episode_Ready
                 </span>
               </div>
@@ -95,7 +96,7 @@ export const ScriptToolbar: React.FC<ScriptToolbarProps> = ({
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="h-8 px-3 rounded-lg text-zinc-400 hover:text-studio border border-transparent hover:border-studio/40 hover:bg-studio/10 transition-all text-[9px] font-black uppercase tracking-widest gap-2 group relative overflow-hidden"
+                      className={s.toolbar.navButton}
                       onClick={onPrev}
                       disabled={!onPrev}
                     >
@@ -113,7 +114,7 @@ export const ScriptToolbar: React.FC<ScriptToolbarProps> = ({
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="h-8 px-3 rounded-lg text-studio/80 hover:text-studio transition-all text-[9px] font-black uppercase tracking-widest gap-2 bg-studio/10 border border-studio/30 hover:border-studio/50 group"
+                      className={s.toolbar.navButtonActive}
                       onClick={onNext}
                       disabled={!onNext}
                     >
@@ -128,19 +129,19 @@ export const ScriptToolbar: React.FC<ScriptToolbarProps> = ({
               </div>
             )}
 
-            <div className="toolbar-action-group">
-              <div className="toolbar-btn-group">
+            <div className={s.toolbar.actionGroup}>
+              <div className={s.toolbar.btnGroup}>
                 <Tooltip>
                   <TooltipTrigger>
                     <Button
                       variant="ghost"
                       size="icon"
                       className={cn(
-                        "h-8 w-8 rounded-lg transition-all duration-300 border border-transparent",
-                        isEditing 
-                          ? "text-cyan-400 border-cyan-500/40 bg-cyan-500/10 shadow-[0_0_10px_rgba(6,182,212,0.2)]" 
-                          : "text-zinc-400 hover:text-cyan-400 hover:border-cyan-400/40 hover:bg-cyan-500/10"
-                      )}
+                          s.toolbar.iconButton,
+                          isEditing 
+                            ? "text-cyan-400 border-cyan-500/40 bg-cyan-500/10 shadow-[0_0_10px_rgba(6,182,212,0.2)]" 
+                            : "text-zinc-400 hover:text-cyan-400 hover:border-cyan-400/40 hover:bg-cyan-500/10"
+                        )}
                       onClick={() => onEditingChange?.(!isEditing)}
                     >
                       <Edit3 className={cn("w-4 h-4", isEditing && "animate-pulse")} />
@@ -158,7 +159,7 @@ export const ScriptToolbar: React.FC<ScriptToolbarProps> = ({
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-8 w-8 rounded-lg text-zinc-400 hover:text-cyan-400 border border-transparent hover:border-cyan-400/40 hover:bg-cyan-500/10 transition-all duration-300"
+                      className={s.toolbar.iconButton}
                       onClick={onViewSEO}
                     >
                       <Search className="w-4 h-4" />
@@ -174,7 +175,7 @@ export const ScriptToolbar: React.FC<ScriptToolbarProps> = ({
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-8 w-8 rounded-lg text-zinc-400 hover:text-cyan-400 border border-transparent hover:border-cyan-400/40 hover:bg-cyan-500/10 transition-all duration-300"
+                      className={s.toolbar.iconButton}
                       onClick={onViewPrompts}
                     >
                       <Wand2 className="w-4 h-4" />
@@ -190,7 +191,7 @@ export const ScriptToolbar: React.FC<ScriptToolbarProps> = ({
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-8 w-8 rounded-lg text-zinc-400 hover:text-cyan-400 border border-transparent hover:border-cyan-400/40 hover:bg-cyan-500/10 transition-all duration-300"
+                      className={s.toolbar.iconButton}
                       onClick={onViewStoryboard}
                     >
                       <Layout className="w-4 h-4" />
@@ -208,7 +209,7 @@ export const ScriptToolbar: React.FC<ScriptToolbarProps> = ({
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-8 w-8 rounded-lg text-zinc-400 hover:text-cyan-400 border border-transparent hover:border-cyan-400/40 hover:bg-cyan-500/10 transition-all duration-300"
+                      className={s.toolbar.iconButton}
                       onClick={onExtend}
                       disabled={!content}
                     >
@@ -225,7 +226,7 @@ export const ScriptToolbar: React.FC<ScriptToolbarProps> = ({
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-8 w-8 rounded-lg text-zinc-400 hover:text-cyan-400 border border-transparent hover:border-cyan-400/40 hover:bg-cyan-500/10 transition-all duration-300"
+                      className={s.toolbar.iconButton}
                       onClick={onListen}
                       disabled={!content}
                     >
@@ -245,7 +246,7 @@ export const ScriptToolbar: React.FC<ScriptToolbarProps> = ({
                       onClick={handleCopy}
                       size="icon"
                       variant="ghost"
-                      className="h-9 w-9 rounded-lg text-zinc-400 hover:text-studio border border-transparent hover:border-studio/40 hover:bg-studio/10 transition-all duration-300"
+                      className={s.toolbar.iconButton}
                       disabled={!content}
                     >
                       <Copy className="w-4 h-4" />
@@ -262,7 +263,7 @@ export const ScriptToolbar: React.FC<ScriptToolbarProps> = ({
                       onClick={onExport}
                       size="icon"
                       variant="ghost"
-                      className="h-9 w-9 rounded-lg text-zinc-400 hover:text-studio border border-transparent hover:border-studio/40 hover:bg-studio/10 transition-all duration-300"
+                      className={s.toolbar.iconButton}
                       disabled={!content}
                     >
                       <Download className="w-4 h-4" />
@@ -279,7 +280,7 @@ export const ScriptToolbar: React.FC<ScriptToolbarProps> = ({
                       onClick={toggleFullscreen}
                       size="icon"
                       variant="ghost"
-                      className="h-9 w-9 rounded-lg text-zinc-400 hover:text-studio border border-transparent hover:border-studio/40 hover:bg-studio/10 transition-all duration-300"
+                      className={s.toolbar.iconButton}
                     >
                       {isFullscreen ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
                     </Button>

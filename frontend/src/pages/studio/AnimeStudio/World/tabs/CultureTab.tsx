@@ -5,7 +5,7 @@ import { Users, Music, Utensils, Heart, Sparkles, ClipboardList, Download } from
 import ReactMarkdown from 'react-markdown';
 import { TableOfContents } from '../components/TableOfContents';
 import { useAutoResizeTextarea } from '../hooks/useAutoResizeTextarea';
-import { worldStyles as s } from '../worldStyles/worldStyles';
+import { worldStyles as s } from '../worldStyles';
 
 interface CultureTabProps {
   isEditing: boolean;
@@ -55,7 +55,7 @@ export const CultureTab: React.FC<CultureTabProps> = ({
   }), []);
 
   return (
-    <div className="world-container">
+    <div className={s.content.container}>
 
 
       {isEditing ? (
@@ -66,19 +66,19 @@ export const CultureTab: React.FC<CultureTabProps> = ({
           placeholder="Profile your world culture and societal norms here..."
         />
       ) : (
-        <div className="world-content-area">
-          <div className="world-main-column">
-            <div className="world-prose" style={{ '--prose-accent-color': '#f43f5e' } as React.CSSProperties}>
+        <div className={s.content.contentArea}>
+          <div className={s.content.mainColumn}>
+            <div className={s.content.prose} style={{ '--prose-accent-color': '#f43f5e' } as React.CSSProperties}>
               <ReactMarkdown components={customComponents}>{sectionContent}</ReactMarkdown>
             </div>
           </div>
 
-          <div className="world-sidebar space-y-8">
-            <div className={s.sidebarCard}>
-              <div className={s.sidebarGlow + " bg-rose-500/5 group-hover:bg-rose-500/10"} />
-              <div className={s.sidebarContent}>
+          <div className={s.content.sidebar + " space-y-8"}>
+            <div className={s.content.sidebarCard}>
+              <div className={s.content.sidebarGlow + " bg-rose-500/5 group-hover:bg-rose-500/10"} />
+              <div className={s.content.sidebarContent}>
                 <div className="flex items-center justify-between">
-                  <h4 className={s.sidebarTitle}>
+                  <h4 className={s.content.sidebarTitle}>
                     <Sparkles className="w-3 h-3 text-rose-500" /> Core Seed
                   </h4>
                   {isEditing && <span className="text-[8px] font-bold text-rose-500/50 uppercase">Modular Prompt</span>}
@@ -87,7 +87,7 @@ export const CultureTab: React.FC<CultureTabProps> = ({
                 {isEditing ? (
                   <textarea
                     ref={promptTextareaRef}
-                    className={s.sidebarPromptInput + " focus:border-rose-500/30"}
+                    className={s.content.sidebarPromptInput + " focus:border-rose-500/30"}
                     value={prompt || ''}
                     onChange={(e) => {
                       onPromptChange?.(e.target.value);
@@ -97,8 +97,8 @@ export const CultureTab: React.FC<CultureTabProps> = ({
                     placeholder="Refine the cultural synthesis with specific instructions..."
                   />
                 ) : (
-                  <div className={s.sidebarPromptBox}>
-                    <p className={s.sidebarPromptText}>
+                  <div className={s.content.sidebarPromptBox}>
+                    <p className={s.content.sidebarPromptText}>
                       {prompt ? `"${prompt.substring(0, 120)}${prompt.length > 120 ? '...' : ''}"` : 'Using global project seed for synthesis.'}
                     </p>
                   </div>
@@ -117,14 +117,14 @@ export const CultureTab: React.FC<CultureTabProps> = ({
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.1 }}
-                  className={s.statCard + " flex flex-col items-center text-center space-y-4 hover:bg-white/[0.02] border-l-2 border-l-rose-500/20"}
+                  className={s.content.statCard + " flex flex-col items-center text-center space-y-4 hover:bg-white/[0.02] border-l-2 border-l-rose-500/20"}
                 >
-                  <div className={s.statIconBox + " rounded-full " + item.color}>
+                  <div className={s.content.statIconBox + " rounded-full " + item.color}>
                     <item.icon className="w-5 h-5" />
                   </div>
                   <div>
-                    <span className={s.statLabel + " block mb-1"}>{item.label}</span>
-                    <p className={s.statValue}>{item.val}</p>
+                    <span className={s.content.statLabel + " block mb-1"}>{item.label}</span>
+                    <p className={s.content.statValue}>{item.val}</p>
                   </div>
                 </motion.div>
               ))}

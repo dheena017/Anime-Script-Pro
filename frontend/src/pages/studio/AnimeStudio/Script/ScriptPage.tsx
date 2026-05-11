@@ -25,6 +25,8 @@ import { CinematicsTab } from './Tabs/CinematicsTab';
 import { AnalysisTab } from './Tabs/AnalysisTab';
 import { AudioTab } from './Tabs/AudioTab';
 
+import { scriptStyles as s } from './scriptStyles';
+
 export function ScriptPage() {
   const { user } = useAuth();
   const {
@@ -50,10 +52,6 @@ export function ScriptPage() {
     setEpisode, setSession,
     showNotification
   } = useGeneratorDispatch();
-
-
-
-
 
   const handleContinueScript = async () => {
     if (!generatedScript) return;
@@ -156,8 +154,6 @@ export function ScriptPage() {
     }
   };
 
-
-
   const exportToPDF = () => {
     if (!generatedScript) return;
     const doc = new jsPDF();
@@ -174,9 +170,6 @@ export function ScriptPage() {
     }
     doc.save(`${contentType.toLowerCase()}-script.pdf`);
   };
-
-
-
 
   const playVoiceover = (text: string | null) => {
     if (!text) return;
@@ -201,9 +194,6 @@ export function ScriptPage() {
   }, [generatedScript, visualData, episode, session]);
 
   const renderTabContent = () => {
-    // During streaming: show script as it arrives (don't block on isLoading)
-    const isStreaming = isLoading && !!generatedScript;
-
     if (isLoading && !generatedScript) {
       return (
         <div className="flex flex-col items-center justify-center h-[500px] space-y-8">
@@ -289,17 +279,15 @@ export function ScriptPage() {
   return (
     <div data-testid="marker-production-script">
       <Card className={cn(
-        "bg-[#030303]/40 backdrop-blur-md overflow-hidden rounded-3xl relative group/card transition-all duration-700",
-        activeTab === 'teleprompter'
-          ? "border-studio/30 shadow-[0_0_50px_rgba(6,182,212,0.15)] hover:border-studio/50"
-          : "border-zinc-800/30 hover:border-zinc-700"
+        s.page.mainCard,
+        activeTab === 'teleprompter' ? s.page.mainCardActive : s.page.mainCardInactive
       )}>
         <div className={cn(
-          "absolute inset-0 border-[1px] rounded-3xl pointer-events-none transition-colors duration-700",
-          activeTab === 'teleprompter' ? "border-studio/20 group-hover/card:border-studio/40" : "border-white/5"
+          s.page.innerBorder,
+          activeTab === 'teleprompter' ? s.page.innerBorderActive : s.page.innerBorderInactive
         )} />
 
-        <div className="w-full p-0">
+        <div className={s.page.contentWrapper}>
           <div className={cn(
             "p-8 lg:p-10 mx-auto",
             activeTab === 'teleprompter' ? "max-w-4xl" : "max-w-5xl"

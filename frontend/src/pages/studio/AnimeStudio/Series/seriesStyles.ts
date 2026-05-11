@@ -1,9 +1,9 @@
 /**
- * SEO Module Styles
- * Consolidated styles for Header, Toolbar, Page, and Tabs
+ * Series Module Styles
+ * Consolidated styles for Header and Toolbar
  */
 
-export const seoStyles = {
+export const seriesStyles = {
   // --- HEADER SECTION ---
   header: {
     wrapper: "relative group",
@@ -14,9 +14,11 @@ export const seoStyles = {
     icon: "w-7 h-7 text-emerald-400 relative z-10 drop-shadow-[0_6px_20px_rgba(16,185,129,0.18)]",
     title: "header-title text-white font-extrabold uppercase tracking-widest text-lg",
     subtitle: "header-subtitle text-sm text-emerald-300/60",
-    actionButton: "relative w-full sm:w-auto h-10 px-6 rounded-full border border-white/10 bg-white/5 text-zinc-400 hover:bg-white/10 hover:border-emerald-500/50 hover:text-emerald-400 font-black uppercase tracking-widest text-[9px] transition-all duration-300 shadow-lg",
-    actionButtonDanger: "relative w-full sm:w-auto h-10 px-6 rounded-full border border-red-500/30 bg-red-500/10 text-red-400 hover:bg-red-500/15 hover:border-red-500/60 hover:text-red-300 font-black uppercase tracking-widest text-[9px] transition-all duration-300 shadow-lg",
-    actionButtonPrimary: "relative w-full sm:w-auto h-10 px-8 rounded-full border border-white/10 bg-white text-black hover:bg-zinc-100 hover:border-emerald-500/50 hover:text-emerald-500 font-black uppercase tracking-widest text-[9px] transition-all duration-300 shadow-lg",
+    actionButton: "relative w-full sm:w-auto h-10 px-6 rounded-full border border-white/10 bg-white/5 text-zinc-400 hover:bg-white/10 hover:border-emerald-500/50 hover:text-emerald-400 font-black uppercase tracking-widest text-[9px] transition-all duration-300 group/back shadow-lg",
+    actionButtonDanger: "relative w-full sm:w-auto h-10 px-6 rounded-full border border-red-500/30 bg-red-500/10 text-red-400 hover:bg-red-500/15 hover:border-red-500/60 hover:text-red-300 font-black uppercase tracking-widest text-[9px] transition-all duration-300 group/stop shadow-lg",
+    actionButtonPrimary: "relative w-full sm:w-auto h-10 px-6 rounded-full border border-white/10 bg-white text-black hover:bg-zinc-100 hover:border-emerald-500/50 hover:text-emerald-500 font-black uppercase tracking-widest text-[9px] transition-all duration-300 group/btn shadow-lg",
+    blueprintButton: "relative w-full sm:w-auto h-12 px-6 bg-[#050505] border-white/10 text-zinc-400 hover:text-emerald-500 hover:border-emerald-500/50 font-black uppercase tracking-widest text-[11px] rounded-full transition-all duration-500 shadow-2xl group/blueprint",
+    nextButton: "relative w-full sm:w-auto h-10 px-8 rounded-full border border-white/10 bg-white/5 text-zinc-400 hover:bg-white/10 hover:border-emerald-500/50 hover:text-emerald-400 font-black uppercase tracking-widest text-[9px] transition-all duration-300 group/next shadow-lg",
   },
 
   // --- TOOLBAR SECTION ---
@@ -25,26 +27,13 @@ export const seoStyles = {
     header: "toolbar-header",
     statusBox: "toolbar-status-box",
     statusIcon: "toolbar-status-icon",
-    statusActive: "text-emerald-400 drop-shadow-[0_0_8px_rgba(16,185,129,0.6)]",
+    statusActive: "text-cyan-400 drop-shadow-[0_0_8px_rgba(6,182,212,0.6)]",
     statusInactive: "text-zinc-600",
-    statusTitle: "text-[10px] font-black uppercase tracking-[0.2em] bg-gradient-to-r from-emerald-300 to-emerald-500 bg-clip-text text-transparent",
+    statusTitle: "text-[10px] font-black uppercase tracking-[0.2em] bg-gradient-to-r from-cyan-300 to-studio bg-clip-text text-transparent",
     statusSubtitle: "text-[8px] font-bold text-zinc-500 uppercase tracking-widest",
     actionGroup: "toolbar-action-group",
     btnGroup: "toolbar-btn-group",
-    iconButton: "h-9 w-9 rounded-lg text-zinc-400 hover:text-emerald-400 border border-transparent hover:border-emerald-400/40 hover:bg-emerald-500/10 transition-all duration-300",
-  },
-
-  // --- PAGE LAYOUT ---
-  page: {
-    container: "space-y-12 pb-24",
-    mainCard: "bg-[#030303]/40 backdrop-blur-md overflow-hidden rounded-3xl relative group/card transition-all duration-700",
-    mainCardActive: "border-studio/30 shadow-[0_0_50px_rgba(6,182,212,0.15)] hover:border-studio/50",
-    mainCardInactive: "border-zinc-800/30 hover:border-zinc-700",
-    innerBorder: "absolute inset-0 border-[1px] rounded-3xl pointer-events-none transition-colors duration-700",
-    innerBorderActive: "border-studio/20 group-hover/card:border-studio/40",
-    innerBorderInactive: "border-white/5",
-    contentWrapper: "w-full p-0",
-    contentArea: "p-8 lg:p-10 mx-auto",
+    iconButton: "h-9 w-9 rounded-lg text-zinc-400 hover:text-studio border border-transparent hover:border-studio/40 hover:bg-studio/10 transition-all duration-300",
   },
 
   // --- TABS SECTION ---
@@ -52,16 +41,23 @@ export const seoStyles = {
     container: 'flex items-center gap-1 bg-black/50 border border-white/10 p-1.5 rounded-full backdrop-blur-xl shadow-2xl relative group overflow-hidden',
     overlay: 'absolute inset-0 bg-gradient-to-r from-white/5 via-transparent to-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000',
     button: 'relative px-5 py-2 text-[10px] font-black tracking-[0.2em] transition-all duration-500 uppercase flex items-center gap-2.5',
-    buttonActive: 'text-emerald-400',
+    buttonActive: 'text-studio',
     buttonInactive: 'text-zinc-500 hover:text-zinc-300',
     pill: 'absolute inset-0 bg-white/10 border border-white/20 rounded-full z-0',
     icon: 'w-3.5 h-3.5 transition-all duration-500',
     iconActive: 'opacity-100 scale-110',
     iconInactive: 'opacity-40',
     spinner: 'w-3.5 h-3.5 border-2 border-transparent border-t-current rounded-full animate-spin',
-    label: 'hidden lg:inline',
+    label: 'hidden md:inline',
     tabsBar: "studio-tabs-bar sticky top-0 z-40 flex items-center justify-center p-3 md:p-4 bg-[#050505]/95 backdrop-blur-md border border-white/10 rounded-[2rem] shadow-2xl mb-8 relative group overflow-hidden",
     tabsBarGlow: "absolute inset-0 bg-gradient-to-r from-transparent via-studio/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000",
     tabsBarInner: "relative z-10 w-full flex justify-center",
+  },
+
+  // --- PAGE LAYOUT ---
+  page: {
+    mainCard: "bg-[#030303]/40 backdrop-blur-md overflow-hidden rounded-3xl relative group/card transition-all duration-700 border-zinc-800/30 hover:border-zinc-700",
+    innerBorder: "absolute inset-0 border-[1px] rounded-3xl pointer-events-none transition-colors duration-700 border-white/5",
+    contentWrapper: "w-full p-8 lg:p-10 max-w-[1400px] mx-auto",
   }
 };

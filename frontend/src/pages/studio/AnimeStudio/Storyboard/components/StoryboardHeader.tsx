@@ -7,6 +7,7 @@ import {
   TooltipTrigger
 } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
+import { storyboardStyles as s } from '../storyboardStyles';
 import { useGeneratorDispatch } from '@/hooks/useGenerator';
 
 interface StoryboardHeaderProps {
@@ -48,26 +49,27 @@ export const StoryboardHeader: React.FC<StoryboardHeaderProps> = ({
 
   return (
     <TooltipProvider>
-      <div className="relative group">
-        <div className="header-container">
+      <div className={s.header.wrapper}>
+        <div className={s.header.glow} />
+        <div className={s.header.container}>
           <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-8 z-10 w-full lg:w-auto">
             <div className="relative shrink-0">
-              <div className="header-icon-box group/icon !bg-orange-500/10 !border-orange-500/30">
-                <div className="absolute inset-0 bg-gradient-to-br from-orange-500/20 to-transparent opacity-0 group-hover/icon:opacity-100 transition-opacity duration-500" />
-                <ImageIcon className="w-7 h-7 text-orange-500 relative z-10 animate-pulse-slow" />
-                <div className="absolute inset-0 border-2 border-orange-500/50 rounded-2xl animate-ping opacity-20" />
+              <div className={s.header.iconBox}>
+                <div className={s.header.iconGlow} />
+                <ImageIcon className={s.header.icon} />
+                <div className="absolute inset-0 border-2 border-orange-500/40 rounded-2xl opacity-20" />
               </div>
             </div>
 
             <div className="flex flex-col items-center sm:items-start text-center sm:text-left">
               <div className="flex items-center gap-3">
-                <h1 className="header-title">
+                <h1 className={s.header.title}>
                   Visual Storyboard
                 </h1>
               </div>
               <div className="flex items-center gap-2 mt-2">
-                <Cpu className="w-3.5 h-3.5 text-orange-500/40 shrink-0" />
-                <p className="header-subtitle !text-orange-500/40">S{session} // EP{episode} // AI Image Prompt Generator</p>
+                <Cpu className="w-3.5 h-3.5 text-orange-300/50 shrink-0" />
+                <p className={s.header.subtitle}>S{session} // EP{episode} // AI Image Prompt Generator</p>
               </div>
             </div>
           </div>
@@ -78,7 +80,7 @@ export const StoryboardHeader: React.FC<StoryboardHeaderProps> = ({
                 <TooltipTrigger  >
                   <Button
                     variant="outline"
-                    className="relative w-full sm:w-auto h-12 px-8 bg-[#050505] border-white/10 text-zinc-400 hover:text-orange-500 hover:border-orange-500/50 font-black uppercase tracking-widest text-[10px] rounded-full transition-all duration-500 group/back shadow-2xl"
+                    className={s.header.actionButton}
                     onClick={onPrev}
                   >
                     <ChevronLeft className="w-4 h-4 mr-2 group-hover/back:-translate-x-1 transition-transform" />
@@ -97,7 +99,7 @@ export const StoryboardHeader: React.FC<StoryboardHeaderProps> = ({
                   {isGenerating ? (
                     <Button
                       variant="outline"
-                      className="relative w-full sm:w-auto h-12 px-8 bg-red-500/10 border-red-500/30 text-red-500 hover:bg-red-500 hover:text-black font-black uppercase tracking-widest text-[11px] rounded-full transition-all duration-500 group/stop shadow-[0_0_25px_rgba(239,68,68,0.2)]"
+                      className={s.header.actionButtonDanger}
                       onClick={stopGeneration}
                     >
                       <Square className="w-4 h-4 mr-3 fill-current group-hover/stop:scale-110 transition-transform" />
@@ -106,7 +108,7 @@ export const StoryboardHeader: React.FC<StoryboardHeaderProps> = ({
                   ) : (
                     <Button
                       variant="outline"
-                      className="relative w-full sm:w-auto h-12 px-8 bg-[#050505] border-white/10 text-zinc-100 hover:text-orange-500 hover:border-orange-500/50 font-black uppercase tracking-widest text-[11px] rounded-full transition-all duration-500 group/btn shadow-2xl"
+                      className={s.header.actionButtonPrimary}
                       onClick={onRegenerate}
                     >
                       <div className="absolute inset-0 bg-orange-500/5 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-500 rounded-full" />
@@ -122,12 +124,10 @@ export const StoryboardHeader: React.FC<StoryboardHeaderProps> = ({
                 </TooltipContent>
               </Tooltip>
 
-
-
               <Tooltip>
                 <TooltipTrigger  >
                   <Button
-                    className="relative w-full sm:w-auto h-12 px-10 rounded-full bg-[#050505] border border-white/10 text-zinc-400 hover:text-orange-500 hover:border-orange-500/50 font-black uppercase tracking-widest text-[10px] transition-all duration-500 group/next shadow-2xl"
+                    className={s.header.actionButton}
                     onClick={onNext}
                   >
                     <span className="relative z-10 flex items-center gap-2">
@@ -145,9 +145,9 @@ export const StoryboardHeader: React.FC<StoryboardHeaderProps> = ({
         </div>
 
         {isGenerating && progress > 0 && (
-          <div className="production-progress-container">
+          <div className={s.progress.container}>
             <div 
-              className="production-progress-fill" 
+              className={s.progress.fill} 
               style={{ width: `${progress}%` }} 
             />
           </div>

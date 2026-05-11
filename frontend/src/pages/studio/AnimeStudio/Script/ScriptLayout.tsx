@@ -12,6 +12,7 @@ import { generateScriptStream } from '@/services/generators/script';
 import { ScriptTabs, ScriptTab } from './Tabs/ScriptTabs';
 import { studioLog, reportTabChange, reportGeneration } from '@/lib/studio-logger';
 import { StudioTabsProgressBar } from '@/pages/studio/components/studio/layout/StudioTabsProgressBar';
+import { scriptStyles as s } from './scriptStyles';
 
 export const ScriptContext = React.createContext<{
   setHandlers: React.Dispatch<React.SetStateAction<any>>;
@@ -253,9 +254,9 @@ export default function ScriptLayout() {
           />
         </div>
 
-        <div className="studio-tabs-bar sticky top-0 z-40 flex items-center justify-center p-3 md:p-4 bg-[#050505]/95 backdrop-blur-md border border-white/10 rounded-[2rem] shadow-2xl mb-8 relative group overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-studio/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
-          <div className="relative z-10 w-full flex justify-center">
+        <div className={s.tabs.tabsBar}>
+          <div className={s.tabs.tabsBarGlow} />
+          <div className={s.tabs.tabsBarInner}>
             <ScriptTabs activeTab={activeTab} setActiveTab={handleTabChange} />
           </div>
           <StudioTabsProgressBar progress={generationProgress} theme="cyan" />
