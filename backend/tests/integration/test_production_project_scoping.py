@@ -4,7 +4,7 @@ from httpx import AsyncClient, ASGITransport
 from sqlmodel import SQLModel
 
 from backend.fastapi_app import app
-from backend.database import engine
+from backend.database import async_engine
 
 
 TEST_HEADERS = {"x-bypass-auth": "true"}
@@ -17,7 +17,8 @@ def assert_success(response, allowed=(status.HTTP_200_OK, status.HTTP_201_CREATE
 @pytest.mark.asyncio
 async def test_production_content_is_scoped_by_project_id():
     """Production content should persist independently per project."""
-    SQLModel.metadata.create_all(engine)
+    async with async_engine.begin() as conn:
+        await conn.run_sync(SQLModel.metadata.create_all)
 
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
         project_payload_one = {
