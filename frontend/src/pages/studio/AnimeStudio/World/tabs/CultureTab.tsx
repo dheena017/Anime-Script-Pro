@@ -104,7 +104,7 @@ export const CultureTab: React.FC<CultureTabProps> = ({
                   </div>
                 )}
                 
-                <p className={s.sidebarNote}>
+                <p className={s.content.sidebarNote}>
                   Focus the AI on specific rituals, social norms, or cultural traditions unique to this society.
                 </p>
               </div>

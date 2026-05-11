@@ -36,6 +36,7 @@ export const screeningStyles = {
 
   // --- PAGE LAYOUT ---
   page: {
+    container: "bg-[#030303]/40 backdrop-blur-md overflow-hidden rounded-3xl relative group/card transition-all duration-700 border-zinc-800/30 hover:border-zinc-700",
     mainCard: "bg-[#030303]/40 backdrop-blur-md overflow-hidden rounded-3xl relative group/card transition-all duration-700",
     mainCardActive: "border-studio/30 shadow-[0_0_50px_rgba(6,182,212,0.15)] hover:border-studio/50",
     mainCardInactive: "border-zinc-800/30 hover:border-zinc-700",
@@ -59,6 +60,7 @@ export const screeningStyles = {
     iconActive: 'opacity-100 scale-110',
     iconInactive: 'opacity-40 group-hover/tab:opacity-70 group-hover/tab:scale-105',
     underline: 'absolute bottom-0 left-4 right-4 h-[2px] bg-gradient-to-r rounded-full',
+    spinner: 'w-3.5 h-3.5 border-2 border-transparent border-t-current rounded-full animate-spin',
     tabsBar: "studio-tabs-bar sticky top-0 z-40 flex items-center justify-center p-3 md:p-4 bg-[#050505]/95 backdrop-blur-md border border-white/10 rounded-[2rem] shadow-2xl mb-8 relative group overflow-hidden",
     tabsBarGlow: "absolute inset-0 bg-gradient-to-r from-transparent via-studio/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000",
     tabsBarInner: "relative z-10 w-full flex justify-center",

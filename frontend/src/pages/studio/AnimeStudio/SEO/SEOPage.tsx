@@ -163,7 +163,7 @@ export function SEOPage() {
     switch (activeTab) {
       case 'keywords': return "Synthesizing Keyword Atlas...";
       case 'description': return "Crafting Narrative Descriptions...";
-      case 'alt-texts': return "Generating Visual Meta-Data...";
+      case 'alt': return "Generating Visual Meta-Data...";
       case 'tags': return "Mapping Production Tags...";
       case 'distribution': return "Architecting Distribution Plan...";
       case 'growth': return "Formulating Growth Strategy...";
@@ -211,7 +211,7 @@ export function SEOPage() {
             onGenerate={handleGenerateDescription}
           />
         );
-      case 'alt-texts':
+      case 'alt':
         return (
           <AltTextTab
             content={generatedAltText}
