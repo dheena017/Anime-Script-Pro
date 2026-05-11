@@ -1,6 +1,6 @@
-import React from 'react';
-import { Outlet, useNavigate, useSearchParams } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import React, { startTransition, Suspense } from 'react';
+import { Outlet, useNavigate, useSearchParams, useLocation } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
 import { useAuth } from '@/hooks/useAuth';
 import { EngineHeader } from './components/EngineHeader';
@@ -14,6 +14,7 @@ export const EngineContext = React.createContext<{
 
 export default function EngineLayout() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const {
@@ -54,10 +55,14 @@ export default function EngineLayout() {
           session={session}
           episode={episode}
           onPrev={() => {
-            navigate(`/studio/screening`);
+            startTransition(() => {
+              navigate(`/studio/screening`);
+            });
           }}
           onNext={() => {
-            navigate(`/studio/world`);
+            startTransition(() => {
+              navigate(`/studio/world`);
+            });
           }}
           onSave={handleSaveCurrent}
           isSaving={isSaving}
@@ -82,13 +87,22 @@ export default function EngineLayout() {
         <StudioTabsProgressBar progress={generationProgress} theme="cyan" />
       </div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-        >
-          <Outlet context={{ activeTab }} />
-        </motion.div>
+        <div className="flex-1 flex flex-col min-h-[500px]">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={location.pathname + location.search}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+              className="flex-1 flex flex-col"
+            >
+              <Suspense fallback={<div className="flex-1 flex items-center justify-center p-20 text-[10px] font-black uppercase tracking-[0.2em] text-cyan-500 animate-pulse">Initializing Engine Node...</div>}>
+                <Outlet context={{ activeTab }} />
+              </Suspense>
+            </motion.div>
+          </AnimatePresence>
+        </div>
       </div>
     </EngineContext.Provider>
   );

@@ -1,5 +1,6 @@
-import React from 'react';
-import { Outlet, useNavigate, useLocation, useOutlet } from 'react-router-dom';
+import React, { startTransition, Suspense } from 'react';
+import { Outlet, useNavigate, useLocation, useOutlet, useSearchParams } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
 import { useAuth } from '@/hooks/useAuth';
 import { useApp } from '@/contexts/AppContext';
@@ -33,6 +34,7 @@ export const CastTabActionsContext = React.createContext<{
 export default function CastLayout() {
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
   const outlet = useOutlet();
   const [handlers, setHandlers] = React.useState<any>({});
 
@@ -46,7 +48,11 @@ export default function CastLayout() {
     return 'registry';
   };
 
-  const activeTab = getTabFromPath(location.pathname);
+  // Support both path-based (/cast/combat) and query-param (?tab=combat) routing
+  const queryTab = searchParams.get('tab') as CastTab | null;
+  const activeTab: CastTab = (queryTab && ['registry','voice','combat','arcs','dynamics','relationships','technical'].includes(queryTab))
+    ? queryTab
+    : getTabFromPath(location.pathname);
 
   const { showNotification } = useApp();
   const {
@@ -154,7 +160,9 @@ export default function CastLayout() {
   }, [prompt, selectedModel, contentType, generatedWorld, numCharacters, handlers, setCastData, setCastList, setGeneratedCharacters, setCharacterRelationships, setCastDNA, setCastDynamics, setCastIntegrity, setIsGeneratingCharacters, setGenerationProgress, showNotification, navigate]);
 
   const handleTabChange = (tab: CastTab) => {
-    navigate(`/studio/cast${tab === 'registry' ? '' : `/${tab}`}`);
+    startTransition(() => {
+      setSearchParams({ tab });
+    });
   };
 
   React.useEffect(() => {
@@ -203,10 +211,14 @@ export default function CastLayout() {
             session={session}
             episode={episode}
             onPrev={() => {
-              navigate('/studio/world');
+              startTransition(() => {
+                navigate('/studio/world');
+              });
             }}
             onNext={() => {
-              navigate('/studio/series');
+              startTransition(() => {
+                navigate('/studio/series');
+              });
             }}
             onSave={handleSave}
             isSaving={isSaving}
@@ -236,30 +248,47 @@ export default function CastLayout() {
           </div>
         )}
 
-        {(isGeneratingCharacters || isAnalyzingCast) ? (
-          <CastLoadingPage tab={activeTab} progress={generationProgress} />
-        ) : !hasContent ? (
-          <CastEmptyState 
-            onLaunch={handleGenerateAll} 
-            onLoadDemo={handleLoadDemo} 
-            isGenerating={isGeneratingCharacters} 
-          />
-        ) : (
-          outlet ? React.cloneElement(outlet as React.ReactElement<any>, {
-            key: location.pathname,
-            context: {
-              activeTab,
-              setActiveTab: handleTabChange,
-              handleGenerateCharacter: handlers.handleGenerateCharacter,
-              isAnalyzingCast
-            }
-          }) : <Outlet context={{
-            activeTab,
-            setActiveTab: handleTabChange,
-            handleGenerateCharacter: handlers.handleGenerateCharacter,
-            isAnalyzingCast
-          }} />
-        )}
+        <div className="flex-1 flex flex-col min-h-[500px]">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={location.pathname}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+              className="flex-1 flex flex-col"
+            >
+              <Suspense fallback={<div className="flex-1 flex items-center justify-center p-20"><CastLoadingPage tab={activeTab} progress={generationProgress} /></div>}>
+                {(isGeneratingCharacters || isAnalyzingCast) ? (
+                  <CastLoadingPage tab={activeTab} progress={generationProgress} />
+                ) : !hasContent ? (
+                  <CastEmptyState 
+                    onLaunch={handleGenerateAll} 
+                    onLoadDemo={handleLoadDemo} 
+                    isGenerating={isGeneratingCharacters} 
+                  />
+                ) : (
+                  <div className="flex-1 flex flex-col">
+                    {outlet ? React.cloneElement(outlet as React.ReactElement<any>, {
+                      key: location.pathname,
+                      context: {
+                        activeTab,
+                        setActiveTab: handleTabChange,
+                        handleGenerateCharacter: handlers.handleGenerateCharacter,
+                        isAnalyzingCast
+                      }
+                    }) : <Outlet context={{
+                      activeTab,
+                      setActiveTab: handleTabChange,
+                      handleGenerateCharacter: handlers.handleGenerateCharacter,
+                      isAnalyzingCast
+                    }} />}
+                  </div>
+                )}
+              </Suspense>
+            </motion.div>
+          </AnimatePresence>
+        </div>
       </div>
       </CastTabActionsContext.Provider>
     </CastContext.Provider>

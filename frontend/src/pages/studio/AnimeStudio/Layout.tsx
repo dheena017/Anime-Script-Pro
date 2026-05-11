@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback } from 'react';
+import React, { useEffect, useCallback, Suspense, startTransition } from 'react';
 import { Outlet, useNavigate, useLocation, useSearchParams, useParams, useOutlet } from 'react-router-dom';
 import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
 import { useAuth } from '@/hooks/useAuth';
@@ -438,9 +438,11 @@ export default function AnimeLayout() {
                       transition={{ duration: 0.2, ease: "easeOut" }}
                       className="flex-1 flex flex-col"
                     >
+                      <Suspense fallback={<div className="flex-1 flex items-center justify-center"><StudioLoading message="Synchronizing Production Node..." /></div>}>
                         <div className="flex-1 flex flex-col">
                           {outlet ? React.cloneElement(outlet as React.ReactElement, { key: location.pathname }) : <Outlet />}
                         </div>
+                      </Suspense>
                     </motion.div>
                   </AnimatePresence>
                 </div>

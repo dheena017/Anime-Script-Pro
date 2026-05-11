@@ -1,6 +1,6 @@
-import React from 'react';
-import { Outlet, useNavigate, useSearchParams } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import React, { startTransition, Suspense } from 'react';
+import { Outlet, useNavigate, useSearchParams, useLocation } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
 import { useAuth } from '@/hooks/useAuth';
 import { generateImagePrompts } from '@/services/api/gemini';
@@ -19,6 +19,7 @@ export const StoryboardContext = React.createContext<{
 
 export default function StoryboardLayout() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   const [handlers, setHandlers] = React.useState<any>({});
 
@@ -133,10 +134,14 @@ export default function StoryboardLayout() {
             onRegenerate={handlers.handleGenerateAll || handleGenerate}
             isGenerating={handlers.isGenerating || isGeneratingImagePrompts}
             onNext={() => {
-              navigate(`/studio/seo`);
+              startTransition(() => {
+                navigate(`/studio/seo`);
+              });
             }}
             onPrev={() => {
-              navigate(`/studio/script`);
+              startTransition(() => {
+                navigate(`/studio/script`);
+              });
             }}
             onSave={handleSave}
             isSaving={isSaving}
@@ -173,22 +178,31 @@ export default function StoryboardLayout() {
           </div>
         )}
 
-        {(handlers.isGenerating || isGeneratingImagePrompts) ? (
-          <StoryboardLoadingPage tab={activeTab} progress={generationProgress} />
-        ) : !generatedImagePrompts ? (
-          <StoryboardEmptyState 
-            onLaunch={handleGenerate}
-            isGenerating={isGeneratingImagePrompts}
-          />
-        ) : (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            <Outlet context={{ activeTab }} />
-          </motion.div>
-        )}
+        <div className="flex-1 flex flex-col min-h-[500px]">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={location.pathname + location.search}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+              className="flex-1 flex flex-col"
+            >
+              <Suspense fallback={<div className="flex-1 flex items-center justify-center p-20"><StoryboardLoadingPage tab={activeTab} progress={generationProgress} /></div>}>
+                {(handlers.isGenerating || isGeneratingImagePrompts) ? (
+                  <StoryboardLoadingPage tab={activeTab} progress={generationProgress} />
+                ) : !generatedImagePrompts ? (
+                  <StoryboardEmptyState 
+                    onLaunch={handleGenerate}
+                    isGenerating={isGeneratingImagePrompts}
+                  />
+                ) : (
+                  <Outlet context={{ activeTab }} />
+                )}
+              </Suspense>
+            </motion.div>
+          </AnimatePresence>
+        </div>
       </div>
     </StoryboardContext.Provider>
   );

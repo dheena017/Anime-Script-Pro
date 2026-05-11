@@ -1,6 +1,6 @@
-import React from 'react';
-import { Outlet, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import React, { startTransition, Suspense } from 'react';
+import { Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Search } from 'lucide-react';
 import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
 import { AssetsHeader } from '../components/Assets/AssetsHeader';  
@@ -10,6 +10,7 @@ import { StudioTabsProgressBar } from '@/pages/studio/components/studio/layout/S
 
 export default function AssetsLayout() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [isLiked, setIsLiked] = React.useState(false);
   
   const {
@@ -103,10 +104,14 @@ export default function AssetsLayout() {
           onRegenerate={handleGenerateAll}
           isGenerating={isGeneratingMetadata || isGeneratingDescription || isGeneratingImagePrompts}
           onPrev={() => {
-            navigate(`/studio/screening`);
+            startTransition(() => {
+              navigate(`/studio/screening`);
+            });
           }}
           onNext={() => {
-            navigate(`/studio/engine`);
+            startTransition(() => {
+              navigate(`/studio/engine`);
+            });
           }}
           onSave={handleSave}
           isSaving={isSaving}
@@ -131,17 +136,26 @@ export default function AssetsLayout() {
         <StudioTabsProgressBar progress={generationProgress} theme="cyan" />
       </div>
 
-      {(isGeneratingMetadata || isGeneratingDescription || isGeneratingImagePrompts) ? (
-        <AssetsLoadingPage progress={generationProgress} />
-      ) : (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-        >
-          <Outlet context={{ onLaunch: handleGenerateAll }} />
-        </motion.div>
-      )}
+      <div className="flex-1 flex flex-col min-h-[500px]">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={location.pathname}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
+            className="flex-1 flex flex-col"
+          >
+            <Suspense fallback={<div className="flex-1 flex items-center justify-center p-20"><AssetsLoadingPage progress={generationProgress} /></div>}>
+              {(isGeneratingMetadata || isGeneratingDescription || isGeneratingImagePrompts) ? (
+                <AssetsLoadingPage progress={generationProgress} />
+              ) : (
+                <Outlet context={{ onLaunch: handleGenerateAll }} />
+              )}
+            </Suspense>
+          </motion.div>
+        </AnimatePresence>
+      </div>
     </div>
   );
 }

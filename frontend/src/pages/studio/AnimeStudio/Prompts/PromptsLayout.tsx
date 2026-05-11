@@ -1,6 +1,6 @@
-import React from 'react';
-import { Outlet, useNavigate, useSearchParams } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import React, { startTransition, Suspense } from 'react';
+import { Outlet, useNavigate, useSearchParams, useLocation } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import EpisodePackager from './components/EpisodePackager';
 import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
 import { useAuth } from '@/hooks/useAuth';
@@ -19,6 +19,7 @@ export const PromptsContext = React.createContext<{
 
 export default function PromptsLayout() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   const [handlers, setHandlers] = React.useState<any>({});
 
@@ -145,10 +146,14 @@ export default function PromptsLayout() {
             onRegenerate={handlers.handleGenerate || handleGenerateAll}
             isGenerating={handlers.isGenerating || isLoading}
             onNext={() => {
-              navigate(`/studio/screening`);
+              startTransition(() => {
+                navigate(`/studio/screening`);
+              });
             }}
             onPrev={() => {
-              navigate(`/studio/seo`);
+              startTransition(() => {
+                navigate(`/studio/seo`);
+              });
             }}
             onSave={handleSave}
             isSaving={isSaving}
@@ -179,22 +184,33 @@ export default function PromptsLayout() {
           </div>
         )}
 
-        {(handlers.isGenerating || isLoading) ? (
-          <PromptsLoadingPage tab={activeTab} progress={generationProgress} />
-        ) : (!generatedImagePrompts && !videoData) ? (
-          <PromptsEmptyState 
-            onLaunch={handleGenerateAll}
-            isGenerating={isLoading}
-          />
-        ) : (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            {activeTab === 'video' ? <EpisodePackager /> : <Outlet context={{ activeTab }} />}
-          </motion.div>
-        )}
+        <div className="flex-1 flex flex-col min-h-[500px]">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={location.pathname + location.search}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+              className="flex-1 flex flex-col"
+            >
+              <Suspense fallback={<div className="flex-1 flex items-center justify-center p-20"><PromptsLoadingPage tab={activeTab} progress={generationProgress} /></div>}>
+                {(handlers.isGenerating || isLoading) ? (
+                  <PromptsLoadingPage tab={activeTab} progress={generationProgress} />
+                ) : (!generatedImagePrompts && !videoData) ? (
+                  <PromptsEmptyState 
+                    onLaunch={handleGenerateAll}
+                    isGenerating={isLoading}
+                  />
+                ) : (
+                  <div className="flex-1 flex flex-col">
+                    {activeTab === 'video' ? <EpisodePackager /> : <Outlet context={{ activeTab }} />}
+                  </div>
+                )}
+              </Suspense>
+            </motion.div>
+          </AnimatePresence>
+        </div>
       </div>
     </PromptsContext.Provider>
   );

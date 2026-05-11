@@ -1,10 +1,5 @@
 import React from 'react';
-import { 
-  ListChecks, 
-  Film,
-  Network, 
-  Box
-} from 'lucide-react';
+import { ListChecks, Film, Box } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 
@@ -15,74 +10,49 @@ interface SeriesTabsProps {
   setActiveTab: (tab: SeriesTab) => void;
 }
 
-const GLOW_COLORS: Record<SeriesTab, string> = {
-  roadmap: 'bg-studio',
-  episodes: 'bg-cyan-400',
-  blueprint: 'bg-amber-400',
-  assets: 'bg-emerald-400',
-};
-
-const UNDERLINE_COLORS: Record<SeriesTab, string> = {
-  roadmap: 'from-studio/0 via-studio to-studio/0',
-  episodes: 'from-cyan-400/0 via-cyan-400 to-cyan-400/0',
-  blueprint: 'from-amber-400/0 via-amber-400 to-amber-400/0',
-  assets: 'from-emerald-400/0 via-emerald-400 to-emerald-400/0',
-};
+const TABS: { id: SeriesTab; label: string; icon: React.FC<any>; color: string; glow: string }[] = [
+  { id: 'episodes', label: 'EPISODES', icon: Film,       color: 'text-cyan-400',    glow: 'shadow-[0_0_15px_rgba(34,211,238,0.3)]'   },
+  { id: 'roadmap',  label: 'SCENES',   icon: ListChecks, color: 'text-studio',      glow: 'shadow-[0_0_15px_rgba(6,182,212,0.3)]'    },
+  { id: 'assets',   label: 'ASSETS',   icon: Box,        color: 'text-emerald-400', glow: 'shadow-[0_0_15px_rgba(52,211,153,0.3)]'   },
+];
 
 export const SeriesTabs: React.FC<SeriesTabsProps> = ({
   activeTab,
   setActiveTab
 }) => {
-  const tabs: { id: SeriesTab; label: string; icon: any; color: string }[] = [
-    { id: 'episodes', label: 'Episodes', icon: Film, color: 'text-cyan-400' },
-    { id: 'roadmap', label: 'Scene', icon: ListChecks, color: 'text-studio' },
-    { id: 'assets', label: 'Assets', icon: Box, color: 'text-emerald-400' },
-  ];
-
   return (
-    <div className="tabs-nav-container group">
-      <div className="absolute inset-0 bg-gradient-to-r from-studio/5 via-transparent to-amber-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000 rounded-[1.5rem]" />
+    <div className="flex items-center gap-1 bg-black/50 border border-white/10 p-1.5 rounded-full backdrop-blur-xl shadow-2xl relative group overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-r from-white/5 via-transparent to-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
 
-      {tabs.map((tab) => {
+      {TABS.map((tab) => {
         const isActive = activeTab === tab.id;
+
         return (
           <button
             key={tab.id}
             type="button"
             onClick={() => setActiveTab(tab.id)}
             className={cn(
-              "tabs-nav-button group/tab",
+              "relative px-5 py-2 text-[10px] font-black tracking-[0.2em] transition-all duration-500 uppercase flex items-center gap-2.5",
               isActive ? tab.color : "text-zinc-500 hover:text-zinc-300"
             )}
           >
+            {/* Per-tab color neon glow pill */}
             {isActive && (
               <motion.div
-                layoutId="series-tab-glow"
-                className={cn("storyboard-tab-glow", GLOW_COLORS[tab.id])}
-                transition={{ type: "spring", stiffness: 350, damping: 35 }}
-              />
-            )}
-            {isActive && (
-              <motion.div
-                layoutId="series-tab-bg"
-                className="absolute inset-0 rounded-xl bg-white/[0.04] border border-white/10"
-                transition={{ type: "spring", stiffness: 350, damping: 35 }}
+                layoutId="series-active-pill"
+                className={cn(
+                  "absolute inset-0 bg-white/10 border border-white/20 rounded-full z-0",
+                  tab.glow
+                )}
+                transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
               />
             )}
 
-            <div className="flex items-center gap-2 relative z-10">
-              <tab.icon className={cn("w-3.5 h-3.5 transition-all duration-300", isActive ? "opacity-100 scale-110" : "opacity-40 group-hover/tab:opacity-70 group-hover/tab:scale-105")} />
-              <span>{tab.label}</span>
+            <div className="relative z-10 flex items-center gap-2.5">
+              <tab.icon className={cn("w-3.5 h-3.5 transition-all duration-500", isActive ? "opacity-100 scale-110" : "opacity-40")} />
+              <span className="hidden md:inline">{tab.label}</span>
             </div>
-
-            {isActive && (
-              <motion.div
-                layoutId="series-tab-underline"
-                className={cn("absolute bottom-0 left-4 right-4 h-[2px] bg-gradient-to-r rounded-full", UNDERLINE_COLORS[tab.id])}
-                style={{ filter: 'blur(0.5px)', opacity: 0.7 }}
-                transition={{ type: "spring", stiffness: 350, damping: 35 }}
-              />
-            )}
           </button>
         );
       })}

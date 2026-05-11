@@ -1,5 +1,6 @@
-import React from 'react';
-import { Outlet, useNavigate, useSearchParams } from 'react-router-dom';
+import React, { startTransition, Suspense } from 'react';
+import { Outlet, useNavigate, useSearchParams, useLocation } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
 import { useAuth } from '@/hooks/useAuth';
 import { useApp } from '@/contexts/AppContext';
@@ -18,6 +19,7 @@ export const ScriptContext = React.createContext<{
 
 export default function ScriptLayout() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   const [handlers, setHandlers] = React.useState<any>({});
 
@@ -234,10 +236,14 @@ export default function ScriptLayout() {
             onGenerateAll={handleGenerateFullSeries}
             isGenerating={isLoading}
             onNext={() => {
-              navigate(`/studio/storyboard`);
+              startTransition(() => {
+                navigate(`/studio/storyboard`);
+              });
             }}
             onPrev={() => {
-              navigate(`/studio/series`);
+              startTransition(() => {
+                navigate(`/studio/series`);
+              });
             }}
             onSave={handleSave}
             isSaving={isSaving}
@@ -277,11 +283,22 @@ export default function ScriptLayout() {
           </div>
         )}
 
-        {isLoading ? (
-          <ScriptLoadingPage tab={activeTab} progress={generationProgress} />
-        ) : (
-          <Outlet context={{ activeTab }} />
-        )}
+        <div className="flex-1 flex flex-col min-h-[500px]">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={location.pathname + location.search}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+              className="flex-1 flex flex-col"
+            >
+              <Suspense fallback={<div className="flex-1 flex items-center justify-center p-20"><ScriptLoadingPage tab={activeTab} progress={generationProgress} /></div>}>
+                <Outlet context={{ activeTab }} />
+              </Suspense>
+            </motion.div>
+          </AnimatePresence>
+        </div>
       </div>
 
     </ScriptContext.Provider>

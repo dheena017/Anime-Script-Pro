@@ -1,6 +1,6 @@
-import React from 'react';
-import { Outlet, useNavigate, useSearchParams } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import React, { startTransition, Suspense } from 'react';
+import { Outlet, useNavigate, useSearchParams, useLocation } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
 import { useAuth } from '@/hooks/useAuth';
 import { generateMetadata } from '@/services/api/gemini';
@@ -17,6 +17,7 @@ export const SEOContext = React.createContext<{
 
 export default function SEOLayout() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   const [, setHandlers] = React.useState<any>({});
 
@@ -152,10 +153,14 @@ export default function SEOLayout() {
             onRegenerate={handleGenerate}
             isGenerating={isLoading}
             onNext={() => {
-              navigate(`/studio/prompts`);
+              startTransition(() => {
+                navigate(`/studio/prompts`);
+              });
             }}
             onPrev={() => {
-              navigate(`/studio/storyboard`);
+              startTransition(() => {
+                navigate(`/studio/storyboard`);
+              });
             }}
             onSave={handleSave}
             isSaving={isSaving}
@@ -186,17 +191,26 @@ export default function SEOLayout() {
           </div>
         )}
 
-        {isLoading ? (
-          <SEOLoadingPage tab={activeTab} progress={generationProgress} />
-        ) : (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            <Outlet context={{ activeTab }} />
-          </motion.div>
-        )}
+        <div className="flex-1 flex flex-col min-h-[500px]">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={location.pathname + location.search}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+              className="flex-1 flex flex-col"
+            >
+              <Suspense fallback={<div className="flex-1 flex items-center justify-center p-20"><SEOLoadingPage tab={activeTab} progress={generationProgress} /></div>}>
+                {isLoading ? (
+                  <SEOLoadingPage tab={activeTab} progress={generationProgress} />
+                ) : (
+                  <Outlet context={{ activeTab }} />
+                )}
+              </Suspense>
+            </motion.div>
+          </AnimatePresence>
+        </div>
       </div>
     </SEOContext.Provider>
   );

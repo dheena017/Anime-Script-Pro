@@ -1,5 +1,5 @@
 import React from 'react';
-import { Hash, Tag, Globe, FileText, Share2 } from 'lucide-react';
+import { Hash, Tag, Globe, FileText, Share2, TrendingUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 
@@ -10,78 +10,52 @@ interface SEOTabsProps {
   setActiveTab: (tab: SEOTab) => void;
 }
 
-const GLOW_COLORS: Record<SEOTab, string> = {
-  keywords: 'bg-emerald-400',
-  description: 'bg-blue-400',
-  'alt-texts': 'bg-amber-400',
-  tags: 'bg-fuchsia-400',
-  distribution: 'bg-rose-400',
-  growth: 'bg-orange-400',
-};
-
-const UNDERLINE_COLORS: Record<SEOTab, string> = {
-  keywords: 'from-emerald-400/0 via-emerald-400 to-emerald-400/0',
-  description: 'from-blue-400/0 via-blue-400 to-blue-400/0',
-  'alt-texts': 'from-amber-400/0 via-amber-400 to-amber-400/0',
-  tags: 'from-fuchsia-400/0 via-fuchsia-400 to-fuchsia-400/0',
-  distribution: 'from-rose-400/0 via-rose-400 to-rose-400/0',
-  growth: 'from-orange-400/0 via-orange-400 to-orange-400/0',
-};
+const TABS: { id: SEOTab; label: string; icon: React.FC<any>; color: string; glow: string }[] = [
+  { id: 'keywords',     label: 'KEYWORDS',        icon: Hash,        color: 'text-emerald-400', glow: 'shadow-[0_0_15px_rgba(52,211,153,0.3)]'   },
+  { id: 'description',  label: 'DESCRIPTION',     icon: FileText,    color: 'text-blue-400',    glow: 'shadow-[0_0_15px_rgba(59,130,246,0.3)]'   },
+  { id: 'alt-texts',    label: 'ALT TEXTS',       icon: Globe,       color: 'text-amber-400',   glow: 'shadow-[0_0_15px_rgba(251,191,36,0.3)]'   },
+  { id: 'tags',         label: 'META TAGS',       icon: Tag,         color: 'text-fuchsia-400', glow: 'shadow-[0_0_15px_rgba(192,38,211,0.3)]'   },
+  { id: 'distribution', label: 'DISTRIBUTION',    icon: Share2,      color: 'text-rose-400',    glow: 'shadow-[0_0_15px_rgba(244,63,94,0.3)]'    },
+  { id: 'growth',       label: 'GROWTH STRATEGY', icon: TrendingUp,  color: 'text-orange-400',  glow: 'shadow-[0_0_15px_rgba(251,146,60,0.3)]'   },
+];
 
 export const SEOTabs: React.FC<SEOTabsProps> = ({
   activeTab,
   setActiveTab
 }) => {
-  const tabs: { id: SEOTab; label: string; icon: any; color: string }[] = [
-    { id: 'keywords', label: 'Keywords', icon: Hash, color: 'text-emerald-400' },
-    { id: 'description', label: 'Description', icon: FileText, color: 'text-blue-400' },
-    { id: 'alt-texts', label: 'Alt Texts', icon: Globe, color: 'text-amber-400' },
-    { id: 'tags', label: 'Meta Tags', icon: Tag, color: 'text-fuchsia-400' },
-    { id: 'distribution', label: 'Distribution', icon: Share2, color: 'text-rose-400' },
-    { id: 'growth', label: 'Growth Strategy', icon: Globe, color: 'text-orange-400' },
-  ];
-
   return (
-    <div className="tabs-nav-container group">
-      <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/5 via-transparent to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000 rounded-[1.5rem]" />
+    <div className="flex items-center gap-1 bg-black/50 border border-white/10 p-1.5 rounded-full backdrop-blur-xl shadow-2xl relative group overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-r from-white/5 via-transparent to-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
 
-      {tabs.map((tab) => {
+      {TABS.map((tab) => {
         const isActive = activeTab === tab.id;
+
         return (
           <button
             key={tab.id}
+            type="button"
             onClick={() => setActiveTab(tab.id)}
             className={cn(
-              "tabs-nav-button group/tab",
+              "relative px-5 py-2 text-[10px] font-black tracking-[0.2em] transition-all duration-500 uppercase flex items-center gap-2.5",
               isActive ? tab.color : "text-zinc-500 hover:text-zinc-300"
             )}
           >
+            {/* Per-tab color neon glow pill */}
             {isActive && (
               <motion.div
-                layoutId="seo-tab-glow"
-                className={cn("storyboard-tab-glow", GLOW_COLORS[tab.id])}
-                transition={{ type: "spring", stiffness: 350, damping: 35 }}
+                layoutId="seo-active-pill"
+                className={cn(
+                  "absolute inset-0 bg-white/10 border border-white/20 rounded-full z-0",
+                  tab.glow
+                )}
+                transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
               />
             )}
-            {isActive && (
-              <motion.div
-                layoutId="seo-tab-bg"
-                className="absolute inset-0 rounded-xl bg-white/[0.04] border border-white/10"
-                transition={{ type: "spring", stiffness: 350, damping: 35 }}
-              />
-            )}
-            <div className="flex items-center gap-2 relative z-10">
-              <tab.icon className={cn("w-3.5 h-3.5 transition-all duration-300", isActive ? "opacity-100 scale-110" : "opacity-40 group-hover/tab:opacity-70 group-hover/tab:scale-105")} />
-              <span>{tab.label}</span>
+
+            <div className="relative z-10 flex items-center gap-2.5">
+              <tab.icon className={cn("w-3.5 h-3.5 transition-all duration-500", isActive ? "opacity-100 scale-110" : "opacity-40")} />
+              <span className="hidden lg:inline">{tab.label}</span>
             </div>
-            {isActive && (
-              <motion.div
-                layoutId="seo-tab-underline"
-                className={cn("absolute bottom-0 left-4 right-4 h-[2px] bg-gradient-to-r rounded-full", UNDERLINE_COLORS[tab.id])}
-                style={{ filter: 'blur(0.5px)', opacity: 0.7 }}
-                transition={{ type: "spring", stiffness: 350, damping: 35 }}
-              />
-            )}
           </button>
         );
       })}

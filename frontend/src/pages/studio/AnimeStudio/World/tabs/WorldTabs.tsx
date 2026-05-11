@@ -48,15 +48,15 @@ export const WorldTabs: React.FC<WorldTabsProps> = ({
   setActiveTab,
   loadingStates = {}
 }) => {
-  const tabs: { id: WorldTab; label: string; icon: any; color: string }[] = [
-    { id: 'manifest', label: 'Manifest', icon: ScrollText, color: 'text-zinc-400' },
-    { id: 'lore', label: 'History', icon: History, color: 'text-fuchsia-400' },
-    { id: 'factions', label: 'Factions', icon: Users, color: 'text-blue-400' },
-    { id: 'powers', label: 'Powers', icon: Zap, color: 'text-amber-400' },
-    { id: 'architecture', label: 'Architecture', icon: Building2, color: 'text-orange-400' },
-    { id: 'atlas', label: 'Atlas', icon: Map, color: 'text-cyan-400' },
-    { id: 'culture', label: 'Culture', icon: Globe, color: 'text-rose-400' },
-    { id: 'systems', label: 'Systems', icon: Cpu, color: 'text-emerald-400' },
+  const tabs: { id: WorldTab; label: string; icon: any; color: string; glow: string }[] = [
+    { id: 'manifest', label: 'MANIFEST', icon: ScrollText, color: 'text-zinc-400', glow: 'shadow-[0_0_15px_rgba(161,161,170,0.3)]' },
+    { id: 'lore', label: 'HISTORY', icon: History, color: 'text-fuchsia-400', glow: 'shadow-[0_0_15px_rgba(192,38,211,0.3)]' },
+    { id: 'factions', label: 'FACTIONS', icon: Users, color: 'text-blue-400', glow: 'shadow-[0_0_15px_rgba(59,130,246,0.3)]' },
+    { id: 'powers', label: 'POWERS', icon: Zap, color: 'text-amber-400', glow: 'shadow-[0_0_15px_rgba(251,191,36,0.3)]' },
+    { id: 'architecture', label: 'ARCHITECTURE', icon: Building2, color: 'text-orange-400', glow: 'shadow-[0_0_15px_rgba(251,146,60,0.3)]' },
+    { id: 'atlas', label: 'ATLAS', icon: Map, color: 'text-cyan-400', glow: 'shadow-[0_0_15px_rgba(34,211,238,0.3)]' },
+    { id: 'culture', label: 'CULTURE', icon: Globe, color: 'text-rose-400', glow: 'shadow-[0_0_15px_rgba(244,63,94,0.3)]' },
+    { id: 'systems', label: 'SYSTEMS', icon: Cpu, color: 'text-emerald-400', glow: 'shadow-[0_0_15px_rgba(52,211,153,0.3)]' },
   ];
 
   const handleTabClick = (tabId: WorldTab) => {
@@ -69,61 +69,43 @@ export const WorldTabs: React.FC<WorldTabsProps> = ({
   const isTabLoading = (tabId: WorldTab) => loadingStates[tabId] || false;
 
   return (
-    <div className="tabs-nav-container group">
-      <div className="absolute inset-0 bg-gradient-to-r from-studio/5 via-transparent to-amber-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000 rounded-[1.5rem]" />
+    <div className="flex items-center gap-1 bg-black/50 border border-white/10 p-1.5 rounded-full backdrop-blur-xl shadow-2xl relative group overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-r from-white/5 via-transparent to-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
 
       {tabs.map((tab) => {
         const loading = isTabLoading(tab.id);
         const isActive = activeTab === tab.id;
+
         return (
           <button
             key={tab.id}
             type="button"
             onClick={() => handleTabClick(tab.id)}
             className={cn(
-              "tabs-nav-button group/tab",
-              isActive ? tab.color : "text-zinc-500 hover:text-zinc-300"
+              "relative px-5 py-2 text-[10px] font-black tracking-[0.2em] transition-all duration-500 uppercase flex items-center gap-2.5",
+              isActive ? "text-white" : "text-zinc-500 hover:text-zinc-300"
             )}
           >
-            {/* Active pill background */}
+            {/* The sliding "Pill" background */}
             {isActive && (
               <motion.div
-                layoutId="world-tab-glow"
-                className={cn("storyboard-tab-glow", GLOW_COLORS[tab.id])}
-                transition={{ type: "spring", stiffness: 350, damping: 35 }}
-              />
-            )}
-            {isActive && (
-              <motion.div
-                layoutId="world-tab-bg"
-                className="absolute inset-0 rounded-xl bg-white/[0.04] border border-white/10"
-                transition={{ type: "spring", stiffness: 350, damping: 35 }}
+                layoutId="world-active-pill"
+                className={cn(
+                  "absolute inset-0 bg-white/10 border border-white/20 rounded-full z-0",
+                  tab.glow
+                )}
+                transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
               />
             )}
 
-            <div className="flex items-center gap-2 relative z-10">
+            <div className="relative z-10 flex items-center gap-2.5">
               {loading ? (
                 <div className="w-3.5 h-3.5 border-2 border-transparent border-t-current rounded-full animate-spin" />
               ) : (
-                <tab.icon className={cn("w-3.5 h-3.5 transition-all duration-300", isActive ? "opacity-100 scale-110" : "opacity-40 group-hover/tab:opacity-70 group-hover/tab:scale-105")} />
+                <tab.icon className={cn("w-3.5 h-3.5 transition-all duration-500", isActive ? "opacity-100 scale-110" : "opacity-40 group-hover:opacity-70")} />
               )}
-              <span>{tab.label}</span>
+              <span className="hidden lg:inline">{tab.label}</span>
             </div>
-
-            {/* Gradient bottom underline */}
-            {isActive && (
-              <motion.div
-                layoutId="world-tab-underline"
-                className={cn("absolute bottom-0 left-4 right-4 h-[2px] bg-gradient-to-r rounded-full", UNDERLINE_COLORS[tab.id])}
-                style={{ filter: 'blur(0.5px)', opacity: 0.7 }}
-                transition={{ type: "spring", stiffness: 350, damping: 35 }}
-              />
-            )}
-
-            {/* Loading dot */}
-            {loading && (
-              <div className="absolute -top-1 -right-1 w-2 h-2 bg-current rounded-full animate-pulse z-20" />
-            )}
           </button>
         );
       })}

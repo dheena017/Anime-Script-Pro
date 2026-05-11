@@ -38,7 +38,7 @@ export async function fetchCategories(): Promise<Category[]> {
 
 export async function fetchTemplates(): Promise<ProductionTemplate[]> {
   try {
-    return await apiRequest<ProductionTemplate[]>('/api/templates/');
+    return await apiRequest<ProductionTemplate[]>('/api/templates');
   } catch (error) {
     console.error("fetchTemplates error:", error);
     return [];

@@ -1,6 +1,6 @@
-import React from 'react';
-import { Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import React, { startTransition, Suspense } from 'react';
+import { Outlet, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
 import { useAuth } from '@/hooks/useAuth';
 import { generateSeriesPlan } from '@/services/api/gemini';
@@ -15,6 +15,7 @@ export default function SeriesLayout() {
   const navigate = useNavigate();
   const [showScaffolder, setShowScaffolder] = React.useState(false);
   const location = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const {
     prompt,
@@ -126,7 +127,8 @@ export default function SeriesLayout() {
       const base = `/studio/series`;
       
       // We navigate directly to episodes now to avoid "one by one" delay feeling
-      navigate(`${base}/episodes`); 
+      // Navigate to episodes tab via query param after generation
+      setSearchParams({ tab: 'episodes' }); 
       
       console.log('[SeriesLayout] UI Transition complete. Final plan state:', {
         exists: !!plan,
@@ -149,22 +151,15 @@ export default function SeriesLayout() {
     }
   };
 
-  const getActiveTab = (): SeriesTab => {
-    const path = location.pathname;
-    if (path.includes('/series/episodes')) return 'episodes';
-    if (path.includes('/series/blueprint')) return 'blueprint';
-    if (path.includes('/series/assets')) return 'assets';
-    if (path.includes('/series/roadmap')) return 'roadmap';
-
-    if (path.endsWith('/series')) return 'episodes';
-
-    return 'episodes';
-  };
-
-  const activeTab = getActiveTab();
+  // Query-param-only tab routing — ?tab=episodes, ?tab=scenes, etc.
+  const VALID_TABS: SeriesTab[] = ['episodes', 'roadmap', 'assets', 'blueprint'];
+  const queryTab = searchParams.get('tab') as SeriesTab | null;
+  const activeTab: SeriesTab = (queryTab && VALID_TABS.includes(queryTab)) ? queryTab : 'episodes';
 
   const handleTabChange = (tab: SeriesTab) => {
-    navigate(`/studio/series${tab === 'episodes' ? '' : `/${tab}`}`);
+    startTransition(() => {
+      setSearchParams({ tab });
+    });
   };
 
 
@@ -197,10 +192,14 @@ export default function SeriesLayout() {
             showNotification?.('Production manifest cleared', 'info');
           }}
           onPrev={() => {
-            navigate(`/studio/cast`);
+            startTransition(() => {
+              navigate(`/studio/cast`);
+            });
           }}
           onNext={() => {
-            navigate(`/studio/script`);
+            startTransition(() => {
+              navigate(`/studio/script`);
+            });
           }}
           onManifest={() => handleTabChange('blueprint')}
           isManifestActive={activeTab === 'blueprint'}
@@ -247,31 +246,31 @@ export default function SeriesLayout() {
         </div>
       )}
 
-      {/* Content Area */}
-      <div className="relative flex-1">
-        {isGeneratingSeries ? (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="w-full"
+      <div className="flex-1 flex flex-col min-h-[500px]">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={location.pathname + location.search}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
+            className="flex-1 flex flex-col"
           >
-            <SeriesLoadingPage 
-              tab={activeTab} 
-              progress={generationProgress} 
-              error={generationError}
-              title="Generating All Series Tabs"
-              description="Orchestrating Roadmap, Episodes, Blueprint, and Assets..."
-            />
+            <Suspense fallback={<div className="flex-1 flex items-center justify-center p-20"><SeriesLoadingPage tab={activeTab} progress={generationProgress} /></div>}>
+              {isGeneratingSeries ? (
+                <SeriesLoadingPage 
+                  tab={activeTab} 
+                  progress={generationProgress} 
+                  error={generationError}
+                  title="Generating All Series Tabs"
+                  description="Orchestrating Roadmap, Episodes, Blueprint, and Assets..."
+                />
+              ) : (
+                <Outlet context={{ showScaffolder, setShowScaffolder, activeTab }} />
+              )}
+            </Suspense>
           </motion.div>
-        ) : (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="w-full"
-          >
-            <Outlet context={{ showScaffolder, setShowScaffolder, activeTab }} />
-          </motion.div>
-        )}
+        </AnimatePresence>
       </div>
     </div>
   );
