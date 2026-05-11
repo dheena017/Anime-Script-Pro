@@ -298,12 +298,17 @@ class AIEngine:
                 yield chunk.text
 
     def _repair_json(self, json_str: str) -> str:
-        """Attempts to fix truncated JSON by closing open structures, ignoring characters inside quotes."""
+        """Attempts to fix truncated JSON by backtracking to the last stable separator and closing open structures."""
+        s = json_str.strip()
+        if not s:
+            return "{}"
+            
         stack = []
         in_string = False
         escape = False
+        last_separator_index = -1
         
-        for char in json_str:
+        for i, char in enumerate(s):
             if escape:
                 escape = False
                 continue
@@ -313,23 +318,33 @@ class AIEngine:
             if char == '"':
                 in_string = not in_string
                 continue
-            
             if not in_string:
-                if char == "{": stack.append("}")
-                elif char == "[": stack.append("]")
-                elif char in ("}", "]") and stack:
-                    if stack[-1] == char: stack.pop()
-        
-        repaired = json_str.strip()
-        
-        # If we ended inside a string, close it first
-        if in_string:
-            repaired += '"'
-            
+                if char in ("{", "["):
+                    stack.append("}" if char == "{" else "]")
+                    last_separator_index = i
+                elif char in ("}", "]"):
+                    if stack and stack[-1] == char:
+                        stack.pop()
+                    last_separator_index = i
+                elif char == ",":
+                    last_separator_index = i
+
+        # If we're in an unstable state (mid-string or mid-key/value),
+        # backtrack to the last stable separator.
+        if in_string or (s and s[-1] not in ("}", "]", " ")):
+            if last_separator_index != -1:
+                s = s[:last_separator_index + 1]
+                # If we ended on a comma, strip it to avoid trailing comma error
+                if s.strip().endswith(","):
+                    s = s.strip()[:-1].strip()
+                # Recalculate stack for the trimmed string
+                return self._repair_json(s)
+
+        # Close any remaining open structures
         while stack:
-            closer = stack.pop()
-            repaired += closer
-        return repaired
+            s += stack.pop()
+            
+        return s
 
 ai_engine = AIEngine()
 

@@ -209,6 +209,12 @@ async def generate_content(request: GenerationRequest, user_id: str = Depends(ge
                     raise ValueError(f"Model {current_model} returned an empty response.")
                 
                 output_text = response.text
+                
+                # Apply Neural Repair if the JSON is truncated
+                if output_text.strip().startswith("{") and not output_text.strip().endswith("}"):
+                    logger.warning(f"REPAIR [#{request_id}]: Truncated JSON detected. Applying fix.")
+                    output_text = ai_engine._repair_json(output_text)
+
                 usage_dict = {
                     "prompt_tokens": getattr(response.usage_metadata, "prompt_token_count", 0),
                     "candidates_tokens": getattr(response.usage_metadata, "candidates_token_count", 0),

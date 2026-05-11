@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Body, Depends, HTTPException, Query, status
 from sqlalchemy import select
 from backend.database import async_session, async_engine, AsyncSession, get_async_session
 from loguru import logger
@@ -36,18 +36,47 @@ async def get_episodes(project_id: int, user_id: str = Depends(get_auth_user_id)
     logger.info(f"[EPISODES] Retrieved {len(episodes)} materializations for project {project_id}")
     return wrap_response(episodes)
 
-@router.post("/episodes")
-async def create_episode(
-    episode: Episode,
+class EpisodeBatchCreate(BaseModel):
+    project_id: int
+    session_id: Optional[int] = None
+    episodes: List[Episode]
+    
+@router.post("/episodes/batch")
+async def batch_create_episodes(
+    payload: EpisodeBatchCreate = Body(...),
     session: AsyncSession = Depends(get_async_session),
     auth_user_id: str = Depends(get_auth_user_id)
 ):
-    episode.user_id = episode.user_id or auth_user_id
-    session.add(episode)
+    project_id = payload.project_id
+    session_id = payload.session_id
+
+    # Verify project ownership
+    project = await session.get(Project, project_id)
+    if not project or project.user_id != auth_user_id:
+        raise HTTPException(status_code=401, detail="Project access denied")
+
+    created_episodes = []
+    for ep_data in payload.episodes:
+        db_episode = Episode(
+            project_id=project_id,
+            user_id=auth_user_id,
+            session_id=session_id,
+            episode_number=ep_data.episode_number,
+            title=ep_data.title,
+            hook=ep_data.hook,
+            synopsis=ep_data.synopsis,
+            runtime=ep_data.runtime,
+            asset_matrix=ep_data.asset_matrix,
+        )
+        session.add(db_episode)
+        created_episodes.append(db_episode)
+
     await session.commit()
-    await session.refresh(episode)
-    logger.success(f"[EPISODES] Materialized Episode {episode.episode_number}: {episode.title}")
-    return wrap_response(episode, "Episode Materialized")
+    for ep in created_episodes:
+        await session.refresh(ep)
+
+    logger.success(f"[EPISODES] Batch materialized {len(created_episodes)} episodes for project {project_id}")
+    return wrap_response(created_episodes, "Episodes Materialized")
 
 @router.put("/episodes/{episode_id}")
 async def update_episode(

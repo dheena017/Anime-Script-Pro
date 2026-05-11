@@ -16,7 +16,7 @@ BASE_TEMPLATE = {
 }
 
 async def register_and_login(client: AsyncClient, email: str, password: str):
-    register_resp = await client.post("/api/auth", json={"email": email, "password": password})
+    register_resp = await client.post("/api/auth/register", json={"email": email, "password": password})
     assert register_resp.status_code == status.HTTP_201_CREATED
 
     login_resp = await client.post(
@@ -28,7 +28,7 @@ async def register_and_login(client: AsyncClient, email: str, password: str):
 
 @pytest.mark.asyncio
 async def test_template_crud_and_public_access():
-    async with AsyncClient(app=app, base_url="http://test") as ac:
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
         email = f"testuser+{uuid.uuid4().hex}@example.com"
         password = "testpassword"
         token = await register_and_login(ac, email, password)
@@ -63,7 +63,7 @@ async def test_template_crud_and_public_access():
 
 @pytest.mark.asyncio
 async def test_template_requires_authentication():
-    async with AsyncClient(app=app, base_url="http://test") as ac:
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
         create_resp = await ac.post("/api/templates", json=BASE_TEMPLATE)
         assert create_resp.status_code in {status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN}
 

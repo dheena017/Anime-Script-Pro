@@ -9,7 +9,7 @@ from backend.schemas import TemplateIn, TemplateOut
 
 router = APIRouter(prefix="/api/templates", tags=["Templates"])
 
-@router.post("/", response_model=TemplateOut, status_code=201)
+@router.post("", response_model=TemplateOut, status_code=201)
 async def create_template(template: TemplateIn, user_id: str = Depends(get_auth_user_id)):
     async with async_session() as session:
         db_template = Template(**template.model_dump())

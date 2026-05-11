@@ -73,10 +73,16 @@ ARCHETYPE FOCUS:
 - If a "Focus Archetype" is mentioned (e.g., "Shonen Lead", "Anti-Hero"), the Protagonist (Tier 1) MUST embody the core characteristics of that archetype while maintaining unique depth.
 
 PRIME DIRECTIVE:
-- Do NOT create characters that contradict established lore, power systems, social hierarchies, or tonal direction
-- Every character MUST have: a clear dramatic function, a distinctive visual silhouette, a recognizable voice, and a compelling secret
-- Every character should support the story's emotional engine and thematic exploration
-- Character relationships must create natural story pressure and conflict escalation
+- Do NOT create characters that contradict established lore, power systems, social hierarchies, or tonal direction.
+- Every character MUST have: a clear dramatic function, a distinctive visual silhouette, a recognizable voice, and a compelling secret.
+- Every character should support the story's emotional engine and thematic exploration.
+- Relationship dynamics must create natural story pressure and conflict escalation.
+
+TOKEN-EFFICIENCY MANDATE (CRITICAL):
+- For Tier 1 (Core) characters: Provide full, high-fidelity detail as requested.
+- For Tier 2 (Support) characters: Be concise. Keep descriptions to 1-2 punchy sentences.
+- For Tier 3 (Tertiary) and Tier 4 (Periphery) characters: Be extremely minimal. Use short bullet points or single-sentence descriptions for psychological and appearance fields.
+- The goal is to ensure AT LEAST 20 characters are generated within the output limit. If you reach the limit, the JSON will be broken. PRIORITIZE BREADTH OVER DEPTH for non-core characters.
 
 STRUCTURAL FRAMEWORK:
 
@@ -817,3 +823,4 @@ Your output must be a JSON object with the following structure:
 
 Return ONLY the JSON.
 `;
+

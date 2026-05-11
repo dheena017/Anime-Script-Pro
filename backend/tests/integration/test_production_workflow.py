@@ -78,7 +78,7 @@ async def test_production_creation_flow():
         assert len(sessions_resp.json()) == 2
 
         # 5. Add Episodes linked to a Session
-        episode_data = {
+        episode_batch_data = {
             "project_id": project_id,
             "session_id": sessions[0]["id"],
             "episodes": [
@@ -86,9 +86,9 @@ async def test_production_creation_flow():
                 {"episode_number": 2, "title": "Ep 2", "hook": "First Note"}
             ]
         }
-        resp = await ac.post("/api/episodes", json=episode_data)
+        resp = await ac.post("/api/episodes/batch", json=episode_batch_data)
         assert_success(resp)
-        episodes = resp.json()
+        episodes = resp.json()["data"]
         assert len(episodes) == 2
 
         episodes_resp = await ac.get(f"/api/episodes?project_id={project_id}")

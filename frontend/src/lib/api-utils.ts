@@ -139,6 +139,10 @@ function repairTruncatedJson(raw: string): string {
     else if (ch === '}' || ch === ']') finalStack.pop();
   }
 
+  if (finalInString) {
+    s += '"';
+  }
+
   // Close any open brackets in reverse order
   for (let i = finalStack.length - 1; i >= 0; i--) {
     s += finalStack[i] === '{' ? '}' : ']';
