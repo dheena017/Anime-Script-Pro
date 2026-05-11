@@ -14,6 +14,7 @@ export const castStyles = {
     container: "relative header-container px-6 py-5 flex items-center justify-between gap-6 rounded-3xl bg-gradient-to-r from-[#071426]/80 to-[#071022]/60 border border-blue-900/30 shadow-[0_10px_30px_rgba(2,6,23,0.6)]",
     iconBox: "header-icon-box group/icon rounded-2xl p-3 !bg-gradient-to-br !from-fuchsia-900/10 !to-fuchsia-500/6 !border-fuchsia-500/30",
     iconGlow: "absolute inset-0 bg-gradient-to-br from-fuchsia-500/20 to-transparent opacity-0 group-hover/icon:opacity-100 transition-opacity duration-500 rounded-2xl",
+    icon: "w-7 h-7 text-fuchsia-400 relative z-10 drop-shadow-[0_6px_20px_rgba(236,72,153,0.18)]",
     title: "header-title text-white font-extrabold uppercase tracking-widest text-lg",
     subtitle: "header-subtitle text-sm text-fuchsia-300/60",
     

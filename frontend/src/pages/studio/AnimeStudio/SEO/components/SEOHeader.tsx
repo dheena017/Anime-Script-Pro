@@ -88,7 +88,7 @@ export const SEOHeader: React.FC<SEOHeaderProps> = ({
                   {isGenerating ? (
                     <Button
                       variant="ghost"
-                      className="relative w-full sm:w-auto h-10 px-6 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/15 hover:border-emerald-500/60 hover:text-emerald-300 font-black uppercase tracking-widest text-[9px] transition-all duration-300 shadow-lg"
+                      className={s.header.actionButtonDanger}
                     >
                       <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
                       <span className="relative z-10">ANALYZING...</span>
@@ -96,7 +96,7 @@ export const SEOHeader: React.FC<SEOHeaderProps> = ({
                   ) : (
                     <Button
                       variant="ghost"
-                      className="relative w-full sm:w-auto h-10 px-8 rounded-full border border-white/10 bg-white text-black hover:bg-zinc-100 hover:border-emerald-500/50 hover:text-emerald-500 font-black uppercase tracking-widest text-[9px] transition-all duration-300 shadow-lg"
+                      className={s.header.actionButtonPrimary}
                       onClick={onRegenerate}
                     >
                       <Sparkles className="w-4 h-4 mr-2 group-hover/btn:scale-125 transition-transform duration-300" />
@@ -114,7 +114,7 @@ export const SEOHeader: React.FC<SEOHeaderProps> = ({
               <Tooltip>
                 <TooltipTrigger>
                   <Button
-                    className="relative w-full sm:w-auto h-10 px-8 rounded-full border border-white/10 bg-white text-black hover:bg-zinc-100 hover:border-emerald-500/50 hover:text-emerald-500 font-black uppercase tracking-widest text-[9px] transition-all duration-300 shadow-lg"
+                    className={s.header.actionButtonPrimary}
                     onClick={onNext}
                   >
                     <span className="relative z-10 flex items-center gap-2">

@@ -47,7 +47,7 @@ export const CastHeader: React.FC<CastHeaderProps> = ({
             <div className="relative shrink-0">
               <div className={s.header.iconBox}>
                 <div className={s.header.iconGlow} />
-                <Users className="w-7 h-7 text-fuchsia-400 relative z-10 drop-shadow-[0_6px_20px_rgba(236,72,153,0.18)]" />
+                <Users className={s.header.icon} />
                 <div className="absolute inset-0 border-2 border-fuchsia-500/40 rounded-2xl opacity-20" />
               </div>
             </div>
