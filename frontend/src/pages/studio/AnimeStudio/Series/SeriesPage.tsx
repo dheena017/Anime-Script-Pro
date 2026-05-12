@@ -96,14 +96,9 @@ export function SeriesPage() {
 
     try {
       let activeProjectId = projectId;
-      
-      if (!activeProjectId) {
-        console.info('[SeriesPage] No project ID found. Triggering proactive materialization...');
-        activeProjectId = await syncCore();
-      }
 
       if (!activeProjectId) {
-        throw new Error('Failed to resolve project identity. Please save the project manually.');
+        throw new Error('Save the project first, then continue blueprint sync.');
       }
 
       const scenesPayload = sequence.map((u, idx) => {

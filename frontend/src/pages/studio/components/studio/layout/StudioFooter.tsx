@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
+import { useGeneratorState } from '@/hooks/useGenerator';
 import { Loader2 } from 'lucide-react';
 
 const StatusIndicator = ({ label, status, colorClass, glowColor }: { label: string, status: string, colorClass: string, glowColor: string }) => (
@@ -16,7 +16,6 @@ const StatusIndicator = ({ label, status, colorClass, glowColor }: { label: stri
 
 export const StudioFooter: React.FC = () => {
   const { isSaving } = useGeneratorState();
-  const { syncCore } = useGeneratorDispatch();
 
   return (
     <footer className="bg-[#030303] py-8 px-10 relative z-50 overflow-hidden border-t border-white/5">
@@ -94,7 +93,6 @@ export const StudioFooter: React.FC = () => {
             <motion.button 
               whileHover={{ scale: 1.02, backgroundColor: 'rgba(16,185,129,0.05)' }}
               whileTap={{ scale: 0.98 }}
-              onClick={() => syncCore()}
               disabled={isSaving}
               className="w-full lg:w-auto flex items-center justify-center gap-4 px-10 py-5 bg-white/[0.01] border border-white/10 rounded-2xl group transition-all duration-500 disabled:opacity-50 hover:border-emerald-500/40"
             >

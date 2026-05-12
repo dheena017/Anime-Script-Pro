@@ -188,11 +188,6 @@ export default function ScriptLayout() {
         );
 
         setGeneratedScript(script);
-        
-        // Auto-save this episode
-        if (projectId) {
-          await syncCore(projectId);
-        }
 
         // Delay to allow UI to breathe and prevent rate limiting
         await new Promise(r => setTimeout(r, 1500));

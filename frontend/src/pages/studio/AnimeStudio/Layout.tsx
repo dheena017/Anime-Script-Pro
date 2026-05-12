@@ -102,38 +102,19 @@ export default function AnimeLayout() {
     }
   }, [setContentType, projectId, currentScriptId, setCurrentScriptId]);
 
+  useEffect(() => {
+    if (!currentScriptId || !location.pathname.startsWith('/studio')) {
+      return;
+    }
+
+    const suffix = location.pathname.replace(/^\/studio/, '');
+    const nextPath = `/projects/${currentScriptId}${suffix || '/engine'}`;
+    navigate({ pathname: nextPath, search: location.search }, { replace: true, state: location.state });
+  }, [currentScriptId, location.pathname, location.search, location.state, navigate]);
+
   const handleSaveCurrent = async () => {
     if (!generatedScript || !user) return;
-    setIsSaving(true);
-    try {
-      console.info('[AnimeLayout] Creating or updating project record.', { prompt });
-      addLog('SAVE', 'START', 'Saving current anime project...');
-      const res = await fetch("/api/projects", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          user_id: user.id,
-          name: prompt || "Untitled Anime Project",
-          content_type: 'Anime',
-          prompt: prompt,
-          vibe: tone,
-          model_used: selectedModel
-        })
-      });
-
-      if (!res.ok) throw new Error("Failed to save project");
-      const project = await res.json();
-      setCurrentScriptId(project.id);
-      console.info('[AnimeLayout] Project save completed.', { projectId: project.id });
-      showNotification?.('Project saved successfully', 'success');
-      addLog('SAVE', 'SUCCESS', 'Current anime project saved.');
-    } catch (error) {
-      console.error('[AnimeLayout] Save failed.', error);
-      showNotification?.('Failed to save project', 'error');
-      addLog('SAVE', 'ERROR', `Project save failed: ${(error as any)?.message || 'Network error'}`);
-    } finally {
-      setIsSaving(false);
-    }
+    await syncCore();
   };
 
   /**
@@ -179,7 +160,6 @@ export default function AnimeLayout() {
         setGeneratedCharacters(castResult as string);
       }
       addGeneratorLog("CAST", "COMPLETED", "Cast manifest generated.");
-      void syncCore(); // Incremental save
 
       // PHASE 3: Series Structure
       setGenerationProgress(40);
@@ -187,7 +167,6 @@ export default function AnimeLayout() {
       const seriesPlan = await generateSeriesPlan(prompt, selectedModel, 'Anime', 12, world, typeof castResult === 'string' ? castResult : castResult.markdown);
       setGeneratedSeriesPlan(seriesPlan);
       addGeneratorLog("SERIES", "COMPLETED", "Series structure and beats mapped.");
-      void syncCore(); // Incremental save
 
       // PHASE 4: Script Writing
       setGenerationProgress(55);
@@ -224,8 +203,6 @@ export default function AnimeLayout() {
       setGenerationProgress(100);
 
       showNotification?.('Production Process Complete: All Modules Prepared', 'success');
-      // Final Sync
-      await syncCore();
       setGenerationProgress(100);
       setTimeout(() => setGenerationProgress(0), 3000);
       navigate(`${basePath}/world`);
@@ -253,7 +230,6 @@ export default function AnimeLayout() {
       const world = await generateWorld(prompt, selectedModel, 'Anime');
       setGeneratedWorld(world);
       addGeneratorLog("WORLD", "COMPLETED", "Lore synchronized to core.");
-      void syncCore(); // Incremental save
       showNotification?.('World Lore synthesized successfully!', 'success');
       setGenerationProgress(100);
       setTimeout(() => setGenerationProgress(0), 3000);
@@ -304,58 +280,6 @@ export default function AnimeLayout() {
       setGenerationProgress(100);
       setCurrentScriptId(null);
       showNotification?.('Script written successfully!', 'success');
-
-      if (user) {
-        // 1. Create/Initialize Project
-        const projectRes = await fetch("/api/projects", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            user_id: user.id,
-            name: prompt.slice(0, 30) || "Single Generation",
-            content_type: 'Anime',
-            prompt: prompt,
-            vibe: tone,
-            model_used: selectedModel
-          })
-        });
-
-        if (projectRes.ok) {
-          const project = await projectRes.json();
-          setCurrentScriptId(project.id);
-
-          // 2. Save the Actual Script Content
-          await fetch("/api/scripts", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              title: `Script: ${project.name}`,
-              content: script,
-              project_id: project.id
-            })
-          });
-
-          // 3. Log the Production Method (Vibe)
-          await fetch("/api/methods", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              name: tone,
-              description: `Production vibe used for project ${project.id}`
-            })
-          });
-
-          // 4. Archive the Prompt
-          await fetch("/api/prompts", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              text: prompt,
-              context: `SINGLE_GEN_SEED_PROMPT_ID_${project.id}`
-            })
-          });
-        }
-      }
       setGenerationProgress(100);
       setTimeout(() => setGenerationProgress(0), 3000);
     } catch (error) {

@@ -66,14 +66,7 @@ export default function PromptsLayout() {
     try {
       console.info('[PromptsLayout] Saving prompts content.', { projectId });
       addLog('SAVE', 'START', 'Saving prompts content...');
-      const { productionApi } = await import('@/services/api/production');
-      await productionApi.updateContent(user.id, {
-        cast_profiles: castProfiles,
-        cast_data: castData,
-        script_content: generatedScript,
-        series_plan: generatedSeriesPlan,
-        seo_metadata: generatedMetadata
-      }, projectId);
+      await syncCore(projectId);
       showNotification?.('Prompts saved successfully!', 'success');
       console.info('[PromptsLayout] Prompts saved successfully.', { projectId });
       addLog('SAVE', 'SUCCESS', 'Prompts saved successfully.');
@@ -108,8 +101,8 @@ export default function PromptsLayout() {
       setGenerationProgress(70);
       await new Promise((r) => setTimeout(r, 2000));
 
-      // Then video prompts (switch to video tab)
-      setSearchParams({ tab: 'video' });
+      // Then video prompts (switch to motion tab)
+      setSearchParams({ tab: 'motion' });
       console.log('[PromptsLayout] Requesting video prompts generation...');
       const vprompts = await generateVideoPrompts(generatedScript, selectedModel);
       setVideoData(vprompts as any);
@@ -129,7 +122,13 @@ export default function PromptsLayout() {
     }
   };
 
-  const activeTab = (searchParams.get('tab') as PromptsTab) || 'image';
+  const rawTab = searchParams.get('tab');
+  const activeTab: PromptsTab =
+    rawTab === 'image' || rawTab === 'motion' || rawTab === 'negative' || rawTab === 'style'
+      ? rawTab
+      : rawTab === 'video'
+        ? 'motion'
+        : 'image';
 
   React.useEffect(() => {
     console.log(`[PromptsLayout] Active tab changed to: ${activeTab.toUpperCase()}`);
@@ -158,7 +157,7 @@ export default function PromptsLayout() {
             }}
             onSave={handleSave}
             isSaving={isSaving}
-            hasContent={activeTab === 'video' ? !!videoData : !!generatedImagePrompts}
+            hasContent={activeTab === 'motion' ? !!videoData : !!generatedImagePrompts}
             session={session}
             episode={episode}
           />
@@ -172,13 +171,13 @@ export default function PromptsLayout() {
           <StudioTabsProgressBar progress={generationProgress} theme="cyan" />
         </div>
 
-        {((activeTab === 'image' && generatedImagePrompts) || (activeTab === 'video' && videoData)) && !isLoading && !handlers.isGenerating && (
+        {((activeTab === 'image' && generatedImagePrompts) || (activeTab === 'motion' && videoData)) && !isLoading && !handlers.isGenerating && (
           <div className="mb-8">
             <PromptsToolbar
               status="active"
               session={session}
               episode={episode}
-              content={activeTab === 'video' ? JSON.stringify(videoData) : generatedImagePrompts}
+              content={activeTab === 'motion' ? JSON.stringify(videoData) : generatedImagePrompts}
               isEditing={isEditing}
               onEditingChange={setIsEditing}
             />
@@ -205,7 +204,7 @@ export default function PromptsLayout() {
                   />
                 ) : (
                   <div className="flex-1 flex flex-col">
-                    {activeTab === 'video' ? <EpisodePackager /> : <Outlet context={{ activeTab }} />}
+                    {activeTab === 'motion' ? <EpisodePackager /> : <Outlet context={{ activeTab }} />}
                   </div>
                 )}
               </Suspense>
