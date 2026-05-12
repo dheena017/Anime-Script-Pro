@@ -48,11 +48,11 @@ export const castStyles = {
   // --- TABS SECTION ---
   tabs: {
     container: 'flex items-center gap-1 bg-black/50 border border-white/10 p-1.5 rounded-full backdrop-blur-xl shadow-2xl relative group overflow-hidden',
-    overlay: 'absolute inset-0 bg-gradient-to-r from-white/5 via-transparent to-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000',
-    button: 'relative px-5 py-2 text-[10px] font-black tracking-[0.2em] transition-all duration-500 uppercase flex items-center gap-2.5',
+    overlay: 'absolute inset-0 bg-gradient-to-r from-white/5 via-transparent to-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000 pointer-events-none',
+    button: 'relative z-10 px-5 py-2 text-[10px] font-black tracking-[0.2em] transition-all duration-500 uppercase flex items-center gap-2.5',
     buttonActive: 'text-studio',
     buttonInactive: 'text-zinc-500 hover:text-zinc-300',
-    pill: 'absolute inset-0 bg-white/10 border border-white/20 rounded-full z-0',
+    pill: 'absolute inset-0 bg-white/10 border border-white/20 rounded-full z-0 pointer-events-none',
     icon: 'w-3.5 h-3.5 transition-all duration-500',
     iconActive: 'opacity-100 scale-110',
     iconInactive: 'opacity-40',

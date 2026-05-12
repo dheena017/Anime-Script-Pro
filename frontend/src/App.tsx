@@ -149,20 +149,7 @@ function AppRoutes() {
             <Route path="world" element={<WorldLayout />}>
               <Route index element={<PageTransition><AnimeWorld /></PageTransition>} />
             </Route>
-            <Route path="cast" element={<CastLayout />}>
-              <Route index element={<PageTransition><RegistryTab onViewCharacter={() => {}} /></PageTransition>} />
-              <Route path="registry" element={<PageTransition><RegistryTab onViewCharacter={() => {}} /></PageTransition>} />
-              <Route path="voice" element={<PageTransition><VoiceTab /></PageTransition>} />
-              <Route path="combat" element={<PageTransition><CombatTab /></PageTransition>} />
-              <Route path="arcs" element={<PageTransition><ArcsTab /></PageTransition>} />
-              <Route path="dynamics" element={<PageTransition><DynamicsTab /></PageTransition>} />
-              <Route path="relationships" element={<PageTransition><RelationshipsPage /></PageTransition>} />
-              <Route path="relationships/:id" element={<PageTransition><RelationshipViewPage /></PageTransition>} />
-              <Route path="relationships/:id/edit" element={<PageTransition><RelationshipEditPage /></PageTransition>} />
-              <Route path="technical" element={<PageTransition><TechnicalTab /></PageTransition>} />
-              <Route path="characters/:characterName" element={<PageTransition><CharacterViewPage /></PageTransition>} />
-              <Route path="characters/:characterName/edit" element={<PageTransition><CharacterEditPage /></PageTransition>} />
-            </Route>
+            <Route path="cast" element={<CastLayout />} />
             <Route path="series" element={<SeriesLayout />}>
               <Route index element={<PageTransition><AnimeSeries /></PageTransition>} />
               <Route path="roadmap" element={<PageTransition><AnimeSeries /></PageTransition>} />

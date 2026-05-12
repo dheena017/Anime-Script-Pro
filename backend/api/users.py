@@ -6,7 +6,8 @@ import logging
 from backend.database.models import UserProfile, UserSettings, UserBalance
 from backend.database import async_session
 from backend.utils.deps import get_auth_user_id
-from backend.utils.notifications import notify_user
+from backend.database import async_session
+from backend.utils.deps import get_auth_user_id
 
 router = APIRouter(prefix="/api", tags=["Users"])
 logger = logging.getLogger(__name__)
@@ -121,6 +122,7 @@ async def update_user_profile(user_id: str, payload: dict, auth_user_id: str = D
             await session.commit()
             await session.refresh(profile)
             logger.info("[USERS] Profile updated for user_id=%s", user_id)
+            from backend.utils.notifications import notify_user
             await notify_user(user_id, "Profile Synchronized", "Your architectural identity has been successfully updated.", "SUCCESS")
             return profile
     except HTTPException:
@@ -191,6 +193,7 @@ async def update_user_settings(user_id: str, payload: dict, auth_user_id: str = 
             await session.commit()
             await session.refresh(settings)
             logger.info("[USERS] Settings updated for user_id=%s", user_id)
+            from backend.utils.notifications import notify_user
             await notify_user(user_id, "Settings Synchronized", "Production environment parameters have been updated.", "INFO")
             return settings
     except HTTPException:

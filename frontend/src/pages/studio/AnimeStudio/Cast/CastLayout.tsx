@@ -1,5 +1,5 @@
 import React, { startTransition, Suspense } from 'react';
-import { Outlet, useNavigate, useLocation, useOutlet, useSearchParams } from 'react-router-dom';
+import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
 import { useAuth } from '@/hooks/useAuth';
@@ -8,8 +8,13 @@ import { CastHeader } from './components/CastHeader';
 import { CastEmptyState } from './components/CastEmptyState';
 import { CastToolbar, CastTab } from './components/CastToolbar';
 import { CastTabs } from './Tabs/CastTabs';
+import { RegistryTab } from './Tabs/RegistryTab';
+import { VoiceTab } from './Tabs/VoiceTab';
+import { CombatTab } from './Tabs/CombatTab';
+import { ArcsTab } from './Tabs/ArcsTab';
 import { DynamicsTab } from './Tabs/DynamicsTab';
 import RelationshipsPage from './Tabs/Relationships/RelationshipsPage';
+import { TechnicalTab } from './Tabs/TechnicalTab';
 import {
   generateCharacters
 } from '../../../../services/api/gemini';
@@ -37,24 +42,11 @@ export default function CastLayout() {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
-  const outlet = useOutlet();
   const [handlers, setHandlers] = React.useState<any>({});
-
-  const getTabFromPath = (path: string): CastTab => {
-    if (path.includes('/voice')) return 'voice';
-    if (path.includes('/combat')) return 'combat';
-    if (path.includes('/arcs')) return 'arcs';
-    if (path.includes('/dynamics')) return 'dynamics';
-    if (path.includes('/relationships')) return 'relationships';
-    if (path.includes('/technical')) return 'technical';
-    return 'registry';
-  };
-
-  // Support both path-based (/cast/combat) and query-param (?tab=combat) routing
-  const queryTab = searchParams.get('tab') as CastTab | null;
-  const activeTab: CastTab = (queryTab && ['registry','voice','combat','arcs','dynamics','relationships','technical'].includes(queryTab))
-    ? queryTab
-    : getTabFromPath(location.pathname);
+  const queryTab = searchParams.get('tab');
+  const activeTab: CastTab = (queryTab && ['registry', 'voice', 'combat', 'arcs', 'dynamics', 'relationships', 'technical'].includes(queryTab))
+    ? queryTab as CastTab
+    : 'registry';
 
   const { showNotification } = useApp();
   const {
@@ -167,6 +159,26 @@ export default function CastLayout() {
     });
   };
 
+  const tabContent = React.useMemo(() => {
+    switch (activeTab) {
+      case 'voice':
+        return <VoiceTab />;
+      case 'combat':
+        return <CombatTab />;
+      case 'arcs':
+        return <ArcsTab />;
+      case 'dynamics':
+        return <DynamicsTab />;
+      case 'relationships':
+        return <RelationshipsPage />;
+      case 'technical':
+        return <TechnicalTab />;
+      case 'registry':
+      default:
+        return <RegistryTab onViewCharacter={() => { }} />;
+    }
+  }, [activeTab]);
+
   React.useEffect(() => {
     const handleTriggerGenerate = () => {
       handleGenerateAll();
@@ -249,7 +261,7 @@ export default function CastLayout() {
         <div className="flex-1 flex flex-col min-h-[500px]">
           <AnimatePresence mode="wait">
             <motion.div
-              key={location.pathname}
+              key={location.search}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
@@ -267,20 +279,7 @@ export default function CastLayout() {
                   />
                 ) : (
                   <div className="flex-1 flex flex-col">
-                    {outlet ? React.cloneElement(outlet as React.ReactElement<any>, {
-                      key: location.pathname,
-                      context: {
-                        activeTab,
-                        setActiveTab: handleTabChange,
-                        handleGenerateCharacter: handlers.handleGenerateCharacter,
-                        isAnalyzingCast
-                      }
-                    }) : <Outlet context={{
-                      activeTab,
-                      setActiveTab: handleTabChange,
-                      handleGenerateCharacter: handlers.handleGenerateCharacter,
-                      isAnalyzingCast
-                    }} />}
+                    {tabContent}
                   </div>
                 )}
               </Suspense>

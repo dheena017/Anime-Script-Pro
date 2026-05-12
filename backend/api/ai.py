@@ -15,7 +15,6 @@ from backend.database.models import Project
 from backend.database.models.user import UserSettings
 from backend.utils.deps import get_auth_user_id
 from backend.ai_engine import ai_engine, build_genai_client, stream_ai
-from backend.utils.notifications import notify_user
 from backend.schemas import GenerationRequest, GenerationResponse
 import uuid
 
@@ -234,6 +233,7 @@ async def generate_content(request: GenerationRequest, user_id: str = Depends(ge
                 efficiency = (tokens/(latency_ms/1000)) if latency_ms > 0 else 0
                 logger.opt(colors=True).info(f"   | Usage: <magenta>{tokens}</magenta> tokens | Efficiency: <green>{efficiency:.1f}</green> tps")
             
+            from backend.utils.notifications import notify_user
             await notify_user(user_id, "Neural Synthesis Successful", f"AI Model {current_model} has finalized the orchestration in {latency_ms:.0f}ms.", "SUCCESS")
 
             return GenerationResponse(
