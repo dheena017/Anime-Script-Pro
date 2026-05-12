@@ -97,7 +97,11 @@ export function SeriesPage() {
       let activeProjectId = projectId;
 
       if (!activeProjectId) {
-        throw new Error('Save the project first, then continue blueprint sync.');
+        showNotification?.('Auto-saving project to establish database link...', 'info');
+        activeProjectId = await syncCore();
+        if (!activeProjectId) {
+          throw new Error('Could not auto-save project. Please save manually first.');
+        }
       }
 
       const scenesPayload = sequence.map((u, idx) => {

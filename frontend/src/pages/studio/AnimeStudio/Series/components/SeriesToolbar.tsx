@@ -1,5 +1,5 @@
 import React from 'react';
-import { Layers, Copy, Download, Maximize, Minimize, FileText } from 'lucide-react';
+import { Layers, Copy, Download, Maximize, Minimize, FileText, Plus, ListFilter } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useApp } from '@/contexts/AppContext';
@@ -19,6 +19,8 @@ interface SeriesToolbarProps {
   content?: string | null;
   onManifestClick?: () => void;
   onExportClick?: () => void;
+  onAddEpisode?: () => void;
+  onFilterArchive?: () => void;
 }
 
 export const SeriesToolbar: React.FC<SeriesToolbarProps> = ({
@@ -27,7 +29,11 @@ export const SeriesToolbar: React.FC<SeriesToolbarProps> = ({
   episode = '1',
   content = null,
   onManifestClick,
-  onExportClick
+  onExportClick,
+  onAddEpisode,
+  onFilterArchive
+
+
 }) => {
   const { isFullscreen } = useApp();
 
@@ -160,9 +166,28 @@ export const SeriesToolbar: React.FC<SeriesToolbarProps> = ({
                 </TooltipContent>
               </Tooltip>
             </div>
+
+            {/* Action Buttons */}
+            <div className="flex items-center gap-4">
+              <Button
+                variant="outline"
+                className="h-10 px-4 border-white/5 bg-black/40 text-zinc-400 hover:text-white hover:border-zinc-700 rounded-lg font-black uppercase tracking-widest text-[10px]"
+                onClick={onFilterArchive}
+              >
+                <ListFilter className="w-4 h-4 mr-2" /> Filter Archive
+              </Button>
+
+              <Button
+                className="h-10 px-6 bg-studio text-black font-black uppercase tracking-widest hover:bg-studio/80 shadow-studio rounded-lg transition-all"
+                onClick={onAddEpisode}
+              >
+                <Plus className="w-4 h-4 mr-2" /> New Episode
+              </Button>
+            </div>
           </div>
         </div>
       </div>
     </TooltipProvider>
   );
 };
+

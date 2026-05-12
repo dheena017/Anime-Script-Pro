@@ -1,13 +1,11 @@
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Plus, ListFilter, Search, Layout as LayoutGrid, List, Film } from 'lucide-react';
+import { Layout as LayoutGrid, List, Film } from 'lucide-react';
 import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { SeriesView } from '../components/SeriesView';
 import { SeriesEmptyTab } from '../components/SeriesEmptyTab';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 
 export default function EpisodesPage() {
   const navigate = useNavigate();
@@ -65,7 +63,7 @@ export default function EpisodesPage() {
   return (
     <div className="space-y-8 pb-20">
       {/* Cinematic Header Section */}
-      {generatedSeriesPlan && generatedSeriesPlan.length > 0 && (
+      {generatedSeriesPlan && generatedSeriesPlan.length > 0 ? (
         <>
           <div className="relative border-b border-white/5 pb-16 overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/5 via-transparent to-cyan-500/5 opacity-30" />
@@ -97,53 +95,25 @@ export default function EpisodesPage() {
                   </motion.p>
                 </div>
               </div>
-
-              <div className="flex items-center gap-4">
-                <Button
-                  variant="outline"
-                  className="h-14 px-8 border-white/5 bg-black/40 text-zinc-400 hover:text-white hover:border-zinc-700 rounded-2xl font-black uppercase tracking-widest text-[10px]"
-                >
-                  <ListFilter className="w-4 h-4 mr-3" /> Filter Archive
-                </Button>
-                <Button
-                  className="h-14 px-10 bg-studio text-black font-black uppercase tracking-widest hover:bg-studio/80 shadow-studio rounded-2xl transition-all"
-                  onClick={handleAddEpisode}
-                >
-                  <Plus className="w-4 h-4 mr-3" /> New Episode
-                </Button>
-              </div>
             </div>
           </div>
 
-          {/* Search & View Toggle */}
-          <div className="flex items-center justify-between gap-4 p-4 bg-zinc-900/40 border border-white/5 rounded-2xl backdrop-blur-md">
-            <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
-              <Input
-                placeholder="Search episodes by title or hook..."
-                className="pl-12 bg-black/40 border-zinc-800 focus:border-studio/50"
-              />
-            </div>
-          </div>
+          {/* Episodes List */}
+          <SeriesView
+            plan={generatedSeriesPlan}
+            isEditing={isEditing}
+            viewMode={viewMode}
+            onUpdateEpisode={handleUpdateEpisode}
+            onUpdateAssetMatrix={handleUpdateAssetMatrix}
+            onViewEpisode={(epNum: string) => {
+              navigate(`${studioBase}/series/episodes/${epNum}`);
+            }}
+            onFocusEpisode={(epNum: string) => {
+              setEpisode(epNum);
+              navigate(`${studioBase}/script`);
+            }}
+          />
         </>
-      )}
-
-      {/* Episodes List */}
-      {generatedSeriesPlan && generatedSeriesPlan.length > 0 ? (
-        <SeriesView
-          plan={generatedSeriesPlan}
-          isEditing={isEditing}
-          viewMode={viewMode}
-          onUpdateEpisode={handleUpdateEpisode}
-          onUpdateAssetMatrix={handleUpdateAssetMatrix}
-          onViewEpisode={(epNum: string) => {
-            navigate(`${studioBase}/series/episodes/${epNum}`);
-          }}
-          onFocusEpisode={(epNum: string) => {
-            setEpisode(epNum);
-            navigate(`${studioBase}/script`);
-          }}
-        />
       ) : (
         <SeriesEmptyTab 
           icon={Film}
