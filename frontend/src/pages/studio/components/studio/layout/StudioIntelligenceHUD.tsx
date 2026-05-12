@@ -3,7 +3,10 @@ import { useRef, useEffect, useMemo, useState } from 'react';
 import { 
   Globe, Users, ChevronLeft, Database, Activity, Zap, Cloud, Terminal, 
   Server, HardDrive, Radio, Radar, Film, Sparkles, MessageSquare, ShieldAlert,
-  Clock, ShieldCheck, Settings2
+  Clock, ShieldCheck, Settings2, Palette, AlertTriangle, Layers, Type, Film as FilmIcon, Eye,
+  FolderOpen, Hash, BarChart3, Presentation, PenTool, Image as ImageIcon, AlignLeft, RefreshCw,
+  FileText,
+  Network, CheckCircle2, Video
 } from 'lucide-react';
 import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
 import { useLogs } from '@/contexts/LogContext';
@@ -16,7 +19,16 @@ export function StudioIntelligenceHUD() {
     generatedWorld, generatedWorldLore, generatedWorldPowers, generatedWorldFactions, generatedWorldArchitecture, generatedWorldAtlas, generatedWorldCulture, generatedWorldSystems,
     castList, generatedSeriesPlan, generatedScript, prompt, selectedModel,
     isGeneratingWorld, isGeneratingCharacters, isGeneratingSeries,
-    worldGenerationLatency, temperature, maxTokens, topP, isSaving
+    worldGenerationLatency, temperature, maxTokens, topP, topK, isSaving,
+    activeModelAttempt, fallbackHistory, tone, audience, genre, artStyle,
+    isGeneratingLore, isGeneratingPowers, isGeneratingFactions, isGeneratingArchitecture, isGeneratingAtlas, isGeneratingCulture, isGeneratingSystems,
+    storyboardScenes, visualData, videoData,
+    episode, session, numScenes, numCharacters, numEpisodes, contentType,
+    isGeneratingGrowthStrategy, isGeneratingDistribution, seoMetadata, generatedGrowthStrategy, generatedDistributionPlan,
+    history,
+    isContinuingScript, isGeneratingMetadata, isGeneratingImagePrompts, isGeneratingAltText,
+    castDNA, castDynamics, castIntegrity, characterRelationships, isAnalyzingCast,
+    worldGenerationStatus, worldGenerationError
   } = useGeneratorState();
 
   const { syncCore, saveLocalSession, setIsIntelligenceOpen } = useGeneratorDispatch();
@@ -69,13 +81,35 @@ export function StudioIntelligenceHUD() {
     generatedScript, castList, generatedSeriesPlan
   ]);
 
+  const tokenLoadEstimate = useMemo(() => {
+    const bytes = parseFloat(contextBufferSize) * 1024;
+    return Math.floor(bytes / 4).toLocaleString();
+  }, [contextBufferSize]);
+
   const moduleMatrix = [
     { label: 'World Lore', icon: Globe, status: isGeneratingWorld ? 'warning' : (generatedWorld ? 'success' : 'info') },
     { label: 'Cast DNA', icon: Users, status: isGeneratingCharacters ? 'warning' : (castList?.length ? 'success' : 'info') },
     { label: 'Series Plan', icon: Database, status: isGeneratingSeries ? 'warning' : (generatedSeriesPlan?.length ? 'success' : 'info') },
     { label: 'Script Sync', icon: MessageSquare, status: generatedScript ? 'success' : 'info' },
-    { label: 'Storyboard', icon: Film, status: 'info' },
+    { label: 'Storyboard', icon: Film, status: (storyboardScenes && storyboardScenes.length > 0) ? 'success' : 'info' },
     { label: 'VFX & Audio', icon: Sparkles, status: 'info' },
+  ];
+
+  const synthesisThreads = [
+    { label: 'Lore Manifest', active: isGeneratingLore },
+    { label: 'Power Systems', active: isGeneratingPowers },
+    { label: 'Factions', active: isGeneratingFactions },
+    { label: 'Architecture', active: isGeneratingArchitecture },
+    { label: 'Atlas/Geography', active: isGeneratingAtlas },
+    { label: 'Culture/Society', active: isGeneratingCulture },
+    { label: 'Magic/Tech', active: isGeneratingSystems },
+  ];
+
+  const scriptAugmentationThreads = [
+    { label: 'Continuity Editor', icon: PenTool, active: isContinuingScript },
+    { label: 'Scene Metadata', icon: AlignLeft, active: isGeneratingMetadata },
+    { label: 'Image Prompts', icon: ImageIcon, active: isGeneratingImagePrompts },
+    { label: 'Alt-Text VQA', icon: Eye, active: isGeneratingAltText },
   ];
 
   return (
@@ -170,6 +204,61 @@ export function StudioIntelligenceHUD() {
                 </button>
               </div>
 
+              {/* System Health Status (Real Status) */}
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <Activity className="w-3.5 h-3.5 text-zinc-500" />
+                  <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500">System Core Health</span>
+                </div>
+                {worldGenerationStatus === 'error' || worldGenerationError ? (
+                  <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/30 flex flex-col gap-2">
+                    <div className="flex items-center gap-2 text-red-500">
+                      <ShieldAlert className="w-4 h-4 animate-pulse" />
+                      <span className="text-[10px] font-black uppercase tracking-widest">Neural Failure Detected</span>
+                    </div>
+                    <p className="text-[10px] text-red-400/80 font-mono">{worldGenerationError || 'Unknown exception in Neural Core.'}</p>
+                  </div>
+                ) : (
+                  <div className="p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/20 flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-emerald-500">
+                      <CheckCircle2 className="w-4 h-4" />
+                      <span className="text-[10px] font-black uppercase tracking-widest">Neural Core Stable</span>
+                    </div>
+                    <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.8)]" />
+                  </div>
+                )}
+              </div>
+
+              {/* Real Project Identity Layer */}
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <FolderOpen className="w-3.5 h-3.5 text-zinc-500" />
+                  <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500">Project Identity Targets</span>
+                </div>
+                <div className="grid grid-cols-5 gap-2">
+                  <div className="p-3 rounded-lg bg-zinc-900/40 border border-white/5 flex flex-col gap-1 items-center justify-center">
+                    <span className="text-[8px] font-bold text-zinc-500 uppercase tracking-widest">Session</span>
+                    <span className="text-[10px] font-black text-white">{session || '001'}</span>
+                  </div>
+                  <div className="p-3 rounded-lg bg-zinc-900/40 border border-white/5 flex flex-col gap-1 items-center justify-center">
+                    <span className="text-[8px] font-bold text-zinc-500 uppercase tracking-widest">Ep Target</span>
+                    <span className="text-[10px] font-black text-white">{numEpisodes || 'N/A'}</span>
+                  </div>
+                  <div className="p-3 rounded-lg bg-zinc-900/40 border border-white/5 flex flex-col gap-1 items-center justify-center">
+                    <span className="text-[8px] font-bold text-zinc-500 uppercase tracking-widest">Format</span>
+                    <span className="text-[10px] font-black text-white">{contentType || 'Script'}</span>
+                  </div>
+                  <div className="p-3 rounded-lg bg-zinc-900/40 border border-white/5 flex flex-col gap-1 items-center justify-center">
+                    <span className="text-[8px] font-bold text-zinc-500 uppercase tracking-widest">Scenes</span>
+                    <span className="text-[10px] font-black text-white">{numScenes || 'N/A'}</span>
+                  </div>
+                  <div className="p-3 rounded-lg bg-zinc-900/40 border border-white/5 flex flex-col gap-1 items-center justify-center">
+                    <span className="text-[8px] font-bold text-zinc-500 uppercase tracking-widest">Cast Target</span>
+                    <span className="text-[10px] font-black text-white">{numCharacters || 'N/A'}</span>
+                  </div>
+                </div>
+              </div>
+
               {/* Core Directive (Real Prompt State) */}
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
@@ -186,47 +275,254 @@ export function StudioIntelligenceHUD() {
                 </div>
               </div>
 
-              {/* Real API Parameters */}
-              <div className="space-y-3">
+              {/* Real Model Failover Tracker */}
+              {fallbackHistory && fallbackHistory.length > 0 && (
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <AlertTriangle className="w-3.5 h-3.5 text-amber-500" />
+                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-500">Failover Diagnostics</span>
+                  </div>
+                  <div className="p-4 rounded-xl bg-amber-500/5 border border-amber-500/20 flex flex-col gap-2">
+                    <div className="flex justify-between items-center">
+                      <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">Active Attempt:</span>
+                      <span className="text-[10px] font-black text-amber-400">{activeModelAttempt || 'N/A'}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">Failover Count:</span>
+                      <span className="text-[10px] font-black text-white">{fallbackHistory.length}</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Real API Settings & Engine Metaparameters */}
+              <div className="space-y-4">
                 <div className="flex items-center gap-2">
                   <Settings2 className="w-3.5 h-3.5 text-zinc-500" />
-                  <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500">LLM Parameters</span>
+                  <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500">Engine Metaparameters</span>
                 </div>
-                <div className="grid grid-cols-3 gap-3">
-                  {[
-                    { label: 'TEMP', value: temperature },
-                    { label: 'TOKENS', value: maxTokens },
-                    { label: 'TOP P', value: topP }
-                  ].map((param, i) => (
-                    <div key={i} className="p-3 rounded-xl bg-zinc-900/40 border border-white/5 flex flex-col items-center gap-1">
-                      <span className="text-[8px] font-black text-zinc-500 uppercase tracking-widest">{param.label}</span>
-                      <span className="text-[11px] font-black text-white">{param.value}</span>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-2 gap-3">
+                    {[
+                      { label: 'TEMP', value: temperature },
+                      { label: 'TOKENS', value: maxTokens },
+                      { label: 'TOP P', value: topP },
+                      { label: 'TOP K', value: topK }
+                    ].map((param, i) => (
+                      <div key={i} className="p-3 rounded-xl bg-zinc-900/40 border border-white/5 flex flex-col items-center justify-center gap-1">
+                        <span className="text-[8px] font-black text-zinc-500 uppercase tracking-widest">{param.label}</span>
+                        <span className="text-[11px] font-black text-white">{param.value}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="flex flex-col justify-between">
+                     <div className="px-3 py-2 rounded-lg bg-zinc-900/40 border border-white/5 flex items-center justify-between mb-1.5">
+                       <span className="text-[8px] font-black text-zinc-500 uppercase tracking-widest flex items-center gap-1.5"><Palette className="w-2.5 h-2.5"/> Art</span>
+                       <span className="text-[9px] font-black text-white uppercase tracking-widest truncate max-w-[80px]">{artStyle || 'Default'}</span>
+                     </div>
+                     <div className="px-3 py-2 rounded-lg bg-zinc-900/40 border border-white/5 flex items-center justify-between mb-1.5">
+                       <span className="text-[8px] font-black text-zinc-500 uppercase tracking-widest flex items-center gap-1.5"><Type className="w-2.5 h-2.5"/> Tone</span>
+                       <span className="text-[9px] font-black text-white uppercase tracking-widest truncate max-w-[80px]">{tone || 'Neutral'}</span>
+                     </div>
+                     <div className="px-3 py-2 rounded-lg bg-zinc-900/40 border border-white/5 flex items-center justify-between">
+                       <span className="text-[8px] font-black text-zinc-500 uppercase tracking-widest flex items-center gap-1.5"><Users className="w-2.5 h-2.5"/> Aud.</span>
+                       <span className="text-[9px] font-black text-white uppercase tracking-widest truncate max-w-[80px]">{audience || 'General'}</span>
+                     </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Real Cast Infrastructure Matrix */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Users className="w-3.5 h-3.5 text-zinc-500" />
+                    <span className="text-[11px] font-black uppercase tracking-[0.3em] text-zinc-500">Cast Infrastructure</span>
+                  </div>
+                  {isAnalyzingCast && <div className="w-1.5 h-1.5 rounded-full bg-studio animate-ping" />}
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div className={cn("px-4 py-3 rounded-xl border flex flex-col gap-1 transition-colors", castDNA ? "bg-studio/10 border-studio/30" : "bg-black border-white/5")}>
+                     <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">Base DNA</span>
+                     <span className={cn("text-[10px] font-black uppercase tracking-widest", castDNA ? "text-studio" : "text-zinc-600")}>{castDNA ? 'Initialized' : 'Empty'}</span>
+                  </div>
+                  <div className={cn("px-4 py-3 rounded-xl border flex flex-col gap-1 transition-colors", castDynamics ? "bg-studio/10 border-studio/30" : "bg-black border-white/5")}>
+                     <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">Social Web</span>
+                     <span className={cn("text-[10px] font-black uppercase tracking-widest", castDynamics ? "text-studio" : "text-zinc-600")}>{castDynamics ? 'Mapped' : 'Empty'}</span>
+                  </div>
+                  <div className={cn("px-4 py-3 rounded-xl border flex flex-col gap-1 transition-colors", castIntegrity ? "bg-studio/10 border-studio/30" : "bg-black border-white/5")}>
+                     <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">Integrity Hash</span>
+                     <span className={cn("text-[10px] font-black uppercase tracking-widest", castIntegrity ? "text-studio" : "text-zinc-600")}>{castIntegrity ? 'Verified' : 'Unverified'}</span>
+                  </div>
+                  <div className={cn("px-4 py-3 rounded-xl border flex flex-col gap-1 transition-colors", characterRelationships ? "bg-studio/10 border-studio/30" : "bg-black border-white/5")}>
+                     <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">Relationships</span>
+                     <span className={cn("text-[10px] font-black uppercase tracking-widest", characterRelationships ? "text-studio" : "text-zinc-600")}>{characterRelationships ? 'Tangled' : 'Empty'}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Real World Engine Active Synthesis Threads */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Globe className="w-3.5 h-3.5 text-zinc-500" />
+                    <span className="text-[11px] font-black uppercase tracking-[0.3em] text-zinc-500">World Synthesis Threads</span>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  {synthesisThreads.map((thread, i) => (
+                    <div key={i} className={cn(
+                      "px-3 py-2 rounded-lg border flex items-center justify-between transition-colors",
+                      thread.active ? "bg-studio/10 border-studio/30 shadow-[inset_0_0_10px_rgba(6,182,212,0.15)]" : "bg-black border-white/5"
+                    )}>
+                      <span className={cn("text-[9px] font-black uppercase tracking-widest truncate", thread.active ? "text-studio" : "text-zinc-600")}>
+                        {thread.label}
+                      </span>
+                      {thread.active ? (
+                        <div className="w-1.5 h-1.5 rounded-full bg-studio animate-ping" />
+                      ) : (
+                        <div className="w-1 h-1 rounded-full bg-zinc-800" />
+                      )}
                     </div>
                   ))}
                 </div>
               </div>
 
-              {/* Real Hardware & Context Monitoring */}
+              {/* Real Script Augmentation Engine */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <FileText className="w-3.5 h-3.5 text-zinc-500" />
+                    <span className="text-[11px] font-black uppercase tracking-[0.3em] text-zinc-500">Script Augmentation</span>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  {scriptAugmentationThreads.map((thread, i) => (
+                    <div key={i} className={cn(
+                      "px-3 py-2 rounded-lg border flex items-center gap-2 transition-colors",
+                      thread.active ? "bg-amber-500/10 border-amber-500/30 shadow-[inset_0_0_10px_rgba(245,158,11,0.15)]" : "bg-black border-white/5"
+                    )}>
+                      <thread.icon className={cn("w-3 h-3", thread.active ? "text-amber-500 animate-pulse" : "text-zinc-700")} />
+                      <span className={cn("text-[9px] font-black uppercase tracking-widest flex-1 truncate", thread.active ? "text-amber-500" : "text-zinc-600")}>
+                        {thread.label}
+                      </span>
+                      {thread.active && <div className="w-1 h-1 rounded-full bg-amber-500 animate-pulse" />}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Real Post-Production & Marketing Pipeline */}
               <div className="space-y-3">
                 <div className="flex items-center gap-2">
-                  <Activity className="w-4 h-4 text-zinc-500" />
-                  <span className="text-[11px] font-black uppercase tracking-[0.3em] text-zinc-500">Resource Matrix</span>
+                  <BarChart3 className="w-3.5 h-3.5 text-zinc-500" />
+                  <span className="text-[11px] font-black uppercase tracking-[0.3em] text-zinc-500">Post-Production Pipeline</span>
+                </div>
+                <div className="grid grid-cols-1 gap-2">
+                  <div className="px-4 py-3 rounded-xl bg-zinc-900/40 border border-white/5 flex items-center justify-between">
+                    <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2">
+                      <Presentation className="w-3.5 h-3.5" /> Growth Strategy
+                    </span>
+                    <div className={cn("px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-widest border", 
+                      isGeneratingGrowthStrategy ? "bg-studio/20 text-studio border-studio/30 animate-pulse" : 
+                      generatedGrowthStrategy ? "bg-emerald-500/20 text-emerald-500 border-emerald-500/30" : "bg-zinc-800 text-zinc-500 border-transparent"
+                    )}>
+                      {isGeneratingGrowthStrategy ? 'Synthesizing...' : generatedGrowthStrategy ? 'Ready' : 'Pending'}
+                    </div>
+                  </div>
+                  <div className="px-4 py-3 rounded-xl bg-zinc-900/40 border border-white/5 flex items-center justify-between">
+                    <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2">
+                      <Globe className="w-3.5 h-3.5" /> Distribution Plan
+                    </span>
+                    <div className={cn("px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-widest border", 
+                      isGeneratingDistribution ? "bg-studio/20 text-studio border-studio/30 animate-pulse" : 
+                      generatedDistributionPlan ? "bg-emerald-500/20 text-emerald-500 border-emerald-500/30" : "bg-zinc-800 text-zinc-500 border-transparent"
+                    )}>
+                      {isGeneratingDistribution ? 'Synthesizing...' : generatedDistributionPlan ? 'Ready' : 'Pending'}
+                    </div>
+                  </div>
+                  <div className="px-4 py-3 rounded-xl bg-zinc-900/40 border border-white/5 flex items-center justify-between">
+                    <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2">
+                      <Hash className="w-3.5 h-3.5" /> SEO Metadata
+                    </span>
+                    <div className={cn("px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-widest border", 
+                      seoMetadata ? "bg-emerald-500/20 text-emerald-500 border-emerald-500/30" : "bg-zinc-800 text-zinc-500 border-transparent"
+                    )}>
+                      {seoMetadata ? 'Optimized' : 'Missing'}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Real Storyboard/Visual Matrix */}
+              <div className="space-y-3">
+                 <div className="flex items-center gap-2">
+                    <FilmIcon className="w-3.5 h-3.5 text-zinc-500" />
+                    <span className="text-[11px] font-black uppercase tracking-[0.3em] text-zinc-500">Storyboard Matrix</span>
+                  </div>
+                  <div className="p-4 rounded-xl border border-white/5 bg-zinc-900/30 flex items-center justify-between">
+                     <div className="flex items-center gap-3">
+                        <Eye className="w-5 h-5 text-zinc-600" />
+                        <div className="flex flex-col gap-0.5">
+                           <span className="text-[9px] font-black text-zinc-500 uppercase tracking-widest">Generated Scenes</span>
+                           <span className="text-xl font-black text-white">{storyboardScenes?.length || 0}</span>
+                        </div>
+                     </div>
+                     <div className="w-px h-10 bg-white/10" />
+                     <div className="flex items-center gap-3">
+                        <ImageIcon className="w-5 h-5 text-zinc-600" />
+                        <div className="flex flex-col gap-0.5">
+                           <span className="text-[9px] font-black text-zinc-500 uppercase tracking-widest">Visual Assets</span>
+                           <span className="text-xl font-black text-white">{visualData?.length || 0}</span>
+                        </div>
+                     </div>
+                     <div className="w-px h-10 bg-white/10" />
+                     <div className="flex items-center gap-3">
+                        <Video className="w-5 h-5 text-zinc-600" />
+                        <div className="flex flex-col gap-0.5">
+                           <span className="text-[9px] font-black text-zinc-500 uppercase tracking-widest">Video Assets</span>
+                           <span className="text-xl font-black text-white">{videoData?.length || 0}</span>
+                        </div>
+                     </div>
+                  </div>
+              </div>
+
+              {/* Real Hardware & Context Monitoring */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Activity className="w-4 h-4 text-zinc-500" />
+                    <span className="text-[11px] font-black uppercase tracking-[0.3em] text-zinc-500">Resource Matrix</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <RefreshCw className="w-3 h-3 text-zinc-600" />
+                    <span className="text-[8px] font-black text-zinc-500 uppercase tracking-widest">State Mutations: {history?.length || 0}</span>
+                  </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="p-5 rounded-2xl bg-zinc-900/40 border border-white/5 space-y-4 shadow-[inset_0_0_10px_rgba(255,255,255,0.02)]">
-                    <div className="flex items-center justify-between">
-                      <span className="text-[9px] font-black uppercase tracking-widest text-zinc-500">Context Buffer</span>
-                      <Cloud className="w-3.5 h-3.5 text-studio" />
+                  <div className="col-span-2 p-5 rounded-2xl bg-zinc-900/40 border border-white/5 flex items-center justify-between shadow-[inset_0_0_10px_rgba(255,255,255,0.02)]">
+                    <div className="flex flex-col gap-1">
+                      <span className="text-[9px] font-black uppercase tracking-widest text-zinc-500">Estimated Token Load</span>
+                      <div className="flex items-center gap-2">
+                        <Cloud className="w-4 h-4 text-studio" />
+                        <span className="text-2xl font-black text-white">{tokenLoadEstimate}</span>
+                      </div>
                     </div>
-                    <div className="flex items-end gap-1">
-                      <span className="text-3xl font-black text-white leading-none">{contextBufferSize}</span>
-                      <span className="text-[10px] font-bold text-zinc-500 mb-1">KB</span>
-                    </div>
-                    <div className="h-1.5 w-full bg-black rounded-full overflow-hidden border border-white/5">
+                    <div className="w-32 h-2 bg-black rounded-full overflow-hidden border border-white/5">
                       <motion.div 
                         animate={{ width: `${Math.min(100, (parseFloat(contextBufferSize) / 200) * 100)}%` }}
                         className="h-full bg-gradient-to-r from-studio/50 to-studio rounded-full shadow-[0_0_10px_rgba(6,182,212,0.8)]" 
                       />
+                    </div>
+                  </div>
+                  <div className="p-5 rounded-2xl bg-zinc-900/40 border border-white/5 space-y-4 shadow-[inset_0_0_10px_rgba(255,255,255,0.02)]">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[9px] font-black uppercase tracking-widest text-zinc-500">Raw Buffer</span>
+                      <Database className="w-3.5 h-3.5 text-studio" />
+                    </div>
+                    <div className="flex items-end gap-1">
+                      <span className="text-3xl font-black text-white leading-none">{contextBufferSize}</span>
+                      <span className="text-[10px] font-bold text-zinc-500 mb-1">KB</span>
                     </div>
                   </div>
 
@@ -238,12 +534,6 @@ export function StudioIntelligenceHUD() {
                     <div className="flex items-end gap-1">
                       <span className="text-3xl font-black text-white leading-none">{worldGenerationLatency}</span>
                       <span className="text-[10px] font-bold text-zinc-500 mb-1">MS</span>
-                    </div>
-                    <div className="h-1.5 w-full bg-black rounded-full overflow-hidden border border-white/5">
-                      <motion.div 
-                        animate={{ width: `${Math.min(100, (worldGenerationLatency / 1000) * 100)}%` }}
-                        className="h-full bg-gradient-to-r from-amber-500/50 to-amber-500 rounded-full shadow-[0_0_10px_rgba(245,158,11,0.8)]" 
-                      />
                     </div>
                   </div>
                 </div>
@@ -327,7 +617,7 @@ export function StudioIntelligenceHUD() {
                         <p className={cn(
                           "text-[11px] leading-relaxed break-words",
                           log.status === 'ERROR' ? 'text-red-400' : 'text-zinc-300'
-                        )}>> {log.message || log.status}</p>
+                        )}> {log.message || log.status}</p>
                       </motion.div>
                     ))}
                     {masterLogs.length === 0 && (
@@ -360,4 +650,4 @@ export function StudioIntelligenceHUD() {
     </AnimatePresence>
   );
 }
-}
+
