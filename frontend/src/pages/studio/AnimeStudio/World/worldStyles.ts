@@ -37,30 +37,37 @@ export const worldStyles = {
 
   // --- CONTENT SHARED ---
   content: {
-    container: "world-container",
+    container: "world-container px-6 py-6",
     header: "world-header",
     headerTitle: "world-header-title",
-    grid: "world-grid",
+    grid: "grid grid-cols-1 md:grid-cols-3 gap-8",
     textarea: "world-textarea",
-    contentArea: "world-content-area",
-    mainColumn: "world-main-column",
-    sidebar: "world-sidebar",
-    badge: "world-badge",
-    badgeText: "world-badge-text",
-    prose: "world-prose",
+    // Layout: main content spans two columns, sidebar occupies one column on large screens
+    contentArea: "world-content-area grid grid-cols-1 lg:grid-cols-3 gap-8 items-start",
+    mainColumn: "world-main-column lg:col-span-2",
+    // Sidebar is sticky so TOC / cards remain visible while scrolling
+    sidebar: "world-sidebar lg:col-span-1 sticky top-24 self-start max-h-[70vh] overflow-y-auto pr-4 hide-scrollbar",
+    badge: "world-badge inline-flex items-center gap-2 px-3 py-1 rounded-full border",
+    badgeText: "world-badge-text text-xs font-black",
+    // Prose: ensure readable widths and accent support
+    prose: "world-prose prose prose-invert max-w-none text-sm [&>h2]:text-lg [&>h2]:font-extrabold [&>h2]:uppercase",
     buttonBase: "inline-flex items-center justify-center gap-2 font-black uppercase tracking-widest transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed",
-    sidebarCard: "p-6 bg-[#050505] border border-white/5 rounded-[2rem] space-y-4 relative overflow-hidden group",
+    sidebarCard: "p-6 bg-gradient-to-b from-[#040404] to-[#060606] border border-white/5 rounded-2xl space-y-4 relative overflow-hidden group",
     sidebarGlow: "absolute inset-0 blur-[40px] pointer-events-none transition-all duration-700",
     sidebarContent: "relative z-10 space-y-4",
     sidebarTitle: "text-[10px] font-black text-zinc-500 uppercase tracking-widest flex items-center gap-2",
-    sidebarPromptInput: "w-full bg-black/40 border border-white/5 rounded-xl p-3 text-[10px] font-medium text-zinc-300 placeholder:text-zinc-700 focus:outline-none focus:border-white/10 transition-colors min-h-[100px] resize-none overflow-hidden",
+    sidebarPromptInput: "w-full bg-black/40 border border-white/5 rounded-xl p-3 text-[10px] font-medium text-zinc-300 placeholder:text-zinc-700 focus:outline-none focus:border-white/20 transition-colors min-h-[100px] resize-none overflow-hidden",
     sidebarPromptBox: "p-4 bg-black/40 border border-white/5 rounded-xl",
     sidebarPromptText: "text-[9px] font-medium text-zinc-500 leading-relaxed italic",
     sidebarNote: "text-[8px] text-zinc-600 font-bold uppercase tracking-tighter leading-relaxed",
-    statCard: "p-6 bg-[#050505] border border-white/5 rounded-[2rem] space-y-4 relative group overflow-hidden hover:border-white/10 transition-all",
+    // Stat card: stronger visual separation, subtle lift on hover
+    statCard: "p-6 bg-gradient-to-b from-[#040404] to-[#050505] border border-white/5 rounded-2xl space-y-4 relative group overflow-hidden hover:scale-[1.01] transition-transform duration-200",
     statIconBox: "w-10 h-10 rounded-xl bg-white/[0.03] border border-white/10 flex items-center justify-center group-hover:scale-110 transition-transform",
     statLabel: "text-[10px] font-black text-zinc-500 uppercase tracking-widest",
     statValue: "text-sm font-black text-white uppercase tracking-tighter line-clamp-1",
+    // small helpers for TableOfContents and internal layout
+    tocContainer: "space-y-3",
+    tocItem: "text-[10px] text-zinc-500 hover:text-zinc-300 transition-colors",
   },
 
   // --- PAGE LAYOUT ---

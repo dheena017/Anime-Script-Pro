@@ -73,21 +73,14 @@ export function WorldPage() {
     setPromptAtlas,
     setPromptCulture,
     setPromptSystems,
+    loadDemoProject,
     showNotification
   } = useGeneratorDispatch();
 
   const projectId = currentScriptId ? parseInt(currentScriptId) : undefined;
 
   const handleLoadDemo = () => {
-    updateGlobalWorld(MOCK_WORLD_DATA.manifest);
-    setGeneratedWorldLore(MOCK_WORLD_DATA.lore);
-    setGeneratedWorldPowers(MOCK_WORLD_DATA.powers);
-    setGeneratedWorldFactions(MOCK_WORLD_DATA.factions);
-    setGeneratedWorldArchitecture(MOCK_WORLD_DATA.architecture);
-    setGeneratedWorldAtlas(MOCK_WORLD_DATA.atlas);
-    setGeneratedWorldCulture(MOCK_WORLD_DATA.culture);
-    setGeneratedWorldSystems(MOCK_WORLD_DATA.systems);
-    showNotification?.('Aetheria world lore loaded successfully.', 'success');
+    loadDemoProject();
   };
 
   const { activeTab } = useOutletContext<{ activeTab: WorldTab }>();
@@ -139,7 +132,12 @@ export function WorldPage() {
         result = await worldApi.powers.generate(user.id, projectId);
         setGeneratedWorldPowers(result.content);
       } else if (type === 'factions') {
-        result = await worldApi.factions.generate(user.id, projectId);
+        if (!generatedWorldLore) {
+          showNotification?.('Please generate World Lore first to provide political context.', 'info');
+          setGenerating(false);
+          return;
+        }
+        result = await worldApi.factions.generate(user.id, projectId, { context: generatedWorldLore });
         setGeneratedWorldFactions(result.content);
       } else if (type === 'architecture') {
         result = await worldApi.architecture.generate(user.id, projectId);

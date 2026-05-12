@@ -277,16 +277,30 @@ export const MOCK_WORLD = `
 
 export const MOCK_WORLD_DATA = {
     manifest: MOCK_WORLD,
-    lore: `## The Era of Genesis\nIn the beginning, the Aether flowed freely...`,
-    powers: `## Aether-Bending\nA mechanical and spiritual hybrid power system...`,
-    factions: `## The Cloud Council\nA technocratic oligarchy ruling the upper mantles...`,
-    architecture: `## Neon-Steampunk\nBrass foundations with glowing fiber-optic highlights...`,
-    atlas: `## The Floating Isles\nTwelve major archipelagos suspended by Flux-Cores...`,
-    culture: `## The Sinking Ethos\nA society obsessed with altitude and resource hoarding...`,
-    systems: `## Flux-Economics\nCurrency based on mana-density and refined aether-shards...`
+    lore: `The Era of Genesis was not a beginning, but a preservation. When the "Sinking" began on Old Earth, humanity’s greatest engineers and mystics collaborated to hoist twelve massive tectonic plates into the sky using experimental Flux-Cores. This desperate exodus, known as the Great Shift, left the surface a graveyard of steel and smog. For centuries, the floating islands of Aetheria have drifted above the cloud layer, powered by the very atmosphere they inhabit.
+
+Today, the world is a delicate balance of altitude and power. The upper mantles enjoy the purest aether and perpetual sunlight, while the lower districts, the Rust-Docks, scrape by on the exhaust and debris of the elite. The memory of the "Ground" has faded into myth, yet the islands continue to lose altitude. The Sinking hasn't stopped; it has only slowed, and the struggle for Spirit-Coal—the fuel that keeps the Flux-Cores burning—has reached a breaking point.`,
+    powers: `Aether-Bending is the cornerstone of Aetherian life, a hybrid discipline that merges mechanical engineering with spiritual resonance. Practitioners, known as Resonators, use specialized gauntlets and conduits to manipulate the ambient ionized particles in the sky. By tuning their internal "Soul-Frequency" to the Flux-Cores of the islands, they can exert localized control over gravity, heat, and kinetic energy.
+
+Combat Resonators often focus on "Ozone-Strikes" or "Static-Weaving," allowing them to move with unnatural speed through the vertical landscapes. However, Aether-Bending is a double-edged sword. Excessive use leads to "Cloud-Lung," a condition where the user's blood begins to crystallize into aether-shards. This physical toll ensures that power is always balanced by sacrifice, and the most powerful Resonators are often the most fragile.`,
+    factions: `The Cloud Council is the technocratic oligarchy that governs the upper eight islands. Comprised of high-ranking engineers and corporate lords, they maintain order through the "Sky-Guard," an elite military force equipped with steam-powered mechs and aether-cannons. They believe that only strict resource rationing and the eventual "Final Ascension" can save humanity, even if it means abandoning the lower districts to the Sinking.
+
+In opposition stands the Rust-Rebellion, a loose confederation of dockworkers, black-market engineers, and ex-council scientists. Operating out of the crumbling lower islands, they seek to find a way back to the "Ground," believing the surface has healed in the centuries since the Great Shift. Between these two giants are the Aether-Nomads, independent traders and scavengers who navigate the storm-fronts in rickety skiffs, owing allegiance only to the highest bidder.`,
+    architecture: `Aetherian architecture is a testament to survival and verticality. Buildings are constructed from burnished copper, heavy brass, and reinforced glass, designed to withstand the high-velocity winds of the upper atmosphere. Neon-tinted fiber-optics snake through every structure, carrying liquid aether to power everything from streetlights to climate control. Every island is a labyrinth of hanging catwalks, massive rotating gears, and steam-vents.
+
+The "Sky-Cathedrals" of the upper mantles are masterpieces of Victorian-futurism, featuring towering spires that reach into the stratosphere. In contrast, the "Hanging Cities" of the lower districts are built directly onto the undersides of the islands, with buildings suspended by massive chains and hydraulic stabilizers. The aesthetic is one of "Electric-Industrialism," where the roar of steam is constantly punctuated by the hum of high-voltage energy.`,
+    atlas: `The world of Aetheria is composed of twelve major floating archipelagos, each held aloft by a central Flux-Core. The largest, "Solaris Prime," serves as the seat of the Cloud Council and is the only island with a stable, year-round climate. Surrounding it are the "Industrial Rings," a series of smaller islands dedicated to manufacturing and spirit-coal refinement, characterized by perpetual smog and orange-tinted skies.
+
+To the far west lies the "Great Maelstrom," a permanent hyper-cyclone that guards the "Forbidden Mantles." These shattered remains of islands that failed centuries ago are now home to dangerous sky-pirates and forgotten tech. Navigating between islands requires "Sky-Tracks"—fixed magnetic lanes—or high-performance skiffs capable of braving the unpredictable storm-glow violet clouds that separate the tiers of the world.`,
+    culture: `Aetherian culture is deeply rooted in the concept of "Altitude-Honor." One's social standing is literally tied to how high they live; the higher the elevation, the greater the prestige. This has led to a society obsessed with status, where the "Low-Born" are often treated as second-class citizens. Festive "Ascension Galas" are held annually, where the elite compete in high-speed skiff racing and aether-bending displays.
+
+Despite the inequality, a shared sense of "Sky-Stoicism" permeates all levels of society. Everyone knows they are one engine failure away from the Sinking, leading to a culture that values craftsmanship, resilience, and immediate action. Art often focuses on the "Eternal Horizon," depicting a world without clouds, reflecting the collective subconscious yearning for a home they have never known.`,
+    systems: `The economy of Aetheria is powered by Flux-Economics, a system where currency is backed by "Refined Aether-Shards." These shards are harvested from the atmospheric storms and are essential for everything from domestic heating to military defense. The "Mana-Density" of an island's core is the ultimate measure of its wealth, and trade between islands is strictly regulated by the Cloud Council's "Trade-Conduits."
+
+Technologically, the world is a marvel of "Steam-Resonance." While they lack traditional digital computers, they have developed "Analytical-Engines" powered by rotating gears and aether-logic gates. Communication is handled via "Echo-Towers"—massive antennas that broadcast resonant frequencies across the sky. This creates a world that is simultaneously advanced and archaic, where high-tech railguns are maintained with grease and wrenches.`
 };
 
-export const MOCK_SERIES_PLAN = MOCK_STORY_BIBLE.seriesPlan.map((beat) => ({
+export const MOCK_SERIES_PLAN = MOCK_STORY_BIBLE.seriesPlan.map((beat, idx) => ({
     episode: beat.episode,
     title: beat.title,
     hook: beat.hook,
@@ -295,6 +309,52 @@ export const MOCK_SERIES_PLAN = MOCK_STORY_BIBLE.seriesPlan.map((beat) => ({
     setting: beat.setting,
     runtime: beat.runtime,
     focus_characters: beat.focusCharacters,
+    detailed_episode_spec: {
+        acts: [
+            {
+                act: 1,
+                title: "The Neon Threshold",
+                scenes: [
+                    {
+                        scene_id: `s-${idx}-1`,
+                        summary: "Establishment of the rain-slicked Solaris Docks.",
+                        visual_direction: "High contrast neon, volumetric steam rising from vents.",
+                        vfx: "Rain droplets refracting light, holographic billboards flickering.",
+                        sound: "Low synth rumble, rhythmic rain patter.",
+                        characters: ["Anya"]
+                    },
+                    {
+                        scene_id: `s-${idx}-2`,
+                        summary: "Anya encounters a corrupted terminal displaying the Ghost Signal.",
+                        visual_direction: "Extreme close-up on the digital distortion in her eye.",
+                        vfx: "Circuit-bent distortion, data artifacts.",
+                        sound: "High-frequency digital screech.",
+                        characters: ["Anya"]
+                    }
+                ]
+            },
+            {
+                act: 2,
+                title: "Resonance Conflict",
+                scenes: [
+                    {
+                        scene_id: `s-${idx}-3`,
+                        summary: "First contact with the Chronos Security unit.",
+                        visual_direction: "Fast-paced parkour chase through the high-rise scaffolding.",
+                        vfx: "Motion blur, sparks from metal grinding.",
+                        sound: "Orchestral tension, heavy mechanical clanks.",
+                        characters: ["Anya", "Sachi"]
+                    }
+                ]
+            }
+        ]
+    },
+    asset_matrix: {
+        sound: "Atmospheric Synth / Industrial",
+        image: "High-Contrast Cyberpunk",
+        video: "Dynamic Kinetic Action",
+        scene_count: 3
+    }
 }));
 
 export const MOCK_SERIES_ARCHIVE = formatSeriesPlan(MOCK_STORY_BIBLE.seriesPlan);

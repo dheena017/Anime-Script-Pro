@@ -30,3 +30,11 @@ export function useGeneratorDispatch() {
   }
   return context;
 }
+/**
+ * Combined hook for both state and dispatch.
+ */
+export function useGenerator() {
+  const state = useGeneratorState();
+  const dispatch = useGeneratorDispatch();
+  return { ...state, ...dispatch };
+}

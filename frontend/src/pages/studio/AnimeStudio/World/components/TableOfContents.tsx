@@ -7,6 +7,7 @@ interface TableOfContentsProps {
 
 export function TableOfContents({ content }: TableOfContentsProps) {
   const headings = React.useMemo(() => {
+    if (!content) return [];
     return content.split('\n')
       .filter(line => line.startsWith('## '))
       .map(line => {

@@ -450,9 +450,6 @@ interface GeneratorSaveCoreParams {
   castIntegrity: any;
   setCurrentScriptId: Dispatch<SetStateAction<string | null>>;
   queryClient: QueryClient;
-  hasLoadedProduction: MutableRefObject<boolean>;
-  hasLoadedWorld: MutableRefObject<boolean>;
-  hasLoadedCast: MutableRefObject<boolean>;
 }
 
 export function useGeneratorSaveCore(params: GeneratorSaveCoreParams) {
@@ -499,9 +496,6 @@ export function useGeneratorSaveCore(params: GeneratorSaveCoreParams) {
     castIntegrity,
     setCurrentScriptId,
     queryClient,
-    hasLoadedProduction,
-    hasLoadedWorld,
-    hasLoadedCast,
   } = params;
 
   return useCallback(async (projectId?: number, projectName?: string): Promise<number | undefined> => {
@@ -624,10 +618,6 @@ export function useGeneratorSaveCore(params: GeneratorSaveCoreParams) {
       queryClient.invalidateQueries({ queryKey: ['worldLore', userId, resolvedProjectId?.toString()] });
       queryClient.invalidateQueries({ queryKey: ['characterCast', userId, resolvedProjectId?.toString()] });
 
-      hasLoadedProduction.current = false;
-      hasLoadedWorld.current = false;
-      hasLoadedCast.current = false;
-
       return resolvedProjectId;
     } catch (error: any) {
       console.error('[GeneratorContext] Save failed.', error);
@@ -680,9 +670,6 @@ export function useGeneratorSaveCore(params: GeneratorSaveCoreParams) {
     castIntegrity,
     setCurrentScriptId,
     queryClient,
-    hasLoadedProduction,
-    hasLoadedWorld,
-    hasLoadedCast,
   ]);
 }
 

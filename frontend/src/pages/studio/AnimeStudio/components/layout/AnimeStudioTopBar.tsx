@@ -6,12 +6,13 @@ import {
   SlidersHorizontal,
   Bell,
   Cpu,
-  Menu
+  Menu,
+  Brain
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { studioTopbarOuterClass } from '@/components/layout/topbarStyles';
 import { Button } from '@/components/ui/button';
-import { useGeneratorState } from '@/hooks/useGenerator';
+import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
 
 
 interface AnimeStudioTopBarProps {
@@ -31,11 +32,31 @@ export const AnimeStudioTopBar = React.memo<AnimeStudioTopBarProps>(({
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { prompt } = useGeneratorState();
+  const { 
+    prompt, 
+    isIntelligenceOpen,
+    isGeneratingWorld,
+    isGeneratingCharacters,
+    isGeneratingSeries,
+    isGeneratingLore,
+    isGeneratingPowers,
+    isGeneratingFactions,
+    isGeneratingArchitecture,
+    isGeneratingAtlas,
+    isGeneratingCulture,
+    isGeneratingSystems
+  } = useGeneratorState();
+  const { setIsIntelligenceOpen } = useGeneratorDispatch();
+
+  const isAnyGenerating = 
+    isGeneratingWorld || isGeneratingCharacters || isGeneratingSeries || 
+    isGeneratingLore || isGeneratingPowers || isGeneratingFactions || 
+    isGeneratingArchitecture || isGeneratingAtlas || isGeneratingCulture || 
+    isGeneratingSystems;
  
   // Extract current phase from path
   const currentPath = location.pathname.split('/').pop() || 'world';
- 
+  
   const displayTitle = prompt && prompt.length > 0 ? prompt : "New Production";
   
   // Map path segments to phase display names
@@ -97,6 +118,30 @@ export const AnimeStudioTopBar = React.memo<AnimeStudioTopBarProps>(({
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Right: Actions */}
+      <div className="flex items-center gap-3">
+        <button
+          type="button"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            setIsIntelligenceOpen(!isIntelligenceOpen);
+          }}
+          className={cn(
+            "w-10 h-10 flex items-center justify-center rounded-xl transition-all duration-300 border relative z-50",
+            isIntelligenceOpen
+              ? "text-studio bg-studio/10 border-studio/20 shadow-[0_0_15px_rgba(6,182,212,0.3)]"
+              : "text-zinc-500 hover:text-white hover:bg-white/5 border-transparent"
+          )}
+          title="System Intelligence"
+        >
+          <Brain className={cn(
+            "w-5 h-5",
+            isAnyGenerating ? "animate-spin-slow" : "animate-pulse-slow"
+          )} />
+        </button>
       </div>
 
     </header>

@@ -18,7 +18,7 @@ export default function EpisodesPage() {
     currentScriptId
   } = useGeneratorState();
   const { setGeneratedSeriesPlan, setEpisode } = useGeneratorDispatch();
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('list');
 
   const studioBase = currentScriptId ? `/projects/${currentScriptId}` : '/studio';
 
@@ -123,24 +123,6 @@ export default function EpisodesPage() {
                 placeholder="Search episodes by title or hook..."
                 className="pl-12 bg-black/40 border-zinc-800 focus:border-studio/50"
               />
-            </div>
-            <div className="flex items-center gap-1 bg-black/40 p-1 rounded-xl border border-white/5">
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                onClick={() => setViewMode('grid')}
-                className={cn("w-9 h-9 rounded-lg transition-all", viewMode === 'grid' ? "bg-studio text-black hover:bg-studio" : "text-zinc-500 hover:text-white")}
-              >
-                <LayoutGrid className="w-4 h-4" />
-              </Button>
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                onClick={() => setViewMode('list')}
-                className={cn("w-9 h-9 rounded-lg transition-all", viewMode === 'list' ? "bg-studio text-black hover:bg-studio" : "text-zinc-500 hover:text-white")}
-              >
-                <List className="w-4 h-4" />
-              </Button>
             </div>
           </div>
         </>

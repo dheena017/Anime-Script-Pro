@@ -27,7 +27,7 @@ import { Badge } from '@/components/ui/badge';
 import React from 'react';
 
 export default function EpisodeViewPage() {
-  const { episodeId } = useParams();
+  const { id: episodeId } = useParams();
   const navigate = useNavigate();
   const { generatedSeriesPlan, contentType, selectedModel, currentScriptId } = useGeneratorState();
   const { setEpisode, setGeneratedSeriesPlan } = useGeneratorDispatch();

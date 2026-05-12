@@ -69,7 +69,8 @@ export default function SeriesLayout() {
     await syncCore(projectId);
   };
 
-  const handleGenerate = async () => {
+  // Memoize handleGenerate to prevent unnecessary effect re-runs and improve stability
+  const handleGenerate = React.useCallback(async () => {
     if (!prompt.trim()) {
       showNotification?.('Please enter a story prompt first before creating the series plan.', 'error');
       return;
@@ -151,7 +152,31 @@ export default function SeriesLayout() {
       setIsGeneratingSeries(false);
       setGenerationProgress(0);
     }
-  };
+  }, [
+    prompt,
+    selectedModel,
+    contentType,
+    generatedWorld,
+    generatedWorldLore,
+    generatedWorldPowers,
+    generatedWorldFactions,
+    generatedWorldArchitecture,
+    generatedWorldAtlas,
+    generatedWorldCulture,
+    generatedWorldSystems,
+    castList,
+    characterRelationships,
+    castDNA,
+    setGeneratedSeriesPlan,
+    setGeneratedScript,
+    setGeneratedImagePrompts,
+    setGeneratedMetadata,
+    setIsGeneratingSeries,
+    setGenerationProgress,
+    showNotification,
+    addGeneratorLog,
+    setSearchParams
+  ]);
 
   // Query-param-only tab routing — ?tab=episodes, ?tab=scenes, etc.
   const VALID_TABS: SeriesTab[] = ['episodes', 'roadmap', 'assets', 'blueprint'];

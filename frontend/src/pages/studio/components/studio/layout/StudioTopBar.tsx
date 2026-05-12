@@ -11,7 +11,7 @@ import {
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { useGeneratorState } from '@/hooks/useGenerator';
+import { useGenerator } from '@/hooks/useGenerator';
 import { useNotifications } from '@/contexts/NotificationContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { NotificationItem } from '../../../Notifications/components/NotificationItem';
@@ -30,7 +30,7 @@ export const StudioTopBar: React.FC<{
                       location.pathname.startsWith('/manhwa') || 
                       location.pathname.startsWith('/comic');
 
-  const { isLoading } = useGeneratorState();
+  const { isLoading, saveLocalSession, loadLocalSession } = useGenerator();
 
 
 
@@ -81,7 +81,25 @@ export const StudioTopBar: React.FC<{
       {/* Center Production Controls - Only visible in Studio Mode */}
       {isStudioMode && (
         <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-2 bg-black/40 border border-zinc-800/50 p-1.5 rounded-2xl backdrop-blur-md shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={saveLocalSession}
+            className="h-8 px-4 rounded-xl border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 text-zinc-400 hover:text-white font-black uppercase tracking-widest text-[9px] transition-all active:scale-95"
+          >
+            💾 Save Local
+          </Button>
 
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={loadLocalSession}
+            className="h-8 px-4 rounded-xl border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 text-zinc-400 hover:text-white font-black uppercase tracking-widest text-[9px] transition-all active:scale-95"
+          >
+            📂 Load Local
+          </Button>
+
+          <div className="w-[1px] h-4 bg-zinc-800 mx-1" />
 
           <Button
             variant="default"

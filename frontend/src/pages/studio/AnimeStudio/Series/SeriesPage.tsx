@@ -15,7 +15,6 @@ import { AssetsTab } from './Tabs/AssetsTab';
 import { SeriesEmptyState } from './components/SeriesEmptyState';
 import EpisodesPage from './Episodes/EpisodesPage';
 
-import { MOCK_SERIES_PLAN } from '@/services/generators/mockData';
 import { SeriesLoadingPage } from './components/SeriesLoadingPage';
 
 import { seriesStyles as s } from './seriesStyles';
@@ -43,7 +42,8 @@ export function SeriesPage() {
     setSession,
     setEpisode,
     syncCore,
-    showNotification
+    showNotification,
+    loadDemoProject
   } = useGeneratorDispatch();
 
   const projectId = React.useMemo(() => {
@@ -57,8 +57,7 @@ export function SeriesPage() {
   }, [currentScriptId, prompt]);
 
   const handleLoadDemo = () => {
-    setGeneratedSeriesPlan(MOCK_SERIES_PLAN);
-    showNotification?.('Loaded "Aetheria" Sample Production Manifest', 'success');
+    loadDemoProject();
   };
 
   const handleUpdateEpisode = (index: number, updates: any) => {
@@ -147,6 +146,16 @@ export function SeriesPage() {
         <SeriesLoadingPage
           message={getLoadingMessage()}
           subtext="AI model is processing episodic metadata"
+        />
+      );
+    }
+    
+    if (!generatedSeriesPlan || generatedSeriesPlan.length === 0) {
+      return (
+        <SeriesEmptyState
+          onLaunch={() => window.dispatchEvent(new CustomEvent('studio-generate-series'))}
+          onLoadDemo={loadDemoProject}
+          isGenerating={isGeneratingSeries}
         />
       );
     }

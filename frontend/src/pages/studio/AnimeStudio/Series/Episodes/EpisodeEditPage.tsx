@@ -14,7 +14,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 
 export default function EpisodeEditPage() {
-  const { episodeId } = useParams();
+  const { id: episodeId } = useParams();
   const navigate = useNavigate();
   const { generatedSeriesPlan, contentType, currentScriptId } = useGeneratorState();
   const { setGeneratedSeriesPlan, showNotification } = useGeneratorDispatch();

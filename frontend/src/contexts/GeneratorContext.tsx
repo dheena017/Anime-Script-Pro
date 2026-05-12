@@ -8,15 +8,21 @@ import { WorldLore } from '../services/api/world';
 import { useLogDispatch } from './LogContext';
 import {
   useGeneratorProgressEffect,
-  useGeneratorQueries,
   useResolveProjectId,
   useGeneratorSaveCore,
-  useGeneratorSyncEffects,
   useGeneratorTelemetryEffects,
 } from './generator/useGeneratorLifecycle';
 import { AI_EVENTS } from '../services/generators/core';
 // ── Stable context refs ── must be imported at the top of the file, not mid-module ──
 import { GeneratorStateContext, GeneratorDispatchContext } from './GeneratorContextRefs';
+import { 
+  MOCK_STORY_BIBLE, 
+  MOCK_WORLD_DATA, 
+  MOCK_CAST_DATA, 
+  MOCK_SERIES_PLAN, 
+  MOCK_SCRIPT 
+} from '../services/generators/mockData';
+
 
 interface GeneratorState {
   generationProgress: any;
@@ -117,6 +123,7 @@ interface GeneratorState {
   isAnalyzingCast: boolean;
   numCharacters: number;
   numEpisodes: number;
+  isIntelligenceOpen: boolean;
 }
 
 interface GeneratorDispatch {
@@ -219,6 +226,10 @@ interface GeneratorDispatch {
   setGlobalContentType: (t: string) => void;
   setNumCharacters: (n: number) => void;
   setNumEpisodes: (n: number) => void;
+  saveLocalSession: () => void;
+  loadLocalSession: () => void;
+  loadDemoProject: () => void;
+  setIsIntelligenceOpen: (isOpen: boolean) => void;
 }
 
 // Re-export so other modules can still do:
@@ -275,6 +286,7 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
   const [storyboardVisuals, setStoryboardVisuals] = useState<Record<number, string[]>>({});
   const [storyboardVideos, setStoryboardVideos] = useState<Record<number, string>>({});
   const [storyboardPrompts, setStoryboardPrompts] = useState<any>(null);
+  const [isIntelligenceOpen, setIsIntelligenceOpen] = useState(false);
 
   // Helper to update world manifest
   const setGeneratedWorld = useCallback((fullBlob: string | null) => {
@@ -299,20 +311,6 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
   const [activeModelAttempt, setActiveModelAttempt] = useState<string | null>(null);
   const [fallbackHistory, setFallbackHistory] = useState<string[]>([]);
   const [abortController, setAbortController] = useState<AbortController>(new AbortController());
-
-  // Refs to track initial project load and avoid overwriting new generations with stale query data
-  const hasLoadedProduction = React.useRef(false);
-  const hasLoadedWorld = React.useRef(false);
-  const hasLoadedCast = React.useRef(false);
-
-  // Sync currentScriptId from navigation state (e.g. when coming from Dashboard)
-  useEffect(() => {
-    const state = location.state as { projectId?: string | number } | null;
-    const incomingId = state?.projectId?.toString();
-    if (incomingId && incomingId !== currentScriptId) {
-      setCurrentScriptId(incomingId);
-    }
-  }, [location.state, currentScriptId]);
 
   const getSignal = useCallback(() => {
     if (abortController.signal.aborted) {
@@ -396,72 +394,6 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
   const [numCharacters, setNumCharacters] = useState<number>(8);
   const [numEpisodes, setNumEpisodes] = useState<number>(12);
 
-  const { worldLore, production, castDataFromApi, projectHistory } = useGeneratorQueries({
-    userId: user?.id,
-    currentScriptId,
-    episode,
-  });
-
-  useGeneratorSyncEffects({
-    userId: user?.id,
-    currentScriptId,
-    episode,
-    production,
-    worldLore,
-    castDataFromApi,
-    generatedScript,
-    generatedWorld,
-    castListLength: castList.length,
-    isGeneratingSeries,
-    isGeneratingCharacters,
-    isGeneratingWorld,
-    isGeneratingLore,
-    isGeneratingPowers,
-    isGeneratingFactions,
-    isGeneratingArchitecture,
-    isGeneratingAtlas,
-    isGeneratingCulture,
-    isGeneratingSystems,
-    hasLoadedProduction,
-    hasLoadedWorld,
-    hasLoadedCast,
-    setGeneratedScript,
-    setGeneratedSeriesPlan,
-    setGeneratedMetadata,
-    setGeneratedGrowthStrategy,
-    setGeneratedDistributionPlan,
-    setGeneratedWorldInternal,
-    setGeneratedWorldLore,
-    setGeneratedWorldPowers,
-    setGeneratedWorldFactions,
-    setGeneratedWorldArchitecture,
-    setGeneratedWorldAtlas,
-    setGeneratedWorldCulture,
-    setGeneratedWorldSystems,
-    setGeneratedWorldContent,
-    setCastList,
-    setCastProfiles,
-    setCharacterRelationships,
-    setCastDNA,
-    setCastDynamics,
-    setCastIntegrity,
-    setGeneratedImagePrompts,
-    setGeneratedDescription,
-    setGeneratedAltText,
-    setVisualData,
-    setVideoData,
-    setProductionSequence,
-    setGenerationProgress,
-    setPromptLore,
-    setPromptPowers,
-    setPromptFactions,
-    setPromptArchitecture,
-    setPromptAtlas,
-    setPromptCulture,
-    setPromptSystems,
-    setNumCharacters,
-  });
-
   const resolveProjectId = useResolveProjectId(currentScriptId);
 
   const { addLog } = useLogDispatch();
@@ -509,10 +441,82 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     castIntegrity,
     setCurrentScriptId,
     queryClient,
-    hasLoadedProduction,
-    hasLoadedWorld,
-    hasLoadedCast,
   });
+
+  const saveLocalSession = useCallback(() => {
+    const data = {
+      prompt,
+      generatedWorld,
+      generatedCharacters,
+      generatedSeriesPlan,
+    };
+    localStorage.setItem('anime_manual_save', JSON.stringify(data));
+    showNotification('Local session saved!', 'success');
+  }, [prompt, generatedWorld, generatedCharacters, generatedSeriesPlan, showNotification]);
+
+  const loadLocalSession = useCallback(() => {
+    const saved = localStorage.getItem('anime_manual_save');
+    if (saved) {
+      try {
+        const data = JSON.parse(saved);
+        if (data.prompt !== undefined) setPrompt(data.prompt);
+        if (data.generatedWorld !== undefined) setGeneratedWorld(data.generatedWorld);
+        if (data.generatedCharacters !== undefined) setGeneratedCharacters(data.generatedCharacters);
+        if (data.generatedSeriesPlan !== undefined) setGeneratedSeriesPlan(data.generatedSeriesPlan);
+        showNotification('Local session loaded!', 'success');
+      } catch (e) {
+        console.error('Failed to parse local session', e);
+        showNotification('Failed to load local session', 'error');
+      }
+    } else {
+      showNotification('No local session found', 'info');
+    }
+  }, [setPrompt, setGeneratedWorld, setGeneratedCharacters, setGeneratedSeriesPlan, showNotification]);
+
+  const loadDemoProject = useCallback(() => {
+    setPrompt(MOCK_STORY_BIBLE.logline);
+    
+    // World Data
+    setGeneratedWorld(MOCK_WORLD_DATA.manifest);
+    setGeneratedWorldLore(MOCK_WORLD_DATA.lore);
+    setGeneratedWorldPowers(MOCK_WORLD_DATA.powers);
+    setGeneratedWorldFactions(MOCK_WORLD_DATA.factions);
+    setGeneratedWorldArchitecture(MOCK_WORLD_DATA.architecture);
+    setGeneratedWorldAtlas(MOCK_WORLD_DATA.atlas);
+    setGeneratedWorldCulture(MOCK_WORLD_DATA.culture);
+    setGeneratedWorldSystems(MOCK_WORLD_DATA.systems);
+    
+    // Cast Data
+    setCastData(MOCK_CAST_DATA);
+    setGeneratedCharacters(MOCK_CAST_DATA.markdown);
+    setCastList(MOCK_CAST_DATA.characters);
+    if (MOCK_CAST_DATA.relationships) {
+      setCharacterRelationships(JSON.stringify(MOCK_CAST_DATA.relationships));
+    }
+    
+    // Series & Script
+    setGeneratedSeriesPlan(MOCK_SERIES_PLAN);
+    setGeneratedScript(MOCK_SCRIPT);
+    
+    showNotification('Demo project loaded! Welcome to Aetheria.', 'success');
+  }, [
+    setPrompt, 
+    setGeneratedWorld, 
+    setGeneratedWorldLore, 
+    setGeneratedWorldPowers, 
+    setGeneratedWorldFactions, 
+    setGeneratedWorldArchitecture, 
+    setGeneratedWorldAtlas, 
+    setGeneratedWorldCulture, 
+    setGeneratedWorldSystems, 
+    setCastData,
+    setGeneratedCharacters, 
+    setCastList, 
+    setCharacterRelationships,
+    setGeneratedSeriesPlan, 
+    setGeneratedScript, 
+    showNotification
+  ]);
 
   useGeneratorTelemetryEffects({
     userId: user?.id,
@@ -569,6 +573,7 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     session,
     numScenes,
     numEpisodes,
+    isIntelligenceOpen,
     contentType,
     genre,
     artStyle,
@@ -592,7 +597,7 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     isGeneratingVisuals,
     isGeneratingAltText,
     currentScriptId,
-    history: projectHistory,
+    history: [],
     productionSequence,
     isLiked,
     generatedGrowthStrategy,
@@ -640,14 +645,8 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     isGeneratingArchitecture, isGeneratingAtlas, isGeneratingCulture, isGeneratingSystems,
     isEditing, isSaving,
     isContinuingScript, isGeneratingVisuals, isGeneratingAltText, currentScriptId, 
-    projectHistory, productionSequence, isLiked, 
-    generatedGrowthStrategy, isGeneratingGrowthStrategy, generatedDistributionPlan, isGeneratingDistribution,
-    generatedWorldLore, generatedWorldPowers, generatedWorldFactions,
-    generatedWorldArchitecture, generatedWorldAtlas, generatedWorldCulture, generatedWorldSystems,
-    temperature, maxTokens, topP, topK, selectedModel, tone, audience,
-    castData, castList, castProfiles, characterRelationships, visualData, videoData,
     activeModelAttempt, fallbackHistory, castDNA, castDynamics, castIntegrity, isAnalyzingCast, generationProgress, numCharacters,
-    genre, artStyle, storyboardScenes, storyboardVisuals, storyboardVideos, storyboardPrompts
+    genre, artStyle, storyboardScenes, storyboardVisuals, storyboardVideos, storyboardPrompts, isIntelligenceOpen
   ]);
 
   const dispatch = useMemo<GeneratorDispatch>(() => ({
@@ -737,17 +736,21 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     setCastDynamics,
     setCastIntegrity,
     setIsAnalyzingCast,
+    setIsIntelligenceOpen,
     stopGeneration,
     getSignal,
     setNumCharacters,
     setNumEpisodes,
+    saveLocalSession,
+    loadLocalSession,
+    loadDemoProject,
     setGlobalPrompt: setPrompt,
     setGlobalContentType: setContentType,
   }), [
     syncCore, addLog, showNotification, setGeneratedWorldLore, setGeneratedWorldPowers, setGeneratedWorldFactions,
     setGeneratedWorldArchitecture, setGeneratedWorldAtlas, setGeneratedWorldCulture, setGeneratedWorldSystems,
     setPromptLore, setPromptPowers, setPromptFactions, setPromptArchitecture, setPromptAtlas, setPromptCulture, setPromptSystems,
-    stopGeneration, getSignal
+    stopGeneration, getSignal, saveLocalSession, loadLocalSession, loadDemoProject
   ]);
 
   return (

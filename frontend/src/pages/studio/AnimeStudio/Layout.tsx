@@ -88,6 +88,19 @@ export default function AnimeLayout() {
   useEffect(() => {
     setContentType('Anime');
     
+    // Check for hard browser reload
+    const isReload = window.performance
+      .getEntriesByType('navigation')
+      .map((nav) => (nav as PerformanceNavigationTiming).type)
+      .includes('reload');
+
+    if (isReload && projectId) {
+      console.info('[AnimeLayout] Hard reload detected. Purging session for fresh entry.');
+      setCurrentScriptId(null);
+      navigate('/studio', { replace: true });
+      return;
+    }
+
     if (projectId) {
       if (projectId !== currentScriptId) {
         console.info('[AnimeLayout] Syncing project from URL parameter:', projectId);
@@ -100,7 +113,7 @@ export default function AnimeLayout() {
         setCurrentScriptId(null);
       }
     }
-  }, [setContentType, projectId, currentScriptId, setCurrentScriptId]);
+  }, [setContentType, projectId, currentScriptId, setCurrentScriptId, navigate]);
 
   useEffect(() => {
     if (!currentScriptId || !location.pathname.startsWith('/studio')) {

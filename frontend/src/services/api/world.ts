@@ -51,10 +51,14 @@ const createLoreModule = (moduleName: string) => ({
     );
     return res.data;
   },
-  generate: async (userId: string, projectId?: number) => {
+  generate: async (userId: string, projectId?: number, body?: any) => {
     const res = await apiRequest<any>(
       `${API_BASE}/${moduleName}/generate/${userId}${projectId ? `?project_id=${projectId}` : ''}`,
-      { method: 'POST', label: `Generate World ${moduleName}` }
+      { 
+        method: 'POST', 
+        label: `Generate World ${moduleName}`,
+        body: body ? JSON.stringify(body) : undefined
+      }
     );
     return res.data;
   }

@@ -50,6 +50,7 @@ export function ScriptPage() {
     setCurrentScriptId,
     setVisualData,
     setEpisode, setSession,
+    loadDemoProject,
     showNotification
   } = useGeneratorDispatch();
 
@@ -215,6 +216,7 @@ export function ScriptPage() {
           onLaunch={() => {
             window.dispatchEvent(new CustomEvent('studio-generate-script'));
           }}
+          onLoadDemo={loadDemoProject}
           isGenerating={isLoading}
         />
       );

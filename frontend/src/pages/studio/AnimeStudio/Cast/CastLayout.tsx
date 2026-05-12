@@ -63,19 +63,14 @@ export default function CastLayout() {
   const {
     setIsGeneratingCharacters, setCastData, setCastList,
     setGeneratedCharacters, setCharacterRelationships, syncCore,
-    setCastDNA, setCastDynamics, setCastIntegrity, setGenerationProgress
+    setCastDNA, setCastDynamics, setCastIntegrity, setGenerationProgress,
+    loadDemoProject
   } = useGeneratorDispatch();
 
   useAuth();
 
   const handleLoadDemo = () => {
-    setCastData(MOCK_CAST_DATA);
-    setCastList(MOCK_CAST_DATA.characters);
-    setGeneratedCharacters(MOCK_CAST_DATA.markdown);
-    if (MOCK_CAST_DATA.relationships) {
-      setCharacterRelationships(JSON.stringify(MOCK_CAST_DATA.relationships));
-    }
-    showNotification?.('Aetheria sample cast loaded successfully.', 'success');
+    loadDemoProject();
   };
 
   const handleSave = async () => {
