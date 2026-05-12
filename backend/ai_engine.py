@@ -74,6 +74,7 @@ class AIEngine:
         api_key = None
 
         # 1. Try to get key from User Settings
+        source = "User Settings"
         if user_id:
             try:
                 async with async_session() as session:
@@ -83,14 +84,17 @@ class AIEngine:
                     if settings and settings.ai_models:
                         api_key = settings.ai_models.get("gemini_api_key")
             except Exception as e:
-                logger.warning(f"[AI Engine] Failed to fetch user settings for {user_id}: {e}")
+                logger.warning(f"AI ENGINE: Failed to fetch user settings for {user_id}: {e}")
 
         # 2. Fallback to Env
         if not api_key:
+            source = "Environment / VertexAI" if _use_vertexai() else "Environment Variables"
             api_key = os.getenv("GOOGLE_API_KEY") or os.getenv("VITE_GEMINI_API_KEY") or os.getenv("GEMINI_API_KEY")
 
         if not api_key and not _use_vertexai():
             raise ValueError("No Gemini API key found in user settings or environment.")
+
+        logger.debug(f"AI ENGINE: Credential source identified as: {source}")
 
         if api_key not in CLIENT_CACHE["gemini"]:
             CLIENT_CACHE["gemini"][api_key] = build_genai_client(api_key=api_key)
@@ -179,7 +183,11 @@ class AIEngine:
         return CLIENT_CACHE["groq"][api_key]
 
     async def generate_content(self, prompt: str, system_instruction: str = None, user_id: str = None):
-        logger.info(f"PROCESS: [🧠] Neural Synthesis triggered. Model: {self.model_name}")
+        import time
+        start_time = time.perf_counter()
+        
+        logger.info(f"AI SYNTHESIS: Started synthesis with model: {self.model_name}")
+        logger.debug(f"AI TELEMETRY: Prompt Context: {len(prompt)} chars | System Instruction: {'Active' if system_instruction else 'None'}")
         
         if "claude" in self.model_name.lower():
             client = await self._get_anthropic_client(user_id)
@@ -189,7 +197,7 @@ class AIEngine:
                 system=system_instruction or "",
                 messages=[{"role": "user", "content": prompt}]
             )
-            return response.content[0].text
+            text = response.content[0].text
         elif "gpt-" in self.model_name.lower():
             client = await self._get_openai_client(user_id)
             messages = []
@@ -201,7 +209,7 @@ class AIEngine:
                 model=self.model_name,
                 messages=messages
             )
-            return response.choices[0].message.content
+            text = response.choices[0].message.content
         elif "llama" in self.model_name.lower() or "mixtral" in self.model_name.lower() or "deepseek" in self.model_name.lower():
             client = await self._get_groq_client(user_id)
             messages = []
@@ -213,7 +221,7 @@ class AIEngine:
                 model=self.model_name,
                 messages=messages
             )
-            return response.choices[0].message.content
+            text = response.choices[0].message.content
         else:
             client = await self._get_client(user_id)
             config = None
@@ -232,15 +240,16 @@ class AIEngine:
             )
             text = response.text
             
-            # Simple Neural Repair: If the AI output looks like truncated JSON, try to close it.
             if text.strip().startswith("{") and not text.strip().endswith("}"):
-                logger.warning(f"[AI Engine] Detected truncated JSON in response. Attempting neural repair...")
+                logger.warning(f"AI ENGINE: Detected truncated JSON. Attempting neural repair...")
                 text = self._repair_json(text)
             
-            return text
+        elapsed = time.perf_counter() - start_time
+        logger.info(f"AI PERFORMANCE: Synthesis complete in {elapsed:.2f}s | Output: {len(text)} chars")
+        return text
 
     async def stream_content(self, prompt: str, system_instruction: str = None, user_id: str = None):
-        logger.info(f"STREAM: [🌊] Neural Stream triggered. Model: {self.model_name}")
+        logger.info(f"AI STREAM: Started streaming with model: {self.model_name}")
         
         if "claude" in self.model_name.lower():
             client = await self._get_anthropic_client(user_id)
@@ -333,6 +342,7 @@ class AIEngine:
         # backtrack to the last stable separator.
         if in_string or (s and s[-1] not in ("}", "]", " ")):
             if last_separator_index != -1:
+                logger.debug(f"AI ENGINE: JSON Repair - Backtracking to index {last_separator_index}")
                 s = s[:last_separator_index + 1]
                 # If we ended on a comma, strip it to avoid trailing comma error
                 if s.strip().endswith(","):
@@ -341,6 +351,8 @@ class AIEngine:
                 return self._repair_json(s)
 
         # Close any remaining open structures
+        if stack:
+            logger.debug(f"AI ENGINE: JSON Repair - Closing {len(stack)} structures: {''.join(stack)}")
         while stack:
             s += stack.pop()
             

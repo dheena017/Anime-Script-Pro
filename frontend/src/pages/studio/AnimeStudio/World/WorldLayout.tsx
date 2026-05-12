@@ -232,7 +232,7 @@ export default function WorldLayout() {
   };
 
   useEffect(() => {
-    reportTabChange('WorldLayout', activeTab, 'anime');
+    reportTabChange('WORLD', activeTab, 'anime');
   }, [activeTab]);
 
   useEffect(() => {

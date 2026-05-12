@@ -216,7 +216,7 @@ export default function ScriptLayout() {
   };
 
   React.useEffect(() => {
-    reportTabChange('ScriptLayout', activeTab, 'anime');
+    reportTabChange('SCRIPT', activeTab, 'anime');
   }, [activeTab]);
 
   React.useEffect(() => {

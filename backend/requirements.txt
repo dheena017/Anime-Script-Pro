@@ -27,6 +27,7 @@ python-multipart
 slowapi
 loguru
 pydantic
+psutil
 
 # Database Migrations
 alembic

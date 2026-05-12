@@ -5,6 +5,7 @@ from loguru import logger
 from backend.database.models import Script, Storyboard, ScriptVersion, ScreeningRoomEntry, NarrativeBeat, Project
 from backend.database import async_session, async_engine
 from backend.utils.deps import get_auth_user_id
+from backend.utils.notifications import notify_user
 
 router = APIRouter(prefix="/api", tags=["Scripts"])
 
@@ -29,6 +30,7 @@ async def create_script(script: Script, user_id: str = Depends(get_auth_user_id)
         await session.commit()
         await session.refresh(script)
         logger.info(f"[SCRIPT] Initialized: {script.title}")
+        await notify_user(user_id, "Script Initialized", f"Script manifest '{script.title}' is now synchronized in the production vault.", "SUCCESS")
         return script
 
 @router.get("/scripts/{script_id}", response_model=Script)
@@ -108,6 +110,7 @@ async def create_storyboard(storyboard: Storyboard, user_id: str = Depends(get_a
         session.add(storyboard)
         await session.commit()
         await session.refresh(storyboard)
+        await notify_user(user_id, "Storyboard Initialized", f"A new storyboard has been anchored to script {storyboard.script_id}.", "SUCCESS")
         return storyboard
 
 @router.get("/storyboards/{storyboard_id}", response_model=Storyboard)
@@ -153,6 +156,7 @@ async def create_screeningroom_entry(entry: ScreeningRoomEntry, user_id: str = D
         await session.commit()
         await session.refresh(entry)
         logger.info(f"[SCREENING] New entry synced for script {entry.script_id}")
+        await notify_user(user_id, "Screening Synchronized", f"Production render for script {entry.script_id} has been deployed to the screening room.", "SUCCESS")
         return entry
 
 @router.get("/scripts/{script_id}/versions", response_model=List[ScriptVersion])

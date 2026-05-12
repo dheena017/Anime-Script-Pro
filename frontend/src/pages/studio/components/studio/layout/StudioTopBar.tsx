@@ -12,6 +12,9 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useGeneratorState } from '@/hooks/useGenerator';
+import { useNotifications } from '@/contexts/NotificationContext';
+import { motion, AnimatePresence } from 'framer-motion';
+import { NotificationItem } from '../../../Notifications/components/NotificationItem';
 
 export const StudioTopBar: React.FC<{ 
   showNotifications: boolean; 
@@ -19,6 +22,7 @@ export const StudioTopBar: React.FC<{
   collapsed: boolean;
   setCollapsed: (val: boolean) => void;
 }> = ({ showNotifications, setShowNotifications, collapsed, setCollapsed }) => {
+  const { notifications, unreadCount, markAsRead } = useNotifications();
   const navigate = useNavigate();
   const location = useLocation();
   
@@ -118,14 +122,68 @@ export const StudioTopBar: React.FC<{
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 relative">
           <button 
             onClick={() => setShowNotifications(!showNotifications)} 
-            className="relative p-2.5 text-zinc-500 hover:text-white hover:bg-white/5 rounded-xl transition-all group"
+            className={cn(
+              "relative p-2.5 rounded-xl transition-all group",
+              showNotifications ? "text-white bg-white/10" : "text-zinc-500 hover:text-white hover:bg-white/5"
+            )}
           >
             <Bell className="w-4 h-4 group-hover:rotate-12 transition-transform" />
-            <span className="absolute top-2.5 right-2.5 w-1.5 h-1.5 bg-red-500 rounded-full border-2 border-black shadow-[0_0_10px_rgba(239,68,68,0.8)]" />
+            {unreadCount > 0 && (
+              <span className="absolute top-2.5 right-2.5 w-1.5 h-1.5 bg-red-500 rounded-full border-2 border-black shadow-[0_0_10px_rgba(239,68,68,0.8)]" />
+            )}
           </button>
+          
+          <AnimatePresence>
+            {showNotifications && (
+              <motion.div
+                initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                className="absolute top-full right-0 mt-3 w-80 bg-zinc-950 border border-zinc-800 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden z-[500]"
+              >
+                <div className="p-4 border-b border-white/5 flex justify-between items-center bg-black/40">
+                  <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white">Neural Signals</span>
+                  <button 
+                    onClick={() => navigate('/notifications')}
+                    className="text-[8px] font-black uppercase tracking-widest text-zinc-500 hover:text-[#bd4a4a] transition-colors"
+                  >
+                    View All Vault
+                  </button>
+                </div>
+                <div className="max-h-[400px] overflow-y-auto">
+                  {notifications.length === 0 ? (
+                    <div className="py-10 text-center text-[10px] font-black text-zinc-600 uppercase tracking-widest">
+                      No Active Signals
+                    </div>
+                  ) : (
+                    notifications.slice(0, 5).map(n => (
+                      <NotificationItem
+                        key={n.id}
+                        id={n.id}
+                        title={n.title}
+                        message={n.message}
+                        type={n.type.toLowerCase() as any}
+                        time={new Date(n.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        read={n.is_read}
+                        onRead={markAsRead}
+                      />
+                    ))
+                  )}
+                </div>
+                {notifications.length > 5 && (
+                  <button 
+                    onClick={() => navigate('/notifications')}
+                    className="w-full p-3 text-[9px] font-black text-zinc-500 uppercase tracking-[0.2em] hover:bg-white/5 hover:text-white transition-all border-t border-white/5"
+                  >
+                    Load More Signals...
+                  </button>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
           
           <button 
             className="p-2.5 text-zinc-500 hover:text-white hover:bg-white/5 rounded-xl transition-all"

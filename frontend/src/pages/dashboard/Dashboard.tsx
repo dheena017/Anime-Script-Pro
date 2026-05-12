@@ -40,7 +40,7 @@ export default function Dashboard() {
   const incomingStyle = searchParams.get('style');
 
   React.useEffect(() => {
-    studioLog('Dashboard', 'Primary interface synchronized and active.', 'success');
+    studioLog('DASHBOARD', 'Primary interface synchronized and active.', 'success');
   }, []);
 
   const [error, setError] = useState<string | null>(null);

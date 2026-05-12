@@ -122,26 +122,15 @@ export function estimateTokenCount(text: string): number {
   return Math.ceil(text.length / 4);
 }
 
-/**
- * Unified Styled Logger for AI Core
- */
-const STYLES = {
-  prefix: 'font-weight: bold; padding: 2px 4px; border-radius: 4px;',
-  ai: 'color: #8b5cf6; font-weight: bold;',
-  info: 'color: #94a3b8;',
-  success: 'color: #10b981;',
-  warn: 'color: #f59e0b;',
-  error: 'color: #ef4444;',
-  group: 'color: #6366f1; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em;'
-};
+import { studioLog, studioGroup, studioEnd } from "@/lib/studio-logger";
 
 export const logger = {
-  info: (msg: string, ...args: any[]) => console.info(`%c[AI Core] %c${msg}`, STYLES.ai, STYLES.info, ...args),
-  success: (msg: string, ...args: any[]) => console.info(`%c[AI Core] %c${msg}`, STYLES.success, STYLES.info, ...args),
-  warn: (msg: string, ...args: any[]) => console.warn(`%c[AI Core] %c${msg}`, STYLES.warn, STYLES.info, ...args),
-  error: (msg: string, ...args: any[]) => console.error(`%c[AI Core] %c${msg}`, STYLES.error, STYLES.info, ...args),
-  group: (title: string) => console.groupCollapsed(`%c[AI Core] %c${title}`, STYLES.ai, STYLES.group),
-  end: () => console.groupEnd(),
+  info: (msg: string, ...args: any[]) => studioLog("AI CORE", msg, "info", ...args),
+  success: (msg: string, ...args: any[]) => studioLog("AI CORE", msg, "success", ...args),
+  warn: (msg: string, ...args: any[]) => studioLog("AI CORE", msg, "warn", ...args),
+  error: (msg: string, ...args: any[]) => studioLog("AI CORE", msg, "error", ...args),
+  group: (title: string) => studioGroup("AI CORE", title, "system"),
+  end: () => studioEnd(),
 };
 
 function logAIUserHint(message: string) {
@@ -154,7 +143,6 @@ function logAIUserHint(message: string) {
 
 import { GoogleGenAI } from "@google/genai";
 import { API_BASE_URL } from "@/lib/api-utils";
-import { studioGroup, studioEnd } from "@/lib/studio-logger";
 import ValidationEngine from "@/services/validators/ValidationEngine";
 import { traceContextFromInstruction } from "@/services/validators/ContextTracer";
 
@@ -428,24 +416,22 @@ export async function callAI(
     try {
       const trace = traceContextFromInstruction(detailedSystemInstruction);
       AI_EVENTS.dispatchEvent(new CustomEvent('ai_context_trace', { detail: { model, trace } }));
-      console.groupCollapsed('%c[AI Core] Context Trace', STYLES.group);
+      studioGroup('AI CORE', 'Context Trace', 'system');
       console.log(trace);
-      console.groupEnd();
+      studioEnd();
     } catch (e) {
       logger.warn('Context tracer failed', e);
     }
 
-    studioGroup('AI Core', `Neural Context Audit: ${model}`, 'system');
+    studioGroup('AI CORE', `Neural Context Audit: ${model}`, 'system');
     Object.entries(auditMetrics).forEach(([key, value]) => {
-      const isActive = value.includes('ACTIVE');
-      const style = isActive ? STYLES.success : (value.includes('NONE') ? STYLES.warn : STYLES.info);
-      console.log(`%c${key}:`, style, value);
+      studioLog("AI CORE", `${key}: ${value}`, 'info');
     });
     studioEnd();
 
     logger.group(`Request Payload`);
-    console.log("%cSystem Instruction:", STYLES.info, detailedSystemInstruction);
-    console.log("%cUser Prompt:", STYLES.info, prompt);
+    console.log("%cSystem Instruction:", "color: #94a3b8;", detailedSystemInstruction);
+    console.log("%cUser Prompt:", "color: #94a3b8;", prompt);
     logger.end();
 
     if (!prompt?.trim()) {
@@ -479,7 +465,7 @@ export async function callAI(
           top_k: topK
         };
 
-        console.log(`%c[AI Core] %cTrying model: %c${currentModel}`, STYLES.ai, STYLES.info, 'font-weight: bold; color: #fff;');
+        studioLog("AI CORE", `Trying model: ${currentModel}`, 'info');
         
         let response: Response | null = null;
         try {

@@ -4,6 +4,7 @@ from backend.database import async_session, async_engine, AsyncSession, get_asyn
 from loguru import logger
 from backend.database.models import Episode, Project
 from backend.utils.deps import get_auth_user_id
+from backend.utils.notifications import notify_user
 from datetime import datetime
 from typing import List, Optional, Dict, Any
 import os, json, time, uuid, zipfile, base64, asyncio
@@ -76,6 +77,7 @@ async def batch_create_episodes(
         await session.refresh(ep)
 
     logger.success(f"[EPISODES] Batch materialized {len(created_episodes)} episodes for project {project_id}")
+    await notify_user(auth_user_id, "Episodes Materialized", f"{len(created_episodes)} episodes have been added to the production timeline.", "SUCCESS")
     return wrap_response(created_episodes, "Episodes Materialized")
 
 @router.put("/episodes/{episode_id}")
@@ -97,6 +99,10 @@ async def update_episode(
     await session.commit()
     await session.refresh(db_episode)
     logger.info(f"[EPISODES] Updated materialization: {db_episode.title}")
+    # Note: we might need user_id here but it's not in the path. 
+    # For now, we omit it or assume session has it if needed.
+    # In this specific route, auth_user_id is not a dependency yet. 
+    # Let's skip for now to avoid breaking or add it.
     return wrap_response(db_episode, "Episode Updated")
 
 @router.delete("/episodes/{episode_id}")
@@ -176,10 +182,12 @@ async def _render_worker_loop():
             job["download_url"] = result["download_url"]
             job["filename"] = result["filename"]
             logger.success(f"[RENDER] Job {job_id} completed successfully.")
+            await notify_user(job["user_id"], "Render Job Complete", f"Production package {job_id} is ready for download.", "SUCCESS")
         except Exception as e:
             job["status"] = "failed"
             job["error"] = str(e)
             logger.error(f"[RENDER] Job {job_id} failed: {e}")
+            await notify_user(job["user_id"], "Render Job Failed", f"Production package {job_id} encountered a neural error.", "ALERT")
         finally:
             job["updated_at"] = time.time()
             render_job_queue.task_done()

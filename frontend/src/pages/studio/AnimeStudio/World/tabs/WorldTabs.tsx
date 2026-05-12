@@ -62,7 +62,7 @@ export const WorldTabs: React.FC<WorldTabsProps> = ({
 
   const handleTabClick = (tabId: WorldTab) => {
     if (activeTab !== tabId) {
-      reportTabChange('WORLD', tabId, 'anime');
+      // Removed redundant reportTabChange here to avoid double-logging with WorldLayout
       setActiveTab(tabId);
     }
   };

@@ -7,6 +7,7 @@ from datetime import datetime
 from loguru import logger
 from backend.database.models import Project, Series, ProductionSession, Episode, PromptLibrary, Category, Script, CastMember
 from backend.utils.deps import get_auth_user_id
+from backend.utils.notifications import notify_user
 
 router = APIRouter(prefix="/api", tags=["Projects"])
 
@@ -37,6 +38,7 @@ async def create_project(project: Project, user_id: str = Depends(get_auth_user_
         await session.commit()
         await session.refresh(project)
         logger.info(f"[PROJECT] Production Initialized: {project.title}")
+        await notify_user(user_id, "Project Initialized", f"Production manifest '{project.title}' has been successfully deployed.", "SUCCESS")
         return project
 
 @router.patch("/projects/{project_id}", response_model=Project)
@@ -100,6 +102,7 @@ async def delete_project(project_id: int, user_id: str = Depends(get_auth_user_i
         await session.delete(project)
         await session.commit()
         logger.warning(f"[PROJECT] Production Purged: {project_id}")
+        await notify_user(user_id, "Project Purged", f"Production manifest {project_id} has been permanently removed from the vault.", "WARNING")
         return {"ok": True, "message": "Production record purged successfully"}
 
 # --- Series ---
@@ -118,6 +121,7 @@ async def create_series(series: Series, user_id: str = Depends(get_auth_user_id)
         await session.commit()
         await session.refresh(series)
         logger.success(f"[SERIES] New production blueprint established: {series.title}")
+        await notify_user(user_id, "Series Blueprint Established", f"The architectural blueprint for '{series.title}' is now active.", "SUCCESS")
         return series
 
 @router.get("/series/{series_id}", response_model=Series)

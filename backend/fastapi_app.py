@@ -34,10 +34,10 @@ def configure_logging():
     log_file = os.path.join(log_dir, "backend.log")
 
     logger.remove()
-    # 1. Console Sink (For the Architect's Terminal)
-    logger.add(sys.stderr, colorize=True, format="<magenta>[NEURAL]</magenta> <green>{time:HH:mm:ss}</green> | <level>{level: <8}</level> | <cyan>{name}</cyan> - <level>{message}</level>")
+    # 1. Console Sink: Use rich colors for the developer's terminal
+    logger.add(sys.stderr, colorize=True, format="<magenta>[ENGINE]</magenta> <green>{time:HH:mm:ss}</green> | <level>{level: <8}</level> | <level>{message}</level>")
     
-    # 2. File Sink (For Persistent Audit Trails)
+    # 2. File Sink: Keep it clean and plain-text for the human auditor
     logger.add(log_file, rotation="10 MB", retention="1 week", level="DEBUG", format="{time:YYYY-MM-DD HH:mm:ss} | {level: <8} | {name}:{function}:{line} - {message}", enqueue=True)
 
     class InterceptHandler(logging.Handler):
@@ -69,7 +69,10 @@ app.state.limiter = limiter
 async def log_requests(request: Request, call_next):
     import time
     import uuid
+    import psutil
+    process = psutil.Process()
     start_time = time.perf_counter()
+    start_mem = process.memory_info().rss / 1024 / 1024
     
     # Generate a tracking ID for this specific request cycle
     signal_id = str(uuid.uuid4())[:8].upper()
@@ -77,40 +80,43 @@ async def log_requests(request: Request, call_next):
     path = request.url.path
     query = request.url.query
     client_ip = request.client.host if request.client else "unknown"
+    user_agent = request.headers.get("user-agent", "unknown")
 
-    # Skip verbose logging for static files or rapid health checks if desired, 
-    # but for development, seeing everything is usually better.
-    
-    # 1. THE TRIGGER: What is the Frontend asking for?
-    logger.info(f"📥 INCOMING [{signal_id}]: {method} {path}{'?' + query if query else ''} from {client_ip}")
+    # 1. THE TRIGGER: Enhanced telemetry for the incoming request
+    logger.info(f"REQUEST  [{signal_id}] -> {method} {path}{'?' + query if query else ''}")
+    logger.debug(f"METRICS  [{signal_id}] -> Client: {client_ip} | UA: {user_agent[:50]}... | Mem: {start_mem:.1f}MB")
 
     try:
         # 2. THE PROCESSING: Let the API handle the request
         response = await call_next(request)
         latency = (time.perf_counter() - start_time) * 1000
+        end_mem = process.memory_info().rss / 1024 / 1024
+        mem_delta = end_mem - start_mem
         
-        # Color code the status for easy visual scanning
-        if response.status_code < 400:
-            status_tag = f"<green>{response.status_code}</green>"
-        elif response.status_code < 500:
-            status_tag = f"<yellow>{response.status_code}</yellow>"
+        # Determine status text and levels
+        status_code = response.status_code
+        status_desc = "OK" if status_code < 400 else "ERROR"
+        
+        # 3. THE RESULT: Human-readable response log with memory delta
+        log_msg = f"RESPONSE [{signal_id}] <- {method} {path} | Status: {status_code} ({status_desc}) | Latency: {latency:.2f}ms | Mem Δ: {mem_delta:+.2f}MB"
+        
+        if status_code < 400:
+            logger.opt(colors=True).info(f"<green>{log_msg}</green>")
+        elif status_code < 500:
+            logger.opt(colors=True).warning(f"<yellow>{log_msg}</yellow>")
         else:
-            status_tag = f"<red>{response.status_code}</red>"
-
-        # 3. THE RESULT: What is the Backend sending back?
-        logger.info(f"📤 OUTGOING [{signal_id}]: {method} {path} | Status: {status_tag} | Latency: {latency:.2f}ms")
+            logger.opt(colors=True).error(f"<red>{log_msg}</red>")
         
-        # Attach the tracking ID to the response headers so the Frontend can see it
+        # Attach the tracking ID to the response headers
         response.headers["X-Signal-ID"] = signal_id
         return response
         
     except Exception as e:
-        # 4. THE FAILURE: Catch and loudly log any crashes during the cycle
-        logger.error(f"❌ CRITICAL [{signal_id}]: Request cycle broken during {method} {path}")
+        # 4. THE FAILURE: Catch and loudly log any crashes
+        logger.error(f"CRITICAL [{signal_id}] !! Request Failed: {method} {path}")
         logger.error(f"   Reason: {str(e)}")
         import traceback
         logger.error(traceback.format_exc())
-        
         return JSONResponse(
             status_code=500,
             content={

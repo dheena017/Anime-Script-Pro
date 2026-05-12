@@ -194,7 +194,7 @@ export async function apiRequest<T>(url: string, options?: RequestInit & { timeo
       : `${API_BASE_URL}${url.startsWith('/') ? url : `/${url}`}`;
     const token = await getAuthToken();
 
-    console.info(`%c[Frontend] %c${label ? 'REQUESTING' : 'SENDING'}: ${displayLabel}`, 'color: #3b82f6; font-weight: bold', 'color: #94a3b8');
+    console.info(`%c[FRONTEND] %cTRIGGER -> %c${label ? 'REQUESTING' : 'SENDING'}: ${displayLabel}`, 'color: #3b82f6; font-weight: bold', 'color: #94a3b8; font-weight: bold', 'color: #94a3b8');
 
     try {
       const response = await fetch(finalUrl, {
@@ -229,7 +229,7 @@ export async function apiRequest<T>(url: string, options?: RequestInit & { timeo
         throw new ApiError(message, response.status, { ...errorData, signalId });
       }
 
-      console.info(`%c[Backend] %cSUCCESS [${displayLabel}]: ${response.status} (${duration}ms)`, 'color: #10b981; font-weight: bold', 'color: #94a3b8');
+      console.info(`%c[BACKEND]  %cRESULT  <- %cSUCCESS [${signalId}]: ${displayLabel} | Status: ${response.status} (${duration}ms)`, 'color: #10b981; font-weight: bold', 'color: #94a3b8; font-weight: bold', 'color: #94a3b8');
       return await response.json();
     } catch (error: any) {
       if (error instanceof ApiError) throw error;

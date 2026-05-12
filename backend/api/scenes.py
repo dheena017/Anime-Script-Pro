@@ -4,6 +4,7 @@ from backend.database import async_session, async_engine
 from loguru import logger
 from backend.database.models import Scene, Episode, Project
 from backend.utils.deps import get_auth_user_id
+from backend.utils.notifications import notify_user
 
 router = APIRouter(prefix="/api/scenes", tags=["Scenes"])
 
@@ -114,6 +115,7 @@ async def batch_create_scenes(payload: dict, user_id: str = Depends(get_auth_use
             episodes_out.append({"episode_number": int(ep_num), "episode_id": int(ep_id)})
 
         logger.info(f"[SCENES] Batch scaffold sync for project {project_pk}")
+        await notify_user(user_id, "Scenes Synchronized", f"Neural engine has synchronized {len(created_scenes)} scenes for project {project_pk}.", "SUCCESS")
         return {"episodes": episodes_out, "scenes": scenes_out}
 
 

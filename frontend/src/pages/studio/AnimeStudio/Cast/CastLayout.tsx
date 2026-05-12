@@ -177,7 +177,7 @@ export default function CastLayout() {
   }, [handleGenerateAll]);
 
   React.useEffect(() => {
-    reportTabChange('CastLayout', activeTab, 'anime');
+    reportTabChange('CAST', activeTab, 'anime');
   }, [activeTab]);
 
   React.useEffect(() => {

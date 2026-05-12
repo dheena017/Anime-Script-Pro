@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
 import { studioLog, reportTabChange } from '@/lib/studio-logger';
 import { 
   Bell, 
@@ -14,8 +15,7 @@ import {
 } from 'lucide-react';
 import { NotificationsLayout } from './NotificationsLayout';
 import * as Tab from './tabs/NotificationTabs';
-import { notificationService, Notification } from '@/services/api/notifications';
-import { useAuth } from '@/hooks/useAuth';
+import { useNotifications } from '@/contexts/NotificationContext';
 
 type NotificationTab = 'all' | 'unread' | 'system' | 'activity' | 'archived';
 
@@ -29,6 +29,7 @@ const tabs: { id: NotificationTab; label: string; icon: any }[] = [
 
 export default function NotificationsPage() {
   const { user } = useAuth();
+  const { notifications, loading, markAsRead, markAllAsRead, deleteNotification } = useNotifications();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -39,26 +40,7 @@ export default function NotificationsPage() {
 
   const [activeTab, setActiveTab] = useState<NotificationTab>(getTabFromUrl());
   const [searchTerm, setSearchTerm] = useState('');
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('list');
-
-  const fetchNotifications = async () => {
-    if (!user?.id) return;
-    setLoading(true);
-    try {
-      const data = await notificationService.getNotifications(user.id);
-      setNotifications(data);
-    } catch (error) {
-      console.error("Failed to fetch notifications:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchNotifications();
-  }, [user?.id]);
 
   useEffect(() => {
     studioLog('Notifications', 'Signal Protocol Interface active.', 'system');
@@ -80,22 +62,14 @@ export default function NotificationsPage() {
     navigate(`/notifications/${id}`);
   };
 
-  const markAsRead = async (id: string | number) => {
+  const handleMarkRead = async (id: string | number) => {
     const numericId = typeof id === 'string' ? parseInt(id) : id;
-    await notificationService.markAsRead(numericId);
-    setNotifications(prev => prev.map(n => n.id === numericId ? { ...n, is_read: true } : n));
+    await markAsRead(numericId);
   };
 
-  const markAllAsRead = async () => {
-    const unread = notifications.filter(n => !n.is_read);
-    await Promise.all(unread.map(n => notificationService.markAsRead(n.id)));
-    setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
-  };
-
-  const deleteNotification = async (id: string | number) => {
+  const handleDeleteNotification = async (id: string | number) => {
     const numericId = typeof id === 'string' ? parseInt(id) : id;
-    await notificationService.deleteNotification(numericId);
-    setNotifications(prev => prev.filter(n => n.id !== numericId));
+    await deleteNotification(numericId);
   };
 
   const stats = [
@@ -126,21 +100,31 @@ export default function NotificationsPage() {
   const renderContent = () => {
     if (loading) return <div className="py-20 animate-pulse text-center text-zinc-600 uppercase tracking-widest text-[10px] font-black">Syncing Signals...</div>;
 
-    const mapped = notifications.map(n => ({
-      id: n.id.toString(),
-      title: n.title,
-      message: n.message,
-      type: n.type.toLowerCase() as any,
-      read: n.is_read,
-      timestamp: new Date(n.created_at).toLocaleDateString()
-    }));
+    const mapped = notifications.map(n => {
+      // Map backend types to frontend categories for filtering
+      let frontendType: 'system' | 'activity' | 'alert' = 'system';
+      const backendType = n.type.toUpperCase();
+      
+      if (backendType === 'SUCCESS') frontendType = 'activity';
+      else if (backendType === 'WARNING' || backendType === 'ALERT') frontendType = 'alert';
+      else frontendType = 'system';
+
+      return {
+        id: n.id.toString(),
+        title: n.title,
+        message: n.message,
+        type: frontendType,
+        read: n.is_read,
+        timestamp: new Date(n.created_at).toLocaleDateString()
+      };
+    });
 
     const filtered = mapped.filter(n => 
       n.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       n.message.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    const props = { notifications: filtered, onMarkRead: markAsRead, onDelete: deleteNotification };
+    const props = { notifications: filtered, onMarkRead: handleMarkRead, onDelete: handleDeleteNotification };
 
     switch (activeTab) {
       case 'unread': return <Tab.UnreadTab {...props} />;

@@ -1,7 +1,8 @@
 import os
+import time
 from typing import AsyncGenerator
 
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, event
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 from sqlmodel.ext.asyncio.session import AsyncSession
 
@@ -19,7 +20,21 @@ elif ASYNC_DB_URL.startswith("postgresql://"):
 # Create asynchronous engine
 async_engine = create_async_engine(ASYNC_DB_URL, echo=False)
 
-# Create async session factory with expire_on_commit disabled to avoid async instance reloads
+# --- Deep Database Tracing ---
+@event.listens_for(async_engine.sync_engine, "before_cursor_execute")
+def before_cursor_execute(conn, cursor, statement, parameters, context, executemany):
+    context._query_start_time = time.perf_counter()
+
+@event.listens_for(async_engine.sync_engine, "after_cursor_execute")
+def after_cursor_execute(conn, cursor, statement, parameters, context, executemany):
+    total = time.perf_counter() - context._query_start_time
+    # Truncate long statements for readability
+    clean_stmt = " ".join(statement.split())
+    if len(clean_stmt) > 80:
+        clean_stmt = clean_stmt[:77] + "..."
+    logger.debug(f"DATABASE: Query Executed -> {clean_stmt} | Time: {total:.4f}s")
+
+# Create async session factory
 async_session = async_sessionmaker(
     bind=async_engine,
     class_=AsyncSession,
@@ -28,5 +43,4 @@ async_session = async_sessionmaker(
 
 async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
     async with async_session() as session:
-        logger.debug("DATABASE: New async session initialized.")
         yield session

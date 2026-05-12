@@ -22,7 +22,7 @@ from fastapi_users_db_sqlalchemy import SQLAlchemyUserDatabase
 from backend.database.models import User, UserProfile, UserBalance, UserSettings
 from backend.database import get_async_session, async_session
 from loguru import logger
-from fastapi import Depends, Request
+from fastapi import Depends, Request, Response
 import uuid
 
 logger.info("AUTH: Initializing User Management System...")
@@ -44,11 +44,12 @@ class UserManager(BaseUserManager[User, str]):
     verification_token_secret = SECRET_KEY
 
     async def on_after_register(self, user: User, request: Optional[Request] = None):
-        logger.success(f"SIGNAL: New Architect '{user.email}' registered. Initializing production workspace...")
+        logger.success(f"IDENTITY: New Architect '{user.email}' (ID: {user.id}) registered.")
         
         async with async_session() as session:
             try:
                 # 1. Create Profile
+                logger.debug(f"PROVISION: Initializing Profile for {user.id}...")
                 display_name = user.name or "SHOGUN ARCHITECT"
                 handle = f"architect_{str(uuid.uuid4())[:8]}"
                 profile = UserProfile(
@@ -59,18 +60,24 @@ class UserManager(BaseUserManager[User, str]):
                 session.add(profile)
                 
                 # 2. Create Balance
+                logger.debug(f"PROVISION: Initializing Ledger for {user.id}...")
                 balance = UserBalance(user_id=str(user.id))
                 session.add(balance)
                 
                 # 3. Create Settings
+                logger.debug(f"PROVISION: Initializing Neural Config for {user.id}...")
                 settings = UserSettings(user_id=str(user.id))
                 session.add(settings)
                 
                 await session.commit()
-                logger.success(f"WORKSPACE: Production environment initialized for {user.id}")
+                logger.success(f"PROVISION: Full production workspace deployed for {user.id}")
             except Exception as e:
-                logger.error(f"FATAL: Workspace initialization failed for {user.id}: {str(e)}")
+                logger.error(f"IDENTITY: Critical failure during workspace provisioning for {user.id}: {str(e)}")
                 await session.rollback()
+
+    async def on_after_login(self, user: User, request: Optional[Request] = None, response: Optional[Response] = None):
+        client_ip = request.client.host if request and request.client else "unknown"
+        logger.info(f"AUTH: Architect '{user.email}' session initiated (IP: {client_ip})")
 
 async def get_user_db(session: async_session = Depends(get_async_session)):
     yield SQLAlchemyUserDatabase(session, User)

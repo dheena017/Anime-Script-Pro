@@ -15,6 +15,7 @@ from backend.database.models import Project
 from backend.database.models.user import UserSettings
 from backend.utils.deps import get_auth_user_id
 from backend.ai_engine import ai_engine, build_genai_client, stream_ai
+from backend.utils.notifications import notify_user
 from backend.schemas import GenerationRequest, GenerationResponse
 import uuid
 
@@ -176,13 +177,13 @@ async def generate_content(request: GenerationRequest, user_id: str = Depends(ge
     attempted_fallbacks = []
     request_id = str(uuid.uuid4())[:8]
 
-    logger.info(f"SYNTHESIS [#{request_id}]: Starting neural orchestration. Target: <cyan>{target_model}</cyan>")
+    logger.opt(colors=True).info(f"SYNTHESIS [#{request_id}]: Starting neural orchestration. Target: <cyan>{target_model}</cyan>")
 
     last_error = None
     for current_model in unique_fallbacks:
         try:
             if current_model != target_model:
-                logger.warning(f"RECOVERY [#{request_id}]: Primary model failed. Attempting failover to: <yellow>{current_model}</yellow>")
+                logger.opt(colors=True).warning(f"RECOVERY [#{request_id}]: Primary model failed. Attempting failover to: <yellow>{current_model}</yellow>")
                 attempted_fallbacks.append(current_model)
 
             # We need to resolve key for each attempt
@@ -225,14 +226,16 @@ async def generate_content(request: GenerationRequest, user_id: str = Depends(ge
             
             # --- Detailed Telemetry Logging ---
             logger.success(f"COMPLETED: [✅] Neural Synthesis Successful")
-            logger.info(f"   | Model: <cyan>{current_model}</cyan>")
-            logger.info(f"   | Latency: <yellow>{latency_ms:.2f}ms</yellow>")
+            logger.opt(colors=True).info(f"   | Model: <cyan>{current_model}</cyan>")
+            logger.opt(colors=True).info(f"   | Latency: <yellow>{latency_ms:.2f}ms</yellow>")
             
             if usage_dict:
                 tokens = usage_dict.get('total_tokens', 0)
                 efficiency = (tokens/(latency_ms/1000)) if latency_ms > 0 else 0
-                logger.info(f"   | Usage: <magenta>{tokens}</magenta> tokens | Efficiency: <green>{efficiency:.1f}</green> tps")
+                logger.opt(colors=True).info(f"   | Usage: <magenta>{tokens}</magenta> tokens | Efficiency: <green>{efficiency:.1f}</green> tps")
             
+            await notify_user(user_id, "Neural Synthesis Successful", f"AI Model {current_model} has finalized the orchestration in {latency_ms:.0f}ms.", "SUCCESS")
+
             return GenerationResponse(
                 text=output_text,
                 model_used=current_model,
@@ -277,9 +280,9 @@ async def stream_content(request: GenerationRequest, user_id: str = Depends(get_
         for current_model in unique_fallbacks:
             try:
                 if current_model != target_model:
-                    logger.warning(f"STREAM RECOVERY [#{request_id}]: Failing over to: <yellow>{current_model}</yellow>")
+                    logger.opt(colors=True).warning(f"STREAM RECOVERY [#{request_id}]: Failing over to: <yellow>{current_model}</yellow>")
 
-                logger.info(f"STREAM [#{request_id}]: Initializing pipeline via <cyan>{current_model}</cyan>")
+                logger.opt(colors=True).info(f"STREAM [#{request_id}]: Initializing pipeline via <cyan>{current_model}</cyan>")
                 
                 async for chunk in stream_ai(current_model, request.prompt, request.systemInstruction, user_id):
                     yield f"data: {json.dumps({'text': chunk, 'done': False})}\n\n"

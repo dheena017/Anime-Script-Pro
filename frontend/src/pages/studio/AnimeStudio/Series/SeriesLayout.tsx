@@ -11,6 +11,7 @@ import { SeriesLoadingPage } from './components/SeriesLoadingPage';
 import { cn } from '@/lib/utils';
 import { StudioTabsProgressBar } from '@/pages/studio/components/studio/layout/StudioTabsProgressBar';
 import { seriesStyles as s } from './seriesStyles';
+import { studioLog } from '@/lib/studio-logger';
 
 export default function SeriesLayout() {
   const navigate = useNavigate();
@@ -107,7 +108,7 @@ export default function SeriesLayout() {
         `DNA METADATA: ${JSON.stringify(castDNA || {})}`
       ].join('\n\n');
 
-      console.log(`[SeriesLayout] Requesting series plan generation for ${totalEpisodes} episodes using full story bible...`);
+      studioLog("SERIES", `Requesting series plan generation for ${totalEpisodes} episodes using full story bible...`, 'anime');
       const rawPlan = await generateSeriesPlan(
         prompt, 
         selectedModel, 
@@ -120,7 +121,7 @@ export default function SeriesLayout() {
       // Ensure we have a valid array
       const plan = Array.isArray(rawPlan) ? rawPlan : [];
       setGeneratedSeriesPlan(plan);
-      console.log(`[SeriesLayout] Series plan synthesized. Count: ${plan.length} episodes.`);
+      studioLog("SERIES", `Series plan synthesized. Count: ${plan.length} episodes.`, 'success');
       addGeneratorLog?.("SERIES", "SUCCESS", `Blueprint ready with ${plan.length} episodes.`);
       setGenerationProgress(100);
       
@@ -131,7 +132,7 @@ export default function SeriesLayout() {
       // Navigate to episodes tab via query param after generation
       setSearchParams({ tab: 'episodes' }); 
       
-      console.log('[SeriesLayout] UI Transition complete. Final plan state:', {
+      studioLog("SERIES", `UI Transition complete. Final plan state: ${plan?.length} episodes.`, 'info', {
         exists: !!plan,
         count: plan?.length,
         firstTitle: plan?.[0]?.title
@@ -166,12 +167,12 @@ export default function SeriesLayout() {
 
 
   React.useEffect(() => {
-    console.log(`[SeriesLayout] Active tab changed to: ${activeTab.toUpperCase()}`);
+    studioLog("ROUTER", `Active tab changed to: ${activeTab.toUpperCase()}`, 'info');
   }, [activeTab]);
 
   React.useEffect(() => {
     const handleGlobalGenerate = () => {
-      console.log('[SeriesLayout] Global series generation event received.');
+      studioLog("SERIES", 'Global series generation event received.', 'anime');
       handleGenerate();
     };
     window.addEventListener('studio-generate-series', handleGlobalGenerate);
