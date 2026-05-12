@@ -10,6 +10,7 @@ import { StudioLoading } from '@/pages/studio/components/studio/StudioLoading';
 import { StudioContextWrapper } from '@/components/layout/StudioContextWrapper';
 import ApiReferencePage from './pages/projects/ApiReference';
 import LoreDatabasePage from './pages/projects/LoreDatabase';
+import NotFoundPage from './pages/errors/NotFoundPage';
 
 function AuthRoute({ children }: { children: React.ReactNode }) {
   return <ProtectedRoute>{children}</ProtectedRoute>;
@@ -186,7 +187,7 @@ function AppRoutes() {
           </Route>
         ))}
 
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </AnimatePresence>
   );
