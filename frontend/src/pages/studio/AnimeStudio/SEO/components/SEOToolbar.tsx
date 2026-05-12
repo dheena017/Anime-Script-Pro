@@ -26,7 +26,7 @@ export const SEOToolbar: React.FC<SEOToolbarProps> = ({
   isEditing = false,
   onEditingChange,
 }) => {
-  const { isFullscreen } = useApp();
+  const { isFullscreen, showNotification } = useApp();
 
   const toggleFullscreen = async () => {
     try {
@@ -91,6 +91,7 @@ export const SEOToolbar: React.FC<SEOToolbarProps> = ({
                     variant="ghost"
                     className={s.toolbar.iconButton}
                     disabled={!content}
+                    onClick={() => showNotification?.('This feature is currently in development.', 'info')}
                   >
                     <Download className="w-4 h-4" />
                   </Button>

@@ -32,7 +32,7 @@ export const ScreeningToolbar: React.FC<ScreeningToolbarProps> = ({
   isEditing = false,
   onEditingChange,
 }) => {
-  const { isFullscreen } = useApp();
+  const { isFullscreen, showNotification } = useApp();
 
   const toggleFullscreen = async () => {
     try {
@@ -115,6 +115,7 @@ export const ScreeningToolbar: React.FC<ScreeningToolbarProps> = ({
                     variant="ghost"
                     className={s.toolbar.iconButton}
                     disabled={!content}
+                    onClick={() => showNotification?.('This feature is currently in development.', 'info')}
                   >
                     <Download className="w-4 h-4" />
                   </Button>
