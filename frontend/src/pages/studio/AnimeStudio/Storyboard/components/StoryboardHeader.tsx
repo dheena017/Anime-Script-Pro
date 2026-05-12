@@ -79,7 +79,6 @@ export const StoryboardHeader: React.FC<StoryboardHeaderProps> = ({
               <Tooltip>
                 <TooltipTrigger  >
                   <Button
-                    variant="outline"
                     className={s.header.actionButton}
                     onClick={onPrev}
                   >
@@ -98,7 +97,6 @@ export const StoryboardHeader: React.FC<StoryboardHeaderProps> = ({
                 <TooltipTrigger  >
                   {isGenerating ? (
                     <Button
-                      variant="outline"
                       className={s.header.actionButtonDanger}
                       onClick={stopGeneration}
                     >
@@ -107,7 +105,6 @@ export const StoryboardHeader: React.FC<StoryboardHeaderProps> = ({
                     </Button>
                   ) : (
                     <Button
-                      variant="outline"
                       className={s.header.actionButtonPrimary}
                       onClick={onRegenerate}
                     >

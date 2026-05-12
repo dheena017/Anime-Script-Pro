@@ -47,7 +47,6 @@ export const AssetsHeader: React.FC<AssetsHeaderProps> = ({
         <div className="flex items-center gap-3">
           {onPrev && (
             <Button 
-              variant="ghost" 
               className={s.header.btnPrev}
               onClick={onPrev}
             >
@@ -55,7 +54,6 @@ export const AssetsHeader: React.FC<AssetsHeaderProps> = ({
             </Button>
           )}
           <Button 
-            variant="outline" 
             className={s.header.btnRegen}
             onClick={onRegenerate}
             disabled={isGenerating}

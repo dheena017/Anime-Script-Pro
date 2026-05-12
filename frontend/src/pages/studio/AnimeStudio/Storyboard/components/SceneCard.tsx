@@ -117,7 +117,7 @@ export const SceneCard = React.memo<SceneCardProps>(({
           <div className="absolute inset-0 bg-[#050505]/90 backdrop-blur-xl z-[70] flex flex-col items-center justify-center p-6 text-center animate-in fade-in zoom-in duration-500">
             <div className="relative mb-8">
               <div className="w-20 h-20 border-2 border-studio/10 border-t-studio rounded-full animate-[spin_3s_linear_infinite] shadow-[0_0_40px_rgba(6,182,212,0.2)]" />
-              <div className="absolute inset-0 m-auto w-12 h-12 border-2 border-fuchsia-500/10 border-b-fuchsia-500 rounded-full animate-[spin_2s_linear_infinite_reverse]" />
+              <div className="absolute inset-0 m-auto w-12 h-12 border-2 border-orange-500/10 border-b-orange-500 rounded-full animate-[spin_2s_linear_infinite_reverse]" />
               <div className="absolute inset-0 m-auto w-4 h-4 bg-studio rounded-full animate-ping" />
             </div>
             <h4 className="text-sm font-black uppercase tracking-[0.4em] text-white mb-4">Scene Manifestation</h4>

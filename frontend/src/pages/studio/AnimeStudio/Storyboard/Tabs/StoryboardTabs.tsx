@@ -13,7 +13,7 @@ interface StoryboardTabsProps {
 }
 
 const TABS: { id: StoryboardTab; label: string; icon: React.FC<any>; color: string; glow: string }[] = [
-  { id: 'frames',      label: 'FRAMES',       icon: LayoutGrid, color: 'text-fuchsia-400', glow: 'shadow-[0_0_15px_rgba(217,70,239,0.3)]' },
+  { id: 'frames',      label: 'FRAMES',       icon: LayoutGrid, color: 'text-orange-400', glow: 'shadow-[0_0_15px_rgba(249,115,22,0.3)]' },
   { id: 'angles',      label: 'ANGLES',       icon: Camera,     color: 'text-studio',    glow: 'shadow-[0_0_15px_rgba(6,182,212,0.3)]'     },
   { id: 'composition', label: 'COMPOSITION',  icon: Box,        color: 'text-emerald-400', glow: 'shadow-[0_0_15px_rgba(16,185,129,0.3)]'    },
   { id: 'animatic',    label: 'ANIMATIC',     icon: Play,       color: 'text-amber-400',   glow: 'shadow-[0_0_15px_rgba(251,191,36,0.3)]'    },

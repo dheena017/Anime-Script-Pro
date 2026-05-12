@@ -72,7 +72,6 @@ export const ScreeningHeader: React.FC<ScreeningHeaderProps> = ({
                 <Tooltip>
                   <TooltipTrigger >
                     <Button 
-                      variant="ghost" 
                       className={s.header.actionButton}
                       onClick={onPrev}
                     >

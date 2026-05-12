@@ -87,7 +87,6 @@ export const SEOHeader: React.FC<SEOHeaderProps> = ({
                 <TooltipTrigger>
                   {isGenerating ? (
                     <Button
-                      variant="ghost"
                       className={s.header.actionButtonDanger}
                     >
                       <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
@@ -95,7 +94,6 @@ export const SEOHeader: React.FC<SEOHeaderProps> = ({
                     </Button>
                   ) : (
                     <Button
-                      variant="ghost"
                       className={s.header.actionButtonPrimary}
                       onClick={onRegenerate}
                     >

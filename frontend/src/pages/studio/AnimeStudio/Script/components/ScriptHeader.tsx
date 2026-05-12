@@ -72,7 +72,6 @@ export const ScriptHeader: React.FC<ScriptHeaderProps> = ({
               <Tooltip>
                 <TooltipTrigger >
                   <Button
-                    variant="ghost"
                     className={s.header.actionButton}
                     onClick={onPrev}
                   >
@@ -92,7 +91,6 @@ export const ScriptHeader: React.FC<ScriptHeaderProps> = ({
                   <TooltipTrigger >
                     {isGenerating ? (
                       <Button
-                        variant="ghost"
                         className={s.header.actionButtonDanger}
                         onClick={stopGeneration}
                       >
@@ -101,7 +99,6 @@ export const ScriptHeader: React.FC<ScriptHeaderProps> = ({
                       </Button>
                     ) : (
                       <Button
-                        variant="ghost"
                         className={s.header.actionButtonPrimary}
                         onClick={onRegenerate}
                       >
@@ -121,7 +118,6 @@ export const ScriptHeader: React.FC<ScriptHeaderProps> = ({
                   <Tooltip>
                     <TooltipTrigger >
                       <Button
-                        variant="ghost"
                         className={s.header.actionButtonPrimary}
                         onClick={onGenerateAll}
                       >

@@ -14,9 +14,9 @@ export const scriptStyles = {
     icon: "w-7 h-7 text-blue-400 relative z-10 drop-shadow-[0_6px_20px_rgba(59,130,246,0.18)]",
     title: "header-title text-white font-extrabold uppercase tracking-widest text-lg",
     subtitle: "header-subtitle text-sm text-blue-300/60",
-    actionButton: "relative w-full sm:w-auto h-10 px-6 rounded-full border border-white/10 bg-white/5 text-zinc-400 hover:bg-white/10 hover:border-blue-500/50 hover:text-blue-400 font-black uppercase tracking-widest text-[9px] transition-all duration-300 shadow-lg",
-    actionButtonDanger: "relative w-full sm:w-auto h-10 px-6 rounded-full border border-red-500/30 bg-red-500/10 text-red-400 hover:bg-red-500/15 hover:border-red-500/60 hover:text-red-300 font-black uppercase tracking-widest text-[9px] transition-all duration-300 shadow-lg",
-    actionButtonPrimary: "relative w-full sm:w-auto h-10 px-8 rounded-full border border-white/10 bg-white text-black hover:bg-zinc-100 hover:border-blue-500/50 hover:text-blue-500 font-black uppercase tracking-widest text-[9px] transition-all duration-300 shadow-lg",
+    actionButton: "relative w-full sm:w-auto h-10 px-6 rounded-full border border-white/10 bg-white/5 text-zinc-400 hover:bg-white/10 hover:border-blue-500/50 hover:text-blue-400 font-black uppercase tracking-widest text-[9px] transition-all duration-300 group/back shadow-lg",
+    actionButtonDanger: "relative w-full sm:w-auto h-10 px-6 rounded-full border border-red-500/30 bg-red-500/10 text-red-400 hover:bg-red-500/15 hover:border-red-500/60 hover:text-red-300 font-black uppercase tracking-widest text-[9px] transition-all duration-300 group/stop shadow-lg",
+    actionButtonPrimary: "relative w-full sm:w-auto h-10 px-8 rounded-full border border-blue-500/30 bg-blue-500/5 text-blue-400 hover:bg-blue-500/10 hover:border-blue-500/60 hover:text-blue-300 font-black uppercase tracking-widest text-[9px] transition-all duration-300 group/btn shadow-lg",
   },
 
   // --- TOOLBAR SECTION ---

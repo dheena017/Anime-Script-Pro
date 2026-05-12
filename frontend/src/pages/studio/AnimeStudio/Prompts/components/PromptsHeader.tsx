@@ -68,7 +68,6 @@ export const PromptsHeader: React.FC<PromptsHeaderProps> = ({
               <Tooltip>
                 <TooltipTrigger>
                   <Button
-                    variant="ghost"
                     className={s.header.actionButton}
                     onClick={onPrev}
                   >
@@ -87,7 +86,6 @@ export const PromptsHeader: React.FC<PromptsHeaderProps> = ({
                 <TooltipTrigger>
                   {isGenerating ? (
                     <Button
-                      variant="ghost"
                       className={s.header.actionButtonDanger}
                     >
                       <Square className="w-4 h-4 mr-2 fill-current animate-pulse" />
@@ -95,7 +93,6 @@ export const PromptsHeader: React.FC<PromptsHeaderProps> = ({
                     </Button>
                   ) : (
                     <Button
-                      variant="ghost"
                       className={s.header.actionButtonPrimary}
                       onClick={onRegenerate}
                     >

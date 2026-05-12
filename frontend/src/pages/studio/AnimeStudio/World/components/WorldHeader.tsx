@@ -72,7 +72,6 @@ export const WorldHeader: React.FC<WorldHeaderProps> = ({
               <Tooltip>
                 <TooltipTrigger>
                   <Button
-                    variant="ghost"
                     className={s.header.actionButton}
                     onClick={onPrev}
                   >
@@ -91,7 +90,6 @@ export const WorldHeader: React.FC<WorldHeaderProps> = ({
                 <TooltipTrigger >
                   {isGenerating ? (
                     <Button
-                      variant="ghost"
                       className={s.header.actionButtonDanger}
                       onClick={stopGeneration}
                     >
@@ -100,7 +98,6 @@ export const WorldHeader: React.FC<WorldHeaderProps> = ({
                     </Button>
                   ) : (
                     <Button
-                      variant="ghost"
                       className={s.header.actionButtonPrimary}
                       onClick={onRegenerate}
                     >

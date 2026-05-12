@@ -522,7 +522,7 @@ export function StoryboardPage() {
       )}>
         <div className={cn(
           s.page.innerBorder,
-          activeTab === 'frames' ? "border-fuchsia-500/20 group-hover/card:border-fuchsia-500/40" : "border-white/5"
+          activeTab === 'frames' ? "border-orange-500/20 group-hover/card:border-orange-500/40" : "border-white/5"
         )} />
 
         <div className={s.page.mainCardInner}>

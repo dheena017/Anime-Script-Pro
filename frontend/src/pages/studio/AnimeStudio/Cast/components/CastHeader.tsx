@@ -70,7 +70,6 @@ export const CastHeader: React.FC<CastHeaderProps> = ({
               <Tooltip>
                 <TooltipTrigger>
                   <Button
-                    variant="ghost"
                     className={s.header.actionButton}
                     onClick={onPrev}
                   >
@@ -106,7 +105,6 @@ export const CastHeader: React.FC<CastHeaderProps> = ({
                 <TooltipTrigger>
                   {isGenerating ? (
                     <Button
-                      variant="ghost"
                       className={s.header.actionButtonDanger}
                       onClick={stopGeneration}
                     >
@@ -115,7 +113,6 @@ export const CastHeader: React.FC<CastHeaderProps> = ({
                     </Button>
                   ) : (
                     <Button
-                      variant="ghost"
                       className={s.header.actionButtonPrimary}
                       onClick={onRegenerate}
                     >

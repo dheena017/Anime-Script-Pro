@@ -25,9 +25,9 @@ export const castStyles = {
     scaleSelect: "bg-transparent text-[10px] font-black text-fuchsia-400 px-3 outline-none cursor-pointer hover:bg-fuchsia-500/5 transition-colors h-full",
     
     // Buttons
-    actionButton: "relative w-full sm:w-auto h-10 px-6 rounded-full border border-white/10 bg-white/5 text-zinc-400 hover:bg-white/10 hover:border-fuchsia-500/50 hover:text-fuchsia-400 font-black uppercase tracking-widest text-[9px] transition-all duration-300 shadow-lg",
-    actionButtonDanger: "relative w-full sm:w-auto h-10 px-6 rounded-full border border-red-500/30 bg-red-500/10 text-red-400 hover:bg-red-500/15 hover:border-red-500/60 hover:text-red-300 font-black uppercase tracking-widest text-[9px] transition-all duration-300 shadow-lg",
-    actionButtonPrimary: "relative w-full sm:w-auto h-10 px-8 rounded-full border border-white/10 bg-white text-black hover:bg-zinc-100 hover:border-fuchsia-500/50 hover:text-fuchsia-500 font-black uppercase tracking-widest text-[9px] transition-all duration-300 shadow-lg",
+    actionButton: "relative w-full sm:w-auto h-10 px-6 rounded-full border border-white/10 bg-white/5 text-zinc-400 hover:bg-white/10 hover:border-fuchsia-500/50 hover:text-fuchsia-400 font-black uppercase tracking-widest text-[9px] transition-all duration-300 group/back shadow-lg",
+    actionButtonDanger: "relative w-full sm:w-auto h-10 px-6 rounded-full border border-red-500/30 bg-red-500/10 text-red-400 hover:bg-red-500/15 hover:border-red-500/60 hover:text-red-300 font-black uppercase tracking-widest text-[9px] transition-all duration-300 group/stop shadow-lg",
+    actionButtonPrimary: "relative w-full sm:w-auto h-10 px-8 rounded-full border border-fuchsia-500/30 bg-fuchsia-500/5 text-fuchsia-400 hover:bg-fuchsia-500/10 hover:border-fuchsia-500/60 hover:text-fuchsia-300 font-black uppercase tracking-widest text-[9px] transition-all duration-300 group/btn shadow-lg",
   },
 
   // --- TOOLBAR SECTION ---

@@ -13,7 +13,7 @@ export const PlanningGuide: React.FC = () => {
     >
       <Card className="planning-guide-card">
         <div className="absolute top-0 right-0 w-96 h-96 bg-studio/10 blur-[120px] rounded-full pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-64 h-64 bg-fuchsia-500/5 blur-[100px] rounded-full pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-64 h-64 bg-orange-500/5 blur-[100px] rounded-full pointer-events-none" />
         
         <h3 className="planning-guide-title">
           <div className="w-12 h-[2px] bg-gradient-to-r from-studio to-transparent rounded-full" />
@@ -44,8 +44,8 @@ export const PlanningGuide: React.FC = () => {
             </p>
           </div>
           <div className="space-y-4 group/item">
-            <div className="planning-guide-item-title text-fuchsia-400">
-              <div className="p-2 bg-fuchsia-400/10 rounded-xl border border-fuchsia-400/20 group-hover/item:border-fuchsia-400/40 transition-colors">
+            <div className="planning-guide-item-title text-orange-400">
+              <div className="p-2 bg-orange-400/10 rounded-xl border border-orange-400/20 group-hover/item:border-orange-400/40 transition-colors">
                 <Heart className="w-4 h-4" />
               </div>
               Resonance

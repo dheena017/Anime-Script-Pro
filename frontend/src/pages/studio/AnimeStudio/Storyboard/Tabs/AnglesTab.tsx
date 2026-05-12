@@ -9,7 +9,7 @@ const shotTypes = [
   { label: 'Medium Shot', code: 'MS', description: 'Waist-up framing. Standard dialogue and action scenes.', color: 'from-emerald-500/20 to-emerald-500/5', border: 'border-emerald-500/20', icon: '🧍' },
   { label: 'Close-Up', code: 'CU', description: 'Face and shoulders. Emotional intensity and reaction moments.', color: 'from-amber-500/20 to-amber-500/5', border: 'border-amber-500/20', icon: '😤' },
   { label: 'Extreme Close-Up', code: 'ECU', description: 'Eyes, hands, or key object. Maximum dramatic tension.', color: 'from-rose-500/20 to-rose-500/5', border: 'border-rose-500/20', icon: '👁️' },
-  { label: 'Over-the-Shoulder', code: 'OTS', description: 'Conversation framing. Keeps subject in spatial relation to speaker.', color: 'from-fuchsia-500/20 to-fuchsia-500/5', border: 'border-fuchsia-500/20', icon: '↩️' },
+  { label: 'Over-the-Shoulder', code: 'OTS', description: 'Conversation framing. Keeps subject in spatial relation to speaker.', color: 'from-orange-500/20 to-orange-500/5', border: 'border-orange-500/20', icon: '↩️' },
 ];
 
 const angles = [

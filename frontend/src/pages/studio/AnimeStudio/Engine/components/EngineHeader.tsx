@@ -62,7 +62,7 @@ export const EngineHeader: React.FC<EngineHeaderProps> = ({
                 <Tooltip>
                   <TooltipTrigger >
                     <Button 
-                      className={s.header.actionButton}
+                      className={s.header.actionButtonPrimary}
                       onClick={onNext}
                     >
                       <span className="relative z-10 flex items-center gap-2">

@@ -74,7 +74,7 @@ export const StoryboardToolbar: React.FC<StoryboardToolbarProps> = ({
             <div className="flex flex-col gap-1">
               <span className={cn(
                 "text-[10px] font-black uppercase tracking-[0.2em] bg-clip-text text-transparent bg-gradient-to-r",
-                isGlobalEnhancing ? "from-fuchsia-400 to-studio animate-pulse" : "from-fuchsia-400 to-fuchsia-300"
+                isGlobalEnhancing ? "from-orange-400 to-studio animate-pulse" : "from-orange-400 to-orange-300"
               )}>
                 Storyboard Nexus {status === 'active' ? 'Active' : 'Standby'}
               </span>
@@ -113,8 +113,8 @@ export const StoryboardToolbar: React.FC<StoryboardToolbarProps> = ({
                     className={cn(
                       s.toolbar.iconButton,
                       isEditing
-                        ? "text-fuchsia-400 border-fuchsia-500/40 bg-fuchsia-500/10 shadow-[0_0_10px_rgba(217,70,239,0.2)]"
-                        : "text-zinc-400 hover:text-fuchsia-400 hover:border-fuchsia-500/40 hover:bg-fuchsia-500/10"
+                        ? "text-orange-400 border-orange-500/40 bg-orange-500/10 shadow-[0_0_10px_rgba(249,115,22,0.2)]"
+                        : "text-zinc-400 hover:text-orange-400 hover:border-orange-500/40 hover:bg-orange-500/10"
                     )}
                     onClick={() => onEditingChange?.(!isEditing)}
                   >
@@ -154,7 +154,7 @@ export const StoryboardToolbar: React.FC<StoryboardToolbarProps> = ({
                     onClick={onEnhanceVisuals}
                     disabled={isGlobalEnhancing}
                   >
-                    <Zap className={cn("w-4 h-4", isGlobalEnhancing && "animate-pulse text-fuchsia-400")} />
+                    <Zap className={cn("w-4 h-4", isGlobalEnhancing && "animate-pulse text-orange-400")} />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="top">
