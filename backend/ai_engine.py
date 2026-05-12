@@ -30,7 +30,8 @@ CLIENT_CACHE = {
     "gemini": {},    # api_key -> genai.Client
     "anthropic": {}, # api_key -> anthropic.AsyncAnthropic
     "openai": {},    # api_key -> openai.AsyncOpenAI
-    "groq": {}       # api_key -> groq.AsyncGroq
+    "groq": {},      # api_key -> groq.AsyncGroq
+    "nvidia": {}     # api_key -> openai.AsyncOpenAI (NVIDIA Integration)
 }
 
 # Load .env from root directory
@@ -182,6 +183,36 @@ class AIEngine:
             
         return CLIENT_CACHE["groq"][api_key]
 
+    async def _get_nvidia_client(self, user_id: str = None):
+        if not openai:
+            raise ImportError("OpenAI library not installed.")
+        
+        api_key = None
+        if user_id:
+            try:
+                async with async_session() as session:
+                    statement = select(UserSettings).where(UserSettings.user_id == user_id)
+                    res = await session.execute(statement)
+                    settings = res.scalars().first()
+                    if settings and settings.ai_models:
+                        api_key = settings.ai_models.get("nvidia_api_key")
+            except Exception as e:
+                logger.warning(f"[AI Engine] Failed to fetch user settings for NVIDIA key {user_id}: {e}")
+        
+        if not api_key:
+            api_key = os.getenv("NVIDIA_API_KEY")
+            
+        if not api_key:
+            raise ValueError("No NVIDIA API key found in user settings or environment.")
+            
+        if api_key not in CLIENT_CACHE["nvidia"]:
+            CLIENT_CACHE["nvidia"][api_key] = openai.AsyncOpenAI(
+                api_key=api_key,
+                base_url="https://integrate.api.nvidia.com/v1"
+            )
+            
+        return CLIENT_CACHE["nvidia"][api_key]
+
     async def generate_content(self, prompt: str, system_instruction: str = None, user_id: str = None):
         import time
         start_time = time.perf_counter()
@@ -220,6 +251,19 @@ class AIEngine:
             response = await client.chat.completions.create(
                 model=self.model_name,
                 messages=messages
+            )
+            text = response.choices[0].message.content
+        elif "nvidia" in self.model_name.lower() or self.model_name.startswith("meta/") or "nemotron" in self.model_name.lower():
+            client = await self._get_nvidia_client(user_id)
+            messages = []
+            if system_instruction:
+                messages.append({"role": "system", "content": system_instruction})
+            messages.append({"role": "user", "content": prompt})
+            
+            response = await client.chat.completions.create(
+                model=self.model_name,
+                messages=messages,
+                response_format={"type": "json_object"} if "json" in prompt.lower() else None
             )
             text = response.choices[0].message.content
         else:
@@ -278,6 +322,21 @@ class AIEngine:
                     yield chunk.choices[0].delta.content
         elif "llama" in self.model_name.lower() or "mixtral" in self.model_name.lower() or "deepseek" in self.model_name.lower():
             client = await self._get_groq_client(user_id)
+            messages = []
+            if system_instruction:
+                messages.append({"role": "system", "content": system_instruction})
+            messages.append({"role": "user", "content": prompt})
+            
+            stream = await client.chat.completions.create(
+                model=self.model_name,
+                messages=messages,
+                stream=True
+            )
+            async for chunk in stream:
+                if chunk.choices[0].delta.content:
+                    yield chunk.choices[0].delta.content
+        elif "nvidia" in self.model_name.lower() or self.model_name.startswith("meta/") or "nemotron" in self.model_name.lower():
+            client = await self._get_nvidia_client(user_id)
             messages = []
             if system_instruction:
                 messages.append({"role": "system", "content": system_instruction})

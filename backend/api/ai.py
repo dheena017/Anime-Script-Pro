@@ -87,6 +87,11 @@ MODEL_MAP = {
     "llama-3-8b": "llama3-8b-8192",
     "mixtral-8x7b": "mixtral-8x7b-32768",
     "deepseek-r1": "deepseek-r1-distill-llama-70b",
+
+    # NVIDIA Integration Models
+    "nvidia-llama": "nvidia/llama-3.1-nemotron-70b-instruct",
+    "llama-3.1-70b": "meta/llama-3.1-70b-instruct",
+    "nemotron-70b": "nvidia/llama-3.1-nemotron-70b-instruct"
 }
 
 STABLE_MODELS = [
@@ -94,7 +99,8 @@ STABLE_MODELS = [
     "gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-1.5-flash",
     "gemini-3.1-pro", "gemini-3-pro", "gemini-2.5-pro", "gemini-1.5-pro",
     "gemini-2.0-flash", "gemini-2.0-flash-lite", "gemini-2.0-pro",
-    "gemma-3-27b", "gpt-4o", "gpt-4o-mini"
+    "gemma-3-27b", "gpt-4o", "gpt-4o-mini",
+    "nvidia/llama-3.1-nemotron-70b-instruct", "meta/llama-3.1-70b-instruct"
 ]
 
 async def get_api_key(user_id: str, target_model: str) -> str:
@@ -114,6 +120,8 @@ async def get_api_key(user_id: str, target_model: str) -> str:
                     user_api_key = settings.ai_models.get("openai_api_key")
                 elif any(m in target_lower for m in ["llama", "mixtral", "deepseek", "gemma"]):
                     user_api_key = settings.ai_models.get("groq_api_key")
+                elif "nvidia" in target_lower or "meta/" in target_lower or "nemotron" in target_lower:
+                    user_api_key = settings.ai_models.get("nvidia_api_key")
                 else:
                     user_api_key = settings.ai_models.get("gemini_api_key")
     except Exception as e:
@@ -124,8 +132,10 @@ async def get_api_key(user_id: str, target_model: str) -> str:
         api_key = user_api_key or os.getenv("ANTHROPIC_API_KEY")
     elif "gpt-" in target_lower or "o1-" in target_lower:
         api_key = user_api_key or os.getenv("OPENAI_API_KEY")
-    elif any(m in target_lower for m in ["llama", "mixtral", "deepseek"]) and "gemma" not in target_lower:
+    elif any(m in target_lower for m in ["llama", "mixtral", "deepseek"]) and "gemma" not in target_lower and "nvidia" not in target_lower and "meta/" not in target_lower:
         api_key = user_api_key or os.getenv("GROQ_API_KEY")
+    elif "nvidia" in target_lower or "meta/" in target_lower or "nemotron" in target_lower:
+        api_key = user_api_key or os.getenv("NVIDIA_API_KEY")
     else:
         api_key = user_api_key or os.getenv("GOOGLE_API_KEY") or os.getenv("VITE_GEMINI_API_KEY") or os.getenv("GEMINI_API_KEY")
 
@@ -170,6 +180,10 @@ async def generate_content(request: GenerationRequest, user_id: str = Depends(ge
         "gemma-3-12b",
         "gemma-3-4b"
     ]
+    
+    # Define the primary NVIDIA failover model
+    NVIDIA_FAILOVER = "nvidia/llama-3.1-nemotron-70b-instruct"
+    
     unique_fallbacks = [m for m in list(dict.fromkeys(FALLBACK_MODELS))]
 
     start_time = time.perf_counter()
@@ -195,6 +209,10 @@ async def generate_content(request: GenerationRequest, user_id: str = Depends(ge
             is_claude = "claude" in current_model.lower()
 
             if is_claude or is_openai or is_groq:
+                from backend.ai_engine import call_ai
+                output_text = await call_ai(current_model, request.prompt, request.systemInstruction, user_id)
+                usage_dict = {}
+            elif "nvidia" in current_model.lower() or "meta/" in current_model.lower() or "nemotron" in current_model.lower():
                 from backend.ai_engine import call_ai
                 output_text = await call_ai(current_model, request.prompt, request.systemInstruction, user_id)
                 usage_dict = {}
@@ -248,6 +266,30 @@ async def generate_content(request: GenerationRequest, user_id: str = Depends(ge
         except Exception as e:
             last_error = e
             health_registry.report_failure(current_model)
+            error_str = str(e).lower()
+            
+            # --- INTELLIGENT FAILOVER: 429 Detect ---
+            if ("429" in error_str or "rate limit" in error_str or "exhausted" in error_str) and "nvidia" not in current_model.lower():
+                logger.opt(colors=True).critical(f"RATE LIMIT [#{request_id}]: Detected 429 on {current_model}. Triggering IMMEDIATE NVIDIA failover.")
+                try:
+                    api_key = await get_api_key(user_id, NVIDIA_FAILOVER)
+                    # We use call_ai directly for the emergency failover
+                    from backend.ai_engine import call_ai
+                    output_text = await call_ai(NVIDIA_FAILOVER, request.prompt, request.systemInstruction, user_id)
+                    latency_ms = (time.perf_counter() - start_time) * 1000
+                    
+                    logger.success(f"RECOVERY: [⚡] NVIDIA Emergency Failover Successful")
+                    return GenerationResponse(
+                        text=output_text,
+                        model_used=NVIDIA_FAILOVER,
+                        finish_reason="STOP",
+                        usage={},
+                        latency_ms=latency_ms,
+                        fallbacks=attempted_fallbacks + [current_model]
+                    )
+                except Exception as nvidia_e:
+                    logger.error(f"FAILOVER [#{request_id}]: NVIDIA Emergency Failover also failed: {nvidia_e}")
+            
             logger.warning(f"SYNTHESIS [#{request_id}]: Model {current_model} failed. Error: {str(e)}")
             continue
 
@@ -289,10 +331,27 @@ async def stream_content(request: GenerationRequest, user_id: str = Depends(get_
                 
                 logger.success(f"STREAM [#{request_id}]: Neural stream finalized successfully.")
                 yield "data: [DONE]\n\n"
-                return # Success, exit fallback loop
+                return
             except Exception as e:
                 logger.warning(f"STREAM [#{request_id}]: Model {current_model} failed. Error: {str(e)}")
                 health_registry.report_failure(current_model)
+                
+                error_str = str(e).lower()
+                # --- STREAM FAILOVER: 429 Detect ---
+                if ("429" in error_str or "rate limit" in error_str or "exhausted" in error_str) and "nvidia" not in current_model.lower():
+                    logger.opt(colors=True).critical(f"STREAM LIMIT [#{request_id}]: Detected 429 on {current_model}. Triggering NVIDIA failover.")
+                    try:
+                        # Attempt to switch to NVIDIA for the remainder of the fallback loop if needed, 
+                        # but here we just try it once specifically.
+                        NVIDIA_FAIL_MODEL = "nvidia/llama-3.1-nemotron-70b-instruct"
+                        async for chunk in stream_ai(NVIDIA_FAIL_MODEL, request.prompt, request.systemInstruction, user_id):
+                            yield f"data: {json.dumps({'text': chunk, 'done': False})}\n\n"
+                        logger.success(f"STREAM RECOVERY: [⚡] NVIDIA Emergency Failover Successful")
+                        yield "data: [DONE]\n\n"
+                        return
+                    except Exception as nvidia_e:
+                        logger.error(f"STREAM FAILOVER [#{request_id}]: NVIDIA Emergency Failover also failed: {nvidia_e}")
+
                 if current_model == unique_fallbacks[-1]: # If last model fails
                      yield f"data: {json.dumps({'error': str(e), 'done': True})}\n\n"
                 continue
