@@ -1,4 +1,5 @@
 import React from 'react';
+import { useApp } from '@/contexts/AppContext';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { 
@@ -23,6 +24,7 @@ export const CastCard = React.memo<CastCardProps>(({
   isEditing,
   onUpdate
 }) => {
+  const { showNotification } = useApp();
   const getAppearanceStr = (app: any) => {
     if (typeof app === 'string') return app;
     if (!app) return "Standard aesthetic parameters.";
@@ -256,6 +258,7 @@ export const CastCard = React.memo<CastCardProps>(({
             View Soul
           </button>
           <button 
+            onClick={() => showNotification?.('This feature is currently in development.', 'info')}
             className="flex-1 sm:flex-none px-4 py-1.5 rounded-xl bg-studio/10 border border-studio/30 text-[9px] font-black uppercase tracking-widest text-studio hover:bg-studio hover:text-black transition-all shadow-studio/20"
           >
             Focus DNA

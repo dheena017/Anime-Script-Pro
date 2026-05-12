@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { Eye, Download, Share2, Plus, Filter } from 'lucide-react';
+import { useApp } from '@/contexts/AppContext';
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
@@ -43,6 +44,7 @@ const themeAssets = [
 ];
 
 export default function ThemeTab({ searchTerm }: ThemeTabProps) {
+  const { showNotification } = useApp();
   const filteredAssets = themeAssets.filter(asset => 
     asset.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     asset.category.toLowerCase().includes(searchTerm.toLowerCase())
@@ -110,8 +112,8 @@ export default function ThemeTab({ searchTerm }: ThemeTabProps) {
               <CardFooter className="p-4 pt-0 flex justify-between items-center">
                 <span className="text-[8px] font-black text-zinc-500 uppercase tracking-widest">Update: {asset.updated}</span>
                 <div className="flex gap-2">
-                  <Download className="w-3 h-3 text-zinc-500 hover:text-white cursor-pointer" />
-                  <Share2 className="w-3 h-3 text-zinc-500 hover:text-white cursor-pointer" />
+                  <Download onClick={() => showNotification?.('This feature is currently in development.', 'info')} className="w-3 h-3 text-zinc-500 hover:text-white cursor-pointer" />
+                  <Share2 onClick={() => showNotification?.('This feature is currently in development.', 'info')} className="w-3 h-3 text-zinc-500 hover:text-white cursor-pointer" />
                 </div>
               </CardFooter>
             </Card>

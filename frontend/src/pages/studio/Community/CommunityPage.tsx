@@ -18,6 +18,7 @@ import { CommunityLayout } from './CommunityLayout';
 import { communityService, CommunityPost } from '@/services/api/community';
 import { communityStyles as s } from './communityStyles';
 import { sharedStyles as sh } from '../components/studio/shared/sharedStyles';
+import { useApp } from '@/contexts/AppContext';
 
 type CommunityTab = 'feed' | 'discussions' | 'collaborations' | 'showcase';
 
@@ -31,6 +32,7 @@ const tabs: { id: CommunityTab; label: string; icon: any }[] = [
 export default function CommunityPage() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { showNotification } = useApp();
 
   const getTabFromUrl = () => {
     const path = location.pathname.split('/').pop();
@@ -153,16 +155,16 @@ export default function CommunityPage() {
               <div className={sh.cardFooter}>
                 <div className="flex items-center gap-6">
                   <div className="flex items-center gap-2">
-                    <Heart className="w-3 h-3 text-zinc-600 hover:text-red-500 cursor-pointer transition-colors" />
+                    <Heart onClick={() => showNotification?.('This feature is currently in development.', 'info')} className="w-3 h-3 text-zinc-600 hover:text-red-500 cursor-pointer transition-colors" />
                     <span className="text-[9px] font-black text-zinc-500 uppercase tracking-widest">{post.likes}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <MessageSquare className="w-3 h-3 text-zinc-600 hover:text-studio cursor-pointer transition-colors" />
+                    <MessageSquare onClick={() => showNotification?.('This feature is currently in development.', 'info')} className="w-3 h-3 text-zinc-600 hover:text-studio cursor-pointer transition-colors" />
                     <span className="text-[9px] font-black text-zinc-500 uppercase tracking-widest">{post.comments_count}</span>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Share2 className="w-3 h-3 text-zinc-600 cursor-pointer" />
+                  <Share2 onClick={() => showNotification?.('This feature is currently in development.', 'info')} className="w-3 h-3 text-zinc-600 cursor-pointer" />
                 </div>
               </div>
             </div>
