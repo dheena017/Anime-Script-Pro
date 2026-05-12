@@ -21,7 +21,7 @@ export function DynamicsPage() {
         title="Dynamics Offline"
         description="Relationship dynamics require a generated cast before conflict maps can be synthesized."
         actionLabel="Open Cast Registry"
-        onAction={() => navigate(`/${contentType.toLowerCase()}/cast`)}
+        onAction={() => navigate(`/${contentType.toLowerCase()}/cast?tab=registry`)}
         features={[
           { icon: Users, title: 'Character Network', description: 'Create cast nodes for relational analysis' },
           { icon: ArrowRightLeft, title: 'Thread Mapping', description: 'Enable ally and rival trajectories' },

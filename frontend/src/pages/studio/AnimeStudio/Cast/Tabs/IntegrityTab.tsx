@@ -22,7 +22,7 @@ export const IntegrityTab: React.FC = () => {
         title="Integrity Scan Pending"
         description="Integrity checks require at least one character profile before verification can run."
         actionLabel="Open Cast Registry"
-        onAction={() => navigate(`/${contentType.toLowerCase()}/cast`)}
+        onAction={() => navigate(`/${contentType.toLowerCase()}/cast?tab=registry`)}
         features={[
           { icon: CheckCircle2, title: 'Validation Rules', description: 'Enable duplicate and profile consistency checks' },
           { icon: Search, title: 'Anomaly Detection', description: 'Surface missing goals and weak personas' },

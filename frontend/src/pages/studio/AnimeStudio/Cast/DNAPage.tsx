@@ -22,7 +22,7 @@ export function DNAPage() {
         title="Trait Analysis Unavailable"
         description="Character traits cannot be analyzed until your cast manifest is generated."
         actionLabel="Open Cast Registry"
-        onAction={() => navigate(`/${contentType.toLowerCase()}/cast`)}
+        onAction={() => navigate(`/${contentType.toLowerCase()}/cast?tab=registry`)}
         features={[
           { icon: Sparkles, title: 'Identity Creation', description: 'Generate core identities and personality traits' },
           { icon: ShieldCheck, title: 'Logic Consistency', description: 'Enable stability and consistency metrics' },
