@@ -6,7 +6,8 @@ import {
   Clock, ShieldCheck, Settings2, Palette, AlertTriangle, Layers, Type, Film as FilmIcon, Eye,
   FolderOpen, Hash, BarChart3, Presentation, PenTool, Image as ImageIcon, AlignLeft, RefreshCw,
   FileText,
-  Network, CheckCircle2, Video
+  Network, CheckCircle2, Video,
+  BrainCircuit
 } from 'lucide-react';
 import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
 import { useLogs } from '@/contexts/LogContext';
@@ -93,7 +94,7 @@ export function StudioIntelligenceHUD() {
     { label: 'Series Plan', icon: Database, status: isGeneratingSeries ? 'warning' : (generatedSeriesPlan?.length ? 'success' : 'info') },
     { label: 'Script Sync', icon: MessageSquare, status: generatedScript ? 'success' : 'info' },
     { label: 'Storyboard', icon: Film, status: (storyboardScenes && storyboardScenes.length > 0) ? 'success' : 'info' },
-    { label: 'VFX & Audio', icon: Sparkles, status: 'info' },
+    { label: 'VFX & Audio', icon: Sparkles, status: (generatedSeriesPlan?.some((ep: any) => ep.detailed_episode_spec?.acts?.some((act: any) => act.scenes?.some((s: any) => s.production_stats?.vfx_heavy)))) ? 'success' : 'info' },
   ];
 
   const synthesisThreads = [
@@ -149,7 +150,7 @@ export function StudioIntelligenceHUD() {
                     <div className="absolute -inset-2 bg-studio/20 blur-xl rounded-2xl animate-pulse" />
                   </div>
                   <div className="flex flex-col gap-1">
-                    <h3 className="text-[16px] font-black uppercase tracking-[0.5em] text-white text-shadow-glow">System Nexus</h3>
+                    <h3 className="text-[16px] font-black uppercase tracking-[0.5em] text-white text-shadow-glow">Aetheria Nexus v2.{generatedSeriesPlan?.length || 0}.{castList?.length || 0}</h3>
                     <div className="flex items-center gap-3">
                       <div className="flex items-center gap-1.5">
                         <div className="w-1.5 h-1.5 rounded-full bg-studio animate-ping shadow-[0_0_12px_rgba(6,182,212,1)]" />
@@ -230,33 +231,59 @@ export function StudioIntelligenceHUD() {
                 )}
               </div>
 
-              {/* Real Project Identity Layer */}
+              {/* Production Scaffolding (Real Production Constraints) */}
               <div className="space-y-3">
                 <div className="flex items-center gap-2">
-                  <FolderOpen className="w-3.5 h-3.5 text-zinc-500" />
-                  <span className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">Project Identity Targets</span>
+                  <Layers className="w-3.5 h-3.5 text-zinc-500" />
+                  <span className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">Production Scaffolding</span>
                 </div>
                 <div className="grid grid-cols-5 gap-2">
                   <div className="p-3 rounded-lg bg-zinc-900/40 border border-white/5 flex flex-col gap-1 items-center justify-center">
-                    <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Session</span>
-                    <span className="text-xs font-black text-white">{session || '001'}</span>
+                    <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">Sessions</span>
+                    <span className="text-[10px] font-black text-white">{session || '001'}</span>
                   </div>
                   <div className="p-3 rounded-lg bg-zinc-900/40 border border-white/5 flex flex-col gap-1 items-center justify-center">
-                    <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Ep Target</span>
-                    <span className="text-xs font-black text-white">{numEpisodes || 'N/A'}</span>
+                    <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">Episodes</span>
+                    <span className="text-[10px] font-black text-white">{numEpisodes || 'N/A'}</span>
                   </div>
                   <div className="p-3 rounded-lg bg-zinc-900/40 border border-white/5 flex flex-col gap-1 items-center justify-center">
-                    <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Format</span>
-                    <span className="text-xs font-black text-white">{contentType || 'Script'}</span>
+                    <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">Scenes/Ep</span>
+                    <span className="text-[10px] font-black text-white">{numScenes || '18'}</span>
                   </div>
                   <div className="p-3 rounded-lg bg-zinc-900/40 border border-white/5 flex flex-col gap-1 items-center justify-center">
-                    <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Scenes</span>
-                    <span className="text-xs font-black text-white">{numScenes || 'N/A'}</span>
+                    <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">Cast Target</span>
+                    <span className="text-[10px] font-black text-white">{numCharacters || 'N/A'}</span>
                   </div>
                   <div className="p-3 rounded-lg bg-zinc-900/40 border border-white/5 flex flex-col gap-1 items-center justify-center">
-                    <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Cast Target</span>
-                    <span className="text-xs font-black text-white">{numCharacters || 'N/A'}</span>
+                    <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">Type</span>
+                    <span className="text-[10px] font-black text-white truncate max-w-full uppercase">{contentType || 'ANIME'}</span>
                   </div>
+                </div>
+              </div>
+
+              {/* AETHERIA CORE SYNC (Real Module Status) */}
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <Database className="w-3.5 h-3.5 text-studio" />
+                  <span className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">Aetheria Core Sync</span>
+                </div>
+                <div className="grid grid-cols-3 gap-2">
+                  {[
+                    { label: 'Manifest', active: !!generatedWorld },
+                    { label: 'History', active: !!generatedWorldLore },
+                    { label: 'Powers', active: !!generatedWorldPowers },
+                    { label: 'Factions', active: !!generatedWorldFactions },
+                    { label: 'Atlas', active: !!generatedWorldAtlas },
+                    { label: 'Systems', active: !!generatedWorldSystems }
+                  ].map((module, i) => (
+                    <div key={i} className={cn(
+                      "p-3 rounded-xl border flex flex-col items-center justify-center gap-1 transition-all",
+                      module.active ? "bg-studio/10 border-studio/30" : "bg-black border-white/5 opacity-40"
+                    )}>
+                      <span className={cn("text-[9px] font-black uppercase tracking-widest", module.active ? "text-studio" : "text-zinc-600")}>{module.label}</span>
+                      <span className={cn("text-[8px] font-mono", module.active ? "text-white" : "text-zinc-800")}>{module.active ? 'READY' : 'EMPTY'}</span>
+                    </div>
+                  ))}
                 </div>
               </div>
 
@@ -305,14 +332,14 @@ export function StudioIntelligenceHUD() {
                 <div className="grid grid-cols-2 gap-3">
                   <div className="grid grid-cols-2 gap-3">
                     {[
-                      { label: 'TEMP', value: temperature },
-                      { label: 'TOKENS', value: maxTokens },
-                      { label: 'TOP P', value: topP },
-                      { label: 'TOP K', value: topK }
+                      { label: 'META_TEMP', value: temperature?.toFixed(2) || '0.00' },
+                      { label: 'META_TOKENS', value: maxTokens || '2048' },
+                      { label: 'META_TOP_P', value: topP?.toFixed(2) || '0.95' },
+                      { label: 'META_TOP_K', value: topK || '40' }
                     ].map((param, i) => (
                       <div key={i} className="p-3 rounded-xl bg-zinc-900/40 border border-white/5 flex flex-col items-center justify-center gap-1">
-                        <span className="text-xs font-black text-zinc-500 uppercase tracking-widest">{param.label}</span>
-                        <span className="text-xs font-black text-white">{param.value}</span>
+                        <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">{param.label}</span>
+                        <span className="text-[10px] font-black text-white font-mono">{param.value}</span>
                       </div>
                     ))}
                   </div>
@@ -342,22 +369,26 @@ export function StudioIntelligenceHUD() {
                   </div>
                   {isAnalyzingCast && <div className="w-1.5 h-1.5 rounded-full bg-studio animate-ping" />}
                 </div>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  <div className={cn("px-4 py-3 rounded-xl border flex flex-col gap-1 transition-colors", castList?.length > 0 ? "bg-studio/10 border-studio/30" : "bg-black border-white/5")}>
+                     <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">DNA Registry</span>
+                     <span className={cn("text-[10px] font-black uppercase tracking-widest", castList?.length > 0 ? "text-studio" : "text-zinc-600")}>{castList?.length > 0 ? `${castList.length}_ENTITIES` : 'Empty'}</span>
+                  </div>
                   <div className={cn("px-4 py-3 rounded-xl border flex flex-col gap-1 transition-colors", castDNA ? "bg-studio/10 border-studio/30" : "bg-black border-white/5")}>
-                     <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Base DNA</span>
-                     <span className={cn("text-xs font-black uppercase tracking-widest", castDNA ? "text-studio" : "text-zinc-600")}>{castDNA ? 'Initialized' : 'Empty'}</span>
+                     <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">DNA Profiles</span>
+                     <span className={cn("text-[10px] font-black uppercase tracking-widest", castDNA ? "text-studio" : "text-zinc-600")}>{castDNA ? 'Materialized' : 'Empty'}</span>
                   </div>
                   <div className={cn("px-4 py-3 rounded-xl border flex flex-col gap-1 transition-colors", castDynamics ? "bg-studio/10 border-studio/30" : "bg-black border-white/5")}>
-                     <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Social Web</span>
-                     <span className={cn("text-xs font-black uppercase tracking-widest", castDynamics ? "text-studio" : "text-zinc-600")}>{castDynamics ? 'Mapped' : 'Empty'}</span>
+                     <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">Psych Dynamics</span>
+                     <span className={cn("text-[10px] font-black uppercase tracking-widest", castDynamics ? "text-studio" : "text-zinc-600")}>{castDynamics ? 'Synced' : 'Empty'}</span>
                   </div>
                   <div className={cn("px-4 py-3 rounded-xl border flex flex-col gap-1 transition-colors", castIntegrity ? "bg-studio/10 border-studio/30" : "bg-black border-white/5")}>
-                     <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Integrity Hash</span>
-                     <span className={cn("text-xs font-black uppercase tracking-widest", castIntegrity ? "text-studio" : "text-zinc-600")}>{castIntegrity ? 'Verified' : 'Unverified'}</span>
+                     <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">Lore Integrity</span>
+                     <span className={cn("text-[10px] font-black uppercase tracking-widest", castIntegrity ? "text-studio" : "text-zinc-600")}>{castIntegrity ? 'Verified' : 'Unverified'}</span>
                   </div>
-                  <div className={cn("px-4 py-3 rounded-xl border flex flex-col gap-1 transition-colors", characterRelationships ? "bg-studio/10 border-studio/30" : "bg-black border-white/5")}>
-                     <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Relationships</span>
-                     <span className={cn("text-xs font-black uppercase tracking-widest", characterRelationships ? "text-studio" : "text-zinc-600")}>{characterRelationships ? 'Tangled' : 'Empty'}</span>
+                  <div className={cn("px-4 py-3 rounded-xl border flex flex-col gap-1 transition-colors", characterRelationships && characterRelationships !== '[]' && characterRelationships !== '{}' ? "bg-studio/10 border-studio/30" : "bg-black border-white/5")}>
+                     <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">Social Web</span>
+                     <span className={cn("text-[10px] font-black uppercase tracking-widest", (characterRelationships && characterRelationships !== '[]' && characterRelationships !== '{}') ? "text-studio" : "text-zinc-600")}>{(characterRelationships && characterRelationships !== '[]' && characterRelationships !== '{}') ? 'Mapped' : 'Empty'}</span>
                   </div>
                 </div>
               </div>
@@ -537,6 +568,60 @@ export function StudioIntelligenceHUD() {
                       <span className="text-xs font-bold text-zinc-500 mb-1">MS</span>
                     </div>
                   </div>
+                </div>
+              </div>
+
+              {/* Global Production Dashboard (Real Aggregate Data) */}
+              <div className="space-y-4">
+                <div className="flex items-center justify-between px-1">
+                  <div className="flex flex-col gap-1">
+                    <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Global Production Dashboard</p>
+                    <div className="h-0.5 w-12 bg-studio/30 rounded-full" />
+                  </div>
+                  <span className="text-[9px] font-mono text-zinc-600 uppercase tracking-widest">Aggregate Neural Data</span>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  {[
+                    { 
+                      label: 'Runtime', 
+                      val: generatedSeriesPlan?.length ? `${generatedSeriesPlan.reduce((acc: any, ep: any) => acc + (parseInt(ep.runtime) || 24), 0)}m` : '0m', 
+                      icon: Clock, 
+                      color: 'text-studio', 
+                      sub: 'Total Duration' 
+                    },
+                    { 
+                      label: 'Scenes', 
+                      val: generatedSeriesPlan?.reduce((acc: any, ep: any) => acc + (ep.asset_matrix?.scene_count || 0), 0) || 0, 
+                      icon: Database, 
+                      color: 'text-amber-500', 
+                      sub: 'Matrix Units' 
+                    },
+                    { 
+                      label: 'VFX Load', 
+                      val: generatedSeriesPlan?.reduce((acc: any, ep: any) => acc + (ep.detailed_episode_spec?.acts?.reduce((a: any, act: any) => a + (act.scenes?.filter((s: any) => s.production_stats?.vfx_heavy)?.length || 0), 0) || 0), 0) || 0, 
+                      icon: Sparkles, 
+                      color: 'text-rose-500', 
+                      sub: 'Heavy Assets' 
+                    },
+                    { 
+                      label: 'Consistency', 
+                      val: generatedSeriesPlan?.length ? (generatedSeriesPlan.every((ep: any) => ep.neural_audit?.logic_check?.toLowerCase().includes('pass') || ep.neural_audit?.lore_validation?.toLowerCase().includes('confirm')) ? 'PASS' : 'AUDIT') : 'WAIT', 
+                      icon: BrainCircuit, 
+                      color: 'text-cyan-500', 
+                      sub: 'Neural Logic' 
+                    },
+                  ].map((stat, i) => (
+                    <div key={i} className="p-5 bg-zinc-900/40 border border-white/5 rounded-[2rem] flex flex-col items-center justify-center gap-2 group transition-all duration-500 hover:border-studio/30 hover:bg-studio/[0.02] relative overflow-hidden shadow-2xl">
+                      <div className="absolute top-0 right-0 w-12 h-12 bg-white/5 blur-2xl rounded-full translate-x-1/2 -translate-y-1/2 group-hover:bg-studio/10 transition-colors duration-500" />
+                      <stat.icon className={cn("w-5 h-5 mb-1 opacity-40 group-hover:opacity-100 transition-opacity duration-500", stat.color)} />
+                      <div className="space-y-1 text-center relative z-10">
+                        <p className="text-[14px] font-black text-white font-mono leading-none tracking-tighter uppercase">{stat.val}</p>
+                        <p className="text-[8px] font-black text-zinc-600 uppercase tracking-widest leading-none group-hover:text-zinc-400 transition-colors">{stat.label}</p>
+                        <div className="h-[1px] w-4 bg-zinc-800 mx-auto mt-2 group-hover:bg-studio/40 transition-colors" />
+                        <p className="text-[7px] text-zinc-700 font-mono uppercase mt-1 opacity-0 group-hover:opacity-100 transition-opacity">{stat.sub}</p>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
 

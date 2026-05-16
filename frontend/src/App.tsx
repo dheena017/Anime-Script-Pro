@@ -151,6 +151,8 @@ function AppRoutes() {
               <Route index element={<PageTransition><AnimeWorld /></PageTransition>} />
             </Route>
             <Route path="cast" element={<CastLayout />} />
+            <Route path="cast/characters/:characterName" element={<PageTransition><CharacterViewPage /></PageTransition>} />
+            <Route path="cast/characters/:characterName/edit" element={<PageTransition><CharacterEditPage /></PageTransition>} />
             <Route path="series" element={<SeriesLayout />}>
               <Route index element={<PageTransition><AnimeSeries /></PageTransition>} />
               <Route path="roadmap" element={<PageTransition><AnimeSeries /></PageTransition>} />

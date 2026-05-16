@@ -215,7 +215,7 @@ export const SeriesCard = React.memo<SeriesCardProps>(({
               className="flex-1 h-14 bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 text-xs font-black uppercase tracking-[0.2em] text-zinc-400 hover:text-white rounded-2xl transition-all group/btn"
             >
               <Eye className="w-4 h-4 mr-3 opacity-40 group-hover/btn:opacity-100 transition-opacity" />
-              View Series
+              View Mission
             </Button>
             <Button
               onClick={() => onFocusEpisode(ep.episode)}

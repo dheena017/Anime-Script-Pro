@@ -1,6 +1,7 @@
 import { callAI, RateLimitError } from "./core";
 import { SERIES_PLAN_GENERATION_PROMPT } from "../prompts";
 import JSON5 from "json5";
+import { cleanJson } from "../../lib/api-utils";
 
 function validateSeriesPrompt(prompt: string): void {
   if (!prompt || typeof prompt !== 'string' || prompt.trim().length < 20) {
@@ -83,28 +84,25 @@ function extractBalancedJsonBlock(text: string, openChar: '{' | '[', closeChar: 
 }
 
 function parseLooseJson<T>(text: string, expectedShape: 'array' | 'object'): T | null {
-  const cleaned = stripCodeFences(text);
-  const candidates = expectedShape === 'array'
-    ? [cleaned, extractBalancedJsonBlock(cleaned, '[', ']')]
-    : [cleaned, extractBalancedJsonBlock(cleaned, '{', '}')];
-
-  for (const candidate of candidates) {
-    if (!candidate) {
-      continue;
-    }
-
-    try {
-      return JSON.parse(candidate) as T;
-    } catch {
-      try {
-        return JSON5.parse(candidate) as T;
-      } catch {
-        // Keep trying other candidates.
+  try {
+    const parsed = cleanJson(text);
+    
+    if (expectedShape === 'array') {
+      if (Array.isArray(parsed)) return parsed as unknown as T;
+      if (parsed && typeof parsed === 'object') {
+        // AI might wrap the array in a key
+        const potentialArray = (parsed as any).series || (parsed as any).episodes || (parsed as any).plan || (parsed as any).data;
+        if (Array.isArray(potentialArray)) return potentialArray as unknown as T;
       }
+    } else {
+      if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) return parsed as unknown as T;
     }
+    
+    return parsed as unknown as T;
+  } catch (err) {
+    console.error('parseLooseJson failed:', err);
+    return null;
   }
-
-  return null;
 }
 
 function buildSeriesPrompt(
@@ -245,7 +243,14 @@ async function expandEpisodeDetails(
   model: string,
   contentType: string,
   worldLore: string,
-  castProfiles: string
+  castProfiles: string,
+  numScenes: number = 18,
+  opts?: {
+    temperature?: number;
+    maxTokens?: number;
+    topP?: number;
+    topK?: number;
+  }
 ): Promise<any> {
   const epId = episodeSummary?.episode || episodeSummary?.episode_number || '01';
   const prompt = `
@@ -259,7 +264,7 @@ ${JSON.stringify(episodeSummary, null, 2)}
 PRODUCTION REQUIREMENTS:
 1. PACE: Target a high-fidelity 30-minute episode duration with complex narrative layering.
 2. STRUCTURE: Provide "cold_open" (2-4 cinematic sentences) and 3 "acts".
-3. DENSITY: Each act MUST contain 5-8 dense scenes.
+3. DENSITY: The episode MUST contain exactly ${numScenes} dense scenes total across the 3 acts. Distribution should be balanced for a 30-minute pacing.
 4. SCENE SCHEMA:
    - scene_id: E${epId}_A[ACT]_S[SCENE]
    - location: Specific setting with architectural and atmospheric notes.
@@ -290,11 +295,11 @@ NEURAL LOGIC AUDIT:
     const res = await callAI(
       model,
       prompt,
-      SERIES_PLAN_GENERATION_PROMPT(contentType, 1, worldLore ?? '', castProfiles ?? ''),
-      0.8,
-      1024,
-      0.9,
-      20,
+      SERIES_PLAN_GENERATION_PROMPT(contentType, 1, worldLore ?? '', castProfiles ?? '', numScenes),
+      opts?.temperature ?? 0.8,
+      opts?.maxTokens ?? 2048,
+      opts?.topP ?? 0.9,
+      opts?.topK ?? 20,
       120000,
       worldLore,
       castProfiles
@@ -340,7 +345,9 @@ export async function generateSeriesPlan(
     contentType,
     episodeCount,
     worldLore ?? '',
-    castProfiles ?? ''
+    castProfiles ?? '',
+    opts?.numScenes || 18,
+    opts?.session ? parseInt(opts.session) : 1
   );
 
   const userPrompt = buildSeriesPrompt(prompt, contentType, episodeCount, worldLore, castProfiles, opts);
@@ -365,10 +372,8 @@ export async function generateSeriesPlan(
     const parsed = parseLooseJson<any[]>(text, 'array');
 
     if (!Array.isArray(parsed)) {
-      if (parsed && Array.isArray((parsed as any).series)) {
-        return (parsed as any).series;
-      }
-      throw new Error('Series synthesis did not return a JSON array.');
+      console.error('[Series Lab] AI response was not an array. Raw start:', text.slice(0, 500));
+      throw new Error('Series synthesis did not return a JSON array. Check browser console for raw output.');
     }
 
     // Optionally expand each episode sequentially into detailed_episode_spec
@@ -381,7 +386,15 @@ export async function generateSeriesPlan(
             // expandEpisodeDetails will call the AI to produce scene-by-scene output for this episode
             // We pass minimal context to avoid heavy payloads
             // eslint-disable-next-line no-await-in-loop
-            const full = await expandEpisodeDetails(ep, model, contentType, worldLore as any, castProfiles as any);
+            const full = await expandEpisodeDetails(
+              ep, 
+              model, 
+              contentType, 
+              worldLore as any, 
+              castProfiles as any, 
+              opts?.numScenes || 18,
+              opts
+            );
             expanded.push(full);
           } else {
             expanded.push(ep);

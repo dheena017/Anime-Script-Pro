@@ -74,9 +74,9 @@ export default function SeriesLayout() {
   };
 
   // Memoize handleGenerate to prevent unnecessary effect re-runs and improve stability
-  const handleGenerate = React.useCallback(async (episodesToGenerate: number = 12) => {
-    if (!prompt.trim()) {
-      showNotification?.('Please enter a story prompt first before creating the series plan.', 'error');
+  const handleGenerate = React.useCallback(async (episodesToGenerate: number = 12, numScenes: number = 16) => {
+    if (!prompt) {
+      showNotification?.('Project prompt is missing. Please define your series core logline.', 'warning');
       return;
     }
     setGenerationError(null);
@@ -128,7 +128,8 @@ export default function SeriesLayout() {
           temperature,
           maxTokens,
           topP,
-          topK
+          topK,
+          numScenes
         }
       );
 
@@ -144,8 +145,7 @@ export default function SeriesLayout() {
 
       // We navigate directly to episodes now to avoid "one by one" delay feeling
       // Navigate to episodes tab via query param after generation
-      // Maintain current tab focus after generation
-      // setSearchParams({ tab: 'episodes' }); 
+      setSearchParams({ tab: 'episodes' }); 
 
       studioLog("SERIES", `UI Transition complete. Final plan state: ${plan?.length} episodes.`, 'info', {
         exists: !!plan,
@@ -223,7 +223,8 @@ export default function SeriesLayout() {
     const handleGlobalGenerate = (e: any) => {
       studioLog("SERIES", 'Global series generation event received.', 'anime');
       const customEpisodes = e.detail?.episodes || 12;
-      handleGenerate(customEpisodes);
+      const customScenes = e.detail?.scenes || 16;
+      handleGenerate(customEpisodes, customScenes);
     };
     window.addEventListener('studio-generate-series', handleGlobalGenerate);
     return () => window.removeEventListener('studio-generate-series', handleGlobalGenerate);

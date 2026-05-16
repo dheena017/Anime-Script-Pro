@@ -170,7 +170,7 @@ export default function CastLayout() {
         return <TechnicalTab />;
       case 'registry':
       default:
-        return <RegistryTab onViewCharacter={() => { }} />;
+        return <RegistryTab onViewCharacter={(name) => navigate(`characters/${name}`)} />;
     }
   }, [activeTab]);
 

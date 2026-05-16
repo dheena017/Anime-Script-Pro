@@ -131,7 +131,7 @@ export function SeriesPage() {
       }
 
       const scenesPayload = sequence.map((u, idx) => {
-        const sceneNumber = (u.ep - 1) * 16 + u.scen;
+        const sceneNumber = (u.ep - 1) * config.scenes + u.scen;
         return {
           scene_number: sceneNumber,
           status: 'QUEUED',

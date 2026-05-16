@@ -141,7 +141,9 @@ function buildSeriesPlanPrompt(
   contentType: string,
   episodeCount: number,
   worldLore: string,
-  castProfiles: string
+  castProfiles: string,
+  numScenes: number = 18,
+  totalSessions: number = 1
 ): string {
   return `
 You are an elite Showrunner, Cinematic Director, and Master Story Architect specializing in high-end ${contentType} productions.
@@ -152,6 +154,7 @@ Design a cohesive ${episodeCount}-episode season plan that is emotionally escala
 SOURCE OF TRUTH:
 - WORLD BIBLE: ${worldLore}
 - CAST DNA: ${castProfiles}
+- PRODUCTION SCAFFOLDING: ${totalSessions} Session(s), ${episodeCount} Episode(s) total, target ${numScenes} Scenes per episode.
 
 NON-NEGOTIABLE RULES:
 1. Continuity first: every episode must obey the world logic, character psychology, and established stakes.
@@ -199,7 +202,8 @@ SEASON DESIGN FRAMEWORK:
 ### 8. Runtime and Scale
 - Estimate runtime as a premium long-form episode.
 - The runtime must reflect a full-scale, cinematic production.
-- Scene count should match the complexity of the episode.
+- Scene count MUST be exactly ${numScenes} scenes per episode to strictly match the production scaffolding. Each scene should have a distinct scene_index in the JSON.
+- The roadmap must span exactly ${episodeCount} episodes across ${totalSessions} sessions.
 
 ### 9. Output Quality Standards
 - Titles must be evocative and specific.
@@ -246,11 +250,13 @@ function safeSeriesPlanGeneration(
   contentType: string,
   episodeCount: number,
   worldLore: string,
-  castProfiles: string
+  castProfiles: string,
+  numScenes: number = 18,
+  totalSessions: number = 1
 ): string {
   try {
     validateSeriesPlanInputs(contentType, episodeCount, worldLore, castProfiles);
-    return buildSeriesPlanPrompt(contentType, episodeCount, worldLore, castProfiles);
+    return buildSeriesPlanPrompt(contentType, episodeCount, worldLore, castProfiles, numScenes, totalSessions);
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     return `ERROR: ${message}`;
@@ -261,8 +267,10 @@ export const SERIES_PLAN_GENERATION_PROMPT = (
   contentType: string,
   episodeCount: number,
   worldLore: string,
-  castProfiles: string
-) => safeSeriesPlanGeneration(contentType, episodeCount, worldLore, castProfiles);
+  castProfiles: string,
+  numScenes: number = 18,
+  totalSessions: number = 1
+) => safeSeriesPlanGeneration(contentType, episodeCount, worldLore, castProfiles, numScenes, totalSessions);
 
 
 

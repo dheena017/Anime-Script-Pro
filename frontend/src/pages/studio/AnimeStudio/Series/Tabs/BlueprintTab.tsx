@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle2, Table, ChevronRight, Activity, Sparkles, Database, BrainCircuit, Loader2, Clock, Users } from 'lucide-react';
+import { CheckCircle2, Table, ChevronRight, Activity, Sparkles, Database, BrainCircuit, Loader2, Clock, Users, Settings2 } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useGeneratorState } from '@/hooks/useGenerator';
 import { cn } from '@/lib/utils';
@@ -70,7 +70,12 @@ export const BlueprintTab: React.FC<BlueprintTabProps> = ({
     // Consolidated Action: Initialize Structure + Synthesize AI Content
     try {
       await onManifestContinue(localConfig);
-      window.dispatchEvent(new CustomEvent('studio-generate-series', { detail: { episodes: localConfig.episodes } }));
+      window.dispatchEvent(new CustomEvent('studio-generate-series', { 
+        detail: { 
+          episodes: localConfig.episodes,
+          scenes: localConfig.scenes
+        } 
+      }));
     } catch (err) {
       console.error("Synergy Failed:", err);
     }
@@ -105,6 +110,58 @@ export const BlueprintTab: React.FC<BlueprintTabProps> = ({
             </div>
 
             <div className="space-y-8 relative z-10">
+              {/* Production Scaffolding Constraints */}
+              <div className="relative group/scaffold">
+                <div className="absolute inset-0 bg-gradient-to-br from-studio/10 via-transparent to-transparent opacity-0 group-hover/scaffold:opacity-100 transition-opacity rounded-3xl" />
+                <div className="relative flex flex-col gap-6 p-6 bg-black/60 border border-white/10 rounded-3xl shadow-2xl">
+                  <div className="flex items-center justify-between mb-2">
+                    <h5 className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.3em]">Production Scaffolding</h5>
+                    <Settings2 className="w-3.5 h-3.5 text-zinc-700" />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {/* Sessions */}
+                    <div className="space-y-3">
+                      <label className="text-[9px] font-black text-zinc-500 uppercase tracking-widest block opacity-60">Session Count</label>
+                      <input 
+                        type="number" 
+                        min="1" 
+                        max="5"
+                        value={localConfig.sessions}
+                        onChange={(e) => setLocalConfig({...localConfig, sessions: parseInt(e.target.value) || 1})}
+                        className="w-full bg-white/[0.03] border border-white/10 rounded-xl px-4 py-2.5 text-xs font-mono text-studio focus:border-studio/50 focus:bg-studio/5 transition-all outline-none"
+                      />
+                    </div>
+                    
+                    {/* Episodes */}
+                    <div className="space-y-3">
+                      <label className="text-[9px] font-black text-zinc-500 uppercase tracking-widest block opacity-60">Episodes Per Session</label>
+                      <input 
+                        type="number" 
+                        min="1" 
+                        max="24"
+                        value={localConfig.episodes}
+                        onChange={(e) => setLocalConfig({...localConfig, episodes: parseInt(e.target.value) || 1})}
+                        className="w-full bg-white/[0.03] border border-white/10 rounded-xl px-4 py-2.5 text-xs font-mono text-studio focus:border-studio/50 focus:bg-studio/5 transition-all outline-none"
+                      />
+                    </div>
+
+                    {/* Scenes */}
+                    <div className="space-y-3">
+                      <label className="text-[9px] font-black text-zinc-500 uppercase tracking-widest block opacity-60">Scenes Per Episode</label>
+                      <input 
+                        type="number" 
+                        min="1" 
+                        max="40"
+                        value={localConfig.scenes}
+                        onChange={(e) => setLocalConfig({...localConfig, scenes: parseInt(e.target.value) || 1})}
+                        className="w-full bg-white/[0.03] border border-white/10 rounded-xl px-4 py-2.5 text-xs font-mono text-studio focus:border-studio/50 focus:bg-studio/5 transition-all outline-none"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               {/* Context Injection Telemetry HUD */}
               <div className="relative group/telemetry">
                 <div className="absolute inset-0 bg-gradient-to-br from-studio/10 via-transparent to-transparent opacity-0 group-hover/telemetry:opacity-100 transition-opacity rounded-3xl" />
@@ -348,7 +405,11 @@ export const BlueprintTab: React.FC<BlueprintTabProps> = ({
                           { label: 'Runtime', val: plan.length ? `${plan.reduce((acc, ep) => acc + (parseInt(ep.runtime) || 24), 0)}m` : '0m', icon: Clock, color: 'text-studio', sub: 'Total Duration' },
                           { label: 'Scenes', val: plan.reduce((acc, ep) => acc + (ep.asset_matrix?.scene_count || 0), 0), icon: Database, color: 'text-amber-500', sub: 'Matrix Units' },
                           { label: 'VFX Load', val: plan.reduce((acc, ep) => acc + (ep.detailed_episode_spec?.acts?.reduce((a, act) => a + (act.scenes?.filter(s => s.production_stats?.vfx_heavy)?.length || 0), 0) || 0), 0), icon: Sparkles, color: 'text-rose-500', sub: 'Heavy Assets' },
-                          { label: 'Cast DNA', val: plan.reduce((acc, ep) => acc + (ep.detailed_episode_spec?.acts?.reduce((a, act) => a + (act.scenes?.reduce((s_acc, s) => s_acc + (s.production_stats?.cast_count || 0), 0) || 0), 0) || 0), 0), icon: Users, color: 'text-blue-500', sub: 'Active Links' }
+                          { label: 'Cast DNA', val: plan.reduce((acc, ep) => acc + (ep.detailed_episode_spec?.acts?.reduce((a, act) => a + (act.scenes?.reduce((s_acc, s) => s_acc + (s.production_stats?.cast_count || 0), 0) || 0), 0) || 0), 0), icon: Users, color: 'text-blue-500', sub: 'Active Links' },
+                          { label: 'Tone', val: tone?.split('/')[0] || 'GRITTY', icon: Activity, color: 'text-purple-500', sub: 'Aesthetic Vibe' },
+                          { label: 'Peak Intensity', val: plan.length ? Math.max(...plan.map(ep => parseInt(ep.engagement_matrix?.pacing_intensity) || 0)) : '0', icon: Activity, color: 'text-orange-500', sub: 'Engagement Peak' },
+                          { label: 'Palette', val: plan.length ? [...new Set(plan.flatMap(ep => ep.production_palette?.dominant_colors || []))].length : '0', icon: Table, color: 'text-emerald-500', sub: 'Color Variance' },
+                          { label: 'Neural Logic', val: plan.length ? (plan.every(ep => ep.neural_audit?.logic_check?.toLowerCase().includes('pass') || ep.neural_audit?.lore_validation?.toLowerCase().includes('confirm')) ? 'PASS' : 'AUDIT') : 'WAIT', icon: BrainCircuit, color: 'text-cyan-500', sub: 'Consistency' },
                         ].map((stat, i) => (
                           <div key={i} className={cn(
                             "p-5 bg-[#080808] border border-white/5 rounded-[2rem] flex flex-col items-center justify-center gap-2 group transition-all duration-500 hover:border-studio/30 hover:bg-studio/[0.02] relative overflow-hidden",
@@ -357,7 +418,7 @@ export const BlueprintTab: React.FC<BlueprintTabProps> = ({
                             <div className="absolute top-0 right-0 w-12 h-12 bg-white/5 blur-2xl rounded-full translate-x-1/2 -translate-y-1/2 group-hover:bg-studio/10 transition-colors duration-500" />
                             <stat.icon className={cn("w-5 h-5 mb-1 opacity-40 group-hover:opacity-100 transition-opacity duration-500", stat.color)} />
                             <div className="space-y-1 text-center relative z-10">
-                              <p className="text-[14px] font-black text-white font-mono leading-none tracking-tighter">{stat.val}</p>
+                              <p className="text-[14px] font-black text-white font-mono leading-none tracking-tighter uppercase">{stat.val}</p>
                               <p className="text-[8px] font-black text-zinc-600 uppercase tracking-widest leading-none group-hover:text-zinc-400 transition-colors">{stat.label}</p>
                               <div className="h-[1px] w-4 bg-zinc-800 mx-auto mt-2 group-hover:bg-studio/40 transition-colors" />
                               <p className="text-[7px] text-zinc-700 font-mono uppercase mt-1 opacity-0 group-hover:opacity-100 transition-opacity">{stat.sub}</p>
