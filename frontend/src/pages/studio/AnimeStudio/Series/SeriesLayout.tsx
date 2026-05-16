@@ -263,46 +263,44 @@ export default function SeriesLayout() {
         <StudioTabsProgressBar progress={generationProgress} theme="cyan" />
       </div>
 
-      {/* Toolbar Section - Only show when content exists */}
-      {generatedSeriesPlan && generatedSeriesPlan.length > 0 && (
-        <div className="mb-8 relative z-30">
-          <SeriesToolbar
-            status="active"
-            session={session}
-            episode={episode}
-            onExportClick={() => {
-              if (!generatedSeriesPlan) return;
-              const blob = new Blob([JSON.stringify(generatedSeriesPlan, null, 2)], { type: 'application/json' });
-              const url = URL.createObjectURL(blob);
-              const a = document.createElement('a');
-              a.href = url;
-              a.download = `series-manifest-S${session}-E${episode}.json`;
-              a.click();
-              URL.revokeObjectURL(url);
-            }}
-            onAddEpisode={() => {
-              const nextEpNum = (generatedSeriesPlan?.length || 0) + 1;
-              const nextEpId = nextEpNum < 10 ? `0${nextEpNum}` : `${nextEpNum}`;
-              const newEpisode = {
-                episode: nextEpId,
-                title: `New Production Cycle ${nextEpId}`,
-                hook: "A new narrative thread begins here.",
-                summary: "This episode is currently in the conceptual phase. Generate specs to populate.",
-                setting: "To be defined",
-                emotional_arc: "Neutral",
-                asset_matrix: { characters: [], locations: [], vfx: [] },
-                detailed_episode_spec: { acts: [] }
-              };
-              setGeneratedSeriesPlan([...(generatedSeriesPlan || []), newEpisode]);
-              showNotification?.(`Episode ${nextEpId} added to production roadmap`, 'success');
-            }}
-            onFilterArchive={() => {
-              showNotification?.('Archive filtering system active. Showing all production units.', 'info');
-            }}
-            content={JSON.stringify(generatedSeriesPlan, null, 2)}
-          />
-        </div>
-      )}
+      {/* Toolbar Section - Always visible for Diagnostics */}
+      <div className="mb-8 relative z-30">
+        <SeriesToolbar
+          status={generatedSeriesPlan && generatedSeriesPlan.length > 0 ? 'active' : 'empty'}
+          session={session}
+          episode={episode}
+          onExportClick={() => {
+            if (!generatedSeriesPlan) return;
+            const blob = new Blob([JSON.stringify(generatedSeriesPlan, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `series-manifest-S${session}-E${episode}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+          }}
+          onAddEpisode={() => {
+            const nextEpNum = (generatedSeriesPlan?.length || 0) + 1;
+            const nextEpId = nextEpNum < 10 ? `0${nextEpNum}` : `${nextEpNum}`;
+            const newEpisode = {
+              episode: nextEpId,
+              title: `New Production Cycle ${nextEpId}`,
+              hook: "A new narrative thread begins here.",
+              summary: "This episode is currently in the conceptual phase. Generate specs to populate.",
+              setting: "To be defined",
+              emotional_arc: "Neutral",
+              asset_matrix: { characters: [], locations: [], vfx: [] },
+              detailed_episode_spec: { acts: [] }
+            };
+            setGeneratedSeriesPlan([...(generatedSeriesPlan || []), newEpisode]);
+            showNotification?.(`Episode ${nextEpId} added to production roadmap`, 'success');
+          }}
+          onFilterArchive={() => {
+            showNotification?.('Archive filtering system active. Showing all production units.', 'info');
+          }}
+          content={generatedSeriesPlan ? JSON.stringify(generatedSeriesPlan, null, 2) : null}
+        />
+      </div>
 
       <div className="flex-1 flex flex-col min-h-[500px]">
         <AnimatePresence mode="wait">

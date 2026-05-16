@@ -120,8 +120,8 @@ export const BlueprintTab: React.FC<BlueprintTabProps> = ({
                         <Database className="w-3.5 h-3.5 text-zinc-600" />
                         <span className="text-xs text-zinc-400 font-mono">World Bible Modules</span>
                       </div>
-                      <span className={cn("text-[10px] font-black uppercase tracking-widest", generatedWorld || generatedWorldLore ? "text-studio drop-shadow-[0_0_8px_rgba(6,182,212,0.4)]" : "text-zinc-700")}>
-                        {generatedWorld || generatedWorldLore ? "LINKED_SYNC" : "MISSING_DATA"}
+                      <span className={cn("text-[10px] font-black uppercase tracking-widest", (generatedWorld || generatedWorldLore) ? "text-studio drop-shadow-[0_0_8px_rgba(6,182,212,0.4)]" : "text-zinc-700")}>
+                        {(generatedWorld || generatedWorldLore) ? `${(generatedWorld?.length || 0) + (generatedWorldLore?.length || 0)} Chars | ACTIVE ✅` : "INACTIVE ❌"}
                       </span>
                     </div>
 
@@ -131,7 +131,7 @@ export const BlueprintTab: React.FC<BlueprintTabProps> = ({
                         <span className="text-xs text-zinc-400 font-mono">Cast DNA Registry</span>
                       </div>
                       <span className={cn("text-[10px] font-black uppercase tracking-widest", castList?.length > 0 ? "text-studio drop-shadow-[0_0_8px_rgba(6,182,212,0.4)]" : "text-zinc-700")}>
-                        {castList?.length > 0 ? `${castList.length}_ENTITIES_ACTIVE` : "REGISTRY_EMPTY"}
+                        {castList?.length > 0 ? `${castList.length}_ENTITIES | ACTIVE ✅` : "INACTIVE ❌"}
                       </span>
                     </div>
 

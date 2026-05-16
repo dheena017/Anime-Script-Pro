@@ -1,8 +1,9 @@
 import React from 'react';
-import { Layers, Copy, Download, Maximize, Minimize, FileText, Plus, ListFilter } from 'lucide-react';
+import { Layers, Copy, Download, Maximize, Minimize, FileText, Plus, ListFilter, Activity, Database, Users, BrainCircuit } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useApp } from '@/contexts/AppContext';
+import { useGeneratorState } from '@/hooks/useGenerator';
 import { seriesStyles as s } from '../seriesStyles';
 
 import {
@@ -30,10 +31,20 @@ export const SeriesToolbar: React.FC<SeriesToolbarProps> = ({
   onExportClick,
   onAddEpisode,
   onFilterArchive
-
-
 }) => {
   const { isFullscreen } = useApp();
+  const { 
+    generatedWorld, 
+    generatedWorldLore,
+    generatedWorldPowers,
+    generatedWorldFactions,
+    generatedWorldAtlas,
+    generatedWorldSystems,
+    castList,
+    selectedModel,
+    contentType,
+    prompt
+  } = useGeneratorState();
 
   const toggleFullscreen = async () => {
     try {
@@ -70,6 +81,32 @@ export const SeriesToolbar: React.FC<SeriesToolbarProps> = ({
     }
   };
 
+  const worldChars = (generatedWorld?.length || 0) + 
+                    (generatedWorldLore?.length || 0) + 
+                    (generatedWorldPowers?.length || 0) + 
+                    (generatedWorldFactions?.length || 0) + 
+                    (generatedWorldAtlas?.length || 0) + 
+                    (generatedWorldSystems?.length || 0);
+
+  const isWorldSynced = worldChars > 0;
+  const isCastSynced = castList?.length > 0;
+
+  const handleViewPrompt = () => {
+    const mockPrompt = `
+      SYSTEM_INSTRUCTION: HIGH-FIDELITY SERIES ORCHESTRATION
+      MODEL: ${selectedModel?.toUpperCase()}
+      CONTENT: ${contentType}
+      
+      WORLD_BIBLE_INJECTION: ${isWorldSynced ? 'ACTIVE ✅' : 'EMPTY ❌'}
+      CAST_DNA_INJECTION: ${isCastSynced ? 'ACTIVE ✅' : 'EMPTY ❌'}
+      
+      CORE_DIRECTIVE: ${prompt}
+      
+      [EPISODE_PLANNING_CONTRACT_V4.2_ACTIVE]
+    `;
+    alert(mockPrompt.trim());
+  };
+
   return (
     <TooltipProvider>
       <div className={s.toolbar.container}>
@@ -89,10 +126,48 @@ export const SeriesToolbar: React.FC<SeriesToolbarProps> = ({
             </div>
           </div>
 
+          {/* Studio Intelligence Diagnostics */}
+          <div className="flex items-center gap-6 px-8 border-x border-white/5 mx-auto">
+            <div className="flex items-center gap-3 group/diag">
+               <Database className={cn("w-4 h-4 transition-colors", isWorldSynced ? "text-studio" : "text-zinc-700")} />
+               <div className="flex flex-col">
+                 <span className="text-[9px] font-black text-zinc-500 uppercase tracking-widest">World Lore Sync</span>
+                 <span className={cn("text-[10px] font-mono", isWorldSynced ? "text-studio" : "text-zinc-700")}>
+                   {isWorldSynced ? `${worldChars} Chars | ACTIVE ✅` : 'INACTIVE ❌'}
+                 </span>
+               </div>
+            </div>
+
+            <div className="flex items-center gap-3 group/diag">
+               <Users className={cn("w-4 h-4 transition-colors", isCastSynced ? "text-studio" : "text-zinc-700")} />
+               <div className="flex flex-col">
+                 <span className="text-[9px] font-black text-zinc-500 uppercase tracking-widest">Cast DNA Sync</span>
+                 <span className={cn("text-[10px] font-mono", isCastSynced ? "text-studio" : "text-zinc-700")}>
+                   {isCastSynced ? `${castList.length} Entities | ACTIVE ✅` : 'INACTIVE ❌'}
+                 </span>
+               </div>
+            </div>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button 
+                  onClick={handleViewPrompt}
+                  className="flex items-center gap-2 p-2 rounded-lg bg-white/[0.03] border border-white/5 hover:border-studio/30 transition-all group/prompt"
+                >
+                  <BrainCircuit className="w-3.5 h-3.5 text-zinc-500 group-hover/prompt:text-studio transition-colors" />
+                  <span className="text-[9px] font-black text-zinc-600 uppercase tracking-widest group-hover/prompt:text-zinc-400">Neural Prompt</span>
+                </button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p className="text-[10px] font-black uppercase tracking-widest">View System Instructions</p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
+
           <div className={s.toolbar.actionGroup}>
             <div className={s.toolbar.btnGroup}>
               <Tooltip>
-                <TooltipTrigger>
+                <TooltipTrigger asChild>
                   <Button
                     onClick={handleCopy}
                     size="icon"
@@ -109,7 +184,7 @@ export const SeriesToolbar: React.FC<SeriesToolbarProps> = ({
               </Tooltip>
 
               <Tooltip>
-                <TooltipTrigger>
+                <TooltipTrigger asChild>
                   <Button
                     onClick={handleDownload}
                     size="icon"
@@ -126,7 +201,7 @@ export const SeriesToolbar: React.FC<SeriesToolbarProps> = ({
               </Tooltip>
 
               <Tooltip>
-                <TooltipTrigger>
+                <TooltipTrigger asChild>
                   <Button
                     onClick={toggleFullscreen}
                     size="icon"
