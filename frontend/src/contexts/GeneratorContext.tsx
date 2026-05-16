@@ -474,9 +474,16 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
   }, [setPrompt, setGeneratedWorld, setGeneratedCharacters, setGeneratedSeriesPlan, showNotification]);
 
   const loadDemoProject = useCallback(() => {
+    // Phase 1: Core Identity
     setPrompt(MOCK_STORY_BIBLE.logline);
+    setTheme(MOCK_STORY_BIBLE.theme);
+    setGenre("Neon-Steampunk / Cyberpunk");
+    setArtStyle("High-Detail Anime Concept");
+    setTone("Analytical / Gritty");
+    setAudience("Sci-Fi Enthusiasts");
+    setContentType("Anime");
     
-    // World Data
+    // Phase 2: World Lore (Story Bible) - Setting to READY state
     setGeneratedWorld(MOCK_WORLD_DATA.manifest);
     setGeneratedWorldLore(MOCK_WORLD_DATA.lore);
     setGeneratedWorldPowers(MOCK_WORLD_DATA.powers);
@@ -486,33 +493,51 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     setGeneratedWorldCulture(MOCK_WORLD_DATA.culture);
     setGeneratedWorldSystems(MOCK_WORLD_DATA.systems);
     
-    // Cast Data
+    // Phase 3: Cast DNA Registry
     setCastData(MOCK_CAST_DATA);
     setGeneratedCharacters(MOCK_CAST_DATA.markdown);
     setCastList(MOCK_CAST_DATA.characters);
+    setNumCharacters(5); // 5_ENTITIES
+    
+    // DNA Metadata States
+    setCastDNA(null); // EMPTY
+    setCastDynamics("MAPPED"); // SOCIAL_WEB: MAPPED
+    setCastIntegrity(null); // EMPTY
+    
     if (MOCK_CAST_DATA.relationships) {
       setCharacterRelationships(JSON.stringify(MOCK_CAST_DATA.relationships));
     }
     
-    // Series & Script
+    // Phase 4: Production Roadmap
     setGeneratedSeriesPlan(MOCK_SERIES_PLAN);
     setGeneratedScript(MOCK_SCRIPT);
-    
-    // Project Metaparameters & Tone
-    setTheme(MOCK_STORY_BIBLE.theme);
-    setGenre("Neon-Steampunk / Cyberpunk");
-    setArtStyle("High-Detail Anime Concept");
-    setTone("Analytical / Gritty");
-    setAudience("Sci-Fi Enthusiasts");
     setNumEpisodes(MOCK_SERIES_PLAN.length);
-    setSelectedModel("gemini-3.1-flash");
     
-    // Technical Blueprint Sync - Materialize the Scene Matrix for the Demo
-    // Aetheria Demo has 1 Session, 3 Episodes, and 3 Scenes per Episode
+    // Phase 5: Engine Metaparameters
+    setSelectedModel("gemini-3.1-flash");
+    setTemperature(0.85);
+    setMaxTokens(2048);
+    setTopP(0.95);
+    setTopK(40);
+    
+    // Phase 6: Production Matrix Materialization
     const demoSequence = generateProductionSequences(1, 3, 3);
     setProductionSequence(demoSequence);
     
-    showNotification('Demo project loaded! Welcome to Aetheria.', 'success');
+    // System Logs (Story Bible Modules)
+    addLog("AETHERIA_CORE_SYNC", "INITIALIZED", "Demo environment stabilized.");
+    addLog("MOD_MANIFEST", "READY", "Global manifest synchronized.");
+    addLog("MOD_HISTORY", "READY", "Chronicle of Eras loaded.");
+    addLog("MOD_POWERS", "READY", "Aether-Bending parameters initialized.");
+    addLog("MOD_FACTIONS", "READY", "Social hierarchy mapped.");
+    addLog("MOD_ATLAS", "READY", "Floating archipelago coordinates synced.");
+    addLog("MOD_SYSTEMS", "READY", "Steam-Resonance logic active.");
+    
+    // System Logs (Cast DNA)
+    addLog("ENTITY_DNA_REGISTRY", "SYNCED", "5 Entities detected in registry.");
+    addLog("DNA_SOCIAL_WEB", "MAPPED", "Relational dynamics established.");
+    
+    showNotification('Aetheria Core Sync: Demo project loaded successfully.', 'success');
   }, [
     setPrompt, 
     setGeneratedWorld, 
@@ -536,7 +561,17 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     setTone,
     setAudience,
     setNumEpisodes,
+    setNumCharacters,
+    setCastDNA,
+    setCastDynamics,
+    setCastIntegrity,
     setSelectedModel,
+    setTemperature,
+    setMaxTokens,
+    setTopP,
+    setTopK,
+    setContentType,
+    addLog,
     showNotification
   ]);
 
