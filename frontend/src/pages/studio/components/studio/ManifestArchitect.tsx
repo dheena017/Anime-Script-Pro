@@ -11,9 +11,10 @@ interface ProjectConfiguratorProps {
   initialConfig?: { sessions: number; episodes: number; scenes: number };
   externalConfig?: { sessions: number; episodes: number; scenes: number };
   onExternalConfigChange?: (config: { sessions: number; episodes: number; scenes: number } | ((prev: any) => any)) => void;
+  hideButton?: boolean;
 }
 
-export function ProjectConfigurator({ onContinue, isLoading, initialConfig, externalConfig, onExternalConfigChange }: ProjectConfiguratorProps) {
+export function ProjectConfigurator({ onContinue, isLoading, initialConfig, externalConfig, onExternalConfigChange, hideButton }: ProjectConfiguratorProps) {
   const [internalConfig, setInternalConfig] = React.useState({
     sessions: initialConfig?.sessions || 1,
     episodes: initialConfig?.episodes || 12,
@@ -47,23 +48,24 @@ export function ProjectConfigurator({ onContinue, isLoading, initialConfig, exte
         className="relative group"
       >
         {/* Outer Glow Effect */}
-        <div className="absolute -inset-1 bg-gradient-to-r from-studio/20 via-fuchsia-500/20 to-studio/20 rounded-[2.5rem] blur-2xl opacity-0 group-hover:opacity-100 transition duration-1000" />
+        <div className="absolute -inset-1 bg-gradient-to-r from-studio/10 via-fuchsia-500/10 to-studio/10 rounded-[3rem] blur-3xl opacity-0 group-hover:opacity-100 transition duration-1000" />
         
-        <div className="relative bg-[#050505] border border-white/5 rounded-[2.5rem] overflow-hidden shadow-2xl backdrop-blur-3xl">
+        <div className="relative bg-[#050505]/60 border border-white/10 rounded-[3rem] overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)] backdrop-blur-2xl">
           {/* Hardware Header */}
           <div className="p-10 border-b border-white/5 bg-gradient-to-br from-white/[0.02] to-transparent">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-2xl bg-studio/10 border border-studio/30 flex items-center justify-center shadow-[0_0_20px_rgba(6,182,212,0.1)]">
-                  <Box className="w-6 h-6 text-studio" />
+                <div className="w-14 h-14 rounded-2xl bg-studio/10 border border-studio/30 flex items-center justify-center shadow-[0_0_30px_rgba(6,182,212,0.15)] relative overflow-hidden group/icon">
+                  <div className="absolute inset-0 bg-gradient-to-br from-studio/20 to-transparent opacity-0 group-hover/icon:opacity-100 transition-opacity" />
+                  <Box className="w-7 h-7 text-studio relative z-10" />
                 </div>
                 <div>
-                  <h3 className="text-xs font-black uppercase tracking-[0.4em] text-studio">
+                  <h3 className="text-[10px] font-black uppercase tracking-[0.5em] text-studio drop-shadow-[0_0_10px_rgba(6,182,212,0.5)]">
                     Production Manifest Architect
                   </h3>
-                  <div className="flex items-center gap-2 mt-1">
-                    <div className="w-2 h-2 rounded-full bg-studio animate-pulse shadow-[0_0_8px_rgba(6,182,212,0.8)]" />
-                    <span className="text-xs font-mono text-zinc-600 uppercase tracking-widest">Neural Link Active // 0x-7FF</span>
+                  <div className="flex items-center gap-2 mt-1.5">
+                    <div className="w-1.5 h-1.5 rounded-full bg-studio animate-pulse shadow-[0_0_10px_rgba(6,182,212,1)]" />
+                    <span className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest">Neural Link Active // 0x-7FF</span>
                   </div>
                 </div>
               </div>
@@ -152,31 +154,32 @@ export function ProjectConfigurator({ onContinue, isLoading, initialConfig, exte
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <Calculator className="w-5 h-5 text-studio" />
-                    <span className="text-xs font-black uppercase tracking-[0.4em] text-zinc-500">Manifest Computation</span>
+                    <span className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-500">Manifest Computation</span>
                   </div>
-                  <div className="px-3 py-1 bg-studio/5 border border-studio/20 rounded-full">
-                    <span className="text-xs font-mono text-studio font-black tracking-widest uppercase">Linear Expansion Mode</span>
+                  <div className="px-3 py-1 bg-studio/10 border border-studio/30 rounded-full shadow-[0_0_15px_rgba(6,182,212,0.1)]">
+                    <span className="text-[10px] font-mono text-studio font-black tracking-widest uppercase">Linear Expansion Mode</span>
                   </div>
                 </div>
                 
-                <div className="flex items-baseline gap-4">
-                  <span className="text-3xl font-black text-white tracking-tighter drop-shadow-[0_0_20px_rgba(6,182,212,0.3)]">
+                <div className="flex items-baseline gap-5">
+                  <span className="text-4xl font-black text-white tracking-tighter drop-shadow-[0_0_25px_rgba(6,182,212,0.4)]">
                     <motion.span
                       key={totalItems}
-                      initial={{ opacity: 0, scale: 0.9 }}
-                      animate={{ opacity: 1, scale: 1 }}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
                     >
                       {totalItems.toLocaleString()}
                     </motion.span>
                   </span>
-                  <div className="flex flex-col">
-                    <span className="text-zinc-500 text-xs font-black uppercase tracking-[0.2em]">Production Nodes</span>
-                    <span className="text-studio/60 text-xs font-mono">ESTIMATED STORAGE: {Math.round(totalItems * 0.15)}MB</span>
+                  <div className="flex flex-col gap-1">
+                    <span className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.3em]">Production Nodes</span>
+                    <span className="text-studio/70 text-[10px] font-mono tracking-widest uppercase">ESTIMATED STORAGE: {Math.round(totalItems * 0.15)}MB</span>
                   </div>
                 </div>
                 
-                <div className="p-4 bg-white/[0.02] border border-white/5 rounded-xl">
-                   <p className="text-xs text-zinc-500 leading-relaxed font-medium">
+                <div className="p-5 bg-white/[0.03] border border-white/5 rounded-2xl relative group/desc">
+                   <div className="absolute left-0 top-0 bottom-0 w-1 bg-studio/40 rounded-full m-1 opacity-0 group-hover/desc:opacity-100 transition-opacity" />
+                   <p className="text-xs text-zinc-500 leading-relaxed font-medium pl-2 italic">
                     "Structural blueprint maps {config.sessions} session(s) across {config.episodes} episodes, generating {totalItems} unique narrative scene blocks for AI synthesis."
                   </p>
                 </div>
@@ -184,24 +187,26 @@ export function ProjectConfigurator({ onContinue, isLoading, initialConfig, exte
             </div>
 
             {/* Execute Button */}
-            <Button 
-              onClick={() => onContinue?.(config)}
-              disabled={isLoading || totalItems <= 0}
-              className={cn(
-                "w-full h-16 bg-studio text-black hover:scale-[1.02] active:scale-[0.98] transition-all duration-500 font-black uppercase tracking-[0.4em] text-xs rounded-2xl shadow-[0_20px_40px_-15px_rgba(6,182,212,0.4)] group relative overflow-hidden"
-              )}
-            >
-              {isLoading ? (
-                <div className="w-6 h-6 border-4 border-black/30 border-t-black rounded-full animate-spin" />
-              ) : (
-                <>
-                  <span className="relative z-10 flex items-center gap-3">
-                    Initialize Blueprint <ChevronRight className="w-5 h-5 group-hover:translate-x-2 transition-transform duration-500" />
-                  </span>
-                  <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/40 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
-                </>
-              )}
-            </Button>
+            {!hideButton && (
+              <Button 
+                onClick={() => onContinue?.(config)}
+                disabled={isLoading || totalItems <= 0}
+                className={cn(
+                  "w-full h-16 bg-studio text-black hover:scale-[1.02] active:scale-[0.98] transition-all duration-500 font-black uppercase tracking-[0.4em] text-xs rounded-2xl shadow-[0_20px_40px_-15px_rgba(6,182,212,0.4)] group relative overflow-hidden"
+                )}
+              >
+                {isLoading ? (
+                  <div className="w-6 h-6 border-4 border-black/30 border-t-black rounded-full animate-spin" />
+                ) : (
+                  <>
+                    <span className="relative z-10 flex items-center gap-3">
+                      Initialize Blueprint <ChevronRight className="w-5 h-5 group-hover:translate-x-2 transition-transform duration-500" />
+                    </span>
+                    <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/40 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+                  </>
+                )}
+              </Button>
+            )}
           </div>
 
           {/* Technical Footer */}

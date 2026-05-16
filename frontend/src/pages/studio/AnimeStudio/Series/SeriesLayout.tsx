@@ -131,7 +131,8 @@ export default function SeriesLayout() {
       
       // We navigate directly to episodes now to avoid "one by one" delay feeling
       // Navigate to episodes tab via query param after generation
-      setSearchParams({ tab: 'episodes' }); 
+      // Maintain current tab focus after generation
+      // setSearchParams({ tab: 'episodes' }); 
       
       studioLog("SERIES", `UI Transition complete. Final plan state: ${plan?.length} episodes.`, 'info', {
         exists: !!plan,
@@ -178,10 +179,16 @@ export default function SeriesLayout() {
     setSearchParams
   ]);
 
-  // Query-param-only tab routing — ?tab=episodes, etc.
   const VALID_TABS: SeriesTab[] = ['episodes', 'assets', 'blueprint'];
+  const pathname = location.pathname;
+  const pathTab = pathname.split('/').pop() as SeriesTab;
   const queryTab = searchParams.get('tab') as SeriesTab | null;
-  const activeTab: SeriesTab = (queryTab && VALID_TABS.includes(queryTab)) ? queryTab : 'episodes';
+  
+  const activeTab: SeriesTab = (queryTab && VALID_TABS.includes(queryTab)) 
+    ? queryTab 
+    : (pathTab && VALID_TABS.includes(pathTab))
+      ? pathTab
+      : 'episodes';
 
   const handleTabChange = (tab: SeriesTab) => {
     startTransition(() => {
@@ -291,7 +298,7 @@ export default function SeriesLayout() {
             className="flex-1 flex flex-col"
           >
             <Suspense fallback={<div className="flex-1 flex items-center justify-center p-20"><SeriesLoadingPage tab={activeTab} progress={generationProgress} /></div>}>
-              {isGeneratingSeries ? (
+              {isGeneratingSeries && activeTab !== 'blueprint' ? (
                 <SeriesLoadingPage 
                   tab={activeTab} 
                   progress={generationProgress} 

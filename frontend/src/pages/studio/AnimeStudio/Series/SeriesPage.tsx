@@ -172,7 +172,8 @@ export function SeriesPage() {
   };
 
   const renderTabContent = () => {
-    if (isGeneratingSeries) {
+    // Only show global loading if NOT on the blueprint tab (which has its own HUD)
+    if (isGeneratingSeries && activeTab !== 'blueprint') {
       return (
         <SeriesLoadingPage
           message={getLoadingMessage()}
@@ -181,7 +182,7 @@ export function SeriesPage() {
       );
     }
     
-    if (!generatedSeriesPlan || generatedSeriesPlan.length === 0) {
+    if ((!generatedSeriesPlan || generatedSeriesPlan.length === 0) && activeTab !== 'blueprint') {
       return (
         <SeriesEmptyState
           onLaunch={() => window.dispatchEvent(new CustomEvent('studio-generate-series'))}
