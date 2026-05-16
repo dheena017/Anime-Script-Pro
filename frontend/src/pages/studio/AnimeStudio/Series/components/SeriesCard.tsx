@@ -106,40 +106,50 @@ export const SeriesCard = React.memo<SeriesCardProps>(({
           {/* Briefing Header */}
           <div className="flex items-start justify-between">
              <div className="flex gap-6">
-                <div className="flex flex-col items-center gap-1">
-                   <div className="w-14 h-14 rounded-2xl bg-black border border-white/10 flex items-center justify-center text-2xl font-black text-studio shadow-inner group-hover:border-studio/50 group-hover:shadow-[0_0_20px_rgba(6,182,212,0.2)] transition-all">
+                <div className="flex flex-col items-center gap-2">
+                   <div className="w-16 h-16 rounded-full bg-black border-2 border-studio/30 flex items-center justify-center text-2xl font-black text-studio shadow-[0_0_20px_rgba(6,182,212,0.15)] group-hover:border-studio transition-all duration-500">
                      {ep.episode}
                    </div>
-                   <span className="text-xs font-black text-zinc-600 uppercase tracking-widest">ID-N7</span>
+                   <span className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.3em]">ID-N7</span>
                 </div>
-                <div className="space-y-2">
-                   <div className="flex items-center gap-3">
-                      <div className="flex items-center gap-1.5 px-2 py-0.5 bg-studio/10 border border-studio/20 rounded-md">
-                        <Activity className="w-2.5 h-2.5 text-studio" />
-                        <span className="text-xs font-black text-studio uppercase tracking-widest">Node Linked</span>
+                <div className="space-y-3">
+                   <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-2 px-3 py-1 bg-studio/10 border border-studio/30 rounded-lg">
+                        <motion.div
+                          animate={{ opacity: [0.4, 1, 0.4] }}
+                          transition={{ duration: 2, repeat: Infinity }}
+                        >
+                          <Activity className="w-3 h-3 text-studio" />
+                        </motion.div>
+                        <span className="text-[10px] font-black text-studio uppercase tracking-widest">Node Linked</span>
                       </div>
-                      <span className="text-xs font-black text-zinc-500 uppercase tracking-widest flex items-center gap-1.5">
-                        <Clock className="w-3 h-3" /> {ep.runtime || '24:00'}
+                      <span className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] flex items-center gap-2">
+                        <Clock className="w-3.5 h-3.5" /> {ep.runtime || '24:00'}
                       </span>
                    </div>
-                   <h3 className="text-3xl font-black text-white uppercase tracking-tighter group-hover:text-studio transition-colors duration-500 leading-none">
+                   <h3 className="text-4xl font-black text-studio uppercase tracking-[-0.05em] leading-none drop-shadow-[0_0_15px_rgba(6,182,212,0.3)]">
                      {ep.title}
                    </h3>
                 </div>
              </div>
 
              {/* Diagnostic Pips HUD */}
-             <div className="flex flex-col gap-2">
+             <div className="flex flex-col gap-2.5">
                 {[
-                  { label: 'AUDIO', val: ep.asset_matrix?.sound, color: 'text-emerald-400', bg: 'bg-emerald-400' },
-                  { label: 'VISUAL', val: ep.asset_matrix?.image, color: 'text-purple-400', bg: 'bg-purple-400' },
-                  { label: 'MOTION', val: ep.asset_matrix?.video, color: 'text-blue-400', bg: 'bg-blue-400' }
+                  { label: 'AUDIO', val: ep.asset_matrix?.sound, color: 'text-emerald-400', glow: 'shadow-[0_0_12px_#34d399]', dot: 'bg-emerald-400' },
+                  { label: 'VISUAL', val: ep.asset_matrix?.image, color: 'text-purple-400', glow: 'shadow-[0_0_12px_#c084fc]', dot: 'bg-purple-400' },
+                  { label: 'MOTION', val: ep.asset_matrix?.video, color: 'text-blue-400', glow: 'shadow-[0_0_12px_#60a5fa]', dot: 'bg-blue-400' }
                 ].map((pip, i) => (
                   <div key={i} className="flex items-center justify-end gap-3 group/pip">
-                     <span className={cn("text-xs font-black uppercase tracking-widest transition-colors", pip.val ? pip.color : "text-zinc-700")}>{pip.label}</span>
+                     <span className={cn(
+                       "text-[10px] font-black uppercase tracking-[0.25em] transition-all duration-300", 
+                       pip.val ? "text-zinc-200" : "text-zinc-700"
+                     )}>
+                       {pip.label}
+                     </span>
                      <div className={cn(
                        "w-1.5 h-1.5 rounded-full transition-all duration-500",
-                       pip.val ? `${pip.bg} shadow-[0_0_8px_rgba(255,255,255,0.3)]` : "bg-zinc-800"
+                       pip.val ? `${pip.dot} ${pip.glow}` : "bg-zinc-800"
                      )} />
                   </div>
                 ))}
@@ -148,66 +158,76 @@ export const SeriesCard = React.memo<SeriesCardProps>(({
 
           {/* Narrative Briefing (Hook) */}
           <div className="relative group/hook">
-             <div className="absolute inset-0 bg-white/[0.01] rounded-2xl border border-white/5 group-hover/hook:border-studio/10 transition-all" />
-             <div className="relative p-6">
-                <p className="text-lg text-zinc-300 font-medium italic leading-relaxed tracking-tight group-hover:text-zinc-100 transition-colors">
+             <div className="absolute inset-0 bg-black/60 rounded-3xl border border-white/10 group-hover/hook:border-studio/20 transition-all duration-500 shadow-inner" />
+             <div className="relative p-8">
+                <p className="text-xl text-zinc-200 font-medium italic leading-relaxed tracking-tight group-hover:text-white transition-colors">
                   "{ep.hook}"
                 </p>
              </div>
           </div>
 
           {/* Production Matrix Badges */}
-          <div className="grid grid-cols-2 gap-3">
-             <div className="p-4 bg-white/[0.02] border border-white/5 rounded-2xl hover:border-studio/20 transition-all group/badge">
-                <div className="flex items-center gap-3 mb-1">
-                   <MapPin className="w-3.5 h-3.5 text-studio/60 group-hover/badge:text-studio transition-colors" />
-                   <span className="text-xs font-black text-zinc-600 uppercase tracking-widest">Primary Context</span>
+          <div className="grid grid-cols-2 gap-4">
+             <div className="p-5 bg-black/40 border border-white/5 rounded-3xl hover:border-studio/30 transition-all duration-500 group/badge shadow-sm">
+                <div className="flex items-center gap-3 mb-2">
+                   <MapPin className="w-4 h-4 text-studio/40 group-hover/badge:text-studio transition-colors" />
+                   <span className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.2em]">Primary Context</span>
                 </div>
-                <p className="text-xs font-black text-zinc-400 group-hover:text-zinc-200 uppercase truncate">{ep.setting || 'Awaiting Sync'}</p>
+                <p className="text-xs font-black text-zinc-100 group-hover:text-white uppercase truncate tracking-wide">
+                  {ep.setting || 'Awaiting Sync'}
+                </p>
              </div>
-             <div className="p-4 bg-white/[0.02] border border-white/5 rounded-2xl hover:border-purple-500/20 transition-all group/badge">
-                <div className="flex items-center gap-3 mb-1">
-                   <Users className="w-3.5 h-3.5 text-purple-400/60 group-hover/badge:text-purple-400 transition-colors" />
-                   <span className="text-xs font-black text-zinc-600 uppercase tracking-widest">Target Cast</span>
+             <div className="p-5 bg-black/40 border border-white/5 rounded-3xl hover:border-purple-500/30 transition-all duration-500 group/badge shadow-sm">
+                <div className="flex items-center gap-3 mb-2">
+                   <Users className="w-4 h-4 text-purple-400/40 group-hover/badge:text-purple-400 transition-colors" />
+                   <span className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.2em]">Target Cast</span>
                 </div>
-                <p className="text-xs font-black text-zinc-400 group-hover:text-zinc-200 uppercase truncate">{ep.focus_characters?.[0] || 'Unassigned'}</p>
+                <p className="text-xs font-black text-zinc-100 group-hover:text-white uppercase truncate tracking-wide">
+                  {ep.focus_characters?.[0] || 'Unassigned'}
+                </p>
              </div>
-             <div className="p-4 bg-white/[0.02] border border-white/5 rounded-2xl hover:border-studio/20 transition-all group/badge">
-                <div className="flex items-center gap-3 mb-1">
-                   <Sparkles className="w-3.5 h-3.5 text-studio/60 group-hover/badge:text-studio transition-colors" />
-                   <span className="text-xs font-black text-zinc-600 uppercase tracking-widest">Thematic Pillar</span>
+             <div className="p-5 bg-black/40 border border-white/5 rounded-3xl hover:border-studio/30 transition-all duration-500 group/badge shadow-sm">
+                <div className="flex items-center gap-3 mb-2">
+                   <Sparkles className="w-4 h-4 text-studio/40 group-hover/badge:text-studio transition-colors" />
+                   <span className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.2em]">Thematic Pillar</span>
                 </div>
-                <p className="text-xs font-black text-zinc-400 group-hover:text-zinc-200 uppercase truncate">{ep.theme_mapping?.core_theme || 'Locked'}</p>
+                <p className="text-xs font-black text-zinc-100 group-hover:text-white uppercase truncate tracking-wide">
+                  {ep.theme_mapping?.core_theme || 'Locked'}
+                </p>
              </div>
-             <div className="p-4 bg-white/[0.02] border border-white/5 rounded-2xl hover:border-studio/20 transition-all group/badge">
-                <div className="flex items-center gap-3 mb-1">
-                   <Database className="w-3.5 h-3.5 text-studio/60 group-hover/badge:text-studio transition-colors" />
-                   <span className="text-xs font-black text-zinc-600 uppercase tracking-widest">Scene Units</span>
+             <div className="p-5 bg-black/40 border border-white/5 rounded-3xl hover:border-studio/30 transition-all duration-500 group/badge shadow-sm">
+                <div className="flex items-center gap-3 mb-2">
+                   <Database className="w-4 h-4 text-studio/40 group-hover/badge:text-studio transition-colors" />
+                   <span className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.2em]">Scene Units</span>
                 </div>
-                <p className="text-xs font-black text-zinc-400 group-hover:text-zinc-200 uppercase">{sceneCount} Production Units</p>
+                <p className="text-xs font-black text-zinc-100 group-hover:text-white uppercase tracking-wide">
+                  {sceneCount} Production Units
+                </p>
              </div>
           </div>
         </div>
 
         {/* Action Dock */}
-        <div className="p-4 bg-black/40 border-t border-white/5 flex gap-3 relative z-10">
+        <div className="p-6 bg-black/40 border-t border-white/5 flex gap-4 relative z-10 backdrop-blur-md">
             <Button
+              variant="outline"
               onClick={() => onViewEpisode?.(ep.episode)}
-              className="flex-1 h-12 bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 text-xs font-black uppercase tracking-widest text-zinc-400 hover:text-white rounded-xl transition-all group/btn"
+              className="flex-1 h-14 bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 text-xs font-black uppercase tracking-[0.2em] text-zinc-400 hover:text-white rounded-2xl transition-all group/btn"
             >
-              <Eye className="w-4 h-4 mr-2 opacity-40 group-hover/btn:opacity-100 transition-opacity" />
-              View Briefing
+              <Eye className="w-4 h-4 mr-3 opacity-40 group-hover/btn:opacity-100 transition-opacity" />
+              View Series
             </Button>
             <Button
               onClick={() => onFocusEpisode(ep.episode)}
-              className="flex-1 h-12 bg-studio text-black hover:bg-studio/80 text-xs font-black uppercase tracking-widest rounded-xl transition-all shadow-studio/10 hover:shadow-studio/30 group/btn"
+              className="flex-1 h-14 bg-studio text-black hover:bg-studio/90 text-xs font-black uppercase tracking-[0.2em] rounded-2xl transition-all shadow-studio/20 hover:shadow-studio/40 group/btn"
             >
-              Focus Episode <PlayCircle className="w-4 h-4 ml-2 group-hover/btn:translate-x-1 transition-all" />
+              Focus Episode <PlayCircle className="w-5 h-5 ml-3 group-hover/btn:scale-110 transition-all" />
             </Button>
         </div>
 
         {/* Scanline Overlay */}
         <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.02),rgba(0,255,0,0.01),rgba(0,0,255,0.02))] z-0 pointer-events-none bg-[length:100%_2px,3px_100%] opacity-20" />
+
       </div>
     </motion.div>
   );
