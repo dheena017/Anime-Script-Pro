@@ -499,11 +499,12 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     setCastList(MOCK_CAST_DATA.characters);
     setNumCharacters(5); // 5_ENTITIES
     
-    // DNA Metadata States
-    setCastDNA(null); // EMPTY
-    setCastDynamics("MAPPED"); // SOCIAL_WEB: MAPPED
-    setCastIntegrity(null); // EMPTY
+    // DNA Metadata States (Per User Request)
+    setCastDNA(null); // DNA_DNA_PROFILES: EMPTY
+    setCastDynamics(null); // DNA_PSYCH_DYNAMICS: EMPTY
+    setCastIntegrity(null); // DNA_LORE_INTEGRITY: EMPTY
     
+    // Social Web is derived from characterRelationships in BlueprintTab
     if (MOCK_CAST_DATA.relationships) {
       setCharacterRelationships(JSON.stringify(MOCK_CAST_DATA.relationships));
     }
@@ -524,8 +525,8 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     const demoSequence = generateProductionSequences(1, 3, 3);
     setProductionSequence(demoSequence);
     
-    // System Logs (Story Bible Modules)
-    addLog("AETHERIA_CORE_SYNC", "INITIALIZED", "Demo environment stabilized.");
+    // System Logs (Story Bible & Cast DNA Manifest)
+    addLog("AETHERIA_CORE_SYNC", "INITIALIZED", "Stabilizing Aetheria Neural Hub.");
     addLog("MOD_MANIFEST", "READY", "Global manifest synchronized.");
     addLog("MOD_HISTORY", "READY", "Chronicle of Eras loaded.");
     addLog("MOD_POWERS", "READY", "Aether-Bending parameters initialized.");
@@ -533,7 +534,6 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     addLog("MOD_ATLAS", "READY", "Floating archipelago coordinates synced.");
     addLog("MOD_SYSTEMS", "READY", "Steam-Resonance logic active.");
     
-    // System Logs (Cast DNA)
     addLog("ENTITY_DNA_REGISTRY", "SYNCED", "5 Entities detected in registry.");
     addLog("DNA_SOCIAL_WEB", "MAPPED", "Relational dynamics established.");
     
