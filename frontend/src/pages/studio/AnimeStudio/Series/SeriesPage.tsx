@@ -90,9 +90,9 @@ export function SeriesPage() {
 
     const sceneRows = generatedScript
       ? generatedScript
-          .split('\n')
-          .filter((line) => line.includes('|') && !line.includes('---'))
-          .slice(1)
+        .split('\n')
+        .filter((line) => line.includes('|') && !line.includes('---'))
+        .slice(1)
       : [];
 
     if (sceneRows.length === 0) {
@@ -173,7 +173,7 @@ export function SeriesPage() {
 
   const renderTabContent = () => {
     // Only show global loading if NOT on the blueprint tab (which has its own HUD)
-    if (isGeneratingSeries && activeTab !== 'blueprint') {
+    if (isGeneratingSeries) {
       return (
         <SeriesLoadingPage
           message={getLoadingMessage()}
@@ -181,7 +181,7 @@ export function SeriesPage() {
         />
       );
     }
-    
+
     if ((!generatedSeriesPlan || generatedSeriesPlan.length === 0) && activeTab !== 'blueprint') {
       return (
         <SeriesEmptyState

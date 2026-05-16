@@ -89,7 +89,7 @@ export default function SeriesLayout() {
       setGeneratedMetadata(null);
 
       const totalEpisodes = episodesToGenerate;
-      
+
       // BUILD THE SOURCE OF TRUTH (WORLD BIBLE)
       const worldBible = [
         `MANIFEST: ${generatedWorld || 'N/A'}`,
@@ -111,11 +111,11 @@ export default function SeriesLayout() {
 
       studioLog("SERIES", `Requesting series plan generation for ${totalEpisodes} episodes using full story bible...`, 'anime');
       const rawPlan = await generateSeriesPlan(
-        prompt, 
-        selectedModel, 
-        contentType, 
-        totalEpisodes, 
-        worldBible, 
+        prompt,
+        selectedModel,
+        contentType,
+        totalEpisodes,
+        worldBible,
         castContext
       );
 
@@ -125,15 +125,15 @@ export default function SeriesLayout() {
       studioLog("SERIES", `Series plan synthesized. Count: ${plan.length} episodes.`, 'success');
       addGeneratorLog?.("SERIES", "SUCCESS", `Series roadmap ready with ${plan.length} episodes.`);
       setGenerationProgress(100);
-      
+
       // Response and Report Flow - Instant Impact
       const base = `/studio/series`;
-      
+
       // We navigate directly to episodes now to avoid "one by one" delay feeling
       // Navigate to episodes tab via query param after generation
       // Maintain current tab focus after generation
       // setSearchParams({ tab: 'episodes' }); 
-      
+
       studioLog("SERIES", `UI Transition complete. Final plan state: ${plan?.length} episodes.`, 'info', {
         exists: !!plan,
         count: plan?.length,
@@ -146,7 +146,7 @@ export default function SeriesLayout() {
       setGenerationError(msg);
       addGeneratorLog?.("SERIES", "ERROR", `Synthesis failed: ${msg}`);
       showNotification?.('Failed to create series plan: ' + msg, 'error');
-      
+
       // Stay on loading page for a few seconds to show the error before closing
       await new Promise(r => setTimeout(r, 4000));
     } finally {
@@ -183,9 +183,9 @@ export default function SeriesLayout() {
   const pathname = location.pathname;
   const pathTab = pathname.split('/').pop() as SeriesTab;
   const queryTab = searchParams.get('tab') as SeriesTab | null;
-  
-  const activeTab: SeriesTab = (queryTab && VALID_TABS.includes(queryTab)) 
-    ? queryTab 
+
+  const activeTab: SeriesTab = (queryTab && VALID_TABS.includes(queryTab))
+    ? queryTab
     : (pathTab && VALID_TABS.includes(pathTab))
       ? pathTab
       : 'episodes';
@@ -298,10 +298,10 @@ export default function SeriesLayout() {
             className="flex-1 flex flex-col"
           >
             <Suspense fallback={<div className="flex-1 flex items-center justify-center p-20"><SeriesLoadingPage tab={activeTab} progress={generationProgress} /></div>}>
-              {isGeneratingSeries && activeTab !== 'blueprint' ? (
-                <SeriesLoadingPage 
-                  tab={activeTab} 
-                  progress={generationProgress} 
+              {isGeneratingSeries ? (
+                <SeriesLoadingPage
+                  tab={activeTab}
+                  progress={generationProgress}
                   error={generationError}
                   title="Generating All Series Tabs"
                   description="Orchestrating Roadmap, Episodes, and Assets..."
