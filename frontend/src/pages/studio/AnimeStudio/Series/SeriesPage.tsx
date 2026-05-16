@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate, useOutletContext } from 'react-router-dom';
+import { useNavigate, useOutletContext, useSearchParams } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
 import { generateProductionSequences } from '@/lib/sequence-utils';
@@ -22,6 +22,7 @@ export function SeriesPage() {
   const { user } = useAuth();
   const [isSyncing, setIsSyncing] = React.useState(false);
   const [lastSyncDate, setLastSyncDate] = React.useState<string | null>(null);
+  const [searchParams, setSearchParams] = useSearchParams();
   const context = useOutletContext<{ activeTab?: SeriesTab }>();
   const activeTab = context?.activeTab || 'episodes';
 
@@ -185,7 +186,7 @@ export function SeriesPage() {
     if ((!generatedSeriesPlan || generatedSeriesPlan.length === 0) && activeTab !== 'blueprint') {
       return (
         <SeriesEmptyState
-          onLaunch={() => window.dispatchEvent(new CustomEvent('studio-generate-series'))}
+          onLaunch={() => setSearchParams({ tab: 'blueprint' })}
           onLoadDemo={loadDemoProject}
           isGenerating={isGeneratingSeries}
         />

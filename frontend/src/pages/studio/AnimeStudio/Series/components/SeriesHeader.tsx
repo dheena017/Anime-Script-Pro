@@ -6,14 +6,11 @@ import {
   TooltipTrigger
 } from '@/components/ui/tooltip';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight, Cpu, Layout, Save, Sparkles, Square, Box } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Cpu, Layout, Save, Box } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useGeneratorDispatch } from '@/hooks/useGenerator';
 import { seriesStyles as s } from '../seriesStyles';
 
 interface SeriesHeaderProps {
-  onRegenerate: () => void;
-  isGenerating: boolean;
   onNext: () => void;
   onPrev?: () => void;
   onSave?: () => void;
@@ -29,8 +26,6 @@ interface SeriesHeaderProps {
 }
 
 export const SeriesHeader: React.FC<SeriesHeaderProps> = ({
-  onRegenerate,
-  isGenerating,
   onNext,
   onPrev,
   onSave,
@@ -43,7 +38,6 @@ export const SeriesHeader: React.FC<SeriesHeaderProps> = ({
   episode,
   status = 'empty'
 }) => {
-  const { stopGeneration } = useGeneratorDispatch();
 
   return (
     <TooltipProvider>
@@ -91,34 +85,6 @@ export const SeriesHeader: React.FC<SeriesHeaderProps> = ({
             )}
 
             <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  {isGenerating ? (
-                    <Button
-                      className={s.header.actionButtonDanger}
-                      onClick={stopGeneration}
-                    >
-                      <Square className="w-4 h-4 mr-3 fill-current group-hover/stop:scale-110 transition-transform" />
-                      <span className="relative z-10">STOP SYNTHESIS</span>
-                    </Button>
-                  ) : (
-                    <Button
-                      className={s.header.actionButtonPrimary}
-                      onClick={onRegenerate}
-                    >
-                      <div className="absolute inset-0 bg-emerald-500/5 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-500 rounded-full" />
-                      <Sparkles className="w-4 h-4 mr-3 text-emerald-500 group-hover/btn:scale-125 transition-transform duration-500" />
-                      <span className="relative z-10">GENERATE ALL</span>
-                    </Button>
-                  )}
-                </TooltipTrigger>
-                <TooltipContent side="top">
-                  <p className="font-black uppercase tracking-widest text-xs">
-                    {isGenerating ? "Terminate Active Process" : "Generate AI Roadmap"}
-                  </p>
-                </TooltipContent>
-              </Tooltip>
-
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button

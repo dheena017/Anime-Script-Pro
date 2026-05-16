@@ -215,8 +215,6 @@ export default function SeriesLayout() {
       {/* Global Header - Always visible for context and navigation */}
       <div className="studio-module-header">
         <SeriesHeader
-          onRegenerate={() => handleGenerate()}
-          isGenerating={isGeneratingSeries}
           onPrev={() => {
             startTransition(() => {
               navigate(`${currentScriptId ? `/projects/${currentScriptId}` : '/studio'}/cast`);

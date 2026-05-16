@@ -26,7 +26,9 @@ export const SeriesEmptyState: React.FC<SeriesEmptyStateProps> = ({
     <StudioEmptyState
       icon={LayoutGrid}
       title="No Series Plan"
-      description="The narrative roadmap for your production is missing. Generate a multi-episode blueprint to see your story mapped out."
+      description="The narrative roadmap for your production is missing. Configure your production blueprint to materialize your story."
+      actionLabel="Open Blueprint"
+      onAction={onLaunch}
       secondaryActionLabel="Load Aetheria Sample Production"
       onSecondaryAction={onLoadDemo}
       features={features}
