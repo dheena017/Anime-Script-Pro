@@ -70,7 +70,7 @@ export const ScriptHeader: React.FC<ScriptHeaderProps> = ({
           <div className="flex flex-col sm:flex-row items-center gap-4 z-10 w-full lg:w-auto">
             {onPrev && (
               <Tooltip>
-                <TooltipTrigger >
+                <TooltipTrigger asChild>
                   <Button
                     className={s.header.actionButton}
                     onClick={onPrev}
@@ -88,7 +88,7 @@ export const ScriptHeader: React.FC<ScriptHeaderProps> = ({
             <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
               <div className="flex items-center gap-2">
                 <Tooltip>
-                  <TooltipTrigger >
+                  <TooltipTrigger asChild>
                     {isGenerating ? (
                       <Button
                         className={s.header.actionButtonDanger}
@@ -116,7 +116,7 @@ export const ScriptHeader: React.FC<ScriptHeaderProps> = ({
 
                 {!isGenerating && onGenerateAll && (
                   <Tooltip>
-                    <TooltipTrigger >
+                    <TooltipTrigger asChild>
                       <Button
                         className={s.header.actionButtonPrimary}
                         onClick={onGenerateAll}
@@ -133,7 +133,7 @@ export const ScriptHeader: React.FC<ScriptHeaderProps> = ({
               </div>
 
               <Tooltip>
-                <TooltipTrigger >
+                <TooltipTrigger asChild>
                   <Button
                     className={s.header.actionButtonPrimary}
                     onClick={onNext}

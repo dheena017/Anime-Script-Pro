@@ -208,7 +208,7 @@ export default function SeriesLayout() {
       {/* Global Header - Always visible for context and navigation */}
       <div className="studio-module-header">
         <SeriesHeader
-          onRegenerate={handleGenerate}
+          onRegenerate={() => handleGenerate()}
           isGenerating={isGeneratingSeries}
           onClear={() => {
             setGeneratedSeriesPlan(null);
@@ -219,12 +219,12 @@ export default function SeriesLayout() {
           }}
           onPrev={() => {
             startTransition(() => {
-              navigate(`/studio/cast`);
+              navigate(`${currentScriptId ? `/projects/${currentScriptId}` : '/studio'}/cast`);
             });
           }}
           onNext={() => {
             startTransition(() => {
-              navigate(`/studio/script`);
+              navigate(`${currentScriptId ? `/projects/${currentScriptId}` : '/studio'}/script`);
             });
           }}
           onManifest={() => handleTabChange('blueprint')}
@@ -263,6 +263,25 @@ export default function SeriesLayout() {
               a.download = `series-manifest-S${session}-E${episode}.json`;
               a.click();
               URL.revokeObjectURL(url);
+            }}
+            onAddEpisode={() => {
+              const nextEpNum = (generatedSeriesPlan?.length || 0) + 1;
+              const nextEpId = nextEpNum < 10 ? `0${nextEpNum}` : `${nextEpNum}`;
+              const newEpisode = {
+                episode: nextEpId,
+                title: `New Production Cycle ${nextEpId}`,
+                hook: "A new narrative thread begins here.",
+                summary: "This episode is currently in the conceptual phase. Generate specs to populate.",
+                setting: "To be defined",
+                emotional_arc: "Neutral",
+                asset_matrix: { characters: [], locations: [], vfx: [] },
+                detailed_episode_spec: { acts: [] }
+              };
+              setGeneratedSeriesPlan([...(generatedSeriesPlan || []), newEpisode]);
+              showNotification?.(`Episode ${nextEpId} added to production roadmap`, 'success');
+            }}
+            onFilterArchive={() => {
+              showNotification?.('Archive filtering system active. Showing all production units.', 'info');
             }}
             content={JSON.stringify(generatedSeriesPlan, null, 2)}
           />

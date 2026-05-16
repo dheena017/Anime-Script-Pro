@@ -168,20 +168,20 @@ export const SeriesToolbar: React.FC<SeriesToolbarProps> = ({
             </div>
 
             {/* Action Buttons */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 border-l border-white/5 pl-8">
               <Button
                 variant="outline"
-                className="h-10 px-4 border-white/5 bg-black/40 text-zinc-400 hover:text-white hover:border-zinc-700 rounded-lg font-black uppercase tracking-widest text-xs"
+                className="h-11 px-5 border-white/10 bg-black/40 text-zinc-500 hover:text-studio hover:border-studio/40 rounded-xl font-black uppercase tracking-widest text-[10px] transition-all duration-300"
                 onClick={onFilterArchive}
               >
-                <ListFilter className="w-4 h-4 mr-2" /> Filter Archive
+                <ListFilter className="w-4 h-4 mr-3" /> Filter Archive
               </Button>
 
               <Button
-                className="h-10 px-6 bg-studio text-black font-black uppercase tracking-widest hover:bg-studio/80 shadow-studio rounded-lg transition-all"
+                className="h-11 px-8 bg-studio text-black font-black uppercase tracking-widest text-[10px] hover:bg-studio/80 shadow-[0_0_30px_rgba(6,182,212,0.3)] rounded-xl transition-all duration-300"
                 onClick={onAddEpisode}
               >
-                <Plus className="w-4 h-4 mr-2" /> New Episode
+                <Plus className="w-5 h-5 mr-3" /> New Episode
               </Button>
             </div>
           </div>

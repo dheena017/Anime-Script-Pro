@@ -17,6 +17,7 @@ import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
 import { Button } from '@/components/ui/button';
 import React from 'react';
 import { SceneCard } from '../components/SceneCard';
+import { TechnicalMatrixTable } from '../components/TechnicalMatrixTable';
 import { motion } from 'framer-motion';
 
 /**
@@ -55,6 +56,8 @@ export default function EpisodeViewPage() {
     }
   };
 
+  const [viewMode, setViewMode] = React.useState<'artistic' | 'technical'>('technical');
+
   if (!episode) {
     return (
       <div className="flex flex-col items-center justify-center h-[600px] space-y-4">
@@ -63,6 +66,14 @@ export default function EpisodeViewPage() {
       </div>
     );
   }
+
+  const currentIndex = generatedSeriesPlan?.findIndex(ep => 
+    String(ep.episode) === String(episodeId)
+  ) ?? -1;
+
+  const prevEpisode = currentIndex > 0 ? generatedSeriesPlan?.[currentIndex - 1] : null;
+  const nextEpisode = (generatedSeriesPlan && currentIndex < generatedSeriesPlan.length - 1) 
+    ? generatedSeriesPlan[currentIndex + 1] : null;
 
   const handleFocus = () => {
     setEpisode(episode.episode);
@@ -91,8 +102,8 @@ export default function EpisodeViewPage() {
             <div className="flex items-center gap-2 bg-black/40 border border-white/10 p-1.5 rounded-2xl backdrop-blur-md">
               <Button
                 variant="ghost"
-                disabled={parseInt(episodeId || '1') <= 1}
-                onClick={() => navigate(`${studioBase}/series/episodes/${parseInt(episodeId || '1') - 1}`)}
+                disabled={!prevEpisode}
+                onClick={() => navigate(`${studioBase}/series/episodes/${prevEpisode?.episode}`)}
                 className="w-9 h-9 rounded-xl text-zinc-500 hover:text-white"
               >
                 <ChevronLeft className="w-4 h-4" />
@@ -104,8 +115,8 @@ export default function EpisodeViewPage() {
               </div>
               <Button
                 variant="ghost"
-                disabled={parseInt(episodeId || '1') >= (generatedSeriesPlan?.length || 0)}
-                onClick={() => navigate(`${studioBase}/series/episodes/${parseInt(episodeId || '1') + 1}`)}
+                disabled={!nextEpisode}
+                onClick={() => navigate(`${studioBase}/series/episodes/${nextEpisode?.episode}`)}
                 className="w-9 h-9 rounded-xl text-zinc-500 hover:text-white"
               >
                 <ChevronRight className="w-4 h-4" />
@@ -138,47 +149,48 @@ export default function EpisodeViewPage() {
       </div>
 
       {/* Narrative Focus Content */}
-      <div className="space-y-20">
+      <div className="space-y-16">
         {/* Title Section */}
-        <div className="space-y-8">
+        <div className="space-y-6">
           <div className="flex items-center gap-4">
-            <div className="w-1.5 h-10 bg-studio shadow-[0_0_15px_rgba(6,182,212,0.5)] rounded-full" />
-            <div className="flex flex-col">
-              <span className="text-xs font-black text-studio uppercase tracking-[0.4em]">Milestone Sequence</span>
-              <span className="text-zinc-500 font-bold text-xs uppercase tracking-widest flex items-center gap-2">
-                <Clock className="w-3 h-3" /> {episode.runtime || '24:00'} Estimated Runtime
+            <div className="w-1.5 h-12 bg-studio shadow-[0_0_15px_rgba(6,182,212,0.5)] rounded-full" />
+            <div className="flex flex-col gap-0.5">
+              <span className="text-[10px] font-black text-studio uppercase tracking-[0.4em]">Milestone Sequence Node</span>
+              <span className="text-zinc-500 font-black text-[9px] uppercase tracking-[0.2em] flex items-center gap-2">
+                <Clock className="w-3 h-3 text-zinc-600" /> {episode.runtime || '24:00'} Target Runtime
               </span>
             </div>
           </div>
-          <h1 className="text-4xl md:text-4xl font-black text-white uppercase tracking-tighter leading-none break-words">
+          <h1 className="text-5xl font-black text-white uppercase tracking-[-0.04em] leading-none break-words">
             {episode.title}
           </h1>
         </div>
 
         {/* Narrative Hook & Summary */}
-        <div className="relative space-y-16">
-          <div className="relative p-12 md:p-16 rounded-[4rem] bg-black/40 border border-white/5 backdrop-blur-xl overflow-hidden group shadow-2xl">
-            <div className="absolute top-0 right-0 p-12 opacity-[0.02] pointer-events-none">
-              <BookOpen className="w-64 h-64" />
+        <div className="relative space-y-12">
+          <div className="relative p-10 md:p-14 rounded-[3.5rem] bg-[#050505] border border-white/5 backdrop-blur-2xl overflow-hidden group shadow-2xl transition-all duration-700 hover:border-studio/20">
+            {/* Ambient Technical Background */}
+            <div className="absolute top-0 right-0 p-8 opacity-[0.03] pointer-events-none group-hover:opacity-[0.05] transition-opacity duration-1000 transform group-hover:scale-110">
+              <BookOpen className="w-64 h-64 text-studio" />
             </div>
             
             <div className="space-y-12 relative z-10">
               <div className="flex gap-8">
-                <div className="flex flex-col justify-between pt-2 opacity-20 shrink-0">
-                  <span className="text-[60px] font-serif leading-none">"</span>
-                  <span className="text-[60px] font-serif leading-none rotate-180">"</span>
+                <div className="flex flex-col justify-between pt-1.5 opacity-20 shrink-0 text-studio">
+                  <span className="text-[60px] font-serif leading-none select-none">"</span>
+                  <span className="text-[60px] font-serif leading-none rotate-180 select-none">"</span>
                 </div>
-                <p className="text-3xl md:text-4xl text-zinc-100 font-medium italic leading-tight tracking-tight">
+                <p className="text-3xl md:text-4xl text-zinc-100 font-medium italic leading-[1.2] tracking-tight group-hover:text-white transition-colors">
                   {episode.hook}
                 </p>
               </div>
 
               <div className="pt-12 border-t border-white/5 space-y-8">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-px bg-studio/40" />
-                  <h4 className="text-xs font-black text-studio uppercase tracking-[0.6em]">Master Narrative Summary</h4>
+                  <div className="w-8 h-[2px] bg-studio/40 group-hover:w-12 transition-all duration-700" />
+                  <h4 className="text-[10px] font-black text-studio uppercase tracking-[0.6em]">Master Narrative Summary</h4>
                 </div>
-                <p className="text-zinc-400 text-xl leading-relaxed font-medium max-w-4xl">
+                <p className="text-zinc-400 text-xl leading-relaxed font-medium max-w-4xl group-hover:text-zinc-300 transition-colors">
                   {episode.summary || "No detailed summary found for this narrative node. Update the episode specifications to populate the master summary."}
                 </p>
               </div>
@@ -187,66 +199,97 @@ export default function EpisodeViewPage() {
 
           {/* Quick Production Meta (Briefing Style) */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 px-4">
-             <div className="flex items-center gap-6 p-8 bg-white/[0.02] border border-white/5 rounded-[2.5rem] hover:border-studio/20 transition-all">
-                <div className="w-14 h-14 rounded-2xl bg-studio/5 flex items-center justify-center border border-studio/20">
-                  <MapPin className="w-6 h-6 text-studio" />
+             <div className="flex flex-col gap-5 p-8 bg-black/40 border border-white/5 rounded-[2.5rem] hover:border-studio/30 transition-all duration-500 group/badge shadow-lg">
+                <div className="w-14 h-14 rounded-2xl bg-studio/5 flex items-center justify-center border border-studio/20 group-hover/badge:border-studio/50 transition-all">
+                  <MapPin className="w-6 h-6 text-studio/60 group-hover/badge:text-studio transition-all" />
                 </div>
                 <div>
-                  <p className="text-xs font-black text-zinc-500 uppercase tracking-widest mb-1">Primary Setting</p>
-                  <p className="text-xl font-black text-white uppercase">{episode.setting || 'Locked'}</p>
+                  <p className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.25em] mb-2">Primary Setting</p>
+                  <p className="text-xl font-black text-white uppercase tracking-tight leading-tight">{episode.setting || 'Locked'}</p>
                 </div>
              </div>
-             <div className="flex items-center gap-6 p-8 bg-white/[0.02] border border-white/5 rounded-[2.5rem] hover:border-purple-500/20 transition-all">
-                <div className="w-14 h-14 rounded-2xl bg-purple-500/5 flex items-center justify-center border border-purple-500/20">
-                  <Activity className="w-6 h-6 text-purple-400" />
+             <div className="flex flex-col gap-5 p-8 bg-black/40 border border-white/5 rounded-[2.5rem] hover:border-purple-500/30 transition-all duration-500 group/badge shadow-lg">
+                <div className="w-14 h-14 rounded-2xl bg-purple-500/5 flex items-center justify-center border border-purple-500/20 group-hover/badge:border-purple-400/50 transition-all">
+                  <Activity className="w-6 h-6 text-purple-400/60 group-hover/badge:text-purple-400 transition-all" />
                 </div>
                 <div>
-                  <p className="text-xs font-black text-zinc-500 uppercase tracking-widest mb-1">Emotional Arc</p>
-                  <p className="text-xl font-black text-white uppercase">{episode.emotional_arc || 'Dynamic'}</p>
+                  <p className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.25em] mb-2">Emotional Arc</p>
+                  <p className="text-xl font-black text-white uppercase tracking-tight leading-tight">{episode.emotional_arc || 'Dynamic'}</p>
                 </div>
              </div>
-             <div className="flex items-center gap-6 p-8 bg-white/[0.02] border border-white/5 rounded-[2.5rem] hover:border-amber-500/20 transition-all">
-                <div className="w-14 h-14 rounded-2xl bg-amber-500/5 flex items-center justify-center border border-amber-500/20">
-                  <LayoutGrid className="w-6 h-6 text-amber-500" />
+             <div className="flex flex-col gap-5 p-8 bg-black/40 border border-white/5 rounded-[2.5rem] hover:border-amber-500/30 transition-all duration-500 group/badge shadow-lg">
+                <div className="w-14 h-14 rounded-2xl bg-amber-500/5 flex items-center justify-center border border-amber-500/20 group-hover/badge:border-amber-400/50 transition-all">
+                  <LayoutGrid className="w-6 h-6 text-amber-500/60 group-hover/badge:text-amber-500 transition-all" />
                 </div>
                 <div>
-                  <p className="text-xs font-black text-zinc-500 uppercase tracking-widest mb-1">Unit Count</p>
-                  <p className="text-xl font-black text-white uppercase">{scenes.length} Production Scenes</p>
+                  <p className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.25em] mb-2">Unit Count</p>
+                  <p className="text-xl font-black text-white uppercase tracking-tight leading-tight">{scenes.length} Production Scenes</p>
                 </div>
              </div>
           </div>
         </div>
       </div>
 
-      {/* Technical Scene Matrix - Integrated from Scenes Tab */}
+      {/* Technical Scene Matrix */}
       <div id="technical-matrix" className="space-y-12">
-          <div className="flex items-center justify-between px-4">
-             <div className="flex flex-col">
-                <h4 className="text-[12px] font-black text-white uppercase tracking-[0.5em] flex items-center gap-3">
-                  <Zap className="w-4 h-4 text-studio animate-pulse" />
-                  Technical Production Matrix
-                </h4>
-                <p className="text-xs text-zinc-500 font-medium mt-2">Granular unit breakdown for narrative execution.</p>
-             </div>
-             <div className="h-px flex-1 mx-10 bg-gradient-to-r from-studio/20 to-transparent" />
+        <div className="flex items-center justify-between px-4">
+          <div className="flex flex-col gap-2">
+            <h4 className="text-xs font-black text-white uppercase tracking-[0.6em] flex items-center gap-4">
+              <Zap className="w-5 h-5 text-studio animate-pulse" />
+              Technical Production Matrix
+            </h4>
+            <p className="text-[10px] text-zinc-600 font-black uppercase tracking-widest">
+              Granular unit breakdown for narrative execution.
+            </p>
           </div>
+          
+          <div className="flex items-center gap-2 bg-black/40 border border-white/10 p-1 rounded-xl">
+            <Button 
+              variant="ghost" 
+              onClick={() => setViewMode('artistic')}
+              className={cn(
+                "h-8 px-4 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all",
+                viewMode === 'artistic' ? "bg-studio text-black" : "text-zinc-500 hover:text-white"
+              )}
+            >
+              Artistic View
+            </Button>
+            <Button 
+              variant="ghost" 
+              onClick={() => setViewMode('technical')}
+              className={cn(
+                "h-8 px-4 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all",
+                viewMode === 'technical' ? "bg-studio text-black" : "text-zinc-500 hover:text-white"
+              )}
+            >
+              Technical View
+            </Button>
+          </div>
+        </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {scenes.length > 0 ? (
-              scenes.map((scene: any, idx: number) => (
+        {scenes.length > 0 ? (
+          viewMode === 'technical' ? (
+            <TechnicalMatrixTable scenes={scenes} />
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {scenes.map((scene: any, idx: number) => (
                 <SceneCard 
-                  key={idx}
-                  scene={scene}
+                  key={scene.scene_id || idx}
                   index={idx + 1}
-                  onSelect={() => {}} 
+                  scene={scene}
+                  onSelect={() => navigate(`${studioBase}/storyboard/scene/${scene.id || idx}`)}
+                  onRegenerate={() => showNotification?.('Regenerating scene unit...', 'info')}
                 />
-              ))
-            ) : (
-              <div className="col-span-full p-20 bg-black/40 border border-dashed border-white/5 rounded-[3rem] text-center">
-                 <p className="text-xs font-black text-zinc-600 uppercase tracking-widest">No production units materialized for this sequence.</p>
-              </div>
-            )}
+              ))}
+            </div>
+          )
+        ) : (
+          <div className="p-20 bg-black/40 border border-dashed border-white/5 rounded-[3rem] text-center">
+            <p className="text-xs font-black text-zinc-600 uppercase tracking-widest">
+              No production units materialized for this sequence.
+            </p>
           </div>
+        )}
       </div>
 
       {/* Production Control Dock */}

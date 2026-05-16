@@ -75,7 +75,7 @@ export const SeriesHeader: React.FC<SeriesHeaderProps> = ({
           <div className="flex flex-col sm:flex-row items-center gap-4 z-10 w-full lg:w-auto">
             {onPrev && (
               <Tooltip>
-                <TooltipTrigger  >
+                <TooltipTrigger asChild>
                   <Button
                     className={s.header.actionButton}
                     onClick={onPrev}
@@ -92,7 +92,7 @@ export const SeriesHeader: React.FC<SeriesHeaderProps> = ({
 
             <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
               <Tooltip>
-                <TooltipTrigger  >
+                <TooltipTrigger asChild>
                   {isGenerating ? (
                     <Button
                       className={s.header.actionButtonDanger}
@@ -121,7 +121,7 @@ export const SeriesHeader: React.FC<SeriesHeaderProps> = ({
 
               {!isManifestActive && (
                 <Tooltip>
-                  <TooltipTrigger  >
+                  <TooltipTrigger asChild>
                     <Button
                       className={s.header.blueprintButton}
                       onClick={onManifest}
@@ -158,16 +158,14 @@ export const SeriesHeader: React.FC<SeriesHeaderProps> = ({
                 </Tooltip>
               )}
 
-
-
               <Tooltip>
-                <TooltipTrigger  >
+                <TooltipTrigger asChild>
                   <Button
                     className={s.header.nextButton}
                     onClick={onNext}
                   >
-                    <span className="relative z-10 flex items-center gap-2">
-                      PROCEED TO SCRIPT <ChevronRight className="w-4 h-4 group-hover/next:translate-x-1 transition-transform" />
+                    <span className="relative z-10 flex items-center gap-2 font-black uppercase tracking-widest text-xs">
+                      NEXT <ChevronRight className="w-4 h-4 group-hover/next:translate-x-1 transition-transform" />
                     </span>
                     <div className="absolute inset-0 bg-emerald-500/5 opacity-0 group-hover/next:opacity-100 transition-opacity duration-500 rounded-full" />
                   </Button>
