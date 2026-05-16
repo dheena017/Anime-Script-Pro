@@ -17,7 +17,6 @@ interface SeriesToolbarProps {
   session?: string;
   episode?: string;
   content?: string | null;
-  onManifestClick?: () => void;
   onExportClick?: () => void;
   onAddEpisode?: () => void;
   onFilterArchive?: () => void;
@@ -28,7 +27,6 @@ export const SeriesToolbar: React.FC<SeriesToolbarProps> = ({
   session = '1',
   episode = '1',
   content = null,
-  onManifestClick,
   onExportClick,
   onAddEpisode,
   onFilterArchive
@@ -72,12 +70,6 @@ export const SeriesToolbar: React.FC<SeriesToolbarProps> = ({
     }
   };
 
-  const handleManifestClick = () => {
-    if (onManifestClick) {
-      onManifestClick();
-    }
-  };
-
   return (
     <TooltipProvider>
       <div className={s.toolbar.container}>
@@ -99,23 +91,6 @@ export const SeriesToolbar: React.FC<SeriesToolbarProps> = ({
 
           <div className={s.toolbar.actionGroup}>
             <div className={s.toolbar.btnGroup}>
-              <Tooltip>
-                <TooltipTrigger>
-                  <Button
-                    onClick={handleManifestClick}
-                    size="icon"
-                    variant="ghost"
-                    className={s.toolbar.iconButton}
-                    disabled={!onManifestClick}
-                  >
-                    <FileText className="w-4 h-4 relative z-10 group-hover:scale-110 transition-transform duration-300" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent side="top">
-                  <p className="font-black uppercase tracking-widest text-xs">Series Manifest</p>
-                </TooltipContent>
-              </Tooltip>
-
               <Tooltip>
                 <TooltipTrigger>
                   <Button

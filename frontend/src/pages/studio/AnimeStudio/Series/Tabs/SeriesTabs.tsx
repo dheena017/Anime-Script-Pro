@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import { seriesStyles as s } from '../seriesStyles';
 
-export type SeriesTab = 'episodes' | 'blueprint' | 'assets';
+export type SeriesTab = 'episodes' | 'assets';
 
 interface SeriesTabsProps {
   activeTab: SeriesTab;
@@ -15,7 +15,6 @@ interface SeriesTabsProps {
 const TABS: { id: SeriesTab; label: string; icon: React.FC<any>; color: string; glow: string }[] = [
   { id: 'episodes',  label: 'EPISODES',  icon: Film,       color: 'text-cyan-400',    glow: 'shadow-[0_0_15px_rgba(34,211,238,0.3)]'   },
   { id: 'assets',    label: 'ASSETS',    icon: Box,        color: 'text-emerald-400', glow: 'shadow-[0_0_15px_rgba(52,211,153,0.3)]'   },
-  { id: 'blueprint', label: 'BLUEPRINT', icon: LayoutGrid, color: 'text-amber-400',   glow: 'shadow-[0_0_15px_rgba(245,158,11,0.3)]'   },
 ];
 
 export const SeriesTabs: React.FC<SeriesTabsProps> = ({

@@ -123,7 +123,7 @@ export default function SeriesLayout() {
       const plan = Array.isArray(rawPlan) ? rawPlan : [];
       setGeneratedSeriesPlan(plan);
       studioLog("SERIES", `Series plan synthesized. Count: ${plan.length} episodes.`, 'success');
-      addGeneratorLog?.("SERIES", "SUCCESS", `Blueprint ready with ${plan.length} episodes.`);
+      addGeneratorLog?.("SERIES", "SUCCESS", `Series roadmap ready with ${plan.length} episodes.`);
       setGenerationProgress(100);
       
       // Response and Report Flow - Instant Impact
@@ -138,7 +138,7 @@ export default function SeriesLayout() {
         count: plan?.length,
         firstTitle: plan?.[0]?.title
       });
-      showNotification?.('Full Series Blueprint Synthesized!', 'success');
+      showNotification?.('Full Series Roadmap Synthesized!', 'success');
     } catch (error: any) {
       const msg = error.message || 'Unknown error during synthesis';
       console.error('[SeriesLayout] Failed to create series plan:', error);
@@ -179,7 +179,7 @@ export default function SeriesLayout() {
   ]);
 
   // Query-param-only tab routing — ?tab=episodes, etc.
-  const VALID_TABS: SeriesTab[] = ['episodes', 'assets', 'blueprint'];
+  const VALID_TABS: SeriesTab[] = ['episodes', 'assets'];
   const queryTab = searchParams.get('tab') as SeriesTab | null;
   const activeTab: SeriesTab = (queryTab && VALID_TABS.includes(queryTab)) ? queryTab : 'episodes';
 
@@ -227,8 +227,6 @@ export default function SeriesLayout() {
               navigate(`${currentScriptId ? `/projects/${currentScriptId}` : '/studio'}/script`);
             });
           }}
-          onManifest={() => handleTabChange('blueprint')}
-          isManifestActive={activeTab === 'blueprint'}
           onSave={handleSave}
           isSaving={isSaving}
           hasContent={Boolean(generatedSeriesPlan && generatedSeriesPlan.length > 0)}
@@ -253,7 +251,6 @@ export default function SeriesLayout() {
             status="active"
             session={session}
             episode={episode}
-            onManifestClick={() => handleTabChange('blueprint')}
             onExportClick={() => {
               if (!generatedSeriesPlan) return;
               const blob = new Blob([JSON.stringify(generatedSeriesPlan, null, 2)], { type: 'application/json' });
@@ -305,7 +302,7 @@ export default function SeriesLayout() {
                   progress={generationProgress} 
                   error={generationError}
                   title="Generating All Series Tabs"
-                  description="Orchestrating Roadmap, Episodes, Blueprint, and Assets..."
+                  description="Orchestrating Roadmap, Episodes, and Assets..."
                 />
               ) : (
                 <Outlet context={{ showScaffolder, setShowScaffolder, activeTab }} />

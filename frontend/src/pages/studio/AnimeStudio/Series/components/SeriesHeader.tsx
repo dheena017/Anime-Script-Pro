@@ -17,9 +17,7 @@ interface SeriesHeaderProps {
   onNext: () => void;
   onPrev?: () => void;
   onSave?: () => void;
-  onManifest?: () => void;
   onClear?: () => void;
-  isManifestActive?: boolean;
   isSaving?: boolean;
   hasContent?: boolean;
   session: string;
@@ -34,9 +32,7 @@ export const SeriesHeader: React.FC<SeriesHeaderProps> = ({
   onNext,
   onPrev,
   onSave,
-  onManifest,
   onClear,
-  isManifestActive,
   isSaving,
   hasContent,
   session,
@@ -118,23 +114,6 @@ export const SeriesHeader: React.FC<SeriesHeaderProps> = ({
                   </p>
                 </TooltipContent>
               </Tooltip>
-
-              {!isManifestActive && (
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      className={s.header.blueprintButton}
-                      onClick={onManifest}
-                    >
-                      <Box className="w-4 h-4 mr-2" />
-                      BLUEPRINT
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent side="top">
-                    <p className="font-black uppercase tracking-widest text-xs">Open Production Blueprint</p>
-                  </TooltipContent>
-                </Tooltip>
-              )}
 
               {onClear && hasContent && (
                 <Tooltip>

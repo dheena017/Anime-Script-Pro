@@ -8,8 +8,6 @@ import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
 import { SeriesTab } from './Tabs/SeriesTabs';
 
-// Modularized Tab Components
-import { BlueprintTab } from './Tabs/BlueprintTab';
 import { AssetsTab } from './Tabs/AssetsTab';
 import { SeriesEmptyState } from './components/SeriesEmptyState';
 import EpisodesPage from './Episodes/EpisodesPage';
@@ -167,7 +165,6 @@ export function SeriesPage() {
   const getLoadingMessage = () => {
     switch (activeTab) {
       case 'assets': return "Calculating Resource Matrix...";
-      case 'blueprint': return "Architecting Production Sequence...";
       case 'episodes': return "Indexing Episodes Library...";
       default: return "Mapping Production Roadmap...";
     }
@@ -196,18 +193,7 @@ export function SeriesPage() {
     switch (activeTab) {
       case 'episodes':
         return <EpisodesPage />;
-      case 'blueprint':
-        return (
-          <BlueprintTab
-            showScaffolder={true}
-            onManifestContinue={handleManifestContinue}
-            isSyncing={isSyncing}
-            lastSyncDate={lastSyncDate}
-            productionSequence={productionSequence}
-            applySequenceItem={applySequenceItem}
-            plan={generatedSeriesPlan || []}
-          />
-        );
+
       case 'assets':
         return <AssetsTab plan={generatedSeriesPlan || []} />;
       default:
@@ -227,7 +213,3 @@ export function SeriesPage() {
     </div>
   );
 }
-
-
-
-
