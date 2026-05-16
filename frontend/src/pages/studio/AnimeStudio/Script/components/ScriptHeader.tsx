@@ -12,7 +12,6 @@ import { scriptStyles as s } from '../scriptStyles';
 
 interface ScriptHeaderProps {
   onRegenerate: () => void;
-  onGenerateAll?: () => void;
   isGenerating: boolean;
   onNext: () => void;
   onPrev?: () => void;
@@ -27,7 +26,6 @@ interface ScriptHeaderProps {
 
 export const ScriptHeader: React.FC<ScriptHeaderProps> = ({
   onRegenerate,
-  onGenerateAll,
   isGenerating,
   onNext,
   onPrev,
@@ -114,22 +112,6 @@ export const ScriptHeader: React.FC<ScriptHeaderProps> = ({
                   </TooltipContent>
                 </Tooltip>
 
-                {!isGenerating && onGenerateAll && (
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        className={s.header.actionButtonPrimary}
-                        onClick={onGenerateAll}
-                      >
-                        <Box className="w-4 h-4 mr-2 group-hover/batch:rotate-12 transition-transform duration-300" />
-                        <span className="relative z-10">GENERATE ALL</span>
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent side="top">
-                      <p className="font-black uppercase tracking-widest text-xs">Batch Generate Entire Series</p>
-                    </TooltipContent>
-                  </Tooltip>
-                )}
               </div>
 
               <Tooltip>

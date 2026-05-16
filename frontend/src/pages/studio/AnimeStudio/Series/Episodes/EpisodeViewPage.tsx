@@ -19,6 +19,7 @@ import React from 'react';
 import { SceneCard } from '../components/SceneCard';
 import { TechnicalMatrixTable } from '../components/TechnicalMatrixTable';
 import { motion } from 'framer-motion';
+import { cn } from '@/lib/utils';
 
 /**
  * EpisodeViewPage - Narrative & Technical Detail Node
@@ -30,7 +31,7 @@ export default function EpisodeViewPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const { generatedSeriesPlan, currentScriptId } = useGeneratorState();
-  const { setEpisode } = useGeneratorDispatch();
+  const { setEpisode, showNotification } = useGeneratorDispatch();
 
   const studioBase = currentScriptId ? `/projects/${currentScriptId}` : '/studio';
 

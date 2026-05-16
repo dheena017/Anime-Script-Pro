@@ -46,11 +46,11 @@ export const useStudioRealtimeData = (userId?: string) => {
     };
 
     syncStudioData();
-    const interval = setInterval(syncStudioData, STUDIO_SYNC_INTERVAL);
+    // const interval = setInterval(syncStudioData, STUDIO_SYNC_INTERVAL);
 
     return () => {
       isMounted = false;
-      clearInterval(interval);
+      // clearInterval(interval);
     };
   }, [userId]);
 

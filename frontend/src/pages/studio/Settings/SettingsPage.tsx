@@ -85,13 +85,6 @@ export default function SettingsPage() {
           <p className="header-bottom-value">2 Minutes Ago</p>
         </div>
       </div>
-      <div className="header-bottom-item">
-        <RefreshCw className="header-bottom-icon text-studio" />
-        <div className="header-bottom-text">
-          <p className="header-bottom-label">Auto-Save</p>
-          <p className="header-bottom-value">Cloud Persistence Active</p>
-        </div>
-      </div>
     </>
   );
 

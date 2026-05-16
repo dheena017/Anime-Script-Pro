@@ -150,59 +150,6 @@ export default function ScriptLayout() {
     }
   };
 
-  const handleGenerateFullSeries = async () => {
-    if (!generatedSeriesPlan || generatedSeriesPlan.length === 0) {
-      showNotification?.('No series roadmap detected. Generate a series plan first.', 'error');
-      return;
-    }
-
-    setSearchParams({ tab: 'teleprompter' });
-    setIsLoading(true);
-    setGenerationProgress(5);
-
-    try {
-      const worldBuilding = [
-        generatedWorld,
-        promptLore,
-        promptPowers,
-        promptFactions,
-        promptArchitecture,
-        promptAtlas,
-        promptCulture,
-        promptSystems
-      ].filter(Boolean).join('\n\n');
-
-      for (let i = 0; i < generatedSeriesPlan.length; i++) {
-        const ep = generatedSeriesPlan[i];
-        const epNum = ep.episode;
-        
-        setEpisode(epNum);
-        showNotification?.(`Synthesizing Episode ${epNum} (${i + 1}/${generatedSeriesPlan.length})...`, 'info');
-        setGenerationProgress(((i) / generatedSeriesPlan.length) * 100);
-
-        const script = await generateScriptStream(
-          prompt, tone, audience, session, epNum, numScenes, selectedModel, contentType,
-          recapperPersona, characterRelationships, worldBuilding, generatedCharacters,
-          JSON.stringify(ep),
-          (partial) => setGeneratedScript(partial),
-        );
-
-        setGeneratedScript(script);
-
-        // Delay to allow UI to breathe and prevent rate limiting
-        await new Promise(r => setTimeout(r, 1500));
-      }
-
-      setGenerationProgress(100);
-      showNotification?.('Full Series Script Manifest Synthesized!', 'success');
-    } catch (e: any) {
-      showNotification?.('Batch generation failed: ' + e.message, 'error');
-      setGenerationProgress(0);
-    } finally {
-      setIsLoading(false);
-      setTimeout(() => setGenerationProgress(0), 4000);
-    }
-  };
 
   const activeTab = (searchParams.get('tab') as ScriptTab) || 'teleprompter';
 
@@ -229,7 +176,6 @@ export default function ScriptLayout() {
         <div className="studio-module-header">
           <ScriptHeader
             onRegenerate={handleGenerateAll}
-            onGenerateAll={handleGenerateFullSeries}
             isGenerating={isLoading}
             onNext={() => {
               startTransition(() => {

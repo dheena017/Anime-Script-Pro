@@ -2,7 +2,6 @@ import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CheckCircle2, Table, ChevronRight, Activity, Sparkles, Database, BrainCircuit, Loader2, Clock, Users } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { ProjectConfigurator } from '@/pages/studio/components/studio/ManifestArchitect';
 import { useGeneratorState } from '@/hooks/useGenerator';
 import { cn } from '@/lib/utils';
 
@@ -56,6 +55,17 @@ export const BlueprintTab: React.FC<BlueprintTabProps> = ({
     scenes: plan?.[0]?.asset_matrix?.scene_count || 16
   });
 
+  // Sync local configuration when a new plan (like the demo) is loaded
+  React.useEffect(() => {
+    if (plan && plan.length > 0) {
+      setLocalConfig({
+        sessions: 1,
+        episodes: plan.length,
+        scenes: plan[0]?.asset_matrix?.scene_count || 16
+      });
+    }
+  }, [plan]);
+
   const handleSynthesizeBlueprint = async () => {
     // Consolidated Action: Initialize Structure + Synthesize AI Content
     try {
@@ -70,14 +80,7 @@ export const BlueprintTab: React.FC<BlueprintTabProps> = ({
     <div className="space-y-8 w-full max-w-[1600px] mx-auto px-4">
       <div className="flex flex-col gap-8">
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <ProjectConfigurator
-            onContinue={onManifestContinue}
-            isLoading={isSyncing}
-            externalConfig={localConfig}
-            onExternalConfigChange={setLocalConfig}
-            hideButton={true}
-          />
+        <div className="max-w-4xl mx-auto">
 
           <div className="p-8 bg-[#050505]/60 backdrop-blur-2xl border border-white/10 rounded-[3rem] space-y-8 h-full relative overflow-hidden group/orchestration shadow-[0_0_50px_rgba(0,0,0,0.5)]">
             {/* Dynamic Background Glow */}
@@ -219,13 +222,33 @@ export const BlueprintTab: React.FC<BlueprintTabProps> = ({
 
             {/* AI Synthesis Trace HUD - Transparency Feature */}
             <div className="flex flex-col gap-6 p-6 bg-black/40 border border-white/5 rounded-3xl">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <Activity className="w-4 h-4 text-studio" />
-                  <h5 className="text-xs font-black text-zinc-400 uppercase tracking-[0.2em]">Master Neural Blueprint Trace</h5>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="relative">
+                      <Activity className="w-5 h-5 text-studio" />
+                      <motion.div
+                        animate={{ scale: [1, 1.5, 1], opacity: [0.5, 0, 0.5] }}
+                        transition={{ duration: 2, repeat: Infinity }}
+                        className="absolute inset-0 bg-studio/30 rounded-full blur-md"
+                      />
+                    </div>
+                    <div>
+                      <h5 className="text-[11px] font-black text-zinc-300 uppercase tracking-[0.3em]">Master Neural Blueprint Trace</h5>
+                      <div className="flex items-center gap-2 mt-1">
+                        <div className="w-1 h-1 rounded-full bg-studio animate-pulse" />
+                        <p className="text-[8px] font-mono text-zinc-600 uppercase tracking-widest">Core Synchronicity: 98.4% // Buffer_Stable</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex flex-col items-end gap-1">
+                    <span className="text-[10px] font-black text-zinc-700 uppercase tracking-[0.2em]">Synthesis Engine v{Math.max(4, (plan?.length || 0) % 5 + 1)}.{Math.max(2, (castList?.length || 0) % 9)}.0</span>
+                    <div className="flex gap-1">
+                      {[1, 2, 3, 4, 5].map(i => (
+                        <div key={i} className={cn("w-2 h-0.5 rounded-full", i <= (plan?.length || 0) % 5 + 1 ? "bg-studio/40" : "bg-zinc-800")} />
+                      ))}
+                    </div>
+                  </div>
                 </div>
-                <span className="text-xs font-black text-zinc-700 uppercase tracking-widest">Synthesis Engine v{Math.max(4, (plan?.length || 0) % 5 + 1)}.{Math.max(2, (castList?.length || 0) % 9)}.0</span>
-              </div>
 
               <div className="flex flex-col gap-8">
                 <div className="flex flex-col gap-10">
@@ -312,49 +335,95 @@ export const BlueprintTab: React.FC<BlueprintTabProps> = ({
                     </div>
 
                     {/* Global Production Dashboard */}
-                    <div className="space-y-3">
+                    <div className="space-y-4">
                       <div className="flex items-center justify-between px-1">
-                        <p className="text-xs font-black text-zinc-600 uppercase tracking-widest">Global Production Dashboard</p>
-                        <span className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest">Aggregate Data</span>
+                        <div className="flex flex-col gap-1">
+                          <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Global Production Dashboard</p>
+                          <div className="h-0.5 w-12 bg-studio/30 rounded-full" />
+                        </div>
+                        <span className="text-[9px] font-mono text-zinc-600 uppercase tracking-widest">Aggregate Neural Data</span>
                       </div>
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
                         {[
-                          { label: 'Runtime', val: plan.length ? `${plan.reduce((acc, ep) => acc + (parseInt(ep.runtime) || 24), 0)}m` : '0m', icon: Clock, color: 'text-studio' },
-                          { label: 'Scenes', val: plan.reduce((acc, ep) => acc + (ep.asset_matrix?.scene_count || 0), 0), icon: Database, color: 'text-amber-500' },
-                          { label: 'VFX', val: plan.reduce((acc, ep) => acc + (ep.detailed_episode_spec?.acts?.reduce((a, act) => a + (act.scenes?.filter(s => s.production_stats?.vfx_heavy)?.length || 0), 0) || 0), 0), icon: Sparkles, color: 'text-rose-500' },
-                          { label: 'Cast', val: plan.reduce((acc, ep) => acc + (ep.detailed_episode_spec?.acts?.reduce((a, act) => a + (act.scenes?.reduce((s_acc, s) => s_acc + (s.production_stats?.cast_count || 0), 0) || 0), 0) || 0), 0), icon: Users, color: 'text-blue-500' }
+                          { label: 'Runtime', val: plan.length ? `${plan.reduce((acc, ep) => acc + (parseInt(ep.runtime) || 24), 0)}m` : '0m', icon: Clock, color: 'text-studio', sub: 'Total Duration' },
+                          { label: 'Scenes', val: plan.reduce((acc, ep) => acc + (ep.asset_matrix?.scene_count || 0), 0), icon: Database, color: 'text-amber-500', sub: 'Matrix Units' },
+                          { label: 'VFX Load', val: plan.reduce((acc, ep) => acc + (ep.detailed_episode_spec?.acts?.reduce((a, act) => a + (act.scenes?.filter(s => s.production_stats?.vfx_heavy)?.length || 0), 0) || 0), 0), icon: Sparkles, color: 'text-rose-500', sub: 'Heavy Assets' },
+                          { label: 'Cast DNA', val: plan.reduce((acc, ep) => acc + (ep.detailed_episode_spec?.acts?.reduce((a, act) => a + (act.scenes?.reduce((s_acc, s) => s_acc + (s.production_stats?.cast_count || 0), 0) || 0), 0) || 0), 0), icon: Users, color: 'text-blue-500', sub: 'Active Links' }
                         ].map((stat, i) => (
                           <div key={i} className={cn(
-                            "p-4 bg-black/60 border border-white/5 rounded-2xl flex flex-col items-center justify-center gap-2 group transition-all duration-500 hover:border-white/20 hover:bg-white/[0.04] relative overflow-hidden",
-                            "hover:shadow-[0_0_30px_rgba(255,255,255,0.02)] shadow-xl"
+                            "p-5 bg-[#080808] border border-white/5 rounded-[2rem] flex flex-col items-center justify-center gap-2 group transition-all duration-500 hover:border-studio/30 hover:bg-studio/[0.02] relative overflow-hidden",
+                            "shadow-2xl"
                           )}>
-                            <div className={cn("absolute inset-0 bg-gradient-to-br from-transparent to-transparent group-hover:from-white/[0.02] transition-all duration-700")} />
-                            <stat.icon className={cn("w-4 h-4 mb-1", stat.color)} />
-                            <div className="space-y-0.5 text-center relative z-10">
-                              <p className="text-[9px] font-black text-zinc-600 uppercase tracking-widest leading-none group-hover:text-zinc-400 transition-colors">{stat.label}</p>
-                              <p className="text-[13px] font-black text-white font-mono leading-none tracking-tighter">{stat.val}</p>
+                            <div className="absolute top-0 right-0 w-12 h-12 bg-white/5 blur-2xl rounded-full translate-x-1/2 -translate-y-1/2 group-hover:bg-studio/10 transition-colors duration-500" />
+                            <stat.icon className={cn("w-5 h-5 mb-1 opacity-40 group-hover:opacity-100 transition-opacity duration-500", stat.color)} />
+                            <div className="space-y-1 text-center relative z-10">
+                              <p className="text-[14px] font-black text-white font-mono leading-none tracking-tighter">{stat.val}</p>
+                              <p className="text-[8px] font-black text-zinc-600 uppercase tracking-widest leading-none group-hover:text-zinc-400 transition-colors">{stat.label}</p>
+                              <div className="h-[1px] w-4 bg-zinc-800 mx-auto mt-2 group-hover:bg-studio/40 transition-colors" />
+                              <p className="text-[7px] text-zinc-700 font-mono uppercase mt-1 opacity-0 group-hover:opacity-100 transition-opacity">{stat.sub}</p>
                             </div>
-                            <div className={cn("absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-transparent to-transparent group-hover:via-white/20 transition-all duration-700")} />
                           </div>
                         ))}
+                      </div>
+                    </div>
+
+                    {/* Real-time Neural Synthesis Stream */}
+                    <div className="p-6 bg-[#080808] border border-white/5 rounded-[2rem] space-y-4 relative overflow-hidden group/stream">
+                      <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-studio/20 to-transparent" />
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <BrainCircuit className="w-4 h-4 text-studio opacity-50" />
+                          <span className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em]">Neural Synthesis Stream</span>
+                        </div>
+                        <div className="flex gap-1.5">
+                          {[1, 2, 3].map(i => (
+                            <div key={i} className="w-1 h-1 rounded-full bg-studio animate-pulse" style={{ animationDelay: `${i * 200}ms` }} />
+                          ))}
+                        </div>
+                      </div>
+                      <div className="h-24 overflow-hidden relative">
+                         <div className="absolute inset-0 bg-gradient-to-t from-[#080808] via-transparent to-transparent z-10 pointer-events-none" />
+                         <div className="space-y-2">
+                           {[
+                             { t: 'INF', msg: 'Core world bible hash verified. 0x82A...F91', color: 'text-emerald-500' },
+                             { t: 'SYS', msg: 'Cross-referencing Aetheria timeline with character motivation matrices.', color: 'text-studio' },
+                             { t: 'WRN', msg: 'Potential narrative bottleneck detected in Act 2 // Optimization active.', color: 'text-amber-500' },
+                             { t: 'DNA', msg: 'Injecting "Wraith" Kisaragi combat signatures into scene 12.', color: 'text-fuchsia-400' },
+                             { t: 'OUT', msg: 'Compiling production manifest... Streaming to neural output.', color: 'text-zinc-500' }
+                           ].map((log, i) => (
+                             <motion.div 
+                               key={i}
+                               initial={{ opacity: 0, x: -10 }}
+                               animate={{ opacity: 1, x: 0 }}
+                               transition={{ delay: i * 0.2 }}
+                               className="flex items-center gap-3 font-mono text-[9px]"
+                             >
+                               <span className={cn("w-8 shrink-0 font-black", log.color)}>[{log.t}]</span>
+                               <span className="text-zinc-500 uppercase tracking-tighter truncate">{log.msg}</span>
+                             </motion.div>
+                           ))}
+                         </div>
                       </div>
                     </div>
                   </div>
 
 
                   {/* Output Plan Preview */}
-                  <div className="space-y-3">
+                  <div className="space-y-4">
                     <div className="flex items-center justify-between px-1">
-                      <p className="text-xs font-black text-zinc-600 uppercase tracking-widest">Synthesized Manifest (Neural Output)</p>
-                      <div className="flex items-center gap-2 px-3 py-1 bg-studio/10 border border-studio/20 rounded-full">
+                      <div className="flex flex-col gap-1">
+                        <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Synthesized Manifest (Neural Output)</p>
+                        <div className="h-0.5 w-12 bg-studio/30 rounded-full" />
+                      </div>
+                      <div className="flex items-center gap-2 px-3 py-1 bg-studio/5 border border-studio/20 rounded-full">
                         <div className="h-1.5 w-1.5 rounded-full bg-studio animate-pulse shadow-[0_0_8px_rgba(6,182,212,0.8)]" />
-                        <span className="text-[10px] font-black text-studio uppercase tracking-widest">Live Stream Active</span>
+                        <span className="text-[9px] font-black text-studio uppercase tracking-widest">Live Output Stream</span>
                       </div>
                     </div>
                     {plan && plan.length > 0 ? (
-                      <div className="relative group/output rounded-[2.5rem] overflow-hidden border border-white/10 bg-[#060606]/80 backdrop-blur-xl shadow-2xl">
+                      <div className="relative group/output rounded-[2rem] overflow-hidden border border-white/5 bg-[#080808] shadow-2xl">
                         <div className="absolute inset-0 bg-gradient-to-br from-studio/5 via-transparent to-transparent opacity-0 group-hover/output:opacity-100 transition-opacity duration-700" />
-                        <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-studio/40 to-transparent" />
+                        <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-studio/30 to-transparent" />
                         <div className="p-8 overflow-auto max-h-[600px] custom-scrollbar selection:bg-studio/20 relative z-10">
 
 
@@ -403,28 +472,37 @@ export const BlueprintTab: React.FC<BlueprintTabProps> = ({
 
                 {lastSyncDate && (
                   <motion.div
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="p-6 bg-green-500/5 border border-green-500/20 rounded-2xl space-y-2 mt-6"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="p-6 bg-studio/5 border border-studio/20 rounded-[2rem] space-y-3 mt-6 relative overflow-hidden"
                   >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2 text-studio">
-                        <motion.div
-                          animate={{ opacity: [0.4, 1, 0.4] }}
-                          transition={{ duration: 2, repeat: Infinity }}
-                        >
-                          <CheckCircle2 className="w-4 h-4" />
-                        </motion.div>
-                        <span className="text-[10px] font-black uppercase tracking-[0.3em] drop-shadow-[0_0_8px_rgba(6,182,212,0.4)]">Production Manifest Locked</span>
+                    <div className="absolute top-0 right-0 w-16 h-16 bg-studio/10 blur-2xl rounded-full" />
+                    <div className="flex items-center justify-between relative z-10">
+                      <div className="flex items-center gap-3">
+                        <div className="relative">
+                          <CheckCircle2 className="w-5 h-5 text-studio" />
+                          <motion.div
+                            animate={{ scale: [1, 1.4, 1], opacity: [0.5, 0, 0.5] }}
+                            transition={{ duration: 2, repeat: Infinity }}
+                            className="absolute inset-0 bg-studio/30 rounded-full blur-sm"
+                          />
+                        </div>
+                        <div>
+                          <span className="text-[10px] font-black text-white uppercase tracking-[0.3em]">Production Manifest Locked</span>
+                          <p className="text-[8px] text-zinc-500 font-mono uppercase mt-0.5">Database Link Established // Neural Integrity Verified</p>
+                        </div>
                       </div>
-                      <p className="text-[10px] text-zinc-500 font-mono uppercase tracking-widest">Materialized: {lastSyncDate}</p>
+                      <div className="text-right">
+                         <p className="text-[9px] text-zinc-600 font-mono uppercase tracking-[0.2em]">Materialized</p>
+                         <p className="text-[10px] text-studio font-black font-mono tracking-tighter">{lastSyncDate}</p>
+                      </div>
                     </div>
                   </motion.div>
                 )}
 
                 <div className="pt-6 border-t border-white/5 relative z-10">
                   <p className="text-xs text-zinc-600 leading-relaxed italic">
-                    "Use AI Synthesis to write the episodic roadmap. Use the Project Configurator to materialize the blank database structure for scenes."
+                    "Use AI Synthesis to write the episodic roadmap and materialize the database structure for scenes."
                   </p>
                 </div>
               </div>

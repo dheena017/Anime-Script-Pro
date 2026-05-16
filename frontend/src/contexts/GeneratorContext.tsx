@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
-import { ProductionUnit } from '@/lib/sequence-utils';
+import { ProductionUnit, generateProductionSequences } from '@/lib/sequence-utils';
 import { useAuth } from '@/hooks/useAuth';
 import { useApp } from '@/contexts/AppContext';
 import { WorldLore } from '../services/api/world';
@@ -498,6 +498,20 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     setGeneratedSeriesPlan(MOCK_SERIES_PLAN);
     setGeneratedScript(MOCK_SCRIPT);
     
+    // Project Metaparameters & Tone
+    setTheme(MOCK_STORY_BIBLE.theme);
+    setGenre("Neon-Steampunk / Cyberpunk");
+    setArtStyle("High-Detail Anime Concept");
+    setTone("Analytical / Gritty");
+    setAudience("Sci-Fi Enthusiasts");
+    setNumEpisodes(MOCK_SERIES_PLAN.length);
+    setSelectedModel("gemini-3.1-flash");
+    
+    // Technical Blueprint Sync - Materialize the Scene Matrix for the Demo
+    // Aetheria Demo has 1 Session, 3 Episodes, and 3 Scenes per Episode
+    const demoSequence = generateProductionSequences(1, 3, 3);
+    setProductionSequence(demoSequence);
+    
     showNotification('Demo project loaded! Welcome to Aetheria.', 'success');
   }, [
     setPrompt, 
@@ -515,6 +529,14 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     setCharacterRelationships,
     setGeneratedSeriesPlan, 
     setGeneratedScript, 
+    setProductionSequence,
+    setTheme,
+    setGenre,
+    setArtStyle,
+    setTone,
+    setAudience,
+    setNumEpisodes,
+    setSelectedModel,
     showNotification
   ]);
 
