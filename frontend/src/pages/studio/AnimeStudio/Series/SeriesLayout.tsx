@@ -179,7 +179,7 @@ export default function SeriesLayout() {
   ]);
 
   // Query-param-only tab routing — ?tab=episodes, etc.
-  const VALID_TABS: SeriesTab[] = ['episodes', 'assets'];
+  const VALID_TABS: SeriesTab[] = ['episodes', 'assets', 'blueprint'];
   const queryTab = searchParams.get('tab') as SeriesTab | null;
   const activeTab: SeriesTab = (queryTab && VALID_TABS.includes(queryTab)) ? queryTab : 'episodes';
 
@@ -227,6 +227,8 @@ export default function SeriesLayout() {
               navigate(`${currentScriptId ? `/projects/${currentScriptId}` : '/studio'}/script`);
             });
           }}
+          onManifest={() => handleTabChange('blueprint')}
+          isManifestActive={activeTab === 'blueprint'}
           onSave={handleSave}
           isSaving={isSaving}
           hasContent={Boolean(generatedSeriesPlan && generatedSeriesPlan.length > 0)}

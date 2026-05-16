@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import { seriesStyles as s } from '../seriesStyles';
 
-export type SeriesTab = 'episodes' | 'assets';
+export type SeriesTab = 'episodes' | 'assets' | 'blueprint';
 
 interface SeriesTabsProps {
   activeTab: SeriesTab;

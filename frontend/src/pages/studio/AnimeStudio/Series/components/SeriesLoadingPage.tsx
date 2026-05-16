@@ -15,6 +15,7 @@ interface SeriesLoadingPageProps {
 
 const TAB_META: Record<string, { title: string; description: string; icon: any; color: string; accentColor: string; borderColor: string; bgColor: string; shadowColor: string }> = {
   roadmap: { title: 'Mapping Roadmap', description: 'Generating macro-level series pacing and checkpoints', icon: Milestone, color: 'text-pink-400', accentColor: 'text-pink-400', borderColor: 'border-pink-500/20', bgColor: 'bg-pink-500/5', shadowColor: 'rgba(236, 72, 153, 0.1)' },
+  blueprint: { title: 'Planning Episode Structure', description: 'Organizing episode beats and overarching story arcs', icon: Layout, color: 'text-cyan-400', accentColor: 'text-cyan-400', borderColor: 'border-cyan-500/20', bgColor: 'bg-cyan-500/5', shadowColor: 'rgba(34, 211, 238, 0.1)' },
 
   episodes: { title: 'Expanding Episodes', description: 'Building out specific episode structures and themes', icon: Milestone, color: 'text-orange-400', accentColor: 'text-orange-400', borderColor: 'border-orange-500/20', bgColor: 'bg-orange-500/5', shadowColor: 'rgba(249, 115, 22, 0.1)' },
   timeline: { title: 'Adjusting Timeline', description: 'Planning production schedule and release milestones', icon: Calendar, color: 'text-amber-400', accentColor: 'text-amber-400', borderColor: 'border-amber-500/20', bgColor: 'bg-amber-500/5', shadowColor: 'rgba(250, 204, 21, 0.1)' },

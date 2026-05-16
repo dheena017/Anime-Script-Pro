@@ -17,7 +17,9 @@ interface SeriesHeaderProps {
   onNext: () => void;
   onPrev?: () => void;
   onSave?: () => void;
+  onManifest?: () => void;
   onClear?: () => void;
+  isManifestActive?: boolean;
   isSaving?: boolean;
   hasContent?: boolean;
   session: string;
@@ -32,7 +34,9 @@ export const SeriesHeader: React.FC<SeriesHeaderProps> = ({
   onNext,
   onPrev,
   onSave,
+  onManifest,
   onClear,
+  isManifestActive,
   isSaving,
   hasContent,
   session,
@@ -112,6 +116,27 @@ export const SeriesHeader: React.FC<SeriesHeaderProps> = ({
                   <p className="font-black uppercase tracking-widest text-xs">
                     {isGenerating ? "Terminate Active Process" : "Generate AI Roadmap"}
                   </p>
+                </TooltipContent>
+              </Tooltip>
+
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className={cn(
+                      "w-10 h-10 rounded-xl border transition-all duration-500 group/manifest",
+                      isManifestActive 
+                        ? "bg-emerald-500/20 border-emerald-500/50 text-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.2)]" 
+                        : "bg-white/5 border-white/10 text-zinc-500 hover:text-emerald-400 hover:border-emerald-500/30 hover:bg-emerald-500/5"
+                    )}
+                    onClick={onManifest}
+                  >
+                    <Box className={cn("w-5 h-5 transition-transform duration-500 group-hover/manifest:scale-110", isManifestActive && "animate-pulse")} />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="top">
+                  <p className="font-black uppercase tracking-widest text-xs">Production Blueprint</p>
                 </TooltipContent>
               </Tooltip>
 
