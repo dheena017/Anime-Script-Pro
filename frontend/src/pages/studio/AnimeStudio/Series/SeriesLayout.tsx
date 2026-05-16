@@ -210,13 +210,6 @@ export default function SeriesLayout() {
         <SeriesHeader
           onRegenerate={() => handleGenerate()}
           isGenerating={isGeneratingSeries}
-          onClear={() => {
-            setGeneratedSeriesPlan(null);
-            setGeneratedScript(null);
-            setGeneratedImagePrompts(null);
-            setGeneratedMetadata(null);
-            showNotification?.('Production manifest cleared', 'info');
-          }}
           onPrev={() => {
             startTransition(() => {
               navigate(`${currentScriptId ? `/projects/${currentScriptId}` : '/studio'}/cast`);

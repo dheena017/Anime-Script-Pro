@@ -18,7 +18,7 @@ interface SeriesHeaderProps {
   onPrev?: () => void;
   onSave?: () => void;
   onManifest?: () => void;
-  onClear?: () => void;
+
   isManifestActive?: boolean;
   isSaving?: boolean;
   hasContent?: boolean;
@@ -35,7 +35,7 @@ export const SeriesHeader: React.FC<SeriesHeaderProps> = ({
   onPrev,
   onSave,
   onManifest,
-  onClear,
+
   isManifestActive,
   isSaving,
   hasContent,
@@ -140,27 +140,7 @@ export const SeriesHeader: React.FC<SeriesHeaderProps> = ({
                 </TooltipContent>
               </Tooltip>
 
-              {onClear && hasContent && (
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="w-10 h-10 rounded-full border border-red-500/10 bg-red-500/5 text-red-400/60 hover:text-red-300 hover:bg-red-500/10 hover:border-red-500/30 transition-all duration-300"
-                      onClick={() => {
-                        if (window.confirm('Are you sure you want to clear the entire production manifest? This action cannot be undone.')) {
-                          onClear();
-                        }
-                      }}
-                    >
-                      <Square className="w-4 h-4 fill-current opacity-20" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent side="top">
-                    <p className="font-black uppercase tracking-widest text-xs">Clear Manifest (Reset to Empty)</p>
-                  </TooltipContent>
-                </Tooltip>
-              )}
+
 
               <Tooltip>
                 <TooltipTrigger asChild>
