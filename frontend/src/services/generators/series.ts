@@ -322,7 +322,15 @@ export async function generateSeriesPlan(
   worldLore?: string,
   castProfiles?: string,
   expandSequentially: boolean = false,
-  opts?: { session?: string; episode?: string; numScenes?: number }
+  opts?: { 
+    session?: string; 
+    episode?: string; 
+    numScenes?: number;
+    temperature?: number;
+    maxTokens?: number;
+    topP?: number;
+    topK?: number;
+  }
 ) {
   validateSeriesPrompt(prompt);
   validateSeriesContentType(contentType);
@@ -342,10 +350,10 @@ export async function generateSeriesPlan(
       model,
       userPrompt,
       systemInstruction,
-      0.85, // temperature
-      8192, // maxTokens — Detailed plans need significant headroom
-      0.95, // topP
-      40,   // topK
+      opts?.temperature ?? 0.85, // temperature
+      opts?.maxTokens ?? 8192, // maxTokens
+      opts?.topP ?? 0.95, // topP
+      opts?.topK ?? 40,   // topK
       180000, // timeoutMs
       worldLore, // worldLore
       castProfiles // castDNA

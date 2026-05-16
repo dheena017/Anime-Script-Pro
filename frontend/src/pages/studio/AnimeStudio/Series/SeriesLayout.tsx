@@ -41,7 +41,11 @@ export default function SeriesLayout() {
     isSaving,
     isGeneratingSeries,
     generatedSeriesPlan,
-    generationProgress
+    generationProgress,
+    temperature,
+    maxTokens,
+    topP,
+    topK
   } = useGeneratorState();
 
   const {
@@ -116,7 +120,16 @@ export default function SeriesLayout() {
         contentType,
         totalEpisodes,
         worldBible,
-        castContext
+        castContext,
+        false, // expandSequentially
+        {
+          session,
+          episode,
+          temperature,
+          maxTokens,
+          topP,
+          topK
+        }
       );
 
       // Ensure we have a valid array
@@ -176,7 +189,13 @@ export default function SeriesLayout() {
     setGenerationProgress,
     showNotification,
     addGeneratorLog,
-    setSearchParams
+    setSearchParams,
+    temperature,
+    maxTokens,
+    topP,
+    topK,
+    session,
+    episode
   ]);
 
   const VALID_TABS: SeriesTab[] = ['episodes', 'assets', 'blueprint'];
