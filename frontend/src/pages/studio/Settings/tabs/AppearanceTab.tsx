@@ -45,8 +45,8 @@ export const AppearanceTab: React.FC = () => {
                 >
                   <item.icon className={cn("w-6 h-6", theme === item.id ? "text-[#bd4a4a]" : "text-zinc-700 group-hover:text-zinc-500")} />
                   <div className="text-center">
-                    <h4 className="text-[10px] font-black uppercase tracking-widest mb-1">{item.label}</h4>
-                    <p className="text-[8px] font-bold opacity-50 uppercase tracking-widest">{item.desc}</p>
+                    <h4 className="text-xs font-black uppercase tracking-widest mb-1">{item.label}</h4>
+                    <p className="text-xs font-bold opacity-50 uppercase tracking-widest">{item.desc}</p>
                   </div>
                 </button>
               ))}
@@ -78,7 +78,7 @@ export const AppearanceTab: React.FC = () => {
                       </div>
                     )}
                   </div>
-                  <span className="text-[8px] font-black uppercase tracking-widest text-zinc-500">{item.name}</span>
+                  <span className="text-xs font-black uppercase tracking-widest text-zinc-500">{item.name}</span>
                 </button>
               ))}
             </div>
@@ -91,7 +91,7 @@ export const AppearanceTab: React.FC = () => {
               <div className="flex items-center justify-between p-6 bg-zinc-900/50 border border-white/5 rounded-2xl">
                 <div className="flex items-center gap-4">
                   <Contrast className="w-5 h-5 text-zinc-600" />
-                  <span className="text-[10px] font-black text-white uppercase tracking-widest">High Contrast Mode</span>
+                  <span className="text-xs font-black text-white uppercase tracking-widest">High Contrast Mode</span>
                 </div>
                 <div className="w-10 h-5 bg-zinc-800 rounded-full relative cursor-pointer">
                   <div className="absolute left-1 top-1 w-3 h-3 bg-zinc-600 rounded-full" />
@@ -100,7 +100,7 @@ export const AppearanceTab: React.FC = () => {
               <div className="flex items-center justify-between p-6 bg-zinc-900/50 border border-white/5 rounded-2xl">
                 <div className="flex items-center gap-4">
                   <Eye className="w-5 h-5 text-zinc-600" />
-                  <span className="text-[10px] font-black text-white uppercase tracking-widest">Reduced Motion</span>
+                  <span className="text-xs font-black text-white uppercase tracking-widest">Reduced Motion</span>
                 </div>
                 <div className="w-10 h-5 bg-zinc-800 rounded-full relative cursor-pointer">
                   <div className="absolute left-1 top-1 w-3 h-3 bg-zinc-600 rounded-full" />

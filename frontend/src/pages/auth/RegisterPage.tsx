@@ -43,9 +43,9 @@ export function RegisterPage() {
               className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-studio/10 border border-studio/20"
             >
               <div className="w-1.5 h-1.5 rounded-full bg-studio animate-pulse" />
-              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-studio-glow">Protocol v2.0 Ready</span>
+              <span className="text-xs font-black uppercase tracking-[0.2em] text-studio-glow">Protocol v2.0 Ready</span>
             </motion.div>
-            <h1 className="text-7xl font-black italic tracking-tighter leading-[0.85] text-white">
+            <h1 className="text-4xl font-black italic tracking-tighter leading-[0.85] text-white">
               JOIN THE <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-studio via-purple-500 to-studio">REVOLUTION.</span>
             </h1>
@@ -55,7 +55,7 @@ export function RegisterPage() {
             </h2>
             <div className="flex items-center gap-3">
               <div className="h-[1px] w-12 bg-studio/30" />
-              <p className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.4em]">
+              <p className="text-zinc-500 text-xs font-black uppercase tracking-[0.4em]">
                 Access Granted
               </p>
             </div>
@@ -87,7 +87,7 @@ export function RegisterPage() {
                     transition={{ duration: 2, repeat: Infinity }}
                   />
                 </div>
-                <div className="flex justify-between text-[9px] uppercase font-black tracking-widest text-zinc-500">
+                <div className="flex justify-between text-xs uppercase font-black tracking-widest text-zinc-500">
                   <span>World Syncing</span>
                   <span className="text-studio">40% READY</span>
                 </div>
@@ -114,7 +114,7 @@ export function RegisterPage() {
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-zinc-800"></div>
               </div>
-              <div className="relative flex justify-center text-[10px] uppercase font-black tracking-widest">
+              <div className="relative flex justify-center text-xs uppercase font-black tracking-widest">
                 <span className="bg-[#0A0A0B] px-4 text-zinc-600">Secure Direct Access</span>
               </div>
             </div>
@@ -140,16 +140,16 @@ export function RegisterPage() {
           </AuthCard>
 
           <div className="flex items-center justify-center gap-6">
-            <div className="flex items-center gap-1.5 text-[9px] uppercase tracking-widest font-black text-zinc-600">
+            <div className="flex items-center gap-1.5 text-xs uppercase tracking-widest font-black text-zinc-600">
               <ShieldCheck className="w-3 h-3 text-studio" />
               <span>Encrypted</span>
             </div>
-            <div className="flex items-center gap-1.5 text-[9px] uppercase tracking-widest font-black text-zinc-600">
+            <div className="flex items-center gap-1.5 text-xs uppercase tracking-widest font-black text-zinc-600">
               <Zap className="w-3 h-3 text-yellow-500" />
               <span>Fast Lane</span>
             </div>
           </div>
-          <p className="text-center text-[9px] uppercase tracking-[0.3em] font-black text-zinc-700">
+          <p className="text-center text-xs uppercase tracking-[0.3em] font-black text-zinc-700">
             Studio Architect v2.0
           </p>
         </div>

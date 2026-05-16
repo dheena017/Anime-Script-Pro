@@ -117,10 +117,10 @@ export function RelationshipLab() {
   return (
     <div className="space-y-12">
       <div className="text-center space-y-4">
-        <div className="inline-block px-3 py-1 bg-fuchsia-500/10 border border-fuchsia-500/30 rounded-full text-[10px] uppercase tracking-[0.3em] text-fuchsia-400 font-bold shadow-[0_0_15px_rgba(217,70,239,0.2)]">
+        <div className="inline-block px-3 py-1 bg-fuchsia-500/10 border border-fuchsia-500/30 rounded-full text-xs uppercase tracking-[0.3em] text-fuchsia-400 font-bold shadow-[0_0_15px_rgba(217,70,239,0.2)]">
           Social Architecture Matrix
         </div>
-        <h1 className="text-5xl font-black text-cyan-50 leading-tight uppercase tracking-tighter">
+        <h1 className="text-2xl font-black text-cyan-50 leading-tight uppercase tracking-tighter">
           Relationship <span className="text-fuchsia-600">Lab</span>
         </h1>
         <p className="text-zinc-500 italic max-w-lg mx-auto font-medium">
@@ -130,7 +130,7 @@ export function RelationshipLab() {
           <Button
             onClick={handleAISynthesis}
             disabled={isGenerating || !prompt}
-            className="bg-[#050505] hover:bg-zinc-900 border border-fuchsia-500/30 text-fuchsia-500 font-black tracking-[0.2em] text-[10px] h-12 px-10 rounded-full shadow-[0_0_20px_rgba(217,70,239,0.1)] hover:shadow-[0_0_30px_rgba(217,70,239,0.2)] transition-all gap-3 group"
+            className="bg-[#050505] hover:bg-zinc-900 border border-fuchsia-500/30 text-fuchsia-500 font-black tracking-[0.2em] text-xs h-12 px-10 rounded-full shadow-[0_0_20px_rgba(217,70,239,0.1)] hover:shadow-[0_0_30px_rgba(217,70,239,0.2)] transition-all gap-3 group"
           >
             {isGenerating ? (
               <Loader2 className="w-4 h-4 animate-spin" />
@@ -142,7 +142,7 @@ export function RelationshipLab() {
           <Button
             onClick={handleAISynthesis}
             disabled={isGenerating || !prompt}
-            className="bg-fuchsia-600 hover:bg-fuchsia-500 text-white font-black tracking-[0.2em] text-[10px] h-12 px-10 rounded-full shadow-[0_0_30px_rgba(217,70,239,0.3)] transition-all gap-3 group"
+            className="bg-fuchsia-600 hover:bg-fuchsia-500 text-white font-black tracking-[0.2em] text-xs h-12 px-10 rounded-full shadow-[0_0_30px_rgba(217,70,239,0.3)] transition-all gap-3 group"
           >
             {isGenerating ? (
               <Loader2 className="w-4 h-4 animate-spin" />
@@ -161,7 +161,7 @@ export function RelationshipLab() {
 
         <div className="flex flex-col md:flex-row gap-6 mb-12 items-end">
           <div className="flex-1 space-y-2">
-            <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-1">Member A</label>
+            <label className="text-xs font-black text-zinc-500 uppercase tracking-widest ml-1">Member A</label>
             <select
               value={newConn.source || ''}
               onChange={e => setNewConn({ ...newConn, source: e.target.value })}
@@ -177,7 +177,7 @@ export function RelationshipLab() {
             <ArrowRight className="text-zinc-800" />
           </div>
           <div className="flex-1 space-y-2">
-            <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-1">Identity B</label>
+            <label className="text-xs font-black text-zinc-500 uppercase tracking-widest ml-1">Identity B</label>
             <select
               value={newConn.target || ''}
               onChange={e => setNewConn({ ...newConn, target: e.target.value })}
@@ -190,7 +190,7 @@ export function RelationshipLab() {
             </select>
           </div>
           <div className="flex-[2] space-y-2">
-            <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-1">Dynamic Complexity</label>
+            <label className="text-xs font-black text-zinc-500 uppercase tracking-widest ml-1">Dynamic Complexity</label>
             <Input
               placeholder="Define the friction or alliance..."
               value={newConn.description || ''}
@@ -226,20 +226,20 @@ export function RelationshipLab() {
         </div>
 
         <div className="flex items-center justify-between mb-8 pb-4 border-b border-zinc-900">
-          <div className="text-[11px] font-black uppercase tracking-widest text-zinc-500 flex items-center gap-2">
+          <div className="text-xs font-black uppercase tracking-widest text-zinc-500 flex items-center gap-2">
             <Users className="w-4 h-4" /> ACTIVE THREADS: {connections.length}
           </div>
           <div className="flex bg-zinc-900/50 p-1 rounded-xl border border-zinc-800">
             <button
               onClick={() => setViewMode('list')}
-              className={cn("px-4 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all",
+              className={cn("px-4 py-1.5 text-xs font-black uppercase tracking-widest rounded-lg transition-all",
                 viewMode === 'list' ? 'bg-fuchsia-600 text-white shadow-lg' : 'text-zinc-500 hover:text-zinc-300')}
             >
               List View
             </button>
             <button
               onClick={() => setViewMode('matrix')}
-              className={cn("px-4 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all",
+              className={cn("px-4 py-1.5 text-xs font-black uppercase tracking-widest rounded-lg transition-all",
                 viewMode === 'matrix' ? 'bg-fuchsia-600 text-white shadow-lg' : 'text-zinc-500 hover:text-zinc-300')}
             >
               Matrix Grid

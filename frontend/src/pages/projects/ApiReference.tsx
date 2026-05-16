@@ -48,14 +48,14 @@ export function ApiReferencePage() {
         <div className="flex flex-col items-center text-center space-y-10">
            <div className="flex items-center gap-3 px-4 py-1.5 rounded-full bg-studio/5 border border-studio/20">
               <Code2 className="w-3.5 h-3.5 text-studio" />
-              <span className="text-[10px] font-black text-studio uppercase tracking-[0.4em]">API Protocol Terminal V4.2</span>
+              <span className="text-xs font-black text-studio uppercase tracking-[0.4em]">API Protocol Terminal V4.2</span>
            </div>
            
            <div className="space-y-6">
-              <h1 className="text-5xl md:text-8xl font-black text-white uppercase italic tracking-tighter leading-none">
+              <h1 className="text-2xl md:text-4xl font-black text-white uppercase italic tracking-tighter leading-none">
                 API <span className="text-studio">Reference.</span>
               </h1>
-              <p className="text-zinc-500 max-w-2xl mx-auto uppercase text-[11px] font-bold tracking-[0.2em] leading-relaxed">
+              <p className="text-zinc-500 max-w-2xl mx-auto uppercase text-xs font-bold tracking-[0.2em] leading-relaxed">
                 Build high-fidelity integrations with the AnimeScript Pro engine. <br />
                 Real-time AI generation at your fingertips.
               </p>
@@ -65,15 +65,15 @@ export function ApiReferencePage() {
            <div className="flex flex-wrap items-center justify-center gap-8 pt-4 border-t border-white/5 w-full max-w-4xl">
               <div className="flex items-center gap-3">
                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
-                 <span className="text-[9px] font-black text-zinc-500 uppercase tracking-widest">Global Uptime: 99.98%</span>
+                 <span className="text-xs font-black text-zinc-500 uppercase tracking-widest">Global Uptime: 99.98%</span>
               </div>
               <div className="flex items-center gap-3">
                  <Activity className="w-3.5 h-3.5 text-studio" />
-                 <span className="text-[9px] font-black text-zinc-500 uppercase tracking-widest">Avg Latency: 142ms</span>
+                 <span className="text-xs font-black text-zinc-500 uppercase tracking-widest">Avg Latency: 142ms</span>
               </div>
               <div className="flex items-center gap-3">
                  <Cpu className="w-3.5 h-3.5 text-fuchsia-500" />
-                 <span className="text-[9px] font-black text-zinc-500 uppercase tracking-widest">Nodes Active: 842</span>
+                 <span className="text-xs font-black text-zinc-500 uppercase tracking-widest">Nodes Active: 842</span>
               </div>
            </div>
         </div>
@@ -95,8 +95,8 @@ export function ApiReferencePage() {
                     className="flex items-center justify-between p-4 bg-zinc-900/30 border border-white/5 rounded-2xl hover:bg-studio/5 hover:border-studio/30 transition-all group no-underline"
                    >
                       <div className="flex items-center gap-3">
-                        <span className="text-[8px] font-black text-zinc-700 group-hover:text-studio transition-colors">{node.nodeId}</span>
-                        <span className="text-[10px] font-black text-zinc-500 group-hover:text-white uppercase tracking-widest">{node.label}</span>
+                        <span className="text-xs font-black text-zinc-700 group-hover:text-studio transition-colors">{node.nodeId}</span>
+                        <span className="text-xs font-black text-zinc-500 group-hover:text-white uppercase tracking-widest">{node.label}</span>
                       </div>
                       <ChevronRight className="w-3 h-3 text-zinc-800 group-hover:text-studio transition-colors" />
                    </a>
@@ -107,12 +107,12 @@ export function ApiReferencePage() {
                <Card className="bg-studio/5 border border-studio/20 p-8 rounded-[2rem] space-y-4">
                   <div className="flex items-center gap-3">
                     <Zap className="w-4 h-4 text-studio fill-studio" />
-                    <span className="text-[9px] font-black text-white uppercase tracking-widest">Developer Key</span>
+                    <span className="text-xs font-black text-white uppercase tracking-widest">Developer Key</span>
                   </div>
-                  <p className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest leading-relaxed">
+                  <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest leading-relaxed">
                      Generate your production keys in the settings terminal.
                   </p>
-                  <Button className="w-full h-12 bg-studio text-black font-black uppercase tracking-widest text-[9px] rounded-xl hover:bg-white transition-all">
+                  <Button className="w-full h-12 bg-studio text-black font-black uppercase tracking-widest text-xs rounded-xl hover:bg-white transition-all">
                      DASHBOARD <ArrowUpRight className="ml-2 w-3.5 h-3.5" />
                   </Button>
                </Card>
@@ -126,10 +126,10 @@ export function ApiReferencePage() {
             <section id="introduction" className="space-y-10 group relative">
               <div className="flex items-center gap-4">
                  <div className="w-1.5 h-1.5 rounded-full bg-studio" />
-                 <span className="text-[10px] font-black text-studio uppercase tracking-[0.4em]">NODE-A1</span>
+                 <span className="text-xs font-black text-studio uppercase tracking-[0.4em]">NODE-A1</span>
               </div>
               <div className="space-y-6">
-                <h2 className="text-4xl md:text-6xl font-black text-white uppercase italic tracking-tighter">Introduction</h2>
+                <h2 className="text-4xl md:text-3xl font-black text-white uppercase italic tracking-tighter">Introduction</h2>
                 <p className="text-zinc-500 text-sm font-bold leading-relaxed uppercase tracking-widest max-w-3xl">
                   The AnimeScript Pro API is organized around REST. Our protocol has predictable resource-oriented URLs, accepts form-encoded request bodies, and returns JSON-encoded responses.
                 </p>
@@ -146,7 +146,7 @@ export function ApiReferencePage() {
                      </div>
                      <div className="space-y-1">
                         <h4 className="text-lg font-black text-white uppercase italic">{item.title}</h4>
-                        <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest">{item.sub}</p>
+                        <p className="text-xs font-bold text-zinc-600 uppercase tracking-widest">{item.sub}</p>
                      </div>
                   </div>
                 ))}
@@ -157,10 +157,10 @@ export function ApiReferencePage() {
             <section id="authentication" className="space-y-10 group relative">
               <div className="flex items-center gap-4">
                  <div className="w-1.5 h-1.5 rounded-full bg-studio" />
-                 <span className="text-[10px] font-black text-studio uppercase tracking-[0.4em]">NODE-A2</span>
+                 <span className="text-xs font-black text-studio uppercase tracking-[0.4em]">NODE-A2</span>
               </div>
               <div className="space-y-6">
-                <h2 className="text-4xl md:text-6xl font-black text-white uppercase italic tracking-tighter">Authentication</h2>
+                <h2 className="text-4xl md:text-3xl font-black text-white uppercase italic tracking-tighter">Authentication</h2>
                 <p className="text-zinc-500 text-sm font-bold leading-relaxed uppercase tracking-widest max-w-3xl">
                   Authenticate your API transmissions by including your secret API key in the request headers. manage keys via the secure developer hub.
                 </p>
@@ -175,11 +175,11 @@ export function ApiReferencePage() {
                          <div className="w-2 h-2 rounded-full bg-amber-500/50" />
                          <div className="w-2 h-2 rounded-full bg-emerald-500/50" />
                       </div>
-                      <span className="text-[10px] font-black text-zinc-700 uppercase tracking-[0.3em]">CURL TERMINAL</span>
+                      <span className="text-xs font-black text-zinc-700 uppercase tracking-[0.3em]">CURL TERMINAL</span>
                    </div>
                    <button 
                     onClick={() => handleCopy('curl', curlExample)}
-                    className="flex items-center gap-2 text-[9px] font-black text-zinc-600 hover:text-white uppercase tracking-widest transition-colors"
+                    className="flex items-center gap-2 text-xs font-black text-zinc-600 hover:text-white uppercase tracking-widest transition-colors"
                    >
                       {copied === 'curl' ? (
                         <>COMPLETED <Check className="w-3.5 h-3.5 text-emerald-500" /></>
@@ -203,7 +203,7 @@ export function ApiReferencePage() {
             </section>
 
             {/* ENDPOINT SYSTEM STATUS FOOTER */}
-            <footer className="pt-20 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-8 text-[9px] font-black text-zinc-700 uppercase tracking-[0.4em]">
+            <footer className="pt-20 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-8 text-xs font-black text-zinc-700 uppercase tracking-[0.4em]">
                <div className="flex items-center gap-6">
                   <div className="flex items-center gap-3">
                      <ShieldCheck className="w-4 h-4 text-emerald-500" />

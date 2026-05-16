@@ -80,7 +80,7 @@ export const SEOToolbar: React.FC<SEOToolbarProps> = ({
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="top">
-                  <p className="font-black uppercase tracking-widest text-[9px]">Copy SEO Matrix</p>
+                  <p className="font-black uppercase tracking-widest text-xs">Copy SEO Matrix</p>
                 </TooltipContent>
               </Tooltip>
 
@@ -97,7 +97,7 @@ export const SEOToolbar: React.FC<SEOToolbarProps> = ({
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="top">
-                  <p className="font-black uppercase tracking-widest text-[9px]">Export Data</p>
+                  <p className="font-black uppercase tracking-widest text-xs">Export Data</p>
                 </TooltipContent>
               </Tooltip>
 
@@ -113,7 +113,7 @@ export const SEOToolbar: React.FC<SEOToolbarProps> = ({
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="top">
-                  <p className="font-black uppercase tracking-widest text-[9px]">{isFullscreen ? "Exit Fullscreen" : "Fullscreen Mode"}</p>
+                  <p className="font-black uppercase tracking-widest text-xs">{isFullscreen ? "Exit Fullscreen" : "Fullscreen Mode"}</p>
                 </TooltipContent>
               </Tooltip>
             </div>

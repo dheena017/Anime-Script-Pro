@@ -50,10 +50,10 @@ export default function OverviewTab({ searchTerm: _searchTerm }: OverviewTabProp
                   <div className={`p-2 rounded-lg ${stat.color} bg-black/40 ring-1 ring-white/5`}>
                     <stat.icon className="w-4 h-4" />
                   </div>
-                  <span className="text-[10px] font-black text-zinc-500 uppercase tracking-tighter">{stat.change}</span>
+                  <span className="text-xs font-black text-zinc-500 uppercase tracking-tighter">{stat.change}</span>
                 </div>
                 <div>
-                  <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">{stat.label}</p>
+                  <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">{stat.label}</p>
                   <p className="text-xl font-black text-white">{stat.value}</p>
                 </div>
               </CardContent>
@@ -66,7 +66,7 @@ export default function OverviewTab({ searchTerm: _searchTerm }: OverviewTabProp
         {/* Distribution Chart Placeholder */}
         <Card className="lg:col-span-2 bg-zinc-950/50 border-white/5">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-[10px] font-black uppercase tracking-[0.2em] text-[#bd4a4a]">Asset Distribution</CardTitle>
+            <CardTitle className="text-xs font-black uppercase tracking-[0.2em] text-[#bd4a4a]">Asset Distribution</CardTitle>
             <BarChart3 className="w-4 h-4 text-zinc-500" />
           </CardHeader>
           <CardContent>
@@ -83,7 +83,7 @@ export default function OverviewTab({ searchTerm: _searchTerm }: OverviewTabProp
                     />
                   ))}
                 </div>
-                <p className="text-[8px] font-black text-zinc-500 uppercase tracking-widest">Neural Index Processing Complete</p>
+                <p className="text-xs font-black text-zinc-500 uppercase tracking-widest">Neural Index Processing Complete</p>
               </div>
             </div>
           </CardContent>
@@ -92,7 +92,7 @@ export default function OverviewTab({ searchTerm: _searchTerm }: OverviewTabProp
         {/* Quick Categories */}
         <Card className="bg-zinc-950/50 border-white/5">
           <CardHeader>
-            <CardTitle className="text-[10px] font-black uppercase tracking-[0.2em] text-[#bd4a4a]">Top Archives</CardTitle>
+            <CardTitle className="text-xs font-black uppercase tracking-[0.2em] text-[#bd4a4a]">Top Archives</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             {recentCategories.map((cat) => (
@@ -103,7 +103,7 @@ export default function OverviewTab({ searchTerm: _searchTerm }: OverviewTabProp
                   </div>
                   <div>
                     <p className="text-xs font-bold text-white group-hover:text-[#bd4a4a] transition-colors">{cat.name}</p>
-                    <p className="text-[8px] text-zinc-500 font-bold uppercase tracking-widest">{cat.count} Items</p>
+                    <p className="text-xs text-zinc-500 font-bold uppercase tracking-widest">{cat.count} Items</p>
                   </div>
                 </div>
                 <div className="w-2 h-2 rounded-full bg-zinc-800 group-hover:bg-[#bd4a4a] transition-colors" />

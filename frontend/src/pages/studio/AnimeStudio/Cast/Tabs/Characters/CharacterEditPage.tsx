@@ -122,13 +122,13 @@ export default function CharacterEditPage() {
         <div className="flex items-center gap-3">
           <Button 
             variant="ghost" 
-            className="text-red-500/50 hover:text-red-500 hover:bg-red-500/5 transition-all font-black uppercase tracking-widest text-[10px] px-6 h-10 rounded-xl"
+            className="text-red-500/50 hover:text-red-500 hover:bg-red-500/5 transition-all font-black uppercase tracking-widest text-xs px-6 h-10 rounded-xl"
           >
             <Trash2 className="w-3.5 h-3.5 mr-2" /> Delete Character
           </Button>
           <Button 
             onClick={handleSave}
-            className="bg-studio text-black hover:bg-studio/80 transition-all font-black uppercase tracking-widest text-[10px] px-8 h-10 rounded-xl shadow-studio"
+            className="bg-studio text-black hover:bg-studio/80 transition-all font-black uppercase tracking-widest text-xs px-8 h-10 rounded-xl shadow-studio"
           >
             <Save className="w-3.5 h-3.5 mr-2" /> Save Character DNA
           </Button>
@@ -141,13 +141,13 @@ export default function CharacterEditPage() {
            <div className="space-y-6">
               <div className="space-y-1">
                 <h2 className="text-xl font-black text-white uppercase tracking-tighter">Core Identity</h2>
-                <p className="text-zinc-500 text-[10px] font-black uppercase tracking-widest">Base Soul Parameters</p>
+                <p className="text-zinc-500 text-xs font-black uppercase tracking-widest">Base Soul Parameters</p>
               </div>
 
               <Card className="p-8 bg-zinc-900/40 border-white/5 backdrop-blur-md space-y-6">
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <Label className="text-[10px] font-black uppercase text-zinc-500 tracking-widest">Display Name</Label>
+                    <Label className="text-xs font-black uppercase text-zinc-500 tracking-widest">Display Name</Label>
                     <Input 
                       value={formData.name} 
                       onChange={(e) => setFormData({...formData, name: e.target.value})}
@@ -155,7 +155,7 @@ export default function CharacterEditPage() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-[10px] font-black uppercase text-zinc-500 tracking-widest">Archetype</Label>
+                    <Label className="text-xs font-black uppercase text-zinc-500 tracking-widest">Archetype</Label>
                     <Input 
                       value={formData.archetype} 
                       onChange={(e) => setFormData({...formData, archetype: e.target.value})}
@@ -163,7 +163,7 @@ export default function CharacterEditPage() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-[10px] font-black uppercase text-zinc-500 tracking-widest">Personality Traits</Label>
+                    <Label className="text-xs font-black uppercase text-zinc-500 tracking-widest">Personality Traits</Label>
                     <Input 
                       value={formData.personality} 
                       onChange={(e) => setFormData({...formData, personality: e.target.value})}
@@ -177,11 +177,11 @@ export default function CharacterEditPage() {
            <div className="space-y-6">
               <div className="space-y-1">
                 <h2 className="text-xl font-black text-white uppercase tracking-tighter">Visual DNA</h2>
-                <p className="text-zinc-500 text-[10px] font-black uppercase tracking-widest">Aesthetic Specification</p>
+                <p className="text-zinc-500 text-xs font-black uppercase tracking-widest">Aesthetic Specification</p>
               </div>
               <Card className="p-8 bg-zinc-900/40 border-white/5 backdrop-blur-md space-y-4">
                  <div className="space-y-2">
-                    <Label className="text-[10px] font-black uppercase text-zinc-500 tracking-widest">Appearance Details</Label>
+                    <Label className="text-xs font-black uppercase text-zinc-500 tracking-widest">Appearance Details</Label>
                     <Textarea 
                       value={formData.appearance} 
                       onChange={(e) => setFormData({...formData, appearance: e.target.value})}
@@ -197,7 +197,7 @@ export default function CharacterEditPage() {
         <div className="lg:col-span-2 space-y-8">
            <div className="space-y-1">
               <h2 className="text-xl font-black text-white uppercase tracking-tighter">Narrative Logic</h2>
-              <p className="text-zinc-500 text-[10px] font-black uppercase tracking-widest">Psychological and Strategic Drivers</p>
+              <p className="text-zinc-500 text-xs font-black uppercase tracking-widest">Psychological and Strategic Drivers</p>
            </div>
 
            <Card className="p-10 bg-zinc-900/40 border-white/5 backdrop-blur-md space-y-10">
@@ -205,7 +205,7 @@ export default function CharacterEditPage() {
                  <div className="space-y-4">
                     <div className="flex items-center gap-3">
                        <Target className="w-4 h-4 text-studio" />
-                       <Label className="text-[10px] font-black uppercase text-zinc-500 tracking-widest">Core Objective (Goal)</Label>
+                       <Label className="text-xs font-black uppercase text-zinc-500 tracking-widest">Core Objective (Goal)</Label>
                     </div>
                     <Textarea 
                       value={formData.goal} 
@@ -216,7 +216,7 @@ export default function CharacterEditPage() {
                  <div className="space-y-4">
                     <div className="flex items-center gap-3">
                        <Skull className="w-4 h-4 text-fuchsia-500" />
-                       <Label className="text-[10px] font-black uppercase text-zinc-500 tracking-widest">Genetic Flaw</Label>
+                       <Label className="text-xs font-black uppercase text-zinc-500 tracking-widest">Genetic Flaw</Label>
                     </div>
                     <Textarea 
                       value={formData.flaw} 
@@ -229,7 +229,7 @@ export default function CharacterEditPage() {
               <div className="space-y-4">
                  <div className="flex items-center gap-3">
                     <Sparkles className="w-4 h-4 text-studio" />
-                    <Label className="text-[10px] font-black uppercase text-zinc-500 tracking-widest">Narrative Conflict</Label>
+                    <Label className="text-xs font-black uppercase text-zinc-500 tracking-widest">Narrative Conflict</Label>
                  </div>
                  <Textarea 
                    value={formData.conflict} 
@@ -242,7 +242,7 @@ export default function CharacterEditPage() {
                  <div className="space-y-4">
                     <div className="flex items-center gap-3">
                        <MessageSquare className="w-4 h-4 text-studio" />
-                       <Label className="text-[10px] font-black uppercase text-zinc-500 tracking-widest">Speaking Protocol & Rhythm</Label>
+                       <Label className="text-xs font-black uppercase text-zinc-500 tracking-widest">Speaking Protocol & Rhythm</Label>
                     </div>
                     <Input 
                       value={formData.speakingStyle} 
@@ -253,7 +253,7 @@ export default function CharacterEditPage() {
                  <div className="space-y-4">
                     <div className="flex items-center gap-3">
                        <Lock className="w-4 h-4 text-orange-500" />
-                       <Label className="text-[10px] font-black uppercase text-zinc-500 tracking-widest">Hidden Secret</Label>
+                       <Label className="text-xs font-black uppercase text-zinc-500 tracking-widest">Hidden Secret</Label>
                     </div>
                     <Input 
                       value={formData.secret} 
@@ -267,34 +267,34 @@ export default function CharacterEditPage() {
               <div className="space-y-8 pt-8 border-t border-white/5">
                  <div className="space-y-1">
                     <h3 className="text-sm font-black text-white uppercase tracking-[0.2em]">Advanced Production DNA</h3>
-                    <p className="text-zinc-500 text-[9px] font-black uppercase tracking-widest italic">Directorial and Technical Specifications</p>
+                    <p className="text-zinc-500 text-xs font-black uppercase tracking-widest italic">Directorial and Technical Specifications</p>
                  </div>
 
                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div className="space-y-2">
-                       <Label className="text-[9px] font-black uppercase text-red-500/60 tracking-widest">Camera Choreography</Label>
+                       <Label className="text-xs font-black uppercase text-red-500/60 tracking-widest">Camera Choreography</Label>
                        <Textarea 
                           value={formData.cameraChoreography} 
                           onChange={(e) => setFormData({...formData, cameraChoreography: e.target.value})}
-                          className="bg-black/40 border-zinc-800 min-h-[80px] text-[11px] italic"
+                          className="bg-black/40 border-zinc-800 min-h-[80px] text-xs italic"
                           placeholder="Tracking, static, or kinetic camera notes..."
                        />
                     </div>
                     <div className="space-y-2">
-                       <Label className="text-[9px] font-black uppercase text-fuchsia-500/60 tracking-widest">Moral Dilemma</Label>
+                       <Label className="text-xs font-black uppercase text-fuchsia-500/60 tracking-widest">Moral Dilemma</Label>
                        <Textarea 
                           value={formData.moralDilemma} 
                           onChange={(e) => setFormData({...formData, moralDilemma: e.target.value})}
-                          className="bg-black/40 border-zinc-800 min-h-[80px] text-[11px] italic"
+                          className="bg-black/40 border-zinc-800 min-h-[80px] text-xs italic"
                           placeholder="The character's core narrative conflict..."
                        />
                     </div>
                     <div className="space-y-2">
-                       <Label className="text-[9px] font-black uppercase text-indigo-500/60 tracking-widest">VFX Signature</Label>
+                       <Label className="text-xs font-black uppercase text-indigo-500/60 tracking-widest">VFX Signature</Label>
                        <Textarea 
                           value={formData.vfxSignature} 
                           onChange={(e) => setFormData({...formData, vfxSignature: e.target.value})}
-                          className="bg-black/40 border-zinc-800 min-h-[80px] text-[11px] italic"
+                          className="bg-black/40 border-zinc-800 min-h-[80px] text-xs italic"
                           placeholder="Particles, lighting, or distortion effects..."
                        />
                     </div>

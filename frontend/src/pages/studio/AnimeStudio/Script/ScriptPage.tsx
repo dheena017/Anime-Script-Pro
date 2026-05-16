@@ -203,8 +203,8 @@ export function ScriptPage() {
             <div className="absolute inset-0 m-auto w-2 h-2 bg-studio rounded-full animate-ping" />
           </div>
           <div className="text-center space-y-2">
-            <p className="font-black tracking-[0.3em] text-[10px] uppercase text-studio animate-pulse">Initializing Production Core...</p>
-            <p className="text-[8px] font-bold text-zinc-600 uppercase tracking-widest">Sequencing neural script engine</p>
+            <p className="font-black tracking-[0.3em] text-xs uppercase text-studio animate-pulse">Initializing Production Core...</p>
+            <p className="text-xs font-bold text-zinc-600 uppercase tracking-widest">Sequencing neural script engine</p>
           </div>
         </div>
       );

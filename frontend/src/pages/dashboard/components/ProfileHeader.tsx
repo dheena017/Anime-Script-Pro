@@ -79,7 +79,7 @@ export function ProfileHeader({
               )}
               <div className="absolute inset-0 bg-black/60 opacity-0 group-hover/avatar:opacity-100 transition-all flex flex-col items-center justify-center cursor-pointer gap-2">
                 <Camera className="w-8 h-8 text-white" />
-                <span className="text-[10px] font-black uppercase tracking-widest text-white">Upload DNA</span>
+                <span className="text-xs font-black uppercase tracking-widest text-white">Upload DNA</span>
               </div>
             </div>
             <div className="absolute -bottom-4 -right-4 p-4 rounded-3xl bg-studio shadow-[0_0_20px_rgba(6,182,212,0.5)] border border-white/20">
@@ -93,12 +93,12 @@ export function ProfileHeader({
                 <input
                   value={displayName}
                   onChange={(e) => setDisplayName(e.target.value)}
-                  className="bg-transparent border-none p-0 h-auto text-4xl md:text-7xl font-black tracking-tighter text-white uppercase italic focus:outline-none w-full max-w-2xl"
+                  className="bg-transparent border-none p-0 h-auto text-4xl md:text-4xl font-black tracking-tighter text-white uppercase italic focus:outline-none w-full max-w-2xl"
                   placeholder="ARCHITECT NAME"
                 />
                 <div className="flex gap-3">
-                  <div className="px-4 py-1.5 bg-studio/20 border border-studio/30 text-studio text-[10px] font-black uppercase tracking-[0.2em] rounded-full backdrop-blur-md">{tier} PROTOCOL</div>
-                  <div className="px-4 py-1.5 bg-fuchsia-500/20 border border-fuchsia-500/30 text-fuchsia-400 text-[10px] font-black uppercase tracking-[0.2em] rounded-full backdrop-blur-md">
+                  <div className="px-4 py-1.5 bg-studio/20 border border-studio/30 text-studio text-xs font-black uppercase tracking-[0.2em] rounded-full backdrop-blur-md">{tier} PROTOCOL</div>
+                  <div className="px-4 py-1.5 bg-fuchsia-500/20 border border-fuchsia-500/30 text-fuchsia-400 text-xs font-black uppercase tracking-[0.2em] rounded-full backdrop-blur-md">
                     {credits.toLocaleString()} CREDITS
                   </div>
                 </div>
@@ -126,7 +126,7 @@ export function ProfileHeader({
 
             <div className="flex flex-wrap items-center gap-8 pt-4">
               <div className="space-y-3 min-w-[280px]">
-                <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500">
+                <div className="flex items-center justify-between text-xs font-black uppercase tracking-[0.2em] text-zinc-500">
                   <div className="flex items-center gap-2">
                     <Cpu className="w-3 h-3 text-studio" />
                     <span>Experience Level {level}</span>
@@ -143,7 +143,7 @@ export function ProfileHeader({
               </div>
               <div className="flex items-center gap-3 py-2 px-5 bg-white/5 border border-white/10 rounded-2xl">
                 <Calendar className="w-4 h-4 text-studio" />
-                <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest italic">Node Activated {joinDate}</span>
+                <span className="text-xs font-black text-zinc-400 uppercase tracking-widest italic">Node Activated {joinDate}</span>
               </div>
             </div>
           </div>
@@ -166,7 +166,7 @@ export function ProfileHeader({
             <Button
               onClick={onSignOut}
               variant="ghost"
-              className="h-14 rounded-2xl font-black uppercase tracking-widest text-zinc-600 hover:text-white hover:bg-white/5 transition-colors text-[10px]"
+              className="h-14 rounded-2xl font-black uppercase tracking-widest text-zinc-600 hover:text-white hover:bg-white/5 transition-colors text-xs"
             >
               <LogOut className="w-3.5 h-3.5 mr-2" /> Deactivate Link
             </Button>

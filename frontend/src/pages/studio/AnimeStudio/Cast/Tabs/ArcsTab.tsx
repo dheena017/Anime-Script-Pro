@@ -34,12 +34,12 @@ export const ArcsTab: React.FC = () => {
       <div className="flex items-center justify-between px-2">
         <div className="space-y-1">
           <h2 className="text-2xl font-black text-white uppercase tracking-tighter">Narrative Chronicle</h2>
-          <p className="text-fuchsia-500/60 text-[10px] font-black uppercase tracking-[0.3em]">Temporal Arc Simulation v8.0</p>
+          <p className="text-fuchsia-500/60 text-xs font-black uppercase tracking-[0.3em]">Temporal Arc Simulation v8.0</p>
         </div>
         <div className="flex gap-4">
           <div className="px-4 py-2 bg-fuchsia-500/5 border border-fuchsia-500/10 rounded-xl flex items-center gap-2">
             <Sparkles className="w-3 h-3 text-fuchsia-500" />
-            <span className="text-[10px] font-black text-fuchsia-400 uppercase tracking-widest">Arc Active</span>
+            <span className="text-xs font-black text-fuchsia-400 uppercase tracking-widest">Arc Active</span>
           </div>
         </div>
       </div>
@@ -64,14 +64,14 @@ export const ArcsTab: React.FC = () => {
                      <TrendingUp className="w-12 h-12 relative z-10" />
                      <div className="absolute inset-0 bg-gradient-to-t from-fuchsia-500/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                   </div>
-                  <div className="absolute -bottom-2 -right-2 px-4 py-1 rounded-full bg-black border border-white/10 text-[9px] font-black text-white uppercase tracking-widest shadow-xl">
+                  <div className="absolute -bottom-2 -right-2 px-4 py-1 rounded-full bg-black border border-white/10 text-xs font-black text-white uppercase tracking-widest shadow-xl">
                     ARC-{idx + 1}
                   </div>
                 </div>
                 
                 <div className="text-center lg:text-left space-y-1">
                   <h3 className="text-3xl font-black text-white uppercase tracking-tighter">{char.name}</h3>
-                  <p className="text-[10px] font-black text-fuchsia-500 uppercase tracking-[0.2em]">Primary Transformation</p>
+                  <p className="text-xs font-black text-fuchsia-500 uppercase tracking-[0.2em]">Primary Transformation</p>
                 </div>
 
                 <div className="flex gap-2">
@@ -87,8 +87,8 @@ export const ArcsTab: React.FC = () => {
                    {/* Step 1 */}
                    <div className="space-y-6 relative">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-zinc-900 border border-fuchsia-500/40 flex items-center justify-center text-[10px] font-black text-fuchsia-400 shadow-lg">1</div>
-                        <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Initial State</span>
+                        <div className="w-8 h-8 rounded-full bg-zinc-900 border border-fuchsia-500/40 flex items-center justify-center text-xs font-black text-fuchsia-400 shadow-lg">1</div>
+                        <span className="text-xs font-black text-zinc-500 uppercase tracking-widest">Initial State</span>
                       </div>
                       <div className="p-8 bg-zinc-950/40 rounded-[2.5rem] border border-white/5 backdrop-blur-xl group-hover:bg-zinc-900/40 transition-all duration-500 min-h-[160px]">
                         <p className="text-sm font-medium text-zinc-400 leading-relaxed italic">
@@ -100,8 +100,8 @@ export const ArcsTab: React.FC = () => {
                    {/* Step 2 */}
                    <div className="space-y-6 relative">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-fuchsia-500/10 border border-fuchsia-500/40 flex items-center justify-center text-[10px] font-black text-fuchsia-400 shadow-lg">2</div>
-                        <span className="text-[10px] font-black text-fuchsia-500 uppercase tracking-widest">The Catalyst</span>
+                        <div className="w-8 h-8 rounded-full bg-fuchsia-500/10 border border-fuchsia-500/40 flex items-center justify-center text-xs font-black text-fuchsia-400 shadow-lg">2</div>
+                        <span className="text-xs font-black text-fuchsia-500 uppercase tracking-widest">The Catalyst</span>
                       </div>
                       <div className="p-8 bg-fuchsia-500/5 rounded-[2.5rem] border border-fuchsia-500/10 backdrop-blur-xl group-hover:bg-fuchsia-500/10 transition-all duration-500 min-h-[160px] relative overflow-hidden">
                         <AlertTriangle className="absolute -top-4 -right-4 w-24 h-24 text-fuchsia-500/5 rotate-12" />
@@ -114,14 +114,14 @@ export const ArcsTab: React.FC = () => {
                    {/* Step 3 */}
                    <div className="space-y-6 relative">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-zinc-900 border border-fuchsia-500/40 flex items-center justify-center text-[10px] font-black text-fuchsia-400 shadow-lg">3</div>
-                        <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Transformation</span>
+                        <div className="w-8 h-8 rounded-full bg-zinc-900 border border-fuchsia-500/40 flex items-center justify-center text-xs font-black text-fuchsia-400 shadow-lg">3</div>
+                        <span className="text-xs font-black text-zinc-500 uppercase tracking-widest">Transformation</span>
                       </div>
                       <div className="p-8 bg-zinc-950/40 rounded-[2.5rem] border border-white/5 backdrop-blur-xl group-hover:bg-zinc-900/40 transition-all duration-500 min-h-[160px]">
                         <p className="text-sm font-medium text-zinc-400 leading-relaxed">
                           {toText(char.narrative?.arcRoadmap?.finalTransformation || char.secret || 'Transformation Pending')}
                         </p>
-                        <div className="mt-4 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-black border border-white/5 text-[8px] font-black text-zinc-600 uppercase tracking-widest">
+                        <div className="mt-4 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-black border border-white/5 text-xs font-black text-zinc-600 uppercase tracking-widest">
                           <Flag className="w-2.5 h-2.5" /> Endgame Confirmed
                         </div>
                       </div>
@@ -135,12 +135,12 @@ export const ArcsTab: React.FC = () => {
                         <Scale className="w-8 h-8 text-fuchsia-500" />
                       </div>
                       <div className="flex-1 space-y-2">
-                        <h4 className="text-[10px] font-black text-fuchsia-400 uppercase tracking-[0.3em]">The Moral Dilemma</h4>
+                        <h4 className="text-xs font-black text-fuchsia-400 uppercase tracking-[0.3em]">The Moral Dilemma</h4>
                         <p className="text-sm font-medium text-white leading-relaxed italic">
                           "{toText(char.narrative?.arcRoadmap?.moralDilemma || 'A choice between personal salvation and the collective good.')}"
                         </p>
                       </div>
-                      <div className="shrink-0 px-6 py-2 bg-black/40 rounded-xl border border-white/5 text-[8px] font-black text-zinc-500 uppercase tracking-[0.2em]">
+                      <div className="shrink-0 px-6 py-2 bg-black/40 rounded-xl border border-white/5 text-xs font-black text-zinc-500 uppercase tracking-[0.2em]">
                         Conflict Tier: Omega
                       </div>
                    </div>

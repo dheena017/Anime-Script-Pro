@@ -91,15 +91,15 @@ export default function CommunityPage() {
       <div className="flex items-center gap-3">
         <Users className="w-4 h-4 text-[#bd4a4a]" />
         <div>
-          <p className="text-[7px] font-black text-zinc-500 uppercase tracking-widest leading-none">Global Presence</p>
-          <p className="text-[10px] font-black text-white uppercase tracking-tight">842 Architects Online Now</p>
+          <p className="text-xs font-black text-zinc-500 uppercase tracking-widest leading-none">Global Presence</p>
+          <p className="text-xs font-black text-white uppercase tracking-tight">842 Architects Online Now</p>
         </div>
       </div>
       <div className="flex items-center gap-3">
         <MessageCircle className="w-4 h-4 text-[#bd4a4a]" />
         <div>
-          <p className="text-[7px] font-black text-zinc-500 uppercase tracking-widest leading-none">Signal Density</p>
-          <p className="text-[10px] font-black text-white uppercase tracking-tight">High Interaction Flux Detected</p>
+          <p className="text-xs font-black text-zinc-500 uppercase tracking-widest leading-none">Signal Density</p>
+          <p className="text-xs font-black text-white uppercase tracking-tight">High Interaction Flux Detected</p>
         </div>
       </div>
     </>
@@ -140,8 +140,8 @@ export default function CommunityPage() {
                     <img src={`https://i.pravatar.cc/150?u=${post.author_id}`} alt="Author" className="w-full h-full object-cover" />
                   </div>
                   <div>
-                    <p className="text-[10px] font-black text-white uppercase tracking-widest">{post.author_name}</p>
-                    <p className="text-[8px] font-bold text-zinc-600 uppercase tracking-widest">Master Architect</p>
+                    <p className="text-xs font-black text-white uppercase tracking-widest">{post.author_name}</p>
+                    <p className="text-xs font-bold text-zinc-600 uppercase tracking-widest">Master Architect</p>
                   </div>
                 </div>
                 <div className={sh.badge}>
@@ -156,11 +156,11 @@ export default function CommunityPage() {
                 <div className="flex items-center gap-6">
                   <div className="flex items-center gap-2">
                     <Heart onClick={() => showNotification?.('This feature is currently in development.', 'info')} className="w-3 h-3 text-zinc-600 hover:text-red-500 cursor-pointer transition-colors" />
-                    <span className="text-[9px] font-black text-zinc-500 uppercase tracking-widest">{post.likes}</span>
+                    <span className="text-xs font-black text-zinc-500 uppercase tracking-widest">{post.likes}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <MessageSquare onClick={() => showNotification?.('This feature is currently in development.', 'info')} className="w-3 h-3 text-zinc-600 hover:text-studio cursor-pointer transition-colors" />
-                    <span className="text-[9px] font-black text-zinc-500 uppercase tracking-widest">{post.comments_count}</span>
+                    <span className="text-xs font-black text-zinc-500 uppercase tracking-widest">{post.comments_count}</span>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">

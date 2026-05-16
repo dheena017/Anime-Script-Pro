@@ -69,7 +69,7 @@ export const TodoWidget: React.FC = () => {
     <Card className="bg-zinc-900/40 border-zinc-800 rounded-[2.5rem] p-8 space-y-6 shadow-2xl h-full flex flex-col">
       <div className="flex items-center gap-3">
         <Zap className="w-5 h-5 text-[#bd4a4a] fill-current" />
-        <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-100">Production Queue</h3>
+        <h3 className="text-xs font-black uppercase tracking-[0.2em] text-zinc-100">Production Queue</h3>
       </div>
 
       <form onSubmit={addTask} className="flex gap-2">

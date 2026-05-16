@@ -74,13 +74,13 @@ export const ScriptView: React.FC<ScriptViewProps> = ({
     <div className="space-y-12">
       {/* Header block */}
       <div className="border-b border-zinc-800/80 pb-6 mb-8 text-center space-y-4 relative">
-        <div className="inline-block px-3 py-1 bg-zinc-800/20 border border-zinc-800/50 rounded-full text-[10px] uppercase tracking-[0.3em] text-zinc-400 font-bold mb-4 shadow-[0_0_15px_rgba(0,0,0,0.2)]">
+        <div className="inline-block px-3 py-1 bg-zinc-800/20 border border-zinc-800/50 rounded-full text-xs uppercase tracking-[0.3em] text-zinc-400 font-bold mb-4 shadow-[0_0_15px_rgba(0,0,0,0.2)]">
           Official Anime Script
         </div>
         <h1 className="text-4xl font-black text-cyan-50 leading-tight uppercase tracking-tight drop-shadow-[0_0_10px_rgba(6,182,212,0.3)]">
           {prompt?.split(' ').slice(0, 5).join(' ') || 'Untitled Sequence'}
         </h1>
-        <div className="flex items-center justify-center gap-6 text-[11px] uppercase tracking-widest text-zinc-400 font-bold">
+        <div className="flex items-center justify-center gap-6 text-xs uppercase tracking-widest text-zinc-400 font-bold">
           <span className="flex items-center gap-2 px-3 py-1 bg-black/50 rounded-md border border-cyan-500/20">
             <Clapperboard className="w-3 h-3 text-cyan-400" /> Session {session}
           </span>
@@ -111,7 +111,7 @@ export const ScriptView: React.FC<ScriptViewProps> = ({
                 initial={{ opacity: 0, y: -8 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -8 }}
-                className="flex items-center gap-2 mb-4 px-4 py-2 bg-cyan-500/10 border border-cyan-500/20 rounded-full w-fit text-[10px] font-black uppercase tracking-widest text-cyan-400"
+                className="flex items-center gap-2 mb-4 px-4 py-2 bg-cyan-500/10 border border-cyan-500/20 rounded-full w-fit text-xs font-black uppercase tracking-widest text-cyan-400"
               >
                 <Film className="w-3 h-3 animate-pulse" />
                 Sequencing Scene {visibleCount} / {sceneRows.length}
@@ -126,7 +126,7 @@ export const ScriptView: React.FC<ScriptViewProps> = ({
                 {headers.map((h, i) => (
                   <th
                     key={i}
-                    className="bg-[#0a0a0a] text-cyan-400 font-black p-4 text-left border-b border-cyan-500/30 text-[10px] uppercase tracking-[0.2em] font-sans"
+                    className="bg-[#0a0a0a] text-cyan-400 font-black p-4 text-left border-b border-cyan-500/30 text-xs uppercase tracking-[0.2em] font-sans"
                   >
                     {h}
                   </th>
@@ -209,7 +209,7 @@ export const ScriptView: React.FC<ScriptViewProps> = ({
       )}
 
       <div className="mt-24 pt-12 border-t border-zinc-800/50 text-center">
-        <p className="text-[10px] text-zinc-500/50 uppercase tracking-[0.5em] font-bold">
+        <p className="text-xs text-zinc-500/50 uppercase tracking-[0.5em] font-bold">
           End of Sequence
         </p>
       </div>

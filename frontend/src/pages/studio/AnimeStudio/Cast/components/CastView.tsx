@@ -73,8 +73,8 @@ export const CastView: React.FC<CastViewProps> = ({
                 <User className="w-8 h-8 text-zinc-700" />
               </div>
               <div className="space-y-1">
-                <p className="text-white font-black uppercase tracking-widest text-[10px]">No Cast Members Detected</p>
-                <p className="text-zinc-600 text-[8px] font-bold uppercase tracking-widest">Initialize synthesis to begin sequencing.</p>
+                <p className="text-white font-black uppercase tracking-widest text-xs">No Cast Members Detected</p>
+                <p className="text-zinc-600 text-xs font-bold uppercase tracking-widest">Initialize synthesis to begin sequencing.</p>
               </div>
             </div>
           )}

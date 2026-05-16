@@ -87,7 +87,7 @@ export const StoryboardHeader: React.FC<StoryboardHeaderProps> = ({
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="top">
-                  <p className="font-black uppercase tracking-widest text-[9px]">Return to Script Editor</p>
+                  <p className="font-black uppercase tracking-widest text-xs">Return to Script Editor</p>
                 </TooltipContent>
               </Tooltip>
             )}
@@ -115,7 +115,7 @@ export const StoryboardHeader: React.FC<StoryboardHeaderProps> = ({
                   )}
                 </TooltipTrigger>
                 <TooltipContent side="top">
-                  <p className="font-black uppercase tracking-widest text-[9px]">
+                  <p className="font-black uppercase tracking-widest text-xs">
                     {isGenerating ? "Terminate Active Process" : "Synthesize AI Storyboard"}
                   </p>
                 </TooltipContent>
@@ -134,7 +134,7 @@ export const StoryboardHeader: React.FC<StoryboardHeaderProps> = ({
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="top">
-                  <p className="font-black uppercase tracking-widest text-[9px]">Proceed to SEO Studio</p>
+                  <p className="font-black uppercase tracking-widest text-xs">Proceed to SEO Studio</p>
                 </TooltipContent>
               </Tooltip>
             </div>

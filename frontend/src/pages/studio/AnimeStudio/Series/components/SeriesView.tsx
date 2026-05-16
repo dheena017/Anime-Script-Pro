@@ -8,7 +8,7 @@ interface SeriesViewProps {
   onUpdateEpisode: (index: number, updates: Partial<SeriesEpisode>) => void;
   onUpdateAssetMatrix: (index: number, updates: Partial<SeriesAssetMatrix>) => void;
   onFocusEpisode: (episodeNum: string) => void;
-  onViewEpisode?: (episodeNum: string) => void;
+  onViewEpisode?: (episodeNum: string, section?: string) => void;
   viewMode?: 'grid' | 'list';
 }
 

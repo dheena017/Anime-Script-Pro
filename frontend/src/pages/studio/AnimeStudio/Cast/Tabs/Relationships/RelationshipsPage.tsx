@@ -99,10 +99,10 @@ export default function RelationshipsPage() {
       {/* Page Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div className="space-y-2">
-          <div className="inline-block px-3 py-1 bg-fuchsia-500/10 border border-fuchsia-500/20 rounded-full text-[10px] uppercase tracking-widest text-fuchsia-400 font-bold">
+          <div className="inline-block px-3 py-1 bg-fuchsia-500/10 border border-fuchsia-500/20 rounded-full text-xs uppercase tracking-widest text-fuchsia-400 font-bold">
             Relationship Lab
           </div>
-          <h1 className="text-5xl font-black text-white uppercase tracking-tighter">
+          <h1 className="text-2xl font-black text-white uppercase tracking-tighter">
             Emotional <span className="text-fuchsia-500">Dynamics</span>
           </h1>
           <p className="text-zinc-500 text-sm font-medium max-w-md">

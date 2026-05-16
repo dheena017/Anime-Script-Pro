@@ -8,7 +8,7 @@ export function AchievementShelf() {
     <div className="space-y-6">
       <div className="flex items-center gap-3 px-2">
         <Trophy className="w-5 h-5 text-fuchsia-500" />
-        <h2 className="text-[11px] font-black uppercase tracking-[0.4em] text-zinc-500">Achievement Shelf</h2>
+        <h2 className="text-xs font-black uppercase tracking-[0.4em] text-zinc-500">Achievement Shelf</h2>
       </div>
       <Card className="glass p-10 rounded-[3rem] border-white/5 space-y-8">
         {[
@@ -22,11 +22,11 @@ export function AchievementShelf() {
             </div>
             <div className="space-y-1">
               <h4 className="text-sm font-bold text-white uppercase tracking-tight">{badge.title}</h4>
-              <p className="text-[9px] font-black text-zinc-600 uppercase tracking-widest">{badge.desc}</p>
+              <p className="text-xs font-black text-zinc-600 uppercase tracking-widest">{badge.desc}</p>
             </div>
           </div>
         ))}
-        <Button variant="outline" className="w-full border-zinc-800 rounded-2xl h-12 text-[9px] font-black uppercase tracking-widest text-zinc-500 hover:text-white">
+        <Button variant="outline" className="w-full border-zinc-800 rounded-2xl h-12 text-xs font-black uppercase tracking-widest text-zinc-500 hover:text-white">
           View All Achievements
         </Button>
       </Card>

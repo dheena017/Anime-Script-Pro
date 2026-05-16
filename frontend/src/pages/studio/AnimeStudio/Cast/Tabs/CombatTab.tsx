@@ -35,12 +35,12 @@ export const CombatTab: React.FC = () => {
       <div className="flex items-center justify-between px-2">
         <div className="space-y-1">
           <h2 className="text-2xl font-black text-white uppercase tracking-tighter">Tactical Manifest</h2>
-          <p className="text-red-500/60 text-[10px] font-black uppercase tracking-[0.3em]">Combat Proficiency Analysis v4.2</p>
+          <p className="text-red-500/60 text-xs font-black uppercase tracking-[0.3em]">Combat Proficiency Analysis v4.2</p>
         </div>
         <div className="flex gap-4">
           <div className="px-4 py-2 bg-red-500/5 border border-red-500/10 rounded-xl flex items-center gap-2">
             <Swords className="w-3 h-3 text-red-500" />
-            <span className="text-[10px] font-black text-red-400 uppercase tracking-widest">Battle Ready</span>
+            <span className="text-xs font-black text-red-400 uppercase tracking-widest">Battle Ready</span>
           </div>
         </div>
       </div>
@@ -66,7 +66,7 @@ export const CombatTab: React.FC = () => {
                        <Zap className="w-12 h-12 relative z-10" />
                        <div className="absolute inset-0 bg-gradient-to-br from-red-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                     </div>
-                    <div className="absolute -top-2 -left-2 px-3 py-1 rounded-full bg-red-500 text-[8px] font-black text-black uppercase tracking-widest shadow-lg">
+                    <div className="absolute -top-2 -left-2 px-3 py-1 rounded-full bg-red-500 text-xs font-black text-black uppercase tracking-widest shadow-lg">
                       {toText(char.archetype || 'FIGHTER')}
                     </div>
                   </div>
@@ -79,13 +79,13 @@ export const CombatTab: React.FC = () => {
                           <div key={i} className={cn("w-3 h-1 rounded-full", i < 4 ? "bg-red-500" : "bg-zinc-800")} />
                         ))}
                       </div>
-                      <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Threat Level: High</p>
+                      <p className="text-xs font-black text-zinc-500 uppercase tracking-widest">Threat Level: High</p>
                     </div>
                   </div>
 
                   <div className="w-full space-y-3 p-6 bg-red-500/5 rounded-3xl border border-red-500/10">
                     <div className="flex justify-between items-end">
-                      <p className="text-[9px] font-black text-red-400 uppercase tracking-widest">Power Output</p>
+                      <p className="text-xs font-black text-red-400 uppercase tracking-widest">Power Output</p>
                       <p className="text-xl font-black text-white leading-none">{powerLevelNum}%</p>
                     </div>
                     <div className="h-2 bg-black rounded-full overflow-hidden">
@@ -103,11 +103,11 @@ export const CombatTab: React.FC = () => {
                 <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div className="space-y-6">
                     <div className="space-y-3">
-                      <div className="flex items-center gap-3 text-[10px] font-black uppercase text-red-500 tracking-[0.2em]">
+                      <div className="flex items-center gap-3 text-xs font-black uppercase text-red-500 tracking-[0.2em]">
                         <Swords className="w-3.5 h-3.5" /> Signature Ability
                       </div>
                       <div className="p-6 bg-zinc-950/50 rounded-3xl border border-white/5 backdrop-blur-xl group-hover:bg-zinc-900/50 transition-all duration-500">
-                        <h4 className="text-studio font-black uppercase text-[10px] mb-2 tracking-widest">Deployment Ready</h4>
+                        <h4 className="text-studio font-black uppercase text-xs mb-2 tracking-widest">Deployment Ready</h4>
                         <p className="text-sm font-medium text-zinc-300 leading-relaxed italic">
                           "{toText(char.powerSystem?.signatureAbility || char.signatureMove || 'Basic Tactical Engagement')}"
                         </p>
@@ -115,11 +115,11 @@ export const CombatTab: React.FC = () => {
                     </div>
 
                     <div className="space-y-3">
-                      <div className="flex items-center gap-3 text-[10px] font-black uppercase text-red-500 tracking-[0.2em]">
+                      <div className="flex items-center gap-3 text-xs font-black uppercase text-red-500 tracking-[0.2em]">
                         <Shield className="w-3.5 h-3.5" /> Defensive Profile
                       </div>
                       <div className="p-6 bg-zinc-950/50 rounded-3xl border border-white/5 backdrop-blur-xl group-hover:bg-zinc-900/50 transition-all duration-500">
-                        <p className="text-[11px] font-medium text-zinc-400 leading-relaxed uppercase tracking-wide">
+                        <p className="text-xs font-medium text-zinc-400 leading-relaxed uppercase tracking-wide">
                           {toText(char.powerSystem?.defensiveStyle || char.defensiveStyle || 'Evasive / Parry-Focused')}
                         </p>
                       </div>
@@ -128,13 +128,13 @@ export const CombatTab: React.FC = () => {
 
                   <div className="space-y-6">
                     <div className="space-y-3">
-                      <div className="flex items-center gap-3 text-[10px] font-black uppercase text-red-500 tracking-[0.2em]">
+                      <div className="flex items-center gap-3 text-xs font-black uppercase text-red-500 tracking-[0.2em]">
                         <Video className="w-3.5 h-3.5" /> Director's Camera Notes
                       </div>
                       <div className="p-6 bg-red-500/5 rounded-[2rem] border border-red-500/10 backdrop-blur-xl group-hover:bg-red-500/10 transition-all duration-500">
                         <div className="flex items-center gap-2 mb-3">
                            <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-                           <span className="text-[8px] font-black text-white uppercase tracking-widest">Auto-Choreography Active</span>
+                           <span className="text-xs font-black text-white uppercase tracking-widest">Auto-Choreography Active</span>
                         </div>
                         <p className="text-xs font-medium text-zinc-300 leading-relaxed italic">
                           {toText(char.powerSystem?.cameraChoreography || 'Maintain high-octane tracking shots with emphasis on kinetic weight.')}
@@ -143,7 +143,7 @@ export const CombatTab: React.FC = () => {
                     </div>
 
                     <div className="space-y-3">
-                      <div className="flex items-center gap-3 text-[10px] font-black uppercase text-red-500 tracking-[0.2em]">
+                      <div className="flex items-center gap-3 text-xs font-black uppercase text-red-500 tracking-[0.2em]">
                         <Target className="w-3.5 h-3.5" /> Tactical Limitations
                       </div>
                       <div className="p-6 bg-zinc-950/50 rounded-3xl border border-white/5 backdrop-blur-xl group-hover:bg-zinc-900/50 transition-all duration-500">
@@ -155,11 +155,11 @@ export const CombatTab: React.FC = () => {
 
                     <div className="grid grid-cols-2 gap-4">
                       <div className="p-4 bg-black border border-white/5 rounded-2xl">
-                        <p className="text-[8px] font-black text-zinc-500 uppercase tracking-widest mb-1">STRENGTH</p>
+                        <p className="text-xs font-black text-zinc-500 uppercase tracking-widest mb-1">STRENGTH</p>
                         <p className="text-sm font-black text-white">S-RANK</p>
                       </div>
                       <div className="p-4 bg-black border border-white/5 rounded-2xl">
-                        <p className="text-[8px] font-black text-zinc-500 uppercase tracking-widest mb-1">SPEED</p>
+                        <p className="text-xs font-black text-zinc-500 uppercase tracking-widest mb-1">SPEED</p>
                         <p className="text-sm font-black text-white">A-RANK</p>
                       </div>
                     </div>

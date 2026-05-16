@@ -83,24 +83,24 @@ export const WorldLoadingTab: React.FC<WorldLoadingTabProps> = ({ type }) => {
 
       <div className="text-center space-y-4">
         <div className="space-y-1">
-           <p className="font-black tracking-[0.5em] text-[10px] uppercase text-zinc-500">AI Neural Synchronization</p>
+           <p className="font-black tracking-[0.5em] text-xs uppercase text-zinc-500">AI Neural Synchronization</p>
            <h3 className="text-2xl font-black text-white uppercase tracking-tighter italic">
              {config.label} <span className="text-studio">Sovereignty</span>
            </h3>
         </div>
         
-        <p className="text-[11px] font-bold text-zinc-600 uppercase tracking-widest max-w-xs mx-auto leading-relaxed">
+        <p className="text-xs font-bold text-zinc-600 uppercase tracking-widest max-w-xs mx-auto leading-relaxed">
           {config.subtext}
         </p>
         
         <div className="flex items-center justify-center gap-6 pt-4">
             <div className="flex items-center gap-2">
                 <div className="w-1 h-1 rounded-full bg-studio animate-ping" />
-                <span className="text-[8px] font-black text-studio/60 uppercase tracking-widest">Logic: Stable</span>
+                <span className="text-xs font-black text-studio/60 uppercase tracking-widest">Logic: Stable</span>
             </div>
             <div className="flex items-center gap-2">
                 <div className="w-1 h-1 rounded-full bg-studio animate-ping delay-150" />
-                <span className="text-[8px] font-black text-studio/60 uppercase tracking-widest">Core: Active</span>
+                <span className="text-xs font-black text-studio/60 uppercase tracking-widest">Core: Active</span>
             </div>
         </div>
       </div>

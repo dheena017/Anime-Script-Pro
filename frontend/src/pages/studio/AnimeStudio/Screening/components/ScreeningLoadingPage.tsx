@@ -49,7 +49,7 @@ export function ScreeningLoadingPage({ tab, title, description, message, subtext
           </p>
         </div>
 
-        <p className="mb-8 text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500">
+        <p className="mb-8 text-xs font-bold uppercase tracking-[0.2em] text-zinc-500">
           {meta.description}
         </p>
 
@@ -57,10 +57,10 @@ export function ScreeningLoadingPage({ tab, title, description, message, subtext
           <div className="h-full rounded-full transition-all duration-300 bg-studio" style={{ width: `${typeof progress === 'number' ? progress : (typeof gen.generationProgress === 'number' && gen.generationProgress > 0 ? gen.generationProgress : localProgress)}%` }} />
         </div>
 
-        <div className="flex items-center justify-center gap-2 text-[9px] font-black uppercase tracking-[0.2em] text-studio/70">
+        <div className="flex items-center justify-center gap-2 text-xs font-black uppercase tracking-[0.2em] text-studio/70">
           <Sparkles className="h-3.5 w-3.5" />
           AI is preparing your preview
-          <span className="ml-2 text-[10px] font-black text-zinc-400">{Math.round(typeof progress === 'number' ? progress : (typeof gen.generationProgress === 'number' && gen.generationProgress > 0 ? gen.generationProgress : localProgress))}%</span>
+          <span className="ml-2 text-xs font-black text-zinc-400">{Math.round(typeof progress === 'number' ? progress : (typeof gen.generationProgress === 'number' && gen.generationProgress > 0 ? gen.generationProgress : localProgress))}%</span>
         </div>
       </div>
     </div>

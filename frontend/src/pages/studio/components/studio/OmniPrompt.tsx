@@ -99,7 +99,7 @@ export const OmniPrompt: React.FC<OmniPromptProps> = ({
             transition={{ delay: i * 0.1 }}
             onClick={() => handleChipClick(chip.label)}
             className={cn(
-              "px-4 py-2 rounded-full bg-zinc-950 border text-[10px] font-black uppercase tracking-[0.1em] transition-all group",
+              "px-4 py-2 rounded-full bg-zinc-950 border text-xs font-black uppercase tracking-[0.1em] transition-all group",
               chip.border,
               chip.color,
               "hover:bg-cyan-500/5 hover:border-cyan-500/50 hover:shadow-[0_0_15px_rgba(6,182,212,0.2)] hover:text-cyan-400"

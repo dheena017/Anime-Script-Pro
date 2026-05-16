@@ -61,14 +61,14 @@ export const TagsTab: React.FC<TagsTabProps> = ({ content, isGenerating, onGener
                   </div>
                 ))}
               </div>
-              <p className="text-[10px] text-zinc-500 italic mt-8 leading-relaxed">
+              <p className="text-xs text-zinc-500 italic mt-8 leading-relaxed">
                 These tags are optimized for YouTube, TikTok, and Instagram discovery algorithms based on your script content.
               </p>
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center h-full text-zinc-700">
               <Tag className="w-12 h-12 mb-6 opacity-20" />
-              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-center max-w-[200px]">No tag clusters generated yet.</p>
+              <p className="text-xs font-black uppercase tracking-[0.3em] text-center max-w-[200px]">No tag clusters generated yet.</p>
             </div>
           )}
         </Card>
@@ -79,7 +79,7 @@ export const TagsTab: React.FC<TagsTabProps> = ({ content, isGenerating, onGener
             <div className="space-y-2">
               {['YouTube (500 chars)', 'TikTok (4000 chars)', 'Instagram (30 tags)'].map((p, i) => (
                 <div key={i} className={s.platformSpec}>
-                  <span className="text-[9px] font-bold text-zinc-500">{p}</span>
+                  <span className="text-xs font-bold text-zinc-500">{p}</span>
                   <div className="w-2 h-2 rounded-full bg-emerald-500/50" />
                 </div>
               ))}

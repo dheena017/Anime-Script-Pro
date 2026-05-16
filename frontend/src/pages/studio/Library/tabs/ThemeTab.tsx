@@ -55,12 +55,12 @@ export default function ThemeTab({ searchTerm }: ThemeTabProps) {
       {/* Search & Filter Header (If needed specific to tab) */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-           <Button variant="outline" size="sm" className="bg-zinc-900 border-white/5 text-[10px] font-black tracking-widest uppercase">
+           <Button variant="outline" size="sm" className="bg-zinc-900 border-white/5 text-xs font-black tracking-widest uppercase">
             <Filter className="w-3 h-3 mr-2" />
             Filter
           </Button>
         </div>
-        <Button className="bg-[#bd4a4a] hover:bg-[#a33f3f] text-white text-[10px] font-black tracking-widest uppercase px-6">
+        <Button className="bg-[#bd4a4a] hover:bg-[#a33f3f] text-white text-xs font-black tracking-widest uppercase px-6">
           <Plus className="w-3 h-3 mr-2" />
           Register Theme Asset
         </Button>
@@ -86,7 +86,7 @@ export default function ThemeTab({ searchTerm }: ThemeTabProps) {
                 
                 {/* Visual Category Badge */}
                 <div className="absolute top-3 left-3 px-2 py-1 bg-black/80 backdrop-blur-md border border-white/10 rounded-md">
-                   <p className="text-[8px] font-black text-[#bd4a4a] tracking-widest uppercase">{asset.category}</p>
+                   <p className="text-xs font-black text-[#bd4a4a] tracking-widest uppercase">{asset.category}</p>
                 </div>
 
                 <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/40 backdrop-blur-[2px]">
@@ -110,7 +110,7 @@ export default function ThemeTab({ searchTerm }: ThemeTabProps) {
               </CardContent>
 
               <CardFooter className="p-4 pt-0 flex justify-between items-center">
-                <span className="text-[8px] font-black text-zinc-500 uppercase tracking-widest">Update: {asset.updated}</span>
+                <span className="text-xs font-black text-zinc-500 uppercase tracking-widest">Update: {asset.updated}</span>
                 <div className="flex gap-2">
                   <Download onClick={() => showNotification?.('This feature is currently in development.', 'info')} className="w-3 h-3 text-zinc-500 hover:text-white cursor-pointer" />
                   <Share2 onClick={() => showNotification?.('This feature is currently in development.', 'info')} className="w-3 h-3 text-zinc-500 hover:text-white cursor-pointer" />

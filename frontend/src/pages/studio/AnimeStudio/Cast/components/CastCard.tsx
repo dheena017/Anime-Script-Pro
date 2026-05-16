@@ -105,7 +105,7 @@ export const CastCard = React.memo<CastCardProps>(({
         
         {/* Role Ribbon */}
         <div className="absolute top-6 right-[-3rem] w-40 h-8 bg-studio rotate-45 flex items-center justify-center shadow-2xl">
-           <span className="text-[10px] font-black text-black uppercase tracking-[0.2em]">{toText(character.role || 'CAST')}</span>
+           <span className="text-xs font-black text-black uppercase tracking-[0.2em]">{toText(character.role || 'CAST')}</span>
         </div>
       </div>
 
@@ -119,7 +119,7 @@ export const CastCard = React.memo<CastCardProps>(({
                 {isGeneratingImage ? (
                   <motion.div key="loading" className="flex flex-col items-center gap-3">
                     <Loader2 className="w-10 h-10 text-studio animate-spin" />
-                    <span className="text-[8px] font-black text-studio uppercase tracking-widest animate-pulse">Scanning DNA</span>
+                    <span className="text-xs font-black text-studio uppercase tracking-widest animate-pulse">Scanning DNA</span>
                   </motion.div>
                 ) : character.imageUrl ? (
                   <motion.img 
@@ -139,7 +139,7 @@ export const CastCard = React.memo<CastCardProps>(({
                   size="sm" 
                   onClick={handleGenerateImage}
                   disabled={isGeneratingImage}
-                  className="w-full h-full text-[10px] font-black text-white hover:text-studio hover:bg-transparent flex flex-col gap-3"
+                  className="w-full h-full text-xs font-black text-white hover:text-studio hover:bg-transparent flex flex-col gap-3"
                 >
                   <Camera className="w-6 h-6" />
                   GENERATE VIZ
@@ -150,16 +150,16 @@ export const CastCard = React.memo<CastCardProps>(({
 
           {/* Identity Block */}
           <div className="flex-1 pb-4">
-            <h3 className="text-6xl font-black text-white tracking-tighter uppercase mb-4 drop-shadow-[0_10px_30px_rgba(0,0,0,0.8)] group-hover:text-studio transition-colors duration-500">
+            <h3 className="text-3xl font-black text-white tracking-tighter uppercase mb-4 drop-shadow-[0_10px_30px_rgba(0,0,0,0.8)] group-hover:text-studio transition-colors duration-500">
               {character.name}
             </h3>
             <div className="flex flex-wrap items-center gap-3">
                <div className="px-5 py-2 bg-studio/5 border border-studio/20 rounded-2xl flex items-center gap-3">
                   <div className="w-2 h-2 rounded-full bg-studio shadow-[0_0_10px_rgba(6,182,212,0.8)] animate-pulse" />
-                  <span className="text-[10px] font-black uppercase tracking-widest text-studio">{archetypeText}</span>
+                  <span className="text-xs font-black uppercase tracking-widest text-studio">{archetypeText}</span>
                </div>
                <div className="px-5 py-2 bg-white/5 border border-white/5 rounded-2xl">
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">{personalityText}</span>
+                  <span className="text-xs font-bold uppercase tracking-widest text-zinc-500">{personalityText}</span>
                </div>
             </div>
           </div>
@@ -168,8 +168,8 @@ export const CastCard = React.memo<CastCardProps>(({
         {/* Readiness Meter */}
         <div className="mb-10 p-6 bg-zinc-950/80 rounded-3xl border border-white/5 space-y-4">
            <div className="flex items-center justify-between">
-              <span className="text-[9px] font-black text-zinc-500 uppercase tracking-widest">Production Ready Factor</span>
-              <span className="text-[10px] font-black text-white">{readiness}%</span>
+              <span className="text-xs font-black text-zinc-500 uppercase tracking-widest">Production Ready Factor</span>
+              <span className="text-xs font-black text-white">{readiness}%</span>
            </div>
            <div className="h-1.5 w-full bg-zinc-900 rounded-full overflow-hidden">
               <motion.div 
@@ -186,7 +186,7 @@ export const CastCard = React.memo<CastCardProps>(({
            <div className="p-8 bg-zinc-950/40 rounded-[3rem] border border-white/5 hover:bg-zinc-900/40 transition-all duration-500 space-y-4">
               <div className="flex items-center gap-3 text-studio">
                  <Target className="w-4 h-4" />
-                 <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Objective</span>
+                 <span className="text-xs font-black uppercase tracking-widest text-zinc-500">Objective</span>
               </div>
               <p className="text-sm text-zinc-400 font-medium italic leading-relaxed border-l border-studio/20 pl-4">
                 "{goalText}"
@@ -196,7 +196,7 @@ export const CastCard = React.memo<CastCardProps>(({
            <div className="p-8 bg-zinc-950/40 rounded-[3rem] border border-white/5 hover:bg-zinc-900/40 transition-all duration-500 space-y-4">
               <div className="flex items-center gap-3 text-fuchsia-500">
                  <Sparkles className="w-4 h-4" />
-                 <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Arc Status</span>
+                 <span className="text-xs font-black uppercase tracking-widest text-zinc-500">Arc Status</span>
               </div>
               <p className="text-xs text-zinc-500 font-medium leading-relaxed">
                 {conflictText}
@@ -206,10 +206,10 @@ export const CastCard = React.memo<CastCardProps>(({
            <div className="p-8 bg-zinc-950/40 rounded-[3rem] border border-white/5 hover:bg-zinc-900/40 transition-all duration-500 space-y-4">
               <div className="flex items-center gap-3 text-orange-500">
                  <EyeOff className="w-4 h-4" />
-                 <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Secrets</span>
+                 <span className="text-xs font-black uppercase tracking-widest text-zinc-500">Secrets</span>
               </div>
               <div className="bg-orange-500/5 p-4 rounded-2xl blur-[4px] hover:blur-none transition-all duration-700 cursor-help">
-                <p className="text-[10px] text-orange-400/80 font-black uppercase italic truncate">
+                <p className="text-xs text-orange-400/80 font-black uppercase italic truncate">
                   {secretText}
                 </p>
               </div>
@@ -221,16 +221,16 @@ export const CastCard = React.memo<CastCardProps>(({
       <div className="px-10 py-6 bg-black/40 border-t border-white/5 flex items-center justify-between">
          <div className="flex items-center gap-6">
             <div className="px-4 py-2 bg-white/5 rounded-xl border border-white/10">
-               <span className="text-[10px] font-black text-zinc-600 uppercase tracking-widest">DNA-0{index + 1}</span>
+               <span className="text-xs font-black text-zinc-600 uppercase tracking-widest">DNA-0{index + 1}</span>
             </div>
             <div className="hidden lg:flex items-center gap-2">
                <div className="w-1.5 h-1.5 rounded-full bg-green-500/40" />
-               <span className="text-[8px] font-black text-zinc-700 uppercase tracking-widest">Neural Link: Encrypted</span>
+               <span className="text-xs font-black text-zinc-700 uppercase tracking-widest">Neural Link: Encrypted</span>
             </div>
          </div>
          <Button 
             onClick={() => onViewCharacter?.(character.name)}
-            className="px-8 py-2 bg-studio/10 hover:bg-studio text-studio hover:text-black font-black uppercase text-[10px] tracking-widest rounded-2xl border border-studio/20 transition-all shadow-[0_0_30px_rgba(6,182,212,0.1)]"
+            className="px-8 py-2 bg-studio/10 hover:bg-studio text-studio hover:text-black font-black uppercase text-xs tracking-widest rounded-2xl border border-studio/20 transition-all shadow-[0_0_30px_rgba(6,182,212,0.1)]"
          >
            Access Full Profile
          </Button>

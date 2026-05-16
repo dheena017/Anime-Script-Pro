@@ -45,7 +45,7 @@ export const ProfileTab: React.FC = () => {
     <div className="space-y-8">
       <Card className="settings-card border-none rounded-[2.5rem] overflow-hidden">
         <div className="h-48 bg-gradient-to-r from-[#bd4a4a]/20 via-zinc-900 to-[#bd4a4a]/10 relative">
-          <Button variant="ghost" className="absolute bottom-4 right-6 bg-black/40 hover:bg-black/60 backdrop-blur-md rounded-xl text-[10px] font-black uppercase tracking-widest text-white border border-white/10">
+          <Button variant="ghost" className="absolute bottom-4 right-6 bg-black/40 hover:bg-black/60 backdrop-blur-md rounded-xl text-xs font-black uppercase tracking-widest text-white border border-white/10">
             <Camera className="w-3.5 h-3.5 mr-2" /> Change Banner
           </Button>
         </div>

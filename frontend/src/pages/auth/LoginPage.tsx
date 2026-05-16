@@ -103,7 +103,7 @@ export function LoginPage() {
         <div className="p-2 rounded-xl bg-gradient-to-br from-zinc-900 to-black border border-zinc-800/50 group-hover:border-studio/50 group-hover:shadow-lg group-hover:shadow-studio/20 transition-all">
           <ArrowLeft className="w-4 h-4" />
         </div>
-        <span className="text-[10px] uppercase font-bold tracking-[0.2em]">Return to Base</span>
+        <span className="text-xs uppercase font-bold tracking-[0.2em]">Return to Base</span>
       </motion.button>
 
 
@@ -124,13 +124,13 @@ export function LoginPage() {
                 className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-studio/10 to-purple-500/10 border border-studio/30 backdrop-blur-sm group hover:border-studio/50 transition-all cursor-pointer"
               >
                 <div className="w-1.5 h-1.5 rounded-full bg-studio animate-pulse" />
-                <span className="text-[10px] font-black uppercase tracking-[0.2em] bg-gradient-to-r from-studio to-studio-glow bg-clip-text text-transparent">System Online</span>
+                <span className="text-xs font-black uppercase tracking-[0.2em] bg-gradient-to-r from-studio to-studio-glow bg-clip-text text-transparent">System Online</span>
               </motion.div>
               <motion.h1
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
-                className="text-7xl font-black italic tracking-tighter leading-[0.85] text-white"
+                className="text-2xl md:text-3xl lg:text-4xl font-black italic tracking-tighter leading-[0.85] text-white"
               >
                 STUDIO <br />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-studio via-purple-500 to-studio animate-pulse">ARCHITECT.</span>
@@ -151,7 +151,7 @@ export function LoginPage() {
                 className="flex items-center gap-3"
               >
                 <div className="h-[1px] w-12 bg-gradient-to-r from-studio/30 to-transparent" />
-                <p className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.4em] flex items-center gap-2">
+                <p className="text-zinc-500 text-xs font-black uppercase tracking-[0.4em] flex items-center gap-2">
                   <motion.span 
                     animate={{ opacity: [0.2, 1, 0.2] }}
                     transition={{ duration: 2, repeat: Infinity }}
@@ -210,7 +210,7 @@ export function LoginPage() {
                       transition={{ duration: 2, repeat: Infinity }}
                     />
                   </div>
-                  <div className="flex justify-between text-[9px] uppercase font-black tracking-widest text-zinc-500">
+                  <div className="flex justify-between text-xs uppercase font-black tracking-widest text-zinc-500">
                     <span>Engine Warmup</span>
                     <span className="text-transparent bg-clip-text bg-gradient-to-r from-studio to-studio-glow">65% READY</span>
                   </div>
@@ -257,7 +257,7 @@ export function LoginPage() {
                   transition={{ duration: 2, repeat: Infinity }}
                 />
               </div>
-              <div className="relative flex justify-center text-[10px] uppercase font-black tracking-widest">
+              <div className="relative flex justify-center text-xs uppercase font-black tracking-widest">
                 <span className="bg-[#0A0A0B] px-4 text-zinc-600 flex items-center gap-2">
                   <Lock className="w-3 h-3" />
                   Secure Login Authorization
@@ -306,7 +306,7 @@ export function LoginPage() {
             className="flex items-center justify-center gap-6"
           >
             <motion.div
-              className="flex items-center gap-1.5 text-[9px] uppercase tracking-widest font-black text-zinc-600"
+              className="flex items-center gap-1.5 text-xs uppercase tracking-widest font-black text-zinc-600"
               whileHover={{ color: "#06B6D4" }}
             >
               <ShieldCheck className="w-3 h-3 text-studio" />
@@ -314,7 +314,7 @@ export function LoginPage() {
             </motion.div>
             <div className="w-[1px] h-3 bg-zinc-700" />
             <motion.div
-              className="flex items-center gap-1.5 text-[9px] uppercase tracking-widest font-black text-zinc-600"
+              className="flex items-center gap-1.5 text-xs uppercase tracking-widest font-black text-zinc-600"
               whileHover={{ color: "#EAB308" }}
             >
               <Zap className="w-3 h-3 text-yellow-500" />
@@ -325,7 +325,7 @@ export function LoginPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 1.1 }}
-            className="text-center text-[9px] uppercase tracking-[0.3em] font-black text-zinc-700"
+            className="text-center text-xs uppercase tracking-[0.3em] font-black text-zinc-700"
           >
             Studio Architect v2.0
           </motion.p>

@@ -1,6 +1,7 @@
 import os
 import time
 from typing import AsyncGenerator
+from datetime import datetime
 
 from sqlalchemy import create_engine, event
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
@@ -33,6 +34,25 @@ def after_cursor_execute(conn, cursor, statement, parameters, context, executema
     if len(clean_stmt) > 80:
         clean_stmt = clean_stmt[:77] + "..."
     logger.debug(f"DATABASE: Query Executed -> {clean_stmt} | Time: {total:.4f}s")
+    
+    # Broadcast to Telemetry
+    try:
+        import asyncio
+        from backend.utils.telemetry import telemetry_manager
+        loop = asyncio.get_running_loop()
+        log_data = {
+            "id": f"db-{time.time()}",
+            "module": "DATABASE",
+            "status": "DEBUG",
+            "message": f"SQL -> {clean_stmt}",
+            "latency": f"{total:.4f}s",
+            "created_at": datetime.now().isoformat()
+        }
+        loop.create_task(telemetry_manager.broadcast(log_data))
+    except (RuntimeError, ImportError):
+        pass
+    except Exception:
+        pass
 
 # Create async session factory
 async_session = async_sessionmaker(

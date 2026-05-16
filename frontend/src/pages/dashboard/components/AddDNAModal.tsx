@@ -25,7 +25,7 @@ export function AddDNAModal({ open, onOpenChange, newDNA, setNewDNA, onAdd }: Ad
         <div className="grid grid-cols-2 gap-12 py-10">
           <div className="space-y-8">
             <div className="space-y-3">
-              <Label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Subject ID</Label>
+              <Label className="text-xs font-black text-zinc-500 uppercase tracking-widest">Subject ID</Label>
               <Input
                 value={newDNA.name}
                 onChange={(e) => setNewDNA({ ...newDNA, name: e.target.value })}
@@ -34,7 +34,7 @@ export function AddDNAModal({ open, onOpenChange, newDNA, setNewDNA, onAdd }: Ad
               />
             </div>
             <div className="space-y-3">
-              <Label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">AI Seed</Label>
+              <Label className="text-xs font-black text-zinc-500 uppercase tracking-widest">AI Seed</Label>
               <Input
                 type="number"
                 value={newDNA.seed}
@@ -44,7 +44,7 @@ export function AddDNAModal({ open, onOpenChange, newDNA, setNewDNA, onAdd }: Ad
             </div>
           </div>
           <div className="space-y-3">
-            <Label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Visual DNA (Physical Traits)</Label>
+            <Label className="text-xs font-black text-zinc-500 uppercase tracking-widest">Visual DNA (Physical Traits)</Label>
             <textarea
               value={newDNA.prompt}
               onChange={(e) => setNewDNA({ ...newDNA, prompt: e.target.value })}

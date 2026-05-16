@@ -82,17 +82,17 @@ export default function AddRelationshipPage() {
         <Button 
           onClick={handleRegister}
           disabled={!formData.source || !formData.target}
-          className="bg-fuchsia-600 text-white hover:bg-fuchsia-500 transition-all font-black uppercase tracking-widest text-[10px] px-8 h-12 rounded-2xl shadow-[0_0_30px_rgba(217,70,239,0.3)] disabled:opacity-50"
+          className="bg-fuchsia-600 text-white hover:bg-fuchsia-500 transition-all font-black uppercase tracking-widest text-xs px-8 h-12 rounded-2xl shadow-[0_0_30px_rgba(217,70,239,0.3)] disabled:opacity-50"
         >
           <Plus className="w-4 h-4 mr-2" /> Register Connection
         </Button>
       </div>
 
       <div className="space-y-2">
-        <div className="inline-block px-3 py-1 bg-fuchsia-500/10 border border-fuchsia-500/20 rounded-full text-[10px] uppercase tracking-widest text-fuchsia-400 font-bold">
+        <div className="inline-block px-3 py-1 bg-fuchsia-500/10 border border-fuchsia-500/20 rounded-full text-xs uppercase tracking-widest text-fuchsia-400 font-bold">
           Connection Protocol v2.0
         </div>
-        <h1 className="text-6xl font-black text-white uppercase tracking-tighter">
+        <h1 className="text-3xl font-black text-white uppercase tracking-tighter">
           Register New <span className="text-fuchsia-500">Thread</span>
         </h1>
       </div>
@@ -103,7 +103,7 @@ export default function AddRelationshipPage() {
             {/* Subject Selection */}
             <div className="grid grid-cols-1 md:grid-cols-7 gap-6 items-center">
               <div className="md:col-span-3 space-y-3">
-                <Label className="text-[10px] font-black uppercase text-zinc-500 tracking-widest">Subject A (Source)</Label>
+                <Label className="text-xs font-black uppercase text-zinc-500 tracking-widest">Subject A (Source)</Label>
                 <Select onValueChange={(v: string | null) => setFormData({...formData, source: v || ''})}>
                   <SelectTrigger className="bg-black/60 border-zinc-800 h-14 rounded-2xl text-lg font-bold">
                     <SelectValue placeholder="Select Identity A" />
@@ -121,7 +121,7 @@ export default function AddRelationshipPage() {
               </div>
 
               <div className="md:col-span-3 space-y-3">
-                <Label className="text-[10px] font-black uppercase text-zinc-500 tracking-widest">Subject B (Target)</Label>
+                <Label className="text-xs font-black uppercase text-zinc-500 tracking-widest">Subject B (Target)</Label>
                 <Select onValueChange={(v: string | null) => setFormData({...formData, target: v || ''})}>
                   <SelectTrigger className="bg-black/60 border-zinc-800 h-14 rounded-2xl text-lg font-bold">
                     <SelectValue placeholder="Select Identity B" />
@@ -137,7 +137,7 @@ export default function AddRelationshipPage() {
 
             {/* Connection Type */}
             <div className="space-y-4">
-              <Label className="text-[10px] font-black uppercase text-zinc-500 tracking-widest">Select Dynamic Archetype</Label>
+              <Label className="text-xs font-black uppercase text-zinc-500 tracking-widest">Select Dynamic Archetype</Label>
               <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
                 {types.map((t) => (
                   <button
@@ -150,7 +150,7 @@ export default function AddRelationshipPage() {
                     }`}
                   >
                     <t.icon className={`w-6 h-6 transition-transform group-hover:scale-110`} />
-                    <span className="text-[10px] font-black uppercase tracking-widest">{t.id}</span>
+                    <span className="text-xs font-black uppercase tracking-widest">{t.id}</span>
                   </button>
                 ))}
               </div>
@@ -159,7 +159,7 @@ export default function AddRelationshipPage() {
             {/* Tension Slider */}
             <div className="space-y-6 pt-4">
               <div className="flex items-center justify-between">
-                 <Label className="text-[10px] font-black uppercase text-zinc-500 tracking-widest">Dynamic Complexity (Tension)</Label>
+                 <Label className="text-xs font-black uppercase text-zinc-500 tracking-widest">Dynamic Complexity (Tension)</Label>
                  <span className={`text-2xl font-black ${formData.tension >= 8 ? 'text-red-500' : 'text-fuchsia-500'}`}>{formData.tension}</span>
               </div>
               <Slider 
@@ -172,7 +172,7 @@ export default function AddRelationshipPage() {
                 step={1} 
                 className="py-4"
               />
-              <div className="flex justify-between text-[8px] font-black text-zinc-700 uppercase tracking-widest px-1">
+              <div className="flex justify-between text-xs font-black text-zinc-700 uppercase tracking-widest px-1">
                 <span>Neutral Stability</span>
                 <span>Volatile Friction</span>
               </div>
@@ -180,7 +180,7 @@ export default function AddRelationshipPage() {
 
             {/* Description */}
             <div className="space-y-3 pt-4">
-              <Label className="text-[10px] font-black uppercase text-zinc-500 tracking-widest">Relationship Summary</Label>
+              <Label className="text-xs font-black uppercase text-zinc-500 tracking-widest">Relationship Summary</Label>
               <Textarea 
                 value={formData.description} 
                 onChange={(e) => setFormData({...formData, description: e.target.value})}
@@ -195,7 +195,7 @@ export default function AddRelationshipPage() {
            <div className="space-y-4">
               <div className="flex items-center gap-2 text-zinc-500">
                 <Info className="w-4 h-4" />
-                <span className="text-[10px] font-black uppercase tracking-widest">Pro Tip</span>
+                <span className="text-xs font-black uppercase tracking-widest">Pro Tip</span>
               </div>
               <Card className="p-8 bg-fuchsia-500/5 border-fuchsia-500/10 rounded-[2.5rem] space-y-4">
                  <p className="text-xs text-fuchsia-200/60 leading-relaxed font-medium">
@@ -212,7 +212,7 @@ export default function AddRelationshipPage() {
               <div className="w-12 h-12 rounded-2xl bg-zinc-900 flex items-center justify-center">
                  <Workflow className="w-6 h-6 text-zinc-700" />
               </div>
-              <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest leading-relaxed">
+              <p className="text-xs font-black text-zinc-500 uppercase tracking-widest leading-relaxed">
                  Establishing this connection will update the global relationship matrix and influence script generation.
               </p>
            </div>

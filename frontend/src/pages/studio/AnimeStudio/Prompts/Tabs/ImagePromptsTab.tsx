@@ -29,7 +29,7 @@ export const ImagePromptsTab: React.FC<ImagePromptsTabProps> = ({
           </div>
           <div>
             <h2 className="text-3xl font-black text-white uppercase tracking-tighter italic">Visual Manifest</h2>
-            <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-[0.3em] mt-1">
+            <p className="text-zinc-500 text-xs font-bold uppercase tracking-[0.3em] mt-1">
               Core archetypes and environmental descriptors
             </p>
           </div>
@@ -38,7 +38,7 @@ export const ImagePromptsTab: React.FC<ImagePromptsTabProps> = ({
         <button
           onClick={onGenerate}
           disabled={isGenerating}
-          className="h-14 px-8 bg-studio text-black font-black uppercase tracking-widest text-[11px] rounded-2xl flex items-center gap-3 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:grayscale group shadow-[0_0_30px_rgba(6,182,212,0.2)]"
+          className="h-14 px-8 bg-studio text-black font-black uppercase tracking-widest text-xs rounded-2xl flex items-center gap-3 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:grayscale group shadow-[0_0_30px_rgba(6,182,212,0.2)]"
         >
           {isGenerating ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
           {isGenerating ? 'Synthesizing...' : 'Re-Generate Manifest'}
@@ -58,7 +58,7 @@ export const ImagePromptsTab: React.FC<ImagePromptsTabProps> = ({
                 <div className="absolute inset-0 bg-gradient-to-r from-studio/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
                 
                 <div className="p-8 flex items-start gap-8 relative z-10">
-                  <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-[10px] font-black text-zinc-500 font-mono italic">
+                  <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-xs font-black text-zinc-500 font-mono italic">
                     #{String(i + 1).padStart(2, '0')}
                   </div>
                   
@@ -70,12 +70,12 @@ export const ImagePromptsTab: React.FC<ImagePromptsTabProps> = ({
                     <div className="flex items-center gap-4">
                       <button 
                         onClick={() => handleCopy(prompt)}
-                        className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-zinc-600 hover:text-studio transition-colors"
+                        className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-zinc-600 hover:text-studio transition-colors"
                       >
                         <Copy className="w-3 h-3" /> Copy DNA
                       </button>
                       <div className="w-1 h-1 rounded-full bg-white/10" />
-                      <button className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-zinc-600 hover:text-studio transition-colors">
+                      <button className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-zinc-600 hover:text-studio transition-colors">
                         <Eye className="w-3 h-3" /> View Artifact
                       </button>
                     </div>
@@ -95,7 +95,7 @@ export const ImagePromptsTab: React.FC<ImagePromptsTabProps> = ({
             </p>
             <button
               onClick={onGenerate}
-              className="mt-10 h-12 px-10 bg-white/5 hover:bg-white/10 border border-white/10 text-white font-black uppercase tracking-widest text-[10px] rounded-xl transition-all"
+              className="mt-10 h-12 px-10 bg-white/5 hover:bg-white/10 border border-white/10 text-white font-black uppercase tracking-widest text-xs rounded-xl transition-all"
             >
               Synthesize DNA
             </button>

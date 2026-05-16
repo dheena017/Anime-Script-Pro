@@ -82,28 +82,28 @@ export const HUDDecoration: React.FC = () => (
     {/* Left HUD Bar */}
     <div className="fixed inset-y-0 left-0 w-12 z-[90] pointer-events-none hidden xl:flex flex-col items-center justify-between py-24 opacity-30">
       <div className="flex flex-col items-center gap-12">
-        <span className="text-[8px] font-black text-studio uppercase tracking-[0.5em] rotate-90 origin-center whitespace-nowrap">SECTOR-01</span>
+        <span className="text-xs font-black text-studio uppercase tracking-[0.5em] rotate-90 origin-center whitespace-nowrap">SECTOR-01</span>
         {[...Array(4)].map((_, i) => (
           <div key={i} className="w-[1px] h-32 bg-gradient-to-b from-transparent via-studio to-transparent" />
         ))}
       </div>
       <div className="flex flex-col items-center gap-4">
          <div className="w-1.5 h-1.5 rounded-full bg-studio animate-pulse" />
-         <span className="text-[8px] font-black text-zinc-600 uppercase tracking-widest">Active</span>
+         <span className="text-xs font-black text-zinc-600 uppercase tracking-widest">Active</span>
       </div>
     </div>
 
     {/* Right HUD Bar */}
     <div className="fixed inset-y-0 right-0 w-12 z-[90] pointer-events-none hidden xl:flex flex-col items-center justify-between py-24 opacity-30">
        <div className="flex flex-col items-center gap-4">
-          <span className="text-[8px] font-black text-zinc-600 uppercase tracking-widest tabular-nums">35.6895</span>
+          <span className="text-xs font-black text-zinc-600 uppercase tracking-widest tabular-nums">35.6895</span>
           <div className="w-px h-12 bg-white/10" />
        </div>
        <div className="flex flex-col items-center gap-12">
         {[...Array(4)].map((_, i) => (
           <div key={i} className="w-[1px] h-32 bg-gradient-to-b from-transparent via-fuchsia-500 to-transparent" />
         ))}
-        <span className="text-[8px] font-black text-fuchsia-500 uppercase tracking-[0.5em] rotate-90 origin-center whitespace-nowrap">NODE-ID: 842</span>
+        <span className="text-xs font-black text-fuchsia-500 uppercase tracking-[0.5em] rotate-90 origin-center whitespace-nowrap">NODE-ID: 842</span>
       </div>
     </div>
   </>

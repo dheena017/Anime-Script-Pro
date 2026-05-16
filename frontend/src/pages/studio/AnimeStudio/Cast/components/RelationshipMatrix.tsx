@@ -131,7 +131,7 @@ export const RelationshipMatrix = React.memo(() => {
             {/* Top Axis */}
             {characterNames.map((name, i) => (
               <div key={i} className="h-20 flex flex-col items-center justify-end pb-4 bg-zinc-950/20 rounded-t-2xl border-x border-t border-zinc-900/50">
-                <span className="text-[9px] font-black uppercase tracking-widest text-zinc-400 rotate-[-45deg] origin-bottom-left ml-4 whitespace-nowrap">
+                <span className="text-xs font-black uppercase tracking-widest text-zinc-400 rotate-[-45deg] origin-bottom-left ml-4 whitespace-nowrap">
                   {name}
                 </span>
               </div>
@@ -142,7 +142,7 @@ export const RelationshipMatrix = React.memo(() => {
               <React.Fragment key={nameA}>
                 {/* Side Axis */}
                 <div className="h-16 flex items-center justify-end pr-6 bg-zinc-950/20 rounded-l-2xl border-y border-l border-zinc-900/50">
-                  <span className="text-[10px] font-black uppercase tracking-tighter text-zinc-50 overflow-hidden text-ellipsis whitespace-nowrap">
+                  <span className="text-xs font-black uppercase tracking-tighter text-zinc-50 overflow-hidden text-ellipsis whitespace-nowrap">
                     {nameA}
                   </span>
                 </div>
@@ -177,8 +177,8 @@ export const RelationshipMatrix = React.memo(() => {
                             </motion.div>
                           </TooltipTrigger>
                           <TooltipContent className="bg-zinc-950 border-studio text-studio p-3 max-w-xs shadow-2xl">
-                            <p className="text-[10px] font-black uppercase tracking-widest mb-1 underline">{relation.type}</p>
-                            <p className="text-[11px] font-medium leading-relaxed italic">"{relation.description}"</p>
+                            <p className="text-xs font-black uppercase tracking-widest mb-1 underline">{relation.type}</p>
+                            <p className="text-xs font-medium leading-relaxed italic">"{relation.description}"</p>
                           </TooltipContent>
                         </Tooltip>
                       ) : (

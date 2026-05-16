@@ -88,8 +88,8 @@ export const ScreeningViewport: React.FC<ScreeningViewportProps> = ({
                 <Hash className="w-4 h-4 text-white" />
               </div>
               <div className="flex flex-col">
-                <span className="text-[10px] font-black text-white uppercase tracking-widest leading-none">Video Unit-01</span>
-                <span className="text-[8px] font-bold text-studio/60 uppercase tracking-widest mt-1">Status: Masterpiece Premiere</span>
+                <span className="text-xs font-black text-white uppercase tracking-widest leading-none">Video Unit-01</span>
+                <span className="text-xs font-bold text-studio/60 uppercase tracking-widest mt-1">Status: Masterpiece Premiere</span>
               </div>
             </div>
           </div>
@@ -120,11 +120,11 @@ export const ScreeningViewport: React.FC<ScreeningViewportProps> = ({
                             phase.status === 'done' ? "bg-green-500" : phase.status === 'active' ? "bg-studio animate-pulse scale-125" : "bg-zinc-800"
                           )} />
                           <span className={cn(
-                            "text-[10px] font-black uppercase tracking-widest transition-colors",
+                            "text-xs font-black uppercase tracking-widest transition-colors",
                             phase.status === 'active' ? "text-white" : "text-zinc-600"
                           )}>{phase.label}</span>
                         </div>
-                        <span className="text-[8px] font-mono text-zinc-700">
+                        <span className="text-xs font-mono text-zinc-700">
                           {phase.status === 'done' ? 'COMPLETE' : phase.status === 'active' ? 'PROCESSING...' : 'WAITING'}
                         </span>
                       </div>
@@ -143,7 +143,7 @@ export const ScreeningViewport: React.FC<ScreeningViewportProps> = ({
                     <p className="text-studio font-black uppercase tracking-[0.4em] text-xs">
                       Awaiting Composition
                     </p>
-                    <p className="text-zinc-500 text-[10px] uppercase tracking-widest">Arc {activeSession}: {sceneCount} Units Synced</p>
+                    <p className="text-zinc-500 text-xs uppercase tracking-widest">Arc {activeSession}: {sceneCount} Units Synced</p>
                   </div>
                 </div>
               )}
@@ -154,10 +154,10 @@ export const ScreeningViewport: React.FC<ScreeningViewportProps> = ({
         <div className="absolute bottom-10 left-10 right-10 flex items-end justify-between pointer-events-none">
           <div className="space-y-2">
             <div className="flex items-center gap-2">
-               <div className="px-2 py-0.5 bg-red-600 text-white text-[8px] font-black uppercase rounded sm">Live</div>
+               <div className="px-2 py-0.5 bg-red-600 text-white text-xs font-black uppercase rounded sm">Live</div>
                <span className="text-white font-black uppercase tracking-widest text-sm">Unit Preview Mode</span>
             </div>
-            <div className="flex gap-4 text-zinc-400 text-[10px] font-bold uppercase tracking-widest">
+            <div className="flex gap-4 text-zinc-400 text-xs font-bold uppercase tracking-widest">
               <span className="flex items-center gap-1"><Cpu className="w-3 h-3 text-studio" /> 4K AI Video</span>
               <span>FPS: 24 (Cinematic)</span>
             </div>
@@ -167,11 +167,11 @@ export const ScreeningViewport: React.FC<ScreeningViewportProps> = ({
 
       {videoPrompts && (
         <Card className="bg-[#050505] border-fuchsia-500/20 p-6 rounded-2xl animate-in fade-in zoom-in duration-500">
-           <h4 className="text-[10px] font-black text-fuchsia-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+           <h4 className="text-xs font-black text-fuchsia-400 uppercase tracking-widest mb-4 flex items-center gap-2">
               <Zap className="w-3 h-3" /> Director's Video Synthesis
            </h4>
            <ScrollArea className="h-32">
-              <div className="text-[11px] text-zinc-500 font-medium leading-relaxed prose prose-invert max-w-none">
+              <div className="text-xs text-zinc-500 font-medium leading-relaxed prose prose-invert max-w-none">
                 <ReactMarkdown>{videoPrompts}</ReactMarkdown>
               </div>
            </ScrollArea>

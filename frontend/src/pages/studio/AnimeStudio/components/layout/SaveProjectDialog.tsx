@@ -123,7 +123,7 @@ export const SaveProjectDialog = React.memo(() => {
         render={
           <Button
             variant="outline"
-            className="bg-cyan-500/10 border-cyan-500/30 text-cyan-500 hover:bg-cyan-500/20 hover:text-cyan-400 font-black uppercase tracking-widest text-[10px] h-9 px-4 rounded-xl transition-all shadow-[0_0_15px_rgba(6,182,212,0.15)] group"
+            className="bg-cyan-500/10 border-cyan-500/30 text-cyan-500 hover:bg-cyan-500/20 hover:text-cyan-400 font-black uppercase tracking-widest text-xs h-9 px-4 rounded-xl transition-all shadow-[0_0_15px_rgba(6,182,212,0.15)] group"
           >
             <Save className={cn("w-3.5 h-3.5 mr-2 group-hover:scale-110 transition-transform", isSaving && "animate-pulse")} />
             {isSaving ? "SAVING..." : "SAVE PROJECT"}
@@ -141,7 +141,7 @@ export const SaveProjectDialog = React.memo(() => {
         <div className="grid gap-4 py-4 mt-2">
           {/* Project Name */}
           <div className="space-y-2">
-            <label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">
+            <label className="text-xs font-black uppercase tracking-widest text-zinc-400">
               Project Name <span className="text-red-500">*</span>
             </label>
             <Input
@@ -162,7 +162,7 @@ export const SaveProjectDialog = React.memo(() => {
 
           {/* Core Concept */}
           <div className="space-y-2">
-            <label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">
+            <label className="text-xs font-black uppercase tracking-widest text-zinc-400">
               Core Concept / Details
             </label>
             <TextareaAutosize
@@ -184,13 +184,13 @@ export const SaveProjectDialog = React.memo(() => {
           {currentStatus ? (
             <div className={cn("border rounded-xl p-3 flex items-center gap-3 transition-all duration-300", currentStatus.bg)}>
               <span className={currentStatus.text}>{currentStatus.icon}</span>
-              <p className={cn("text-[10px] font-black uppercase tracking-widest leading-relaxed", currentStatus.text)}>
+              <p className={cn("text-xs font-black uppercase tracking-widest leading-relaxed", currentStatus.text)}>
                 {currentStatus.message}
               </p>
             </div>
           ) : (
             <div className="bg-cyan-500/10 border border-cyan-500/20 rounded-xl p-3">
-              <p className="text-[9px] font-black uppercase tracking-widest text-cyan-500 leading-relaxed text-center">
+              <p className="text-xs font-black uppercase tracking-widest text-cyan-500 leading-relaxed text-center">
                 Syncs: Engine · World · Cast · Series · Script · Storyboard · Assets · SEO · Screening
               </p>
             </div>
@@ -202,7 +202,7 @@ export const SaveProjectDialog = React.memo(() => {
             variant="ghost"
             onClick={() => setOpen(false)}
             disabled={status === 'saving'}
-            className="text-zinc-400 hover:text-white font-black uppercase tracking-widest text-[10px] h-10 rounded-xl"
+            className="text-zinc-400 hover:text-white font-black uppercase tracking-widest text-xs h-10 rounded-xl"
           >
             {status === 'success' ? 'Close' : 'Cancel'}
           </Button>
@@ -210,7 +210,7 @@ export const SaveProjectDialog = React.memo(() => {
             <Button
               onClick={handleSave}
               disabled={status === 'saving'}
-              className="bg-cyan-500 hover:bg-cyan-400 text-black font-black uppercase tracking-widest text-[10px] h-10 px-6 rounded-xl shadow-[0_0_20px_rgba(6,182,212,0.3)] disabled:opacity-50"
+              className="bg-cyan-500 hover:bg-cyan-400 text-black font-black uppercase tracking-widest text-xs h-10 px-6 rounded-xl shadow-[0_0_20px_rgba(6,182,212,0.3)] disabled:opacity-50"
             >
               {status === 'saving' ? (
                 <span className="flex items-center gap-2">

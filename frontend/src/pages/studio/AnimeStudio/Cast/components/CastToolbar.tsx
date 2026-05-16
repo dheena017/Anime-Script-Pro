@@ -106,7 +106,7 @@ export const CastToolbar: React.FC<CastToolbarProps> = ({
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent side="top">
-                    <p className="font-black uppercase tracking-widest text-[9px]">Copy Cast</p>
+                    <p className="font-black uppercase tracking-widest text-xs">Copy Cast</p>
                   </TooltipContent>
                 </Tooltip>
 
@@ -123,7 +123,7 @@ export const CastToolbar: React.FC<CastToolbarProps> = ({
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent side="top">
-                    <p className="font-black uppercase tracking-widest text-[9px]">Export Markdown</p>
+                    <p className="font-black uppercase tracking-widest text-xs">Export Markdown</p>
                   </TooltipContent>
                 </Tooltip>
 
@@ -139,7 +139,7 @@ export const CastToolbar: React.FC<CastToolbarProps> = ({
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent side="top">
-                    <p className="font-black uppercase tracking-widest text-[9px]">
+                    <p className="font-black uppercase tracking-widest text-xs">
                       {isFullscreen ? "Exit Fullscreen" : "Fullscreen Mode"}
                     </p>
                   </TooltipContent>

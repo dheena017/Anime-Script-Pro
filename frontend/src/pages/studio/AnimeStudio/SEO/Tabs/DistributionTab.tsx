@@ -87,7 +87,7 @@ export const DistributionTab: React.FC<DistributionTabProps> = ({
               <h4 className={s.platformName}>{platform.name}</h4>
               <p className={s.platformDesc}>{platform.desc}</p>
               
-              <Button variant="ghost" className="w-full mt-6 h-10 border border-white/5 bg-white/[0.02] hover:bg-white/[0.05] text-[9px] font-black uppercase tracking-widest gap-2">
+              <Button variant="ghost" className="w-full mt-6 h-10 border border-white/5 bg-white/[0.02] hover:bg-white/[0.05] text-xs font-black uppercase tracking-widest gap-2">
                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
                 Preview Metadata
               </Button>
@@ -120,7 +120,7 @@ export const DistributionTab: React.FC<DistributionTabProps> = ({
         </div>
         <div className="space-y-2">
           <h4 className="text-sm font-black text-white uppercase tracking-widest">Global Sync Engaged</h4>
-          <p className="text-[10px] text-zinc-500 max-w-sm mx-auto leading-relaxed">
+          <p className="text-xs text-zinc-500 max-w-sm mx-auto leading-relaxed">
             All distribution channels are synchronized with the current production DNA. Snippets will update automatically upon script regeneration.
           </p>
         </div>

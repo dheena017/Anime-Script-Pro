@@ -55,7 +55,7 @@ const PricingCard = ({
 
     {highlighted && (
       <div className="absolute top-8 right-10">
-        <div className="px-5 py-2 rounded-full bg-studio text-black text-[9px] font-black uppercase tracking-[0.2em] shadow-2xl flex items-center gap-2">
+        <div className="px-5 py-2 rounded-full bg-studio text-black text-xs font-black uppercase tracking-[0.2em] shadow-2xl flex items-center gap-2">
            <Zap className="w-3 h-3 fill-black" /> Recommended
         </div>
       </div>
@@ -69,10 +69,10 @@ const PricingCard = ({
          <Icon className="w-8 h-8" />
        </div>
        <div className="text-right">
-          <div className="text-[9px] font-black text-zinc-700 uppercase tracking-[0.4em] mb-1">{nodeId}</div>
+          <div className="text-xs font-black text-zinc-700 uppercase tracking-[0.4em] mb-1">{nodeId}</div>
           <div className="flex items-center gap-2 justify-end">
              <div className={cn("w-1.5 h-1.5 rounded-full animate-pulse", availability === 'Optimal' ? "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" : "bg-amber-500")} />
-             <span className="text-[8px] font-black text-zinc-500 uppercase tracking-widest">{availability}</span>
+             <span className="text-xs font-black text-zinc-500 uppercase tracking-widest">{availability}</span>
           </div>
        </div>
     </div>
@@ -80,8 +80,8 @@ const PricingCard = ({
     <div className="space-y-1 mb-10">
        <h3 className="text-3xl font-black text-white uppercase italic tracking-tighter group-hover:text-studio transition-colors">{title}</h3>
        <div className="flex items-baseline gap-2">
-         <span className="text-5xl md:text-6xl font-black text-white italic tracking-tighter">{price}</span>
-         <span className="text-zinc-600 font-black uppercase tracking-[0.3em] text-[10px]">{price !== 'Free' ? '/MO' : 'TRIAL'}</span>
+         <span className="text-2xl md:text-3xl font-black text-white italic tracking-tighter">{price}</span>
+         <span className="text-zinc-600 font-black uppercase tracking-[0.3em] text-xs">{price !== 'Free' ? '/MO' : 'TRIAL'}</span>
        </div>
     </div>
 
@@ -94,7 +94,7 @@ const PricingCard = ({
           )}>
             <Check className="w-3.5 h-3.5" />
           </div>
-          <span className="text-[11px] text-zinc-500 font-black uppercase tracking-widest group-hover/item:text-white transition-colors">{feature}</span>
+          <span className="text-xs text-zinc-500 font-black uppercase tracking-widest group-hover/item:text-white transition-colors">{feature}</span>
         </div>
       ))}
     </div>
@@ -102,8 +102,8 @@ const PricingCard = ({
     {/* Telemetry Node */}
     <div className="mb-10 pt-8 border-t border-white/5 flex items-center justify-between">
        <div className="space-y-1">
-          <span className="text-[8px] font-black text-zinc-700 uppercase tracking-widest">Synthesis Efficiency</span>
-          <div className="text-[10px] font-black text-studio uppercase italic">{efficiency}</div>
+          <span className="text-xs font-black text-zinc-700 uppercase tracking-widest">Synthesis Efficiency</span>
+          <div className="text-xs font-black text-studio uppercase italic">{efficiency}</div>
        </div>
        <Database className="w-4 h-4 text-zinc-800" />
     </div>
@@ -111,7 +111,7 @@ const PricingCard = ({
     <Button 
       onClick={onSelect}
       className={cn(
-        "h-16 rounded-[1.5rem] font-black uppercase tracking-[0.3em] text-[11px] transition-all relative overflow-hidden group/btn",
+        "h-16 rounded-[1.5rem] font-black uppercase tracking-[0.3em] text-xs transition-all relative overflow-hidden group/btn",
         highlighted 
           ? "bg-studio text-black hover:bg-white hover:scale-[1.02] shadow-3xl" 
           : "bg-white/5 text-white hover:bg-white hover:text-black"
@@ -141,14 +141,14 @@ export default function PricingPage() {
             className="flex items-center gap-3 px-4 py-1.5 rounded-full bg-studio/5 border border-studio/20 backdrop-blur-md"
           >
             <Cpu className="w-4 h-4 text-studio" />
-            <span className="text-[10px] font-black uppercase tracking-[0.4em] text-studio">Production Tier Matrix V4.0</span>
+            <span className="text-xs font-black uppercase tracking-[0.4em] text-studio">Production Tier Matrix V4.0</span>
           </motion.div>
           
           <div className="space-y-4">
-             <h1 className="text-5xl md:text-8xl font-black tracking-tighter text-white uppercase italic leading-none">
+             <h1 className="text-2xl md:text-4xl font-black tracking-tighter text-white uppercase italic leading-none">
                Production <span className="text-studio">Power.</span>
              </h1>
-             <p className="max-w-2xl mx-auto text-zinc-500 font-bold uppercase tracking-[0.2em] text-[11px] leading-relaxed">
+             <p className="max-w-2xl mx-auto text-zinc-500 font-bold uppercase tracking-[0.2em] text-xs leading-relaxed">
                Scalable resources for solo creators and full-scale production studios.
              </p>
           </div>

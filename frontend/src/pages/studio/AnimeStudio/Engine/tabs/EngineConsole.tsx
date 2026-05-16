@@ -87,7 +87,7 @@ export const EngineConsole: FC = () => {
           </div>
           <div>
             <h3 className="text-sm font-black text-white uppercase tracking-widest">System Console</h3>
-            <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Real-time Generation Activity</p>
+            <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Real-time Generation Activity</p>
           </div>
         </div>
 
@@ -99,7 +99,7 @@ export const EngineConsole: FC = () => {
               placeholder="SEARCH LOGS..." 
               value={filter}
               onChange={(e) => setFilter(e.target.value)}
-              className="pl-10 pr-4 py-2 bg-black border border-white/5 rounded-xl text-[9px] font-black uppercase tracking-widest text-zinc-400 focus:border-emerald-500/50 transition-all outline-none w-48"
+              className="pl-10 pr-4 py-2 bg-black border border-white/5 rounded-xl text-xs font-black uppercase tracking-widest text-zinc-400 focus:border-emerald-500/50 transition-all outline-none w-48"
             />
           </div>
           <button 
@@ -115,13 +115,13 @@ export const EngineConsole: FC = () => {
       {/* Terminal View */}
       <div 
         ref={scrollRef}
-        className="flex-1 overflow-y-auto p-8 font-mono text-[11px] space-y-3 custom-scrollbar"
+        className="flex-1 overflow-y-auto p-8 font-mono text-xs space-y-3 custom-scrollbar"
       >
         <AnimatePresence initial={false}>
           {filteredLogs.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-zinc-700 opacity-50">
               <Terminal className="w-12 h-12 mb-4 opacity-20" />
-              <p className="font-black uppercase tracking-[0.3em] text-[10px]">Awaiting Activity...</p>
+              <p className="font-black uppercase tracking-[0.3em] text-xs">Awaiting Activity...</p>
             </div>
           ) : (
             filteredLogs.map((log) => (
@@ -146,7 +146,7 @@ export const EngineConsole: FC = () => {
                     {log.message}
                   </div>
                   {log.details && (
-                    <div className="p-3 bg-black/40 rounded-lg border border-white/5 text-[10px] text-zinc-500 whitespace-pre-wrap break-all overflow-hidden max-h-40 overflow-y-auto custom-scrollbar">
+                    <div className="p-3 bg-black/40 rounded-lg border border-white/5 text-xs text-zinc-500 whitespace-pre-wrap break-all overflow-hidden max-h-40 overflow-y-auto custom-scrollbar">
                       {typeof log.details === 'string' ? log.details : JSON.stringify(log.details, null, 2)}
                     </div>
                   )}
@@ -162,10 +162,10 @@ export const EngineConsole: FC = () => {
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-2">
             <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="text-[8px] font-black text-emerald-500 uppercase tracking-widest">Link Active</span>
+            <span className="text-xs font-black text-emerald-500 uppercase tracking-widest">Link Active</span>
           </div>
           <div className="h-3 w-px bg-white/10" />
-          <span className="text-[8px] font-bold text-zinc-600 uppercase tracking-widest">
+          <span className="text-xs font-bold text-zinc-600 uppercase tracking-widest">
             {filteredLogs.length} LOGS CAPTURED
           </span>
         </div>
@@ -173,7 +173,7 @@ export const EngineConsole: FC = () => {
         <button 
           onClick={() => setAutoScroll(!autoScroll)}
           className={cn(
-            "text-[8px] font-black uppercase tracking-widest px-3 py-1.5 rounded-lg border transition-all",
+            "text-xs font-black uppercase tracking-widest px-3 py-1.5 rounded-lg border transition-all",
             autoScroll ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-500" : "bg-zinc-900 border-white/5 text-zinc-500"
           )}
         >

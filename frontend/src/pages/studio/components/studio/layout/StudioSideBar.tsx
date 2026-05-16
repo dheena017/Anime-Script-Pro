@@ -73,7 +73,7 @@ export const StudioSideBar = React.memo<StudioSideBarProps>(({ collapsed, setCol
           transition={{ delay: 0.2 }}
           className="px-4 mb-4 flex flex-col gap-1"
         >
-          <p className="text-[8px] font-black text-zinc-600 uppercase tracking-[0.3em] flex items-center gap-2">
+          <p className="text-xs font-black text-zinc-600 uppercase tracking-[0.3em] flex items-center gap-2">
             <span className={cn("w-3 h-[1px]", color === "studio" ? "bg-cyan-500/50" : "bg-red-500/50")} /> {title}
           </p>
           <div className="h-[1px] w-full bg-gradient-to-r from-zinc-800/50 to-transparent" />
@@ -99,7 +99,7 @@ export const StudioSideBar = React.memo<StudioSideBarProps>(({ collapsed, setCol
               <NavLink
                 to={fullPath}
                 className={({ isActive: _isActive }) => cn(
-                  "flex items-center gap-4 px-5 py-3 rounded-2xl text-[10px] font-black transition-all duration-300 group uppercase tracking-[0.2em] relative overflow-hidden mx-2",
+                  "flex items-center gap-4 px-5 py-3 rounded-2xl text-xs font-black transition-all duration-300 group uppercase tracking-[0.2em] relative overflow-hidden mx-2",
                   isActive ? activeStyles : "text-zinc-500 hover:text-zinc-200 hover:bg-white/[0.04]",
                   collapsed && "opacity-0"
                 )}
@@ -157,7 +157,7 @@ export const StudioSideBar = React.memo<StudioSideBarProps>(({ collapsed, setCol
             </div>
             <div className="flex flex-col">
               <span className="font-black tracking-[0.2em] text-[12px] uppercase text-white leading-none">Production <span className="text-red-500">Studio</span></span>
-              <span className="text-[8px] font-bold text-zinc-600 uppercase tracking-[0.3em] mt-1.5">AI Core v2.5</span>
+              <span className="text-xs font-bold text-zinc-600 uppercase tracking-[0.3em] mt-1.5">AI Core v2.5</span>
             </div>
             <button
               onClick={() => setCollapsed(true)}
@@ -172,7 +172,7 @@ export const StudioSideBar = React.memo<StudioSideBarProps>(({ collapsed, setCol
         <nav className="p-4 space-y-8">
           {!collapsed && (
             <div className="px-2 space-y-1">
-              <p className="text-[8px] font-black text-zinc-600 uppercase tracking-[0.4em] px-3 mb-3">Studio Selection</p>
+              <p className="text-xs font-black text-zinc-600 uppercase tracking-[0.4em] px-3 mb-3">Studio Selection</p>
               <div className="flex flex-col gap-1">
                 {studioTypes.map((studio) => {
                   const isActive = location.pathname.startsWith(studio.path);
@@ -182,7 +182,7 @@ export const StudioSideBar = React.memo<StudioSideBarProps>(({ collapsed, setCol
                       key={studio.id}
                       to={studio.path}
                       className={cn(
-                        "flex items-center gap-3 px-4 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all duration-300",
+                        "flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all duration-300",
                         isActive
                           ? `${studio.bg} ${studio.color} border border-white/10 shadow-lg`
                           : "text-zinc-500 hover:text-zinc-300 hover:bg-white/5 border border-transparent"

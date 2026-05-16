@@ -62,7 +62,7 @@ export const Footer: React.FC = () => {
 
             {/* NEURAL UPDATES MODULE */}
             <div className="space-y-4">
-              <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-studio">System Updates</h4>
+              <h4 className="text-xs font-black uppercase tracking-[0.3em] text-studio">System Updates</h4>
               <form onSubmit={handleSubscribe} className="relative group">
                  <div className="absolute -inset-1 bg-gradient-to-r from-studio/50 to-transparent rounded-2xl blur opacity-0 group-focus-within:opacity-20 transition duration-500" />
                  <div className="relative flex gap-2">
@@ -73,7 +73,7 @@ export const Footer: React.FC = () => {
                         if (subStatus === 'error') setSubStatus('idle');
                       }}
                       placeholder="ARCHITECT@STUDIO.IO"
-                      className="bg-zinc-900/50 border-zinc-800 rounded-xl h-14 font-black uppercase tracking-widest text-[10px] focus:border-studio/50 transition-all pl-6"
+                      className="bg-zinc-900/50 border-zinc-800 rounded-xl h-14 font-black uppercase tracking-widest text-xs focus:border-studio/50 transition-all pl-6"
                     />
                     <Button 
                       disabled={subStatus === 'loading'}
@@ -93,7 +93,7 @@ export const Footer: React.FC = () => {
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
-                        className="mt-4 flex items-center gap-2 text-emerald-500 text-[9px] font-black uppercase tracking-[0.2em]"
+                        className="mt-4 flex items-center gap-2 text-emerald-500 text-xs font-black uppercase tracking-[0.2em]"
                      >
                         <CheckCircle2 className="w-3.5 h-3.5" /> System Link Established
                      </motion.div>
@@ -103,7 +103,7 @@ export const Footer: React.FC = () => {
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
-                        className="mt-4 flex items-center gap-2 text-red-500 text-[9px] font-black uppercase tracking-[0.2em]"
+                        className="mt-4 flex items-center gap-2 text-red-500 text-xs font-black uppercase tracking-[0.2em]"
                      >
                         <AlertCircle className="w-3.5 h-3.5" /> Invalid Terminal Address
                      </motion.div>
@@ -128,32 +128,32 @@ export const Footer: React.FC = () => {
           {/* 2. NAVIGATION GRIDS */}
           <div className="lg:col-span-8 grid grid-cols-2 md:grid-cols-3 gap-12">
             <div className="space-y-8">
-              <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-white">Platform Nodes</h4>
+              <h4 className="text-xs font-black uppercase tracking-[0.4em] text-white">Platform Nodes</h4>
               <ul className="space-y-4">
-                <li><a href="/anime" className="text-zinc-600 hover:text-studio text-[11px] font-black uppercase tracking-widest transition-all no-underline">Pro Studio Engine</a></li>
-                <li><a href="/pricing" className="text-zinc-600 hover:text-studio text-[11px] font-black uppercase tracking-widest transition-all no-underline">Pricing Protocol</a></li>
-                <li><a href="/community" className="text-zinc-600 hover:text-studio text-[11px] font-black uppercase tracking-widest transition-all no-underline">Social Hub</a></li>
-                <li><a href="/library" className="text-zinc-600 hover:text-studio text-[11px] font-black uppercase tracking-widest transition-all no-underline">Asset Archives</a></li>
+                <li><a href="/anime" className="text-zinc-600 hover:text-studio text-xs font-black uppercase tracking-widest transition-all no-underline">Pro Studio Engine</a></li>
+                <li><a href="/pricing" className="text-zinc-600 hover:text-studio text-xs font-black uppercase tracking-widest transition-all no-underline">Pricing Protocol</a></li>
+                <li><a href="/community" className="text-zinc-600 hover:text-studio text-xs font-black uppercase tracking-widest transition-all no-underline">Social Hub</a></li>
+                <li><a href="/library" className="text-zinc-600 hover:text-studio text-xs font-black uppercase tracking-widest transition-all no-underline">Asset Archives</a></li>
               </ul>
             </div>
 
             <div className="space-y-8">
-              <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-white">Academy</h4>
+              <h4 className="text-xs font-black uppercase tracking-[0.4em] text-white">Academy</h4>
               <ul className="space-y-4">
-                <li><a href="/tutorials" className="text-zinc-600 hover:text-studio text-[11px] font-black uppercase tracking-widest transition-all no-underline">Production Docs</a></li>
-                <li><a href="https://youtube.com" target="_blank" className="text-zinc-600 hover:text-studio text-[11px] font-black uppercase tracking-widest transition-all no-underline">Youtube Guides</a></li>
-                <li><a href="/api-reference" className="text-zinc-600 hover:text-studio text-[11px] font-black uppercase tracking-widest transition-all no-underline">API Interface</a></li>
-                <li><a href="/lore-database" className="text-zinc-600 hover:text-studio text-[11px] font-black uppercase tracking-widest transition-all no-underline">World Oracle</a></li>
+                <li><a href="/tutorials" className="text-zinc-600 hover:text-studio text-xs font-black uppercase tracking-widest transition-all no-underline">Production Docs</a></li>
+                <li><a href="https://youtube.com" target="_blank" className="text-zinc-600 hover:text-studio text-xs font-black uppercase tracking-widest transition-all no-underline">Youtube Guides</a></li>
+                <li><a href="/api-reference" className="text-zinc-600 hover:text-studio text-xs font-black uppercase tracking-widest transition-all no-underline">API Interface</a></li>
+                <li><a href="/lore-database" className="text-zinc-600 hover:text-studio text-xs font-black uppercase tracking-widest transition-all no-underline">World Oracle</a></li>
               </ul>
             </div>
 
             <div className="space-y-8">
-              <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-white">Support Node</h4>
+              <h4 className="text-xs font-black uppercase tracking-[0.4em] text-white">Support Node</h4>
               <ul className="space-y-4">
-                <li><a href="/contact" className="text-zinc-600 hover:text-studio text-[11px] font-black uppercase tracking-widest transition-all no-underline">Terminal Support</a></li>
-                <li><a href="/help" className="text-zinc-600 hover:text-studio text-[11px] font-black uppercase tracking-widest transition-all no-underline">Help Center</a></li>
-                <li><a href="/system/status" className="text-zinc-600 hover:text-studio text-[11px] font-black uppercase tracking-widest transition-all no-underline">System Status</a></li>
-                <li><a href="/terms" className="text-zinc-600 hover:text-studio text-[11px] font-black uppercase tracking-widest transition-all no-underline">Terms of Protocol</a></li>
+                <li><a href="/contact" className="text-zinc-600 hover:text-studio text-xs font-black uppercase tracking-widest transition-all no-underline">Terminal Support</a></li>
+                <li><a href="/help" className="text-zinc-600 hover:text-studio text-xs font-black uppercase tracking-widest transition-all no-underline">Help Center</a></li>
+                <li><a href="/system/status" className="text-zinc-600 hover:text-studio text-xs font-black uppercase tracking-widest transition-all no-underline">System Status</a></li>
+                <li><a href="/terms" className="text-zinc-600 hover:text-studio text-xs font-black uppercase tracking-widest transition-all no-underline">Terms of Protocol</a></li>
               </ul>
             </div>
           </div>
@@ -164,9 +164,9 @@ export const Footer: React.FC = () => {
           <div className="flex flex-col md:flex-row items-center gap-8 w-full md:w-auto">
              <div className="flex items-center gap-3 px-4 py-2 rounded-xl bg-white/[0.02] border border-white/5">
                 <ShieldCheck className="w-4 h-4 text-emerald-500" />
-                <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Verified Studio Engine</span>
+                <span className="text-xs font-black text-zinc-500 uppercase tracking-widest">Verified Studio Engine</span>
              </div>
-             <span className="text-zinc-700 text-[9px] font-black uppercase tracking-[0.2em] text-center md:text-left">
+             <span className="text-zinc-700 text-xs font-black uppercase tracking-[0.2em] text-center md:text-left">
                 © 2026 AnimeScript Pro // Engineered by DeepMind Swarm
              </span>
           </div>
@@ -174,11 +174,11 @@ export const Footer: React.FC = () => {
           <div className="flex items-center gap-10 w-full md:w-auto justify-between md:justify-end">
             <div className="hidden sm:flex items-center gap-3">
                <Activity className="w-4 h-4 text-zinc-800" />
-               <span className="text-[9px] font-black text-zinc-700 uppercase tracking-[0.3em]">Shard: Node-01-Global</span>
+               <span className="text-xs font-black text-zinc-700 uppercase tracking-[0.3em]">Shard: Node-01-Global</span>
             </div>
             <Button 
               onClick={() => navigate('/login')} 
-              className="h-12 px-10 rounded-xl bg-white text-black font-black uppercase tracking-[0.2em] text-[10px] hover:bg-studio hover:scale-[1.02] transition-all shadow-2xl"
+              className="h-12 px-10 rounded-xl bg-white text-black font-black uppercase tracking-[0.2em] text-xs hover:bg-studio hover:scale-[1.02] transition-all shadow-2xl"
             >
               Initialize Sync
             </Button>

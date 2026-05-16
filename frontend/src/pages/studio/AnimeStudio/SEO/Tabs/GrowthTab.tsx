@@ -50,7 +50,7 @@ export const GrowthTab: React.FC<GrowthTabProps> = ({
     return (
       <div className="flex flex-col items-center justify-center py-20 space-y-4">
         <Loader2 className="w-8 h-8 text-orange-500 animate-spin" />
-        <p className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-500">Accessing Strategy Vault...</p>
+        <p className="text-xs font-black uppercase tracking-[0.4em] text-zinc-500">Accessing Strategy Vault...</p>
       </div>
     );
   }
@@ -75,7 +75,7 @@ export const GrowthTab: React.FC<GrowthTabProps> = ({
             <Button
               variant="outline"
               onClick={() => onGenerate()}
-              className="h-12 px-6 rounded-xl border-white/5 hover:bg-white/5 text-[10px] font-black uppercase tracking-widest gap-2"
+              className="h-12 px-6 rounded-xl border-white/5 hover:bg-white/5 text-xs font-black uppercase tracking-widest gap-2"
             >
               <ChevronLeft className="w-3 h-3" /> New Strategy
             </Button>
@@ -108,10 +108,10 @@ export const GrowthTab: React.FC<GrowthTabProps> = ({
                   <Icon className="w-6 h-6 text-zinc-600 group-hover:text-orange-500" />
                 </div>
                 <div>
-                  <h4 className="text-[10px] font-black text-white uppercase tracking-widest mb-1">{strat.name}</h4>
-                  <p className="text-[9px] text-zinc-500 leading-relaxed uppercase tracking-wide line-clamp-2">{strat.description}</p>
+                  <h4 className="text-xs font-black text-white uppercase tracking-widest mb-1">{strat.name}</h4>
+                  <p className="text-xs text-zinc-500 leading-relaxed uppercase tracking-wide line-clamp-2">{strat.description}</p>
                 </div>
-                <div className="pt-4 flex items-center gap-2 text-[8px] font-black text-orange-500/40 uppercase tracking-[0.2em] group-hover:text-orange-500 transition-colors">
+                <div className="pt-4 flex items-center gap-2 text-xs font-black text-orange-500/40 uppercase tracking-[0.2em] group-hover:text-orange-500 transition-colors">
                   {isGenerating ? 'AI Processing...' : 'Synthesize Blueprint'}
                 </div>
               </button>

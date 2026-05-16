@@ -21,13 +21,13 @@ export const castStyles = {
     // Scale Selector
     scaleSelector: "flex items-center bg-black/40 border border-fuchsia-500/20 rounded-lg overflow-hidden h-10",
     scaleLabelBox: "px-3 border-r border-fuchsia-500/20 flex items-center gap-2",
-    scaleLabel: "text-[8px] font-black text-fuchsia-500/50 uppercase tracking-widest",
-    scaleSelect: "bg-transparent text-[10px] font-black text-fuchsia-400 px-3 outline-none cursor-pointer hover:bg-fuchsia-500/5 transition-colors h-full",
+    scaleLabel: "text-xs font-black text-fuchsia-500/50 uppercase tracking-widest",
+    scaleSelect: "bg-transparent text-xs font-black text-fuchsia-400 px-3 outline-none cursor-pointer hover:bg-fuchsia-500/5 transition-colors h-full",
     
     // Buttons
-    actionButton: "relative w-full sm:w-auto h-10 px-6 rounded-full border border-white/10 bg-white/5 text-zinc-400 hover:bg-white/10 hover:border-fuchsia-500/50 hover:text-fuchsia-400 font-black uppercase tracking-widest text-[9px] transition-all duration-300 group/back shadow-lg",
-    actionButtonDanger: "relative w-full sm:w-auto h-10 px-6 rounded-full border border-red-500/30 bg-red-500/10 text-red-400 hover:bg-red-500/15 hover:border-red-500/60 hover:text-red-300 font-black uppercase tracking-widest text-[9px] transition-all duration-300 group/stop shadow-lg",
-    actionButtonPrimary: "relative w-full sm:w-auto h-10 px-8 rounded-full border border-fuchsia-500/30 bg-fuchsia-500/5 text-fuchsia-400 hover:bg-fuchsia-500/10 hover:border-fuchsia-500/60 hover:text-fuchsia-300 font-black uppercase tracking-widest text-[9px] transition-all duration-300 group/btn shadow-lg",
+    actionButton: "relative w-full sm:w-auto h-10 px-6 rounded-full border border-white/10 bg-white/5 text-zinc-400 hover:bg-white/10 hover:border-fuchsia-500/50 hover:text-fuchsia-400 font-black uppercase tracking-widest text-xs transition-all duration-300 group/back shadow-lg",
+    actionButtonDanger: "relative w-full sm:w-auto h-10 px-6 rounded-full border border-red-500/30 bg-red-500/10 text-red-400 hover:bg-red-500/15 hover:border-red-500/60 hover:text-red-300 font-black uppercase tracking-widest text-xs transition-all duration-300 group/stop shadow-lg",
+    actionButtonPrimary: "relative w-full sm:w-auto h-10 px-8 rounded-full border border-fuchsia-500/30 bg-fuchsia-500/5 text-fuchsia-400 hover:bg-fuchsia-500/10 hover:border-fuchsia-500/60 hover:text-fuchsia-300 font-black uppercase tracking-widest text-xs transition-all duration-300 group/btn shadow-lg",
   },
 
   // --- TOOLBAR SECTION ---
@@ -38,8 +38,8 @@ export const castStyles = {
     statusIcon: "toolbar-status-icon",
     statusActive: "text-cyan-400 drop-shadow-[0_0_8px_rgba(6,182,212,0.6)]",
     statusInactive: "text-zinc-600",
-    statusTitle: "text-[10px] font-black uppercase tracking-[0.2em] bg-gradient-to-r from-cyan-300 to-studio bg-clip-text text-transparent",
-    statusSubtitle: "text-[8px] font-bold text-zinc-500 uppercase tracking-widest",
+    statusTitle: "text-xs font-black uppercase tracking-[0.2em] bg-gradient-to-r from-cyan-300 to-studio bg-clip-text text-transparent",
+    statusSubtitle: "text-xs font-bold text-zinc-500 uppercase tracking-widest",
     actionGroup: "toolbar-action-group",
     btnGroup: "toolbar-btn-group",
     iconButton: "h-9 w-9 rounded-lg text-zinc-400 hover:text-cyan-400 border border-transparent hover:border-cyan-400/40 hover:bg-cyan-500/10 transition-all duration-300 group relative overflow-hidden",
@@ -49,7 +49,7 @@ export const castStyles = {
   tabs: {
     container: 'flex items-center gap-1 bg-black/50 border border-white/10 p-1.5 rounded-full backdrop-blur-xl shadow-2xl relative group overflow-hidden',
     overlay: 'absolute inset-0 bg-gradient-to-r from-white/5 via-transparent to-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000 pointer-events-none',
-    button: 'relative z-10 px-5 py-2 text-[10px] font-black tracking-[0.2em] transition-all duration-500 uppercase flex items-center gap-2.5',
+    button: 'relative z-10 px-5 py-2 text-xs font-black tracking-[0.2em] transition-all duration-500 uppercase flex items-center gap-2.5',
     buttonActive: 'text-studio',
     buttonInactive: 'text-zinc-500 hover:text-zinc-300',
     pill: 'absolute inset-0 bg-white/10 border border-white/20 rounded-full z-0 pointer-events-none',

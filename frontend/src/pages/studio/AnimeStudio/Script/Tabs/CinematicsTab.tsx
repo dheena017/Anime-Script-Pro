@@ -9,7 +9,7 @@ export const CinematicsTab: React.FC = () => {
             <Camera className="w-8 h-8 text-purple-400" />
          </div>
          <h2 className="text-4xl font-black text-white uppercase tracking-tighter">Cinematic Core</h2>
-         <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-[0.3em]">Camera sequencing and visual direction protocols</p>
+         <p className="text-zinc-500 text-xs font-bold uppercase tracking-[0.3em]">Camera sequencing and visual direction protocols</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
@@ -23,7 +23,7 @@ export const CinematicsTab: React.FC = () => {
                  <item.icon className="w-5 h-5 text-purple-400" />
               </div>
               <div>
-                 <h3 className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">{item.label}</h3>
+                 <h3 className="text-xs font-black text-zinc-500 uppercase tracking-widest">{item.label}</h3>
                  <p className="text-lg font-black text-white mt-1 uppercase tracking-tight">{item.value}</p>
               </div>
            </div>
@@ -38,17 +38,17 @@ export const CinematicsTab: React.FC = () => {
             <div className="w-1 h-1 bg-purple-500 rounded-full animate-pulse delay-150" />
           </div>
         </div>
-        <h4 className="text-[10px] font-black text-purple-400 uppercase tracking-[0.4em] mb-6">Active Shot List</h4>
+        <h4 className="text-xs font-black text-purple-400 uppercase tracking-[0.4em] mb-6">Active Shot List</h4>
         <div className="space-y-4">
           {[
             { id: 'SCN_01', type: 'EXT. CITY - WIDE', action: 'Drone sweep across the neon skyline.' },
             { id: 'SCN_02', type: 'INT. LAB - CLOSE', action: 'Focus on characters eyes reflecting the data stream.' },
           ].map((shot, i) => (
             <div key={i} className="flex items-center gap-6 p-4 rounded-2xl hover:bg-white/5 transition-colors group/shot">
-              <span className="text-[10px] font-mono text-zinc-600 group-hover/shot:text-purple-400 transition-colors">{shot.id}</span>
+              <span className="text-xs font-mono text-zinc-600 group-hover/shot:text-purple-400 transition-colors">{shot.id}</span>
               <div className="h-px flex-1 bg-zinc-800" />
-              <span className="text-[10px] font-black text-zinc-400 uppercase">{shot.type}</span>
-              <p className="text-[11px] text-zinc-500 italic max-w-sm text-right">{shot.action}</p>
+              <span className="text-xs font-black text-zinc-400 uppercase">{shot.type}</span>
+              <p className="text-xs text-zinc-500 italic max-w-sm text-right">{shot.action}</p>
             </div>
           ))}
         </div>

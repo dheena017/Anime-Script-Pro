@@ -52,12 +52,12 @@ export const AnglesTab: React.FC = () => {
             >
               <div className="flex items-center justify-between">
                 <span className="text-2xl">{shot.icon}</span>
-                <span className="text-[9px] font-black text-white uppercase tracking-widest px-3 py-1.5 bg-white/10 rounded-lg">
+                <span className="text-xs font-black text-white uppercase tracking-widest px-3 py-1.5 bg-white/10 rounded-lg">
                   {shot.code}
                 </span>
               </div>
               <h4 className="text-sm font-black text-white uppercase tracking-widest mt-4">{shot.label}</h4>
-              <p className="text-[10px] text-zinc-400 leading-relaxed font-medium mt-2">{shot.description}</p>
+              <p className="text-xs text-zinc-400 leading-relaxed font-medium mt-2">{shot.description}</p>
             </div>
           ))}
         </div>
@@ -79,7 +79,7 @@ export const AnglesTab: React.FC = () => {
               </div>
               <div>
                 <h4 className="text-sm font-black text-white uppercase tracking-widest">{angle.label}</h4>
-                <p className="text-[10px] text-zinc-500 mt-0.5 font-medium">{angle.desc}</p>
+                <p className="text-xs text-zinc-500 mt-0.5 font-medium">{angle.desc}</p>
               </div>
             </div>
           ))}

@@ -128,25 +128,25 @@ export default function ProjectsPage() {
         <header className="space-y-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-[2px] bg-studio" />
-            <span className="text-[10px] font-black uppercase tracking-[0.4em] text-studio">Central Command</span>
+            <span className="text-xs font-black uppercase tracking-[0.4em] text-studio">Central Command</span>
           </div>
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div className="space-y-2">
-              <h1 className="text-6xl md:text-8xl font-black uppercase italic tracking-tighter leading-none">
+              <h1 className="text-3xl md:text-4xl font-black uppercase italic tracking-tighter leading-none">
                 Project <span className="text-studio">Nexus.</span>
               </h1>
-              <p className="text-zinc-500 font-bold uppercase text-[11px] tracking-[0.2em] max-w-xl">
+              <p className="text-zinc-500 font-bold uppercase text-xs tracking-[0.2em] max-w-xl">
                 Systematic management of multi-dimensional narrative blueprints and architectural assets.
               </p>
             </div>
 
             <div className="flex items-center gap-12 pb-2">
                <div className="space-y-1">
-                  <span className="text-[9px] font-black text-zinc-700 uppercase tracking-widest block">Active Nodes</span>
+                  <span className="text-xs font-black text-zinc-700 uppercase tracking-widest block">Active Nodes</span>
                   <span className="text-3xl font-black text-white uppercase italic trekking-widest tabular-nums">{projects.length}</span>
                </div>
                <div className="space-y-1">
-                  <span className="text-[9px] font-black text-zinc-700 uppercase tracking-widest block">Sync Status</span>
+                  <span className="text-xs font-black text-zinc-700 uppercase tracking-widest block">Sync Status</span>
                   <div className="flex items-center gap-2">
                     <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                     <span className="text-sm font-black text-zinc-300 uppercase tracking-[0.2em]">OPERATIONAL</span>

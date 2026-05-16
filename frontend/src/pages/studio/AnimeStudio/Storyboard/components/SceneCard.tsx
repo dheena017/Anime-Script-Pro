@@ -109,7 +109,7 @@ export const SceneCard = React.memo<SceneCardProps>(({
           <div className="absolute inset-0 bg-[#050505]/80 backdrop-blur-md z-[60] flex flex-col items-center justify-center p-6 text-center animate-in fade-in duration-500">
             <div className="w-12 h-12 border-4 border-studio/20 border-t-studio rounded-full animate-spin mb-6 shadow-studio" />
             <h4 className="text-xs font-black uppercase tracking-[0.3em] text-studio drop-shadow-studio mb-3">Architect Refining</h4>
-            <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-[0.2em] leading-relaxed">Synthesizing advanced visual parameters...</p>
+            <p className="text-xs text-zinc-500 font-bold uppercase tracking-[0.2em] leading-relaxed">Synthesizing advanced visual parameters...</p>
           </div>
         )}
 
@@ -122,8 +122,8 @@ export const SceneCard = React.memo<SceneCardProps>(({
             </div>
             <h4 className="text-sm font-black uppercase tracking-[0.4em] text-white mb-4">Scene Manifestation</h4>
             <div className="space-y-2">
-              <p className="text-[10px] text-studio font-black uppercase tracking-[0.3em] animate-pulse">Processing Scene Data</p>
-              <p className="text-[8px] text-zinc-600 font-bold uppercase tracking-[0.2em]">Synchronizing Narration, Visuals & Audio</p>
+              <p className="text-xs text-studio font-black uppercase tracking-[0.3em] animate-pulse">Processing Scene Data</p>
+              <p className="text-xs text-zinc-600 font-bold uppercase tracking-[0.2em]">Synchronizing Narration, Visuals & Audio</p>
             </div>
           </div>
         )}
@@ -144,12 +144,12 @@ export const SceneCard = React.memo<SceneCardProps>(({
           ) : videoData?.[scene.originalIndex] === 'loading' ? (
             <div className="flex flex-col items-center gap-4">
               <div className="w-10 h-10 border-2 border-studio/20 border-t-studio rounded-full animate-spin shadow-studio" />
-              <p className="text-[10px] text-studio uppercase tracking-[0.3em] font-black animate-pulse">Rendering Video Frame...</p>
+              <p className="text-xs text-studio uppercase tracking-[0.3em] font-black animate-pulse">Rendering Video Frame...</p>
             </div>
           ) : visualData[scene.originalIndex]?.[0] === 'loading' ? (
             <div className="flex flex-col items-center gap-4">
               <div className="w-10 h-10 border-2 border-studio/20 border-t-studio rounded-full animate-spin shadow-studio" />
-              <p className="text-[10px] text-studio uppercase tracking-[0.3em] font-black animate-pulse">Initializing Frame...</p>
+              <p className="text-xs text-studio uppercase tracking-[0.3em] font-black animate-pulse">Initializing Frame...</p>
             </div>
           ) : visualData[scene.originalIndex] && visualData[scene.originalIndex].length > 0 ? (
             <div className="relative w-full h-full group/img grid grid-cols-2 grid-rows-2 gap-1 p-1 bg-black">
@@ -170,11 +170,11 @@ export const SceneCard = React.memo<SceneCardProps>(({
               <div className="w-16 h-16 mx-auto mb-6 bg-white/[0.02] border border-white/5 rounded-3xl flex items-center justify-center group-hover:border-studio/30 group-hover:bg-studio/5 transition-all duration-700">
                 <ImageIcon className="w-8 h-8 text-zinc-800 group-hover:text-studio/60 transition-colors duration-700" />
               </div>
-              <p className="text-[10px] text-zinc-600 uppercase tracking-[0.3em] font-bold mb-6">Awaiting Visual Synthesis</p>
+              <p className="text-xs text-zinc-600 uppercase tracking-[0.3em] font-bold mb-6">Awaiting Visual Synthesis</p>
               <Button
                 variant="outline"
                 size="sm"
-                className="h-10 text-[10px] text-studio border-studio/30 bg-studio/5 hover:bg-studio/20 hover:border-studio uppercase tracking-[0.2em] font-black transition-all rounded-xl px-6 shadow-studio"
+                className="h-10 text-xs text-studio border-studio/30 bg-studio/5 hover:bg-studio/20 hover:border-studio uppercase tracking-[0.2em] font-black transition-all rounded-xl px-6 shadow-studio"
                 onClick={() => handleGenerateVisual(scene.originalIndex, scene.linkedPrompt || scene.visuals)}
               >
                 <Sparkles className="w-4 h-4 mr-2" />
@@ -196,21 +196,21 @@ export const SceneCard = React.memo<SceneCardProps>(({
           <div className="scene-action-overlay">
             <Button
               onClick={() => navigate(`scenes/${scene.originalIndex}`)}
-              className="bg-white text-black hover:bg-studio hover:text-black font-black uppercase tracking-widest text-[9px] h-10 px-6 rounded-xl shadow-2xl transition-all transform translate-y-4 group-hover:translate-y-0"
+              className="bg-white text-black hover:bg-studio hover:text-black font-black uppercase tracking-widest text-xs h-10 px-6 rounded-xl shadow-2xl transition-all transform translate-y-4 group-hover:translate-y-0"
             >
               <Maximize2 className="w-3.5 h-3.5 mr-2" /> View Focus
             </Button>
             <Button
               onClick={() => handleGenerateVisual(scene.originalIndex, scene.linkedPrompt || scene.visuals)}
               variant="outline"
-              className="bg-black/80 text-white border-white/20 hover:border-studio font-black uppercase tracking-widest text-[9px] h-10 px-6 rounded-xl shadow-2xl transition-all transform translate-y-4 group-hover:translate-y-0 delay-75"
+              className="bg-black/80 text-white border-white/20 hover:border-studio font-black uppercase tracking-widest text-xs h-10 px-6 rounded-xl shadow-2xl transition-all transform translate-y-4 group-hover:translate-y-0 delay-75"
             >
               <Wand2 className="w-3.5 h-3.5 mr-2" /> Regenerate Visual
             </Button>
             <Button
               onClick={() => handleManifestScene(scene.id)}
               variant="outline"
-              className="bg-studio/10 text-studio border-studio/30 hover:bg-studio hover:text-black font-black uppercase tracking-widest text-[9px] h-10 px-6 rounded-xl shadow-2xl transition-all transform translate-y-4 group-hover:translate-y-0 delay-100"
+              className="bg-studio/10 text-studio border-studio/30 hover:bg-studio hover:text-black font-black uppercase tracking-widest text-xs h-10 px-6 rounded-xl shadow-2xl transition-all transform translate-y-4 group-hover:translate-y-0 delay-100"
             >
               <Zap className="w-3.5 h-3.5 mr-2" /> Manifest Scene
             </Button>
@@ -218,7 +218,7 @@ export const SceneCard = React.memo<SceneCardProps>(({
 
           <div className="absolute bottom-4 left-4 right-4 z-20 opacity-0 group-hover:opacity-100 transition-all duration-700 transform translate-y-4 group-hover:translate-y-0">
             <div className="px-3 py-1.5 bg-[#050505]/80 backdrop-blur-md border border-white/10 rounded-xl inline-block shadow-2xl">
-              <p className="text-[10px] text-zinc-300 font-black uppercase tracking-[0.2em]">{scene.section}</p>
+              <p className="text-xs text-zinc-300 font-black uppercase tracking-[0.2em]">{scene.section}</p>
             </div>
           </div>
         </div>
@@ -228,21 +228,21 @@ export const SceneCard = React.memo<SceneCardProps>(({
           {editingSceneId === scene.id ? (
             <div className="space-y-5 animate-in fade-in slide-in-from-bottom-2 duration-500">
               <div className="space-y-2">
-                <label className="text-[9px] font-black text-zinc-600 uppercase tracking-[0.3em] ml-1">Section Protocol</label>
+                <label className="text-xs font-black text-zinc-600 uppercase tracking-[0.3em] ml-1">Section Protocol</label>
                 <Input
                   value={editForm.section || ''}
                   onChange={(e) => setEditForm({ ...editForm, section: e.target.value })}
-                  className="h-10 text-[11px] bg-white/[0.02] border-white/10 focus:border-studio/50 focus:bg-studio/[0.02] transition-all rounded-xl font-black uppercase tracking-widest text-white"
+                  className="h-10 text-xs bg-white/[0.02] border-white/10 focus:border-studio/50 focus:bg-studio/[0.02] transition-all rounded-xl font-black uppercase tracking-widest text-white"
                 />
               </div>
 
               <div className="space-y-2">
                 <div className="flex items-center justify-between ml-1">
-                  <label className="text-[9px] font-black text-zinc-600 uppercase tracking-[0.3em]">Narration Core</label>
+                  <label className="text-xs font-black text-zinc-600 uppercase tracking-[0.3em]">Narration Core</label>
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="h-7 px-3 text-[9px] text-studio hover:bg-studio/10 uppercase tracking-widest font-black rounded-lg transition-all"
+                    className="h-7 px-3 text-xs text-studio hover:bg-studio/10 uppercase tracking-widest font-black rounded-lg transition-all"
                     onClick={handleEnhanceNarration}
                     disabled={isEnhancingNarration}
                   >
@@ -263,7 +263,7 @@ export const SceneCard = React.memo<SceneCardProps>(({
 
               <div className="space-y-2">
                 <div className="flex items-center justify-between ml-1">
-                  <label className="text-[9px] font-black text-zinc-600 uppercase tracking-[0.3em]">Visual Blueprint</label>
+                  <label className="text-xs font-black text-zinc-600 uppercase tracking-[0.3em]">Visual Blueprint</label>
                   <div className="flex items-center gap-1.5">
                     <Button
                       variant="ghost"
@@ -304,15 +304,15 @@ export const SceneCard = React.memo<SceneCardProps>(({
 
               <div className="p-4 rounded-2xl bg-studio/[0.03] border border-studio/10 space-y-3">
                 <div className="flex items-center justify-between ml-1">
-                  <label className="text-[9px] font-black text-studio uppercase tracking-[0.3em]">Master AI Prompt</label>
+                  <label className="text-xs font-black text-studio uppercase tracking-[0.3em]">Master AI Prompt</label>
                   {promptList.length > 0 && (
                     <Select onValueChange={(val: string | null) => setEditForm({ ...editForm, linkedPrompt: val || undefined })}>
-                      <SelectTrigger className="h-7 w-auto bg-studio/10 border-studio/20 text-[9px] text-white uppercase font-black px-3 rounded-lg hover:bg-studio/20 transition-all">
+                      <SelectTrigger className="h-7 w-auto bg-studio/10 border-studio/20 text-xs text-white uppercase font-black px-3 rounded-lg hover:bg-studio/20 transition-all">
                         <SelectValue placeholder="SYMPHONY LIST" />
                       </SelectTrigger>
                       <SelectContent className="bg-[#0c0d11] border-white/10 rounded-xl overflow-hidden">
                         {promptList.map((p, i) => (
-                          <SelectItem key={i} value={p} className="text-[10px] text-zinc-500 focus:text-studio focus:bg-studio/5 uppercase font-black py-3 border-b border-white/5 last:border-0 cursor-pointer">
+                          <SelectItem key={i} value={p} className="text-xs text-zinc-500 focus:text-studio focus:bg-studio/5 uppercase font-black py-3 border-b border-white/5 last:border-0 cursor-pointer">
                             Prompt {String(i + 1).padStart(2, '0')}
                           </SelectItem>
                         ))}
@@ -323,14 +323,14 @@ export const SceneCard = React.memo<SceneCardProps>(({
                 <Textarea
                   value={editForm.linkedPrompt || ''}
                   onChange={(e) => setEditForm({ ...editForm, linkedPrompt: e.target.value })}
-                  className="min-h-[100px] text-[11px] font-mono bg-black/40 border-studio/20 focus:border-studio/50 focus:bg-black/60 resize-none transition-all rounded-xl leading-relaxed text-zinc-400"
+                  className="min-h-[100px] text-xs font-mono bg-black/40 border-studio/20 focus:border-studio/50 focus:bg-black/60 resize-none transition-all rounded-xl leading-relaxed text-zinc-400"
                   placeholder="Enter artistic direction and visual guidance here..."
                 />
                 <div className="flex justify-end">
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="h-6 text-[8px] text-zinc-600 hover:text-zinc-400 uppercase tracking-[0.3em] font-black"
+                    className="h-6 text-xs text-zinc-600 hover:text-zinc-400 uppercase tracking-[0.3em] font-black"
                     onClick={() => setEditForm({ ...editForm, linkedPrompt: '' })}
                   >
                     Purge Prompt
@@ -340,7 +340,7 @@ export const SceneCard = React.memo<SceneCardProps>(({
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <label className="text-[9px] font-black text-zinc-600 uppercase tracking-[0.3em] ml-1">Acoustics</label>
+                  <label className="text-xs font-black text-zinc-600 uppercase tracking-[0.3em] ml-1">Acoustics</label>
                   <Textarea
                     value={editForm.sound || ''}
                     onChange={(e) => setEditForm({ ...editForm, sound: e.target.value })}
@@ -350,11 +350,11 @@ export const SceneCard = React.memo<SceneCardProps>(({
                 </div>
                 <div className="space-y-2">
                   <div className="flex items-center justify-between ml-1">
-                    <label className="text-[9px] font-black text-zinc-600 uppercase tracking-[0.3em]">Temporal</label>
+                    <label className="text-xs font-black text-zinc-600 uppercase tracking-[0.3em]">Temporal</label>
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="h-6 px-2 text-[8px] text-emerald-400 hover:bg-emerald-400/10 uppercase tracking-widest font-black rounded-md"
+                      className="h-6 px-2 text-xs text-emerald-400 hover:bg-emerald-400/10 uppercase tracking-widest font-black rounded-md"
                       onClick={handleSuggestDuration}
                       disabled={isSuggestingDuration}
                     >
@@ -371,10 +371,10 @@ export const SceneCard = React.memo<SceneCardProps>(({
               </div>
 
               <div className="flex justify-end gap-3 pt-6 border-t border-white/5 mt-2">
-                <Button variant="ghost" size="sm" onClick={cancelEditing} className="h-10 px-6 text-[10px] uppercase tracking-widest font-black rounded-xl hover:bg-white/5 text-zinc-500">
+                <Button variant="ghost" size="sm" onClick={cancelEditing} className="h-10 px-6 text-xs uppercase tracking-widest font-black rounded-xl hover:bg-white/5 text-zinc-500">
                   Abort
                 </Button>
-                <Button variant="default" size="sm" onClick={saveSceneEdits} className="h-10 px-8 text-[10px] uppercase tracking-[0.2em] font-black bg-studio hover:bg-studio/80 text-black shadow-studio rounded-xl transition-all">
+                <Button variant="default" size="sm" onClick={saveSceneEdits} className="h-10 px-8 text-xs uppercase tracking-[0.2em] font-black bg-studio hover:bg-studio/80 text-black shadow-studio rounded-xl transition-all">
                   Commit Edits
                 </Button>
               </div>
@@ -383,7 +383,7 @@ export const SceneCard = React.memo<SceneCardProps>(({
             <div className="animate-in fade-in duration-700 space-y-4">
               <div className="flex justify-between items-start mb-5">
                 <div className="scene-narration-box">
-                  <h4 className="text-[9px] font-black text-zinc-600 uppercase tracking-[0.3em] ml-1">Narration Layer</h4>
+                  <h4 className="text-xs font-black text-zinc-600 uppercase tracking-[0.3em] ml-1">Narration Layer</h4>
                   <p className="scene-narration-text">
                     <span className="text-studio/40 font-serif mr-2 text-lg">"</span>
                     {scene.narration}
@@ -396,13 +396,13 @@ export const SceneCard = React.memo<SceneCardProps>(({
                 <div className="scene-visual-blueprint group/visual">
                   <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-transparent opacity-0 group-hover/visual:opacity-100 transition-opacity duration-700" />
                   <div className="flex items-center justify-between mb-3 relative z-10">
-                    <h4 className="text-[9px] font-black text-purple-400 uppercase tracking-[0.3em] flex items-center gap-2">
+                    <h4 className="text-xs font-black text-purple-400 uppercase tracking-[0.3em] flex items-center gap-2">
                       <ImageIcon className="w-3.5 h-3.5" /> Visual Parameters
                     </h4>
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="h-7 px-3 text-[9px] text-studio hover:bg-studio/10 uppercase tracking-widest font-black opacity-0 group-hover/visual:opacity-100 transition-all duration-500"
+                      className="h-7 px-3 text-xs text-studio hover:bg-studio/10 uppercase tracking-widest font-black opacity-0 group-hover/visual:opacity-100 transition-all duration-500"
                       onClick={() => handleGenerateVisual(scene.originalIndex, scene.linkedPrompt || scene.visuals)}
                       disabled={visualData[scene.originalIndex]?.[0] === 'loading'}
                     >
@@ -412,8 +412,8 @@ export const SceneCard = React.memo<SceneCardProps>(({
                   <p className="scene-visual-text">{scene.visuals}</p>
                   {scene.linkedPrompt && (
                     <div className="mt-4 pt-4 border-t border-white/5 space-y-2 relative z-10">
-                      <span className="text-[9px] font-black text-studio uppercase tracking-[0.3em] block ml-1">Linked Scene Design</span>
-                      <p className="text-[10px] text-zinc-300 font-mono italic bg-black/40 p-3 rounded-lg whitespace-pre-wrap break-words transition-all cursor-default">
+                      <span className="text-xs font-black text-studio uppercase tracking-[0.3em] block ml-1">Linked Scene Design</span>
+                      <p className="text-xs text-zinc-300 font-mono italic bg-black/40 p-3 rounded-lg whitespace-pre-wrap break-words transition-all cursor-default">
                         {scene.linkedPrompt}
                       </p>
                     </div>
@@ -422,18 +422,18 @@ export const SceneCard = React.memo<SceneCardProps>(({
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="scene-stat-box">
-                    <h4 className="text-[9px] font-black text-blue-400 uppercase tracking-[0.3em] flex items-center gap-2 mb-3">
+                    <h4 className="text-xs font-black text-blue-400 uppercase tracking-[0.3em] flex items-center gap-2 mb-3">
                       <Sparkles className="w-3.5 h-3.5" /> Audio Matrix
                     </h4>
                     <p className="text-xs text-zinc-400 font-mono leading-relaxed italic">{scene.sound || "No cues defined"}</p>
                   </div>
                   <div className="scene-stat-box flex flex-col justify-between">
-                    <h4 className="text-[9px] font-black text-emerald-400 uppercase tracking-[0.3em] flex items-center gap-2 mb-3">
+                    <h4 className="text-xs font-black text-emerald-400 uppercase tracking-[0.3em] flex items-center gap-2 mb-3">
                       <Zap className="w-3.5 h-3.5" /> Temporal
                     </h4>
                     <div className="flex items-end justify-between">
                       <span className="text-2xl font-black text-white font-mono tracking-tighter">{scene.duration}</span>
-                      <span className="text-[9px] text-zinc-600 font-black uppercase tracking-widest mb-1">Duration</span>
+                      <span className="text-xs text-zinc-600 font-black uppercase tracking-widest mb-1">Duration</span>
                     </div>
                   </div>
                 </div>
@@ -448,7 +448,7 @@ export const SceneCard = React.memo<SceneCardProps>(({
             variant="ghost"
             size="sm"
             onClick={() => navigate(`scenes/${scene.originalIndex}`)}
-            className="h-9 text-[10px] text-zinc-400 hover:text-studio hover:bg-studio/10 font-black uppercase tracking-widest rounded-xl transition-all gap-2"
+            className="h-9 text-xs text-zinc-400 hover:text-studio hover:bg-studio/10 font-black uppercase tracking-widest rounded-xl transition-all gap-2"
           >
             <Maximize2 className="w-3.5 h-3.5" /> View Focus
           </Button>
@@ -460,7 +460,7 @@ export const SceneCard = React.memo<SceneCardProps>(({
             size="sm"
             onClick={() => (editingSceneId === scene.id ? cancelEditing() : startEditing(scene))}
             className={cn(
-              "h-9 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all gap-2",
+              "h-9 text-xs font-black uppercase tracking-widest rounded-xl transition-all gap-2",
               editingSceneId === scene.id ? "text-red-400 hover:bg-red-400/10" : "text-zinc-400 hover:text-white hover:bg-white/5"
             )}
           >

@@ -89,8 +89,8 @@ export const TemplateCard: React.FC<TemplateCardProps> = ({
             </div>
             {template.stats && (
                <div className="text-right">
-                  <p className="text-[7px] font-black text-zinc-600 uppercase tracking-widest leading-none mb-1">Architecture</p>
-                  <p className="text-[10px] font-mono font-bold text-zinc-400">V{idx + 1}.0</p>
+                  <p className="text-xs font-black text-zinc-600 uppercase tracking-widest leading-none mb-1">Architecture</p>
+                  <p className="text-xs font-mono font-bold text-zinc-400">V{idx + 1}.0</p>
                </div>
             )}
           </div>

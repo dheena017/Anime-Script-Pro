@@ -80,7 +80,7 @@ export const PromptsToolbar: React.FC<PromptsToolbarProps> = ({
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="top">
-                  <p className="font-black uppercase tracking-widest text-[9px]">Copy Prompts</p>
+                  <p className="font-black uppercase tracking-widest text-xs">Copy Prompts</p>
                 </TooltipContent>
               </Tooltip>
 
@@ -96,7 +96,7 @@ export const PromptsToolbar: React.FC<PromptsToolbarProps> = ({
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="top">
-                  <p className="font-black uppercase tracking-widest text-[9px]">Export Prompts</p>
+                  <p className="font-black uppercase tracking-widest text-xs">Export Prompts</p>
                 </TooltipContent>
               </Tooltip>
 
@@ -112,7 +112,7 @@ export const PromptsToolbar: React.FC<PromptsToolbarProps> = ({
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="top">
-                  <p className="font-black uppercase tracking-widest text-[9px]">{isFullscreen ? "Exit Fullscreen" : "Fullscreen Mode"}</p>
+                  <p className="font-black uppercase tracking-widest text-xs">{isFullscreen ? "Exit Fullscreen" : "Fullscreen Mode"}</p>
                 </TooltipContent>
               </Tooltip>
             </div>

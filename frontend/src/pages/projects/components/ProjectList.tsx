@@ -136,11 +136,11 @@ function ProjectCard({ project, viewMode, onDelete, onOpen }: {
           <h3 className="text-sm font-black text-zinc-100 uppercase tracking-widest truncate group-hover:text-studio transition-colors">
             {project.title}
           </h3>
-          <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-wider truncate">
+          <p className="text-xs font-bold text-zinc-600 uppercase tracking-wider truncate">
             {project.description || 'NO DESCRIPTION'}
           </p>
         </div>
-        <div className="flex items-center gap-6 shrink-0 text-[10px] font-black text-zinc-500 uppercase tracking-widest px-4">
+        <div className="flex items-center gap-6 shrink-0 text-xs font-black text-zinc-500 uppercase tracking-widest px-4">
           <div className="flex items-center gap-2">
             <Activity className="w-3.5 h-3.5" />
             <span>ACTIVE</span>
@@ -186,22 +186,22 @@ function ProjectCard({ project, viewMode, onDelete, onOpen }: {
           <h3 className="text-lg font-black text-zinc-100 uppercase italic tracking-tighter truncate group-hover:text-studio transition-colors">
             {project.title}
           </h3>
-          <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest line-clamp-1 italic">
+          <p className="text-xs font-bold text-zinc-600 uppercase tracking-widest line-clamp-1 italic">
             {project.description || 'NO DESCRIPTION'}
           </p>
         </div>
 
         <div className="grid grid-cols-2 gap-4 py-4 border-y border-white/5">
           <div className="space-y-1">
-             <span className="text-[9px] font-black text-zinc-700 uppercase tracking-tighter block">STATUS</span>
+             <span className="text-xs font-black text-zinc-700 uppercase tracking-tighter block">STATUS</span>
              <div className="flex items-center gap-1.5">
                 <div className="w-1.5 h-1.5 rounded-full bg-studio animate-pulse" />
-                <span className="text-[10px] font-black text-white uppercase tracking-widest text-studio">STABLE</span>
+                <span className="text-xs font-black text-white uppercase tracking-widest text-studio">STABLE</span>
              </div>
           </div>
           <div className="space-y-1">
-             <span className="text-[9px] font-black text-zinc-700 uppercase tracking-tighter block">LAST UPDATED</span>
-             <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">
+             <span className="text-xs font-black text-zinc-700 uppercase tracking-tighter block">LAST UPDATED</span>
+             <span className="text-xs font-black text-zinc-400 uppercase tracking-widest">
                 {new Date(project.created_at).toLocaleDateString()}
              </span>
           </div>
@@ -210,7 +210,7 @@ function ProjectCard({ project, viewMode, onDelete, onOpen }: {
         <div className="flex items-center gap-2 pt-2">
            <button 
              onClick={() => onOpen(project)}
-             className="flex-1 flex items-center justify-center gap-2 bg-studio text-black py-2.5 rounded-xl font-black text-[10px] uppercase tracking-[0.2em] hover:bg-white transition-all transform hover:-translate-y-1 shadow-lg active:scale-95"
+             className="flex-1 flex items-center justify-center gap-2 bg-studio text-black py-2.5 rounded-xl font-black text-xs uppercase tracking-[0.2em] hover:bg-white transition-all transform hover:-translate-y-1 shadow-lg active:scale-95"
            >
              <Eye className="w-3.5 h-3.5" />
              INITIALIZE STUDIO

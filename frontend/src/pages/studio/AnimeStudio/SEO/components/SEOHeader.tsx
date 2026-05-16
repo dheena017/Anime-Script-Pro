@@ -77,7 +77,7 @@ export const SEOHeader: React.FC<SEOHeaderProps> = ({
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="top">
-                  <p className="font-black uppercase tracking-widest text-[9px]">Return to Script Engine</p>
+                  <p className="font-black uppercase tracking-widest text-xs">Return to Script Engine</p>
                 </TooltipContent>
               </Tooltip>
             )}
@@ -103,7 +103,7 @@ export const SEOHeader: React.FC<SEOHeaderProps> = ({
                   )}
                 </TooltipTrigger>
                 <TooltipContent side="top">
-                  <p className="font-black uppercase tracking-widest text-[9px]">
+                  <p className="font-black uppercase tracking-widest text-xs">
                     {isGenerating ? "Optimization in progress" : "Launch full metadata optimization"}
                   </p>
                 </TooltipContent>
@@ -121,7 +121,7 @@ export const SEOHeader: React.FC<SEOHeaderProps> = ({
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="top">
-                  <p className="font-black uppercase tracking-widest text-[9px]">Proceed to Global Prompts</p>
+                  <p className="font-black uppercase tracking-widest text-xs">Proceed to Global Prompts</p>
                 </TooltipContent>
               </Tooltip>
             </div>

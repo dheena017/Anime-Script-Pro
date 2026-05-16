@@ -9,7 +9,7 @@ export const AudioTab: React.FC = () => {
             <Volume2 className="w-8 h-8 text-cyan-400" />
          </div>
          <h2 className="text-4xl font-black text-white uppercase tracking-tighter">Sonic Landscape</h2>
-         <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-[0.3em]">Audio architecture and foley synchronization</p>
+         <p className="text-zinc-500 text-xs font-bold uppercase tracking-[0.3em]">Audio architecture and foley synchronization</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
@@ -23,7 +23,7 @@ export const AudioTab: React.FC = () => {
                  <item.icon className="w-5 h-5 text-cyan-400" />
               </div>
               <div>
-                 <h3 className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">{item.label}</h3>
+                 <h3 className="text-xs font-black text-zinc-500 uppercase tracking-widest">{item.label}</h3>
                  <p className="text-lg font-black text-white mt-1 uppercase tracking-tight">{item.value}</p>
               </div>
            </div>
@@ -34,7 +34,7 @@ export const AudioTab: React.FC = () => {
         <div className="p-10 bg-[#080808]/60 border border-white/5 rounded-[3rem] backdrop-blur-xl">
            <div className="flex items-center gap-3 mb-8">
               <Mic2 className="w-4 h-4 text-cyan-400" />
-              <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.4em]">Vocal Profiles</h4>
+              <h4 className="text-xs font-black text-zinc-400 uppercase tracking-[0.4em]">Vocal Profiles</h4>
            </div>
            <div className="space-y-6">
               {[
@@ -44,7 +44,7 @@ export const AudioTab: React.FC = () => {
                 <div key={i} className="space-y-2">
                    <div className="flex justify-between items-end">
                       <span className="text-xs font-black text-white uppercase tracking-wider">{vocal.name}</span>
-                      <span className="text-[9px] text-zinc-600 font-mono">{vocal.profile}</span>
+                      <span className="text-xs text-zinc-600 font-mono">{vocal.profile}</span>
                    </div>
                    <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
                       <div className="h-full bg-cyan-500/40 rounded-full" style={{ width: `${vocal.levels}%` }} />
@@ -61,8 +61,8 @@ export const AudioTab: React.FC = () => {
               </div>
            </div>
            <div>
-              <p className="text-[10px] font-black text-white uppercase tracking-[0.2em]">Live Monitor Active</p>
-              <p className="text-[9px] text-zinc-600 font-bold uppercase tracking-widest mt-1">Spatial Audio Virtualizer v1.0</p>
+              <p className="text-xs font-black text-white uppercase tracking-[0.2em]">Live Monitor Active</p>
+              <p className="text-xs text-zinc-600 font-bold uppercase tracking-widest mt-1">Spatial Audio Virtualizer v1.0</p>
            </div>
         </div>
       </div>

@@ -81,7 +81,7 @@ export const ArchitectureTab: React.FC<ArchitectureTabProps> = ({
                   <h4 className={s.content.sidebarTitle}>
                     <Sparkles className="w-3 h-3 text-orange-500" /> Core Seed
                   </h4>
-                  {isEditing && <span className="text-[8px] font-bold text-orange-500/50 uppercase">Modular Prompt</span>}
+                  {isEditing && <span className="text-xs font-bold text-orange-500/50 uppercase">Modular Prompt</span>}
                 </div>
                 
                 {isEditing ? (

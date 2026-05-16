@@ -82,7 +82,7 @@ export const PowersTab: React.FC<PowersTabProps> = ({
                   <h4 className={s.content.sidebarTitle}>
                     <Sparkles className="w-3 h-3 text-amber-500" /> Core Seed
                   </h4>
-                  {isEditing && <span className="text-[8px] font-bold text-amber-500/50 uppercase">Modular Prompt</span>}
+                  {isEditing && <span className="text-xs font-bold text-amber-500/50 uppercase">Modular Prompt</span>}
                 </div>
                 
                 {isEditing ? (

@@ -77,6 +77,12 @@ export default defineConfig(({ mode }) => {
           changeOrigin: true,
           secure: false,
         },
+        '/ws': {
+          target: 'ws://127.0.0.1:3050',
+          ws: true,
+          changeOrigin: true,
+          secure: false,
+        },
       },
     },
     optimizeDeps: {

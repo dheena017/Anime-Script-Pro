@@ -70,7 +70,7 @@ export const AssetPacksTab: React.FC<AssetPacksTabProps> = ({ searchTerm = '', v
     return (
       <div className="py-40 flex flex-col items-center justify-center gap-4 opacity-50">
         <div className="w-10 h-10 border-4 border-[#bd4a4a] border-t-transparent rounded-full animate-spin" />
-        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-500">Inventory Sync Active...</p>
+        <p className="text-xs font-black uppercase tracking-[0.3em] text-zinc-500">Inventory Sync Active...</p>
       </div>
     );
   }
@@ -127,7 +127,7 @@ export const AssetPacksTab: React.FC<AssetPacksTabProps> = ({ searchTerm = '', v
                     {asset.thumbnail_url || (asset.asset_type === 'IMAGE' && asset.url) ? (
                       <img src={asset.thumbnail_url || asset.url} alt="Asset" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                     ) : (
-                      <div className="w-full h-full flex flex-col items-center justify-center text-6xl">
+                      <div className="w-full h-full flex flex-col items-center justify-center text-3xl">
                         {getAssetIcon(asset.asset_type)}
                       </div>
                     )}
@@ -146,7 +146,7 @@ export const AssetPacksTab: React.FC<AssetPacksTabProps> = ({ searchTerm = '', v
                         <Heart className={cn("w-5 h-5 transition", favorites.has(asset.id) ? "fill-white text-white" : "text-white")} />
                       </button>
                     </div>
-                    <div className="absolute top-2 left-2 px-2 py-1 bg-[#bd4a4a]/20 border border-[#bd4a4a]/40 rounded text-[8px] font-black text-[#bd4a4a] uppercase tracking-widest">
+                    <div className="absolute top-2 left-2 px-2 py-1 bg-[#bd4a4a]/20 border border-[#bd4a4a]/40 rounded text-xs font-black text-[#bd4a4a] uppercase tracking-widest">
                       {asset.asset_type}
                     </div>
                   </div>
@@ -154,7 +154,7 @@ export const AssetPacksTab: React.FC<AssetPacksTabProps> = ({ searchTerm = '', v
                     <CardTitle className="text-xs font-black text-white uppercase tracking-[0.2em] line-clamp-1">
                       {(asset as any).title || asset.url.split('/').pop() || 'Untitled Asset'}
                     </CardTitle>
-                    <div className="text-[8px] text-zinc-600 flex justify-between">
+                    <div className="text-xs text-zinc-600 flex justify-between">
                       <span>{new Date(asset.created_at).toLocaleDateString()}</span>
                     </div>
                   </CardContent>
@@ -164,7 +164,7 @@ export const AssetPacksTab: React.FC<AssetPacksTabProps> = ({ searchTerm = '', v
           ) : (
             <div className="col-span-full py-20 text-center border border-zinc-900 border-dashed rounded-2xl">
               <Film className="w-12 h-12 text-zinc-700 mx-auto mb-4 opacity-50" />
-              <p className="text-[9px] font-black text-zinc-700 uppercase tracking-widest">
+              <p className="text-xs font-black text-zinc-700 uppercase tracking-widest">
                 {searchTerm ? 'No assets match your search' : 'No assets uploaded yet'}
               </p>
             </div>
@@ -181,7 +181,7 @@ export const AssetPacksTab: React.FC<AssetPacksTabProps> = ({ searchTerm = '', v
           <Card className="bg-zinc-950 border-[#bd4a4a]/30 rounded-3xl max-w-3xl w-full" onClick={e => e.stopPropagation()}>
             <CardHeader className="p-8 border-b border-[#bd4a4a]/20">
               <CardTitle className="text-2xl font-black text-white uppercase tracking-tighter">{(selectedAsset as any).title || selectedAsset.url.split('/').pop()}</CardTitle>
-              <span className="inline-block mt-2 px-3 py-1 bg-[#bd4a4a]/10 border border-[#bd4a4a]/30 rounded text-[9px] font-bold text-[#bd4a4a] uppercase tracking-widest capitalize">{selectedAsset.asset_type}</span>
+              <span className="inline-block mt-2 px-3 py-1 bg-[#bd4a4a]/10 border border-[#bd4a4a]/30 rounded text-xs font-bold text-[#bd4a4a] uppercase tracking-widest capitalize">{selectedAsset.asset_type}</span>
             </CardHeader>
             <CardContent className="p-8 space-y-6">
               {(selectedAsset.asset_type === 'IMAGE' || selectedAsset.thumbnail_url) && <img src={selectedAsset.url || selectedAsset.thumbnail_url} alt="Asset" className="w-full rounded-xl border border-zinc-900" />}

@@ -100,7 +100,7 @@ export const WorldToolbar: React.FC<WorldToolbarProps> = ({
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent side="top">
-                    <p className="font-black uppercase tracking-widest text-[9px]">Copy Manifest</p>
+                    <p className="font-black uppercase tracking-widest text-xs">Copy Manifest</p>
                   </TooltipContent>
                 </Tooltip>
 
@@ -117,7 +117,7 @@ export const WorldToolbar: React.FC<WorldToolbarProps> = ({
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent side="top">
-                    <p className="font-black uppercase tracking-widest text-[9px]">Export Markdown</p>
+                    <p className="font-black uppercase tracking-widest text-xs">Export Markdown</p>
                   </TooltipContent>
                 </Tooltip>
 
@@ -134,13 +134,13 @@ export const WorldToolbar: React.FC<WorldToolbarProps> = ({
                       )}
                     >
                       <Edit2 className="w-4 h-4 group-hover:scale-110 transition-transform duration-300" />
-                      <span className="text-[10px] font-black uppercase tracking-widest">
+                      <span className="text-xs font-black uppercase tracking-widest">
                         {isEditing ? 'Lock Edits' : 'Edit'}
                       </span>
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent side="top">
-                    <p className="font-black uppercase tracking-widest text-[9px]">{isEditing ? "Lock Edits" : "Edit Manifest"}</p>
+                    <p className="font-black uppercase tracking-widest text-xs">{isEditing ? "Lock Edits" : "Edit Manifest"}</p>
                   </TooltipContent>
                 </Tooltip>
 
@@ -156,7 +156,7 @@ export const WorldToolbar: React.FC<WorldToolbarProps> = ({
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent side="top">
-                    <p className="font-black uppercase tracking-widest text-[9px]">{isFullscreen ? "Exit Fullscreen" : "Fullscreen Mode"}</p>
+                    <p className="font-black uppercase tracking-widest text-xs">{isFullscreen ? "Exit Fullscreen" : "Fullscreen Mode"}</p>
                   </TooltipContent>
                 </Tooltip>
               </div>

@@ -19,28 +19,28 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({
       <motion.div key="conf" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="max-w-5xl mx-auto space-y-8 md:space-y-12 pt-4 md:pt-8">
          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
             <div className="space-y-8 md:space-y-10">
-               <h4 className="text-[10px] md:text-xs font-black text-white uppercase tracking-[0.3em] flex items-center gap-3 italic"><Layout className="w-4 h-4 text-[#bd4a4a]" /> Workspace Geometry</h4>
+               <h4 className="text-xs md:text-xs font-black text-white uppercase tracking-[0.3em] flex items-center gap-3 italic"><Layout className="w-4 h-4 text-[#bd4a4a]" /> Workspace Geometry</h4>
                <div className="flex gap-3 md:gap-4">
                   {['16:9', '9:16', '1:1'].map((ratio) => (
                      <div key={ratio} onClick={() => setAspectRatio(ratio)} className={`flex-1 p-4 md:p-6 rounded-2xl md:rounded-[2rem] border transition-all cursor-pointer text-center ${aspectRatio === ratio ? 'bg-[#bd4a4a]/10 border-[#bd4a4a] text-white shadow-xl' : 'bg-zinc-900/40 border-zinc-800 text-zinc-500 hover:border-zinc-700'}`}>
-                        <p className="text-[10px] md:text-xs font-black tracking-widest">{ratio}</p>
+                        <p className="text-xs md:text-xs font-black tracking-widest">{ratio}</p>
                      </div>
                   ))}
                </div>
 
-               <h4 className="text-[10px] md:text-xs font-black text-white uppercase tracking-[0.3em] flex items-center gap-3 italic"><Moon className="w-4 h-4 text-[#bd4a4a]" /> Visual Mode</h4>
+               <h4 className="text-xs md:text-xs font-black text-white uppercase tracking-[0.3em] flex items-center gap-3 italic"><Moon className="w-4 h-4 text-[#bd4a4a]" /> Visual Mode</h4>
                <div className="flex flex-col sm:flex-row gap-3 md:gap-4">
                   <button onClick={() => toggleTheme('dark')} className={`flex-1 flex items-center justify-center gap-3 p-4 md:p-6 rounded-2xl md:rounded-[2rem] border transition-all ${theme === 'dark' ? 'bg-[#bd4a4a]/10 border-[#bd4a4a] text-white' : 'bg-zinc-900/40 border-zinc-800 text-zinc-500 hover:border-zinc-700'}`}>
-                     <Moon className="w-4 h-4" /> <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest">Midnight</span>
+                     <Moon className="w-4 h-4" /> <span className="text-xs md:text-xs font-black uppercase tracking-widest">Midnight</span>
                   </button>
                   <button onClick={() => toggleTheme('light')} className={`flex-1 flex items-center justify-center gap-3 p-4 md:p-6 rounded-2xl md:rounded-[2rem] border transition-all ${theme === 'light' ? 'bg-zinc-200 border-zinc-300 text-black shadow-lg' : 'bg-zinc-900/40 border-zinc-800 text-zinc-600 hover:border-zinc-700'}`}>
-                     <Moon className="w-4 h-4 text-zinc-400" /> <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest">Daylight</span>
+                     <Moon className="w-4 h-4 text-zinc-400" /> <span className="text-xs md:text-xs font-black uppercase tracking-widest">Daylight</span>
                   </button>
                </div>
             </div>
 
             <div className="space-y-8 md:space-y-10">
-               <h4 className="text-[10px] md:text-xs font-black text-white uppercase tracking-[0.3em] flex items-center gap-3 italic"><Bell className="w-4 h-4 text-[#bd4a4a]" /> Protocols</h4>
+               <h4 className="text-xs md:text-xs font-black text-white uppercase tracking-[0.3em] flex items-center gap-3 italic"><Bell className="w-4 h-4 text-[#bd4a4a]" /> Protocols</h4>
                <div className="space-y-3 md:space-y-4">
                   {[
                      { id: 'upscale', label: 'Upscale Completion', desc: 'Notify when high-fidelity materialization is finished.', icon: ShieldCheck },
@@ -53,8 +53,8 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({
                               <item.icon className="w-4 h-4" />
                            </div>
                            <div className="space-y-1">
-                              <p className="text-[10px] font-black text-white uppercase tracking-widest">{item.label}</p>
-                              <p className="text-[9px] text-zinc-600 font-bold uppercase tracking-tighter">{item.desc}</p>
+                              <p className="text-xs font-black text-white uppercase tracking-widest">{item.label}</p>
+                              <p className="text-xs text-zinc-600 font-bold uppercase tracking-tighter">{item.desc}</p>
                            </div>
                         </div>
                         <Switch

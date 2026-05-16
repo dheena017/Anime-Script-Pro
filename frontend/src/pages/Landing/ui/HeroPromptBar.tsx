@@ -80,7 +80,7 @@ export const HeroPromptBar: React.FC<HeroPromptBarProps> = ({
                 <div className="flex items-center gap-3">
                    <button 
                     onClick={randomizeDirective}
-                    className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/[0.02] border border-white/5 text-[9px] font-black uppercase tracking-widest text-zinc-500 hover:text-white hover:bg-white/5 transition-all"
+                    className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/[0.02] border border-white/5 text-xs font-black uppercase tracking-widest text-zinc-500 hover:text-white hover:bg-white/5 transition-all"
                    >
                       <RefreshCcw className="w-3 h-3" /> Randomize
                    </button>
@@ -90,7 +90,7 @@ export const HeroPromptBar: React.FC<HeroPromptBarProps> = ({
                         initial={{ opacity: 0, x: -10 }}
                         animate={{ opacity: 1, x: 0 }}
                         exit={{ opacity: 0, x: -10 }}
-                        className="flex items-center gap-2 text-red-500 text-[9px] font-black uppercase tracking-widest"
+                        className="flex items-center gap-2 text-red-500 text-xs font-black uppercase tracking-widest"
                        >
                           <AlertCircle className="w-3.5 h-3.5" /> {error}
                        </motion.div>
@@ -142,11 +142,11 @@ export const HeroPromptBar: React.FC<HeroPromptBarProps> = ({
         <div className="flex items-center justify-between px-2">
            <div className="flex items-center gap-2">
               <div className="w-1.5 h-1.5 rounded-full bg-studio" />
-              <span className="text-[10px] font-black text-white uppercase tracking-[0.3em]">Engine Styles</span>
+              <span className="text-xs font-black text-white uppercase tracking-[0.3em]">Engine Styles</span>
            </div>
            <div className="flex items-center gap-2 text-zinc-600">
               <Info className="w-3.5 h-3.5" />
-              <span className="text-[9px] font-black uppercase tracking-widest">Select AI Style</span>
+              <span className="text-xs font-black uppercase tracking-widest">Select AI Style</span>
            </div>
         </div>
         
@@ -157,7 +157,7 @@ export const HeroPromptBar: React.FC<HeroPromptBarProps> = ({
               onClick={() => setSelectedStyle(style.label)}
               title={style.desc}
               className={cn(
-                "px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-[0.2em] border transition-all relative group overflow-hidden",
+                "px-4 py-2 rounded-xl text-xs font-black uppercase tracking-[0.2em] border transition-all relative group overflow-hidden",
                 selectedStyle === style.label
                   ? style.color + " ring-1 ring-white/10 scale-105 shadow-xl"
                   : "bg-zinc-900/50 text-zinc-600 border-zinc-800 hover:text-zinc-300 hover:border-zinc-700"
@@ -172,7 +172,7 @@ export const HeroPromptBar: React.FC<HeroPromptBarProps> = ({
               )}
               <span className="relative z-10 flex items-center gap-2">
                  {style.label}
-                 {selectedStyle === style.label && <span className="text-[8px] opacity-40 italic">{style.node}</span>}
+                 {selectedStyle === style.label && <span className="text-xs opacity-40 italic">{style.node}</span>}
               </span>
             </button>
           ))}

@@ -66,7 +66,7 @@ export const NotificationsLayout: React.FC<NotificationsLayoutProps> = ({
                 <span className={cn(s.headerBadge, s.headerBadgeRed)}>Version {version}</span>
                 <div className="flex items-center gap-1.5 px-3 py-1 bg-zinc-900 border border-emerald-500/20 rounded-full">
                   <div className="w-1 h-1 bg-emerald-500 rounded-full animate-ping" />
-                  <span className="text-[8px] font-black text-emerald-500 uppercase tracking-widest">{status}</span>
+                  <span className="text-xs font-black text-emerald-500 uppercase tracking-widest">{status}</span>
                 </div>
               </div>
               <h1 className={s.headerTitle}>
@@ -86,7 +86,7 @@ export const NotificationsLayout: React.FC<NotificationsLayoutProps> = ({
               <motion.div key={stat.label} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }} className={s.statCard}>
                 <div className={s.statLabel}>
                   <stat.icon className={cn("w-3.5 h-3.5", stat.color || "text-[#bd4a4a]")} />
-                  <span className="text-[8px] font-black text-zinc-500 uppercase tracking-widest">{stat.label}</span>
+                  <span className="text-xs font-black text-zinc-500 uppercase tracking-widest">{stat.label}</span>
                 </div>
                 <span className={s.statValue}>{stat.value}</span>
               </motion.div>

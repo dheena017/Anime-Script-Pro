@@ -112,7 +112,7 @@ export const SeriesToolbar: React.FC<SeriesToolbarProps> = ({
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="top">
-                  <p className="font-black uppercase tracking-widest text-[9px]">Series Manifest</p>
+                  <p className="font-black uppercase tracking-widest text-xs">Series Manifest</p>
                 </TooltipContent>
               </Tooltip>
 
@@ -129,7 +129,7 @@ export const SeriesToolbar: React.FC<SeriesToolbarProps> = ({
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="top">
-                  <p className="font-black uppercase tracking-widest text-[9px]">Copy JSON</p>
+                  <p className="font-black uppercase tracking-widest text-xs">Copy JSON</p>
                 </TooltipContent>
               </Tooltip>
 
@@ -146,7 +146,7 @@ export const SeriesToolbar: React.FC<SeriesToolbarProps> = ({
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="top">
-                  <p className="font-black uppercase tracking-widest text-[9px]">Export File</p>
+                  <p className="font-black uppercase tracking-widest text-xs">Export File</p>
                 </TooltipContent>
               </Tooltip>
 
@@ -162,7 +162,7 @@ export const SeriesToolbar: React.FC<SeriesToolbarProps> = ({
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="top">
-                  <p className="font-black uppercase tracking-widest text-[9px]">{isFullscreen ? "Exit Fullscreen" : "Fullscreen Mode"}</p>
+                  <p className="font-black uppercase tracking-widest text-xs">{isFullscreen ? "Exit Fullscreen" : "Fullscreen Mode"}</p>
                 </TooltipContent>
               </Tooltip>
             </div>
@@ -171,7 +171,7 @@ export const SeriesToolbar: React.FC<SeriesToolbarProps> = ({
             <div className="flex items-center gap-4">
               <Button
                 variant="outline"
-                className="h-10 px-4 border-white/5 bg-black/40 text-zinc-400 hover:text-white hover:border-zinc-700 rounded-lg font-black uppercase tracking-widest text-[10px]"
+                className="h-10 px-4 border-white/5 bg-black/40 text-zinc-400 hover:text-white hover:border-zinc-700 rounded-lg font-black uppercase tracking-widest text-xs"
                 onClick={onFilterArchive}
               >
                 <ListFilter className="w-4 h-4 mr-2" /> Filter Archive

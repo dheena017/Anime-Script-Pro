@@ -61,7 +61,7 @@ export const ScriptsTab: React.FC<ScriptsTabProps> = ({ searchTerm, viewMode }) 
     return (
       <div className="py-40 flex flex-col items-center justify-center gap-4 opacity-50">
         <div className="w-10 h-10 border-4 border-[#bd4a4a] border-t-transparent rounded-full animate-spin" />
-        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-500">Compiling Blueprints...</p>
+        <p className="text-xs font-black uppercase tracking-[0.3em] text-zinc-500">Compiling Blueprints...</p>
       </div>
     );
   }
@@ -120,7 +120,7 @@ export const ScriptsTab: React.FC<ScriptsTabProps> = ({ searchTerm, viewMode }) 
                         {prompt.label}
                       </CardTitle>
                       {prompt.category && (
-                        <span className="inline-block px-2 py-1 bg-[#bd4a4a]/10 border border-[#bd4a4a]/30 rounded text-[8px] font-bold text-[#bd4a4a] uppercase tracking-widest">
+                        <span className="inline-block px-2 py-1 bg-[#bd4a4a]/10 border border-[#bd4a4a]/30 rounded text-xs font-bold text-[#bd4a4a] uppercase tracking-widest">
                           {prompt.category}
                         </span>
                       )}
@@ -130,7 +130,7 @@ export const ScriptsTab: React.FC<ScriptsTabProps> = ({ searchTerm, viewMode }) 
                     <p className="text-[13px] text-zinc-400 line-clamp-3 leading-relaxed">
                       {prompt.prompt_text}
                     </p>
-                    <div className="flex items-center justify-between text-[9px] text-zinc-600">
+                    <div className="flex items-center justify-between text-xs text-zinc-600">
                       <span>Used {prompt.usage_count || 0}x</span>
                       <span>{prompt.created_at ? new Date(prompt.created_at).toLocaleDateString() : 'Recently'}</span>
                     </div>
@@ -152,7 +152,7 @@ export const ScriptsTab: React.FC<ScriptsTabProps> = ({ searchTerm, viewMode }) 
           ) : (
             <div className="col-span-2 py-20 text-center border border-zinc-900 border-dashed rounded-2xl">
               <Terminal className="w-12 h-12 text-zinc-700 mx-auto mb-4 opacity-50" />
-              <p className="text-[9px] font-black text-zinc-700 uppercase tracking-widest">
+              <p className="text-xs font-black text-zinc-700 uppercase tracking-widest">
                 {searchTerm ? 'No blueprints match your search' : 'No prompts saved yet'}
               </p>
             </div>

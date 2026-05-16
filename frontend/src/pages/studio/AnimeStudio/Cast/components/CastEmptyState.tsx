@@ -54,12 +54,12 @@ export const CastEmptyState: React.FC<CastEmptyStateProps> = ({
             <div className="flex-1 space-y-4 w-full">
                <div className="flex items-center justify-between">
                   <div>
-                    <h4 className="text-[10px] font-black text-white uppercase tracking-[0.2em]">Squad Scale</h4>
-                    <p className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">Adjust number of souls to sequence</p>
+                    <h4 className="text-xs font-black text-white uppercase tracking-[0.2em]">Squad Scale</h4>
+                    <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Adjust number of souls to sequence</p>
                   </div>
                   <div className="px-4 py-1 bg-studio/10 border border-studio/20 rounded-xl">
                     <span className="text-xl font-black text-studio tracking-tighter">{numCharacters}</span>
-                    <span className="text-[10px] font-black text-studio/40 ml-1 uppercase">Units</span>
+                    <span className="text-xs font-black text-studio/40 ml-1 uppercase">Units</span>
                   </div>
                </div>
                
@@ -72,7 +72,7 @@ export const CastEmptyState: React.FC<CastEmptyStateProps> = ({
                  className="py-4"
                />
                
-               <div className="flex justify-between text-[8px] font-black text-zinc-700 uppercase tracking-widest">
+               <div className="flex justify-between text-xs font-black text-zinc-700 uppercase tracking-widest">
                   <span>Minimum (3)</span>
                   <span>Standard (8)</span>
                   <span>Epic (20)</span>

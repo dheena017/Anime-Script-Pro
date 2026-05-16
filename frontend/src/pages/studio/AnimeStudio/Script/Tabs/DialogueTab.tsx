@@ -23,7 +23,7 @@ export const DialogueTab: React.FC = () => {
         </div>
         <div>
           <h2 className="text-3xl font-black text-white uppercase tracking-tighter">Dialogue Matrix</h2>
-          <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-[0.3em] mt-1">Character voice profiles and line distribution</p>
+          <p className="text-zinc-500 text-xs font-bold uppercase tracking-[0.3em] mt-1">Character voice profiles and line distribution</p>
         </div>
       </div>
 
@@ -35,25 +35,25 @@ export const DialogueTab: React.FC = () => {
             </div>
             <div>
               <h3 className="text-sm font-black text-white uppercase tracking-widest">{char.name}</h3>
-              <p className="text-[10px] text-zinc-500 uppercase tracking-widest mt-1">{char.tone}</p>
+              <p className="text-xs text-zinc-500 uppercase tracking-widest mt-1">{char.tone}</p>
             </div>
             <div>
               <span className="text-3xl font-black text-white font-mono">{char.lines}</span>
-              <p className="text-[8px] text-zinc-600 uppercase tracking-widest mt-1">Lines</p>
+              <p className="text-xs text-zinc-600 uppercase tracking-widest mt-1">Lines</p>
             </div>
           </div>
         ))}
       </div>
 
       <div className="space-y-4 max-w-4xl mx-auto">
-        <h3 className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-6 flex items-center gap-2">
+        <h3 className="text-xs font-black text-zinc-500 uppercase tracking-widest mb-6 flex items-center gap-2">
           <MessageSquare className="w-3 h-3" /> Featured Lines
         </h3>
         {sampleLines.map((item, i) => (
           <div key={i} className="p-6 bg-white/5 border border-white/5 rounded-2xl space-y-2 hover:border-white/10 transition-all">
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-black text-emerald-400/80 uppercase tracking-widest">{item.char}</span>
-              <span className="text-[9px] font-black text-zinc-600 uppercase">Scene #{item.scene}</span>
+              <span className="text-xs font-black text-emerald-400/80 uppercase tracking-widest">{item.char}</span>
+              <span className="text-xs font-black text-zinc-600 uppercase">Scene #{item.scene}</span>
             </div>
             <p className="text-zinc-300 text-sm font-medium italic leading-relaxed">{item.line}</p>
           </div>

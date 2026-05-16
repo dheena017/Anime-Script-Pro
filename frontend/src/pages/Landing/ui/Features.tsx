@@ -27,12 +27,12 @@ export const Features: React.FC = () => {
       <div className="flex flex-col items-center text-center mb-24 space-y-4">
         <div className="flex items-center gap-3 px-4 py-1.5 rounded-full bg-studio/5 border border-studio/20">
            <Layers className="w-3.5 h-3.5 text-studio" />
-           <span className="text-[10px] font-black text-studio uppercase tracking-[0.3em]">Core Production Matrix</span>
+           <span className="text-xs font-black text-studio uppercase tracking-[0.3em]">Core Production Matrix</span>
         </div>
-        <h2 className="text-4xl md:text-7xl font-black text-white uppercase italic tracking-tighter">
+        <h2 className="text-4xl md:text-4xl font-black text-white uppercase italic tracking-tighter">
           Architectural <span className="text-studio">Sovereignty</span>
         </h2>
-        <p className="text-zinc-500 max-w-2xl uppercase text-[11px] font-bold tracking-widest leading-relaxed">
+        <p className="text-zinc-500 max-w-2xl uppercase text-xs font-bold tracking-widest leading-relaxed">
           The most advanced autonomous production engine ever built for the anime industry. Optimized for global collaboration.
         </p>
       </div>
@@ -63,9 +63,9 @@ export const Features: React.FC = () => {
                    <div className="text-right">
                       <div className="flex items-center gap-2 justify-end mb-1">
                          <Activity className="w-3 h-3 text-studio animate-pulse" />
-                         <span className="text-[9px] font-black text-white uppercase tracking-widest">Active</span>
+                         <span className="text-xs font-black text-white uppercase tracking-widest">Active</span>
                       </div>
-                      <span className="text-[8px] font-black text-zinc-600 uppercase tracking-widest">{feature.category}</span>
+                      <span className="text-xs font-black text-zinc-600 uppercase tracking-widest">{feature.category}</span>
                    </div>
                 </div>
 
@@ -74,7 +74,7 @@ export const Features: React.FC = () => {
                   <h3 className="text-2xl font-black text-white uppercase italic tracking-tight group-hover:text-studio transition-colors">
                     {feature.title}
                   </h3>
-                  <p className="text-zinc-500 text-[11px] font-bold leading-relaxed uppercase tracking-widest group-hover:text-zinc-300 transition-colors">
+                  <p className="text-zinc-500 text-xs font-bold leading-relaxed uppercase tracking-widest group-hover:text-zinc-300 transition-colors">
                     {feature.desc}
                   </p>
                 </div>
@@ -82,17 +82,17 @@ export const Features: React.FC = () => {
                 {/* Telemetry Readout */}
                 <div className="mt-auto pt-8 border-t border-white/5 grid grid-cols-2 gap-4">
                    <div className="space-y-1">
-                      <span className="text-[8px] font-black text-zinc-700 uppercase tracking-widest">Efficiency</span>
-                      <div className="text-[10px] font-black text-emerald-500 uppercase italic">99.8% Sync</div>
+                      <span className="text-xs font-black text-zinc-700 uppercase tracking-widest">Efficiency</span>
+                      <div className="text-xs font-black text-emerald-500 uppercase italic">99.8% Sync</div>
                    </div>
                    <div className="space-y-1 text-right">
-                      <span className="text-[8px] font-black text-zinc-700 uppercase tracking-widest">Latency</span>
-                      <div className="text-[10px] font-black text-studio uppercase italic">{PRODUCTION_STATS.latency}</div>
+                      <span className="text-xs font-black text-zinc-700 uppercase tracking-widest">Latency</span>
+                      <div className="text-xs font-black text-studio uppercase italic">{PRODUCTION_STATS.latency}</div>
                    </div>
                 </div>
 
                 {/* Action protocol */}
-                <button className="mt-8 flex items-center gap-2 text-[9px] font-black text-zinc-600 uppercase tracking-[0.3em] hover:text-white transition-colors group/btn no-underline">
+                <button className="mt-8 flex items-center gap-2 text-xs font-black text-zinc-600 uppercase tracking-[0.3em] hover:text-white transition-colors group/btn no-underline">
                    View Protocol <ArrowUpRight className="w-3 h-3 group-hover/btn:translate-x-1 group-hover/btn:-translate-y-1 transition-transform" />
                 </button>
               </div>
@@ -109,17 +109,17 @@ export const Features: React.FC = () => {
         className="mt-20 p-10 rounded-[2.5rem] bg-white/[0.02] border border-white/5 flex flex-wrap items-center justify-center gap-12 lg:gap-24"
       >
          <div className="flex flex-col items-center gap-1">
-            <span className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.3em]">Total Transmissions</span>
+            <span className="text-xs font-black text-zinc-600 uppercase tracking-[0.3em]">Total Transmissions</span>
             <span className="text-3xl font-black text-white italic">1.2M+</span>
          </div>
          <div className="w-[1px] h-12 bg-white/5 hidden md:block" />
          <div className="flex flex-col items-center gap-1">
-            <span className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.3em]">Production Nodes</span>
+            <span className="text-xs font-black text-zinc-600 uppercase tracking-[0.3em]">Production Nodes</span>
             <span className="text-3xl font-black text-studio italic">842</span>
          </div>
          <div className="w-[1px] h-12 bg-white/5 hidden md:block" />
          <div className="flex flex-col items-center gap-1">
-            <span className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.3em]">System Uptime</span>
+            <span className="text-xs font-black text-zinc-600 uppercase tracking-[0.3em]">System Uptime</span>
             <span className="text-3xl font-black text-emerald-500 italic">99.9%</span>
          </div>
       </motion.div>

@@ -1,36 +1,35 @@
-import { useParams, useNavigate } from 'react-router-dom';
-import {
-  ChevronLeft,
-  ChevronRight,
-  Edit3,
-  Play,
-  Clock,
-  Users,
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { 
+  ChevronLeft, 
+  ChevronRight, 
+  Edit3, 
+  Play, 
+  Clock, 
+  BookOpen, 
+  Sparkles,
+  Activity,
   MapPin,
   Heart,
-  Share2,
-  MoreHorizontal,
-  Layout as LayoutGrid,
-  Video,
-  Volume2,
-  Camera,
-  Activity
+  LayoutGrid,
+  Zap
 } from 'lucide-react';
 import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
-import { SceneCard } from '../components/SceneCard';
-import SceneView from '../components/SceneView';
-import { generateScene } from '@/services/api/gemini';
-import { SeriesEpisode } from '../components/SeriesCard';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import React from 'react';
+import { SceneCard } from '../components/SceneCard';
+import { motion } from 'framer-motion';
 
+/**
+ * EpisodeViewPage - Narrative & Technical Detail Node
+ * A comprehensive view that combines high-fidelity narrative metadata
+ * with the technical scene matrix for a unified production audit.
+ */
 export default function EpisodeViewPage() {
   const { id: episodeId } = useParams();
   const navigate = useNavigate();
-  const { generatedSeriesPlan, contentType, selectedModel, currentScriptId } = useGeneratorState();
-  const { setEpisode, setGeneratedSeriesPlan } = useGeneratorDispatch();
+  const location = useLocation();
+  const { generatedSeriesPlan, currentScriptId } = useGeneratorState();
+  const { setEpisode } = useGeneratorDispatch();
 
   const studioBase = currentScriptId ? `/projects/${currentScriptId}` : '/studio';
 
@@ -38,10 +37,28 @@ export default function EpisodeViewPage() {
     String(ep.episode) === String(episodeId)
   );
 
+  // Auto-scroll to section if provided in query params
+  React.useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const section = params.get('section');
+    if (section === 'scenes') {
+      scrollToScenes();
+    }
+  }, [location, episode]);
+
+  const scrollToScenes = () => {
+    const element = document.getElementById('technical-matrix');
+    if (element) {
+      setTimeout(() => {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+    }
+  };
+
   if (!episode) {
     return (
       <div className="flex flex-col items-center justify-center h-[600px] space-y-4">
-        <p className="text-zinc-500 font-bold uppercase tracking-[0.2em]">Episode Not Found</p>
+        <p className="text-zinc-500 font-black uppercase tracking-[0.2em]">Sequence Not Found</p>
         <Button onClick={() => navigate(-1)} variant="outline">Go Back</Button>
       </div>
     );
@@ -52,262 +69,210 @@ export default function EpisodeViewPage() {
     navigate(`${studioBase}/script`);
   };
 
-  // Flatten scenes from detailed_episode_spec
-  const scenes: any[] = React.useMemo(() => {
-    const spec = episode.detailed_episode_spec;
-    if (!spec || !Array.isArray(spec.acts)) return [];
-    const out: any[] = [];
-    spec.acts.forEach((act: any, ai: number) => {
-      (act.scenes || []).forEach((s: any, si: number) => {
-        out.push({
-          ...s,
-          act: act.act || ai + 1,
-          index: out.length + 1
-        });
-      });
-    });
-    return out;
-  }, [episode]);
-
-  const [selectedSceneIndex, setSelectedSceneIndex] = React.useState<number | null>(scenes.length > 0 ? scenes[0].index : null);
-
-  React.useEffect(() => {
-    if (scenes.length > 0 && selectedSceneIndex === null) setSelectedSceneIndex(scenes[0].index);
-  }, [scenes, selectedSceneIndex]);
-
-  const handleSelectScene = (index: number) => {
-    setSelectedSceneIndex(index);
-  };
-
-  const handleRegenerateScene = async (index: number) => {
-    const scene = scenes.find(s => s.index === index);
-    if (!scene) return;
-
-    try {
-      const beat = scene.summary || scene.visual_direction || '';
-      const output = await generateScene(episode.title || contentType || 'Anime', beat, selectedModel || undefined, null, null, { temperature: 0.7, maxTokens: 1024 });
-
-      // update generatedSeriesPlan with new sceneOutput
-      const planCopy: SeriesEpisode[] = JSON.parse(JSON.stringify(generatedSeriesPlan || []));
-      const epIndex = planCopy.findIndex((e: any) => String(e.episode) === String(episode.episode));
-      if (epIndex >= 0) {
-        const spec = planCopy[epIndex].detailed_episode_spec;
-        if (spec && Array.isArray(spec.acts)) {
-          for (const act of spec.acts) {
-            const s = (act.scenes || []).find((ss: any) => ss.scene_id === scene.scene_id || ss.index === index);
-            if (s) {
-              s.sceneOutput = output;
-              break;
-            }
-          }
-        }
-
-        setGeneratedSeriesPlan(planCopy as any);
-      }
-    } catch (err) {
-      console.error('Regenerate scene failed', err);
-    }
-  };
+  const scenes = episode.detailed_episode_spec?.acts?.flatMap((act: any) => act.scenes) || [];
 
   return (
-    <div className="space-y-8 pb-20">
-      {/* Header Navigation */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
+    <div className="w-full max-w-5xl mx-auto space-y-24 pb-32">
+      {/* Narrative Navigation Control */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 pb-10 border-b border-white/5 relative">
+        <div className="absolute inset-0 bg-gradient-to-r from-studio/5 via-transparent to-transparent opacity-20 pointer-events-none" />
+        
+        <div className="flex items-center gap-6 relative z-10">
           <Button
             variant="ghost"
-            onClick={() => navigate(-1)}
-            className="text-zinc-500 hover:text-white h-12 px-6 rounded-2xl"
+            onClick={() => navigate(`${studioBase}/series`)}
+            className="w-12 h-12 rounded-full bg-white/5 border border-white/10 hover:bg-studio/20 hover:border-studio/40 hover:text-studio transition-all duration-500 group"
           >
-            <ChevronLeft className="w-4 h-4 mr-2" /> Back
+            <ChevronLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
           </Button>
           
-          <div className="flex items-center gap-1 bg-white/[0.03] border border-white/10 p-1 rounded-2xl">
-            <Button
-              variant="ghost"
-              disabled={parseInt(episodeId || '1') <= 1}
-              onClick={() => navigate(`${studioBase}/series/episodes/${parseInt(episodeId || '1') - 1}`)}
-              className="w-10 h-10 rounded-xl text-zinc-500 hover:text-white"
-            >
-              <ChevronLeft className="w-4 h-4" />
-            </Button>
-            <span className="px-3 text-[10px] font-black text-zinc-500 uppercase tracking-widest">
-              EP {episodeId} / {generatedSeriesPlan?.length}
-            </span>
-            <Button
-              variant="ghost"
-              disabled={parseInt(episodeId || '1') >= (generatedSeriesPlan?.length || 0)}
-              onClick={() => navigate(`${studioBase}/series/episodes/${parseInt(episodeId || '1') + 1}`)}
-              className="w-10 h-10 rounded-xl text-zinc-500 hover:text-white"
-            >
-              <ChevronRight className="w-4 h-4" />
-            </Button>
+          <div className="flex flex-col">
+            <span className="text-xs font-black text-zinc-500 uppercase tracking-[0.4em] mb-1">Story Manifest</span>
+            <div className="flex items-center gap-2 bg-black/40 border border-white/10 p-1.5 rounded-2xl backdrop-blur-md">
+              <Button
+                variant="ghost"
+                disabled={parseInt(episodeId || '1') <= 1}
+                onClick={() => navigate(`${studioBase}/series/episodes/${parseInt(episodeId || '1') - 1}`)}
+                className="w-9 h-9 rounded-xl text-zinc-500 hover:text-white"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </Button>
+              <div className="px-4 py-1.5 bg-studio/10 border border-studio/20 rounded-xl">
+                <span className="text-xs font-black text-studio uppercase tracking-widest font-mono">
+                  EP {episodeId}
+                </span>
+              </div>
+              <Button
+                variant="ghost"
+                disabled={parseInt(episodeId || '1') >= (generatedSeriesPlan?.length || 0)}
+                onClick={() => navigate(`${studioBase}/series/episodes/${parseInt(episodeId || '1') + 1}`)}
+                className="w-9 h-9 rounded-xl text-zinc-500 hover:text-white"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </Button>
+            </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
-          <Button variant="outline" className="h-12 border-zinc-800 text-zinc-400 rounded-2xl px-5">
-            <Share2 className="w-4 h-4" />
-          </Button>
-          <Button variant="outline" className="h-12 border-zinc-800 text-zinc-400 rounded-2xl px-5">
-            <MoreHorizontal className="w-4 h-4" />
-          </Button>
-          <Button
-            onClick={() => navigate(`${studioBase}/series/episodes/${episodeId}/edit`)}
-            className="h-12 bg-zinc-800 text-white hover:bg-zinc-700 rounded-2xl px-6"
-          >
-            <Edit3 className="w-4 h-4 mr-2" /> Edit Details
-          </Button>
-          <Button
-            onClick={handleFocus}
-            className="h-12 bg-studio text-black font-black uppercase hover:bg-studio/80 shadow-studio rounded-2xl px-8"
-          >
-            <Play className="w-4 h-4 mr-2" /> Focus Episode
-          </Button>
+        {/* Global Action Header */}
+        <div className="flex items-center gap-3 relative z-10">
+              <Button
+                onClick={scrollToScenes}
+                className="h-12 bg-studio/5 border border-studio/10 text-studio hover:bg-studio/10 hover:border-studio/20 rounded-2xl px-6 font-black uppercase tracking-widest text-xs transition-all group"
+              >
+                <Zap className="w-4 h-4 mr-2 group-hover:animate-pulse" /> Technical Matrix
+              </Button>
+              <Button
+                onClick={() => navigate(`${studioBase}/series/episodes/${episodeId}/edit`)}
+                className="h-12 bg-white/5 border border-white/10 text-zinc-400 hover:text-white hover:bg-white/10 hover:border-white/20 rounded-2xl px-6 font-black uppercase tracking-widest text-xs transition-all"
+              >
+                <Edit3 className="w-4 h-4 mr-2" /> Modify Script
+              </Button>
+              <Button
+                onClick={handleFocus}
+                className="h-14 bg-studio text-black font-black uppercase hover:bg-studio/80 shadow-[0_0_30px_rgba(6,182,212,0.3)] rounded-2xl px-10 tracking-widest text-xs transition-all"
+              >
+                <Play className="w-4 h-4 mr-3" /> Focus Episode
+              </Button>
         </div>
       </div>
 
-      {/* Main Content Hero */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 space-y-8">
-          <div className="space-y-6">
-            <div className="flex items-center gap-4">
-              <div className="w-16 h-16 rounded-2xl bg-studio/10 border border-studio/30 flex flex-col items-center justify-center text-studio">
-                <span className="text-[10px] font-black uppercase opacity-50">EP</span>
-                <span className="font-black text-2xl">{episode.episode}</span>
-              </div>
-              <div className="space-y-1">
-                <div className="flex items-center gap-2 text-zinc-500 font-bold text-[10px] uppercase tracking-widest">
-                  <Activity className="w-3 h-3 text-studio" /> Narrative Milestone
-                  <span className="w-1 h-1 rounded-full bg-zinc-800" />
-                  <Clock className="w-3 h-3" /> {episode.runtime || '24:00'}
-                </div>
-                <h1 className="text-6xl font-black text-white uppercase tracking-tighter leading-tight">
-                  {episode.title}
-                </h1>
-              </div>
-            </div>
-
-            <div className="relative p-8 rounded-[2.5rem] bg-zinc-900/40 border border-white/5 backdrop-blur-md overflow-hidden">
-              <div className="absolute top-0 left-0 w-1 h-full bg-studio/50" />
-              <p className="text-xl text-zinc-300 font-medium italic leading-relaxed">
-                "{episode.hook}"
-              </p>
+      {/* Narrative Focus Content */}
+      <div className="space-y-20">
+        {/* Title Section */}
+        <div className="space-y-8">
+          <div className="flex items-center gap-4">
+            <div className="w-1.5 h-10 bg-studio shadow-[0_0_15px_rgba(6,182,212,0.5)] rounded-full" />
+            <div className="flex flex-col">
+              <span className="text-xs font-black text-studio uppercase tracking-[0.4em]">Milestone Sequence</span>
+              <span className="text-zinc-500 font-bold text-xs uppercase tracking-widest flex items-center gap-2">
+                <Clock className="w-3 h-3" /> {episode.runtime || '24:00'} Estimated Runtime
+              </span>
             </div>
           </div>
-
-          {/* Production Matrix */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Card className="p-6 bg-black/40 border-white/5 space-y-4">
-              <div className="flex items-center gap-2 text-studio">
-                <MapPin className="w-4 h-4" />
-                <span className="text-[10px] font-black uppercase tracking-widest">Primary Setting</span>
-              </div>
-              <p className="text-lg text-white font-bold">{episode.setting || 'Unknown'}</p>
-            </Card>
-            <Card className="p-6 bg-black/40 border-white/5 space-y-4">
-              <div className="flex items-center gap-2 text-purple-400">
-                <Users className="w-4 h-4" />
-                <span className="text-[10px] font-black uppercase tracking-widest">Focus Cast</span>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {episode.focus_characters?.map((char: string, i: number) => (
-                  <Badge key={i} variant="secondary" className="bg-purple-500/10 text-purple-400 border-purple-500/20">
-                    {char}
-                  </Badge>
-                )) || <span className="text-zinc-600">None defined</span>}
-              </div>
-            </Card>
-            <Card className="p-6 bg-black/40 border-white/5 space-y-4">
-              <div className="flex items-center gap-2 text-pink-400">
-                <Heart className="w-4 h-4" />
-                <span className="text-[10px] font-black uppercase tracking-widest">Emotional Arc</span>
-              </div>
-              <p className="text-white font-medium">{episode.emotional_arc || 'Neutral'}</p>
-            </Card>
-          </div>
-
-          {/* Scenes */}
-          <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <h3 className="text-xl font-black text-white">Scene Breakdown</h3>
-              <p className="text-sm text-zinc-500">{scenes.length} scenes</p>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {scenes.map((s, i) => (
-                  <SceneCard
-                    key={s.scene_id || i}
-                    scene={s}
-                    index={s.index}
-                    onSelect={() => handleSelectScene(s.index)}
-                    onRegenerate={() => handleRegenerateScene(s.index)}
-                  />
-                ))}
-              </div>
-
-              <div className="lg:col-span-1">
-                <SceneView
-                  scene={scenes.find(s => s.index === selectedSceneIndex) || null}
-                  index={selectedSceneIndex || undefined}
-                  onClose={() => setSelectedSceneIndex(null)}
-                  onRegenerate={() => selectedSceneIndex && handleRegenerateScene(selectedSceneIndex)}
-                  onNext={() => selectedSceneIndex && selectedSceneIndex < scenes.length && setSelectedSceneIndex(selectedSceneIndex + 1)}
-                  onPrev={() => selectedSceneIndex && selectedSceneIndex > 1 && setSelectedSceneIndex(selectedSceneIndex - 1)}
-                  totalScenes={scenes.length}
-                />
-              </div>
-            </div>
-          </div>
+          <h1 className="text-4xl md:text-4xl font-black text-white uppercase tracking-tighter leading-none break-words">
+            {episode.title}
+          </h1>
         </div>
 
-        {/* Sidebar Assets */}
-        <div className="space-y-6">
-          <Card className="p-8 bg-[#050505]/60 border-studio/10 rounded-[2.5rem] space-y-8">
-            <h3 className="text-sm font-black text-white uppercase tracking-[0.2em] flex items-center gap-2">
-              <LayoutGrid className="w-4 h-4 text-studio" /> Asset Manifest
-            </h3>
-
-            <div className="space-y-6">
-              <div className="flex items-start gap-4">
-                <div className="w-10 h-10 rounded-xl bg-studio/10 flex items-center justify-center shrink-0">
-                  <Volume2 className="w-5 h-5 text-studio" />
+        {/* Narrative Hook & Summary */}
+        <div className="relative space-y-16">
+          <div className="relative p-12 md:p-16 rounded-[4rem] bg-black/40 border border-white/5 backdrop-blur-xl overflow-hidden group shadow-2xl">
+            <div className="absolute top-0 right-0 p-12 opacity-[0.02] pointer-events-none">
+              <BookOpen className="w-64 h-64" />
+            </div>
+            
+            <div className="space-y-12 relative z-10">
+              <div className="flex gap-8">
+                <div className="flex flex-col justify-between pt-2 opacity-20 shrink-0">
+                  <span className="text-[60px] font-serif leading-none">"</span>
+                  <span className="text-[60px] font-serif leading-none rotate-180">"</span>
                 </div>
-                <div>
-                  <p className="text-[9px] font-black text-zinc-500 uppercase tracking-widest mb-1">Audio Forge</p>
-                  <p className="text-xs text-zinc-300 font-bold">{episode.asset_matrix?.sound || 'Pending Synthesis'}</p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-4">
-                <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center shrink-0">
-                  <Camera className="w-5 h-5 text-purple-400" />
-                </div>
-                <div>
-                  <p className="text-[9px] font-black text-zinc-500 uppercase tracking-widest mb-1">Visual DNA</p>
-                  <p className="text-xs text-zinc-300 font-bold">{episode.asset_matrix?.image || 'Pending Synthesis'}</p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-4">
-                <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center shrink-0">
-                  <Video className="w-5 h-5 text-blue-400" />
-                </div>
-                <div>
-                  <p className="text-[9px] font-black text-zinc-500 uppercase tracking-widest mb-1">Motion Engine</p>
-                  <p className="text-xs text-zinc-300 font-bold">{episode.asset_matrix?.video || 'Pending Synthesis'}</p>
-                </div>
-              </div>
-
-              <div className="pt-6 border-t border-white/5 text-center">
-                <p className="text-[24px] font-black text-studio tracking-tighter leading-none">
-                  {episode.asset_matrix?.scene_count || 0}
+                <p className="text-3xl md:text-4xl text-zinc-100 font-medium italic leading-tight tracking-tight">
+                  {episode.hook}
                 </p>
-                <p className="text-[9px] font-black text-zinc-500 uppercase tracking-widest mt-1">Total Scenes Configured</p>
+              </div>
+
+              <div className="pt-12 border-t border-white/5 space-y-8">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-px bg-studio/40" />
+                  <h4 className="text-xs font-black text-studio uppercase tracking-[0.6em]">Master Narrative Summary</h4>
+                </div>
+                <p className="text-zinc-400 text-xl leading-relaxed font-medium max-w-4xl">
+                  {episode.summary || "No detailed summary found for this narrative node. Update the episode specifications to populate the master summary."}
+                </p>
               </div>
             </div>
-          </Card>
+          </div>
+
+          {/* Quick Production Meta (Briefing Style) */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 px-4">
+             <div className="flex items-center gap-6 p-8 bg-white/[0.02] border border-white/5 rounded-[2.5rem] hover:border-studio/20 transition-all">
+                <div className="w-14 h-14 rounded-2xl bg-studio/5 flex items-center justify-center border border-studio/20">
+                  <MapPin className="w-6 h-6 text-studio" />
+                </div>
+                <div>
+                  <p className="text-xs font-black text-zinc-500 uppercase tracking-widest mb-1">Primary Setting</p>
+                  <p className="text-xl font-black text-white uppercase">{episode.setting || 'Locked'}</p>
+                </div>
+             </div>
+             <div className="flex items-center gap-6 p-8 bg-white/[0.02] border border-white/5 rounded-[2.5rem] hover:border-purple-500/20 transition-all">
+                <div className="w-14 h-14 rounded-2xl bg-purple-500/5 flex items-center justify-center border border-purple-500/20">
+                  <Activity className="w-6 h-6 text-purple-400" />
+                </div>
+                <div>
+                  <p className="text-xs font-black text-zinc-500 uppercase tracking-widest mb-1">Emotional Arc</p>
+                  <p className="text-xl font-black text-white uppercase">{episode.emotional_arc || 'Dynamic'}</p>
+                </div>
+             </div>
+             <div className="flex items-center gap-6 p-8 bg-white/[0.02] border border-white/5 rounded-[2.5rem] hover:border-amber-500/20 transition-all">
+                <div className="w-14 h-14 rounded-2xl bg-amber-500/5 flex items-center justify-center border border-amber-500/20">
+                  <LayoutGrid className="w-6 h-6 text-amber-500" />
+                </div>
+                <div>
+                  <p className="text-xs font-black text-zinc-500 uppercase tracking-widest mb-1">Unit Count</p>
+                  <p className="text-xl font-black text-white uppercase">{scenes.length} Production Scenes</p>
+                </div>
+             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Technical Scene Matrix - Integrated from Scenes Tab */}
+      <div id="technical-matrix" className="space-y-12">
+          <div className="flex items-center justify-between px-4">
+             <div className="flex flex-col">
+                <h4 className="text-[12px] font-black text-white uppercase tracking-[0.5em] flex items-center gap-3">
+                  <Zap className="w-4 h-4 text-studio animate-pulse" />
+                  Technical Production Matrix
+                </h4>
+                <p className="text-xs text-zinc-500 font-medium mt-2">Granular unit breakdown for narrative execution.</p>
+             </div>
+             <div className="h-px flex-1 mx-10 bg-gradient-to-r from-studio/20 to-transparent" />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {scenes.length > 0 ? (
+              scenes.map((scene: any, idx: number) => (
+                <SceneCard 
+                  key={idx}
+                  scene={scene}
+                  index={idx + 1}
+                  onSelect={() => {}} 
+                />
+              ))
+            ) : (
+              <div className="col-span-full p-20 bg-black/40 border border-dashed border-white/5 rounded-[3rem] text-center">
+                 <p className="text-xs font-black text-zinc-600 uppercase tracking-widest">No production units materialized for this sequence.</p>
+              </div>
+            )}
+          </div>
+      </div>
+
+      {/* Production Control Dock */}
+      <div className="p-10 border border-white/5 bg-black/40 rounded-[3rem] text-center space-y-6 max-w-3xl mx-auto backdrop-blur-xl shadow-2xl">
+        <div className="flex flex-col items-center gap-2">
+           <h5 className="text-xs font-black text-studio uppercase tracking-widest">Sequence Controller</h5>
+           <p className="text-xs text-zinc-500 font-medium">
+             Resource matrices and global blueprints are available in the project modules.
+           </p>
+        </div>
+        <div className="flex items-center justify-center gap-6">
+          <Button 
+            variant="ghost" 
+            onClick={() => navigate(`${studioBase}/series?tab=assets`)}
+            className="h-12 px-8 text-xs font-black text-studio uppercase tracking-widest hover:bg-studio/10 border border-studio/10 rounded-2xl"
+          >
+            Review Asset Matrix
+          </Button>
+          <div className="w-1.5 h-1.5 rounded-full bg-zinc-800" />
+          <Button 
+            variant="ghost" 
+            onClick={() => navigate(`${studioBase}/series?tab=blueprint`)}
+            className="h-12 px-8 text-xs font-black text-studio uppercase tracking-widest hover:bg-studio/10 border border-studio/10 rounded-2xl"
+          >
+            Synthesize Blueprint
+          </Button>
         </div>
       </div>
     </div>

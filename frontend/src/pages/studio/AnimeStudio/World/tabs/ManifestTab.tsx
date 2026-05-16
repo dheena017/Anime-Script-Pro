@@ -61,9 +61,9 @@ Use markdown formatting:
               <div className="mt-20 pt-12 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-6 opacity-40 hover:opacity-70 transition-opacity">
                 <div className="flex items-center gap-3">
                   <div className="w-1.5 h-1.5 rounded-full bg-studio animate-pulse" />
-                  <span className="text-[8px] font-black uppercase tracking-[0.3em] text-zinc-500">End of Transmission</span>
+                  <span className="text-xs font-black uppercase tracking-[0.3em] text-zinc-500">End of Transmission</span>
                 </div>
-                <span className="text-[7px] font-black uppercase tracking-widest text-zinc-600">World Builder v2.0</span>
+                <span className="text-xs font-black uppercase tracking-widest text-zinc-600">World Builder v2.0</span>
               </div>
             </div>
           </div>

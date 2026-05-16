@@ -14,9 +14,9 @@ export const engineStyles = {
     icon: "w-7 h-7 text-studio relative z-10 drop-shadow-[0_6px_20px_rgba(6,182,212,0.2)]",
     title: "header-title text-white font-extrabold uppercase tracking-widest text-lg",
     subtitle: "header-subtitle text-sm text-studio/60",
-    actionButton: "relative w-full sm:w-auto h-10 px-6 rounded-full border border-white/10 bg-white/5 text-zinc-400 hover:bg-white/10 hover:border-studio/50 hover:text-studio font-black uppercase tracking-widest text-[9px] transition-all duration-300 group/back shadow-lg",
-    actionButtonDanger: "relative w-full sm:w-auto h-10 px-6 rounded-full border border-red-500/30 bg-red-500/10 text-red-400 hover:bg-red-500/15 hover:border-red-500/60 hover:text-red-300 font-black uppercase tracking-widest text-[9px] transition-all duration-300 group/stop shadow-lg",
-    actionButtonPrimary: "relative w-full sm:w-auto h-10 px-8 rounded-full border border-studio/30 bg-studio/5 text-studio hover:bg-studio/10 hover:border-studio/60 hover:text-studio-light font-black uppercase tracking-widest text-[9px] transition-all duration-300 group/btn shadow-lg",
+    actionButton: "relative w-full sm:w-auto h-10 px-6 rounded-full border border-white/10 bg-white/5 text-zinc-400 hover:bg-white/10 hover:border-studio/50 hover:text-studio font-black uppercase tracking-widest text-xs transition-all duration-300 group/back shadow-lg",
+    actionButtonDanger: "relative w-full sm:w-auto h-10 px-6 rounded-full border border-red-500/30 bg-red-500/10 text-red-400 hover:bg-red-500/15 hover:border-red-500/60 hover:text-red-300 font-black uppercase tracking-widest text-xs transition-all duration-300 group/stop shadow-lg",
+    actionButtonPrimary: "relative w-full sm:w-auto h-10 px-8 rounded-full border border-studio/30 bg-studio/5 text-studio hover:bg-studio/10 hover:border-studio/60 hover:text-studio-light font-black uppercase tracking-widest text-xs transition-all duration-300 group/btn shadow-lg",
   },
 
   // --- TOOLBAR SECTION ---
@@ -27,8 +27,8 @@ export const engineStyles = {
     statusIcon: "toolbar-status-icon",
     statusActive: "text-studio drop-shadow-[0_0_8px_rgba(6,182,212,0.6)]",
     statusInactive: "text-zinc-600",
-    statusTitle: "text-[10px] font-black uppercase tracking-[0.2em] bg-gradient-to-r from-studio/80 to-studio bg-clip-text text-transparent",
-    statusSubtitle: "text-[8px] font-bold text-zinc-500 uppercase tracking-widest",
+    statusTitle: "text-xs font-black uppercase tracking-[0.2em] bg-gradient-to-r from-studio/80 to-studio bg-clip-text text-transparent",
+    statusSubtitle: "text-xs font-bold text-zinc-500 uppercase tracking-widest",
     actionGroup: "toolbar-action-group",
     btnGroup: "toolbar-btn-group",
     iconButton: "h-9 w-9 rounded-lg text-zinc-400 hover:text-studio border border-transparent hover:border-studio/40 hover:bg-studio/10 transition-all duration-300 group relative overflow-hidden",
@@ -43,7 +43,7 @@ export const engineStyles = {
     // Internal Tab styles (from engineTabsStyles)
     container: 'flex items-center justify-center gap-10 p-2 relative overflow-x-auto hide-scrollbar',
     overlay: 'absolute inset-0 bg-gradient-to-r from-studio/5 via-transparent to-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000',
-    button: 'relative flex items-center gap-2.5 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-300 shrink-0 whitespace-nowrap',
+    button: 'relative flex items-center gap-2.5 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-[0.2em] transition-all duration-300 shrink-0 whitespace-nowrap',
     buttonActive: 'bg-white/[0.03] shadow-[0_0_20px_rgba(255,255,255,0.02)]',
     buttonInactive: 'text-zinc-500 hover:text-zinc-300 hover:bg-white/[0.01]',
     glow: 'absolute inset-0 border border-white/10 rounded-xl shadow-[0_0_30px_rgba(255,255,255,0.02)]',

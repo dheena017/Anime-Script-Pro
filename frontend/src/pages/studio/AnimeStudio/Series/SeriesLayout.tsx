@@ -70,7 +70,7 @@ export default function SeriesLayout() {
   };
 
   // Memoize handleGenerate to prevent unnecessary effect re-runs and improve stability
-  const handleGenerate = React.useCallback(async () => {
+  const handleGenerate = React.useCallback(async (episodesToGenerate: number = 12) => {
     if (!prompt.trim()) {
       showNotification?.('Please enter a story prompt first before creating the series plan.', 'error');
       return;
@@ -78,7 +78,7 @@ export default function SeriesLayout() {
     setGenerationError(null);
     setIsGeneratingSeries(true);
     setGenerationProgress(5);
-    addGeneratorLog?.("SERIES", "STARTING", "Synthesizing full series roadmap and episode beats...");
+    addGeneratorLog?.("SERIES", "STARTING", `Synthesizing full series roadmap and ${episodesToGenerate} episode beats...`);
 
     try {
       // We only reset the Series Plan, not the World or Cast. 
@@ -88,7 +88,7 @@ export default function SeriesLayout() {
       setGeneratedImagePrompts(null);
       setGeneratedMetadata(null);
 
-      const totalEpisodes = 12; // Default
+      const totalEpisodes = episodesToGenerate;
       
       // BUILD THE SOURCE OF TRUTH (WORLD BIBLE)
       const worldBible = [
@@ -178,8 +178,8 @@ export default function SeriesLayout() {
     setSearchParams
   ]);
 
-  // Query-param-only tab routing — ?tab=episodes, ?tab=scenes, etc.
-  const VALID_TABS: SeriesTab[] = ['episodes', 'roadmap', 'assets', 'blueprint'];
+  // Query-param-only tab routing — ?tab=episodes, etc.
+  const VALID_TABS: SeriesTab[] = ['episodes', 'assets', 'blueprint'];
   const queryTab = searchParams.get('tab') as SeriesTab | null;
   const activeTab: SeriesTab = (queryTab && VALID_TABS.includes(queryTab)) ? queryTab : 'episodes';
 
@@ -189,16 +189,15 @@ export default function SeriesLayout() {
     });
   };
 
-
-
   React.useEffect(() => {
     studioLog("ROUTER", `Active tab changed to: ${activeTab.toUpperCase()}`, 'info');
   }, [activeTab]);
 
   React.useEffect(() => {
-    const handleGlobalGenerate = () => {
+    const handleGlobalGenerate = (e: any) => {
       studioLog("SERIES", 'Global series generation event received.', 'anime');
-      handleGenerate();
+      const customEpisodes = e.detail?.episodes || 12;
+      handleGenerate(customEpisodes);
     };
     window.addEventListener('studio-generate-series', handleGlobalGenerate);
     return () => window.removeEventListener('studio-generate-series', handleGlobalGenerate);
@@ -254,7 +253,7 @@ export default function SeriesLayout() {
             status="active"
             session={session}
             episode={episode}
-            onManifestClick={() => handleTabChange('roadmap')}
+            onManifestClick={() => handleTabChange('blueprint')}
             onExportClick={() => {
               if (!generatedSeriesPlan) return;
               const blob = new Blob([JSON.stringify(generatedSeriesPlan, null, 2)], { type: 'application/json' });

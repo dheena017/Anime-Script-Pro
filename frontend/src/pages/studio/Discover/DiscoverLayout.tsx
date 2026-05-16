@@ -66,7 +66,7 @@ export const DiscoverLayout: React.FC<DiscoverLayoutProps> = ({
                 <span className={cn(s.headerBadge, s.headerBadgeRed)}>Version {version}</span>
                 <div className="flex items-center gap-1.5 px-3 py-1 bg-zinc-900 border border-emerald-500/20 rounded-full">
                   <div className="w-1 h-1 bg-emerald-500 rounded-full animate-ping" />
-                  <span className="text-[8px] font-black text-emerald-500 uppercase tracking-widest">{status}</span>
+                  <span className="text-xs font-black text-emerald-500 uppercase tracking-widest">{status}</span>
                 </div>
               </div>
               <h1 className={s.headerTitle}>
@@ -86,7 +86,7 @@ export const DiscoverLayout: React.FC<DiscoverLayoutProps> = ({
               <motion.div key={stat.label} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }} className={s.statCard}>
                 <div className={s.statLabel}>
                   <stat.icon className={cn("w-3.5 h-3.5", stat.color || "text-[#bd4a4a]")} />
-                  <span className="text-[8px] font-black text-zinc-500 uppercase tracking-widest">{stat.label}</span>
+                  <span className="text-xs font-black text-zinc-500 uppercase tracking-widest">{stat.label}</span>
                 </div>
                 <span className={s.statValue}>{stat.value}</span>
               </motion.div>
@@ -107,15 +107,15 @@ export const DiscoverLayout: React.FC<DiscoverLayoutProps> = ({
           <div className="relative flex-1 max-w-md">
             <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
             <input type="text" placeholder={searchPlaceholder} value={searchTerm} onChange={(e) => onSearchChange(e.target.value)} className={s.searchInput} />
-            <div className="absolute right-5 top-1/2 -translate-y-1/2 px-2 py-1 bg-zinc-950 border border-white/5 rounded text-[8px] font-black text-zinc-600 uppercase">Ctrl+K</div>
+            <div className="absolute right-5 top-1/2 -translate-y-1/2 px-2 py-1 bg-zinc-950 border border-white/5 rounded text-xs font-black text-zinc-600 uppercase">Ctrl+K</div>
           </div>
         </div>
 
         <div className="flex items-center gap-3">
-          <button className="h-12 px-6 bg-zinc-900/50 border border-white/5 rounded-2xl flex items-center gap-3 hover:bg-zinc-800 hover:border-white/10 transition-all text-[10px] font-black uppercase tracking-widest text-zinc-400 hover:text-white active:scale-95">
+          <button className="h-12 px-6 bg-zinc-900/50 border border-white/5 rounded-2xl flex items-center gap-3 hover:bg-zinc-800 hover:border-white/10 transition-all text-xs font-black uppercase tracking-widest text-zinc-400 hover:text-white active:scale-95">
             <SlidersHorizontal className="w-4 h-4" /><span>Advanced Filters</span>
           </button>
-          <button className="h-12 px-6 bg-zinc-900/50 border border-white/5 rounded-2xl flex items-center gap-3 hover:bg-zinc-800 hover:border-white/10 transition-all text-[10px] font-black uppercase tracking-widest text-zinc-400 hover:text-white active:scale-95">
+          <button className="h-12 px-6 bg-zinc-900/50 border border-white/5 rounded-2xl flex items-center gap-3 hover:bg-zinc-800 hover:border-white/10 transition-all text-xs font-black uppercase tracking-widest text-zinc-400 hover:text-white active:scale-95">
             <span>Sort: Recently Modified</span><ChevronDown className="w-4 h-4" />
           </button>
         </div>
@@ -127,7 +127,7 @@ export const DiscoverLayout: React.FC<DiscoverLayoutProps> = ({
           </div>
 
           {primaryAction && (
-            <button onClick={primaryAction.onClick} className="h-12 px-8 bg-[#bd4a4a] text-white rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center gap-3 shadow-[0_10px_20px_rgba(189,74,74,0.2)] hover:shadow-[0_15px_30px_rgba(189,74,74,0.3)] hover:-translate-y-0.5 active:translate-y-0 transition-all">
+            <button onClick={primaryAction.onClick} className="h-12 px-8 bg-[#bd4a4a] text-white rounded-2xl text-xs font-black uppercase tracking-widest flex items-center gap-3 shadow-[0_10px_20px_rgba(189,74,74,0.2)] hover:shadow-[0_15px_30px_rgba(189,74,74,0.3)] hover:-translate-y-0.5 active:translate-y-0 transition-all">
               {primaryAction.icon ? <primaryAction.icon className="w-4 h-4" /> : <Plus className="w-4 h-4" />}<span>{primaryAction.label}</span>
             </button>
           )}

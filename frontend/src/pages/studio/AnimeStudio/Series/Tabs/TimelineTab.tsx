@@ -80,8 +80,8 @@ export const TimelineTab: React.FC<TimelineTabProps> = ({ plan }) => {
          >
             <Clock className="w-10 h-10 text-blue-400" />
          </motion.div>
-         <h2 className="text-5xl font-black text-white uppercase tracking-tighter">Production <span className="text-blue-500">Timeline</span></h2>
-         <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-[0.4em]">Automated synthesis schedule and rendering milestones</p>
+         <h2 className="text-2xl font-black text-white uppercase tracking-tighter">Production <span className="text-blue-500">Timeline</span></h2>
+         <p className="text-zinc-500 text-xs font-bold uppercase tracking-[0.4em]">Automated synthesis schedule and rendering milestones</p>
       </div>
 
       {/* Production Readiness Gauge */}
@@ -90,7 +90,7 @@ export const TimelineTab: React.FC<TimelineTabProps> = ({ plan }) => {
             <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
             <div className="space-y-4 relative z-10">
                 <div className="space-y-1">
-                    <h3 className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em]">AI Readiness Index</h3>
+                    <h3 className="text-xs font-black text-zinc-500 uppercase tracking-[0.3em]">AI Readiness Index</h3>
                     <p className="text-4xl font-black text-white uppercase tracking-tighter">{readinessScore}% SYNC</p>
                 </div>
                 <div className="w-64 h-2 bg-white/5 rounded-full overflow-hidden">
@@ -114,7 +114,7 @@ export const TimelineTab: React.FC<TimelineTabProps> = ({ plan }) => {
         </div>
 
         <div className="p-8 bg-[#080808] border border-white/5 rounded-[3rem] flex flex-col justify-center items-center text-center space-y-2 group">
-            <span className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em]">Est. Time to Lock</span>
+            <span className="text-xs font-black text-zinc-500 uppercase tracking-[0.3em]">Est. Time to Lock</span>
             <p className="text-4xl font-black text-blue-400 group-hover:scale-110 transition-transform font-mono">~{Math.ceil(totalScenes * 0.2 + episodeCount * 18)}h</p>
         </div>
       </div>
@@ -137,9 +137,9 @@ export const TimelineTab: React.FC<TimelineTabProps> = ({ plan }) => {
                  <div className="space-y-2">
                     <div className="flex items-center gap-3">
                         <h3 className="text-xl font-black text-white uppercase tracking-widest">{phase.phase}</h3>
-                        <span className="text-[8px] font-black px-2 py-0.5 bg-white/5 rounded text-zinc-500 uppercase tracking-widest border border-white/5">{phase.duration}</span>
+                        <span className="text-xs font-black px-2 py-0.5 bg-white/5 rounded text-zinc-500 uppercase tracking-widest border border-white/5">{phase.duration}</span>
                     </div>
-                    <p className="text-[11px] font-medium text-zinc-500 max-w-md leading-relaxed">{phase.description}</p>
+                    <p className="text-xs font-medium text-zinc-500 max-w-md leading-relaxed">{phase.description}</p>
                     
                     {phase.progress > 0 && phase.progress < 100 && (
                         <div className="w-full h-1 bg-white/5 rounded-full mt-4 overflow-hidden">
@@ -160,7 +160,7 @@ export const TimelineTab: React.FC<TimelineTabProps> = ({ plan }) => {
                     phase.status === 'Active' ? "bg-blue-500 animate-pulse shadow-[0_0_10px_rgba(59,130,246,0.5)]" : 
                     "bg-zinc-700"
                  )} />
-                 <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400">{phase.status}</span>
+                 <span className="text-xs font-black uppercase tracking-[0.2em] text-zinc-400">{phase.status}</span>
               </div>
            </motion.div>
          ))}
@@ -171,10 +171,10 @@ export const TimelineTab: React.FC<TimelineTabProps> = ({ plan }) => {
               <Calendar className="w-10 h-10 text-blue-400" />
               <div className="space-y-1">
                   <h4 className="text-2xl font-black text-white uppercase tracking-tighter">Ready for Scripting</h4>
-                  <p className="text-zinc-500 text-[9px] font-bold uppercase tracking-widest italic">Proceed to script lab to begin dialogue manifestation</p>
+                  <p className="text-zinc-500 text-xs font-bold uppercase tracking-widest italic">Proceed to script lab to begin dialogue manifestation</p>
               </div>
           </div>
-          <button className="px-8 py-4 bg-blue-500 text-black font-black uppercase tracking-widest text-[10px] rounded-2xl hover:bg-blue-400 transition-all shadow-blue">
+          <button className="px-8 py-4 bg-blue-500 text-black font-black uppercase tracking-widest text-xs rounded-2xl hover:bg-blue-400 transition-all shadow-blue">
               Launch Production
           </button>
       </div>

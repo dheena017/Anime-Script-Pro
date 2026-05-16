@@ -76,10 +76,10 @@ export const IntegrityTab: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 max-w-5xl mx-auto px-6">
         {audit.stats.map((stat: any, i: number) => (
           <div key={i} className="p-6 bg-black/40 border border-white/5 rounded-3xl text-left space-y-2 backdrop-blur-sm">
-            <span className="text-[9px] font-black text-zinc-500 uppercase tracking-widest">{stat.label}</span>
+            <span className="text-xs font-black text-zinc-500 uppercase tracking-widest">{stat.label}</span>
             <div className="flex items-end justify-between">
               <span className="text-2xl font-black text-white">{stat.value}</span>
-              <span className={`text-[8px] font-bold ${stat.color} uppercase tracking-widest mb-1`}>{stat.status}</span>
+              <span className={`text-xs font-bold ${stat.color} uppercase tracking-widest mb-1`}>{stat.status}</span>
             </div>
           </div>
         ))}

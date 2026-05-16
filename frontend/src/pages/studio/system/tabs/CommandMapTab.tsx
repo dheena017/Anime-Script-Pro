@@ -63,7 +63,7 @@ export const CommandMapTab: React.FC = () => {
         <h2 className="text-4xl font-black text-white uppercase italic tracking-tighter leading-none">
           STUDIO <span className="text-[#bd4a4a]">ARCHITECT</span> MAP
         </h2>
-        <p className="text-zinc-500 max-w-2xl text-[10px] font-bold uppercase tracking-[0.2em] leading-relaxed">
+        <p className="text-zinc-500 max-w-2xl text-xs font-bold uppercase tracking-[0.2em] leading-relaxed">
           Direct access to all production phases and system protocols within the Anime Script Pro ecosystem.
         </p>
       </div>
@@ -74,7 +74,7 @@ export const CommandMapTab: React.FC = () => {
           <div key={mIdx} className="space-y-6">
             <div className="flex items-center gap-4">
               <module.icon className={cn("w-4 h-4", module.color)} />
-              <h3 className="text-[10px] font-black text-white uppercase tracking-[0.4em]">{module.title}</h3>
+              <h3 className="text-xs font-black text-white uppercase tracking-[0.4em]">{module.title}</h3>
               <div className="flex-1 h-px bg-white/5" />
             </div>
 
@@ -91,10 +91,10 @@ export const CommandMapTab: React.FC = () => {
                     <page.icon className="w-3.5 h-3.5 text-zinc-600 transition-colors" />
                   </div>
                   <div className="space-y-1">
-                    <h4 className="text-[10px] font-black text-zinc-300 uppercase tracking-widest group-hover:text-white transition-colors">
+                    <h4 className="text-xs font-black text-zinc-300 uppercase tracking-widest group-hover:text-white transition-colors">
                       {page.label}
                     </h4>
-                    <p className="text-[8px] font-bold text-zinc-600 line-clamp-1 uppercase tracking-tighter">
+                    <p className="text-xs font-bold text-zinc-600 line-clamp-1 uppercase tracking-tighter">
                       {page.desc}
                     </p>
                   </div>

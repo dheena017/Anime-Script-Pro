@@ -76,8 +76,7 @@ export async function createServer() {
 
   // Python Backend Proxy (Phase 2 & 3 Migration)
   // Mounted at /api to handle all /api routes including /api/generate and auth routes.
-
-  app.use('/api', createProxyMiddleware({
+  const apiProxy = createProxyMiddleware({
     target: process.env.BACKEND_URL || "http://127.0.0.1:3050",
     changeOrigin: true,
     // reduce proxy timeout to fail fast and return earlier errors to the client
@@ -116,7 +115,27 @@ export async function createServer() {
         }
       }
     }
-  }));
+  });
+
+  app.use('/api', apiProxy);
+
+  // WebSocket Proxy for Real-time Telemetry and Notifications
+  const wsProxy = createProxyMiddleware({
+    target: process.env.BACKEND_URL || "http://127.0.0.1:3050",
+    ws: true,
+    changeOrigin: true,
+    pathRewrite: (path) => {
+      const rewritten = path.startsWith('/ws') ? path : `/ws${path}`;
+      return rewritten;
+    },
+    on: {
+      error: (err: any) => {
+        console.error(`${red('[WS PROXY ERROR]')} WebSocket connection failure: ${err.message}`);
+      }
+    }
+  });
+
+  app.use('/ws', wsProxy);
 
 
 
@@ -220,15 +239,15 @@ export async function createServer() {
     });
   });
 
-  return { app, openai, anthropic, groq };
+  return { app, openai, anthropic, groq, wsProxy };
 }
 
 async function startServer() {
-  const { app, openai, anthropic, groq } = await createServer();
+  const { app, openai, anthropic, groq, wsProxy } = await createServer();
   const PORT = Number(process.env.PORT) || 3000;
   const BACKEND_URL = process.env.BACKEND_URL || "http://127.0.0.1:3050";
 
-  app.listen(PORT, "0.0.0.0", async () => {
+  const server = app.listen(PORT, "0.0.0.0", async () => {
     // Using global styling utilities
 
     let pkg = { name: "Anime Script Pro", version: "1.0.0" };
@@ -313,6 +332,13 @@ async function startServer() {
     console.log(`${gray("   Health: ")} http://localhost:${PORT}/_orchestrator/health`);
     console.log(`${gray("   Traffic: ")} http://localhost:${PORT}/_orchestrator/traffic`);
     console.log(bold(cyan("================================================================")) + "\n");
+  });
+
+  // Handle WebSocket upgrades for real-time telemetry and notifications
+  server.on('upgrade', (req, socket, head) => {
+    if (req.url?.startsWith('/ws')) {
+      (wsProxy as any).upgrade(req, socket, head);
+    }
   });
 
   // --- Graceful Shutdown ---

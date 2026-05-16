@@ -7,17 +7,17 @@ export const projectsStyles = {
   heroSection: "space-y-4",
   heroTag: "flex items-center gap-3",
   heroTagLine: "w-10 h-[2px] bg-studio",
-  heroTagText: "text-[10px] font-black uppercase tracking-[0.4em] text-studio",
+  heroTagText: "text-xs font-black uppercase tracking-[0.4em] text-studio",
   heroTitleWrapper: "flex flex-col md:flex-row md:items-end justify-between gap-6",
   heroTitleSection: "space-y-2",
-  heroTitle: "text-6xl md:text-8xl font-black uppercase italic tracking-tighter leading-none",
+  heroTitle: "text-3xl md:text-4xl font-black uppercase italic tracking-tighter leading-none",
   heroTitleAccent: "text-studio",
-  heroSubtitle: "text-zinc-500 font-bold uppercase text-[11px] tracking-[0.2em] max-w-xl",
+  heroSubtitle: "text-zinc-500 font-bold uppercase text-xs tracking-[0.2em] max-w-xl",
   
   // Metrics Display
   metricsGroup: "flex items-center gap-12 pb-2",
   metricCard: "space-y-1",
-  metricLabel: "text-[9px] font-black text-zinc-700 uppercase tracking-widest block",
+  metricLabel: "text-xs font-black text-zinc-700 uppercase tracking-widest block",
   metricValue: "text-3xl font-black text-white uppercase italic trekking-widest tabular-nums",
   metricComplexity: "flex items-center gap-2",
   metricIndicator: "w-2 h-2 rounded-full bg-emerald-500 animate-pulse",
@@ -33,13 +33,13 @@ export const projectsStyles = {
   configHeader: "flex items-center justify-between mb-12",
   configIcon: "w-10 h-10 rounded-xl bg-studio/10 flex items-center justify-center border border-studio/20",
   configTitle: "text-sm font-black uppercase tracking-[0.3em] text-white italic",
-  configBadge: "text-[9px] font-black text-zinc-700 bg-white/[0.02] px-4 py-1.5 rounded-full border border-white/5 uppercase tracking-widest",
+  configBadge: "text-xs font-black text-zinc-700 bg-white/[0.02] px-4 py-1.5 rounded-full border border-white/5 uppercase tracking-widest",
   
   // Input Elements
   textInput: "w-full bg-black/40 border border-zinc-900 rounded-[2rem] px-10 py-8 text-3xl font-black text-white placeholder:text-zinc-800 focus:border-studio/50 outline-none transition-all shadow-inner uppercase italic tracking-tighter",
-  selectInput: "w-full bg-black/60 border border-zinc-900 rounded-2xl px-6 py-4 text-[11px] font-black text-white outline-none focus:border-studio/50 transition-all appearance-none cursor-pointer uppercase tracking-widest",
+  selectInput: "w-full bg-black/60 border border-zinc-900 rounded-2xl px-6 py-4 text-xs font-black text-white outline-none focus:border-studio/50 transition-all appearance-none cursor-pointer uppercase tracking-widest",
   toggleButtonGroup: "flex bg-black/60 border border-zinc-900 rounded-2xl p-1.5",
-  toggleButton: "flex-1 py-3 text-[10px] font-black uppercase rounded-xl transition-all",
+  toggleButton: "flex-1 py-3 text-xs font-black uppercase rounded-xl transition-all",
   toggleButtonActive: "bg-studio text-black shadow-lg",
   toggleButtonInactive: "text-zinc-600 hover:text-zinc-400",
   
@@ -51,7 +51,7 @@ export const projectsStyles = {
   
   // Preset/Option Grid
   presetGrid: "grid grid-cols-2 gap-3",
-  presetButton: "px-4 py-3 bg-black/40 border border-zinc-800 rounded-xl text-[10px] font-black uppercase tracking-widest text-zinc-400 hover:border-studio/30 hover:text-studio transition-all",
+  presetButton: "px-4 py-3 bg-black/40 border border-zinc-800 rounded-xl text-xs font-black uppercase tracking-widest text-zinc-400 hover:border-studio/30 hover:text-studio transition-all",
   
   // Toolbar
   toolbar: "flex flex-col md:flex-row md:items-center justify-between gap-6 pb-8 border-b border-white/5",
@@ -62,7 +62,7 @@ export const projectsStyles = {
   tabIcon: "w-4 h-4 transition-transform duration-300 group-hover:scale-110",
   tabIconActive: "text-black",
   tabIconInactive: "text-zinc-600 group-hover:text-studio",
-  tabLabel: "text-[10px] font-black uppercase tracking-[0.2em]",
+  tabLabel: "text-xs font-black uppercase tracking-[0.2em]",
   tabIndicator: "absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-black rounded-full",
   
   // Action Buttons

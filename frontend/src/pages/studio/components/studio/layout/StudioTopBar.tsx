@@ -57,7 +57,7 @@ export const StudioTopBar: React.FC<{
             <ScrollText className="text-red-500 w-5 h-5" />
           </div>
           <div className="flex flex-col">
-            <span className="font-black tracking-[0.2em] text-[10px] uppercase text-white leading-none">Creator</span>
+            <span className="font-black tracking-[0.2em] text-xs uppercase text-white leading-none">Creator</span>
           </div>
         </Link>
 
@@ -69,11 +69,11 @@ export const StudioTopBar: React.FC<{
         <div className="hidden lg:flex items-center gap-3 bg-zinc-950/50 px-5 py-2 rounded-full border border-zinc-800/50 w-72 xl:w-96 group focus-within:border-red-500/40 focus-within:bg-black transition-all shadow-inner">
           <Search className="w-3.5 h-3.5 text-zinc-600 group-focus-within:text-red-500 transition-colors" />
           <input 
-            className="bg-transparent border-none text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-400 placeholder:text-zinc-700 focus:outline-none w-full" 
+            className="bg-transparent border-none text-xs font-bold uppercase tracking-[0.15em] text-zinc-400 placeholder:text-zinc-700 focus:outline-none w-full" 
             placeholder="Search Manifests..." 
           />
           <div className="flex items-center gap-1 opacity-0 group-focus-within:opacity-100 transition-opacity">
-             <span className="text-[8px] font-black text-zinc-700 border border-zinc-800 px-1 rounded">ESC</span>
+             <span className="text-xs font-black text-zinc-700 border border-zinc-800 px-1 rounded">ESC</span>
           </div>
         </div>
       </div>
@@ -85,7 +85,7 @@ export const StudioTopBar: React.FC<{
             variant="outline"
             size="sm"
             onClick={saveLocalSession}
-            className="h-8 px-4 rounded-xl border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 text-zinc-400 hover:text-white font-black uppercase tracking-widest text-[9px] transition-all active:scale-95"
+            className="h-8 px-4 rounded-xl border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 text-zinc-400 hover:text-white font-black uppercase tracking-widest text-xs transition-all active:scale-95"
           >
             💾 Save Local
           </Button>
@@ -94,7 +94,7 @@ export const StudioTopBar: React.FC<{
             variant="outline"
             size="sm"
             onClick={loadLocalSession}
-            className="h-8 px-4 rounded-xl border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 text-zinc-400 hover:text-white font-black uppercase tracking-widest text-[9px] transition-all active:scale-95"
+            className="h-8 px-4 rounded-xl border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 text-zinc-400 hover:text-white font-black uppercase tracking-widest text-xs transition-all active:scale-95"
           >
             📂 Load Local
           </Button>
@@ -106,7 +106,7 @@ export const StudioTopBar: React.FC<{
             size="sm"
             disabled={isLoading}
             onClick={() => window.dispatchEvent(new CustomEvent('studio-generate-all'))}
-            className="h-8 px-4 rounded-xl bg-red-600 hover:bg-red-500 text-white font-black uppercase tracking-widest text-[9px] shadow-[0_0_20px_rgba(220,38,38,0.3)] transition-all active:scale-95 group overflow-hidden relative"
+            className="h-8 px-4 rounded-xl bg-red-600 hover:bg-red-500 text-white font-black uppercase tracking-widest text-xs shadow-[0_0_20px_rgba(220,38,38,0.3)] transition-all active:scale-95 group overflow-hidden relative"
           >
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
             {isLoading ? (
@@ -125,17 +125,17 @@ export const StudioTopBar: React.FC<{
         {/* System Status Indicators */}
         <div className="hidden xl:flex items-center gap-8 px-6 border-r border-zinc-800/50 mr-2">
           <div className="flex flex-col items-end group cursor-help">
-            <span className="text-[7px] font-black text-zinc-600 uppercase tracking-[0.2em] leading-none mb-1 group-hover:text-emerald-500 transition-colors">System Sync</span>
+            <span className="text-xs font-black text-zinc-600 uppercase tracking-[0.2em] leading-none mb-1 group-hover:text-emerald-500 transition-colors">System Sync</span>
             <div className="flex items-center gap-2">
               <div className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.6)]" />
-              <span className="text-[9px] font-black text-emerald-500/80 uppercase tracking-tighter">Optimal</span>
+              <span className="text-xs font-black text-emerald-500/80 uppercase tracking-tighter">Optimal</span>
             </div>
           </div>
           <div className="flex flex-col items-end group cursor-help">
-            <span className="text-[7px] font-black text-zinc-600 uppercase tracking-[0.2em] leading-none mb-1 group-hover:text-blue-500 transition-colors">Latency</span>
+            <span className="text-xs font-black text-zinc-600 uppercase tracking-[0.2em] leading-none mb-1 group-hover:text-blue-500 transition-colors">Latency</span>
             <div className="flex items-center gap-2">
               <Zap className="w-2.5 h-2.5 text-blue-500/50" />
-              <span className="text-[9px] font-black text-blue-400 uppercase tracking-tighter">12ms</span>
+              <span className="text-xs font-black text-blue-400 uppercase tracking-tighter">12ms</span>
             </div>
           </div>
         </div>
@@ -163,17 +163,17 @@ export const StudioTopBar: React.FC<{
                 className="absolute top-full right-0 mt-3 w-80 bg-zinc-950 border border-zinc-800 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden z-[500]"
               >
                 <div className="p-4 border-b border-white/5 flex justify-between items-center bg-black/40">
-                  <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white">Neural Signals</span>
+                  <span className="text-xs font-black uppercase tracking-[0.2em] text-white">Neural Signals</span>
                   <button 
                     onClick={() => navigate('/notifications')}
-                    className="text-[8px] font-black uppercase tracking-widest text-zinc-500 hover:text-[#bd4a4a] transition-colors"
+                    className="text-xs font-black uppercase tracking-widest text-zinc-500 hover:text-[#bd4a4a] transition-colors"
                   >
                     View All Vault
                   </button>
                 </div>
                 <div className="max-h-[400px] overflow-y-auto">
                   {notifications.length === 0 ? (
-                    <div className="py-10 text-center text-[10px] font-black text-zinc-600 uppercase tracking-widest">
+                    <div className="py-10 text-center text-xs font-black text-zinc-600 uppercase tracking-widest">
                       No Active Signals
                     </div>
                   ) : (
@@ -194,7 +194,7 @@ export const StudioTopBar: React.FC<{
                 {notifications.length > 5 && (
                   <button 
                     onClick={() => navigate('/notifications')}
-                    className="w-full p-3 text-[9px] font-black text-zinc-500 uppercase tracking-[0.2em] hover:bg-white/5 hover:text-white transition-all border-t border-white/5"
+                    className="w-full p-3 text-xs font-black text-zinc-500 uppercase tracking-[0.2em] hover:bg-white/5 hover:text-white transition-all border-t border-white/5"
                   >
                     Load More Signals...
                   </button>
@@ -217,8 +217,8 @@ export const StudioTopBar: React.FC<{
           className="flex items-center gap-4 pl-2 pr-1 py-1 rounded-2xl hover:bg-white/5 border border-transparent hover:border-white/10 transition-all group"
         >
           <div className="text-right hidden md:block">
-            <p className="text-[9px] font-black uppercase tracking-[0.2em] text-white leading-none mb-1">Creator</p>
-            <p className="text-[7px] font-bold text-zinc-600 uppercase tracking-widest">Level 42 Sync</p>
+            <p className="text-xs font-black uppercase tracking-[0.2em] text-white leading-none mb-1">Creator</p>
+            <p className="text-xs font-bold text-zinc-600 uppercase tracking-widest">Level 42 Sync</p>
           </div>
           <div className="relative">
             <div className="w-9 h-9 rounded-xl bg-zinc-900 border border-zinc-800 overflow-hidden group-hover:border-red-500/50 transition-all shadow-2xl">

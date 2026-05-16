@@ -38,7 +38,7 @@ export default function AuthPage() {
   const Fallback = () => (
     <div className="flex flex-col items-center justify-center space-y-4 py-8 animate-pulse">
       <div className="w-12 h-12 border-2 border-zinc-800 border-t-[#bd4a4a] rounded-full animate-spin" />
-      <p className="text-[10px] text-zinc-500 font-black uppercase tracking-[0.2em]">Synchronizing with Matrix...</p>
+      <p className="text-xs text-zinc-500 font-black uppercase tracking-[0.2em]">Synchronizing with Matrix...</p>
     </div>
   );
 
@@ -102,7 +102,7 @@ export default function AuthPage() {
         <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-[#bd4a4a]/5 rounded-full blur-[140px] animate-pulse" />
         <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-blue-950/10 rounded-full blur-[120px]" />
         <div className="absolute inset-0 bg-[linear-gradient(to_bottom,transparent_0%,rgba(189,74,74,0.03)_50%,transparent_100%)] bg-[length:100%_20px] animate-[scan_8s_linear_infinite] opacity-50" />
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg_viewBox=%220_0_200_200%22_xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter_id=%22noiseFilter%22%3E%3CfeTurbulence_type=%22fractalNoise%22_baseFrequency=%220.65%22_numOctaves=%223%22_stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect_width=%22100%25%22_height=%22100%25%22_filter=%22url(%23noiseFilter)%22/%3E%3C/svg%3E')] opacity-[0.15] brightness-50 mix-blend-overlay" />
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg%20viewBox=%220%200%20200%20200%22%20xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter%20id=%22noiseFilter%22%3E%3CfeTurbulence%20type=%22fractalNoise%22%20baseFrequency=%220.65%22%20numOctaves=%223%22%20stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect%20width=%22100%25%22%20height=%22100%25%22%20filter=%22url(%23noiseFilter)%22/%3E%3C/svg%3E')] opacity-[0.15] brightness-50 mix-blend-overlay" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,#020203_100%)]" />
       </div>
 
@@ -128,12 +128,12 @@ export default function AuthPage() {
             </motion.div>
 
             <div className="space-y-2">
-              <CardTitle className="text-4xl font-black tracking-tighter text-white uppercase italic">
+                <CardTitle className="text-xl md:text-2xl font-black tracking-tighter text-white uppercase italic">
                 {mode === 'signin' ? 'Access' : 'Registration'} <span className="text-[#bd4a4a]">Portal</span>
               </CardTitle>
               <div className="flex items-center justify-center gap-2">
                 <span className="h-[1px] w-8 bg-zinc-800" />
-                <CardDescription className="text-zinc-500 font-black uppercase tracking-[0.3em] text-[10px]">
+                <CardDescription className="text-zinc-500 font-black uppercase tracking-[0.3em] text-xs">
                   {mode === 'signin' ? 'Secure Login' : 'Setup your account'}
                   With high precision.
                 </CardDescription>
@@ -182,7 +182,7 @@ export default function AuthPage() {
                 >
                   <div className="space-y-3">
                     <div className="flex items-center justify-between px-1">
-                      <Label htmlFor="email" className="text-[10px] uppercase tracking-[0.2em] text-zinc-600 font-black">Node Identity</Label>
+                      <Label htmlFor="email" className="text-xs uppercase tracking-[0.2em] text-zinc-600 font-black">Node Identity</Label>
                       <Terminal className="w-3 h-3 text-zinc-700" />
                     </div>
                     <div className="relative group">
@@ -201,8 +201,8 @@ export default function AuthPage() {
 
                   <div className="space-y-3">
                     <div className="flex items-center justify-between px-1">
-                      <Label htmlFor="password" className="text-[10px] uppercase tracking-[0.2em] text-zinc-600 font-black">Cryptographic Key</Label>
-                      {mode === 'signin' && <span className="text-[9px] uppercase font-bold text-zinc-700 hover:text-[#bd4a4a] cursor-pointer transition-colors">Lost Key?</span>}
+                      <Label htmlFor="password" className="text-xs uppercase tracking-[0.2em] text-zinc-600 font-black">Cryptographic Key</Label>
+                      {mode === 'signin' && <span className="text-xs uppercase font-bold text-zinc-700 hover:text-[#bd4a4a] cursor-pointer transition-colors">Lost Key?</span>}
                     </div>
                     <div className="relative group">
                       <Input
@@ -231,7 +231,7 @@ export default function AuthPage() {
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.95 }}
-                        className="p-4 rounded-2xl bg-red-500/5 border border-red-500/20 text-red-400 text-[10px] font-black uppercase tracking-widest flex items-start gap-3"
+                        className="p-4 rounded-2xl bg-red-500/5 border border-red-500/20 text-red-400 text-xs font-black uppercase tracking-widest flex items-start gap-3"
                       >
                         <ShieldAlert className="w-4 h-4 flex-shrink-0 animate-pulse" />
                         <span className="leading-relaxed">{error}</span>
@@ -272,7 +272,7 @@ export default function AuthPage() {
                     setMode(mode === 'signin' ? 'signup' : 'signin');
                     setError('');
                   }}
-                  className="h-12 border-zinc-800/50 bg-black/20 hover:bg-zinc-900 text-zinc-400 hover:text-white transition-all rounded-xl text-[10px] font-black uppercase tracking-widest"
+                  className="h-12 border-zinc-800/50 bg-black/20 hover:bg-zinc-900 text-zinc-400 hover:text-white transition-all rounded-xl text-xs font-black uppercase tracking-widest"
                 >
                   {mode === 'signin' ? <UserPlus className="mr-2 h-4 w-4 text-[#bd4a4a]" /> : <LogIn className="mr-2 h-4 w-4 text-[#bd4a4a]" />}
                   {mode === 'signin' ? 'Create New Node' : 'Existing Node Login'}
@@ -280,7 +280,7 @@ export default function AuthPage() {
               </div>
             )}
 
-            <p className="text-center text-[10px] text-zinc-700 font-bold uppercase tracking-widest">
+            <p className="text-center text-xs text-zinc-700 font-bold uppercase tracking-widest">
               By accessing you agree to the <span className="text-zinc-500 hover:text-white cursor-pointer">Protocol Terms</span>
             </p>
           </CardContent>
@@ -292,7 +292,7 @@ export default function AuthPage() {
           transition={{ delay: 1 }}
           className="mt-8 flex items-center justify-between px-6"
         >
-          <div className="flex items-center gap-4 text-[10px] font-black uppercase tracking-widest text-zinc-800">
+          <div className="flex items-center gap-4 text-xs font-black uppercase tracking-widest text-zinc-800">
             <div className="flex items-center gap-1.5">
               <div className="w-1.5 h-1.5 rounded-full bg-emerald-500/50" />
               <span>Asia-South-1</span>
@@ -302,7 +302,7 @@ export default function AuthPage() {
               <span>Supabase Auth</span>
             </div>
           </div>
-          <p className="text-[10px] uppercase tracking-[0.3em] font-black text-zinc-800">
+          <p className="text-xs uppercase tracking-[0.3em] font-black text-zinc-800">
             Studio Pro v2.04
           </p>
         </motion.div>

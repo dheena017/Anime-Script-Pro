@@ -61,20 +61,20 @@ export const EngineOptimization: React.FC = () => {
         <div className="space-y-3">
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-studio/10 border border-studio/20 rounded-full">
             <Activity className="w-3 h-3 text-studio" />
-            <span className="text-[8px] font-black text-studio uppercase tracking-[0.2em]">Performance Console</span>
+            <span className="text-xs font-black text-studio uppercase tracking-[0.2em]">Performance Console</span>
           </div>
-          <h1 className="text-5xl font-black text-white uppercase tracking-tighter italic leading-none">
+          <h1 className="text-2xl font-black text-white uppercase tracking-tighter italic leading-none">
             ENGINE <span className="text-studio">OPTIMIZATION</span>
           </h1>
-          <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest">Real-time Telemetry // Synthesis Integrity Monitor</p>
+          <p className="text-xs font-bold text-zinc-600 uppercase tracking-widest">Real-time Telemetry // Synthesis Integrity Monitor</p>
         </div>
         
         <div className="flex items-center gap-6">
            <div className="p-4 bg-zinc-950 border border-white/5 rounded-2xl flex items-center gap-4">
               <Database className="w-5 h-5 text-zinc-700" />
               <div>
-                 <p className="text-[8px] font-black text-zinc-600 uppercase tracking-widest leading-none">Telemetry Depth</p>
-                 <p className="text-[10px] font-mono font-bold text-white mt-1">{telemetry.length} NODES</p>
+                 <p className="text-xs font-black text-zinc-600 uppercase tracking-widest leading-none">Telemetry Depth</p>
+                 <p className="text-xs font-mono font-bold text-white mt-1">{telemetry.length} NODES</p>
               </div>
            </div>
         </div>
@@ -93,10 +93,10 @@ export const EngineOptimization: React.FC = () => {
             <div className={cn("w-12 h-12 rounded-2xl bg-white/[0.02] border border-white/5 flex items-center justify-center mb-6 shadow-inner", stat.color)}>
               <stat.icon className="w-6 h-6" />
             </div>
-            <span className="text-[9px] font-black text-zinc-600 uppercase tracking-widest leading-none">{stat.label}</span>
+            <span className="text-xs font-black text-zinc-600 uppercase tracking-widest leading-none">{stat.label}</span>
             <div className="flex items-end justify-between mt-3">
               <span className="text-3xl font-black text-white uppercase tracking-tighter italic">{isLoading ? '...' : stat.value}</span>
-              <div className={cn("px-2 py-1 rounded-lg text-[9px] font-bold", stat.trend.includes('+') ? 'bg-emerald-500/10 text-emerald-400' : 'bg-white/5 text-zinc-500')}>
+              <div className={cn("px-2 py-1 rounded-lg text-xs font-bold", stat.trend.includes('+') ? 'bg-emerald-500/10 text-emerald-400' : 'bg-white/5 text-zinc-500')}>
                 {stat.trend}
               </div>
             </div>
@@ -108,11 +108,11 @@ export const EngineOptimization: React.FC = () => {
         {/* REAL Model Usage Breakdown */}
         <div className="lg:col-span-7 p-10 bg-[#050505] border border-white/5 rounded-[2.5rem] space-y-10 shadow-2xl">
           <div className="flex items-center justify-between">
-            <h4 className="text-[10px] font-black text-white uppercase tracking-[0.3em] flex items-center gap-3">
+            <h4 className="text-xs font-black text-white uppercase tracking-[0.3em] flex items-center gap-3">
               <BarChart3 className="w-4 h-4 text-studio" />
               Model Usage Distribution
             </h4>
-            <span className="text-[8px] font-black text-zinc-700 uppercase tracking-widest">Global_Context</span>
+            <span className="text-xs font-black text-zinc-700 uppercase tracking-widest">Global_Context</span>
           </div>
 
           <div className="space-y-8">
@@ -120,8 +120,8 @@ export const EngineOptimization: React.FC = () => {
               <div key={bar.name} className="space-y-4">
                 <div className="flex justify-between items-end">
                   <div className="space-y-1">
-                     <span className="text-[10px] font-black text-white uppercase tracking-widest block">{bar.name}</span>
-                     <span className="text-[8px] font-bold text-zinc-600 uppercase tracking-widest">Production Cycle</span>
+                     <span className="text-xs font-black text-white uppercase tracking-widest block">{bar.name}</span>
+                     <span className="text-xs font-bold text-zinc-600 uppercase tracking-widest">Production Cycle</span>
                   </div>
                   <span className="text-xs font-mono font-bold text-studio">{bar.val}%</span>
                 </div>
@@ -136,7 +136,7 @@ export const EngineOptimization: React.FC = () => {
               </div>
             )) : (
               <div className="h-64 flex items-center justify-center border border-dashed border-white/5 rounded-3xl">
-                 <p className="text-[10px] font-black text-zinc-800 uppercase tracking-[0.4em]">Awaiting Production Telemetry...</p>
+                 <p className="text-xs font-black text-zinc-800 uppercase tracking-[0.4em]">Awaiting Production Telemetry...</p>
               </div>
             )}
           </div>
@@ -175,12 +175,12 @@ export const EngineOptimization: React.FC = () => {
             </div>
             <div className="space-y-2">
                <h4 className="text-xs font-black text-white uppercase tracking-[0.2em] italic">System Integrity</h4>
-               <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest leading-relaxed px-12">
+               <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest leading-relaxed px-12">
                  Synchronizing production nodes across distributed AI clusters.
                </p>
             </div>
             <div className="pt-6 border-t border-white/5 w-full">
-               <div className="flex items-center justify-between text-[8px] font-black text-zinc-600 uppercase tracking-[0.3em]">
+               <div className="flex items-center justify-between text-xs font-black text-zinc-600 uppercase tracking-[0.3em]">
                   <span>Uptime</span>
                   <span className="text-emerald-500">99.99%</span>
                </div>

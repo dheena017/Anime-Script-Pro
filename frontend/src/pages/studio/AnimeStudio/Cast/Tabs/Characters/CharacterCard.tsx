@@ -76,13 +76,13 @@ export const CastCard = React.memo<CastCardProps>(({
               {isEditing ? (
                 <div className="flex gap-2 w-full">
                   <input 
-                    className="bg-black/40 border border-studio/10 rounded-lg px-3 py-1 text-[9px] uppercase font-black text-studio focus:outline-none flex-1"
+                    className="bg-black/40 border border-studio/10 rounded-lg px-3 py-1 text-xs uppercase font-black text-studio focus:outline-none flex-1"
                     value={character.archetype}
                     onChange={(e) => onUpdate({ archetype: e.target.value })}
                     placeholder="Archetype"
                   />
                   <input 
-                    className="bg-black/40 border border-studio/10 rounded-lg px-3 py-1 text-[9px] uppercase font-bold text-zinc-500 focus:outline-none flex-1"
+                    className="bg-black/40 border border-studio/10 rounded-lg px-3 py-1 text-xs uppercase font-bold text-zinc-500 focus:outline-none flex-1"
                     value={character.personality}
                     onChange={(e) => onUpdate({ personality: e.target.value })}
                     placeholder="Personality"
@@ -91,7 +91,7 @@ export const CastCard = React.memo<CastCardProps>(({
               ) : (
                 <>
                   <span className={cn(
-                    "text-[9px] uppercase tracking-[0.2em] font-black px-3 py-1 rounded-full border shadow-sm",
+                    "text-xs uppercase tracking-[0.2em] font-black px-3 py-1 rounded-full border shadow-sm",
                     character.archetype?.toLowerCase().includes('protagonist') || character.archetype?.toLowerCase().includes('hero') ? 'text-cyan-400 bg-cyan-500/10 border-cyan-500/30 shadow-cyan-500/20' :
                     character.archetype?.toLowerCase().includes('antagonist') || character.archetype?.toLowerCase().includes('villain') ? 'text-red-400 bg-red-500/10 border-red-500/30 shadow-red-500/20' :
                     character.archetype?.toLowerCase().includes('mentor') || character.archetype?.toLowerCase().includes('master') ? 'text-amber-400 bg-amber-500/10 border-amber-500/30 shadow-amber-500/20' :
@@ -102,7 +102,7 @@ export const CastCard = React.memo<CastCardProps>(({
                   </span>
                   
                   <span className={cn(
-                    "text-[9px] uppercase tracking-[0.1em] font-bold px-3 py-1 rounded-full border",
+                    "text-xs uppercase tracking-[0.1em] font-bold px-3 py-1 rounded-full border",
                     character.personality?.toLowerCase().includes('dere') ? 'text-fuchsia-400 bg-fuchsia-500/10 border-fuchsia-500/30' : 'text-zinc-400 bg-zinc-900 border-zinc-800'
                   )}>
                     {character.personality || "Underspecified"}
@@ -124,16 +124,16 @@ export const CastCard = React.memo<CastCardProps>(({
               <div className="flex-1 bg-zinc-950 p-4 rounded-3xl border border-zinc-900/50">
                 <div className="flex items-center gap-2 mb-2">
                   <Target className="w-3 h-3 text-studio" />
-                  <span className="text-[8px] uppercase font-black tracking-widest text-zinc-500">Core Objective</span>
+                  <span className="text-xs uppercase font-black tracking-widest text-zinc-500">Core Objective</span>
                 </div>
                 {isEditing ? (
                   <textarea 
-                    className="w-full bg-black/40 border border-white/5 rounded-xl p-2 text-[10px] text-zinc-400 font-medium italic focus:outline-none min-h-[60px] resize-none"
+                    className="w-full bg-black/40 border border-white/5 rounded-xl p-2 text-xs text-zinc-400 font-medium italic focus:outline-none min-h-[60px] resize-none"
                     value={character.goal}
                     onChange={(e) => onUpdate({ goal: e.target.value })}
                   />
                 ) : (
-                  <p className="text-[11px] text-zinc-400 font-medium leading-relaxed leading-snug italic">
+                  <p className="text-xs text-zinc-400 font-medium leading-relaxed leading-snug italic">
                     "{character.goal || "Redacted"}"
                   </p>
                 )}
@@ -141,16 +141,16 @@ export const CastCard = React.memo<CastCardProps>(({
               <div className="flex-1 bg-zinc-950 p-4 rounded-3xl border border-zinc-900/50">
                 <div className="flex items-center gap-2 mb-2">
                   <Skull className="w-3 h-3 text-fuchsia-500" />
-                  <span className="text-[8px] uppercase font-black tracking-widest text-zinc-500">Genetic Flaw</span>
+                  <span className="text-xs uppercase font-black tracking-widest text-zinc-500">Genetic Flaw</span>
                 </div>
                 {isEditing ? (
                   <textarea 
-                    className="w-full bg-black/40 border border-white/5 rounded-xl p-2 text-[10px] text-zinc-400 font-medium italic focus:outline-none min-h-[60px] resize-none"
+                    className="w-full bg-black/40 border border-white/5 rounded-xl p-2 text-xs text-zinc-400 font-medium italic focus:outline-none min-h-[60px] resize-none"
                     value={character.flaw}
                     onChange={(e) => onUpdate({ flaw: e.target.value })}
                   />
                 ) : (
-                  <p className="text-[11px] text-zinc-400 font-medium leading-relaxed leading-snug italic">
+                  <p className="text-xs text-zinc-400 font-medium leading-relaxed leading-snug italic">
                     "{character.flaw || "Perfect Model"}"
                   </p>
                 )}
@@ -165,34 +165,34 @@ export const CastCard = React.memo<CastCardProps>(({
 
          <div className="space-y-6">
             <div className="space-y-2">
-              <div className="flex items-center gap-2 text-[8px] font-black uppercase text-zinc-700 tracking-[0.2em]">
+              <div className="flex items-center gap-2 text-xs font-black uppercase text-zinc-700 tracking-[0.2em]">
                 <Search className="w-3 h-3" /> Visual DNA
               </div>
               {isEditing ? (
                 <textarea 
-                  className="w-full bg-black/40 border border-white/5 rounded-xl p-3 text-[10px] text-zinc-500 font-medium focus:outline-none min-h-[80px] resize-none"
+                  className="w-full bg-black/40 border border-white/5 rounded-xl p-3 text-xs text-zinc-500 font-medium focus:outline-none min-h-[80px] resize-none"
                   value={displayAppearance}
                   onChange={(e) => onUpdate({ appearance: e.target.value })}
                 />
               ) : (
-                <p className="text-[10px] text-zinc-500 font-medium leading-relaxed">
+                <p className="text-xs text-zinc-500 font-medium leading-relaxed">
                   {displayAppearance}
                 </p>
               )}
             </div>
             
             <div className="space-y-2">
-              <div className="flex items-center gap-2 text-[8px] font-black uppercase text-zinc-700 tracking-[0.2em]">
+              <div className="flex items-center gap-2 text-xs font-black uppercase text-zinc-700 tracking-[0.2em]">
                 <MessageSquare className="w-3 h-3" /> Communication Style
               </div>
               {isEditing ? (
                 <input 
-                  className="w-full bg-black/40 border border-white/5 rounded-xl px-3 py-2 text-[10px] text-zinc-400 font-medium italic focus:outline-none"
+                  className="w-full bg-black/40 border border-white/5 rounded-xl px-3 py-2 text-xs text-zinc-400 font-medium italic focus:outline-none"
                   value={displaySpeakingStyle}
                   onChange={(e) => onUpdate({ speakingStyle: e.target.value })}
                 />
               ) : (
-                <p className="text-[10px] text-zinc-400 font-medium italic">
+                <p className="text-xs text-zinc-400 font-medium italic">
                   "{displaySpeakingStyle}"
                 </p>
               )}
@@ -201,35 +201,35 @@ export const CastCard = React.memo<CastCardProps>(({
 
          <div className="space-y-6">
             <div className="space-y-2">
-              <div className="flex items-center gap-2 text-[8px] font-black uppercase text-zinc-700 tracking-[0.2em]">
+              <div className="flex items-center gap-2 text-xs font-black uppercase text-zinc-700 tracking-[0.2em]">
                 <Sparkles className="w-3 h-3 text-studio" /> Narrative Conflict
               </div>
               {isEditing ? (
                 <textarea 
-                  className="w-full bg-black/40 border border-white/5 rounded-xl p-3 text-[10px] text-zinc-500 font-medium focus:outline-none min-h-[80px] resize-none"
+                  className="w-full bg-black/40 border border-white/5 rounded-xl p-3 text-xs text-zinc-500 font-medium focus:outline-none min-h-[80px] resize-none"
                   value={character.conflict}
                   onChange={(e) => onUpdate({ conflict: e.target.value })}
                 />
               ) : (
-                <p className="text-[10px] text-zinc-500 font-medium leading-relaxed">
+                <p className="text-xs text-zinc-500 font-medium leading-relaxed">
                   {character.conflict || "Primary ideological battleground."}
                 </p>
               )}
             </div>
 
             <div className="space-y-2">
-              <div className="flex items-center gap-2 text-[8px] font-black uppercase text-zinc-700 tracking-[0.2em]">
+              <div className="flex items-center gap-2 text-xs font-black uppercase text-zinc-700 tracking-[0.2em]">
                 <EyeOff className="w-3 h-3 text-orange-500/50" /> Hidden Secret
               </div>
               <div className={cn("bg-orange-500/5 border border-orange-500/10 p-3 rounded-2xl transition-all duration-700 cursor-help", !isEditing && "blur-[2px] hover:blur-none")}>
                 {isEditing ? (
                   <textarea 
-                    className="w-full bg-transparent border-none p-0 text-[9px] text-orange-400/80 font-black uppercase tracking-tighter italic focus:outline-none min-h-[40px] resize-none"
+                    className="w-full bg-transparent border-none p-0 text-xs text-orange-400/80 font-black uppercase tracking-tighter italic focus:outline-none min-h-[40px] resize-none"
                     value={displaySecret}
                     onChange={(e) => onUpdate({ secret: e.target.value })}
                   />
                 ) : (
-                  <p className="text-[9px] text-orange-400/80 font-black uppercase tracking-tighter italic">
+                  <p className="text-xs text-orange-400/80 font-black uppercase tracking-tighter italic">
                     {displaySecret}
                   </p>
                 )}
@@ -242,7 +242,7 @@ export const CastCard = React.memo<CastCardProps>(({
       <div className="p-6 bg-zinc-950 border-t border-zinc-900 flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <div className="w-2 h-2 rounded-full bg-studio shadow-studio" />
-          <span className="text-[8px] font-black text-zinc-700 uppercase tracking-widest truncate max-w-[200px]">
+          <span className="text-xs font-black text-zinc-700 uppercase tracking-widest truncate max-w-[200px]">
             DNA: {character.visualPrompt || "GENETIC_HASH_PENDING"}
           </span>
         </div>
@@ -253,13 +253,13 @@ export const CastCard = React.memo<CastCardProps>(({
               const charId = character.name.toLowerCase().replace(/\s+/g, '-');
               window.dispatchEvent(new CustomEvent('cast-view-character', { detail: { id: charId } }));
             }}
-            className="flex-1 sm:flex-none px-4 py-1.5 rounded-xl border border-zinc-800 text-[9px] font-black uppercase tracking-widest text-zinc-500 hover:text-white hover:border-zinc-700 transition-all"
+            className="flex-1 sm:flex-none px-4 py-1.5 rounded-xl border border-zinc-800 text-xs font-black uppercase tracking-widest text-zinc-500 hover:text-white hover:border-zinc-700 transition-all"
           >
             View Soul
           </button>
           <button 
             onClick={() => showNotification?.('This feature is currently in development.', 'info')}
-            className="flex-1 sm:flex-none px-4 py-1.5 rounded-xl bg-studio/10 border border-studio/30 text-[9px] font-black uppercase tracking-widest text-studio hover:bg-studio hover:text-black transition-all shadow-studio/20"
+            className="flex-1 sm:flex-none px-4 py-1.5 rounded-xl bg-studio/10 border border-studio/30 text-xs font-black uppercase tracking-widest text-studio hover:bg-studio hover:text-black transition-all shadow-studio/20"
           >
             Focus DNA
           </button>

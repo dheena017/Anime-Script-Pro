@@ -11,6 +11,7 @@ export interface LogEntry {
 
 interface LogStateContextType {
   masterLogs: LogEntry[];
+  dbLogs: LogEntry[];
 }
 
 interface LogDispatchContextType {
@@ -22,7 +23,51 @@ const LogStateContext = createContext<LogStateContextType | undefined>(undefined
 const LogDispatchContext = createContext<LogDispatchContextType | undefined>(undefined);
 
 export const LogProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [masterLogs, setMasterLogs] = useState<LogEntry[]>([]);
+  const [masterLogs, setMasterLogs] = React.useState<LogEntry[]>([]);
+  const [dbLogs, setDbLogs] = React.useState<LogEntry[]>([]);
+
+  const addDbLog = React.useCallback((log: LogEntry) => {
+    setDbLogs(prev => [log, ...prev].slice(0, 100));
+  }, []);
+
+  React.useEffect(() => {
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const wsUrl = `${protocol}//${window.location.host}/ws/telemetry`;
+    let ws: WebSocket | null = null;
+    let timeout: any = null;
+
+    function connect() {
+      try {
+        ws = new WebSocket(wsUrl);
+        ws.onmessage = (event) => {
+          try {
+            const data = JSON.parse(event.data);
+            if (data.module === 'DATABASE') {
+              addDbLog(data);
+            }
+          } catch (e) {
+            console.error('Failed to parse telemetry log', e);
+          }
+        };
+        ws.onclose = () => {
+          timeout = setTimeout(connect, 5000);
+        };
+        ws.onerror = (err) => {
+          console.error('Telemetry WebSocket Error:', err);
+          ws?.close();
+        };
+      } catch (e) {
+        console.error('Failed to connect to telemetry', e);
+        timeout = setTimeout(connect, 5000);
+      }
+    }
+
+    connect();
+    return () => {
+      if (ws) ws.close();
+      if (timeout) clearTimeout(timeout);
+    };
+  }, [addDbLog]);
 
   const addLog = useCallback((module: string, status: string, message?: string, model_used?: string) => {
     const newLog: LogEntry = {
@@ -39,9 +84,10 @@ export const LogProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const clearLogs = useCallback(() => {
     setMasterLogs([]);
+    setDbLogs([]);
   }, []);
 
-  const stateValue = useMemo(() => ({ masterLogs }), [masterLogs]);
+  const stateValue = useMemo(() => ({ masterLogs, dbLogs }), [masterLogs, dbLogs]);
   const dispatchValue = useMemo(() => ({ addLog, clearLogs }), [addLog, clearLogs]);
 
   return (

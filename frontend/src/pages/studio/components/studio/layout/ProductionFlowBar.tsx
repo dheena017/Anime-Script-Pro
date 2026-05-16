@@ -127,7 +127,7 @@ export function ProductionFlowBar({ basePath = '/anime' }: { basePath?: string }
               
               <div className="flex flex-col items-center">
                 <span className={cn(
-                  "text-[8px] font-black uppercase tracking-[0.3em] transition-all duration-700",
+                  "text-xs font-black uppercase tracking-[0.3em] transition-all duration-700",
                   isActive ? "text-white scale-110" : isCompleted ? "text-zinc-500" : "text-zinc-800"
                 )}>
                   {phase.label}

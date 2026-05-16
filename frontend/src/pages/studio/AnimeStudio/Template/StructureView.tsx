@@ -60,7 +60,7 @@ export const StructureView: React.FC<StructureViewProps> = ({
           <div className="animate-in fade-in slide-in-from-bottom-8 duration-1000">
             <div className={s.structureProse}>
               <div className="mb-16 flex justify-start">
-                 <div className="inline-block px-6 py-2 bg-cyan-500/5 border border-cyan-500/20 rounded-xl text-[10px] font-black uppercase tracking-[0.5em] text-cyan-400/80 shadow-[0_0_20px_rgba(6,182,212,0.1)]">
+                 <div className="inline-block px-6 py-2 bg-cyan-500/5 border border-cyan-500/20 rounded-xl text-xs font-black uppercase tracking-[0.5em] text-cyan-400/80 shadow-[0_0_20px_rgba(6,182,212,0.1)]">
                    Technical Specification // Unit: Standard
                  </div>
               </div>

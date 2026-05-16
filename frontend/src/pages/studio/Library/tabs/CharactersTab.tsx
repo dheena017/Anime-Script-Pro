@@ -148,7 +148,7 @@ export const CharactersTab: React.FC<CharactersTabProps> = ({ searchTerm, viewMo
                     {/* DNA Badge */}
                     <div className="absolute top-4 right-4 px-3 py-1.5 bg-[#bd4a4a]/20 border border-[#bd4a4a]/40 rounded-lg flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-all">
                       <Zap className="w-3 h-3 text-[#bd4a4a]" />
-                      <span className="text-[8px] font-black text-[#bd4a4a] uppercase tracking-widest">Character</span>
+                      <span className="text-xs font-black text-[#bd4a4a] uppercase tracking-widest">Character</span>
                     </div>
 
                     {/* Favorite Button */}
@@ -175,20 +175,20 @@ export const CharactersTab: React.FC<CharactersTabProps> = ({ searchTerm, viewMo
                         {character.name}
                       </CardTitle>
                       {character.role && (
-                        <span className="inline-block mt-2 px-2 py-1 bg-[#bd4a4a]/10 border border-[#bd4a4a]/30 rounded text-[8px] font-bold text-[#bd4a4a] uppercase tracking-widest">
+                        <span className="inline-block mt-2 px-2 py-1 bg-[#bd4a4a]/10 border border-[#bd4a4a]/30 rounded text-xs font-bold text-[#bd4a4a] uppercase tracking-widest">
                           {character.role}
                         </span>
                       )}
                     </div>
 
                     {character.personality && (
-                      <p className="text-[10px] text-zinc-400 line-clamp-2">
+                      <p className="text-xs text-zinc-400 line-clamp-2">
                         {character.personality}
                       </p>
                     )}
 
                     <div className="flex gap-2 pt-2">
-                      <button className="flex-1 p-2 hover:bg-zinc-900 text-zinc-500 hover:text-white rounded transition flex items-center justify-center gap-1 text-[8px] font-bold uppercase tracking-widest">
+                      <button className="flex-1 p-2 hover:bg-zinc-900 text-zinc-500 hover:text-white rounded transition flex items-center justify-center gap-1 text-xs font-bold uppercase tracking-widest">
                         <Edit3 className="w-3 h-3" /> Edit
                       </button>
                       <button className="p-2 hover:bg-zinc-900 text-zinc-500 hover:text-[#bd4a4a] rounded transition">
@@ -202,7 +202,7 @@ export const CharactersTab: React.FC<CharactersTabProps> = ({ searchTerm, viewMo
           ) : (
             <div className="col-span-full py-20 text-center border border-zinc-900 border-dashed rounded-2xl">
               <Fingerprint className="w-12 h-12 text-zinc-700 mx-auto mb-4 opacity-50" />
-              <p className="text-[9px] font-black text-zinc-700 uppercase tracking-widest">
+              <p className="text-xs font-black text-zinc-700 uppercase tracking-widest">
                 {searchTerm ? 'No characters match your search' : 'No characters saved yet'}
               </p>
             </div>
@@ -224,7 +224,7 @@ export const CharactersTab: React.FC<CharactersTabProps> = ({ searchTerm, viewMo
                 {selectedCharacter.name}
               </CardTitle>
               {selectedCharacter.role && (
-                <span className="inline-block mt-2 px-3 py-1 bg-[#bd4a4a]/10 border border-[#bd4a4a]/30 rounded text-[9px] font-bold text-[#bd4a4a] uppercase tracking-widest">
+                <span className="inline-block mt-2 px-3 py-1 bg-[#bd4a4a]/10 border border-[#bd4a4a]/30 rounded text-xs font-bold text-[#bd4a4a] uppercase tracking-widest">
                   {selectedCharacter.role}
                 </span>
               )}
@@ -241,13 +241,13 @@ export const CharactersTab: React.FC<CharactersTabProps> = ({ searchTerm, viewMo
                 <div className="space-y-4">
                   {selectedCharacter.personality && (
                     <div>
-                      <h3 className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-2">Personality</h3>
+                      <h3 className="text-xs font-black text-zinc-500 uppercase tracking-widest mb-2">Personality</h3>
                       <p className="text-[13px] text-zinc-300 leading-relaxed">{selectedCharacter.personality}</p>
                     </div>
                   )}
                   {selectedCharacter.appearance && (
                     <div>
-                      <h3 className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-2">Appearance</h3>
+                      <h3 className="text-xs font-black text-zinc-500 uppercase tracking-widest mb-2">Appearance</h3>
                       <p className="text-[13px] text-zinc-300 leading-relaxed">{selectedCharacter.appearance}</p>
                     </div>
                   )}

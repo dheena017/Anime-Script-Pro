@@ -78,7 +78,7 @@ export default function CharacterViewPage() {
         </Button>
         <Button 
           onClick={() => navigate(`/${contentType.toLowerCase()}/cast/characters/${characterName}/edit`)}
-          className="bg-studio/10 border border-studio/30 text-studio hover:bg-studio hover:text-black transition-all font-black uppercase tracking-widest text-[10px] px-6 h-10 rounded-xl"
+          className="bg-studio/10 border border-studio/30 text-studio hover:bg-studio hover:text-black transition-all font-black uppercase tracking-widest text-xs px-6 h-10 rounded-xl"
         >
           <Edit3 className="w-3.5 h-3.5 mr-2" /> Refine DNA
         </Button>
@@ -109,18 +109,18 @@ export default function CharacterViewPage() {
             )}
             
             <div className="absolute bottom-8 left-8 right-8 p-8 bg-black/80 backdrop-blur-xl border border-white/10 rounded-[2rem] transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-700">
-               <p className="text-[10px] font-black text-studio uppercase tracking-[0.3em] mb-2">Visual Parameters</p>
+               <p className="text-xs font-black text-studio uppercase tracking-[0.3em] mb-2">Visual Parameters</p>
                <p className="text-xs text-zinc-400 leading-relaxed italic">"{toText(character.technicalModel?.visualDNA || character.appearance || 'Aesthetic parameters pending.')}"</p>
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="p-8 bg-zinc-950/80 border border-white/5 rounded-[2.5rem] text-center space-y-2 hover:border-studio/30 transition-colors">
-              <p className="text-[9px] font-black text-zinc-600 uppercase tracking-widest">Archetype</p>
+              <p className="text-xs font-black text-zinc-600 uppercase tracking-widest">Archetype</p>
               <p className="text-sm font-black text-studio uppercase tracking-tighter">{toText(character.archetype) || 'Main'}</p>
             </div>
             <div className="p-8 bg-zinc-950/80 border border-white/5 rounded-[2.5rem] text-center space-y-2 hover:border-fuchsia-500/30 transition-colors">
-              <p className="text-[9px] font-black text-zinc-600 uppercase tracking-widest">Alignment</p>
+              <p className="text-xs font-black text-zinc-600 uppercase tracking-widest">Alignment</p>
               <p className="text-sm font-black text-fuchsia-400 uppercase tracking-tighter">{toText(character.personality) || 'Neutral'}</p>
             </div>
           </div>
@@ -129,15 +129,15 @@ export default function CharacterViewPage() {
         <div className="lg:col-span-2 space-y-12">
           <div className="space-y-6">
             <div className="flex items-center gap-4">
-               <div className="px-4 py-1.5 bg-studio/5 border border-studio/20 rounded-2xl text-[9px] font-black text-studio uppercase tracking-[0.2em] flex items-center gap-3">
+               <div className="px-4 py-1.5 bg-studio/5 border border-studio/20 rounded-2xl text-xs font-black text-studio uppercase tracking-[0.2em] flex items-center gap-3">
                   <div className="w-1.5 h-1.5 rounded-full bg-studio shadow-[0_0_10px_rgba(6,182,212,0.8)] animate-pulse" />
                   Neural Identity Verified
                </div>
-               <div className="px-4 py-1.5 bg-white/5 border border-white/5 rounded-2xl text-[9px] font-black text-zinc-500 uppercase tracking-[0.2em]">
+               <div className="px-4 py-1.5 bg-white/5 border border-white/5 rounded-2xl text-xs font-black text-zinc-500 uppercase tracking-[0.2em]">
                   SID: CAST-{Math.random().toString(36).substring(7).toUpperCase()}
                </div>
             </div>
-            <h1 className="text-8xl font-black text-white uppercase tracking-tighter leading-none">
+            <h1 className="text-4xl font-black text-white uppercase tracking-tighter leading-none">
               {character.name}
             </h1>
             <p className="text-2xl text-zinc-400 font-medium leading-relaxed max-w-3xl italic border-l-2 border-studio/40 pl-8">
@@ -152,7 +152,7 @@ export default function CharacterViewPage() {
                   <Target className="w-6 h-6" />
                 </div>
                 <div>
-                  <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Ideological Protocol</p>
+                  <p className="text-xs font-black text-zinc-500 uppercase tracking-widest">Ideological Protocol</p>
                   <p className="text-lg font-black text-white uppercase tracking-tighter">Primary Conflict</p>
                 </div>
               </div>
@@ -167,7 +167,7 @@ export default function CharacterViewPage() {
                   <Skull className="w-6 h-6" />
                 </div>
                 <div>
-                  <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Psychological DNA</p>
+                  <p className="text-xs font-black text-zinc-500 uppercase tracking-widest">Psychological DNA</p>
                   <p className="text-lg font-black text-white uppercase tracking-tighter">Fatal Flaw</p>
                 </div>
               </div>
@@ -182,7 +182,7 @@ export default function CharacterViewPage() {
             <div className="space-y-4">
                <div className="flex items-center gap-3 text-red-500">
                   <Camera className="w-4 h-4" />
-                  <h3 className="text-[10px] font-black uppercase tracking-[0.3em]">Directorial Camera Notes</h3>
+                  <h3 className="text-xs font-black uppercase tracking-[0.3em]">Directorial Camera Notes</h3>
                </div>
                <div className="p-8 bg-red-500/5 border border-red-500/10 rounded-[2.5rem]">
                   <p className="text-sm text-zinc-300 font-medium leading-relaxed italic">
@@ -194,7 +194,7 @@ export default function CharacterViewPage() {
             <div className="space-y-4">
                <div className="flex items-center gap-3 text-fuchsia-400">
                   <Scale className="w-4 h-4" />
-                  <h3 className="text-[10px] font-black uppercase tracking-[0.3em]">The Moral Dilemma</h3>
+                  <h3 className="text-xs font-black uppercase tracking-[0.3em]">The Moral Dilemma</h3>
                </div>
                <div className="p-8 bg-fuchsia-500/5 border border-fuchsia-500/10 rounded-[2.5rem]">
                   <p className="text-sm text-zinc-300 font-medium leading-relaxed italic">
@@ -208,7 +208,7 @@ export default function CharacterViewPage() {
             <div className="space-y-4">
                <div className="flex items-center gap-3 text-indigo-400">
                   <Sparkles className="w-4 h-4" />
-                  <h3 className="text-[10px] font-black uppercase tracking-[0.3em]">Cinematic VFX Signature</h3>
+                  <h3 className="text-xs font-black uppercase tracking-[0.3em]">Cinematic VFX Signature</h3>
                </div>
                <div className="p-8 bg-indigo-500/5 border border-indigo-500/10 rounded-[2.5rem]">
                   <p className="text-sm text-zinc-300 font-medium leading-relaxed italic">
@@ -220,7 +220,7 @@ export default function CharacterViewPage() {
             <div className="space-y-4">
                <div className="flex items-center gap-3 text-amber-500">
                   <Sun className="w-4 h-4" />
-                  <h3 className="text-[10px] font-black uppercase tracking-[0.3em]">Rendering Lighting Logic</h3>
+                  <h3 className="text-xs font-black uppercase tracking-[0.3em]">Rendering Lighting Logic</h3>
                </div>
                <div className="p-8 bg-amber-500/5 border border-amber-500/10 rounded-[2.5rem]">
                   <p className="text-sm text-zinc-300 font-medium leading-relaxed italic">
@@ -233,7 +233,7 @@ export default function CharacterViewPage() {
           <div className="space-y-8">
              <div className="flex items-center gap-3 text-studio">
                 <MessageSquare className="w-4 h-4" />
-                <h3 className="text-[10px] font-black uppercase tracking-[0.3em]">Acoustic & Communication Protocol</h3>
+                <h3 className="text-xs font-black uppercase tracking-[0.3em]">Acoustic & Communication Protocol</h3>
              </div>
              <div className="p-12 bg-black/60 border border-white/5 rounded-[3.5rem] relative overflow-hidden group/speech">
                 <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-20 transition-opacity">
@@ -244,7 +244,7 @@ export default function CharacterViewPage() {
                      "{toText(character.speakingStyle) || 'Clinical and precise communication protocols.'}"
                    </p>
                    <div className="flex gap-4">
-                      <div className="px-4 py-1.5 bg-studio/10 border border-studio/30 rounded-xl text-[10px] font-black text-studio uppercase tracking-widest">
+                      <div className="px-4 py-1.5 bg-studio/10 border border-studio/30 rounded-xl text-xs font-black text-studio uppercase tracking-widest">
                          Rhythm: {toText(character.speakingStyle?.dialogueRhythm || 'Melodic')}
                       </div>
                    </div>
@@ -255,7 +255,7 @@ export default function CharacterViewPage() {
           <div className="space-y-8">
              <div className="flex items-center gap-3 text-orange-500">
                 <Lock className="w-4 h-4" />
-                <h3 className="text-[10px] font-black uppercase tracking-[0.3em]">Classified Identity Data</h3>
+                <h3 className="text-xs font-black uppercase tracking-[0.3em]">Classified Identity Data</h3>
              </div>
              <div className="p-10 bg-orange-500/5 border border-orange-500/10 rounded-[3rem] blur-[8px] hover:blur-none transition-all duration-1000 cursor-help">
                 <p className="text-lg text-orange-400 font-black uppercase tracking-[0.2em] italic leading-relaxed">

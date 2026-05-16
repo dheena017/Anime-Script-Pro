@@ -18,6 +18,21 @@ async def notify_user(user_id: str, title: str, message: str, type: str = "INFO"
             )
             session.add(notification)
             await session.commit()
+            
+            # Real-time Broadcast
+            try:
+                from backend.fastapi_app import manager
+                import json
+                await manager.broadcast(json.dumps({
+                    "type": "NEW_NOTIFICATION",
+                    "id": notification.id,
+                    "title": notification.title,
+                    "message": notification.message,
+                    "category": notification.type
+                }))
+            except Exception as e:
+                logger.warning(f"SIGNAL [DB] !! Failed to broadcast notification: {e}")
+
             logger.debug(f"SIGNAL [DB] -> Created notification for {user_id}: {title}")
             return notification
     except Exception as e:

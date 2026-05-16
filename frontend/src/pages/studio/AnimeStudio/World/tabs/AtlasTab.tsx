@@ -76,7 +76,7 @@ export const AtlasTab: React.FC<AtlasTabProps> = ({
                   <h4 className={s.content.sidebarTitle}>
                     <Sparkles className="w-3 h-3 text-blue-500" /> Core Seed
                   </h4>
-                  {isEditing && <span className="text-[8px] font-bold text-blue-500/50 uppercase">Modular Prompt</span>}
+                  {isEditing && <span className="text-xs font-bold text-blue-500/50 uppercase">Modular Prompt</span>}
                 </div>
                 
                 {isEditing ? (
@@ -113,11 +113,11 @@ export const AtlasTab: React.FC<AtlasTabProps> = ({
                 {locations.length > 0 ? locations.map((loc, i) => (
                   <div key={i} className="flex items-center gap-3 p-3 bg-white/[0.02] border border-white/5 rounded-xl group hover:border-blue-500/30 transition-all">
                     <MapPin className="w-3 h-3 text-blue-500/50 group-hover:text-blue-400" />
-                    <span className="text-[10px] font-bold text-zinc-500 group-hover:text-zinc-300 uppercase tracking-tight">{loc}</span>
+                    <span className="text-xs font-bold text-zinc-500 group-hover:text-zinc-300 uppercase tracking-tight">{loc}</span>
                   </div>
                 )) : (
                   <div className="p-4 bg-white/[0.01] border border-white/5 border-dashed rounded-xl text-center">
-                    <p className="text-[9px] font-bold text-zinc-600 uppercase">Geographic data scanning...</p>
+                    <p className="text-xs font-bold text-zinc-600 uppercase">Geographic data scanning...</p>
                   </div>
                 )}
               </div>

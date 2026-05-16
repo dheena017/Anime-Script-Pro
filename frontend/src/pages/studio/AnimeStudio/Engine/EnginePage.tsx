@@ -153,7 +153,7 @@ export function EnginePage() {
           </div>
           <div className="text-center space-y-3">
             <p className="font-black tracking-[0.4em] text-xs uppercase text-studio animate-pulse">AI Generation in Progress</p>
-            <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest">Building your cinematic narrative...</p>
+            <p className="text-xs font-bold text-zinc-600 uppercase tracking-widest">Building your cinematic narrative...</p>
           </div>
         </div>
       );
@@ -204,8 +204,8 @@ export function EnginePage() {
               <div className="space-y-8">
                 <div className="flex items-center justify-between px-8">
                   <div className="space-y-1">
-                    <h4 className="text-[10px] font-black text-white uppercase tracking-[0.4em]">Blueprint_Matrix</h4>
-                    <p className="text-[8px] font-bold text-zinc-600 uppercase tracking-widest">Select your narrative foundation</p>
+                    <h4 className="text-xs font-black text-white uppercase tracking-[0.4em]">Blueprint_Matrix</h4>
+                    <p className="text-xs font-bold text-zinc-600 uppercase tracking-widest">Select your narrative foundation</p>
                   </div>
                   <LayoutGrid className="w-4 h-4 text-zinc-800" />
                 </div>
@@ -245,13 +245,13 @@ export function EnginePage() {
 
                             <div className="absolute top-6 left-6 flex items-center gap-2">
                               <div className="px-3 py-1.5 bg-black/60 backdrop-blur-md border border-white/10 rounded-full">
-                                <span className="text-[7px] font-black text-amber-500 uppercase tracking-[0.2em]">{t.category?.toUpperCase() || 'CORE'}</span>
+                                <span className="text-xs font-black text-amber-500 uppercase tracking-[0.2em]">{t.category?.toUpperCase() || 'CORE'}</span>
                               </div>
                             </div>
 
                             <div className="absolute bottom-4 left-8 flex items-center gap-2">
                               <div className="w-1.5 h-1.5 rounded-full bg-studio animate-pulse shadow-[0_0_8px_rgba(6,182,212,0.8)]" />
-                              <span className="text-[8px] font-black text-white uppercase tracking-[0.2em] opacity-60">DATABASE_SYNC: READY</span>
+                              <span className="text-xs font-black text-white uppercase tracking-[0.2em] opacity-60">DATABASE_SYNC: READY</span>
                             </div>
                           </div>
 
@@ -265,7 +265,7 @@ export function EnginePage() {
                                 <Icon className="w-7 h-7" />
                               </div>
                               <div className="text-right">
-                                <span className="text-[8px] font-black text-zinc-700 uppercase tracking-[0.2em] block leading-none">ARCHITECTURE</span>
+                                <span className="text-xs font-black text-zinc-700 uppercase tracking-[0.2em] block leading-none">ARCHITECTURE</span>
                                 <span className="text-sm font-black text-zinc-400 mt-1 block">V{t.id}.0</span>
                               </div>
                             </div>
@@ -277,13 +277,13 @@ export function EnginePage() {
                               )}>
                                 {t.name}
                               </h4>
-                              <p className="text-[9px] font-bold text-zinc-600 uppercase tracking-widest">{displaySubtitle}</p>
+                              <p className="text-xs font-bold text-zinc-600 uppercase tracking-widest">{displaySubtitle}</p>
                             </div>
 
                             <div className="flex flex-wrap gap-2">
                               {displayTags.map((tag: string) => (
                                 <div key={tag} className="px-3 py-1.5 bg-studio/5 border border-studio/20 rounded-full">
-                                  <span className="text-[7px] font-black text-studio italic uppercase tracking-widest">{tag}</span>
+                                  <span className="text-xs font-black text-studio italic uppercase tracking-widest">{tag}</span>
                                 </div>
                               ))}
                             </div>
@@ -292,16 +292,16 @@ export function EnginePage() {
                               <div className="p-4 bg-white/[0.02] border border-white/5 rounded-2xl">
                                 <div className="flex items-center gap-2 mb-2">
                                   <LayoutGrid className="w-3 h-3 text-studio/60" />
-                                  <span className="text-[7px] font-black text-zinc-700 uppercase tracking-widest">LOGIC</span>
+                                  <span className="text-xs font-black text-zinc-700 uppercase tracking-widest">LOGIC</span>
                                 </div>
-                                <span className="text-[10px] font-black text-white uppercase tracking-widest">{displayLogic}</span>
+                                <span className="text-xs font-black text-white uppercase tracking-widest">{displayLogic}</span>
                               </div>
                               <div className="p-4 bg-white/[0.02] border border-white/5 rounded-2xl">
                                 <div className="flex items-center gap-2 mb-2">
                                   <Activity className="w-3 h-3 text-studio/60" />
-                                  <span className="text-[7px] font-black text-zinc-700 uppercase tracking-widest">STABILITY</span>
+                                  <span className="text-xs font-black text-zinc-700 uppercase tracking-widest">STABILITY</span>
                                 </div>
-                                <span className="text-[10px] font-black text-white uppercase tracking-widest">{displayStability}</span>
+                                <span className="text-xs font-black text-white uppercase tracking-widest">{displayStability}</span>
                               </div>
                             </div>
 
@@ -310,8 +310,8 @@ export function EnginePage() {
                               className={cn(
                                 "w-full h-14 rounded-2xl flex items-center justify-center gap-3 transition-all duration-500",
                                 isActive
-                                  ? "bg-white text-black font-black uppercase tracking-[0.2em] text-[10px] shadow-2xl"
-                                  : "bg-white/5 hover:bg-white/10 text-zinc-500 hover:text-white border border-white/5 font-black uppercase tracking-[0.2em] text-[10px]"
+                                  ? "bg-white text-black font-black uppercase tracking-[0.2em] text-xs shadow-2xl"
+                                  : "bg-white/5 hover:bg-white/10 text-zinc-500 hover:text-white border border-white/5 font-black uppercase tracking-[0.2em] text-xs"
                               )}
                             >
                               <Zap className={cn("w-3.5 h-3.5", isActive ? "text-studio" : "text-zinc-700")} />
@@ -319,7 +319,7 @@ export function EnginePage() {
                             </button>
 
                             <div className="text-center">
-                              <span className="text-[7px] font-black text-zinc-800 uppercase tracking-[0.3em] hover:text-zinc-600 cursor-pointer transition-colors">EXAMINE_TECHNICAL_SPECS</span>
+                              <span className="text-xs font-black text-zinc-800 uppercase tracking-[0.3em] hover:text-zinc-600 cursor-pointer transition-colors">EXAMINE_TECHNICAL_SPECS</span>
                             </div>
                           </div>
                         </div>
@@ -332,7 +332,7 @@ export function EnginePage() {
               {/* Phase 3: Narrative Architecture */}
               <div className="space-y-6">
                 <div className="flex items-center justify-between px-8">
-                  <span className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.4em]">AI_Narrative_Architecture</span>
+                  <span className="text-xs font-black text-zinc-500 uppercase tracking-[0.4em]">AI_Narrative_Architecture</span>
                 </div>
                 <div className="p-12 bg-[#050505] border border-white/5 rounded-[4rem] shadow-2xl transition-all hover:border-white/10 group/canvas min-h-[550px] max-h-[550px] flex flex-col relative overflow-hidden">
                   <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.01)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.01)_1px,transparent_1px)] bg-[size:60px_60px] pointer-events-none" />
@@ -363,7 +363,7 @@ export function EnginePage() {
                       <Zap className="w-6 h-6 text-black group-hover/launch:scale-125 transition-transform duration-700" />
                     )}
                     <div className="text-left">
-                      <span className="text-[10px] font-black text-black/60 uppercase tracking-[0.4em] block leading-none mb-1">System Launch Protocol</span>
+                      <span className="text-xs font-black text-black/60 uppercase tracking-[0.4em] block leading-none mb-1">System Launch Protocol</span>
                       <span className="text-xl font-black text-black uppercase tracking-[0.3em] italic leading-none">Start AI Generation</span>
                     </div>
                   </div>
@@ -372,15 +372,15 @@ export function EnginePage() {
                 <div className="flex items-center gap-10 opacity-30">
                   <div className="flex items-center gap-2">
                     <div className="w-1.5 h-1.5 rounded-full bg-studio" />
-                    <span className="text-[8px] font-black text-white uppercase tracking-widest">Link: Stable</span>
+                    <span className="text-xs font-black text-white uppercase tracking-widest">Link: Stable</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="w-1.5 h-1.5 rounded-full bg-studio" />
-                    <span className="text-[8px] font-black text-white uppercase tracking-widest">Core: Active</span>
+                    <span className="text-xs font-black text-white uppercase tracking-widest">Core: Active</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="w-1.5 h-1.5 rounded-full bg-studio" />
-                    <span className="text-[8px] font-black text-white uppercase tracking-widest">Buffer: Clear</span>
+                    <span className="text-xs font-black text-white uppercase tracking-widest">Buffer: Clear</span>
                   </div>
                 </div>
               </div>
@@ -397,7 +397,7 @@ export function EnginePage() {
                 </div>
                 <div>
                   <h2 className="text-3xl font-black text-white uppercase tracking-tighter italic leading-none">Blueprint Matrix</h2>
-                  <p className="text-zinc-600 text-[9px] font-black uppercase tracking-[0.3em] mt-2">AI_Assets // Structural_Library</p>
+                  <p className="text-zinc-600 text-xs font-black uppercase tracking-[0.3em] mt-2">AI_Assets // Structural_Library</p>
                 </div>
               </div>
               <div className="relative w-full md:w-80 group">
@@ -405,7 +405,7 @@ export function EnginePage() {
                 <input
                   type="text"
                   placeholder="Search Narrative DNA..."
-                  className="w-full h-11 bg-[#050505] border border-white/5 rounded-xl pl-12 pr-4 text-[10px] font-black uppercase tracking-widest text-white focus:outline-none focus:border-studio/30 transition-all placeholder:text-zinc-800"
+                  className="w-full h-11 bg-[#050505] border border-white/5 rounded-xl pl-12 pr-4 text-xs font-black uppercase tracking-widest text-white focus:outline-none focus:border-studio/30 transition-all placeholder:text-zinc-800"
                 />
               </div>
             </div>
@@ -445,13 +445,13 @@ export function EnginePage() {
                         </div>
                         <div className="space-y-2">
                           <h2 className="text-3xl font-black text-white uppercase tracking-tighter leading-none">{selectedTemplate.name}</h2>
-                          <p className="text-[10px] font-black text-studio uppercase tracking-[0.3em]">{selectedTemplate.category} Blueprint</p>
+                          <p className="text-xs font-black text-studio uppercase tracking-[0.3em]">{selectedTemplate.category} Blueprint</p>
                         </div>
                         <div className="pt-6 space-y-4">
                           {selectedTemplate.stats && Object.entries(selectedTemplate.stats).map(([key, val]) => (
                             <div key={key} className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5">
-                              <span className="text-[8px] font-black text-zinc-500 uppercase tracking-widest">{key}</span>
-                              <span className="text-[10px] font-mono font-bold text-white uppercase">{val as string}</span>
+                              <span className="text-xs font-black text-zinc-500 uppercase tracking-widest">{key}</span>
+                              <span className="text-xs font-mono font-bold text-white uppercase">{val as string}</span>
                             </div>
                           ))}
                         </div>
@@ -459,7 +459,7 @@ export function EnginePage() {
 
                       <div className="flex-1 space-y-8">
                         <div className="space-y-4">
-                          <h4 className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em]">Core Directive</h4>
+                          <h4 className="text-xs font-black text-zinc-500 uppercase tracking-[0.3em]">Core Directive</h4>
                           <div className="p-8 bg-black border border-white/5 rounded-3xl relative overflow-hidden">
                             <div className="absolute top-0 left-0 w-1 h-full bg-studio" />
                             <p className="text-lg text-zinc-300 font-medium leading-relaxed italic">"{selectedTemplate.prompt}"</p>
@@ -467,10 +467,10 @@ export function EnginePage() {
                         </div>
 
                         <div className="space-y-4">
-                          <h4 className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em]">AI Elements</h4>
+                          <h4 className="text-xs font-black text-zinc-500 uppercase tracking-[0.3em]">AI Elements</h4>
                           <div className="flex flex-wrap gap-3">
                             {selectedTemplate.elements.map((el: string) => (
-                              <span key={el} className="px-5 py-3 bg-studio/10 border border-studio/20 text-studio text-[10px] font-black uppercase tracking-widest rounded-xl">
+                              <span key={el} className="px-5 py-3 bg-studio/10 border border-studio/20 text-studio text-xs font-black uppercase tracking-widest rounded-xl">
                                 {el}
                               </span>
                             ))}
@@ -484,14 +484,14 @@ export function EnginePage() {
                               setSearchParams({ tab: 'status' });
                               setSelectedTemplateId(null);
                             }}
-                            className="h-16 px-12 bg-white text-black hover:bg-zinc-200 text-[11px] font-black uppercase tracking-[0.25em] rounded-full flex-1"
+                            className="h-16 px-12 bg-white text-black hover:bg-zinc-200 text-xs font-black uppercase tracking-[0.25em] rounded-full flex-1"
                           >
                             Deploy Foundation
                           </Button>
                           <Button
                             variant="outline"
                             onClick={() => setSelectedTemplateId(null)}
-                            className="h-16 px-10 bg-transparent border-zinc-800 text-zinc-500 hover:text-white rounded-full text-[11px] font-black uppercase tracking-[0.25em]"
+                            className="h-16 px-10 bg-transparent border-zinc-800 text-zinc-500 hover:text-white rounded-full text-xs font-black uppercase tracking-[0.25em]"
                           >
                             Close
                           </Button>

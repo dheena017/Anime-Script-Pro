@@ -57,7 +57,7 @@ export function DNAPage() {
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-2xl font-black text-white uppercase tracking-widest italic">Character Trait Analysis</h2>
-          <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em] mt-1">Deep psychological and personality profiling</p>
+          <p className="text-xs font-bold text-zinc-500 uppercase tracking-[0.2em] mt-1">Deep psychological and personality profiling</p>
         </div>
       </div>
 
@@ -71,7 +71,7 @@ export function DNAPage() {
           <Card key={idx} className="bg-black/40 border border-white/5 p-6 rounded-2xl flex flex-col items-center gap-4 hover:border-studio/30 transition-all backdrop-blur-md">
             <stat.icon className={`w-6 h-6 ${stat.color} opacity-60`} />
             <div className="text-center">
-              <p className="text-[8px] font-black text-zinc-500 uppercase tracking-widest mb-1">{stat.label}</p>
+              <p className="text-xs font-black text-zinc-500 uppercase tracking-widest mb-1">{stat.label}</p>
               <p className={`text-xl font-black ${stat.color}`}>{stat.value}</p>
             </div>
           </Card>
@@ -87,7 +87,7 @@ export function DNAPage() {
           <div className="space-y-6">
             {dna.archetypes.map((archetype: any, i: number) => (
               <div key={i} className="space-y-2">
-                <div className="flex justify-between text-[10px] font-black uppercase tracking-widest text-zinc-500">
+                <div className="flex justify-between text-xs font-black uppercase tracking-widest text-zinc-500">
                   <span>{archetype.trait}</span>
                   <span className="text-studio">{archetype.value}%</span>
                 </div>
@@ -113,7 +113,7 @@ export function DNAPage() {
             </p>
           </div>
           <div className="mt-12 p-6 bg-studio/5 border border-studio/10 rounded-2xl">
-            <p className="text-[10px] font-black text-studio uppercase tracking-widest text-center">
+            <p className="text-xs font-black text-studio uppercase tracking-widest text-center">
               {castDNA ? "Analysis Path Active" : "Input Required"}
             </p>
           </div>
@@ -125,7 +125,7 @@ export function DNAPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="text-lg font-black text-white uppercase tracking-widest italic">Character Weight Distribution</h3>
-                  <p className="text-[9px] font-bold text-zinc-600 uppercase tracking-widest mt-1">
+                  <p className="text-xs font-bold text-zinc-600 uppercase tracking-widest mt-1">
                     {castDNA ? "AI SEQUENCING ACTIVE" : "AWAITING SEQUENCE DATA"}
                   </p>
                 </div>
@@ -150,8 +150,8 @@ export function DNAPage() {
                       <item.icon className="w-5 h-5 text-zinc-500" />
                     </div>
                     <div className="space-y-1">
-                      <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">{item.label}</span>
-                      <p className="text-[8px] font-bold text-zinc-600 uppercase tracking-widest">{item.desc}</p>
+                      <span className="text-xs font-black text-zinc-400 uppercase tracking-widest">{item.label}</span>
+                      <p className="text-xs font-bold text-zinc-600 uppercase tracking-widest">{item.desc}</p>
                     </div>
                   </div>
                   <span className="text-xs font-black text-blue-400 uppercase tracking-widest italic">{item.score}</span>

@@ -72,7 +72,7 @@ export function StudioLoading({
           {shouldReduceMotion ? (
             <div className="flex items-center justify-center gap-3">
               <span className="w-1.5 h-1.5 rounded-full bg-cyan-500" />
-              <p className="text-[10px] font-black tracking-[0.2em] text-zinc-500 uppercase">
+              <p className="text-xs font-black tracking-[0.2em] text-zinc-500 uppercase">
                 {BOOT_LOGS[logIndex]}
               </p>
             </div>
@@ -86,7 +86,7 @@ export function StudioLoading({
                 className="flex items-center justify-center gap-3"
               >
                 <span className="w-1.5 h-1.5 rounded-full bg-cyan-500 animate-ping" />
-                <p className="text-[10px] font-black tracking-[0.2em] text-zinc-500 uppercase">
+                <p className="text-xs font-black tracking-[0.2em] text-zinc-500 uppercase">
                   {BOOT_LOGS[logIndex]}
                 </p>
               </motion.div>
@@ -97,11 +97,11 @@ export function StudioLoading({
         {/* Minimal Progress Bar */}
         <div className="w-64 space-y-2">
           <div className="flex justify-between items-end px-1">
-            <span className="text-[8px] font-black text-zinc-700 uppercase tracking-widest flex items-center gap-2">
+            <span className="text-xs font-black text-zinc-700 uppercase tracking-widest flex items-center gap-2">
               <Activity className="w-3 h-3" /> System Health: Nominal
             </span>
             {typeof progress === 'number' && (
-              <span className="text-[10px] font-black text-cyan-500 tracking-widest">{progress}%</span>
+              <span className="text-xs font-black text-cyan-500 tracking-widest">{progress}%</span>
             )}
           </div>
           <div className="h-1 bg-white/5 rounded-full overflow-hidden border border-white/5">

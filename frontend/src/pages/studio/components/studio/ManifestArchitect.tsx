@@ -9,23 +9,28 @@ interface ProjectConfiguratorProps {
   onContinue?: (config: { sessions: number; episodes: number; scenes: number }) => void;
   isLoading?: boolean;
   initialConfig?: { sessions: number; episodes: number; scenes: number };
+  externalConfig?: { sessions: number; episodes: number; scenes: number };
+  onExternalConfigChange?: (config: { sessions: number; episodes: number; scenes: number } | ((prev: any) => any)) => void;
 }
 
-export function ProjectConfigurator({ onContinue, isLoading, initialConfig }: ProjectConfiguratorProps) {
-  const [config, setConfig] = React.useState({
+export function ProjectConfigurator({ onContinue, isLoading, initialConfig, externalConfig, onExternalConfigChange }: ProjectConfiguratorProps) {
+  const [internalConfig, setInternalConfig] = React.useState({
     sessions: initialConfig?.sessions || 1,
     episodes: initialConfig?.episodes || 12,
     scenes: initialConfig?.scenes || 16
   });
 
+  const config = externalConfig || internalConfig;
+  const setConfig = onExternalConfigChange || setInternalConfig;
+
   React.useEffect(() => {
-    if (initialConfig) {
+    if (initialConfig && !externalConfig) {
       setConfig(prev => ({
         ...prev,
         ...initialConfig
       }));
     }
-  }, [initialConfig]);
+  }, [initialConfig, externalConfig, setConfig]);
 
   const totalItems = config.sessions * config.episodes * config.scenes;
 
@@ -53,17 +58,17 @@ export function ProjectConfigurator({ onContinue, isLoading, initialConfig }: Pr
                   <Box className="w-6 h-6 text-studio" />
                 </div>
                 <div>
-                  <h3 className="text-[11px] font-black uppercase tracking-[0.4em] text-studio">
+                  <h3 className="text-xs font-black uppercase tracking-[0.4em] text-studio">
                     Production Manifest Architect
                   </h3>
                   <div className="flex items-center gap-2 mt-1">
                     <div className="w-2 h-2 rounded-full bg-studio animate-pulse shadow-[0_0_8px_rgba(6,182,212,0.8)]" />
-                    <span className="text-[8px] font-mono text-zinc-600 uppercase tracking-widest">Neural Link Active // 0x-7FF</span>
+                    <span className="text-xs font-mono text-zinc-600 uppercase tracking-widest">Neural Link Active // 0x-7FF</span>
                   </div>
                 </div>
               </div>
               <div className="flex flex-col items-end gap-1">
-                <span className="text-[8px] font-mono text-zinc-700">CORE_V3.SYNC</span>
+                <span className="text-xs font-mono text-zinc-700">CORE_V3.SYNC</span>
                 <div className="flex gap-1.5">
                   {[1, 2, 3].map(i => (
                     <div key={i} className="w-3 h-1 bg-zinc-800 rounded-full overflow-hidden">
@@ -88,7 +93,7 @@ export function ProjectConfigurator({ onContinue, isLoading, initialConfig }: Pr
               {/* Sessions Input */}
               <div className="space-y-4">
                 <div className="flex items-center justify-between px-2">
-                  <label className="text-[9px] font-black uppercase tracking-[0.3em] text-zinc-500">SESSIONS</label>
+                  <label className="text-xs font-black uppercase tracking-[0.3em] text-zinc-500">SESSIONS</label>
                   <Layers className="w-3.5 h-3.5 text-zinc-800" />
                 </div>
                 <div className="relative group/input">
@@ -106,7 +111,7 @@ export function ProjectConfigurator({ onContinue, isLoading, initialConfig }: Pr
               {/* Episodes Input */}
               <div className="space-y-4">
                 <div className="flex items-center justify-between px-2">
-                  <label className="text-[9px] font-black uppercase tracking-[0.3em] text-zinc-500">EPISODES</label>
+                  <label className="text-xs font-black uppercase tracking-[0.3em] text-zinc-500">EPISODES</label>
                   <Table className="w-3.5 h-3.5 text-zinc-800" />
                 </div>
                 <div className="relative group/input">
@@ -124,7 +129,7 @@ export function ProjectConfigurator({ onContinue, isLoading, initialConfig }: Pr
               {/* Scenes Input */}
               <div className="space-y-4">
                 <div className="flex items-center justify-between px-2">
-                  <label className="text-[9px] font-black uppercase tracking-[0.3em] text-zinc-500">SCENES</label>
+                  <label className="text-xs font-black uppercase tracking-[0.3em] text-zinc-500">SCENES</label>
                   <PlaySquare className="w-3.5 h-3.5 text-zinc-800" />
                 </div>
                 <div className="relative group/input">
@@ -147,15 +152,15 @@ export function ProjectConfigurator({ onContinue, isLoading, initialConfig }: Pr
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <Calculator className="w-5 h-5 text-studio" />
-                    <span className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-500">Manifest Computation</span>
+                    <span className="text-xs font-black uppercase tracking-[0.4em] text-zinc-500">Manifest Computation</span>
                   </div>
                   <div className="px-3 py-1 bg-studio/5 border border-studio/20 rounded-full">
-                    <span className="text-[8px] font-mono text-studio font-black tracking-widest uppercase">Linear Expansion Mode</span>
+                    <span className="text-xs font-mono text-studio font-black tracking-widest uppercase">Linear Expansion Mode</span>
                   </div>
                 </div>
                 
                 <div className="flex items-baseline gap-4">
-                  <span className="text-6xl font-black text-white tracking-tighter drop-shadow-[0_0_20px_rgba(6,182,212,0.3)]">
+                  <span className="text-3xl font-black text-white tracking-tighter drop-shadow-[0_0_20px_rgba(6,182,212,0.3)]">
                     <motion.span
                       key={totalItems}
                       initial={{ opacity: 0, scale: 0.9 }}
@@ -165,13 +170,13 @@ export function ProjectConfigurator({ onContinue, isLoading, initialConfig }: Pr
                     </motion.span>
                   </span>
                   <div className="flex flex-col">
-                    <span className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.2em]">Production Nodes</span>
-                    <span className="text-studio/60 text-[9px] font-mono">ESTIMATED STORAGE: {Math.round(totalItems * 0.15)}MB</span>
+                    <span className="text-zinc-500 text-xs font-black uppercase tracking-[0.2em]">Production Nodes</span>
+                    <span className="text-studio/60 text-xs font-mono">ESTIMATED STORAGE: {Math.round(totalItems * 0.15)}MB</span>
                   </div>
                 </div>
                 
                 <div className="p-4 bg-white/[0.02] border border-white/5 rounded-xl">
-                   <p className="text-[10px] text-zinc-500 leading-relaxed font-medium">
+                   <p className="text-xs text-zinc-500 leading-relaxed font-medium">
                     "Structural blueprint maps {config.sessions} session(s) across {config.episodes} episodes, generating {totalItems} unique narrative scene blocks for AI synthesis."
                   </p>
                 </div>
@@ -200,7 +205,7 @@ export function ProjectConfigurator({ onContinue, isLoading, initialConfig }: Pr
           </div>
 
           {/* Technical Footer */}
-          <div className="px-10 py-6 bg-black/40 border-t border-white/5 flex justify-between items-center text-[9px] font-mono text-zinc-700 uppercase tracking-[0.4em]">
+          <div className="px-10 py-6 bg-black/40 border-t border-white/5 flex justify-between items-center text-xs font-mono text-zinc-700 uppercase tracking-[0.4em]">
             <div className="flex items-center gap-4">
               <span className="flex items-center gap-2"> <div className="w-1.5 h-1.5 rounded-full bg-green-500/40" /> SYSTEM_OK</span>
               <span className="flex items-center gap-2"> <div className="w-1.5 h-1.5 rounded-full bg-zinc-800" /> DB_IDLE</span>

@@ -105,7 +105,7 @@ export const ScriptToolbar: React.FC<ScriptToolbarProps> = ({
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent side="top">
-                    <p className="font-black uppercase tracking-widest text-[9px]">Previous Episode</p>
+                    <p className="font-black uppercase tracking-widest text-xs">Previous Episode</p>
                   </TooltipContent>
                 </Tooltip>
 
@@ -123,7 +123,7 @@ export const ScriptToolbar: React.FC<ScriptToolbarProps> = ({
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent side="top">
-                    <p className="font-black uppercase tracking-widest text-[9px]">Next Episode</p>
+                    <p className="font-black uppercase tracking-widest text-xs">Next Episode</p>
                   </TooltipContent>
                 </Tooltip>
               </div>
@@ -148,7 +148,7 @@ export const ScriptToolbar: React.FC<ScriptToolbarProps> = ({
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent side="top">
-                    <p className="font-black uppercase tracking-widest text-[9px]">{isEditing ? "Disable Editing" : "Enable Editing"}</p>
+                    <p className="font-black uppercase tracking-widest text-xs">{isEditing ? "Disable Editing" : "Enable Editing"}</p>
                   </TooltipContent>
                 </Tooltip>
 
@@ -166,7 +166,7 @@ export const ScriptToolbar: React.FC<ScriptToolbarProps> = ({
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent side="top">
-                    <p className="font-black uppercase tracking-widest text-[9px]">SEO Matrix</p>
+                    <p className="font-black uppercase tracking-widest text-xs">SEO Matrix</p>
                   </TooltipContent>
                 </Tooltip>
 
@@ -182,7 +182,7 @@ export const ScriptToolbar: React.FC<ScriptToolbarProps> = ({
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent side="top">
-                    <p className="font-black uppercase tracking-widest text-[9px]">AI Prompts</p>
+                    <p className="font-black uppercase tracking-widest text-xs">AI Prompts</p>
                   </TooltipContent>
                 </Tooltip>
 
@@ -198,7 +198,7 @@ export const ScriptToolbar: React.FC<ScriptToolbarProps> = ({
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent side="top">
-                    <p className="font-black uppercase tracking-widest text-[9px]">Storyboard</p>
+                    <p className="font-black uppercase tracking-widest text-xs">Storyboard</p>
                   </TooltipContent>
                 </Tooltip>
 
@@ -217,7 +217,7 @@ export const ScriptToolbar: React.FC<ScriptToolbarProps> = ({
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent side="top">
-                    <p className="font-black uppercase tracking-widest text-[9px]">Extend Script</p>
+                    <p className="font-black uppercase tracking-widest text-xs">Extend Script</p>
                   </TooltipContent>
                 </Tooltip>
 
@@ -234,7 +234,7 @@ export const ScriptToolbar: React.FC<ScriptToolbarProps> = ({
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent side="top">
-                    <p className="font-black uppercase tracking-widest text-[9px]">Voiceover</p>
+                    <p className="font-black uppercase tracking-widest text-xs">Voiceover</p>
                   </TooltipContent>
                 </Tooltip>
 
@@ -253,7 +253,7 @@ export const ScriptToolbar: React.FC<ScriptToolbarProps> = ({
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent side="top">
-                    <p className="font-black uppercase tracking-widest text-[9px]">Copy Script</p>
+                    <p className="font-black uppercase tracking-widest text-xs">Copy Script</p>
                   </TooltipContent>
                 </Tooltip>
 
@@ -270,7 +270,7 @@ export const ScriptToolbar: React.FC<ScriptToolbarProps> = ({
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent side="top">
-                    <p className="font-black uppercase tracking-widest text-[9px]">Export PDF</p>
+                    <p className="font-black uppercase tracking-widest text-xs">Export PDF</p>
                   </TooltipContent>
                 </Tooltip>
 
@@ -286,7 +286,7 @@ export const ScriptToolbar: React.FC<ScriptToolbarProps> = ({
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent side="top">
-                    <p className="font-black uppercase tracking-widest text-[9px]">{isFullscreen ? "Exit Fullscreen" : "Fullscreen Mode"}</p>
+                    <p className="font-black uppercase tracking-widest text-xs">{isFullscreen ? "Exit Fullscreen" : "Fullscreen Mode"}</p>
                   </TooltipContent>
                 </Tooltip>
               </div>

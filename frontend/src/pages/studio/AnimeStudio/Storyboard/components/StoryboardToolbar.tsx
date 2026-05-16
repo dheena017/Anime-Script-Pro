@@ -73,7 +73,7 @@ export const StoryboardToolbar: React.FC<StoryboardToolbarProps> = ({
             </div>
             <div className="flex flex-col gap-1">
               <span className={cn(
-                "text-[10px] font-black uppercase tracking-[0.2em] bg-clip-text text-transparent bg-gradient-to-r",
+                "text-xs font-black uppercase tracking-[0.2em] bg-clip-text text-transparent bg-gradient-to-r",
                 isGlobalEnhancing ? "from-orange-400 to-studio animate-pulse" : "from-orange-400 to-orange-300"
               )}>
                 Storyboard Nexus {status === 'active' ? 'Active' : 'Standby'}
@@ -99,7 +99,7 @@ export const StoryboardToolbar: React.FC<StoryboardToolbarProps> = ({
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="top">
-                  <p className="font-black uppercase tracking-widest text-[9px]">Add New Frame Sequence</p>
+                  <p className="font-black uppercase tracking-widest text-xs">Add New Frame Sequence</p>
                 </TooltipContent>
               </Tooltip>
             )}
@@ -122,7 +122,7 @@ export const StoryboardToolbar: React.FC<StoryboardToolbarProps> = ({
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="top">
-                  <p className="font-black uppercase tracking-widest text-[9px]">{isEditing ? "Disable Editing" : "Enable Editing"}</p>
+                  <p className="font-black uppercase tracking-widest text-xs">{isEditing ? "Disable Editing" : "Enable Editing"}</p>
                 </TooltipContent>
               </Tooltip>
 
@@ -141,7 +141,7 @@ export const StoryboardToolbar: React.FC<StoryboardToolbarProps> = ({
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="top">
-                  <p className="font-black uppercase tracking-widest text-[9px]">Audio Synthesis</p>
+                  <p className="font-black uppercase tracking-widest text-xs">Audio Synthesis</p>
                 </TooltipContent>
               </Tooltip>
 
@@ -158,7 +158,7 @@ export const StoryboardToolbar: React.FC<StoryboardToolbarProps> = ({
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="top">
-                  <p className="font-black uppercase tracking-widest text-[9px]">Refine Visuals</p>
+                  <p className="font-black uppercase tracking-widest text-xs">Refine Visuals</p>
                 </TooltipContent>
               </Tooltip>
             </div>
@@ -179,7 +179,7 @@ export const StoryboardToolbar: React.FC<StoryboardToolbarProps> = ({
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="top">
-                  <p className="font-black uppercase tracking-widest text-[9px]">Copy Storyboard</p>
+                  <p className="font-black uppercase tracking-widest text-xs">Copy Storyboard</p>
                 </TooltipContent>
               </Tooltip>
 
@@ -196,7 +196,7 @@ export const StoryboardToolbar: React.FC<StoryboardToolbarProps> = ({
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="top">
-                  <p className="font-black uppercase tracking-widest text-[9px]">Export JSON</p>
+                  <p className="font-black uppercase tracking-widest text-xs">Export JSON</p>
                 </TooltipContent>
               </Tooltip>
 
@@ -212,7 +212,7 @@ export const StoryboardToolbar: React.FC<StoryboardToolbarProps> = ({
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="top">
-                  <p className="font-black uppercase tracking-widest text-[9px]">{isFullscreen ? "Exit Fullscreen" : "Fullscreen Mode"}</p>
+                  <p className="font-black uppercase tracking-widest text-xs">{isFullscreen ? "Exit Fullscreen" : "Fullscreen Mode"}</p>
                 </TooltipContent>
               </Tooltip>
             </div>

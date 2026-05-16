@@ -34,12 +34,12 @@ export const DynamicsTab: React.FC = () => {
       <div className="flex items-center justify-between px-2">
         <div className="space-y-1">
           <h2 className="text-2xl font-black text-white uppercase tracking-tighter">Social Intelligence</h2>
-          <p className="text-orange-500/60 text-[10px] font-black uppercase tracking-[0.3em]">Interpersonal Friction Analysis v1.5</p>
+          <p className="text-orange-500/60 text-xs font-black uppercase tracking-[0.3em]">Interpersonal Friction Analysis v1.5</p>
         </div>
         <div className="flex gap-4">
           <div className="px-4 py-2 bg-orange-500/5 border border-orange-500/10 rounded-xl flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-orange-500 animate-pulse" />
-            <span className="text-[10px] font-black text-orange-400 uppercase tracking-widest">Pulse Active</span>
+            <span className="text-xs font-black text-orange-400 uppercase tracking-widest">Pulse Active</span>
           </div>
         </div>
       </div>
@@ -70,7 +70,7 @@ export const DynamicsTab: React.FC = () => {
                 
                 <div className="text-center lg:text-left space-y-1">
                   <h3 className="text-2xl font-black text-white uppercase tracking-tighter">{char.name}</h3>
-                  <div className="px-3 py-1 bg-zinc-900/50 rounded-full border border-white/5 text-[8px] font-black text-zinc-500 uppercase tracking-widest">
+                  <div className="px-3 py-1 bg-zinc-900/50 rounded-full border border-white/5 text-xs font-black text-zinc-500 uppercase tracking-widest">
                     MATRIX-NODE: {idx.toString().padStart(3, '0')}
                   </div>
                 </div>
@@ -85,7 +85,7 @@ export const DynamicsTab: React.FC = () => {
               <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="space-y-6">
                   <div className="space-y-3">
-                    <div className="flex items-center gap-3 text-[10px] font-black uppercase text-orange-500 tracking-[0.2em]">
+                    <div className="flex items-center gap-3 text-xs font-black uppercase text-orange-500 tracking-[0.2em]">
                       <Users className="w-3.5 h-3.5" /> Social Standing
                     </div>
                     <div className="p-6 bg-zinc-950/50 rounded-3xl border border-white/5 backdrop-blur-xl group-hover:bg-zinc-900/50 transition-all duration-500">
@@ -96,18 +96,18 @@ export const DynamicsTab: React.FC = () => {
                   </div>
 
                   <div className="space-y-3">
-                    <div className="flex items-center gap-3 text-[10px] font-black uppercase text-orange-500 tracking-[0.2em]">
+                    <div className="flex items-center gap-3 text-xs font-black uppercase text-orange-500 tracking-[0.2em]">
                       <Heart className="w-3.5 h-3.5" /> Primary Bond
                     </div>
                     <div className="p-6 bg-zinc-950/50 rounded-3xl border border-white/5 backdrop-blur-xl group-hover:bg-zinc-900/50 transition-all duration-500">
-                      <p className="text-[11px] font-medium text-zinc-400 leading-relaxed uppercase tracking-wide">
+                      <p className="text-xs font-medium text-zinc-400 leading-relaxed uppercase tracking-wide">
                         {toText(char.worldAlignment?.socialDynamics?.coreBonds || char.bonds || 'Loyalty protocols initialized.')}
                       </p>
                     </div>
                   </div>
 
                   <div className="space-y-3">
-                    <div className="flex items-center gap-3 text-[10px] font-black uppercase text-orange-500 tracking-[0.2em]">
+                    <div className="flex items-center gap-3 text-xs font-black uppercase text-orange-500 tracking-[0.2em]">
                       <Coffee className="w-3.5 h-3.5" /> Group Etiquette
                     </div>
                     <div className="p-6 bg-orange-500/5 border border-orange-500/10 rounded-3xl">
@@ -120,7 +120,7 @@ export const DynamicsTab: React.FC = () => {
 
                 <div className="space-y-6">
                   <div className="space-y-3">
-                    <div className="flex items-center gap-3 text-[10px] font-black uppercase text-orange-500 tracking-[0.2em]">
+                    <div className="flex items-center gap-3 text-xs font-black uppercase text-orange-500 tracking-[0.2em]">
                       <Skull className="w-3.5 h-3.5" /> Friction Core
                     </div>
                     <div className="p-8 bg-orange-500/5 rounded-[2.5rem] border border-orange-500/10 backdrop-blur-xl group-hover:bg-orange-500/10 transition-all duration-500 min-h-[120px] relative overflow-hidden">
@@ -132,7 +132,7 @@ export const DynamicsTab: React.FC = () => {
 
                   <div className="flex items-center gap-4 px-6 py-4 bg-black rounded-2xl border border-white/5">
                      <div className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)]" />
-                     <p className="text-[9px] font-black text-zinc-500 uppercase tracking-widest">Stability: Optimal</p>
+                     <p className="text-xs font-black text-zinc-500 uppercase tracking-widest">Stability: Optimal</p>
                   </div>
                 </div>
               </div>

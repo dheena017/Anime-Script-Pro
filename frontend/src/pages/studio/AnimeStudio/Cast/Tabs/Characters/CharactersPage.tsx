@@ -54,10 +54,10 @@ export default function CharactersPage() {
       {/* Page Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div className="space-y-2">
-          <div className="inline-block px-3 py-1 bg-studio/10 border border-studio/20 rounded-full text-[10px] uppercase tracking-widest text-studio font-bold">
+          <div className="inline-block px-3 py-1 bg-studio/10 border border-studio/20 rounded-full text-xs uppercase tracking-widest text-studio font-bold">
             Character Registry
           </div>
-          <h1 className="text-5xl font-black text-white uppercase tracking-tighter">
+          <h1 className="text-2xl font-black text-white uppercase tracking-tighter">
             Cast <span className="text-studio">Manifest</span>
           </h1>
           <p className="text-zinc-500 text-sm font-medium max-w-md">
@@ -75,7 +75,7 @@ export default function CharactersPage() {
           <Button 
             variant="outline" 
             className={cn(
-              "h-10 px-6 rounded-xl border font-black uppercase tracking-widest text-[10px] transition-all duration-300",
+              "h-10 px-6 rounded-xl border font-black uppercase tracking-widest text-xs transition-all duration-300",
               isEditing ? "bg-studio text-black border-studio shadow-studio" : "bg-white/5 border-white/10 text-zinc-400 hover:text-studio hover:border-studio/30"
             )}
             onClick={() => setIsEditing?.(!isEditing)}

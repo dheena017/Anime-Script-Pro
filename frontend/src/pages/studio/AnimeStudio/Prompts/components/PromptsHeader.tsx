@@ -76,7 +76,7 @@ export const PromptsHeader: React.FC<PromptsHeaderProps> = ({
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="top">
-                  <p className="font-black uppercase tracking-widest text-[9px]">Return to Script Engine</p>
+                  <p className="font-black uppercase tracking-widest text-xs">Return to Script Engine</p>
                 </TooltipContent>
               </Tooltip>
             )}
@@ -89,7 +89,7 @@ export const PromptsHeader: React.FC<PromptsHeaderProps> = ({
                       className={s.header.actionButtonDanger}
                     >
                       <Square className="w-4 h-4 mr-2 fill-current animate-pulse" />
-                      <span className="relative z-10 text-[9px]">BUSY...</span>
+                      <span className="relative z-10 text-xs">BUSY...</span>
                     </Button>
                   ) : (
                     <Button
@@ -102,7 +102,7 @@ export const PromptsHeader: React.FC<PromptsHeaderProps> = ({
                   )}
                 </TooltipTrigger>
                 <TooltipContent side="top">
-                  <p className="font-black uppercase tracking-widest text-[9px]">
+                  <p className="font-black uppercase tracking-widest text-xs">
                     {isGenerating ? "Synthesis in progress" : "Rebuild global prompt nexus"}
                   </p>
                 </TooltipContent>
@@ -120,7 +120,7 @@ export const PromptsHeader: React.FC<PromptsHeaderProps> = ({
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="top">
-                  <p className="font-black uppercase tracking-widest text-[9px]">Proceed to Post-Production</p>
+                  <p className="font-black uppercase tracking-widest text-xs">Proceed to Post-Production</p>
                 </TooltipContent>
               </Tooltip>
             </div>

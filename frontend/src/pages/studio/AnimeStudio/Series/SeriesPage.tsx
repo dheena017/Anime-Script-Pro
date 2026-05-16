@@ -9,7 +9,6 @@ import { cn } from '@/lib/utils';
 import { SeriesTab } from './Tabs/SeriesTabs';
 
 // Modularized Tab Components
-import { RoadmapTab } from './Tabs/RoadmapTab';
 import { BlueprintTab } from './Tabs/BlueprintTab';
 import { AssetsTab } from './Tabs/AssetsTab';
 import { SeriesEmptyState } from './components/SeriesEmptyState';
@@ -30,6 +29,7 @@ export function SeriesPage() {
   const {
     generatedSeriesPlan,
     isGeneratingSeries,
+    generatedScript,
     prompt,
     currentScriptId,
     contentType,
@@ -77,9 +77,38 @@ export function SeriesPage() {
     setGeneratedSeriesPlan(newPlan);
   };
 
-  const applySequenceItem = (sess: number, ep: number) => {
+  const applySequenceItem = (sess: number, ep: number, scen: number) => {
     setSession(sess.toString());
     setEpisode(ep.toString());
+
+    const studioBase = currentScriptId ? `/projects/${currentScriptId}` : '/studio';
+
+    const explicitIndex = productionSequence.findIndex(
+      (unit) => unit.sess === sess && unit.ep === ep && unit.scen === scen
+    );
+
+    let sceneIndex = explicitIndex >= 0 ? explicitIndex : Math.max(0, scen - 1);
+
+    const sceneRows = generatedScript
+      ? generatedScript
+          .split('\n')
+          .filter((line) => line.includes('|') && !line.includes('---'))
+          .slice(1)
+      : [];
+
+    if (sceneRows.length === 0) {
+      showNotification?.('Storyboard scenes are not generated yet. Opening storyboard workspace.', 'info');
+      navigate(`${studioBase}/storyboard/scenes`);
+      return;
+    }
+
+    if (sceneIndex >= sceneRows.length) {
+      sceneIndex = sceneRows.length - 1;
+      showNotification?.(`Requested scene is outside the generated range. Loading Scene ${sceneIndex + 1} instead.`, 'info');
+    }
+
+    showNotification?.(`Loaded S${sess} E${ep} Scene ${scen}.`, 'success');
+    navigate(`${studioBase}/storyboard/scenes/${sceneIndex}`);
   };
 
   const handleManifestContinue = async (config: { sessions: number; episodes: number; scenes: number }) => {
@@ -165,24 +194,6 @@ export function SeriesPage() {
     }
 
     switch (activeTab) {
-      case 'roadmap':
-        return (
-          <RoadmapTab
-            plan={generatedSeriesPlan || []}
-            isEditing={isEditing}
-            onUpdateEpisode={handleUpdateEpisode}
-            onUpdateAssetMatrix={handleUpdateAssetMatrix}
-            onFocusEpisode={(epNum) => {
-              const studioBase = currentScriptId ? `/projects/${currentScriptId}` : '/studio';
-              setEpisode(epNum);
-              navigate(`${studioBase}/script`);
-            }}
-            onViewEpisode={(epNum) => {
-              const studioBase = currentScriptId ? `/projects/${currentScriptId}` : '/studio';
-              navigate(`${studioBase}/series/episodes/${epNum}`);
-            }}
-          />
-        );
       case 'episodes':
         return <EpisodesPage />;
       case 'blueprint':
@@ -208,13 +219,7 @@ export function SeriesPage() {
     <div data-testid="marker-series-planning">
       <Card className={cn(
         s.page.mainCard,
-        activeTab === 'roadmap' ? "border-studio/30 shadow-[0_0_50px_rgba(6,182,212,0.15)] hover:border-studio/50" : ""
       )}>
-        <div className={cn(
-          s.page.innerBorder,
-          activeTab === 'roadmap' ? "border-studio/20 group-hover/card:border-studio/40" : ""
-        )} />
-
         <div className={s.page.contentWrapper}>
           {renderTabContent()}
         </div>

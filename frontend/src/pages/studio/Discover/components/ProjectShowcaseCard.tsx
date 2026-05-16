@@ -16,7 +16,7 @@ export const ProjectShowcaseCard: React.FC<ProjectShowcaseCardProps> = ({ title,
     <motion.div whileHover={{ y: -5 }} className="rounded-2xl overflow-hidden bg-black/40 border border-white/10 cursor-pointer group">
       <div className="aspect-video bg-gradient-to-br from-fuchsia-500/20 to-purple-600/20 relative">
         <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors" />
-        <div className="absolute bottom-2 left-2 px-2 py-1 rounded bg-black/60 backdrop-blur-md text-[10px] text-white font-medium uppercase tracking-wider">
+        <div className="absolute bottom-2 left-2 px-2 py-1 rounded bg-black/60 backdrop-blur-md text-xs text-white font-medium uppercase tracking-wider">
           {genre || category || 'Untagged'}
         </div>
       </div>

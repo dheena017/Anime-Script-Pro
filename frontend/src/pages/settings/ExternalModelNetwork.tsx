@@ -234,7 +234,7 @@ export function ExternalModelNetwork() {
                   <div className="p-1.5 bg-black/40 rounded-lg border border-white/5">
                     <CategoryIcon className="w-3.5 h-3.5" />
                   </div>
-                  <span className="text-[10px] font-black uppercase tracking-tighter opacity-70">
+                  <span className="text-xs font-black uppercase tracking-tighter opacity-70">
                     {model.category}
                   </span>
                 </div>
@@ -245,7 +245,7 @@ export function ExternalModelNetwork() {
                 <h4 className="text-sm font-black text-white uppercase tracking-widest group-hover:text-inherit transition-colors">
                   {model.name}
                 </h4>
-                <p className="text-[10px] text-zinc-400 font-bold leading-relaxed line-clamp-2">
+                <p className="text-xs text-zinc-400 font-bold leading-relaxed line-clamp-2">
                   {model.description}
                 </p>
               </div>
@@ -266,10 +266,10 @@ export function ExternalModelNetwork() {
           </div>
           <div>
             <h4 className="text-sm font-black text-white uppercase tracking-widest">Missing a Node?</h4>
-            <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-tighter mt-1">Submit new free AI models to the discovery matrix via the feedback hub.</p>
+            <p className="text-xs text-zinc-500 font-bold uppercase tracking-tighter mt-1">Submit new free AI models to the discovery matrix via the feedback hub.</p>
           </div>
         </div>
-        <button className="px-8 py-3 bg-zinc-800 hover:bg-zinc-700 text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-xl border border-zinc-700 transition-all whitespace-nowrap">
+        <button className="px-8 py-3 bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-black uppercase tracking-[0.2em] rounded-xl border border-zinc-700 transition-all whitespace-nowrap">
           Open Feedback Hub
         </button>
       </div>

@@ -102,17 +102,17 @@ export const AnimeStudioTopBar = React.memo<AnimeStudioTopBarProps>(({
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2 px-3 py-1.5 bg-black rounded-xl border border-cyan-500/80 shadow-[0_0_15px_rgba(6,182,212,0.2)]">
             <Cpu className="w-4 h-4 text-cyan-500" />
-            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-cyan-500">Anime Studio</span>
+            <span className="text-xs font-black uppercase tracking-[0.2em] text-cyan-500">Anime Studio</span>
           </div>
           <ChevronRight className="w-4 h-4 text-zinc-700 hidden sm:block" />
           <div className="flex flex-col">
-            <h1 className="text-[10px] md:text-[12px] font-black uppercase tracking-[0.2em] text-white leading-none truncate max-w-[200px]">{displayTitle}</h1>
+            <h1 className="text-xs md:text-[12px] font-black uppercase tracking-[0.2em] text-white leading-none truncate max-w-[200px]">{displayTitle}</h1>
             <div className="flex flex-wrap items-center gap-2 mt-1">
-              <span className="text-[8px] font-black uppercase tracking-[0.28em] text-cyan-400">
+              <span className="text-xs font-black uppercase tracking-[0.28em] text-cyan-400">
                 {phaseInfo.phase}
               </span>
-              <span className="text-[8px] font-black uppercase tracking-[0.2em] text-zinc-700">•</span>
-              <span className="text-[8px] font-bold text-zinc-500 uppercase tracking-widest">
+              <span className="text-xs font-black uppercase tracking-[0.2em] text-zinc-700">•</span>
+              <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest">
                 {phaseInfo.label}
               </span>
             </div>

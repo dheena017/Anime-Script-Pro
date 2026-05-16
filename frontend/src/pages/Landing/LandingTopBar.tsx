@@ -104,7 +104,7 @@ export const LandingTopBar: React.FC = () => {
             <a
               href="/community"
               className={cn(
-                "px-5 py-2 text-[10px] font-black uppercase tracking-[0.2em] transition-colors no-underline",
+                "px-5 py-2 text-xs font-black uppercase tracking-[0.2em] transition-colors no-underline",
                 location.pathname === '/community' ? "text-studio" : "text-zinc-500 hover:text-white"
               )}
             >
@@ -113,7 +113,7 @@ export const LandingTopBar: React.FC = () => {
             <a
               href="/pricing"
               className={cn(
-                "px-5 py-2 text-[10px] font-black uppercase tracking-[0.2em] transition-colors no-underline",
+                "px-5 py-2 text-xs font-black uppercase tracking-[0.2em] transition-colors no-underline",
                 location.pathname === '/pricing' ? "text-studio" : "text-zinc-500 hover:text-white"
               )}
             >
@@ -130,14 +130,14 @@ export const LandingTopBar: React.FC = () => {
                 <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                 <div className="absolute inset-0 w-2 h-2 rounded-full bg-emerald-500 animate-ping opacity-40" />
              </div>
-             <span className="text-[9px] font-black uppercase tracking-widest text-zinc-500">Node-01 Online</span>
+             <span className="text-xs font-black uppercase tracking-widest text-zinc-500">Node-01 Online</span>
           </div>
 
           <div className="flex items-center gap-4">
             {user ? (
               <Button 
                 onClick={() => navigate('/dashboard')}
-                className="bg-studio/10 border border-studio/30 text-studio hover:bg-studio hover:text-black font-black uppercase tracking-[0.2em] text-[10px] rounded-full px-8 h-11 transition-all flex items-center gap-2"
+                className="bg-studio/10 border border-studio/30 text-studio hover:bg-studio hover:text-black font-black uppercase tracking-[0.2em] text-xs rounded-full px-8 h-11 transition-all flex items-center gap-2"
               >
                 <LayoutGrid className="w-3.5 h-3.5" />
                 Command Center
@@ -146,13 +146,13 @@ export const LandingTopBar: React.FC = () => {
               <>
                 <button
                   onClick={() => navigate('/login')}
-                  className="px-6 py-2 text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 hover:text-white transition-colors hidden sm:block"
+                  className="px-6 py-2 text-xs font-black uppercase tracking-[0.2em] text-zinc-500 hover:text-white transition-colors hidden sm:block"
                 >
                   Access Terminal
                 </button>
                 <Button
                   onClick={() => navigate('/login')}
-                  className="bg-white text-black hover:bg-studio hover:text-black font-black uppercase tracking-[0.2em] text-[10px] rounded-full px-8 h-11 transition-all transform hover:scale-105 shadow-xl flex items-center gap-2"
+                  className="bg-white text-black hover:bg-studio hover:text-black font-black uppercase tracking-[0.2em] text-xs rounded-full px-8 h-11 transition-all transform hover:scale-105 shadow-xl flex items-center gap-2"
                 >
                   Get Started <ArrowRight className="w-3.5 h-3.5" />
                 </Button>
@@ -199,7 +199,7 @@ export const LandingTopBar: React.FC = () => {
             <div className="pt-6 border-t border-white/5 space-y-4">
                <div className="flex items-center gap-3 px-4 py-3 rounded-2xl bg-white/[0.02] border border-white/5">
                   <Activity className="w-4 h-4 text-studio" />
-                  <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Global Load: Minimal</span>
+                  <span className="text-xs font-black text-zinc-500 uppercase tracking-widest">Global Load: Minimal</span>
                </div>
                <Button 
                 onClick={() => navigate('/login')} 

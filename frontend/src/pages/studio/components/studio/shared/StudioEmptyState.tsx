@@ -78,10 +78,10 @@ export const StudioEmptyState: React.FC<StudioEmptyStateProps> = ({
 
         {/* Content */}
         <div className="space-y-6 mb-10">
-          <h2 className="text-3xl md:text-5xl font-black uppercase tracking-[0.25em] text-white leading-tight drop-shadow-sm">
+          <h2 className="text-3xl md:text-2xl font-black uppercase tracking-[0.25em] text-white leading-tight drop-shadow-sm">
             {title}
           </h2>
-          <p className="text-zinc-500 font-bold leading-relaxed uppercase tracking-[0.2em] text-[10px] md:text-xs max-w-lg mx-auto">
+          <p className="text-zinc-500 font-bold leading-relaxed uppercase tracking-[0.2em] text-xs md:text-xs max-w-lg mx-auto">
             {description}
           </p>
         </div>
@@ -93,7 +93,7 @@ export const StudioEmptyState: React.FC<StudioEmptyStateProps> = ({
               onClick={onAction}
               disabled={isLoading || isActionDisabled}
               className={cn(
-                "h-14 px-10 rounded-full font-black uppercase tracking-widest text-[11px] gap-3 transition-all duration-500",
+                "h-14 px-10 rounded-full font-black uppercase tracking-widest text-xs gap-3 transition-all duration-500",
                 "bg-gradient-to-r from-studio to-cyan-500 text-black hover:shadow-[0_0_30px_rgba(6,182,212,0.4)] hover:scale-105 active:scale-95",
                 (isLoading || isActionDisabled) && "opacity-20 grayscale pointer-events-none"
               )}
@@ -112,7 +112,7 @@ export const StudioEmptyState: React.FC<StudioEmptyStateProps> = ({
           {secondaryActionLabel && (
             <button
               onClick={onSecondaryAction}
-              className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-500 hover:text-studio transition-colors flex items-center gap-2 group"
+              className="text-xs font-black uppercase tracking-[0.3em] text-zinc-500 hover:text-studio transition-colors flex items-center gap-2 group"
             >
               <Sparkles className="w-3 h-3 group-hover:animate-pulse" />
               {secondaryActionLabel}
@@ -122,7 +122,7 @@ export const StudioEmptyState: React.FC<StudioEmptyStateProps> = ({
 
         {/* Footer Text */}
         <div className="mt-16 pt-8 border-t border-white/5 w-full">
-          <p className="text-[9px] font-black uppercase tracking-[0.3em] text-zinc-600 flex items-center justify-center gap-2">
+          <p className="text-xs font-black uppercase tracking-[0.3em] text-zinc-600 flex items-center justify-center gap-2">
             <Rocket className="w-3 h-3 text-studio/60" />
             {footerLabel}
           </p>
@@ -149,7 +149,7 @@ export const StudioEmptyState: React.FC<StudioEmptyStateProps> = ({
               <h4 className="text-[12px] font-black uppercase tracking-widest text-zinc-200 mb-3">
                 {feature.title}
               </h4>
-              <p className="text-[10px] text-zinc-500 font-bold uppercase leading-relaxed tracking-wider">
+              <p className="text-xs text-zinc-500 font-bold uppercase leading-relaxed tracking-wider">
                 {feature.description}
               </p>
             </div>

@@ -36,9 +36,9 @@ export const EngineLogs: React.FC = () => {
         <div className="space-y-3">
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-zinc-500/10 border border-zinc-500/20 rounded-full">
             <Settings className="w-3 h-3 text-zinc-400" />
-            <span className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.2em]">System Logs</span>
+            <span className="text-xs font-black text-zinc-400 uppercase tracking-[0.2em]">System Logs</span>
           </div>
-          <h1 className="text-6xl font-black text-white uppercase tracking-tighter leading-none">
+          <h1 className="text-3xl font-black text-white uppercase tracking-tighter leading-none">
             INCIDENT <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-zinc-400 via-zinc-200 to-zinc-400">ARCHIVE</span>
           </h1>
@@ -47,9 +47,9 @@ export const EngineLogs: React.FC = () => {
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2 px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/20 rounded-full animate-pulse">
             <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-            <span className="text-[8px] font-black text-emerald-500 uppercase tracking-widest">Live Telemetry Active</span>
+            <span className="text-xs font-black text-emerald-500 uppercase tracking-widest">Live Telemetry Active</span>
           </div>
-          <button className="flex items-center gap-3 px-6 py-3 bg-white/5 border border-white/5 rounded-2xl text-[9px] font-black uppercase tracking-widest text-zinc-400 hover:bg-white/10 transition-all">
+          <button className="flex items-center gap-3 px-6 py-3 bg-white/5 border border-white/5 rounded-2xl text-xs font-black uppercase tracking-widest text-zinc-400 hover:bg-white/10 transition-all">
             <Filter className="w-3.5 h-3.5" />
             Filter Incident Archive
           </button>
@@ -60,32 +60,32 @@ export const EngineLogs: React.FC = () => {
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="bg-white/[0.02] border-b border-white/5">
-              <th className="px-8 py-5 text-[9px] font-black text-zinc-500 uppercase tracking-widest">Timestamp</th>
-              <th className="px-8 py-5 text-[9px] font-black text-zinc-500 uppercase tracking-widest">Layer</th>
-              <th className="px-8 py-5 text-[9px] font-black text-zinc-500 uppercase tracking-widest">Message</th>
-              <th className="px-8 py-5 text-[9px] font-black text-zinc-500 uppercase tracking-widest">Status</th>
+              <th className="px-8 py-5 text-xs font-black text-zinc-500 uppercase tracking-widest">Timestamp</th>
+              <th className="px-8 py-5 text-xs font-black text-zinc-500 uppercase tracking-widest">Layer</th>
+              <th className="px-8 py-5 text-xs font-black text-zinc-500 uppercase tracking-widest">Message</th>
+              <th className="px-8 py-5 text-xs font-black text-zinc-500 uppercase tracking-widest">Status</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-white/5">
             {isLoading ? (
               <tr>
-                <td colSpan={4} className="px-8 py-20 text-center text-zinc-600 animate-pulse font-black uppercase tracking-widest text-[10px]">
+                <td colSpan={4} className="px-8 py-20 text-center text-zinc-600 animate-pulse font-black uppercase tracking-widest text-xs">
                   Fetching System Archive...
                 </td>
               </tr>
             ) : logs.length === 0 ? (
               <tr>
-                <td colSpan={4} className="px-8 py-20 text-center text-zinc-600 font-black uppercase tracking-widest text-[10px]">
+                <td colSpan={4} className="px-8 py-20 text-center text-zinc-600 font-black uppercase tracking-widest text-xs">
                   No incidents recorded in current cycle.
                 </td>
               </tr>
             ) : logs.map((log, i) => (
               <tr key={i} className="hover:bg-white/[0.01] transition-colors group">
-                <td className="px-8 py-5 font-mono text-[10px] text-zinc-500">
+                <td className="px-8 py-5 font-mono text-xs text-zinc-500">
                   {new Date(log.timestamp).toLocaleTimeString()}
                 </td>
                 <td className="px-8 py-5">
-                  <span className="text-[9px] font-black text-zinc-300 uppercase tracking-widest bg-white/5 px-3 py-1 rounded-lg">
+                  <span className="text-xs font-black text-zinc-300 uppercase tracking-widest bg-white/5 px-3 py-1 rounded-lg">
                     {log.model}
                   </span>
                 </td>
@@ -100,7 +100,7 @@ export const EngineLogs: React.FC = () => {
                       log.status === 'ERROR' && "bg-red-500",
                       log.status === 'FALLBACK' && "bg-amber-500"
                     )} />
-                    <span className={cn("text-[9px] font-black uppercase tracking-widest transition-colors", getStatusColor(log.status))}>
+                    <span className={cn("text-xs font-black uppercase tracking-widest transition-colors", getStatusColor(log.status))}>
                       {log.status}
                     </span>
                   </div>
@@ -114,7 +114,7 @@ export const EngineLogs: React.FC = () => {
       <div className="flex items-center justify-center py-10">
         <div className="flex items-center gap-4 text-zinc-600">
           <History className="w-4 h-4" />
-          <span className="text-[10px] font-bold uppercase tracking-widest">End of archived logs. Total capacity: 100 entries.</span>
+          <span className="text-xs font-bold uppercase tracking-widest">End of archived logs. Total capacity: 100 entries.</span>
         </div>
       </div>
     </div>

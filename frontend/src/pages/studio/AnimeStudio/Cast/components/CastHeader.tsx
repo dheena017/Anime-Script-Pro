@@ -78,7 +78,7 @@ export const CastHeader: React.FC<CastHeaderProps> = ({
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="top">
-                  <p className="font-black uppercase tracking-widest text-[9px]">Return to Modules Hub</p>
+                  <p className="font-black uppercase tracking-widest text-xs">Return to Modules Hub</p>
                 </TooltipContent>
               </Tooltip>
             )}
@@ -122,7 +122,7 @@ export const CastHeader: React.FC<CastHeaderProps> = ({
                   )}
                 </TooltipTrigger>
                 <TooltipContent side="top">
-                  <p className="font-black uppercase tracking-widest text-[9px]">
+                  <p className="font-black uppercase tracking-widest text-xs">
                     {isGenerating ? "Stop Generation" : "Generate Characters"}
                   </p>
                 </TooltipContent>
@@ -140,7 +140,7 @@ export const CastHeader: React.FC<CastHeaderProps> = ({
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="top">
-                  <p className="font-black uppercase tracking-widest text-[9px]">Proceed to Next Phase</p>
+                  <p className="font-black uppercase tracking-widest text-xs">Proceed to Next Phase</p>
                 </TooltipContent>
               </Tooltip>
             </div>

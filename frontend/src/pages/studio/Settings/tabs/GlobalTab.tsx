@@ -34,7 +34,7 @@ export const GlobalTab: React.FC = () => {
                   >
                     <div className="flex items-center gap-3">
                       <Network className={cn("w-4 h-4", region === node ? "text-[#bd4a4a]" : "text-zinc-700")} />
-                      <span className="text-[10px] font-black uppercase tracking-widest">{node}</span>
+                      <span className="text-xs font-black uppercase tracking-widest">{node}</span>
                     </div>
                     {region === node && <div className="w-1.5 h-1.5 rounded-full bg-[#bd4a4a] shadow-[0_0_10px_#bd4a4a]" />}
                   </button>
@@ -58,7 +58,7 @@ export const GlobalTab: React.FC = () => {
                   >
                     <div className="flex items-center gap-3">
                       <Languages className={cn("w-4 h-4", language === lang ? "text-[#bd4a4a]" : "text-zinc-700")} />
-                      <span className="text-[10px] font-black uppercase tracking-widest">{lang}</span>
+                      <span className="text-xs font-black uppercase tracking-widest">{lang}</span>
                     </div>
                     {language === lang && <div className="w-1.5 h-1.5 rounded-full bg-[#bd4a4a] shadow-[0_0_10px_#bd4a4a]" />}
                   </button>
@@ -71,11 +71,11 @@ export const GlobalTab: React.FC = () => {
             <div className="flex items-center gap-4">
               <Globe2 className="w-5 h-5 text-zinc-600" />
               <div className="space-y-0.5">
-                <p className="text-[10px] font-black text-white uppercase tracking-widest">Auto-Detect Region</p>
-                <p className="text-[9px] font-bold text-zinc-600 uppercase tracking-widest">Automatically sync with the nearest neural node</p>
+                <p className="text-xs font-black text-white uppercase tracking-widest">Auto-Detect Region</p>
+                <p className="text-xs font-bold text-zinc-600 uppercase tracking-widest">Automatically sync with the nearest neural node</p>
               </div>
             </div>
-            <Button variant="ghost" className="text-[9px] font-black uppercase tracking-widest text-[#bd4a4a] hover:bg-[#bd4a4a]/10">Configure CDN</Button>
+            <Button variant="ghost" className="text-xs font-black uppercase tracking-widest text-[#bd4a4a] hover:bg-[#bd4a4a]/10">Configure CDN</Button>
           </div>
         </CardContent>
       </Card>

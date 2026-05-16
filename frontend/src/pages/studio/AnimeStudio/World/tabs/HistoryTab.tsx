@@ -76,7 +76,7 @@ export const HistoryTab: React.FC<HistoryTabProps> = ({
                   <h4 className={s.content.sidebarTitle}>
                     <Sparkles className="w-3 h-3 text-fuchsia-500" /> Core Seed
                   </h4>
-                  {isEditing && <span className="text-[8px] font-bold text-fuchsia-500/50 uppercase">Modular Prompt</span>}
+                  {isEditing && <span className="text-xs font-bold text-fuchsia-500/50 uppercase">Modular Prompt</span>}
                 </div>
                 
                 {isEditing ? (
@@ -106,18 +106,18 @@ export const HistoryTab: React.FC<HistoryTabProps> = ({
             </div>
 
             <div className="space-y-4">
-              <h5 className="text-[10px] font-black text-zinc-500 uppercase tracking-widest flex items-center gap-2 mb-4">
+              <h5 className="text-xs font-black text-zinc-500 uppercase tracking-widest flex items-center gap-2 mb-4">
                 <Calendar className="w-3 h-3" /> Key Timeline Events
               </h5>
               {timelineEvents.length > 0 ? timelineEvents.map((event, i) => (
                 <div key={i} className="p-4 bg-white/[0.02] border border-white/5 rounded-2xl group hover:border-fuchsia-500/20 transition-all">
-                  <p className="text-[10px] font-medium text-zinc-400 group-hover:text-zinc-200 transition-colors leading-relaxed">
+                  <p className="text-xs font-medium text-zinc-400 group-hover:text-zinc-200 transition-colors leading-relaxed">
                     {event}
                   </p>
                 </div>
               )) : (
                 <div className="p-4 bg-white/[0.01] border border-white/5 border-dashed rounded-2xl text-center">
-                  <p className="text-[9px] font-bold text-zinc-600 uppercase">No major events identified</p>
+                  <p className="text-xs font-bold text-zinc-600 uppercase">No major events identified</p>
                 </div>
               )}
             </div>

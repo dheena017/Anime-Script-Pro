@@ -56,9 +56,9 @@ export const LoreEditor: React.FC<LoreEditorProps> = ({
       >
         <div className="flex items-center gap-3">
           <div className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: accentColor }} />
-          <span className="text-[10px] font-black uppercase tracking-widest" style={{ color: accentColor }}>Edit Mode Active</span>
+          <span className="text-xs font-black uppercase tracking-widest" style={{ color: accentColor }}>Edit Mode Active</span>
         </div>
-        <div className="flex items-center gap-4 text-[10px] font-bold text-zinc-500 uppercase tracking-tighter">
+        <div className="flex items-center gap-4 text-xs font-bold text-zinc-500 uppercase tracking-tighter">
           <span className="font-mono">{lineCount} lines</span>
           <span>•</span>
           <span className="font-mono">{charCount.toLocaleString()} chars</span>
@@ -81,7 +81,7 @@ export const LoreEditor: React.FC<LoreEditorProps> = ({
             className={s.actionToolbarButton}
           >
             <btn.icon className="w-3.5 h-3.5 text-zinc-400 group-hover:text-white transition-colors" />
-            <span className="text-[10px] font-bold text-zinc-500 group-hover:text-white transition-colors uppercase tracking-widest">{btn.label}</span>
+            <span className="text-xs font-bold text-zinc-500 group-hover:text-white transition-colors uppercase tracking-widest">{btn.label}</span>
           </button>
         ))}
       </div>
@@ -108,7 +108,7 @@ export const LoreEditor: React.FC<LoreEditorProps> = ({
       </div>
 
       {/* Editor Footer */}
-      <div className="flex items-center justify-between p-3 bg-black/20 border border-white/5 rounded-xl text-[9px] text-zinc-600 font-bold uppercase tracking-widest">
+      <div className="flex items-center justify-between p-3 bg-black/20 border border-white/5 rounded-xl text-xs text-zinc-600 font-bold uppercase tracking-widest">
         <div className="flex items-center gap-4">
           <span className="flex items-center gap-1.5"><Sparkles className="w-3 h-3" style={{ color: accentColor }} /> Markdown Enabled</span>
           <span>•</span>

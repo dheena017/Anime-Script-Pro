@@ -19,18 +19,18 @@ export const TutorialsHeader: React.FC = () => {
           </div>
           <div>
             <div className="flex items-center gap-3 mb-2">
-              <span className="px-3 py-1 bg-[#bd4a4a]/10 border border-[#bd4a4a]/20 rounded-full text-[8px] font-black text-[#bd4a4a] uppercase tracking-widest">
+              <span className="px-3 py-1 bg-[#bd4a4a]/10 border border-[#bd4a4a]/20 rounded-full text-xs font-black text-[#bd4a4a] uppercase tracking-widest">
                 Creator Academy
               </span>
               <div className="flex items-center gap-1.5 px-3 py-1 bg-amber-500/10 border border-amber-500/20 rounded-full">
                 <div className="w-1 h-1 bg-amber-500 rounded-full animate-pulse" />
-                <span className="text-[8px] font-black text-amber-500 uppercase tracking-widest">Mastery Level: 42</span>
+                <span className="text-xs font-black text-amber-500 uppercase tracking-widest">Mastery Level: 42</span>
               </div>
             </div>
-            <h1 className="text-5xl font-black italic uppercase tracking-tighter text-white leading-none">
+            <h1 className="text-2xl font-black italic uppercase tracking-tighter text-white leading-none">
               Knowledge <span className="text-zinc-800">/</span> <span className="text-[#bd4a4a]">Vault</span>
             </h1>
-            <p className="text-[11px] font-bold text-zinc-500 uppercase tracking-[0.4em] mt-3">
+            <p className="text-xs font-bold text-zinc-500 uppercase tracking-[0.4em] mt-3">
               Master the art of storytelling and production
             </p>
           </div>
@@ -45,7 +45,7 @@ export const TutorialsHeader: React.FC = () => {
             <div key={stat.label} className="bg-zinc-950/50 border border-white/5 rounded-2xl px-5 py-3 flex flex-col gap-1 min-w-[120px]">
               <div className="flex items-center gap-2">
                 <stat.icon className={`w-3 h-3 ${stat.color}`} />
-                <span className="text-[8px] font-black text-zinc-500 uppercase tracking-widest">{stat.label}</span>
+                <span className="text-xs font-black text-zinc-500 uppercase tracking-widest">{stat.label}</span>
               </div>
               <span className="text-xs font-black text-white uppercase tracking-wider">{stat.value}</span>
             </div>

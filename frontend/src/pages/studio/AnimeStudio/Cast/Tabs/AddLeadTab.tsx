@@ -100,7 +100,7 @@ export const AddLeadTab: React.FC = () => {
       <div className="space-y-6">
          <div className="grid grid-cols-2 gap-6">
            <div className="space-y-2">
-             <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-4">Full Name</label>
+             <label className="text-xs font-black text-zinc-500 uppercase tracking-widest ml-4">Full Name</label>
              <input 
                className="w-full h-14 bg-white/5 border border-white/10 rounded-2xl px-6 text-white focus:border-amber-500/50 outline-none transition-all font-bold" 
                placeholder="Character Name..." 
@@ -109,7 +109,7 @@ export const AddLeadTab: React.FC = () => {
              />
            </div>
            <div className="space-y-2">
-             <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-4">Archetype</label>
+             <label className="text-xs font-black text-zinc-500 uppercase tracking-widest ml-4">Archetype</label>
              <div className="relative">
                <input 
                  className="w-full h-14 bg-white/5 border border-white/10 rounded-2xl px-6 text-white focus:border-amber-500/50 outline-none transition-all font-bold" 
@@ -129,7 +129,7 @@ export const AddLeadTab: React.FC = () => {
            </div>
          </div>
          <div className="space-y-2">
-           <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-4">Core Motivation</label>
+           <label className="text-xs font-black text-zinc-500 uppercase tracking-widest ml-4">Core Motivation</label>
            <textarea 
              className="w-full h-32 bg-white/5 border border-white/10 rounded-2xl p-6 text-white focus:border-amber-500/50 outline-none transition-all font-bold resize-none" 
              placeholder="What drives this soul?" 

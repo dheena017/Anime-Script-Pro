@@ -15,13 +15,13 @@ export function LoreSearchHeader({ searchTerm, onSearchChange, onInitialize }: L
         <div className="flex items-center justify-center gap-3">
           <div className="px-4 py-1.5 bg-studio/5 rounded-full border border-studio/20 flex items-center gap-2">
             <Database className="w-3.5 h-3.5 text-studio" />
-            <span className="text-[10px] font-black uppercase tracking-[0.4em] text-studio">Lore Database</span>
+            <span className="text-xs font-black uppercase tracking-[0.4em] text-studio">Lore Database</span>
           </div>
         </div>
-        <h1 className="text-5xl md:text-8xl font-black text-white uppercase italic tracking-tighter leading-none">
+        <h1 className="text-2xl md:text-4xl font-black text-white uppercase italic tracking-tighter leading-none">
           Universal <span className="text-studio">Archive.</span>
         </h1>
-        <p className="text-zinc-500 font-bold uppercase text-[11px] tracking-[0.2em] max-w-2xl mx-auto leading-relaxed">
+        <p className="text-zinc-500 font-bold uppercase text-xs tracking-[0.2em] max-w-2xl mx-auto leading-relaxed">
           Global repository of synchronized world lore, character DNA, and architectural magic systems. Connect your production nodes.
         </p>
       </div>
@@ -29,15 +29,15 @@ export function LoreSearchHeader({ searchTerm, onSearchChange, onInitialize }: L
       <div className="flex flex-wrap items-center justify-center gap-12 pt-6 border-t border-white/5 w-full max-w-4xl">
          <div className="flex items-center gap-3">
             <Globe className="w-4 h-4 text-zinc-700" />
-            <span className="text-[9px] font-black text-zinc-500 uppercase tracking-widest">Total Fragments: 1.2M+</span>
+            <span className="text-xs font-black text-zinc-500 uppercase tracking-widest">Total Fragments: 1.2M+</span>
          </div>
          <div className="flex items-center gap-3">
             <Activity className="w-4 h-4 text-studio animate-pulse" />
-            <span className="text-[9px] font-black text-zinc-500 uppercase tracking-widest">Active Architects: 8,420</span>
+            <span className="text-xs font-black text-zinc-500 uppercase tracking-widest">Active Architects: 8,420</span>
          </div>
          <div className="flex items-center gap-3">
             <ShieldCheck className="w-4 h-4 text-emerald-500" />
-            <span className="text-[9px] font-black text-zinc-500 uppercase tracking-widest">Sync Health: 99.9%</span>
+            <span className="text-xs font-black text-zinc-500 uppercase tracking-widest">Sync Health: 99.9%</span>
          </div>
       </div>
 

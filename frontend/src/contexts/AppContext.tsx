@@ -94,7 +94,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
               notification.type === 'success' ? 'bg-emerald-500' :
                 'bg-cyan-500'
               }`} />
-            <p className="text-[10px] font-black uppercase tracking-widest">{notification.message}</p>
+            <p className="text-xs font-black uppercase tracking-widest">{notification.message}</p>
           </div>
         </div>
       )}

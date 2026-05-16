@@ -14,7 +14,7 @@ export const SoundscapeLibrary: React.FC = () => {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 flex items-center gap-2">
+        <h3 className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500 flex items-center gap-2">
           <Music className="w-4 h-4 text-studio" />
           AI Soundscape Curation
         </h3>
@@ -28,14 +28,14 @@ export const SoundscapeLibrary: React.FC = () => {
                   <Play className="w-4 h-4 fill-current" />
                </div>
                <div className="flex-1">
-                  <h4 className="text-[10px] font-black uppercase text-white tracking-widest leading-none">{track.name}</h4>
-                  <p className="text-[8px] text-zinc-500 font-bold uppercase tracking-tighter mt-1">
+                  <h4 className="text-xs font-black uppercase text-white tracking-widest leading-none">{track.name}</h4>
+                  <p className="text-xs text-zinc-500 font-bold uppercase tracking-tighter mt-1">
                     {track.genre} • {track.bpm} BPM • {track.mood}
                   </p>
                </div>
                <div className="flex flex-col items-end gap-1 opacity-40 group-hover:opacity-100 transition-opacity">
                   <Activity className="w-3 h-3 text-zinc-500" />
-                  <span className="text-[7px] text-zinc-600 font-mono">03:42</span>
+                  <span className="text-xs text-zinc-600 font-mono">03:42</span>
                </div>
             </div>
             <div className="absolute top-0 right-0 w-12 h-12 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity">

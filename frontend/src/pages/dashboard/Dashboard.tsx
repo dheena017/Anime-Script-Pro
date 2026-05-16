@@ -137,13 +137,13 @@ export default function Dashboard() {
                 error ? "bg-amber-500 shadow-amber-500/80" : "bg-studio"
               )} />
               <span className={cn(
-                "text-[9px] font-black uppercase tracking-[0.3em]",
+                "text-xs font-black uppercase tracking-[0.3em]",
                 error ? "text-amber-500" : "text-studio"
               )}>
                 {error ? "Connection Issue" : "System Connected"}
               </span>
             </div>
-            <h1 className="text-4xl md:text-7xl font-black text-white uppercase tracking-[-0.04em] leading-[0.85]">
+            <h1 className="text-xl md:text-3xl font-black text-white uppercase tracking-[-0.04em] leading-[0.85]">
               GREETINGS,<br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-studio via-fuchsia-500 to-studio">
                 {user?.email?.split('@')[0] || 'ARCHITECT'}
@@ -153,7 +153,7 @@ export default function Dashboard() {
 
           <div className="flex items-center gap-8 text-right pb-2">
             <div className="space-y-1">
-              <p className="text-[9px] font-black text-zinc-600 uppercase tracking-widest">System Stability</p>
+              <p className="text-xs font-black text-zinc-600 uppercase tracking-widest">System Stability</p>
               <p className={cn(
                 "text-xs font-bold uppercase tracking-tighter",
                 error ? "text-amber-400" : "text-emerald-400"
@@ -163,7 +163,7 @@ export default function Dashboard() {
             </div>
             <div className="w-[1px] h-10 bg-white/10" />
             <div className="space-y-1">
-              <p className="text-[9px] font-black text-zinc-600 uppercase tracking-widest">Active Node</p>
+              <p className="text-xs font-black text-zinc-600 uppercase tracking-widest">Active Node</p>
               <p className="text-xs font-bold text-studio uppercase tracking-tighter">CENTRAL HUB-01</p>
             </div>
           </div>
@@ -204,15 +204,15 @@ export default function Dashboard() {
               <Card key={i} className={cn("cyber-panel p-8 flex flex-col justify-between group transition-colors duration-300", stat.border)}>
 
                 <div className="flex items-center justify-between mb-8 relative z-10">
-                  <p className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.4em]">{stat.label}</p>
+                  <p className="text-xs font-black text-zinc-400 uppercase tracking-[0.4em]">{stat.label}</p>
                   <div className="p-2.5 rounded-xl bg-white/[0.03] border border-white/5 group-hover:border-white/10 transition-colors">
                     <stat.icon className="w-4 h-4 text-zinc-600 group-hover:text-white transition-colors duration-300" />
                   </div>
                 </div>
 
                 <div className="space-y-2 relative z-10">
-                  <div className="text-4xl font-black text-white tracking-tighter truncate leading-none group-hover:translate-x-1 transition-transform duration-500">{stat.val}</div>
-                  <div className="flex items-center gap-2 text-[9px] text-emerald-500 font-black tracking-[0.2em] uppercase">
+                  <div className="text-xl font-black text-white tracking-tighter truncate leading-none group-hover:translate-x-1 transition-transform duration-500">{stat.val}</div>
+                  <div className="flex items-center gap-2 text-xs text-emerald-500 font-black tracking-[0.2em] uppercase">
                     <div className={cn("w-1.5 h-1.5 rounded-full", error ? "bg-amber-500" : "bg-emerald-500")} />
                     {stat.sub}
                   </div>
@@ -232,7 +232,7 @@ export default function Dashboard() {
             <div className="space-y-8">
               <div className="flex items-center gap-4">
                 <LayoutGrid className="w-5 h-5 text-fuchsia-500" />
-                <h2 className="text-[11px] font-black text-zinc-400 uppercase tracking-[0.4em]">Environmental Nodes</h2>
+                <h2 className="text-sm font-black text-zinc-400 uppercase tracking-[0.4em]">Environmental Nodes</h2>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {[
@@ -259,7 +259,7 @@ export default function Dashboard() {
                       </div>
                     </div>
                     <h3 className="text-xl font-black text-white uppercase tracking-tighter mb-2 relative z-10">{studio.name}</h3>
-                    <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest leading-relaxed relative z-10">{studio.desc}</p>
+                    <p className="text-xs text-zinc-500 font-bold uppercase tracking-widest leading-relaxed relative z-10">{studio.desc}</p>
 
                     {/* Decorative element */}
                     <div className="absolute bottom-0 right-0 p-6 opacity-0 group-hover:opacity-10 transition-opacity">
@@ -275,11 +275,11 @@ export default function Dashboard() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
                   <History className="w-5 h-5 text-studio" />
-                  <h2 className="text-[11px] font-black text-zinc-400 uppercase tracking-[0.4em]">Blueprint Registry</h2>
+                  <h2 className="text-sm font-black text-zinc-400 uppercase tracking-[0.4em]">Blueprint Registry</h2>
                 </div>
                 <button
                   onClick={() => navigate('/projects')}
-                  className="text-[9px] font-black text-zinc-600 hover:text-studio uppercase tracking-widest transition-colors flex items-center gap-2"
+                  className="text-xs font-black text-zinc-600 hover:text-studio uppercase tracking-widest transition-colors flex items-center gap-2"
                 >
                   View Full Archive <ArrowRight className="w-3 h-3" />
                 </button>
@@ -299,9 +299,9 @@ export default function Dashboard() {
                           <div className="flex-1 min-w-0 space-y-1">
                             <h4 className="text-sm font-bold text-white uppercase truncate tracking-tight">{project.title}</h4>
                             <div className="flex items-center gap-3">
-                              <span className="text-[9px] font-black text-zinc-500 uppercase tracking-widest">{project.model_used || 'GPT-4O'}</span>
+                              <span className="text-xs font-black text-zinc-500 uppercase tracking-widest">{project.model_used || 'GPT-4O'}</span>
                               <div className="w-1 h-1 rounded-full bg-zinc-800" />
-                              <span className="text-[9px] font-black text-studio uppercase tracking-widest">Active</span>
+                              <span className="text-xs font-black text-studio uppercase tracking-widest">Active</span>
                             </div>
                           </div>
                           <ChevronRight className="w-4 h-4 text-zinc-800 group-hover:text-white transition-colors" />
@@ -311,8 +311,8 @@ export default function Dashboard() {
                   ) : (
                     <div className="col-span-2 p-12 rounded-[2rem] border border-dashed border-white/5 flex flex-col items-center justify-center text-center space-y-4">
                       <FolderGit2 className="w-8 h-8 text-zinc-800" />
-                      <p className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.2em]">No blueprints found in registry.</p>
-                      <Button onClick={() => navigate('/projects/new')} variant="outline" className="h-10 px-6 rounded-xl text-[9px] font-black uppercase tracking-widest border-zinc-800 hover:bg-studio/5">Create First Blueprint</Button>
+                      <p className="text-xs font-black text-zinc-600 uppercase tracking-[0.2em]">No blueprints found in registry.</p>
+                      <Button onClick={() => navigate('/projects/new')} variant="outline" className="h-10 px-6 rounded-xl text-xs font-black uppercase tracking-widest border-zinc-800 hover:bg-studio/5">Create First Blueprint</Button>
                     </div>
                   )}
                 </div>
@@ -331,8 +331,8 @@ export default function Dashboard() {
               </div>
 
               <div className="space-y-1 relative z-10">
-                <h2 className="text-[11px] font-black uppercase tracking-[0.4em] text-zinc-400">System Performance</h2>
-                <p className="text-[9px] font-bold text-studio/60 uppercase">Real-time Node Status</p>
+                <h2 className="text-sm font-black uppercase tracking-[0.4em] text-zinc-400">System Performance</h2>
+                <p className="text-xs font-bold text-studio/60 uppercase">Real-time Node Status</p>
               </div>
 
               <div className="space-y-6 relative z-10">
@@ -342,7 +342,7 @@ export default function Dashboard() {
                   { label: 'Memory Allocation', val: 45, unit: '%', color: 'bg-emerald-500' },
                 ].map((metric) => (
                   <div key={metric.label} className="space-y-2">
-                    <div className="flex justify-between text-[10px] font-black uppercase tracking-widest">
+                    <div className="flex justify-between text-xs font-black uppercase tracking-widest">
                       <span className="text-zinc-500">{metric.label}</span>
                       <span className="text-white">{metric.val}{metric.unit}</span>
                     </div>
@@ -358,11 +358,11 @@ export default function Dashboard() {
 
               <div className="pt-4 grid grid-cols-2 gap-4 relative z-10">
                 <div className="p-4 rounded-2xl bg-black/40 border border-white/5 space-y-1">
-                  <p className="text-[8px] font-black text-zinc-600 uppercase tracking-widest">Uptime</p>
+                  <p className="text-xs font-black text-zinc-600 uppercase tracking-widest">Uptime</p>
                   <p className="text-xs font-bold text-zinc-300">14:22:04</p>
                 </div>
                 <div className="p-4 rounded-2xl bg-black/40 border border-white/5 space-y-1">
-                  <p className="text-[8px] font-black text-zinc-600 uppercase tracking-widest">Region</p>
+                  <p className="text-xs font-black text-zinc-600 uppercase tracking-widest">Region</p>
                   <p className="text-xs font-bold text-zinc-300 uppercase">AS-S1</p>
                 </div>
               </div>
@@ -373,7 +373,7 @@ export default function Dashboard() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <TerminalIcon className="w-4 h-4 text-studio" />
-                  <h2 className="text-[11px] font-black uppercase tracking-[0.4em] text-zinc-400">System Feed</h2>
+                  <h2 className="text-sm font-black uppercase tracking-[0.4em] text-zinc-400">System Feed</h2>
                 </div>
                 <div className="flex gap-1">
                   <div className="w-1 h-1 rounded-full bg-studio" />
@@ -395,10 +395,10 @@ export default function Dashboard() {
                             log.level === 'WARNING' ? 'bg-yellow-500 shadow-yellow-500/50' : 'bg-studio shadow-studio/50'
                         )} />
                         <div className="space-y-1">
-                          <p className="text-[11px] font-bold text-zinc-300 leading-relaxed uppercase tracking-tight group-hover/log:text-white transition-colors">
+                          <p className="text-xs font-bold text-zinc-300 leading-relaxed uppercase tracking-tight group-hover/log:text-white transition-colors">
                             {log.message}
                           </p>
-                          <p className="text-[8px] text-zinc-600 font-medium uppercase tracking-widest">
+                          <p className="text-xs text-zinc-600 font-medium uppercase tracking-widest">
                             {log.source} // {log.timestamp ? new Date(log.timestamp).toLocaleTimeString() : 'JUST NOW'}
                           </p>
                         </div>
@@ -406,7 +406,7 @@ export default function Dashboard() {
                     ))
                   ) : (
                     <div className="p-8 rounded-2xl border border-dashed border-white/5 text-center">
-                      <p className="text-[10px] font-black text-zinc-700 uppercase tracking-widest">System is quiet.</p>
+                      <p className="text-xs font-black text-zinc-700 uppercase tracking-widest">System is quiet.</p>
                     </div>
                   )}
                 </div>

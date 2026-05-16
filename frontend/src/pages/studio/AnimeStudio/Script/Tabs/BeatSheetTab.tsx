@@ -20,20 +20,20 @@ export const BeatSheetTab: React.FC = () => {
         </div>
         <div className="space-y-1">
           <h2 className="text-3xl font-black text-white uppercase tracking-tighter">Beat Sheet</h2>
-          <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-[0.3em]">Emotional arc mapping and pacing diagnostics</p>
+          <p className="text-zinc-500 text-xs font-bold uppercase tracking-[0.3em]">Emotional arc mapping and pacing diagnostics</p>
         </div>
       </div>
 
       <div className="space-y-4 max-w-4xl mx-auto">
         {beats.map((beat, i) => (
           <div key={i} className="flex items-center gap-6 p-5 bg-white/5 border border-white/5 rounded-2xl hover:border-fuchsia-500/20 transition-all group">
-            <span className="text-[10px] font-black text-zinc-600 uppercase tracking-widest w-6">{String(i + 1).padStart(2, '0')}</span>
+            <span className="text-xs font-black text-zinc-600 uppercase tracking-widest w-6">{String(i + 1).padStart(2, '0')}</span>
             <div className="flex-1">
               <div className="flex items-center justify-between mb-2">
                 <h3 className="text-sm font-black text-white uppercase tracking-widest">{beat.label}</h3>
                 <div className="flex items-center gap-4">
-                  <span className="text-[10px] font-black text-zinc-500 uppercase">{beat.time}</span>
-                  <span className="text-[9px] font-black text-fuchsia-400/70 uppercase tracking-widest px-2 py-0.5 bg-fuchsia-500/10 rounded-full">{beat.type}</span>
+                  <span className="text-xs font-black text-zinc-500 uppercase">{beat.time}</span>
+                  <span className="text-xs font-black text-fuchsia-400/70 uppercase tracking-widest px-2 py-0.5 bg-fuchsia-500/10 rounded-full">{beat.type}</span>
                 </div>
               </div>
               <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
@@ -45,7 +45,7 @@ export const BeatSheetTab: React.FC = () => {
             </div>
             <div className="flex items-center gap-1.5">
               <Zap className="w-3 h-3 text-fuchsia-500/50" />
-              <span className="text-[10px] font-black text-fuchsia-400">{beat.intensity}</span>
+              <span className="text-xs font-black text-fuchsia-400">{beat.intensity}</span>
             </div>
           </div>
         ))}

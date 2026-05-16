@@ -90,7 +90,7 @@ export const RelationshipCard: React.FC<RelationshipCardProps> = ({
         <div className="space-y-2 flex-1">
             <div className="flex items-center justify-between gap-4">
               <div className="flex items-center gap-3">
-                <span className={cn("text-[9px] font-black uppercase tracking-[0.2em] px-3 py-1 rounded-full border shadow-sm", {
+                <span className={cn("text-xs font-black uppercase tracking-[0.2em] px-3 py-1 rounded-full border shadow-sm", {
                     'bg-emerald-500/10 text-emerald-400 border-emerald-500/30': conn.type === 'Ally',
                     'bg-orange-500/10 text-orange-400 border-orange-500/30': conn.type === 'Rival',
                     'bg-red-500/10 text-red-400 border-red-500/30': conn.type === 'Enemy',
@@ -102,7 +102,7 @@ export const RelationshipCard: React.FC<RelationshipCardProps> = ({
                 
                 {/* Tension Meter */}
                 <div className="flex items-center gap-1.5 bg-black/40 px-3 py-1.5 rounded-full border border-white/5">
-                    <span className="text-[8px] font-bold text-zinc-600 uppercase tracking-widest mr-1">Tension</span>
+                    <span className="text-xs font-bold text-zinc-600 uppercase tracking-widest mr-1">Tension</span>
                     {[...Array(10)].map((_, i) => (
                       <div 
                         key={i} 
@@ -115,12 +115,12 @@ export const RelationshipCard: React.FC<RelationshipCardProps> = ({
                         )} 
                       />
                     ))}
-                    <span className="text-[10px] font-black text-white ml-2 tabular-nums">{conn.tension}</span>
+                    <span className="text-xs font-black text-white ml-2 tabular-nums">{conn.tension}</span>
                 </div>
               </div>
             </div>
             
-            <p className="text-[11px] text-zinc-400/90 font-medium italic leading-relaxed">
+            <p className="text-xs text-zinc-400/90 font-medium italic leading-relaxed">
               "{conn.description}"
             </p>
         </div>

@@ -102,7 +102,7 @@ export const FavoritesTab: React.FC<FavoritesTabProps> = ({ searchTerm, viewMode
     return (
       <div className="py-40 flex flex-col items-center justify-center gap-4 opacity-50">
         <div className="w-10 h-10 border-4 border-[#bd4a4a] border-t-transparent rounded-full animate-spin" />
-        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-500">Retrieving Starred Items...</p>
+        <p className="text-xs font-black uppercase tracking-[0.3em] text-zinc-500">Retrieving Starred Items...</p>
       </div>
     );
   }
@@ -164,7 +164,7 @@ export const FavoritesTab: React.FC<FavoritesTabProps> = ({ searchTerm, viewMode
                       <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
                     </div>
                   ) : (
-                    <div className="aspect-video bg-gradient-to-br from-zinc-900 to-black flex items-center justify-center text-6xl">
+                    <div className="aspect-video bg-gradient-to-br from-zinc-900 to-black flex items-center justify-center text-3xl">
                       {getTypeIcon(item.type)}
                     </div>
                   )}
@@ -178,7 +178,7 @@ export const FavoritesTab: React.FC<FavoritesTabProps> = ({ searchTerm, viewMode
                         <Heart className="w-5 h-5 text-[#bd4a4a] fill-[#bd4a4a] shrink-0" />
                       </div>
                       <span className={cn(
-                        "inline-block px-3 py-1 border rounded text-[8px] font-bold uppercase tracking-widest capitalize",
+                        "inline-block px-3 py-1 border rounded text-xs font-bold uppercase tracking-widest capitalize",
                         getTypeColor(item.type)
                       )}>
                         {item.type}
@@ -199,15 +199,15 @@ export const FavoritesTab: React.FC<FavoritesTabProps> = ({ searchTerm, viewMode
                       </div>
                     )}
 
-                    <p className="text-[8px] text-zinc-600">
+                    <p className="text-xs text-zinc-600">
                       {item.created_at ? `Saved ${new Date(item.created_at).toLocaleDateString()}` : 'Recently saved'}
                     </p>
 
                     <div className="flex gap-2 pt-2">
-                      <button className="flex-1 p-2 hover:bg-[#bd4a4a]/10 text-zinc-500 hover:text-white border border-transparent hover:border-[#bd4a4a]/30 rounded transition flex items-center justify-center gap-1 text-[8px] font-bold uppercase tracking-widest">
+                      <button className="flex-1 p-2 hover:bg-[#bd4a4a]/10 text-zinc-500 hover:text-white border border-transparent hover:border-[#bd4a4a]/30 rounded transition flex items-center justify-center gap-1 text-xs font-bold uppercase tracking-widest">
                         <Copy className="w-3 h-3" /> Use
                       </button>
-                      <button className="flex-1 p-2 hover:bg-[#bd4a4a]/10 text-zinc-500 hover:text-white border border-transparent hover:border-[#bd4a4a]/30 rounded transition flex items-center justify-center gap-1 text-[8px] font-bold uppercase tracking-widest">
+                      <button className="flex-1 p-2 hover:bg-[#bd4a4a]/10 text-zinc-500 hover:text-white border border-transparent hover:border-[#bd4a4a]/30 rounded transition flex items-center justify-center gap-1 text-xs font-bold uppercase tracking-widest">
                         <Download className="w-3 h-3" /> Get
                       </button>
                       <button
@@ -224,7 +224,7 @@ export const FavoritesTab: React.FC<FavoritesTabProps> = ({ searchTerm, viewMode
           ) : (
             <div className="col-span-full py-20 text-center border border-zinc-900 border-dashed rounded-2xl">
               <Heart className="w-12 h-12 text-zinc-700 mx-auto mb-4 opacity-50" />
-              <p className="text-[9px] font-black text-zinc-700 uppercase tracking-widest">
+              <p className="text-xs font-black text-zinc-700 uppercase tracking-widest">
                 {searchTerm ? 'No favorites match your search' : 'No favorites added yet'}
               </p>
             </div>

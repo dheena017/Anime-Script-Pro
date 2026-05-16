@@ -83,22 +83,22 @@ export default function NotificationsPage() {
       <div className="flex items-center gap-3">
         <Bell className="w-4 h-4 text-[#bd4a4a]" />
         <div>
-          <p className="text-[7px] font-black text-zinc-500 uppercase tracking-widest leading-none">Pending Alerts</p>
-          <p className="text-[10px] font-black text-white uppercase tracking-tight">{notifications.filter(n => !n.is_read).length} Critical Signals</p>
+          <p className="text-xs font-black text-zinc-500 uppercase tracking-widest leading-none">Pending Alerts</p>
+          <p className="text-xs font-black text-white uppercase tracking-tight">{notifications.filter(n => !n.is_read).length} Critical Signals</p>
         </div>
       </div>
       <div className="flex items-center gap-3">
         <CheckCircle className="w-4 h-4 text-emerald-500" />
         <div>
-          <p className="text-[7px] font-black text-zinc-500 uppercase tracking-widest leading-none">Status</p>
-          <p className="text-[10px] font-black text-white uppercase tracking-tight">Real-time Synchronization Active</p>
+          <p className="text-xs font-black text-zinc-500 uppercase tracking-widest leading-none">Status</p>
+          <p className="text-xs font-black text-white uppercase tracking-tight">Real-time Synchronization Active</p>
         </div>
       </div>
     </>
   );
 
   const renderContent = () => {
-    if (loading) return <div className="py-20 animate-pulse text-center text-zinc-600 uppercase tracking-widest text-[10px] font-black">Syncing Signals...</div>;
+    if (loading) return <div className="py-20 animate-pulse text-center text-zinc-600 uppercase tracking-widest text-xs font-black">Syncing Signals...</div>;
 
     const mapped = notifications.map(n => {
       // Map backend types to frontend categories for filtering

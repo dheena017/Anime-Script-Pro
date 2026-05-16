@@ -22,13 +22,13 @@ export const ProfileSecurity: React.FC<ProfileSecurityProps> = ({ onDeactivate }
             <Card className="bg-zinc-950 border border-zinc-900 p-6 md:p-10 rounded-3xl md:rounded-[3rem] space-y-6 md:space-y-8 shadow-2xl">
                <CardHeader className="p-0">
                   <CardTitle className="text-xs font-black text-white uppercase tracking-[0.3em] flex items-center gap-3 italic"><ShieldAlert className="w-4 h-4 text-orange-500" /> Identity Protection</CardTitle>
-                  <CardDescription className="text-[8px] md:text-[9px] font-bold text-zinc-600 uppercase mt-2">Manage your multi-factor credentials and linked identities.</CardDescription>
+                  <CardDescription className="text-xs md:text-xs font-bold text-zinc-600 uppercase mt-2">Manage your multi-factor credentials and linked identities.</CardDescription>
                </CardHeader>
                <CardContent className="p-0 space-y-4">
-                  <Button variant="outline" className="w-full h-12 md:h-14 bg-zinc-900/60 border-zinc-800 text-zinc-400 font-black uppercase tracking-widest text-[9px] md:text-[10px] hover:text-white transition-all">Update Credentials</Button>
+                  <Button variant="outline" className="w-full h-12 md:h-14 bg-zinc-900/60 border-zinc-800 text-zinc-400 font-black uppercase tracking-widest text-xs md:text-xs hover:text-white transition-all">Update Credentials</Button>
                   <div className="flex flex-col sm:flex-row gap-4">
-                     <Button className="flex-1 h-12 md:h-14 bg-zinc-900/40 border border-zinc-800 text-zinc-300 text-[8px] md:text-[9px] font-black uppercase tracking-widest flex gap-2 justify-center items-center"><GithubIcon className="w-4 h-4" /> Link GitHub</Button>
-                     <Button className="flex-1 h-12 md:h-14 bg-zinc-900/40 border border-zinc-800 text-zinc-300 text-[8px] md:text-[9px] font-black uppercase tracking-widest flex gap-2 justify-center items-center"><Mail className="w-4 h-4" /> Link Google</Button>
+                     <Button className="flex-1 h-12 md:h-14 bg-zinc-900/40 border border-zinc-800 text-zinc-300 text-xs md:text-xs font-black uppercase tracking-widest flex gap-2 justify-center items-center"><GithubIcon className="w-4 h-4" /> Link GitHub</Button>
+                     <Button className="flex-1 h-12 md:h-14 bg-zinc-900/40 border border-zinc-800 text-zinc-300 text-xs md:text-xs font-black uppercase tracking-widest flex gap-2 justify-center items-center"><Mail className="w-4 h-4" /> Link Google</Button>
                   </div>
                </CardContent>
             </Card>
@@ -36,11 +36,11 @@ export const ProfileSecurity: React.FC<ProfileSecurityProps> = ({ onDeactivate }
             <Card className="bg-red-500/5 border border-red-500/20 p-6 md:p-10 rounded-3xl md:rounded-[3rem] space-y-6 md:space-y-8 shadow-2xl">
                <CardHeader className="p-0">
                   <CardTitle className="text-xs font-black text-red-500 uppercase tracking-[0.3em] flex items-center gap-3 italic"><Trash2 className="w-4 h-4" /> Destructive Protocols</CardTitle>
-                  <CardDescription className="text-[8px] md:text-[9px] font-bold text-zinc-700 uppercase mt-2">Permanently delete your account and data.</CardDescription>
+                  <CardDescription className="text-xs md:text-xs font-bold text-zinc-700 uppercase mt-2">Permanently delete your account and data.</CardDescription>
                </CardHeader>
                <CardContent className="p-0 space-y-4">
-                  <p className="text-[9px] md:text-[10px] text-zinc-500 font-bold uppercase tracking-widest leading-relaxed">Warning: Deleting your account will permanently remove all generation history, character data, and credit balances.</p>
-                  <Button onClick={onDeactivate} className="w-full h-12 md:h-14 bg-red-950/40 border border-red-900/50 text-red-500 font-black uppercase tracking-widest text-[9px] md:text-[10px] hover:bg-red-600 hover:text-white transition-all">Initiate Node Deletion</Button>
+                  <p className="text-xs md:text-xs text-zinc-500 font-bold uppercase tracking-widest leading-relaxed">Warning: Deleting your account will permanently remove all generation history, character data, and credit balances.</p>
+                  <Button onClick={onDeactivate} className="w-full h-12 md:h-14 bg-red-950/40 border border-red-900/50 text-red-500 font-black uppercase tracking-widest text-xs md:text-xs hover:bg-red-600 hover:text-white transition-all">Initiate Node Deletion</Button>
                </CardContent>
             </Card>
          </div>
@@ -51,11 +51,11 @@ export const ProfileSecurity: React.FC<ProfileSecurityProps> = ({ onDeactivate }
                   <Lock className="w-5 h-5" />
                </div>
                <div>
-                  <p className="text-[10px] font-black text-white uppercase tracking-widest">Security Encryption Active</p>
-                  <p className="text-[8px] text-zinc-600 font-bold uppercase mt-1">All generation logs are encrypted with AES-256-GCM.</p>
+                  <p className="text-xs font-black text-white uppercase tracking-widest">Security Encryption Active</p>
+                  <p className="text-xs text-zinc-600 font-bold uppercase mt-1">All generation logs are encrypted with AES-256-GCM.</p>
                </div>
             </div>
-            <div className="px-6 py-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-[8px] font-black uppercase tracking-widest rounded-full">Secure Node</div>
+            <div className="px-6 py-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-xs font-black uppercase tracking-widest rounded-full">Secure Node</div>
          </div>
       </motion.div>
    );

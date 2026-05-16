@@ -87,7 +87,7 @@ export const EngineToolbar: React.FC<EngineToolbarProps> = ({
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent side="top">
-                    <p className="font-black uppercase tracking-widest text-[9px]">Copy Output</p>
+                    <p className="font-black uppercase tracking-widest text-xs">Copy Output</p>
                   </TooltipContent>
                 </Tooltip>
 
@@ -103,7 +103,7 @@ export const EngineToolbar: React.FC<EngineToolbarProps> = ({
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent side="top">
-                    <p className="font-black uppercase tracking-widest text-[9px]">{isFullscreen ? "Exit Fullscreen" : "Fullscreen Mode"}</p>
+                    <p className="font-black uppercase tracking-widest text-xs">{isFullscreen ? "Exit Fullscreen" : "Fullscreen Mode"}</p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>

@@ -276,7 +276,7 @@ function AssetCard({ title, icon: Icon, content, isGenerating, onGenerate }: any
           <div className="flex flex-col items-center justify-center h-full min-h-[400px] text-zinc-500 animate-in fade-in duration-500">
             <div className={s.card.loadingSpinner} />
             <h4 className="text-xs font-black uppercase tracking-[0.4em] text-white drop-shadow-xl mb-3 italic">Generating Assets...</h4>
-            <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-[0.2em] leading-relaxed max-w-[200px] text-center">Creating premium visuals and metadata for your project</p>
+            <p className="text-xs text-zinc-600 font-bold uppercase tracking-[0.2em] leading-relaxed max-w-[200px] text-center">Creating premium visuals and metadata for your project</p>
           </div>
         ) : content ? (
           <div className="prose prose-invert max-w-none animate-in fade-in slide-in-from-bottom-4 duration-1000 prose-p:text-zinc-400 prose-p:leading-relaxed prose-p:font-medium prose-strong:text-studio prose-headings:text-white prose-headings:font-black prose-headings:uppercase prose-headings:tracking-widest">
@@ -287,7 +287,7 @@ function AssetCard({ title, icon: Icon, content, isGenerating, onGenerate }: any
             <div className="w-24 h-24 bg-white/[0.02] border border-white/5 rounded-[2.5rem] flex items-center justify-center mb-8 group-hover/empty:border-zinc-700 transition-all duration-700">
               <Icon className="w-10 h-10 opacity-20 group-hover/empty:opacity-40 transition-opacity" />
             </div>
-            <p className="font-black uppercase tracking-[0.4em] text-[10px] max-w-[200px] text-center leading-loose">Start <span className="text-zinc-600">Generation</span> to create assets.</p>
+            <p className="font-black uppercase tracking-[0.4em] text-xs max-w-[200px] text-center leading-loose">Start <span className="text-zinc-600">Generation</span> to create assets.</p>
           </div>
         )}
       </div>

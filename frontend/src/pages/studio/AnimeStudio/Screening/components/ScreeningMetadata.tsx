@@ -20,7 +20,7 @@ export const ScreeningMetadata: React.FC<ScreeningMetadataProps> = ({
           <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
             <Tv className="w-12 h-12 text-studio" />
           </div>
-          <h4 className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-4">System Health</h4>
+          <h4 className="text-xs font-black text-zinc-500 uppercase tracking-widest mb-4">System Health</h4>
           <div className="space-y-4">
             <div className="flex justify-between items-end">
               <span className="text-xs text-white font-bold tracking-tight">Sync Reliability</span>
@@ -32,23 +32,23 @@ export const ScreeningMetadata: React.FC<ScreeningMetadataProps> = ({
           </div>
         </Card>
         <Card className="md:col-span-2 bg-[#050505] border-zinc-800 p-6 rounded-2xl">
-          <h4 className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-4">Phase 4 Automation Status</h4>
+          <h4 className="text-xs font-black text-zinc-500 uppercase tracking-widest mb-4">Phase 4 Automation Status</h4>
           <div className="flex items-center gap-8">
             <div className="flex flex-col gap-1">
               <span className="text-sm font-black text-white">SEO READY</span>
-              <span className="text-[9px] text-green-500 font-black uppercase">Active</span>
+              <span className="text-xs text-green-500 font-black uppercase">Active</span>
             </div>
             <div className="w-[1px] h-8 bg-zinc-800" />
             <div className="flex flex-col gap-1">
               <span className="text-sm font-black text-white">STORYBOARD BUNDLE</span>
-              <span className={cn("text-[9px] font-black uppercase", videoUrl ? "text-green-500" : "text-yellow-500")}>
+              <span className={cn("text-xs font-black uppercase", videoUrl ? "text-green-500" : "text-yellow-500")}>
                 {videoUrl ? "PACKAGED" : "Packaging..."}
               </span>
             </div>
             <div className="w-[1px] h-8 bg-zinc-800" />
             <div className="flex flex-col gap-1">
               <span className="text-sm font-black text-white">NEURAL VIDEO</span>
-              <span className={cn("text-[9px] font-black uppercase", videoUrl ? "text-green-500" : "text-zinc-600")}>
+              <span className={cn("text-xs font-black uppercase", videoUrl ? "text-green-500" : "text-zinc-600")}>
                 {videoUrl ? "DELIVERED" : "Pending"}
               </span>
             </div>
@@ -59,34 +59,34 @@ export const ScreeningMetadata: React.FC<ScreeningMetadataProps> = ({
       <div className="pt-12 border-t border-zinc-800/50">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
            <div className="space-y-4">
-              <h5 className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em]">System Metadata</h5>
+              <h5 className="text-xs font-black text-zinc-500 uppercase tracking-[0.2em]">System Metadata</h5>
               <div className="space-y-2">
-                 <div className="flex justify-between text-[10px]">
+                 <div className="flex justify-between text-xs">
                     <span className="text-zinc-600 font-bold">BITRATE</span>
                     <span className="text-zinc-400 font-mono">15.4 Mbps</span>
                  </div>
-                 <div className="flex justify-between text-[10px]">
+                 <div className="flex justify-between text-xs">
                     <span className="text-zinc-600 font-bold">CODEC</span>
                     <span className="text-zinc-400 font-mono">H.265 / HEVC</span>
                  </div>
-                 <div className="flex justify-between text-[10px]">
+                 <div className="flex justify-between text-xs">
                     <span className="text-zinc-600 font-bold">RESOLUTION</span>
                     <span className="text-zinc-400 font-mono">3840 x 2160</span>
                  </div>
               </div>
            </div>
            <div className="space-y-4">
-              <h5 className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em]">Audio Manifest</h5>
+              <h5 className="text-xs font-black text-zinc-500 uppercase tracking-[0.2em]">Audio Manifest</h5>
               <div className="space-y-2">
-                 <div className="flex justify-between text-[10px]">
+                 <div className="flex justify-between text-xs">
                     <span className="text-zinc-600 font-bold">CHANNELS</span>
                     <span className="text-zinc-400 font-mono">5.1 Surround</span>
                  </div>
-                 <div className="flex justify-between text-[10px]">
+                 <div className="flex justify-between text-xs">
                     <span className="text-zinc-600 font-bold">VOICEOVER</span>
                     <span className="text-zinc-400 font-mono">Synced</span>
                  </div>
-                 <div className="flex justify-between text-[10px]">
+                 <div className="flex justify-between text-xs">
                     <span className="text-zinc-600 font-bold">OST SYNC</span>
                     <span className="text-studio font-black">Active</span>
                  </div>
@@ -101,13 +101,13 @@ export const ScreeningMetadata: React.FC<ScreeningMetadataProps> = ({
                    Master Production Bible
                    {isRendering && <Loader2 className="w-3 h-3 animate-spin text-studio" />}
                  </h4>
-                 <p className="text-[10px] text-zinc-500 font-medium uppercase tracking-widest leading-relaxed">
+                 <p className="text-xs text-zinc-500 font-medium uppercase tracking-widest leading-relaxed">
                     {isRendering 
                       ? "Verifying cross-module data integrity and Lore consistency..." 
                       : "All character profiles, story parameters, and world-building data have been successfully packaged."}
                  </p>
               </div>
-              <Button variant="outline" disabled={isRendering} className="border-studio/30 text-studio hover:bg-studio/10 uppercase tracking-widest text-[9px] font-black px-6 rounded-xl">
+              <Button variant="outline" disabled={isRendering} className="border-studio/30 text-studio hover:bg-studio/10 uppercase tracking-widest text-xs font-black px-6 rounded-xl">
                  Review Bible
               </Button>
            </div>

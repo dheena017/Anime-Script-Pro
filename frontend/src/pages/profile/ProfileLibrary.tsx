@@ -19,9 +19,9 @@ export const ProfileLibrary: React.FC<ProfileLibraryProps> = ({ savedPrompts, ch
                <CardHeader className="p-6 md:p-10 border-b border-white/5 flex flex-row items-center justify-between gap-4">
                   <div className="space-y-2">
                      <CardTitle className="text-xs md:text-sm font-black text-white uppercase tracking-[0.3em] flex items-center gap-3 italic"><Terminal className="w-4 h-4 text-[#bd4a4a]" /> Blueprints</CardTitle>
-                     <CardDescription className="text-[8px] md:text-[9px] font-bold text-zinc-600 uppercase tracking-widest line-clamp-1 md:line-clamp-none">Optimized neural prompt signatures.</CardDescription>
+                     <CardDescription className="text-xs md:text-xs font-bold text-zinc-600 uppercase tracking-widest line-clamp-1 md:line-clamp-none">Optimized neural prompt signatures.</CardDescription>
                   </div>
-                  <Button onClick={onAddPrompt} size="sm" className="bg-[#bd4a4a] hover:bg-[#d45555] rounded-xl px-3 md:px-4 py-4 md:py-6 font-black uppercase text-[8px] md:text-[9px] tracking-widest flex gap-2">
+                  <Button onClick={onAddPrompt} size="sm" className="bg-[#bd4a4a] hover:bg-[#d45555] rounded-xl px-3 md:px-4 py-4 md:py-6 font-black uppercase text-xs md:text-xs tracking-widest flex gap-2">
                      <Plus className="w-3 h-3" /> New
                   </Button>
                </CardHeader>
@@ -29,8 +29,8 @@ export const ProfileLibrary: React.FC<ProfileLibraryProps> = ({ savedPrompts, ch
                   {savedPrompts.map((p, i) => (
                      <div key={p.id || i} className="group p-6 bg-zinc-900/40 border border-white/5 rounded-2xl flex items-center justify-between hover:border-[#bd4a4a]/40 transition-all">
                         <div className="space-y-1">
-                           <p className="text-[10px] font-black text-white uppercase tracking-widest">{p.label}</p>
-                           <p className="text-[9px] text-zinc-500 font-medium line-clamp-1">{p.prompt_text}</p>
+                           <p className="text-xs font-black text-white uppercase tracking-widest">{p.label}</p>
+                           <p className="text-xs text-zinc-500 font-medium line-clamp-1">{p.prompt_text}</p>
                         </div>
                         <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-all">
                            <button className="p-2 hover:text-white text-zinc-600"><Edit3 className="w-3.5 h-3.5" /></button>
@@ -38,7 +38,7 @@ export const ProfileLibrary: React.FC<ProfileLibraryProps> = ({ savedPrompts, ch
                         </div>
                      </div>
                   ))}
-                  {savedPrompts.length === 0 && <div className="py-20 text-center border border-zinc-900 border-dashed rounded-[2rem] text-[9px] font-black text-zinc-700 uppercase tracking-widest">Blueprint Vault Empty</div>}
+                  {savedPrompts.length === 0 && <div className="py-20 text-center border border-zinc-900 border-dashed rounded-[2rem] text-xs font-black text-zinc-700 uppercase tracking-widest">Blueprint Vault Empty</div>}
                </CardContent>
             </Card>
 
@@ -46,9 +46,9 @@ export const ProfileLibrary: React.FC<ProfileLibraryProps> = ({ savedPrompts, ch
                <CardHeader className="p-6 md:p-10 border-b border-white/5 flex flex-row items-center justify-between gap-4">
                   <div className="space-y-2">
                      <CardTitle className="text-xs md:text-sm font-black text-white uppercase tracking-[0.3em] flex items-center gap-3 italic"><Fingerprint className="w-4 h-4 text-[#bd4a4a]" /> Character DNA</CardTitle>
-                     <CardDescription className="text-[8px] md:text-[9px] font-bold text-zinc-600 uppercase tracking-widest line-clamp-1 md:line-clamp-none">Visual signatures for cast consistency.</CardDescription>
+                     <CardDescription className="text-xs md:text-xs font-bold text-zinc-600 uppercase tracking-widest line-clamp-1 md:line-clamp-none">Visual signatures for cast consistency.</CardDescription>
                   </div>
-                  <Button onClick={onAddDNA} size="sm" className="bg-[#bd4a4a] hover:bg-[#d45555] rounded-xl px-3 md:px-4 py-4 md:py-6 font-black uppercase text-[8px] md:text-[9px] tracking-widest flex gap-2">
+                  <Button onClick={onAddDNA} size="sm" className="bg-[#bd4a4a] hover:bg-[#d45555] rounded-xl px-3 md:px-4 py-4 md:py-6 font-black uppercase text-xs md:text-xs tracking-widest flex gap-2">
                      <Plus className="w-3 h-3" /> Forge
                   </Button>
                </CardHeader>
@@ -58,24 +58,24 @@ export const ProfileLibrary: React.FC<ProfileLibraryProps> = ({ savedPrompts, ch
                         <div key={c.id || i} className="group relative aspect-square bg-zinc-900 rounded-[2.5rem] overflow-hidden border border-white/5 hover:border-[#bd4a4a]/40 transition-all">
                            <img src={c.reference_image_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${c.name}`} className="w-full h-full object-cover grayscale-[0.5] group-hover:grayscale-0 transition-all duration-500" />
                            <div className="absolute inset-x-0 bottom-0 p-6 bg-gradient-to-t from-black to-transparent pt-12">
-                              <p className="text-[10px] font-black text-white uppercase tracking-[0.2em]">{c.name}</p>
-                              <p className="text-[8px] text-zinc-500 font-bold uppercase tracking-widest mt-1">Seed: {c.seed}</p>
+                              <p className="text-xs font-black text-white uppercase tracking-[0.2em]">{c.name}</p>
+                              <p className="text-xs text-zinc-500 font-bold uppercase tracking-widest mt-1">Seed: {c.seed}</p>
                            </div>
                         </div>
                      ))}
                   </div>
-                  {characters.length === 0 && <div className="py-20 text-center border border-zinc-900 border-dashed rounded-[2rem] text-[9px] font-black text-zinc-700 uppercase tracking-widest">Character DNA Empty</div>}
+                  {characters.length === 0 && <div className="py-20 text-center border border-zinc-900 border-dashed rounded-[2rem] text-xs font-black text-zinc-700 uppercase tracking-widest">Character DNA Empty</div>}
                </CardContent>
             </Card>
 
             <Card className="col-span-full bg-[#bd4a4a]/5 border border-[#bd4a4a]/20 rounded-[3rem] overflow-hidden">
                <CardHeader className="p-8 border-b border-[#bd4a4a]/10">
                   <CardTitle className="text-sm font-black text-[#bd4a4a] uppercase tracking-[0.3em] flex items-center gap-3 italic"><FileText className="w-4 h-4" /> Production Logs</CardTitle>
-                  <CardDescription className="text-[9px] font-bold text-zinc-600 uppercase tracking-widest mt-2">Detailed technical blueprints and narrative scripts exported from the studio.</CardDescription>
+                  <CardDescription className="text-xs font-bold text-zinc-600 uppercase tracking-widest mt-2">Detailed technical blueprints and narrative scripts exported from the studio.</CardDescription>
                </CardHeader>
                <CardContent className="p-12 text-center space-y-4 opacity-30">
                   <FileText className="w-12 h-12 text-[#bd4a4a] mx-auto" />
-                  <p className="text-[9px] font-black uppercase tracking-[0.4em]">No Production Exports Detected</p>
+                  <p className="text-xs font-black uppercase tracking-[0.4em]">No Production Exports Detected</p>
                </CardContent>
             </Card>
          </div>

@@ -78,7 +78,7 @@ export const ScreeningToolbar: React.FC<ScreeningToolbarProps> = ({
                 key={s_num}
                 onClick={() => setActiveSession(s_num)}
                 className={cn(
-                  "relative h-8 flex items-center px-4 rounded-full text-[9px] font-black uppercase tracking-widest transition-all duration-300",
+                  "relative h-8 flex items-center px-4 rounded-full text-xs font-black uppercase tracking-widest transition-all duration-300",
                   activeSession === s_num
                     ? "text-black bg-gradient-to-br from-studio to-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.4)]"
                     : "text-zinc-500 hover:text-studio/80 hover:bg-studio/5"
@@ -104,7 +104,7 @@ export const ScreeningToolbar: React.FC<ScreeningToolbarProps> = ({
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="top">
-                  <p className="font-black uppercase tracking-widest text-[9px]">Copy Viewport</p>
+                  <p className="font-black uppercase tracking-widest text-xs">Copy Viewport</p>
                 </TooltipContent>
               </Tooltip>
 
@@ -121,7 +121,7 @@ export const ScreeningToolbar: React.FC<ScreeningToolbarProps> = ({
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="top">
-                  <p className="font-black uppercase tracking-widest text-[9px]">Export Cinema</p>
+                  <p className="font-black uppercase tracking-widest text-xs">Export Cinema</p>
                 </TooltipContent>
               </Tooltip>
 
@@ -137,7 +137,7 @@ export const ScreeningToolbar: React.FC<ScreeningToolbarProps> = ({
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="top">
-                  <p className="font-black uppercase tracking-widest text-[9px]">{isFullscreen ? "Exit Fullscreen" : "Cinema Mode"}</p>
+                  <p className="font-black uppercase tracking-widest text-xs">{isFullscreen ? "Exit Fullscreen" : "Cinema Mode"}</p>
                 </TooltipContent>
               </Tooltip>
             </div>

@@ -33,15 +33,15 @@ export const VaultView: React.FC = () => {
        <div className="grid grid-cols-3 gap-16 pt-12 opacity-10 group-hover:opacity-40 transition-opacity duration-1000">
           <div className="flex flex-col items-center gap-4">
             <Layout className="w-6 h-6 text-studio" />
-            <span className="text-[8px] font-black uppercase tracking-[0.3em] text-zinc-500">Modular</span>
+            <span className="text-xs font-black uppercase tracking-[0.3em] text-zinc-500">Modular</span>
           </div>
           <div className="flex flex-col items-center gap-4">
             <Brain className="w-6 h-6 text-studio" />
-            <span className="text-[8px] font-black uppercase tracking-[0.3em] text-zinc-500">Core</span>
+            <span className="text-xs font-black uppercase tracking-[0.3em] text-zinc-500">Core</span>
           </div>
           <div className="flex flex-col items-center gap-4">
             <Smartphone className="w-6 h-6 text-studio" />
-            <span className="text-[8px] font-black uppercase tracking-[0.3em] text-zinc-500">Sync</span>
+            <span className="text-xs font-black uppercase tracking-[0.3em] text-zinc-500">Sync</span>
           </div>
        </div>
     </div>

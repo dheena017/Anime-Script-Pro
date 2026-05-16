@@ -67,7 +67,7 @@ export function SeriesEmptyTab({
           </motion.div>
 
           <div className="space-y-4 max-w-2xl">
-            <h2 className="text-5xl md:text-6xl font-black text-white uppercase tracking-tighter leading-none">
+            <h2 className="text-2xl md:text-3xl font-black text-white uppercase tracking-tighter leading-none">
               {title}
             </h2>
             <p className="text-zinc-500 text-sm md:text-base font-bold uppercase tracking-[0.3em] leading-relaxed">
@@ -84,7 +84,7 @@ export function SeriesEmptyTab({
               Begin AI Series Synthesis
             </Button>
 
-            <button className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.4em] hover:text-zinc-400 transition-colors">
+            <button className="text-xs font-black text-zinc-600 uppercase tracking-[0.4em] hover:text-zinc-400 transition-colors">
               // Load Production Template 01
             </button>
           </div>
@@ -106,7 +106,7 @@ export function SeriesEmptyTab({
             </div>
             <div className="space-y-1">
               <h4 className="text-xs font-black text-zinc-400 uppercase tracking-widest group-hover/mod:text-white transition-colors">{m.name}</h4>
-              <p className="text-[9px] text-zinc-600 font-bold uppercase tracking-widest leading-relaxed">{m.desc}</p>
+              <p className="text-xs text-zinc-600 font-bold uppercase tracking-widest leading-relaxed">{m.desc}</p>
             </div>
           </motion.div>
         ))}
@@ -114,7 +114,7 @@ export function SeriesEmptyTab({
 
       <div className="mt-20 flex items-center gap-2 opacity-30">
         <LayoutIcon className="w-4 h-4 text-zinc-600" />
-        <span className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.5em]">Neural Architecture v1.4 // Production Ready</span>
+        <span className="text-xs font-black text-zinc-600 uppercase tracking-[0.5em]">Neural Architecture v1.4 // Production Ready</span>
       </div>
     </div>
   );

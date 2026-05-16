@@ -99,7 +99,7 @@ export function CharacterCreationPage() {
             <Button 
               disabled={isGenerating}
               onClick={() => handleGenerateCharacter(archetype.title)}
-              className="w-full h-12 bg-studio/10 hover:bg-studio text-studio hover:text-black border border-studio/20 font-black uppercase tracking-widest text-[10px] rounded-xl transition-all"
+              className="w-full h-12 bg-studio/10 hover:bg-studio text-studio hover:text-black border border-studio/20 font-black uppercase tracking-widest text-xs rounded-xl transition-all"
             >
               {isGenerating ? "Synthesizing..." : "Initialize Prototype"}
             </Button>
@@ -131,9 +131,9 @@ export function CharacterCreationPage() {
                 <div className="flex justify-between items-center">
                   <div className="flex items-center gap-3">
                     <slider.icon className="w-4 h-4 text-zinc-500" />
-                    <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400">{slider.label}</span>
+                    <span className="text-xs font-black uppercase tracking-widest text-zinc-400">{slider.label}</span>
                   </div>
-                  <span className="text-[10px] font-mono text-studio">{(dna as any)[slider.key]}%</span>
+                  <span className="text-xs font-mono text-studio">{(dna as any)[slider.key]}%</span>
                 </div>
                 <div className="relative h-1.5 w-full bg-white/5 rounded-full cursor-pointer group/slider" 
                      onClick={(e) => {

@@ -17,10 +17,12 @@ export interface NeuralSignalEvent {
 }
 
 export function cleanJson(content: string): any {
-  // Strip markdown backticks if present, but keep the core content
+  if (!content) return null;
+
+  // 1. Initial Markdown Cleanup
   let cleaned = content.replace(/```json/g, '').replace(/```/g, '').trim();
 
-  // If there's leading/trailing text outside the JSON, try to extract just the JSON part
+  // 2. Find the first occurrence of '{' or '['
   const firstBrace = cleaned.indexOf('{');
   const firstBracket = cleaned.indexOf('[');
   let startIndex = -1;
@@ -31,44 +33,46 @@ export function cleanJson(content: string): any {
     startIndex = firstBracket;
   }
 
-  if (startIndex !== -1) {
-    // If we have a start, we might have a complete or truncated JSON
-    const potentialJson = cleaned.slice(startIndex);
-    
-    // Attempt straightforward parse first
+  if (startIndex === -1) {
+    // Fallback: Just try to parse the whole thing if no braces found
     try {
-      return JSON.parse(potentialJson);
-    } catch (_firstError) {
-      // If it fails, try to find the last closing brace/bracket and trim
-      const lastBrace = potentialJson.lastIndexOf('}');
-      const lastBracket = potentialJson.lastIndexOf(']');
-      const endIndex = Math.max(lastBrace, lastBracket);
-      
-      if (endIndex !== -1) {
-        try {
-          return JSON.parse(potentialJson.slice(0, endIndex + 1));
-        } catch (_secondError) {
-          // Still failing, fallback to repair logic
-        }
-      }
-      
-      // Attempt truncation repair
-      try {
-        const repaired = repairTruncatedJson(potentialJson);
-        return JSON.parse(repaired);
-      } catch (_repairError) {
-        console.error('Failed to parse JSON content:', content);
-        throw new ApiError('Invalid AI output format. Could not parse JSON.');
-      }
+      return JSON.parse(cleaned);
+    } catch (e) {
+      console.error('Failed to parse JSON content (no structure found):', content);
+      throw new ApiError('Invalid AI output format. No JSON structure detected.');
     }
   }
 
-  // Fallback for when no braces/brackets are found or other edge cases
+  // 3. Extract potential JSON block from the start point
+  let potentialJson = cleaned.slice(startIndex);
+  
+  // 4. Try straightforward parse
   try {
-    return JSON.parse(cleaned);
-  } catch (e) {
-    console.error('Failed to parse JSON content (no structure found):', content);
-    throw new ApiError('Invalid AI output format. No JSON structure detected.');
+    return JSON.parse(potentialJson);
+  } catch (_firstError) {
+    // 5. If straightforward parse fails, try finding the last matching closer
+    const lastBrace = potentialJson.lastIndexOf('}');
+    const lastBracket = potentialJson.lastIndexOf(']');
+    const endIndex = Math.max(lastBrace, lastBracket);
+    
+    if (endIndex !== -1) {
+      const trimmed = potentialJson.slice(0, endIndex + 1);
+      try {
+        return JSON.parse(trimmed);
+      } catch (_secondError) {
+        // Still failing, proceed to repair logic
+      }
+    }
+    
+    // 6. Attempt truncation repair as a last resort
+    try {
+      const repaired = repairTruncatedJson(potentialJson);
+      return JSON.parse(repaired);
+    } catch (repairError) {
+      console.error('Failed to parse JSON content after repair attempt:', content);
+      console.error('Repair attempt resulted in:', repairError);
+      throw new ApiError('Invalid AI output format. JSON structure is too corrupted to repair.');
+    }
   }
 }
 
@@ -88,9 +92,26 @@ function repairTruncatedJson(raw: string): string {
 
   for (let i = 0; i < s.length; i++) {
     const ch = s[i];
-    if (escape) { escape = false; continue; }
-    if (ch === '\\' && inString) { escape = true; continue; }
-    if (ch === '"') { inString = !inString; continue; }
+    
+    if (escape) {
+      escape = false;
+      continue;
+    }
+    
+    if (ch === '\\' && inString) {
+      escape = true;
+      continue;
+    }
+    
+    if (ch === '"') {
+      inString = !inString;
+      if (!inString) {
+        // We just closed a string, this is a valid cut point
+        lastValidIndex = i;
+      }
+      continue;
+    }
+    
     if (inString) continue;
 
     if (ch === '{' || ch === '[') {
@@ -102,33 +123,39 @@ function repairTruncatedJson(raw: string): string {
     } else if (ch === ',') {
       lastValidIndex = i;
     } else if (ch === ':') {
-      // Don't mark colon as a valid "cut point" for objects, 
-      // but it helps us know we're between key and value
+      // Colons are valid cut points if followed by a value start, 
+      // but let's keep it simple and not mark them as final cut points
     }
   }
 
-  // 3. If we are in a string, we were cut off mid-key or mid-value.
-  // 4. If we are NOT in a string, but the last char isn't a structural closer or comma,
-  // it means we were cut off mid-number or mid-boolean or mid-key (without quotes).
-  
-  // Strategy: Backtrack to the last "safe" separator (comma, opening brace, opening bracket)
-  if (lastValidIndex !== -1 && lastValidIndex < s.length - 1) {
-    // Only strip if the current state is "unstable"
-    // (i.e., we are in a string or the text after the last valid index is just alphanumeric junk)
-    const trailingText = s.slice(lastValidIndex + 1).trim();
-    if (inString || /^[a-zA-Z0-9_\s:"']+$/.test(trailingText)) {
-       s = s.slice(0, lastValidIndex + 1);
-       // If we ended on a comma, strip it too to avoid trailing comma error
-       if (s.endsWith(',')) {
-         s = s.slice(0, -1);
-       }
+  // 3. If we are in an "unstable" state (mid-string or mid-token), backtrack
+  if (inString || (lastValidIndex !== -1 && lastValidIndex < s.length - 1)) {
+    // If we are in a string, we might have a trailing backslash
+    if (inString) {
+      // Find the last unescaped quote or separator
+      // Actually, backtracking to lastValidIndex is safer
+      s = s.slice(0, lastValidIndex + 1);
+    } else {
+      // If we are not in a string but after the last valid index, 
+      // check if it's just whitespace or if we should trim it.
+      const trailing = s.slice(lastValidIndex + 1).trim();
+      if (trailing.length > 0) {
+        s = s.slice(0, lastValidIndex + 1);
+      }
+    }
+    
+    // Clean up trailing commas
+    s = s.trimEnd();
+    if (s.endsWith(',')) {
+      s = s.slice(0, -1).trimEnd();
     }
   }
 
-  // 5. Re-evaluate the stack after trimming
+  // 4. Re-calculate stack for the trimmed string to ensure we close correctly
   const finalStack: string[] = [];
   let finalInString = false;
   let finalEscape = false;
+  
   for (let i = 0; i < s.length; i++) {
     const ch = s[i];
     if (finalEscape) { finalEscape = false; continue; }
@@ -139,10 +166,8 @@ function repairTruncatedJson(raw: string): string {
     else if (ch === '}' || ch === ']') finalStack.pop();
   }
 
-  if (finalInString) {
-    s += '"';
-  }
-
+  if (finalInString) s += '"';
+  
   // Close any open brackets in reverse order
   for (let i = finalStack.length - 1; i >= 0; i--) {
     s += finalStack[i] === '{' ? '}' : ']';

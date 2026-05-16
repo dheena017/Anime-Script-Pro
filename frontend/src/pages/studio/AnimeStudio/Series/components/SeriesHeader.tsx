@@ -85,7 +85,7 @@ export const SeriesHeader: React.FC<SeriesHeaderProps> = ({
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="top">
-                  <p className="font-black uppercase tracking-widest text-[9px]">Return to Character Designer</p>
+                  <p className="font-black uppercase tracking-widest text-xs">Return to Character Designer</p>
                 </TooltipContent>
               </Tooltip>
             )}
@@ -113,7 +113,7 @@ export const SeriesHeader: React.FC<SeriesHeaderProps> = ({
                   )}
                 </TooltipTrigger>
                 <TooltipContent side="top">
-                  <p className="font-black uppercase tracking-widest text-[9px]">
+                  <p className="font-black uppercase tracking-widest text-xs">
                     {isGenerating ? "Terminate Active Process" : "Generate AI Roadmap"}
                   </p>
                 </TooltipContent>
@@ -131,7 +131,7 @@ export const SeriesHeader: React.FC<SeriesHeaderProps> = ({
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent side="top">
-                    <p className="font-black uppercase tracking-widest text-[9px]">Open Production Blueprint</p>
+                    <p className="font-black uppercase tracking-widest text-xs">Open Production Blueprint</p>
                   </TooltipContent>
                 </Tooltip>
               )}
@@ -153,7 +153,7 @@ export const SeriesHeader: React.FC<SeriesHeaderProps> = ({
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent side="top">
-                    <p className="font-black uppercase tracking-widest text-[9px]">Clear Manifest (Reset to Empty)</p>
+                    <p className="font-black uppercase tracking-widest text-xs">Clear Manifest (Reset to Empty)</p>
                   </TooltipContent>
                 </Tooltip>
               )}
@@ -173,7 +173,7 @@ export const SeriesHeader: React.FC<SeriesHeaderProps> = ({
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="top">
-                  <p className="font-black uppercase tracking-widest text-[9px]">Proceed to Next Phase</p>
+                  <p className="font-black uppercase tracking-widest text-xs">Proceed to Next Phase</p>
                 </TooltipContent>
               </Tooltip>
             </div>

@@ -42,8 +42,8 @@ export const ArcsTab: React.FC<ArcsTabProps> = ({ plan }) => {
           <div className="absolute inset-0 bg-fuchsia-500/20 blur-2xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
           <GitMerge className="w-10 h-10 text-fuchsia-400 relative z-10" />
         </motion.div>
-        <h2 className="text-5xl font-black text-white uppercase tracking-tighter">Narrative <span className="text-fuchsia-500">Architecture</span></h2>
-        <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-[0.4em] leading-relaxed">Mapping episodic emotional turns and seasonal progression dynamics</p>
+        <h2 className="text-2xl font-black text-white uppercase tracking-tighter">Narrative <span className="text-fuchsia-500">Architecture</span></h2>
+        <p className="text-zinc-500 text-xs font-bold uppercase tracking-[0.4em] leading-relaxed">Mapping episodic emotional turns and seasonal progression dynamics</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -71,13 +71,13 @@ export const ArcsTab: React.FC<ArcsTabProps> = ({ plan }) => {
 
               <div className="flex items-center justify-between relative z-10">
                 <div className="space-y-1">
-                  <span className={cn("text-[10px] font-black uppercase tracking-[0.3em] px-4 py-1.5 rounded-full bg-black/40 border border-white/5", phase.color)}>
+                  <span className={cn("text-xs font-black uppercase tracking-[0.3em] px-4 py-1.5 rounded-full bg-black/40 border border-white/5", phase.color)}>
                     {phase.status}
                   </span>
                   <h3 className="text-3xl font-black text-white uppercase tracking-wider mt-4">{phase.title}</h3>
                 </div>
                 <div className="text-right">
-                  <p className="text-zinc-500 text-[10px] font-black uppercase tracking-widest">Episodes</p>
+                  <p className="text-zinc-500 text-xs font-black uppercase tracking-widest">Episodes</p>
                   <p className="text-2xl font-black text-white font-mono">{phaseEpisodes[0].episode}-{phaseEpisodes[phaseEpisodes.length - 1].episode}</p>
                 </div>
               </div>
@@ -86,10 +86,10 @@ export const ArcsTab: React.FC<ArcsTabProps> = ({ plan }) => {
                 {phaseEpisodes.map((ep, j) => (
                   <div key={j} className="p-5 bg-black/40 border border-white/5 rounded-2xl space-y-3 hover:bg-black/60 transition-colors">
                     <div className="flex items-center justify-between">
-                      <span className="text-[9px] font-black text-fuchsia-500/60 uppercase tracking-widest">Ep {ep.episode} // {ep.title}</span>
+                      <span className="text-xs font-black text-fuchsia-500/60 uppercase tracking-widest">Ep {ep.episode} // {ep.title}</span>
                       <Sparkles className="w-3 h-3 text-fuchsia-500/40" />
                     </div>
-                    <p className="text-[11px] text-zinc-400 font-medium leading-relaxed italic">
+                    <p className="text-xs text-zinc-400 font-medium leading-relaxed italic">
                       {ep.emotional_arc ? `"${ep.emotional_arc}"` : "Narrative arc pending synthesis..."}
                     </p>
                     <div className="h-1 bg-white/5 rounded-full overflow-hidden">

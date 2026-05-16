@@ -98,13 +98,13 @@ export default function RelationshipEditPage() {
           <Button 
             variant="ghost" 
             onClick={handleRemove}
-            className="text-red-500/50 hover:text-red-500 hover:bg-red-500/5 transition-all font-black uppercase tracking-widest text-[10px] px-6 h-12 rounded-2xl"
+            className="text-red-500/50 hover:text-red-500 hover:bg-red-500/5 transition-all font-black uppercase tracking-widest text-xs px-6 h-12 rounded-2xl"
           >
             <Trash2 className="w-4 h-4 mr-2" /> Dissolve Connection
           </Button>
           <Button 
             onClick={handleSave}
-            className="bg-fuchsia-600 text-white hover:bg-fuchsia-500 transition-all font-black uppercase tracking-widest text-[10px] px-8 h-12 rounded-2xl shadow-[0_0_30px_rgba(217,70,239,0.3)]"
+            className="bg-fuchsia-600 text-white hover:bg-fuchsia-500 transition-all font-black uppercase tracking-widest text-xs px-8 h-12 rounded-2xl shadow-[0_0_30px_rgba(217,70,239,0.3)]"
           >
             <Save className="w-4 h-4 mr-2" /> Apply Realignment
           </Button>
@@ -112,10 +112,10 @@ export default function RelationshipEditPage() {
       </div>
 
       <div className="space-y-2">
-        <div className="inline-block px-3 py-1 bg-fuchsia-500/10 border border-fuchsia-500/20 rounded-full text-[10px] uppercase tracking-widest text-fuchsia-400 font-bold">
+        <div className="inline-block px-3 py-1 bg-fuchsia-500/10 border border-fuchsia-500/20 rounded-full text-xs uppercase tracking-widest text-fuchsia-400 font-bold">
           Refactoring AI Threads
         </div>
-        <h1 className="text-6xl font-black text-white uppercase tracking-tighter leading-none">
+        <h1 className="text-3xl font-black text-white uppercase tracking-tighter leading-none">
           Modify <span className="text-fuchsia-500">Connection</span>
         </h1>
       </div>
@@ -126,7 +126,7 @@ export default function RelationshipEditPage() {
             {/* Subject Selection */}
             <div className="grid grid-cols-1 md:grid-cols-7 gap-6 items-center">
               <div className="md:col-span-3 space-y-3">
-                <Label className="text-[10px] font-black uppercase text-zinc-500 tracking-widest">Subject A (Source)</Label>
+                <Label className="text-xs font-black uppercase text-zinc-500 tracking-widest">Subject A (Source)</Label>
                 <Select value={formData.source} onValueChange={(v: string | null) => setFormData({...formData, source: v || ''})}>
                   <SelectTrigger className="bg-black/60 border-zinc-800 h-14 rounded-2xl text-lg font-bold">
                     <SelectValue placeholder="Select Identity A" />
@@ -144,7 +144,7 @@ export default function RelationshipEditPage() {
               </div>
 
               <div className="md:col-span-3 space-y-3">
-                <Label className="text-[10px] font-black uppercase text-zinc-500 tracking-widest">Subject B (Target)</Label>
+                <Label className="text-xs font-black uppercase text-zinc-500 tracking-widest">Subject B (Target)</Label>
                 <Select value={formData.target} onValueChange={(v: string | null) => setFormData({...formData, target: v || ''})}>
                   <SelectTrigger className="bg-black/60 border-zinc-800 h-14 rounded-2xl text-lg font-bold">
                     <SelectValue placeholder="Select Identity B" />
@@ -160,7 +160,7 @@ export default function RelationshipEditPage() {
 
             {/* Connection Type */}
             <div className="space-y-4">
-              <Label className="text-[10px] font-black uppercase text-zinc-500 tracking-widest">Select Dynamic Archetype</Label>
+              <Label className="text-xs font-black uppercase text-zinc-500 tracking-widest">Select Dynamic Archetype</Label>
               <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
                 {types.map((t) => (
                   <button
@@ -173,7 +173,7 @@ export default function RelationshipEditPage() {
                     }`}
                   >
                     <t.icon className={`w-6 h-6 transition-transform group-hover:scale-110`} />
-                    <span className="text-[10px] font-black uppercase tracking-widest">{t.id}</span>
+                    <span className="text-xs font-black uppercase tracking-widest">{t.id}</span>
                   </button>
                 ))}
               </div>
@@ -182,7 +182,7 @@ export default function RelationshipEditPage() {
             {/* Tension Slider */}
             <div className="space-y-6 pt-4">
               <div className="flex items-center justify-between">
-                 <Label className="text-[10px] font-black uppercase text-zinc-500 tracking-widest">Dynamic Complexity (Tension)</Label>
+                 <Label className="text-xs font-black uppercase text-zinc-500 tracking-widest">Dynamic Complexity (Tension)</Label>
                  <span className={`text-2xl font-black ${formData.tension >= 8 ? 'text-red-500' : 'text-fuchsia-500'}`}>{formData.tension}</span>
               </div>
               <Slider 
@@ -199,7 +199,7 @@ export default function RelationshipEditPage() {
 
             {/* Description */}
             <div className="space-y-3 pt-4">
-              <Label className="text-[10px] font-black uppercase text-zinc-500 tracking-widest">Relationship Summary</Label>
+              <Label className="text-xs font-black uppercase text-zinc-500 tracking-widest">Relationship Summary</Label>
               <Textarea 
                 value={formData.description} 
                 onChange={(e) => setFormData({...formData, description: e.target.value})}
@@ -212,10 +212,10 @@ export default function RelationshipEditPage() {
 
         <div className="space-y-8">
            <div className="p-8 bg-zinc-950 border border-white/5 rounded-[2.5rem] space-y-4">
-              <p className="text-[10px] font-black text-zinc-600 uppercase tracking-widest">Synthesis Parameter</p>
+              <p className="text-xs font-black text-zinc-600 uppercase tracking-widest">Synthesis Parameter</p>
               <div className="space-y-1">
                  <p className="text-xs text-white font-bold">RE-SYNTH_04</p>
-                 <p className="text-[10px] text-zinc-500 font-medium">Any changes will immediately affect the narrative engine's dialogue and action generation for scenes featuring these entities.</p>
+                 <p className="text-xs text-zinc-500 font-medium">Any changes will immediately affect the narrative engine's dialogue and action generation for scenes featuring these entities.</p>
               </div>
            </div>
         </div>

@@ -51,7 +51,7 @@ export function SecurityTab() {
       {isSaving && (
          <div className="absolute -top-12 right-0 z-50 flex items-center gap-2 px-3 py-1.5 bg-emerald-500/20 border border-emerald-500/50 rounded-full animate-pulse transition-all">
             <Save className="w-3 h-3 text-emerald-400" />
-            <span className="text-[9px] font-black uppercase tracking-widest text-white">Hardening Protocols...</span>
+            <span className="text-xs font-black uppercase tracking-widest text-white">Hardening Protocols...</span>
          </div>
       )}
 
@@ -60,10 +60,10 @@ export function SecurityTab() {
             <div className="p-2 bg-emerald-500/20 rounded-full animate-pulse"><ShieldAlert className="w-5 h-5 text-emerald-500" /></div>
             <div>
                <h4 className="text-sm font-black text-emerald-500 uppercase tracking-widest">Network Status: Secured</h4>
-               <p className="text-[10px] text-emerald-500/70 font-bold uppercase tracking-wider">All encryption protocols are active and monitoring.</p>
+               <p className="text-xs text-emerald-500/70 font-bold uppercase tracking-wider">All encryption protocols are active and monitoring.</p>
             </div>
          </div>
-         <Button variant="outline" className="border-emerald-500/30 text-emerald-500 bg-emerald-500/10 uppercase tracking-widest font-black text-[10px]">Run Diagnostic</Button>
+         <Button variant="outline" className="border-emerald-500/30 text-emerald-500 bg-emerald-500/10 uppercase tracking-widest font-black text-xs">Run Diagnostic</Button>
       </div>
 
       <Card className="bg-[#0a0a0a]/80 backdrop-blur-md border-zinc-800/50 shadow-2xl relative overflow-hidden group rounded-[2.5rem]">
@@ -74,7 +74,7 @@ export function SecurityTab() {
                <div className="p-2.5 bg-zinc-800 rounded-xl border border-zinc-700 shadow-inner"><Crosshair className="w-5 h-5 text-zinc-300" /></div>
                <div>
                <CardTitle className="text-xl font-black text-white tracking-widest uppercase">Security Protocols</CardTitle>
-               <CardDescription className="text-zinc-500 text-[10px] font-bold uppercase tracking-wider">Cryptographic access controls for your studio.</CardDescription>
+               <CardDescription className="text-zinc-500 text-xs font-bold uppercase tracking-wider">Cryptographic access controls for your studio.</CardDescription>
                </div>
            </div>
         </CardHeader>
@@ -85,23 +85,23 @@ export function SecurityTab() {
               <div className="w-14 h-14 bg-black border border-zinc-800 rounded-2xl flex items-center justify-center shadow-lg"><KeyRound className="w-6 h-6 text-zinc-400" /></div>
               <div>
                 <p className="text-base font-black text-white uppercase tracking-widest">Master Password</p>
-                <div className="flex gap-2 items-center mt-1"><div className="w-2 h-2 rounded-full bg-yellow-500" /><p className="text-[10px] text-zinc-500 uppercase tracking-wider font-bold">Last rotated 94 days ago</p></div>
+                <div className="flex gap-2 items-center mt-1"><div className="w-2 h-2 rounded-full bg-yellow-500" /><p className="text-xs text-zinc-500 uppercase tracking-wider font-bold">Last rotated 94 days ago</p></div>
               </div>
             </div>
-            <Button className="mt-4 md:mt-0 bg-white text-black font-black uppercase text-[10px] h-10 px-6 rounded-xl hover:bg-zinc-200">Rotate Key</Button>
+            <Button className="mt-4 md:mt-0 bg-white text-black font-black uppercase text-xs h-10 px-6 rounded-xl hover:bg-zinc-200">Rotate Key</Button>
           </div>
 
           <div className="mt-12 pt-8 border-t border-zinc-900 space-y-6">
              <div>
                 <h3 className="text-base font-black text-white uppercase tracking-widest flex items-center gap-2"><EyeOff className="w-5 h-5 text-zinc-500" /> Data Privacy & Telemetry</h3>
-                <p className="text-[9px] text-zinc-500 font-bold uppercase mt-1">Control telemetry sent to Anime Script Pro engineers.</p>
+                <p className="text-xs text-zinc-500 font-bold uppercase mt-1">Control telemetry sent to Anime Script Pro engineers.</p>
              </div>
              
              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="flex items-center justify-between p-5 bg-black/40 border border-zinc-800/50 rounded-2xl cursor-pointer group hover:border-zinc-700" onClick={() => { setTelemetry(!telemetry); syncToCloud({telemetry: !telemetry}); }}>
                    <div>
-                     <p className="text-[10px] font-black text-white uppercase tracking-widest">Error Logs</p>
-                     <p className="text-[8px] text-zinc-600 font-bold uppercase mt-1">Anonymized telemetry.</p>
+                     <p className="text-xs font-black text-white uppercase tracking-widest">Error Logs</p>
+                     <p className="text-xs text-zinc-600 font-bold uppercase mt-1">Anonymized telemetry.</p>
                    </div>
                    <div className={cn("w-8 h-4 rounded-full relative transition-colors", telemetry ? "bg-zinc-400" : "bg-zinc-800")}>
                       <div className={cn("absolute top-0.5 w-3 h-3 rounded-full bg-zinc-200 transition-transform", telemetry ? "left-[calc(100%-14px)]" : "left-0.5")} />
@@ -109,8 +109,8 @@ export function SecurityTab() {
                 </div>
                 <div className="flex items-center justify-between p-5 bg-black/40 border border-zinc-800/50 rounded-2xl cursor-pointer group hover:border-zinc-700" onClick={() => { setOptOutTraining(!optOutTraining); syncToCloud({opt_out_training: !optOutTraining}); }}>
                    <div>
-                     <p className="text-[10px] font-black text-white uppercase tracking-widest">Training Opt-Out</p>
-                     <p className="text-[8px] text-zinc-600 font-bold uppercase mt-1">Zero script leakage.</p>
+                     <p className="text-xs font-black text-white uppercase tracking-widest">Training Opt-Out</p>
+                     <p className="text-xs text-zinc-600 font-bold uppercase mt-1">Zero script leakage.</p>
                    </div>
                    <div className={cn("w-8 h-4 rounded-full relative transition-colors", optOutTraining ? "bg-red-600" : "bg-zinc-800")}>
                       <div className={cn("absolute top-0.5 w-3 h-3 rounded-full bg-white transition-transform", optOutTraining ? "left-[calc(100%-14px)]" : "left-0.5")} />

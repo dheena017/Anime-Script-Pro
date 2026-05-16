@@ -48,7 +48,7 @@ export function LoreDatabasePage() {
                   key={cat}
                   onClick={() => setSelectedCategory(cat)}
                   className={cn(
-                    "px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all duration-300 border",
+                    "px-6 py-2 rounded-full text-xs font-black uppercase tracking-widest transition-all duration-300 border",
                     selectedCategory === cat
                       ? "bg-studio border-studio text-black shadow-[0_0_20px_rgba(255,255,255,0.1)]"
                       : "bg-white/5 border-white/5 text-zinc-500 hover:text-white hover:border-white/20"
@@ -58,7 +58,7 @@ export function LoreDatabasePage() {
                 </button>
               ))}
               <div className="w-[1px] h-4 bg-white/10 mx-2" />
-              <button className="flex items-center gap-2 text-[10px] font-black text-zinc-600 uppercase tracking-widest hover:text-studio transition-colors group">
+              <button className="flex items-center gap-2 text-xs font-black text-zinc-600 uppercase tracking-widest hover:text-studio transition-colors group">
                  <Filter className="w-3.5 h-3.5 group-hover:rotate-180 transition-transform duration-500" />
                  Advanced Filters
               </button>
@@ -75,7 +75,7 @@ export function LoreDatabasePage() {
         </div>
 
         {/* 4. REPOSITORY FOOTER */}
-        <footer className="mt-20 pt-12 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-8 text-[9px] font-black text-zinc-700 uppercase tracking-[0.4em]">
+        <footer className="mt-20 pt-12 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-8 text-xs font-black text-zinc-700 uppercase tracking-[0.4em]">
            <div className="flex items-center gap-6">
               <div className="flex items-center gap-3">
                  <ShieldCheck className="w-4 h-4 text-emerald-500" />

@@ -80,7 +80,7 @@ export const WorldOutputViewer = React.memo(({ isEditing, content, prompt, onCon
       <div className="world-sidebar">
         {/* Lore Manifest */}
         <div className="p-6 bg-studio/5 border border-studio/10 rounded-[2rem] space-y-6">
-          <h4 className="text-[10px] font-black text-studio uppercase tracking-widest flex items-center gap-2">
+          <h4 className="text-xs font-black text-studio uppercase tracking-widest flex items-center gap-2">
             <Zap className="w-3 h-3" /> Lore Manifest
           </h4>
           <div className="space-y-4">
@@ -91,13 +91,13 @@ export const WorldOutputViewer = React.memo(({ isEditing, content, prompt, onCon
               { label: "Sociology", val: "Archived" }
             ].map((item, idx) => (
               <div key={idx} className="flex items-center justify-between">
-                <span className="text-[10px] font-bold text-zinc-500 uppercase">{item.label}</span>
-                <span className="text-[10px] font-black text-white uppercase tracking-tighter">{item.val}</span>
+                <span className="text-xs font-bold text-zinc-500 uppercase">{item.label}</span>
+                <span className="text-xs font-black text-white uppercase tracking-tighter">{item.val}</span>
               </div>
             ))}
           </div>
           <div className="pt-4 border-t border-studio/10">
-            <p className="text-[9px] text-zinc-600 font-medium leading-relaxed uppercase">
+            <p className="text-xs text-zinc-600 font-medium leading-relaxed uppercase">
               World data is now locked as the "Source of Truth" for all subsequent Script and Beat generation.
             </p>
           </div>
@@ -106,9 +106,9 @@ export const WorldOutputViewer = React.memo(({ isEditing, content, prompt, onCon
         {/* Core Seed */}
         {prompt && (
           <div className="p-6 bg-black/40 border border-white/5 rounded-[2rem] space-y-4">
-            <h4 className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Core Seed</h4>
+            <h4 className="text-xs font-black text-zinc-500 uppercase tracking-widest">Core Seed</h4>
             <div className="p-3 bg-zinc-950 rounded-xl border border-white/5">
-              <p className="text-[9px] font-mono text-studio/70 break-all leading-relaxed">
+              <p className="text-xs font-mono text-studio/70 break-all leading-relaxed">
                 {prompt.substring(0, 150)}...
               </p>
             </div>

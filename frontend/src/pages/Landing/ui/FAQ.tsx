@@ -33,9 +33,9 @@ export const FAQ: React.FC = () => {
           <div className="space-y-6">
              <div className="flex items-center gap-2">
                 <div className="w-1.5 h-1.5 rounded-full bg-studio" />
-                <span className="text-[10px] font-black text-studio uppercase tracking-[0.4em]">Intelligence Node</span>
+                <span className="text-xs font-black text-studio uppercase tracking-[0.4em]">Intelligence Node</span>
              </div>
-             <h2 className="text-4xl md:text-6xl font-black text-white uppercase italic tracking-tighter">Technical <br /> <span className="text-studio">Inquiry</span></h2>
+             <h2 className="text-4xl md:text-3xl font-black text-white uppercase italic tracking-tighter">Technical <br /> <span className="text-studio">Inquiry</span></h2>
              <p className="text-zinc-500 text-xs font-bold uppercase tracking-[0.2em] leading-relaxed">
                Comprehensive documentation for the AnimeScript Pro production protocols.
              </p>
@@ -50,7 +50,7 @@ export const FAQ: React.FC = () => {
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder="SEARCH PROTOCOLS..."
-                  className="bg-zinc-900/50 border-zinc-800 rounded-2xl h-14 pl-12 font-black uppercase tracking-widest text-[10px] focus:border-studio/50"
+                  className="bg-zinc-900/50 border-zinc-800 rounded-2xl h-14 pl-12 font-black uppercase tracking-widest text-xs focus:border-studio/50"
                 />
              </div>
           </div>
@@ -63,10 +63,10 @@ export const FAQ: React.FC = () => {
                 </div>
                 <div>
                    <h4 className="text-xs font-black text-white uppercase tracking-widest">Still Need Assistance?</h4>
-                   <p className="text-[9px] font-bold text-zinc-600 uppercase tracking-widest">Command Center is active 24/7</p>
+                   <p className="text-xs font-bold text-zinc-600 uppercase tracking-widest">Command Center is active 24/7</p>
                 </div>
              </div>
-             <Button className="w-full h-14 bg-white text-black hover:bg-studio font-black uppercase tracking-[0.2em] text-[10px] rounded-2xl flex items-center justify-center gap-3">
+             <Button className="w-full h-14 bg-white text-black hover:bg-studio font-black uppercase tracking-[0.2em] text-xs rounded-2xl flex items-center justify-center gap-3">
                 Contact Support <ArrowRight className="w-4 h-4" />
              </Button>
           </div>
@@ -103,7 +103,7 @@ export const FAQ: React.FC = () => {
                                "w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-500",
                                isOpen ? "bg-studio text-black" : "bg-white/5 text-zinc-600 group-hover:text-white"
                              )}>
-                                <span className="text-[10px] font-black">{i + 1}</span>
+                                <span className="text-xs font-black">{i + 1}</span>
                              </div>
                              <span className={cn(
                                "text-sm font-black uppercase tracking-widest transition-colors",
@@ -133,11 +133,11 @@ export const FAQ: React.FC = () => {
                                  <div className="mt-6 flex items-center gap-6">
                                     <div className="flex items-center gap-2">
                                        <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
-                                       <span className="text-[8px] font-black text-zinc-600 uppercase tracking-widest">Verified Protocol</span>
+                                       <span className="text-xs font-black text-zinc-600 uppercase tracking-widest">Verified Protocol</span>
                                     </div>
                                     <div className="flex items-center gap-2">
                                        <Zap className="w-3.5 h-3.5 text-studio" />
-                                       <span className="text-[8px] font-black text-zinc-600 uppercase tracking-widest">System Active</span>
+                                       <span className="text-xs font-black text-zinc-600 uppercase tracking-widest">System Active</span>
                                     </div>
                                  </div>
                               </div>
@@ -154,7 +154,7 @@ export const FAQ: React.FC = () => {
                     className="p-20 text-center space-y-4 bg-zinc-900/20 rounded-[3rem] border border-dashed border-white/5"
                   >
                      <LifeBuoy className="w-12 h-12 text-zinc-800 mx-auto animate-spin-slow" />
-                     <p className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.3em]">No protocols found for "{searchTerm}"</p>
+                     <p className="text-xs font-black text-zinc-600 uppercase tracking-[0.3em]">No protocols found for "{searchTerm}"</p>
                   </motion.div>
                 )}
               </AnimatePresence>

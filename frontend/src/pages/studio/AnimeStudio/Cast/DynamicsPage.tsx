@@ -63,7 +63,7 @@ export function DynamicsPage() {
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-2xl font-black text-white uppercase tracking-widest italic">Character Dynamics</h2>
-          <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em] mt-1">Growth simulation and conflict mapping</p>
+          <p className="text-xs font-bold text-zinc-500 uppercase tracking-[0.2em] mt-1">Growth simulation and conflict mapping</p>
         </div>
       </div>
 
@@ -77,7 +77,7 @@ export function DynamicsPage() {
           <div className="space-y-12">
             {dynamics.growthArcs.map((arc: any, i: number) => (
               <div key={i} className="space-y-4">
-                <div className="flex justify-between text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500">
+                <div className="flex justify-between text-xs font-black uppercase tracking-[0.2em] text-zinc-500">
                   <span>{arc.label}</span>
                   <span className="text-white">{arc.progress}% Sync</span>
                 </div>
@@ -95,7 +95,7 @@ export function DynamicsPage() {
           </div>
           <div>
             <h3 className="text-xl font-black text-white uppercase tracking-widest">Dynamic Conflict Map</h3>
-            <p className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.2em] mt-2 max-w-xs mx-auto">
+            <p className="text-zinc-500 text-xs font-black uppercase tracking-[0.2em] mt-2 max-w-xs mx-auto">
               {dynamics.conflictMapStatus}
             </p>
           </div>
@@ -107,13 +107,13 @@ export function DynamicsPage() {
                 </div>
               ))}
               {connections.length > 5 && (
-                <div className="w-12 h-12 rounded-2xl bg-fuchsia-500/10 border border-fuchsia-500/20 flex items-center justify-center text-fuchsia-500 text-[10px] font-black">
+                <div className="w-12 h-12 rounded-2xl bg-fuchsia-500/10 border border-fuchsia-500/20 flex items-center justify-center text-fuchsia-500 text-xs font-black">
                   +{connections.length - 5}
                 </div>
               )}
             </div>
           ) : (
-            <div className="w-full h-24 border-2 border-dashed border-white/5 rounded-3xl flex items-center justify-center text-zinc-800 font-black uppercase text-[10px] tracking-widest">
+            <div className="w-full h-24 border-2 border-dashed border-white/5 rounded-3xl flex items-center justify-center text-zinc-800 font-black uppercase text-xs tracking-widest">
               No Social Threads Detected
             </div>
           )}
@@ -127,7 +127,7 @@ export function DynamicsPage() {
             </div>
             <div>
               <h3 className="text-xl font-black text-white uppercase tracking-widest italic">Narrative Tension Dynamics</h3>
-              <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em]">
+              <p className="text-xs font-bold text-zinc-500 uppercase tracking-[0.2em]">
                 {hasConnections ? "Visualizing specific pressure points and emotional collisions" : "Awaiting relationship synthesis"}
               </p>
             </div>
@@ -145,12 +145,12 @@ export function DynamicsPage() {
                     <h3 className="text-xs font-black text-white uppercase tracking-widest">
                       {dynamic ? dynamic.type : "---"}
                     </h3>
-                    <p className="text-[8px] font-bold text-zinc-500 uppercase tracking-widest">
+                    <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">
                       {dynamic ? `${dynamic.source} vs ${dynamic.target}` : "Awaiting Thread"}
                     </p>
                   </div>
                   <div className="pt-4 border-t border-white/5">
-                    <span className="text-[9px] font-black text-rose-400 uppercase tracking-widest italic">
+                    <span className="text-xs font-black text-rose-400 uppercase tracking-widest italic">
                       {dynamic ? `${dynamic.tension}/10` : "0"} Tension
                     </span>
                   </div>

@@ -119,7 +119,7 @@ export function AISynthesisTab() {
       {isSaving && (
         <div className="absolute -top-12 right-0 z-50 flex items-center gap-2 px-3 py-1.5 bg-studio/20 border border-studio/50 rounded-full animate-pulse transition-all">
           <Save className="w-3 h-3 text-studio" />
-          <span className="text-[9px] font-black uppercase tracking-widest text-white">Syncing to Cluster...</span>
+          <span className="text-xs font-black uppercase tracking-widest text-white">Syncing to Cluster...</span>
         </div>
       )}
 
@@ -135,14 +135,14 @@ export function AISynthesisTab() {
                 </div>
                 <div>
                   <CardTitle className="text-xl font-black text-white tracking-widest uppercase">AI Core Architecture</CardTitle>
-                  <CardDescription className="text-zinc-500 text-[10px] font-bold uppercase tracking-wider">Configure LLMs, token budgets, and secondary agent pipelines.</CardDescription>
+                  <CardDescription className="text-zinc-500 text-xs font-bold uppercase tracking-wider">Configure LLMs, token budgets, and secondary agent pipelines.</CardDescription>
                 </div>
               </div>
             </CardHeader>
 
             <CardContent className="relative z-10 space-y-8 pt-8">
               <div className="space-y-4">
-                <h4 className="text-[10px] font-black tracking-[0.2em] text-zinc-500 uppercase flex items-center gap-2">
+                <h4 className="text-xs font-black tracking-[0.2em] text-zinc-500 uppercase flex items-center gap-2">
                   <Activity className="w-3 h-3 text-studio" /> Primary Inference Engine
                 </h4>
 
@@ -162,11 +162,11 @@ export function AISynthesisTab() {
                     >
                       <div className="flex justify-between items-start">
                         <Cpu className={cn("w-6 h-6", model === engine.id ? "text-studio" : "text-zinc-500")} />
-                        <span className="px-2 py-0.5 bg-zinc-800 text-[8px] font-black uppercase tracking-widest text-white rounded">{engine.badge}</span>
+                        <span className="px-2 py-0.5 bg-zinc-800 text-xs font-black uppercase tracking-widest text-white rounded">{engine.badge}</span>
                       </div>
                       <div>
                         <h5 className="text-sm font-black text-white uppercase tracking-widest">{engine.label}</h5>
-                        <p className="text-[9px] text-zinc-500 font-bold mt-1 uppercase tracking-tight">{engine.desc}</p>
+                        <p className="text-xs text-zinc-500 font-bold mt-1 uppercase tracking-tight">{engine.desc}</p>
                       </div>
                     </div>
                   ))}
@@ -177,8 +177,8 @@ export function AISynthesisTab() {
                 <div className="space-y-8">
                   <div className="space-y-2 group">
                     <div className="flex justify-between">
-                      <label className="text-[10px] font-black text-white uppercase tracking-widest group-hover:text-studio transition-colors">Model Temperature</label>
-                      <span className="text-[11px] text-studio font-black">{temperature.toFixed(2)}</span>
+                      <label className="text-xs font-black text-white uppercase tracking-widest group-hover:text-studio transition-colors">Model Temperature</label>
+                      <span className="text-xs text-studio font-black">{temperature.toFixed(2)}</span>
                     </div>
                     <input
                       type="range" min="0" max="1" step="0.05" value={temperature}
@@ -194,8 +194,8 @@ export function AISynthesisTab() {
                     <div className="flex gap-4 items-center">
                       <div className="bg-studio/10 p-2 rounded shrink-0"><Sparkles className="w-4 h-4 text-studio" /></div>
                       <div>
-                        <p className="text-[10px] font-black text-white uppercase tracking-widest">Cinematic Enforcer</p>
-                        <p className="text-[8px] font-bold text-zinc-600 tracking-wider mt-1 uppercase">Automated high-fidelity terminology.</p>
+                        <p className="text-xs font-black text-white uppercase tracking-widest">Cinematic Enforcer</p>
+                        <p className="text-xs font-bold text-zinc-600 tracking-wider mt-1 uppercase">Automated high-fidelity terminology.</p>
                       </div>
                     </div>
                     <div className={cn("w-8 h-4 rounded-full relative transition-colors", enforcer ? "bg-studio" : "bg-zinc-800")}>
@@ -207,8 +207,8 @@ export function AISynthesisTab() {
                     <div className="flex gap-4 items-center">
                       <div className="bg-emerald-500/10 p-2 rounded shrink-0"><Wand2 className="w-4 h-4 text-emerald-500" /></div>
                       <div>
-                        <p className="text-[10px] font-black text-white uppercase tracking-widest">AI Swarm</p>
-                        <p className="text-[8px] font-bold text-zinc-600 tracking-wider mt-1 uppercase">Multi-agent consensus verification.</p>
+                        <p className="text-xs font-black text-white uppercase tracking-widest">AI Swarm</p>
+                        <p className="text-xs font-bold text-zinc-600 tracking-wider mt-1 uppercase">Multi-agent consensus verification.</p>
                       </div>
                     </div>
                     <div className={cn("w-8 h-4 rounded-full relative transition-colors", swarmMode ? "bg-emerald-500" : "bg-zinc-800")}>
@@ -219,7 +219,7 @@ export function AISynthesisTab() {
               </div>
 
               <div className="pt-6 border-t border-zinc-900">
-                <label className="text-[10px] font-black text-white uppercase tracking-widest mb-3 flex items-center gap-2">Global System Prompt Injector</label>
+                <label className="text-xs font-black text-white uppercase tracking-widest mb-3 flex items-center gap-2">Global System Prompt Injector</label>
                 <textarea
                   className="w-full bg-black border border-zinc-800 rounded-2xl p-5 text-xs text-studio font-mono focus:border-studio/50 focus:outline-none transition-all resize-none"
                   rows={3}
@@ -244,7 +244,7 @@ export function AISynthesisTab() {
             </CardHeader>
             <CardContent className="pt-6 space-y-6">
               <div className="space-y-3">
-                <label className="text-[9px] font-black text-zinc-500 uppercase tracking-widest">Gemini API Key</label>
+                <label className="text-xs font-black text-zinc-500 uppercase tracking-widest">Gemini API Key</label>
                 <div className="relative">
                   <input
                     type={showKey ? "text" : "password"}

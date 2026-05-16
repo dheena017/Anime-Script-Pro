@@ -35,12 +35,12 @@ export const VoiceTab: React.FC = () => {
       <div className="flex items-center justify-between px-2">
         <div className="space-y-1">
           <h2 className="text-2xl font-black text-white uppercase tracking-tighter">Acoustic Manifest</h2>
-          <p className="text-cyan-500/60 text-[10px] font-black uppercase tracking-[0.3em]">Neural Vocal Blueprinting v2.0</p>
+          <p className="text-cyan-500/60 text-xs font-black uppercase tracking-[0.3em]">Neural Vocal Blueprinting v2.0</p>
         </div>
         <div className="flex gap-4">
           <div className="px-4 py-2 bg-cyan-500/5 border border-cyan-500/10 rounded-xl flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-cyan-500 animate-pulse" />
-            <span className="text-[10px] font-black text-cyan-400 uppercase tracking-widest">Live Syncing</span>
+            <span className="text-xs font-black text-cyan-400 uppercase tracking-widest">Live Syncing</span>
           </div>
         </div>
       </div>
@@ -74,7 +74,7 @@ export const VoiceTab: React.FC = () => {
                   <h3 className="text-2xl font-black text-white uppercase tracking-tighter">{char.name}</h3>
                   <div className="flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full bg-cyan-500" />
-                    <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Status: Authenticated</p>
+                    <p className="text-xs font-black text-zinc-500 uppercase tracking-widest">Status: Authenticated</p>
                   </div>
                 </div>
 
@@ -99,7 +99,7 @@ export const VoiceTab: React.FC = () => {
               <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="space-y-6">
                   <div className="space-y-3">
-                    <div className="flex items-center gap-3 text-[10px] font-black uppercase text-cyan-500 tracking-[0.2em]">
+                    <div className="flex items-center gap-3 text-xs font-black uppercase text-cyan-500 tracking-[0.2em]">
                       <div className="w-1 h-4 bg-cyan-500 rounded-full" />
                       Vocal Archetype
                     </div>
@@ -111,16 +111,16 @@ export const VoiceTab: React.FC = () => {
                   </div>
 
                   <div className="space-y-3">
-                    <div className="flex items-center gap-3 text-[10px] font-black uppercase text-cyan-500 tracking-[0.2em]">
+                    <div className="flex items-center gap-3 text-xs font-black uppercase text-cyan-500 tracking-[0.2em]">
                       <div className="w-1 h-4 bg-cyan-500 rounded-full" />
                       Linguistic Framework
                     </div>
                     <div className="p-6 bg-zinc-950/50 rounded-3xl border border-white/5 backdrop-blur-xl group-hover:bg-zinc-900/50 transition-all duration-500">
-                      <p className="text-[11px] font-medium text-zinc-400 leading-relaxed uppercase tracking-wide">
+                      <p className="text-xs font-medium text-zinc-400 leading-relaxed uppercase tracking-wide">
                         {toText(char.speakingStyle?.sentence_structure || char.speakingStyle || 'Standard communication protocols.')}
                       </p>
                       <div className="mt-4 pt-4 border-t border-white/5 flex items-center gap-4">
-                         <div className="px-3 py-1 rounded-lg bg-cyan-500/10 border border-cyan-500/20 text-[8px] font-black text-cyan-400 uppercase tracking-widest">
+                         <div className="px-3 py-1 rounded-lg bg-cyan-500/10 border border-cyan-500/20 text-xs font-black text-cyan-400 uppercase tracking-widest">
                            Rhythm: {toText(char.speakingStyle?.dialogueRhythm || 'Melodic')}
                          </div>
                       </div>
@@ -130,7 +130,7 @@ export const VoiceTab: React.FC = () => {
 
                 <div className="space-y-6">
                   <div className="space-y-3">
-                    <div className="flex items-center gap-3 text-[10px] font-black uppercase text-cyan-500 tracking-[0.2em]">
+                    <div className="flex items-center gap-3 text-xs font-black uppercase text-cyan-500 tracking-[0.2em]">
                       <div className="w-1 h-4 bg-cyan-500 rounded-full" />
                       Signature Catchphrases
                     </div>
@@ -147,7 +147,7 @@ export const VoiceTab: React.FC = () => {
                   </div>
 
                   <div className="space-y-3">
-                    <div className="flex items-center gap-3 text-[10px] font-black uppercase text-cyan-500 tracking-[0.2em]">
+                    <div className="flex items-center gap-3 text-xs font-black uppercase text-cyan-500 tracking-[0.2em]">
                       <div className="w-1 h-4 bg-cyan-500 rounded-full" />
                       Emotional Spectrum
                     </div>
@@ -160,8 +160,8 @@ export const VoiceTab: React.FC = () => {
 
                   <div className="p-6 bg-cyan-500/5 border border-cyan-500/10 rounded-3xl space-y-4">
                     <div className="flex items-center justify-between">
-                      <span className="text-[9px] font-black text-cyan-400 uppercase tracking-widest">Diction Resonance</span>
-                      <span className="text-[10px] font-black text-white">94%</span>
+                      <span className="text-xs font-black text-cyan-400 uppercase tracking-widest">Diction Resonance</span>
+                      <span className="text-xs font-black text-white">94%</span>
                     </div>
                     <div className="h-1.5 w-full bg-zinc-900 rounded-full overflow-hidden">
                       <motion.div 

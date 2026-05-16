@@ -80,7 +80,7 @@ export const ScriptHeader: React.FC<ScriptHeaderProps> = ({
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="top">
-                  <p className="font-black uppercase tracking-widest text-[9px]">Return to Series Roadmap</p>
+                  <p className="font-black uppercase tracking-widest text-xs">Return to Series Roadmap</p>
                 </TooltipContent>
               </Tooltip>
             )}
@@ -108,7 +108,7 @@ export const ScriptHeader: React.FC<ScriptHeaderProps> = ({
                     )}
                   </TooltipTrigger>
                   <TooltipContent side="top">
-                    <p className="font-black uppercase tracking-widest text-[9px]">
+                    <p className="font-black uppercase tracking-widest text-xs">
                       {isGenerating ? "Terminate Active Process" : "Generate Current AI Script"}
                     </p>
                   </TooltipContent>
@@ -126,7 +126,7 @@ export const ScriptHeader: React.FC<ScriptHeaderProps> = ({
                       </Button>
                     </TooltipTrigger>
                     <TooltipContent side="top">
-                      <p className="font-black uppercase tracking-widest text-[9px]">Batch Generate Entire Series</p>
+                      <p className="font-black uppercase tracking-widest text-xs">Batch Generate Entire Series</p>
                     </TooltipContent>
                   </Tooltip>
                 )}
@@ -144,7 +144,7 @@ export const ScriptHeader: React.FC<ScriptHeaderProps> = ({
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="top">
-                  <p className="font-black uppercase tracking-widest text-[9px]">Proceed to Next Phase</p>
+                  <p className="font-black uppercase tracking-widest text-xs">Proceed to Next Phase</p>
                 </TooltipContent>
               </Tooltip>
             </div>

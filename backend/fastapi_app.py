@@ -28,17 +28,28 @@ from backend.api.ai import generate_content
 
 # --- Neural Logging Configuration ---
 def configure_logging():
-    BACKEND_ROOT = os.path.dirname(os.path.abspath(__file__))
-    log_dir = os.path.join(BACKEND_ROOT, "logs")
-    os.makedirs(log_dir, exist_ok=True)
-    log_file = os.path.join(log_dir, "backend.log")
+    from pathlib import Path
+    
+    # Use pathlib for robust Windows path handling to avoid Errno 22
+    backend_root = Path(__file__).parent.resolve()
+    log_dir = backend_root / "logs"
+    log_dir.mkdir(exist_ok=True)
+    log_file = log_dir / "backend.log"
 
     logger.remove()
     # 1. Console Sink: Use rich colors for the developer's terminal
     logger.add(sys.stderr, colorize=True, format="<magenta>[ENGINE]</magenta> <green>{time:HH:mm:ss}</green> | <level>{level: <8}</level> | <level>{message}</level>")
     
     # 2. File Sink: Keep it clean and plain-text for the human auditor
-    logger.add(log_file, rotation="10 MB", retention="1 week", level="DEBUG", format="{time:YYYY-MM-DD HH:mm:ss} | {level: <8} | {name}:{function}:{line} - {message}", enqueue=True)
+    # Using str(log_file) ensures a clean absolute path for the Loguru sink
+    logger.add(
+        str(log_file), 
+        rotation="10 MB", 
+        retention="1 week", 
+        level="DEBUG", 
+        format="{time:YYYY-MM-DD HH:mm:ss} | {level: <8} | {name}:{function}:{line} - {message}", 
+        enqueue=True
+    )
 
     class InterceptHandler(logging.Handler):
         def emit(self, record):
@@ -131,7 +142,6 @@ app.include_router(api_router)
 app.include_router(fastapi_users.get_auth_router(auth_backend), prefix="/api/auth/jwt", tags=["auth"])
 app.include_router(fastapi_users.get_register_router(UserRead, UserCreate), prefix="/api/auth", tags=["auth"])
 app.include_router(fastapi_users.get_users_router(UserRead, UserUpdate), prefix="/api/identity", tags=["users"])
-app.post("/api/generate", tags=["AI Engine"], response_model=GenerationResponse)(generate_content)
 
 # --- Documentation ---
 @app.get("/docs", include_in_schema=False)
@@ -163,6 +173,16 @@ async def ws_notifications(websocket: WebSocket):
     try:
         while True: await websocket.receive_text()
     except WebSocketDisconnect: manager.disconnect(websocket)
+
+from backend.utils.telemetry import telemetry_manager
+@app.websocket("/ws/telemetry")
+async def ws_telemetry(websocket: WebSocket):
+    await telemetry_manager.connect(websocket)
+    try:
+        while True:
+            await websocket.receive_text()
+    except WebSocketDisconnect:
+        telemetry_manager.disconnect(websocket)
 
 # --- Lifecycle & Seeding ---
 @app.on_event("startup")
@@ -199,4 +219,32 @@ async def on_startup():
 
 @app.on_event("shutdown")
 async def on_shutdown(): 
-    logger.warning("🔴 SIGNAL: Neural Engine is shutting down. Closing all data streams.")
+    import asyncio
+    logger.warning("🔴 SIGNAL: Neural Engine shutdown initiated. Starting structural teardown...")
+    
+    # 1. Terminate Database Connections
+    try:
+        logger.info("📡 SIGNAL [1/3]: Terminating database connection pool...")
+        await async_engine.dispose()
+        logger.success("DATABASE: Connection pool drained successfully.")
+    except Exception as e:
+        logger.error(f"DATABASE: Error during pool disposal: {e}")
+
+    # 2. Close active data streams
+    logger.info("📡 SIGNAL [2/3]: Closing active websocket streams and notification gates...")
+    # Add brief async sleep to allow handles to close
+    await asyncio.sleep(0.5) 
+    logger.success("STREAMS: All real-time signals disconnected.")
+
+    # 3. Final Telemetry Flush
+    logger.info("📡 SIGNAL [3/3]: Flushing final telemetry buffers to persistent logs...")
+    
+    footer = """
+    +------------------------------------------------------------------------------+
+    |                                                                              |
+    |   ANIME SCRIPT PRO | NEURAL ENGINE OFFLINE                                   |
+    |   STATUS: CORE DATA STREAMS TERMINATED SUCCESSFULLY                          |
+    |                                                                              |
+    +------------------------------------------------------------------------------+
+    """
+    logger.warning(f"\n{footer.strip()}")

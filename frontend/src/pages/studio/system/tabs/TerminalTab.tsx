@@ -31,15 +31,15 @@ export const TerminalTab: React.FC = () => {
                 <div className="w-2.5 h-2.5 rounded-full bg-amber-500/40" />
                 <div className="w-2.5 h-2.5 rounded-full bg-emerald-500/40" />
               </div>
-              <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-4">Terminal Uplink // v4.0.2</span>
+              <span className="text-xs font-black text-zinc-500 uppercase tracking-widest ml-4">Terminal Uplink // v4.0.2</span>
             </div>
             <div className="flex items-center gap-2">
                <Zap className="w-3.5 h-3.5 text-[#bd4a4a] animate-pulse" />
-               <span className="text-[8px] font-black text-[#bd4a4a] uppercase tracking-widest">Live Link</span>
+               <span className="text-xs font-black text-[#bd4a4a] uppercase tracking-widest">Live Link</span>
             </div>
           </div>
 
-          <div className="p-8 font-mono text-[11px] space-y-2 h-[450px] overflow-y-auto scrollbar-hide bg-black/40 terminal-overlay">
+          <div className="p-8 font-mono text-xs space-y-2 h-[450px] overflow-y-auto scrollbar-hide bg-black/40 terminal-overlay">
             {history.map((line, i) => (
               <div key={i} className={line.startsWith('>') ? "text-[#bd4a4a]" : line.startsWith('ERROR') ? "text-red-500" : "text-emerald-500/80"}>
                 {line}
@@ -75,8 +75,8 @@ export const TerminalTab: React.FC = () => {
                     <p.icon className="w-3.5 h-3.5 text-zinc-600 group-hover:text-[#bd4a4a]" />
                   </div>
                   <div className="space-y-0.5">
-                    <code className="text-[10px] font-black text-white uppercase tracking-widest">{p.cmd}</code>
-                    <p className="text-[9px] font-bold text-zinc-600 uppercase tracking-widest">{p.desc}</p>
+                    <code className="text-xs font-black text-white uppercase tracking-widest">{p.cmd}</code>
+                    <p className="text-xs font-bold text-zinc-600 uppercase tracking-widest">{p.desc}</p>
                   </div>
                 </div>
               ))}
@@ -85,9 +85,9 @@ export const TerminalTab: React.FC = () => {
            <div className="bg-[#bd4a4a]/5 border border-[#bd4a4a]/20 p-8 rounded-[2rem]">
               <div className="flex items-center gap-4 mb-4">
                  <TerminalIcon className="w-5 h-5 text-[#bd4a4a]" />
-                 <h4 className="text-[10px] font-black text-white uppercase tracking-widest">User Authentication</h4>
+                 <h4 className="text-xs font-black text-white uppercase tracking-widest">User Authentication</h4>
               </div>
-              <p className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest leading-relaxed">
+              <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest leading-relaxed">
                  All commands are logged via the global ledger. Unauthorized node access will trigger a system-wide lockdown.
               </p>
            </div>

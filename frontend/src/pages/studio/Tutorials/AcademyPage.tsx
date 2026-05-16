@@ -160,7 +160,7 @@ export default function AcademyPage() {
                     <Award className="footer-icon text-amber-500" />
                     <span className="footer-text">Mastery Tier</span>
                  </div>
-                 <button className="text-[9px] font-black uppercase text-[#bd4a4a] hover:text-white transition-colors">Initialize Guide</button>
+                 <button className="text-xs font-black uppercase text-[#bd4a4a] hover:text-white transition-colors">Initialize Guide</button>
               </div>
             </div>
           ))

@@ -9,7 +9,7 @@ export const LinguisticsTab: React.FC = () => {
             <Languages className="w-8 h-8 text-amber-400" />
          </div>
          <h2 className="text-4xl font-black text-white uppercase tracking-tighter">Linguistic Manifest</h2>
-         <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-[0.3em]">Dialect optimization and cultural nuance sequencing</p>
+         <p className="text-zinc-500 text-xs font-bold uppercase tracking-[0.3em]">Dialect optimization and cultural nuance sequencing</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
@@ -23,7 +23,7 @@ export const LinguisticsTab: React.FC = () => {
                  <item.icon className="w-5 h-5 text-amber-400" />
               </div>
               <div>
-                 <h3 className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">{item.label}</h3>
+                 <h3 className="text-xs font-black text-zinc-500 uppercase tracking-widest">{item.label}</h3>
                  <p className="text-lg font-black text-white mt-1 uppercase tracking-tight">{item.value}</p>
               </div>
            </div>

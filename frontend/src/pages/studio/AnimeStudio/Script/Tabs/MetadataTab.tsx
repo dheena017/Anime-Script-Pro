@@ -38,7 +38,7 @@ export const MetadataTab: React.FC<MetadataTabProps> = ({
         </div>
         <div>
           <h2 className="text-3xl font-black text-white uppercase tracking-tighter">Production Metadata</h2>
-          <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-[0.3em] mt-1">Episode parameters and synthesis diagnostics</p>
+          <p className="text-zinc-500 text-xs font-bold uppercase tracking-[0.3em] mt-1">Episode parameters and synthesis diagnostics</p>
         </div>
       </div>
 
@@ -49,7 +49,7 @@ export const MetadataTab: React.FC<MetadataTabProps> = ({
               <field.icon className="w-4 h-4 text-blue-400" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-[9px] font-black text-zinc-600 uppercase tracking-widest">{field.label}</p>
+              <p className="text-xs font-black text-zinc-600 uppercase tracking-widest">{field.label}</p>
               <p className="text-sm font-black text-white uppercase tracking-wide truncate mt-0.5">{field.value}</p>
             </div>
           </div>
@@ -57,7 +57,7 @@ export const MetadataTab: React.FC<MetadataTabProps> = ({
 
         {/* Prompt field — full width */}
         <div className="md:col-span-2 p-5 bg-white/5 border border-white/5 rounded-2xl hover:border-blue-500/20 transition-all">
-          <p className="text-[9px] font-black text-zinc-600 uppercase tracking-widest mb-2">Core Production Prompt</p>
+          <p className="text-xs font-black text-zinc-600 uppercase tracking-widest mb-2">Core Production Prompt</p>
           <p className="text-sm text-zinc-300 font-medium leading-relaxed italic">{prompt || 'No prompt set.'}</p>
         </div>
       </div>

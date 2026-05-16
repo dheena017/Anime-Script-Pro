@@ -369,14 +369,14 @@ export default function EpisodePackager() {
                       <strong>Scene {s.index}</strong>
                       <div className="mt-1 h-10 w-16 rounded bg-black/50 overflow-hidden border border-white/10">
                         {thumbnailLoading[s.index] ? (
-                          <div className="h-full w-full flex items-center justify-center text-[10px] text-zinc-400">Loading</div>
+                          <div className="h-full w-full flex items-center justify-center text-xs text-zinc-400">Loading</div>
                         ) : thumbnails[s.index] ? (
                           <img src={thumbnails[s.index] || ''} alt={`thumb-${s.index}`} className="h-full w-full object-cover" />
                         ) : (
-                          <div className="h-full w-full flex items-center justify-center text-[10px] text-zinc-500">No Img</div>
+                          <div className="h-full w-full flex items-center justify-center text-xs text-zinc-500">No Img</div>
                         )}
                       </div>
-                      <div className="mt-2 space-y-1 text-[10px] leading-relaxed text-zinc-400">
+                      <div className="mt-2 space-y-1 text-xs leading-relaxed text-zinc-400">
                         <p className="whitespace-normal break-words"><span className="font-bold text-zinc-200">Narration:</span> {s.sceneOutput?.narration || 'No narration generated.'}</p>
                         <p className="whitespace-normal break-words"><span className="font-bold text-zinc-200">Visuals:</span> {s.sceneOutput?.visuals || 'No visuals generated.'}</p>
                         <p className="whitespace-normal break-words"><span className="font-bold text-zinc-200">Sound:</span> {s.sceneOutput?.sound || 'No sound generated.'}</p>

@@ -98,14 +98,14 @@ export function NeuralConsole() {
                   <Terminal className="w-4 h-4 text-studio" />
                 </div>
                 <div>
-                  <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-white">Neural Monitor</h3>
-                  <p className="text-[8px] text-zinc-500 font-medium uppercase tracking-widest">v2.4.0-OVERSIGHT</p>
+                  <h3 className="text-xs font-black uppercase tracking-[0.2em] text-white">Neural Monitor</h3>
+                  <p className="text-xs text-zinc-500 font-medium uppercase tracking-widest">v2.4.0-OVERSIGHT</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 <div className="px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center gap-1.5">
                   <div className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse" />
-                  <span className="text-[8px] font-bold text-emerald-500 uppercase tracking-tighter">Live</span>
+                  <span className="text-xs font-bold text-emerald-500 uppercase tracking-tighter">Live</span>
                 </div>
                 <button onClick={() => setIsOpen(false)} className="p-1 hover:bg-white/5 rounded-lg transition-colors text-zinc-500 hover:text-white">
                   <X className="w-4 h-4" />
@@ -116,45 +116,45 @@ export function NeuralConsole() {
             {/* Metrics Ribbon */}
             <div className="px-4 py-2 border-b border-white/5 bg-black/40 flex items-center gap-6 overflow-x-auto no-scrollbar">
               <div className="flex items-center gap-2 shrink-0">
-                <span className="text-[8px] font-bold text-zinc-500 uppercase tracking-widest text-nowrap">CPU LOAD</span>
-                <span className="text-[9px] font-mono text-studio">12.4%</span>
+                <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest text-nowrap">CPU LOAD</span>
+                <span className="text-xs font-mono text-studio">12.4%</span>
               </div>
               <div className="flex items-center gap-2 shrink-0">
-                <span className="text-[8px] font-bold text-zinc-500 uppercase tracking-widest text-nowrap">MEM ALLOC</span>
-                <span className="text-[9px] font-mono text-cyan-400">248MB</span>
+                <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest text-nowrap">MEM ALLOC</span>
+                <span className="text-xs font-mono text-cyan-400">248MB</span>
               </div>
               <div className="flex items-center gap-2 shrink-0">
-                <span className="text-[8px] font-bold text-zinc-500 uppercase tracking-widest text-nowrap">NET LATENCY</span>
-                <span className="text-[9px] font-mono text-emerald-400">42ms</span>
+                <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest text-nowrap">NET LATENCY</span>
+                <span className="text-xs font-mono text-emerald-400">42ms</span>
               </div>
             </div>
 
             {/* Logs Area */}
             <div 
               ref={scrollRef}
-              className="flex-1 p-4 font-mono text-[10px] space-y-3 overflow-y-auto no-scrollbar scroll-smooth"
+              className="flex-1 p-4 font-mono text-xs space-y-3 overflow-y-auto no-scrollbar scroll-smooth"
             >
               {logs.length === 0 ? (
                 <div className="h-full flex flex-col items-center justify-center opacity-20 space-y-3">
                   <Activity className="w-8 h-8 text-zinc-500" />
-                  <span className="text-[10px] uppercase tracking-[0.3em]">Awaiting Signals...</span>
+                  <span className="text-xs uppercase tracking-[0.3em]">Awaiting Signals...</span>
                 </div>
               ) : (
                 logs.map((log) => (
                   <div key={log.id} className="group relative flex flex-col gap-1 border-l border-white/5 pl-3 hover:border-studio/30 transition-colors">
                     <div className="flex items-center justify-between opacity-50 group-hover:opacity-100 transition-opacity">
                       <div className="flex items-center gap-2">
-                        <span className={cn("text-[8px] font-black px-1.5 py-0.5 rounded bg-white/5", getLevelColor(log.level))}>
+                        <span className={cn("text-xs font-black px-1.5 py-0.5 rounded bg-white/5", getLevelColor(log.level))}>
                           {log.module}
                         </span>
-                        <span className="text-[8px] text-zinc-600 font-bold">{log.timestamp}</span>
+                        <span className="text-xs text-zinc-600 font-bold">{log.timestamp}</span>
                       </div>
                       <div className={cn("flex items-center gap-1", getLevelColor(log.level))}>
                         {getLevelIcon(log.level)}
-                        <span className="text-[7px] font-bold uppercase tracking-widest">{log.level}</span>
+                        <span className="text-xs font-bold uppercase tracking-widest">{log.level}</span>
                       </div>
                     </div>
-                    <div className={cn("text-[10px] leading-relaxed break-all", log.level === 'error' ? 'text-red-400' : 'text-zinc-300')}>
+                    <div className={cn("text-xs leading-relaxed break-all", log.level === 'error' ? 'text-red-400' : 'text-zinc-300')}>
                       {log.message}
                     </div>
                   </div>
@@ -188,9 +188,9 @@ export function NeuralConsole() {
                     />
                   </div>
                 </div>
-                <span className="text-[8px] font-bold text-zinc-600 uppercase tracking-widest">Signal Integrity: 100%</span>
+                <span className="text-xs font-bold text-zinc-600 uppercase tracking-widest">Signal Integrity: 100%</span>
               </div>
-              <span className="text-[9px] font-mono text-zinc-700">#6E7D65E7</span>
+              <span className="text-xs font-mono text-zinc-700">#6E7D65E7</span>
             </div>
           </motion.div>
         )}
@@ -214,8 +214,8 @@ export function NeuralConsole() {
         {!isOpen && (
           <div className="absolute right-full mr-4 px-4 py-2 bg-black/90 backdrop-blur-md border border-white/10 rounded-xl opacity-0 group-hover:opacity-100 transition-all translate-x-4 group-hover:translate-x-0 pointer-events-none whitespace-nowrap shadow-2xl">
             <div className="flex flex-col items-start gap-0.5">
-              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white">System Console</span>
-              <span className="text-[8px] text-zinc-500 uppercase tracking-widest">Monitor System Activity</span>
+              <span className="text-xs font-black uppercase tracking-[0.2em] text-white">System Console</span>
+              <span className="text-xs text-zinc-500 uppercase tracking-widest">Monitor System Activity</span>
             </div>
           </div>
         )}

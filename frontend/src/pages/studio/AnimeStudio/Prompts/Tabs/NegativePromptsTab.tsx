@@ -22,7 +22,7 @@ export const NegativePromptsTab: React.FC = () => {
         </div>
         <div>
           <h2 className="text-3xl font-black text-white uppercase tracking-tighter">Negative DNA</h2>
-          <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-[0.3em] mt-1">
+          <p className="text-zinc-500 text-xs font-bold uppercase tracking-[0.3em] mt-1">
             Constraint clusters and quality filters for neural generation
           </p>
         </div>
@@ -30,7 +30,7 @@ export const NegativePromptsTab: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-6">
-          <h3 className="text-[10px] font-black text-zinc-500 uppercase tracking-widest flex items-center gap-2">
+          <h3 className="text-xs font-black text-zinc-500 uppercase tracking-widest flex items-center gap-2">
             <Ban className="w-3 h-3" /> Master Negative Cluster
           </h3>
           <Card className="p-8 bg-white/[0.02] border border-white/5 rounded-[2.5rem] min-h-[300px]">
@@ -41,13 +41,13 @@ export const NegativePromptsTab: React.FC = () => {
         </div>
 
         <div className="space-y-6">
-          <h3 className="text-[10px] font-black text-zinc-500 uppercase tracking-widest flex items-center gap-2">
+          <h3 className="text-xs font-black text-zinc-500 uppercase tracking-widest flex items-center gap-2">
             <Info className="w-3 h-3" /> Active Constraints
           </h3>
           <div className="space-y-2">
             {constraints.map((c, i) => (
               <div key={i} className="flex items-center justify-between p-4 bg-[#080808] border border-white/5 rounded-2xl">
-                <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">{c.label}</span>
+                <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest">{c.label}</span>
                 <div className={cn("w-2 h-2 rounded-full", c.active ? "bg-rose-500/60 shadow-[0_0_8px_rgba(244,63,94,0.5)]" : "bg-zinc-800")} />
               </div>
             ))}
@@ -57,7 +57,7 @@ export const NegativePromptsTab: React.FC = () => {
 
       <Card className="p-8 border border-dashed border-rose-500/20 bg-rose-500/5 rounded-[2rem] flex items-center gap-6">
         <AlertTriangle className="w-8 h-8 text-rose-500/40" />
-        <p className="text-[10px] text-zinc-500 font-medium leading-relaxed uppercase tracking-wider">
+        <p className="text-xs text-zinc-500 font-medium leading-relaxed uppercase tracking-wider">
           Negative prompts are applied across all scenes to maintain quality.
         </p>
       </Card>

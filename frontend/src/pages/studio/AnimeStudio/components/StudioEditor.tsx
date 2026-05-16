@@ -61,7 +61,7 @@ export const StudioEditor: React.FC<StudioEditorProps> = ({
           <div className="w-2 h-2 rounded-full bg-studio animate-pulse shadow-[0_0_8px_rgba(var(--studio-rgb),0.8)]" />
           <span className="text-xs font-black uppercase tracking-[0.2em] text-studio">Edit Mode Active</span>
         </div>
-        <span className="text-[10px] text-zinc-500 font-mono font-bold uppercase tracking-widest">{lineCount} lines</span>
+        <span className="text-xs text-zinc-500 font-mono font-bold uppercase tracking-widest">{lineCount} lines</span>
       </div>
 
       {/* Formatting Toolbar */}
@@ -73,7 +73,7 @@ export const StudioEditor: React.FC<StudioEditorProps> = ({
             title="Bold (Cmd+B)"
           >
             <Bold className="w-3.5 h-3.5 text-zinc-400 group-hover:text-studio group-hover:scale-110 transition-transform" />
-            <span className="text-[10px] font-bold text-zinc-400 group-hover:text-studio uppercase tracking-wider">Bold</span>
+            <span className="text-xs font-bold text-zinc-400 group-hover:text-studio uppercase tracking-wider">Bold</span>
           </button>
           
           <button
@@ -82,7 +82,7 @@ export const StudioEditor: React.FC<StudioEditorProps> = ({
             title="Italic (Cmd+I)"
           >
             <Italic className="w-3.5 h-3.5 text-zinc-400 group-hover:text-studio group-hover:scale-110 transition-transform" />
-            <span className="text-[10px] font-bold text-zinc-400 group-hover:text-studio uppercase tracking-wider">Italic</span>
+            <span className="text-xs font-bold text-zinc-400 group-hover:text-studio uppercase tracking-wider">Italic</span>
           </button>
         </div>
 
@@ -95,7 +95,7 @@ export const StudioEditor: React.FC<StudioEditorProps> = ({
             title="Heading 2"
           >
             <Heading2 className="w-3.5 h-3.5 text-zinc-400 group-hover:text-studio group-hover:scale-110 transition-transform" />
-            <span className="text-[10px] font-bold text-zinc-400 group-hover:text-studio uppercase tracking-wider">H2</span>
+            <span className="text-xs font-bold text-zinc-400 group-hover:text-studio uppercase tracking-wider">H2</span>
           </button>
 
           <button
@@ -104,7 +104,7 @@ export const StudioEditor: React.FC<StudioEditorProps> = ({
             title="Code"
           >
             <Code className="w-3.5 h-3.5 text-zinc-400 group-hover:text-studio group-hover:scale-110 transition-transform" />
-            <span className="text-[10px] font-bold text-zinc-400 group-hover:text-studio uppercase tracking-wider">Code</span>
+            <span className="text-xs font-bold text-zinc-400 group-hover:text-studio uppercase tracking-wider">Code</span>
           </button>
 
           <button
@@ -113,7 +113,7 @@ export const StudioEditor: React.FC<StudioEditorProps> = ({
             title="Bullet List"
           >
             <List className="w-3.5 h-3.5 text-zinc-400 group-hover:text-studio group-hover:scale-110 transition-transform" />
-            <span className="text-[10px] font-bold text-zinc-400 group-hover:text-studio uppercase tracking-wider">List</span>
+            <span className="text-xs font-bold text-zinc-400 group-hover:text-studio uppercase tracking-wider">List</span>
           </button>
 
           <button
@@ -122,12 +122,12 @@ export const StudioEditor: React.FC<StudioEditorProps> = ({
             title="Quote"
           >
             <Quote className="w-3.5 h-3.5 text-zinc-400 group-hover:text-studio group-hover:scale-110 transition-transform" />
-            <span className="text-[10px] font-bold text-zinc-400 group-hover:text-studio uppercase tracking-wider">Quote</span>
+            <span className="text-xs font-bold text-zinc-400 group-hover:text-studio uppercase tracking-wider">Quote</span>
           </button>
         </div>
 
         <div className="flex-1" />
-        <div className={cn("flex items-center gap-4 text-[10px] text-zinc-500 px-4 font-mono font-bold uppercase tracking-widest", statsClassName)}>
+        <div className={cn("flex items-center gap-4 text-xs text-zinc-500 px-4 font-mono font-bold uppercase tracking-widest", statsClassName)}>
           <span className="flex items-center gap-1.5"><span className="text-zinc-400">{charCount.toLocaleString()}</span> chars</span>
           <span className="flex items-center gap-1.5"><span className="text-zinc-400">{wordCount.toLocaleString()}</span> words</span>
         </div>
@@ -161,7 +161,7 @@ export const StudioEditor: React.FC<StudioEditorProps> = ({
       </div>
 
       {/* Editor Footer */}
-      <div className="flex items-center justify-between p-4 bg-white/5 border border-white/10 rounded-2xl text-[9px] font-bold uppercase tracking-[0.2em] text-zinc-500 backdrop-blur-md">
+      <div className="flex items-center justify-between p-4 bg-white/5 border border-white/10 rounded-2xl text-xs font-bold uppercase tracking-[0.2em] text-zinc-500 backdrop-blur-md">
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-2">
             <div className="w-1 h-1 rounded-full bg-emerald-500" />

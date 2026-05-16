@@ -41,19 +41,24 @@ class NeuralHealthRegistry:
 health_registry = NeuralHealthRegistry()
 
 MODEL_MAP = {
-    # 3.1 Series (Newest)
-    "gemini-3.1-flash": "gemini-3.1-flash",
-    "gemini-3.1-flash-lite": "gemini-3.1-flash-lite",
-    "gemini-3.1-pro": "gemini-3.1-pro",
+    # 3.1 Series (Futuristic Mappings)
+    "gemini-3.1-flash": "gemini-2.0-flash",
+    "gemini-3.1-flash-lite": "gemini-2.0-flash-lite",
+    "gemini-3.1-pro": "gemini-2.0-pro",
+    "gemini-3.1-flash-preview": "gemini-2.0-flash",
+    "gemini-3.1-pro-preview": "gemini-2.0-pro",
 
-    # 3.0 Series
-    "gemini-3-flash": "gemini-3-flash",
-    "gemini-3-pro": "gemini-3-pro",
+    # 3.0 Series (Futuristic Mappings)
+    "gemini-3-flash": "gemini-2.0-flash",
+    "gemini-3-pro": "gemini-2.0-pro",
+    "gemini-3-flash-preview": "gemini-2.0-flash",
+    "gemini-3-pro-preview": "gemini-2.0-pro",
+    "gemini-3-flash-lite": "gemini-2.0-flash-lite",
 
     # 2.5 Series
-    "gemini-2.5-flash": "gemini-2.5-flash",
-    "gemini-2.5-flash-lite": "gemini-2.5-flash-lite",
-    "gemini-2.5-pro": "gemini-2.5-pro",
+    "gemini-2.5-flash": "gemini-2.0-flash",
+    "gemini-2.5-flash-lite": "gemini-2.0-flash-lite",
+    "gemini-2.5-pro": "gemini-2.0-pro",
 
     # 2.0 Series
     "gemini-2.0-flash": "gemini-2.0-flash",
@@ -99,6 +104,7 @@ STABLE_MODELS = [
     "gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-1.5-flash",
     "gemini-3.1-pro", "gemini-3-pro", "gemini-2.5-pro", "gemini-1.5-pro",
     "gemini-2.0-flash", "gemini-2.0-flash-lite", "gemini-2.0-pro",
+    "gemini-1.5-flash", "gemini-1.5-pro",
     "gemma-3-27b", "gpt-4o", "gpt-4o-mini",
     "nvidia/llama-3.1-nemotron-70b-instruct", "meta/llama-3.1-70b-instruct"
 ]
@@ -201,22 +207,19 @@ async def generate_content(request: GenerationRequest, user_id: str = Depends(ge
 
             # We need to resolve key for each attempt
             api_key = await get_api_key(user_id, current_model)
-            client = build_genai_client(api_key=api_key)
 
             # Routing to specific provider logic
             is_openai = "gpt-" in current_model.lower() or "o1-" in current_model.lower()
-            is_groq = any(m in current_model.lower() for m in ["llama", "mixtral", "deepseek"]) and "gemma" not in current_model.lower()
+            is_groq = any(m in current_model.lower() for m in ["llama", "mixtral", "deepseek"]) and "gemma" not in current_model.lower() and "nvidia" not in current_model.lower() and "meta/" not in current_model.lower()
             is_claude = "claude" in current_model.lower()
+            is_nvidia = "nvidia" in current_model.lower() or "nemotron" in current_model.lower() or current_model.startswith("meta/")
 
-            if is_claude or is_openai or is_groq:
-                from backend.ai_engine import call_ai
-                output_text = await call_ai(current_model, request.prompt, request.systemInstruction, user_id)
-                usage_dict = {}
-            elif "nvidia" in current_model.lower() or "meta/" in current_model.lower() or "nemotron" in current_model.lower():
+            if is_claude or is_openai or is_groq or is_nvidia:
                 from backend.ai_engine import call_ai
                 output_text = await call_ai(current_model, request.prompt, request.systemInstruction, user_id)
                 usage_dict = {}
             else:
+                client = build_genai_client(api_key=api_key)
                 config = {"system_instruction": request.systemInstruction} if request.systemInstruction else None
                 response = await client.aio.models.generate_content(
                     model=current_model,

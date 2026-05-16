@@ -80,7 +80,7 @@ export const WorldHeader: React.FC<WorldHeaderProps> = ({
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="top">
-                  <p className="font-black uppercase tracking-widest text-[9px]">Return to Engine Matrix</p>
+                  <p className="font-black uppercase tracking-widest text-xs">Return to Engine Matrix</p>
                 </TooltipContent>
               </Tooltip>
             )}
@@ -107,7 +107,7 @@ export const WorldHeader: React.FC<WorldHeaderProps> = ({
                   )}
                 </TooltipTrigger>
                 <TooltipContent side="top">
-                  <p className="font-black uppercase tracking-widest text-[9px]">
+                  <p className="font-black uppercase tracking-widest text-xs">
                     {isGenerating ? "Terminate Active Process" : "Initiate World Synthesis"}
                   </p>
                 </TooltipContent>
@@ -125,7 +125,7 @@ export const WorldHeader: React.FC<WorldHeaderProps> = ({
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="top">
-                  <p className="font-black uppercase tracking-widest text-[9px]">Proceed to Modules Hub</p>
+                  <p className="font-black uppercase tracking-widest text-xs">Proceed to Modules Hub</p>
                 </TooltipContent>
               </Tooltip>
             </div>

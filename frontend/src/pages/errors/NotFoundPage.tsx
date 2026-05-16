@@ -30,11 +30,11 @@ export default function NotFoundPage() {
               <TriangleAlert className="h-9 w-9 text-cyan-300" />
             </motion.div>
 
-            <p className="mb-4 text-[10px] font-black uppercase tracking-[0.35em] text-cyan-300/70">
+            <p className="mb-4 text-xs font-black uppercase tracking-[0.35em] text-cyan-300/70">
               System Node Not Found
             </p>
 
-            <h1 className="bg-gradient-to-b from-white via-cyan-100 to-cyan-300 bg-clip-text text-7xl font-black tracking-tighter text-transparent md:text-8xl">
+            <h1 className="bg-gradient-to-b from-white via-cyan-100 to-cyan-300 bg-clip-text text-4xl font-black tracking-tighter text-transparent md:text-4xl">
               404
             </h1>
 
@@ -48,13 +48,13 @@ export default function NotFoundPage() {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => navigate('/dashboard')}
-                className="inline-flex items-center justify-center gap-2 rounded-full border border-cyan-400/30 bg-cyan-400/10 px-6 py-3 text-[10px] font-black uppercase tracking-[0.28em] text-cyan-200 transition-colors hover:bg-cyan-400/15"
+                className="inline-flex items-center justify-center gap-2 rounded-full border border-cyan-400/30 bg-cyan-400/10 px-6 py-3 text-xs font-black uppercase tracking-[0.28em] text-cyan-200 transition-colors hover:bg-cyan-400/15"
               >
                 <Home className="h-4 w-4" />
                 Return to Dashboard
               </motion.button>
 
-              <div className="inline-flex items-center justify-center gap-2 rounded-full border border-white/10 bg-black/30 px-6 py-3 text-[10px] font-black uppercase tracking-[0.28em] text-zinc-400">
+              <div className="inline-flex items-center justify-center gap-2 rounded-full border border-white/10 bg-black/30 px-6 py-3 text-xs font-black uppercase tracking-[0.28em] text-zinc-400">
                 <Sparkles className="h-4 w-4 text-fuchsia-400" />
                 Meta-OS Recovery Mode
               </div>

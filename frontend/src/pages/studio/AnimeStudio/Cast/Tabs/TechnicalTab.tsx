@@ -35,12 +35,12 @@ export const TechnicalTab: React.FC = () => {
       <div className="flex items-center justify-between px-2">
         <div className="space-y-1">
           <h2 className="text-2xl font-black text-white uppercase tracking-tighter">Production Rig Manifest</h2>
-          <p className="text-indigo-500/60 text-[10px] font-black uppercase tracking-[0.3em]">Neural Character Rigging v5.0</p>
+          <p className="text-indigo-500/60 text-xs font-black uppercase tracking-[0.3em]">Neural Character Rigging v5.0</p>
         </div>
         <div className="flex gap-4">
           <div className="px-4 py-2 bg-indigo-500/5 border border-indigo-500/10 rounded-xl flex items-center gap-2">
             <Layout className="w-3 h-3 text-indigo-500" />
-            <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest">Rig Validated</span>
+            <span className="text-xs font-black text-indigo-400 uppercase tracking-widest">Rig Validated</span>
           </div>
         </div>
       </div>
@@ -71,7 +71,7 @@ export const TechnicalTab: React.FC = () => {
                 
                 <div className="text-center lg:text-left space-y-1">
                   <h3 className="text-2xl font-black text-white uppercase tracking-tighter">{char.name}</h3>
-                  <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest italic">Rig-ID: {idx.toString().padStart(4, '0')}</p>
+                  <p className="text-xs font-black text-zinc-500 uppercase tracking-widest italic">Rig-ID: {idx.toString().padStart(4, '0')}</p>
                 </div>
 
                 <div className="w-full flex gap-1">
@@ -85,7 +85,7 @@ export const TechnicalTab: React.FC = () => {
               <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="space-y-6">
                   <div className="space-y-3">
-                    <div className="flex items-center gap-3 text-[10px] font-black uppercase text-indigo-500 tracking-[0.2em]">
+                    <div className="flex items-center gap-3 text-xs font-black uppercase text-indigo-500 tracking-[0.2em]">
                       <Palette className="w-3.5 h-3.5" /> Color DNA / Visual Prompt
                     </div>
                     <div className="p-6 bg-zinc-950/50 rounded-3xl border border-white/5 backdrop-blur-xl group-hover:bg-zinc-900/50 transition-all duration-500">
@@ -96,22 +96,22 @@ export const TechnicalTab: React.FC = () => {
                   </div>
 
                   <div className="space-y-3">
-                    <div className="flex items-center gap-3 text-[10px] font-black uppercase text-indigo-500 tracking-[0.2em]">
+                    <div className="flex items-center gap-3 text-xs font-black uppercase text-indigo-500 tracking-[0.2em]">
                       <Ruler className="w-3.5 h-3.5" /> Scale & Proportions
                     </div>
                     <div className="p-6 bg-zinc-950/50 rounded-3xl border border-white/5 backdrop-blur-xl group-hover:bg-zinc-900/50 transition-all duration-500">
-                      <p className="text-[11px] font-medium text-zinc-400 leading-relaxed uppercase tracking-wide">
+                      <p className="text-xs font-medium text-zinc-400 leading-relaxed uppercase tracking-wide">
                         {toText(char.technicalModel?.heightComparison || char.appearance || 'Standard humanoid scale.')}
                       </p>
                     </div>
                   </div>
 
                   <div className="space-y-3">
-                    <div className="flex items-center gap-3 text-[10px] font-black uppercase text-indigo-500 tracking-[0.2em]">
+                    <div className="flex items-center gap-3 text-xs font-black uppercase text-indigo-500 tracking-[0.2em]">
                       <Sun className="w-3.5 h-3.5" /> Lighting Logic
                     </div>
                     <div className="p-6 bg-zinc-950/50 rounded-3xl border border-white/5 backdrop-blur-xl group-hover:bg-zinc-900/50 transition-all duration-500">
-                      <p className="text-[11px] font-medium text-zinc-400 leading-relaxed uppercase tracking-wide">
+                      <p className="text-xs font-medium text-zinc-400 leading-relaxed uppercase tracking-wide">
                         {toText(char.technicalModel?.lightingLogic || 'Rim lighting / High contrast shadow profiles.')}
                       </p>
                     </div>
@@ -120,11 +120,11 @@ export const TechnicalTab: React.FC = () => {
 
                 <div className="space-y-6">
                   <div className="space-y-3">
-                    <div className="flex items-center gap-3 text-[10px] font-black uppercase text-indigo-500 tracking-[0.2em]">
+                    <div className="flex items-center gap-3 text-xs font-black uppercase text-indigo-500 tracking-[0.2em]">
                       <User className="w-3.5 h-3.5" /> Animation Profile
                     </div>
                     <div className="p-8 bg-indigo-500/5 rounded-[2.5rem] border border-indigo-500/10 backdrop-blur-xl group-hover:bg-indigo-500/10 transition-all duration-500 min-h-[120px]">
-                      <h4 className="text-white font-black uppercase text-[10px] mb-2 tracking-widest">Movement Dynamics</h4>
+                      <h4 className="text-white font-black uppercase text-xs mb-2 tracking-widest">Movement Dynamics</h4>
                       <p className="text-sm font-medium text-indigo-300 leading-relaxed italic">
                         {toText(char.technicalModel?.movementStyle || char.movementStyle || 'Fluid / Standard')}
                       </p>
@@ -132,7 +132,7 @@ export const TechnicalTab: React.FC = () => {
                   </div>
 
                   <div className="space-y-3">
-                    <div className="flex items-center gap-3 text-[10px] font-black uppercase text-indigo-500 tracking-[0.2em]">
+                    <div className="flex items-center gap-3 text-xs font-black uppercase text-indigo-500 tracking-[0.2em]">
                       <Sparkles className="w-3.5 h-3.5" /> VFX Signature
                     </div>
                     <div className="p-6 bg-indigo-500/5 border border-indigo-500/10 rounded-3xl relative overflow-hidden group/vfx">
@@ -144,7 +144,7 @@ export const TechnicalTab: React.FC = () => {
 
                   <div className="p-6 bg-black rounded-3xl border border-white/5 flex items-center justify-between">
                      <div className="space-y-1">
-                       <p className="text-[8px] font-black text-zinc-500 uppercase tracking-widest">Physics Weight</p>
+                       <p className="text-xs font-black text-zinc-500 uppercase tracking-widest">Physics Weight</p>
                        <p className="text-sm font-black text-white">OPTIMIZED</p>
                      </div>
                      <div className="w-12 h-12 rounded-full border-2 border-indigo-500/20 flex items-center justify-center">

@@ -95,18 +95,18 @@ export default function ProjectWizard() {
       <div className="w-full max-w-5xl relative z-10 space-y-16">
         <div className="grid gap-4 rounded-[2rem] border border-studio/20 bg-studio/5 p-6 lg:grid-cols-[1.4fr_1fr] lg:items-center">
           <div className="space-y-2">
-            <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.35em] text-studio">
+            <div className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.35em] text-studio">
               <Sparkles className="w-4 h-4" />
               Shared story bible
             </div>
             <h2 className="text-2xl font-black uppercase italic tracking-tighter text-white">
               {MOCK_STORY_BIBLE.title}
             </h2>
-            <p className="max-w-3xl text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-500">
+            <p className="max-w-3xl text-xs font-bold uppercase tracking-[0.18em] text-zinc-500">
               {MOCK_STORY_BIBLE.logline}
             </p>
           </div>
-          <div className="grid grid-cols-3 gap-3 text-[9px] font-black uppercase tracking-[0.25em] text-zinc-600">
+          <div className="grid grid-cols-3 gap-3 text-xs font-black uppercase tracking-[0.25em] text-zinc-600">
             <div className="rounded-2xl border border-white/5 bg-black/40 p-4 text-center">
               <Database className="mx-auto mb-2 h-4 w-4 text-studio" />
               {MOCK_STORY_BIBLE.worldName}
@@ -134,25 +134,25 @@ export default function ProjectWizard() {
           </motion.div>
           
           <div className="space-y-4">
-             <h1 className="text-5xl md:text-8xl font-black text-white uppercase italic tracking-tighter leading-none">
+             <h1 className="text-2xl md:text-4xl font-black text-white uppercase italic tracking-tighter leading-none">
                 Initialize <span className="text-studio">Blueprint.</span>
              </h1>
-             <p className="text-zinc-600 font-black uppercase text-[11px] tracking-[0.4em]">Every masterpiece begins with a single production directive.</p>
+             <p className="text-zinc-600 font-black uppercase text-xs tracking-[0.4em]">Every masterpiece begins with a single production directive.</p>
           </div>
 
           {/* TERMINAL TELEMETRY */}
           <div className="flex flex-wrap items-center justify-center gap-12 pt-8 border-t border-white/5 max-w-3xl mx-auto">
              <div className="flex items-center gap-3">
                 <Activity className="w-4 h-4 text-studio animate-pulse" />
-                <span className="text-[9px] font-black text-zinc-600 uppercase tracking-widest">Link Status: Optimal</span>
+                <span className="text-xs font-black text-zinc-600 uppercase tracking-widest">Link Status: Optimal</span>
              </div>
              <div className="flex items-center gap-3">
                 <Cpu className="w-4 h-4 text-fuchsia-500" />
-                <span className="text-[9px] font-black text-zinc-600 uppercase tracking-widest">Latency: 142ms</span>
+                <span className="text-xs font-black text-zinc-600 uppercase tracking-widest">Latency: 142ms</span>
              </div>
              <div className="flex items-center gap-3">
                 <Database className="w-4 h-4 text-amber-500" />
-                <span className="text-[9px] font-black text-zinc-600 uppercase tracking-widest">Registry Sync Active</span>
+                <span className="text-xs font-black text-zinc-600 uppercase tracking-widest">Registry Sync Active</span>
              </div>
           </div>
         </div>
@@ -163,8 +163,8 @@ export default function ProjectWizard() {
           
           <div className="max-w-xl mx-auto mb-20 space-y-6">
             <div className="flex items-center justify-between px-2">
-               <label className="text-[10px] font-black text-zinc-700 uppercase tracking-[0.4em]">Blueprint Identity</label>
-               <span className="text-[9px] font-black text-zinc-800 uppercase tracking-widest tabular-nums">REG-ID: #8842-ARCHIVE</span>
+               <label className="text-xs font-black text-zinc-700 uppercase tracking-[0.4em]">Blueprint Identity</label>
+               <span className="text-xs font-black text-zinc-800 uppercase tracking-widest tabular-nums">REG-ID: #8842-ARCHIVE</span>
             </div>
             <div className="relative">
                <input 
@@ -205,16 +205,16 @@ export default function ProjectWizard() {
 
                 <div className="space-y-4 relative z-10 flex-grow">
                    <div className="space-y-1">
-                      <span className="text-[9px] font-black text-zinc-700 uppercase tracking-[0.4em]">{opt.nodeId}</span>
+                      <span className="text-xs font-black text-zinc-700 uppercase tracking-[0.4em]">{opt.nodeId}</span>
                       <h3 className="text-xl font-black text-white uppercase italic tracking-tighter group-hover:text-studio transition-colors">{opt.title}</h3>
                    </div>
-                   <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest leading-relaxed">
+                   <p className="text-xs text-zinc-600 font-bold uppercase tracking-widest leading-relaxed">
                       {opt.description}
                    </p>
                 </div>
 
                 <div className="mt-12 flex items-center justify-between pt-6 border-t border-white/5 relative z-10">
-                  <div className="flex items-center gap-3 text-[10px] font-black text-zinc-700 uppercase tracking-[0.3em] group-hover:text-white transition-colors">
+                  <div className="flex items-center gap-3 text-xs font-black text-zinc-700 uppercase tracking-[0.3em] group-hover:text-white transition-colors">
                     Initialize <ArrowRight className="w-4 h-4" />
                   </div>
                   <ChevronRight className="w-5 h-5 text-zinc-800 group-hover:text-studio transition-colors" />
@@ -233,14 +233,14 @@ export default function ProjectWizard() {
                 className="mt-12 p-6 rounded-[1.5rem] bg-red-500/10 border border-red-500/20 flex items-center justify-center gap-4 mx-auto max-w-xl"
               >
                  <AlertCircle className="w-5 h-5 text-red-500" />
-                 <p className="text-[10px] font-black text-red-500 uppercase tracking-widest">{error}</p>
+                 <p className="text-xs font-black text-red-500 uppercase tracking-widest">{error}</p>
               </motion.div>
             )}
           </AnimatePresence>
         </div>
 
         {/* 3. TERMINAL FOOTER */}
-        <footer className="mt-10 flex flex-col md:flex-row items-center justify-between gap-8 text-[9px] font-black text-zinc-700 uppercase tracking-[0.4em]">
+        <footer className="mt-10 flex flex-col md:flex-row items-center justify-between gap-8 text-xs font-black text-zinc-700 uppercase tracking-[0.4em]">
            <div className="flex items-center gap-4">
               <ShieldCheck className="w-4 h-4 text-emerald-500" />
               <span>Verified Production Link: #ASP-8842-X</span>

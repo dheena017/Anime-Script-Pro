@@ -179,7 +179,7 @@ export const ProductionCore = React.memo<ProductionCoreProps>((props) => {
                   <Brain className="w-5 h-5 animate-pulse" />
                   Creative Engine
                 </h1>
-                <p className={cn("text-[10px] font-bold uppercase tracking-widest flex items-center gap-2", colors.primary, "opacity-60")}>
+                <p className={cn("text-xs font-bold uppercase tracking-widest flex items-center gap-2", colors.primary, "opacity-60")}>
                   <span className="w-4 h-[1px] bg-zinc-800" /> System Configuration
                 </p>
               </div>
@@ -205,10 +205,10 @@ export const ProductionCore = React.memo<ProductionCoreProps>((props) => {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <RefreshCcw className={cn("w-3 h-3 animate-spin", colors.primary)} />
-                      <span className={cn("text-[9px] font-black uppercase tracking-widest", colors.primary)}>AI Connected</span>
+                      <span className={cn("text-xs font-black uppercase tracking-widest", colors.primary)}>AI Connected</span>
                     </div>
                     {fallbackHistory.length > 0 && (
-                      <div className="px-2 py-0.5 bg-amber-500/10 border border-amber-500/20 rounded text-[8px] font-black text-amber-500 uppercase tracking-tighter flex items-center gap-1">
+                      <div className="px-2 py-0.5 bg-amber-500/10 border border-amber-500/20 rounded text-xs font-black text-amber-500 uppercase tracking-tighter flex items-center gap-1">
                         <AlertCircle className="w-2.5 h-2.5" />
                         Fallback Mode
                       </div>
@@ -216,7 +216,7 @@ export const ProductionCore = React.memo<ProductionCoreProps>((props) => {
                   </div>
 
                   <div className="space-y-1">
-                    <p className="text-[10px] font-bold text-white uppercase tracking-wider">
+                    <p className="text-xs font-bold text-white uppercase tracking-wider">
                       Current: <span className={colors.primary}>{activeModelAttempt || selectedModel}</span>
                     </p>
                   </div>
@@ -232,7 +232,7 @@ export const ProductionCore = React.memo<ProductionCoreProps>((props) => {
 
               {/* QUICK TEMPLATES */}
               <div className="space-y-2">
-                <label className={cn("text-[11px] font-black uppercase tracking-[0.2em] flex items-center gap-2 glow-text", colors.primary)}>
+                <label className={cn("text-xs font-black uppercase tracking-[0.2em] flex items-center gap-2 glow-text", colors.primary)}>
                   <Sparkles className="w-3.5 h-3.5" />
                   QUICK TEMPLATES
                 </label>
@@ -267,7 +267,7 @@ export const ProductionCore = React.memo<ProductionCoreProps>((props) => {
 
               {/* CONCEPT */}
               <div className="space-y-2">
-                <label className={cn("text-[11px] font-black uppercase tracking-[0.2em] flex items-center gap-2 transition-colors glow-text", colors.primary)}>
+                <label className={cn("text-xs font-black uppercase tracking-[0.2em] flex items-center gap-2 transition-colors glow-text", colors.primary)}>
                   <Target className="w-3.5 h-3.5" />
                   CONCEPT
                 </label>
@@ -279,7 +279,7 @@ export const ProductionCore = React.memo<ProductionCoreProps>((props) => {
                     onChange={(e) => setPrompt(e.target.value)}
                   />
                   <button onClick={() => setPrompt('')} className="absolute top-2 right-2 p-1.5 opacity-0 group-hover:opacity-100 text-zinc-700 hover:text-white transition-all">
-                    <span className="text-[10px] font-black uppercase mr-2">Clear</span>
+                    <span className="text-xs font-black uppercase mr-2">Clear</span>
                     <X className="w-3 h-3" />
                   </button>
                 </div>
@@ -296,11 +296,11 @@ export const ProductionCore = React.memo<ProductionCoreProps>((props) => {
                   onChange={(val) => { if (val) setTone(val); }}
                 />
                 <div className="space-y-1 col-span-2">
-                  <label className={cn("text-[9px] font-black uppercase tracking-[0.2em] flex items-center gap-2", colors.primary, "opacity-40")}>
+                  <label className={cn("text-xs font-black uppercase tracking-[0.2em] flex items-center gap-2", colors.primary, "opacity-40")}>
                     <Users className="w-3 h-3" /> AUDIENCE
                   </label>
                   <Select value={audience} onValueChange={(val) => { if (val) setAudience(val); }}>
-                    <SelectTrigger className={cn("h-9 bg-black border text-zinc-200 text-[10px] font-bold uppercase rounded-xl", colors.border)}>
+                    <SelectTrigger className={cn("h-9 bg-black border text-zinc-200 text-xs font-bold uppercase rounded-xl", colors.border)}>
                       <SelectValue placeholder="Audience" />
                     </SelectTrigger>
                     <SelectContent className="bg-zinc-950 border-zinc-800">

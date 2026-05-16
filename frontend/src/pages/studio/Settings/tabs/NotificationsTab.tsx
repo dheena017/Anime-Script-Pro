@@ -36,7 +36,7 @@ export const NotificationsTab: React.FC = () => {
                 </div>
                 <div className="space-y-1">
                   <h3 className="text-xs font-black text-white uppercase tracking-widest">{item.label}</h3>
-                  <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest leading-relaxed">
+                  <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest leading-relaxed">
                     {item.desc}
                   </p>
                 </div>
@@ -58,7 +58,7 @@ export const NotificationsTab: React.FC = () => {
           </div>
           <div>
             <h3 className="text-sm font-black text-white uppercase tracking-widest mb-1">Global Signal Mute</h3>
-            <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Temporarily silence all incoming neural transmissions</p>
+            <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Temporarily silence all incoming neural transmissions</p>
           </div>
         </div>
         <Button variant="outline" className="rounded-xl px-8 h-12 border-[#bd4a4a]/30 hover:bg-[#bd4a4a]/10 text-[#bd4a4a] font-black uppercase tracking-widest">

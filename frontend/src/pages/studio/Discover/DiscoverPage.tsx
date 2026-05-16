@@ -87,15 +87,15 @@ export default function DiscoverPage() {
       <div className="flex items-center gap-3">
         <Sparkles className="w-4 h-4 text-[#bd4a4a]" />
         <div>
-          <p className="text-[7px] font-black text-zinc-500 uppercase tracking-widest leading-none">Discover Mode</p>
-          <p className="text-[10px] font-black text-white uppercase tracking-tight">AI-Enhanced Curation Active</p>
+          <p className="text-xs font-black text-zinc-500 uppercase tracking-widest leading-none">Discover Mode</p>
+          <p className="text-xs font-black text-white uppercase tracking-tight">AI-Enhanced Curation Active</p>
         </div>
       </div>
       <div className="flex items-center gap-3">
         <TrendingUp className="w-4 h-4 text-[#bd4a4a]" />
         <div>
-          <p className="text-[7px] font-black text-zinc-500 uppercase tracking-widest leading-none">Global Trends</p>
-          <p className="text-[10px] font-black text-white uppercase tracking-tight">42 New Assets Indexed Today</p>
+          <p className="text-xs font-black text-zinc-500 uppercase tracking-widest leading-none">Global Trends</p>
+          <p className="text-xs font-black text-white uppercase tracking-tight">42 New Assets Indexed Today</p>
         </div>
       </div>
     </>

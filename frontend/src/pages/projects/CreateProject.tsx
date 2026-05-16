@@ -81,10 +81,10 @@ export default function CreateProject() {
         <header className="text-center space-y-6">
           <div className="flex items-center justify-center gap-3 opacity-50">
             <div className="w-8 h-[1px] bg-studio" />
-            <span className="text-[9px] font-black uppercase tracking-[0.6em] text-studio">Node Initialization</span>
+            <span className="text-xs font-black uppercase tracking-[0.6em] text-studio">Node Initialization</span>
             <div className="w-8 h-[1px] bg-studio" />
           </div>
-          <h1 className="text-6xl md:text-8xl font-black uppercase italic tracking-tighter leading-none">
+          <h1 className="text-3xl md:text-4xl font-black uppercase italic tracking-tighter leading-none">
             New <span className="text-studio">Nexus.</span>
           </h1>
         </header>
@@ -99,7 +99,7 @@ export default function CreateProject() {
           >
             {/* TITLE */}
             <div className="space-y-4">
-              <label className="text-[9px] font-black uppercase text-zinc-500 tracking-[0.4em] ml-2">Project Identifier</label>
+              <label className="text-xs font-black uppercase text-zinc-500 tracking-[0.4em] ml-2">Project Identifier</label>
               <div className="relative">
                 <input
                   required
@@ -107,7 +107,7 @@ export default function CreateProject() {
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="ENTER PROJECT TITLE..."
-                  className={cn(s.textInput, "text-4xl md:text-5xl py-10 border-white/5 bg-white/[0.02]")}
+                  className={cn(s.textInput, "text-4xl md:text-2xl py-10 border-white/5 bg-white/[0.02]")}
                 />
               </div>
             </div>
@@ -115,7 +115,7 @@ export default function CreateProject() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
               {/* GENRE */}
               <div className="space-y-4">
-                <label className="text-[9px] font-black uppercase text-zinc-500 tracking-[0.4em] ml-2">Production Genre</label>
+                <label className="text-xs font-black uppercase text-zinc-500 tracking-[0.4em] ml-2">Production Genre</label>
                 <div className="relative">
                    <select
                     value={genre}
@@ -130,7 +130,7 @@ export default function CreateProject() {
 
               {/* PROTOCOL LENGTH */}
               <div className="space-y-4">
-                <label className="text-[9px] font-black uppercase text-zinc-500 tracking-[0.4em] ml-2">Protocol Length</label>
+                <label className="text-xs font-black uppercase text-zinc-500 tracking-[0.4em] ml-2">Protocol Length</label>
                 <div className={cn(s.toggleButtonGroup, "bg-white/[0.02] border-white/5 p-2")}>
                   {['SHORT', 'FULL'].map((type) => (
                     <button
@@ -151,7 +151,7 @@ export default function CreateProject() {
 
             {/* DESCRIPTION */}
             <div className="space-y-4">
-              <label className="text-[9px] font-black uppercase text-zinc-500 tracking-[0.4em] ml-2">Narrative Core</label>
+              <label className="text-xs font-black uppercase text-zinc-500 tracking-[0.4em] ml-2">Narrative Core</label>
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
@@ -172,7 +172,7 @@ export default function CreateProject() {
                   exit={{ opacity: 0, y: 10 }}
                   className="p-8 rounded-3xl bg-red-500/5 border border-red-500/10 flex items-center justify-center"
                 >
-                   <p className="text-red-500 text-[10px] font-black uppercase tracking-[0.2em]">{error}</p>
+                   <p className="text-red-500 text-xs font-black uppercase tracking-[0.2em]">{error}</p>
                 </motion.div>
               )}
             </AnimatePresence>

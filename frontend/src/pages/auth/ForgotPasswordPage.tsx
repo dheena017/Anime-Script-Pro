@@ -42,7 +42,7 @@ export function ForgotPasswordPage() {
         <div className="p-2 rounded-xl bg-gradient-to-br from-zinc-900 to-black border border-zinc-800/50 group-hover:border-studio/50 group-hover:shadow-lg group-hover:shadow-studio/20 transition-all">
           <ArrowLeft className="w-4 h-4" />
         </div>
-        <span className="text-[10px] uppercase font-bold tracking-[0.2em]">Back to Login</span>
+        <span className="text-xs uppercase font-bold tracking-[0.2em]">Back to Login</span>
       </motion.button>
 
       <motion.div
@@ -68,7 +68,7 @@ export function ForgotPasswordPage() {
           transition={{ delay: 0.6 }}
           className="mt-8 flex items-center justify-between px-6 opacity-40 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-700 group"
         >
-          <div className="flex items-center gap-4 text-[9px] font-black uppercase tracking-widest text-zinc-500">
+          <div className="flex items-center gap-4 text-xs font-black uppercase tracking-widest text-zinc-500">
             <motion.div
               className="flex items-center gap-1.5 group-hover:text-studio transition-colors"
               whileHover={{ scale: 1.1 }}
@@ -85,7 +85,7 @@ export function ForgotPasswordPage() {
             </motion.div>
           </div>
           <motion.p
-            className="text-[9px] uppercase tracking-[0.3em] font-black text-zinc-600"
+            className="text-xs uppercase tracking-[0.3em] font-black text-zinc-600"
             animate={{ opacity: [0.6, 1, 0.6] }}
             transition={{ duration: 3, repeat: Infinity }}
           >

@@ -24,7 +24,7 @@ export function AddPromptModal({ open, onOpenChange, newPrompt, setNewPrompt, on
         </DialogHeader>
         <div className="space-y-8 py-10">
           <div className="space-y-3">
-            <Label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Protocol Name</Label>
+            <Label className="text-xs font-black text-zinc-500 uppercase tracking-widest">Protocol Name</Label>
             <Input
               value={newPrompt.label}
               onChange={(e) => setNewPrompt({ ...newPrompt, label: e.target.value })}
@@ -33,7 +33,7 @@ export function AddPromptModal({ open, onOpenChange, newPrompt, setNewPrompt, on
             />
           </div>
           <div className="space-y-3">
-            <Label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Directives (AI Text)</Label>
+            <Label className="text-xs font-black text-zinc-500 uppercase tracking-widest">Directives (AI Text)</Label>
             <textarea
               value={newPrompt.text}
               onChange={(e) => setNewPrompt({ ...newPrompt, text: e.target.value })}

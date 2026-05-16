@@ -73,7 +73,7 @@ export const TemplateDetailModal: React.FC<TemplateDetailModalProps> = ({
                <template.icon className={cn("w-8 h-8", template.color)} />
              </div>
              <div>
-               <Badge className="bg-studio text-black border-studio shadow-studio/20 text-[10px] uppercase font-black px-3 py-1 mb-2">
+               <Badge className="bg-studio text-black border-studio shadow-studio/20 text-xs uppercase font-black px-3 py-1 mb-2">
                  {template.category} Standard
                </Badge>
                <h3 className="text-4xl font-black text-white uppercase tracking-tighter drop-shadow-2xl">{template.label}</h3>
@@ -89,17 +89,17 @@ export const TemplateDetailModal: React.FC<TemplateDetailModalProps> = ({
             </h4>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                <div className={s.modalInfoCard}>
-                 <p className="text-[9px] text-zinc-600 font-bold uppercase">Usage</p>
+                 <p className="text-xs text-zinc-600 font-bold uppercase">Usage</p>
                  <p className="text-sm text-zinc-200 font-mono font-bold">{template.stats?.deployed}</p>
                  <TrendingUp className="w-3 h-3 text-studio/50" />
                </div>
                <div className={s.modalInfoCard}>
-                 <p className="text-[9px] text-zinc-600 font-bold uppercase">Success</p>
+                 <p className="text-xs text-zinc-600 font-bold uppercase">Success</p>
                  <p className="text-sm text-green-400 font-mono font-bold">{template.stats?.success}</p>
                  <CheckCircle className="w-3 h-3 text-green-500/50" />
                </div>
                <div className={s.modalInfoCard}>
-                 <p className="text-[9px] text-zinc-600 font-bold uppercase">Logic</p>
+                 <p className="text-xs text-zinc-600 font-bold uppercase">Logic</p>
                  <p className={cn("text-sm font-mono font-bold", template.color)}>{template.stats?.complexity}</p>
                  <Cpu className={cn("w-3 h-3 opacity-50", template.color)} />
                </div>
@@ -113,11 +113,11 @@ export const TemplateDetailModal: React.FC<TemplateDetailModalProps> = ({
               </h4>
               <div className="space-y-2">
                  <div className={s.modalDetailRow}>
-                   <span className="text-[10px] text-zinc-500 font-bold uppercase">Contrast</span>
+                   <span className="text-xs text-zinc-500 font-bold uppercase">Contrast</span>
                    <span className="text-xs text-white font-mono">High/Noir</span>
                  </div>
                  <div className={s.modalDetailRow}>
-                   <span className="text-[10px] text-zinc-500 font-bold uppercase">Focus</span>
+                   <span className="text-xs text-zinc-500 font-bold uppercase">Focus</span>
                    <span className="text-xs text-white font-mono">Character-Centric</span>
                  </div>
               </div>
@@ -128,11 +128,11 @@ export const TemplateDetailModal: React.FC<TemplateDetailModalProps> = ({
               </h4>
               <div className="space-y-2">
                  <div className={s.modalDetailRow}>
-                   <span className="text-[10px] text-zinc-500 font-bold uppercase">BGM</span>
+                   <span className="text-xs text-zinc-500 font-bold uppercase">BGM</span>
                    <span className="text-xs text-white font-mono">Hybrid Synths</span>
                  </div>
                  <div className={s.modalDetailRow}>
-                   <span className="text-[10px] text-zinc-500 font-bold uppercase">Mix</span>
+                   <span className="text-xs text-zinc-500 font-bold uppercase">Mix</span>
                    <span className="text-xs text-white font-mono">Bass-Driven</span>
                  </div>
               </div>

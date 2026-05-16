@@ -28,7 +28,7 @@ export const CompositionTab: React.FC<CompositionTabProps> = ({ scenes }) => {
         </div>
         <div>
           <h2 className="text-3xl font-black text-white uppercase tracking-tighter">Composition Suite</h2>
-          <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-[0.3em] mt-1">
+          <p className="text-zinc-500 text-xs font-bold uppercase tracking-[0.3em] mt-1">
             Scene timeline, visual moodboard, and spatial arrangement
           </p>
         </div>
@@ -39,7 +39,7 @@ export const CompositionTab: React.FC<CompositionTabProps> = ({ scenes }) => {
         <SceneTimeline scenes={scenes} />
       ) : (
         <div className="py-10 text-center">
-          <p className="text-zinc-600 text-[10px] font-black uppercase tracking-widest">
+          <p className="text-zinc-600 text-xs font-black uppercase tracking-widest">
             No scenes found — generate a script and parse the storyboard first.
           </p>
         </div>

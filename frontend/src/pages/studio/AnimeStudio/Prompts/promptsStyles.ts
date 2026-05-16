@@ -14,9 +14,9 @@ export const promptsStyles = {
     icon: "w-7 h-7 text-red-400 relative z-10 drop-shadow-[0_6px_20px_rgba(239,68,68,0.18)]",
     title: "header-title text-white font-extrabold uppercase tracking-widest text-lg",
     subtitle: "header-subtitle text-sm text-red-300/60",
-    actionButton: "relative w-full sm:w-auto h-10 px-6 rounded-full border border-white/10 bg-white/5 text-zinc-400 hover:bg-white/10 hover:border-red-500/50 hover:text-red-400 font-black uppercase tracking-widest text-[9px] transition-all duration-300 group/back shadow-lg",
-    actionButtonDanger: "relative w-full sm:w-auto h-10 px-6 rounded-full border border-red-500/30 bg-red-500/10 text-red-400 hover:bg-red-500/15 hover:border-red-500/60 hover:text-red-300 font-black uppercase tracking-widest text-[9px] transition-all duration-300 group/stop shadow-lg",
-    actionButtonPrimary: "relative w-full sm:w-auto h-10 px-8 rounded-full border border-red-500/30 bg-red-500/5 text-red-400 hover:bg-red-500/10 hover:border-red-500/60 hover:text-red-300 font-black uppercase tracking-widest text-[9px] transition-all duration-300 group/btn shadow-lg",
+    actionButton: "relative w-full sm:w-auto h-10 px-6 rounded-full border border-white/10 bg-white/5 text-zinc-400 hover:bg-white/10 hover:border-red-500/50 hover:text-red-400 font-black uppercase tracking-widest text-xs transition-all duration-300 group/back shadow-lg",
+    actionButtonDanger: "relative w-full sm:w-auto h-10 px-6 rounded-full border border-red-500/30 bg-red-500/10 text-red-400 hover:bg-red-500/15 hover:border-red-500/60 hover:text-red-300 font-black uppercase tracking-widest text-xs transition-all duration-300 group/stop shadow-lg",
+    actionButtonPrimary: "relative w-full sm:w-auto h-10 px-8 rounded-full border border-red-500/30 bg-red-500/5 text-red-400 hover:bg-red-500/10 hover:border-red-500/60 hover:text-red-300 font-black uppercase tracking-widest text-xs transition-all duration-300 group/btn shadow-lg",
   },
 
   // --- TOOLBAR SECTION ---
@@ -27,8 +27,8 @@ export const promptsStyles = {
     statusIcon: "toolbar-status-icon",
     statusActive: "text-red-400 drop-shadow-[0_0_8px_rgba(239,68,68,0.6)]",
     statusInactive: "text-zinc-600",
-    statusTitle: "text-[10px] font-black uppercase tracking-[0.2em] bg-gradient-to-r from-red-300 to-red-500 bg-clip-text text-transparent",
-    statusSubtitle: "text-[8px] font-bold text-zinc-500 uppercase tracking-widest",
+    statusTitle: "text-xs font-black uppercase tracking-[0.2em] bg-gradient-to-r from-red-300 to-red-500 bg-clip-text text-transparent",
+    statusSubtitle: "text-xs font-bold text-zinc-500 uppercase tracking-widest",
     actionGroup: "toolbar-action-group",
     btnGroup: "toolbar-btn-group",
     iconButton: "h-9 w-9 rounded-lg text-zinc-400 hover:text-cyan-400 border border-transparent hover:border-cyan-400/40 hover:bg-cyan-500/10 transition-all duration-300 group relative overflow-hidden",

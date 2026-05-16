@@ -36,7 +36,7 @@ export const NavItem: React.FC<NavItemProps> = ({
           />
         )}
         
-        <span className="text-[10px] font-black uppercase tracking-[0.2em] relative z-10">{label}</span>
+        <span className="text-xs font-black uppercase tracking-[0.2em] relative z-10">{label}</span>
         
         {children && (
           <ChevronDown
@@ -103,12 +103,12 @@ export const DropdownLink: React.FC<DropdownLinkProps> = ({
           {title}
         </span>
         {badge && (
-          <span className="px-2 py-0.5 rounded-full bg-studio/10 border border-studio/20 text-studio text-[8px] font-black uppercase tracking-widest">
+          <span className="px-2 py-0.5 rounded-full bg-studio/10 border border-studio/20 text-studio text-xs font-black uppercase tracking-widest">
             {badge}
           </span>
         )}
       </div>
-      <span className="text-[10px] text-zinc-600 font-medium leading-tight group-hover:text-zinc-400 transition-colors uppercase tracking-tight">
+      <span className="text-xs text-zinc-600 font-medium leading-tight group-hover:text-zinc-400 transition-colors uppercase tracking-tight">
         {description}
       </span>
     </div>

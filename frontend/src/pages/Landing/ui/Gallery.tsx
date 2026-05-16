@@ -39,9 +39,9 @@ export const Gallery: React.FC<GalleryProps> = ({
         <div className="space-y-4 text-left">
            <div className="flex items-center gap-2">
               <div className="w-1.5 h-1.5 rounded-full bg-studio" />
-              <span className="text-[10px] font-black text-studio uppercase tracking-[0.4em]">Intelligence Layer</span>
+              <span className="text-xs font-black text-studio uppercase tracking-[0.4em]">Intelligence Layer</span>
            </div>
-           <h2 className="text-4xl md:text-6xl font-black text-white uppercase italic tracking-tighter">Gallery Archive</h2>
+           <h2 className="text-4xl md:text-3xl font-black text-white uppercase italic tracking-tighter">Gallery Archive</h2>
            <p className="text-zinc-500 text-xs font-bold uppercase tracking-[0.2em] max-w-md leading-relaxed">
              A high-bandwidth feed of historical transmissions synthesized by global architects.
            </p>
@@ -52,7 +52,7 @@ export const Gallery: React.FC<GalleryProps> = ({
            <button 
             onClick={() => setFilter('ALL')}
             className={cn(
-              "px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest border transition-all",
+              "px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest border transition-all",
               filter === 'ALL' ? "bg-white text-black border-white" : "bg-zinc-900 border-zinc-800 text-zinc-600 hover:text-zinc-400"
             )}
            >
@@ -63,7 +63,7 @@ export const Gallery: React.FC<GalleryProps> = ({
               key={style.label}
               onClick={() => setFilter(style.label)}
               className={cn(
-                "px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest border transition-all",
+                "px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest border transition-all",
                 filter === style.label ? "bg-studio text-black border-studio shadow-[0_0_15px_rgba(6,182,212,0.3)]" : "bg-zinc-900 border-zinc-800 text-zinc-600 hover:text-zinc-400"
               )}
              >
@@ -97,21 +97,21 @@ export const Gallery: React.FC<GalleryProps> = ({
               {/* METADATA OVERLAY (IDLE) */}
               <div className="absolute top-4 left-4 z-20 flex items-center gap-2 bg-black/80 px-3 py-1.5 rounded-full border border-white/10 opacity-100 group-hover:opacity-0 transition-opacity">
                  <Globe className="w-3 h-3 text-studio" />
-                 <span className="text-[9px] font-black text-white uppercase tracking-widest">{item.node || 'NODE-01'}</span>
+                 <span className="text-xs font-black text-white uppercase tracking-widest">{item.node || 'NODE-01'}</span>
               </div>
 
               {/* INTERACTION OVERLAY (HOVER) */}
               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent opacity-0 group-hover:opacity-100 flex flex-col justify-end p-8 transition-all duration-500">
                 <div className="space-y-4 translate-y-8 group-hover:translate-y-0 transition-transform duration-500">
                    <div className="space-y-1">
-                      <span className="text-[9px] font-black text-studio uppercase tracking-[0.4em]">DIRECTIVE</span>
+                      <span className="text-xs font-black text-studio uppercase tracking-[0.4em]">DIRECTIVE</span>
                       <p className="text-white text-sm font-bold leading-relaxed italic">"{item.prompt}"</p>
                    </div>
                    
                    <div className="flex items-center justify-between pt-4 border-t border-white/10">
                       <div className="flex flex-col">
-                         <span className="text-[8px] font-black text-zinc-500 uppercase tracking-widest">Architect</span>
-                         <span className="text-[10px] font-black text-white uppercase italic">{item.architect || 'ANONYMOUS'}</span>
+                         <span className="text-xs font-black text-zinc-500 uppercase tracking-widest">Architect</span>
+                         <span className="text-xs font-black text-white uppercase italic">{item.architect || 'ANONYMOUS'}</span>
                       </div>
                       <div className="flex gap-2">
                          <button 
@@ -150,12 +150,12 @@ export const Gallery: React.FC<GalleryProps> = ({
                   <div className="w-10 h-10 rounded-full bg-studio/10 border border-studio/20 flex items-center justify-center text-studio">
                      <Zap className="w-5 h-5 fill-studio" />
                   </div>
-                  <p className="text-zinc-500 text-[10px] uppercase tracking-[0.4em] font-black">Sync Directive</p>
+                  <p className="text-zinc-500 text-xs uppercase tracking-[0.4em] font-black">Sync Directive</p>
                </div>
                <p className="text-xl md:text-2xl text-white font-black italic max-w-3xl mx-auto">"{activePrompt}"</p>
                <Button
                  onClick={onTryPrompt}
-                 className="h-16 px-12 bg-studio text-black font-black uppercase tracking-[0.3em] text-[11px] rounded-[2rem] shadow-[0_20px_50px_rgba(6,182,212,0.3)] hover:bg-white hover:scale-105 transition-all"
+                 className="h-16 px-12 bg-studio text-black font-black uppercase tracking-[0.3em] text-xs rounded-[2rem] shadow-[0_20px_50px_rgba(6,182,212,0.3)] hover:bg-white hover:scale-105 transition-all"
                >
                  INITIALIZE TRANSMISSION <ArrowRight className="ml-3 w-5 h-5" />
                </Button>

@@ -80,7 +80,7 @@ export const ScreeningHeader: React.FC<ScreeningHeaderProps> = ({
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent side="top">
-                    <p className="font-black uppercase tracking-widest text-[9px]">Return to Prompt Oracle</p>
+                    <p className="font-black uppercase tracking-widest text-xs">Return to Prompt Oracle</p>
                   </TooltipContent>
                 </Tooltip>
               )}

@@ -65,7 +65,7 @@ export default function RelationshipViewPage() {
             </Button>
             <Button
                onClick={() => navigate(`/${contentType.toLowerCase()}/cast/relationships/${relationshipId}/edit`)}
-               className="bg-fuchsia-500/10 border border-fuchsia-500/30 text-fuchsia-500 hover:bg-fuchsia-500 hover:text-white transition-all font-black uppercase tracking-widest text-[10px] px-6 h-10 rounded-xl"
+               className="bg-fuchsia-500/10 border border-fuchsia-500/30 text-fuchsia-500 hover:bg-fuchsia-500 hover:text-white transition-all font-black uppercase tracking-widest text-xs px-6 h-10 rounded-xl"
             >
                <Edit3 className="w-3.5 h-3.5 mr-2" /> Modify Connection
             </Button>
@@ -82,7 +82,7 @@ export default function RelationshipViewPage() {
                         <Workflow className="w-10 h-10" />
                      </div>
                      <h2 className="text-4xl font-black text-white uppercase tracking-tighter">{connection.source}</h2>
-                     <p className="text-[10px] font-black text-zinc-600 uppercase tracking-widest">Source Entity</p>
+                     <p className="text-xs font-black text-zinc-600 uppercase tracking-widest">Source Entity</p>
                   </div>
 
                   <div className="flex flex-col items-center gap-4 py-8">
@@ -99,7 +99,7 @@ export default function RelationshipViewPage() {
                      </div>
                      <div className="flex items-center gap-2 px-4 py-1.5 bg-black/40 border border-white/5 rounded-full">
                         <Activity className={`w-3 h-3 ${isHighTension ? 'text-red-500' : 'text-fuchsia-500'}`} />
-                        <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Tension Index: {connection.tension}/10</span>
+                        <span className="text-xs font-black text-zinc-500 uppercase tracking-widest">Tension Index: {connection.tension}/10</span>
                      </div>
                   </div>
 
@@ -108,7 +108,7 @@ export default function RelationshipViewPage() {
                         <Workflow className="w-10 h-10" />
                      </div>
                      <h2 className="text-4xl font-black text-white uppercase tracking-tighter">{connection.target}</h2>
-                     <p className="text-[10px] font-black text-zinc-600 uppercase tracking-widest">Target Entity</p>
+                     <p className="text-xs font-black text-zinc-600 uppercase tracking-widest">Target Entity</p>
                   </div>
                </div>
             </div>
@@ -130,18 +130,18 @@ export default function RelationshipViewPage() {
 
                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <Card className="p-8 bg-zinc-900/40 border-white/5 space-y-4">
-                     <p className="text-[10px] font-black text-zinc-600 uppercase tracking-widest">Narrative Weight</p>
+                     <p className="text-xs font-black text-zinc-600 uppercase tracking-widest">Narrative Weight</p>
                      <p className="text-sm text-zinc-400 leading-relaxed font-medium italic">
                         {connection.tension > 7 ? "[HIGH_TENSION_PATHWAY]: Significant conflict probability detected in current scene manifests." : "[STABLE_CONNECTION]: Standard social resonance maintained."}
                      </p>
                   </Card>
                   <Card className="p-8 bg-zinc-900/40 border-white/5 space-y-4">
-                     <p className="text-[10px] font-black text-zinc-600 uppercase tracking-widest">Conflict Probability</p>
+                     <p className="text-xs font-black text-zinc-600 uppercase tracking-widest">Conflict Probability</p>
                      <div className="flex items-center justify-between">
                         <span className="text-2xl font-black text-white">{connection.tension * 10}%</span>
                         <div className={`w-12 h-1.5 rounded-full ${isHighTension ? 'bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.5)]' : 'bg-fuchsia-500'}`} />
                      </div>
-                     <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Real-time Synthesis Calculation</p>
+                     <p className="text-xs text-zinc-500 font-bold uppercase tracking-widest">Real-time Synthesis Calculation</p>
                   </Card>
                </div>
             </div>
@@ -150,15 +150,15 @@ export default function RelationshipViewPage() {
                <div className="p-8 bg-fuchsia-500/5 border border-fuchsia-500/10 rounded-[2.5rem] space-y-6">
                   <div className="flex items-center gap-3 text-fuchsia-400">
                      <AlertTriangle className="w-4 h-4" />
-                     <span className="text-[10px] font-black uppercase tracking-widest">Architect Advisory</span>
+                     <span className="text-xs font-black uppercase tracking-widest">Architect Advisory</span>
                   </div>
                   <p className="text-xs text-zinc-400 leading-relaxed font-medium italic">
                      "Connections with high tension indices are prime candidates for Mid-Season Climax manifestation."
                   </p>
                   <div className="h-[1px] bg-fuchsia-500/10" />
                   <div className="space-y-2">
-                     <p className="text-[8px] font-black text-zinc-600 uppercase tracking-[0.2em]">Manifestation UUID</p>
-                     <p className="text-[10px] font-mono text-fuchsia-500/50">{connection.id.toUpperCase()}</p>
+                     <p className="text-xs font-black text-zinc-600 uppercase tracking-[0.2em]">Manifestation UUID</p>
+                     <p className="text-xs font-mono text-fuchsia-500/50">{connection.id.toUpperCase()}</p>
                   </div>
                </div>
             </div>

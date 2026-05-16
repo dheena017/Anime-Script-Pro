@@ -93,7 +93,7 @@ export function SeriesLoadingPage({ tab, title, description, progress, error }: 
                   Generation Error
                 </p>
               </div>
-              <p className="text-[10px] font-bold text-red-400 bg-red-500/10 px-4 py-2 rounded-xl border border-red-500/20 max-w-md">
+              <p className="text-xs font-bold text-red-400 bg-red-500/10 px-4 py-2 rounded-xl border border-red-500/20 max-w-md">
                 {error}
               </p>
             </div>
@@ -108,7 +108,7 @@ export function SeriesLoadingPage({ tab, title, description, progress, error }: 
         </div>
 
         {/* Description */}
-        <p className="mb-8 text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500">
+        <p className="mb-8 text-xs font-bold uppercase tracking-[0.2em] text-zinc-500">
           {meta.description}
         </p>
 
@@ -126,10 +126,10 @@ export function SeriesLoadingPage({ tab, title, description, progress, error }: 
         </div>
 
         {/* Status Text */}
-        <div className={`flex items-center justify-center gap-2 text-[9px] font-black uppercase tracking-[0.2em] ${error ? 'text-red-400' : meta.color}`}>
+        <div className={`flex items-center justify-center gap-2 text-xs font-black uppercase tracking-[0.2em] ${error ? 'text-red-400' : meta.color}`}>
           {!error && <div className={`h-2 w-2 rounded-full ${meta.accentColor} animate-pulse`} />}
           {error ? 'Production process halted' : 'AI is planning your series'}
-          {!error && <span className="ml-2 text-[10px] font-black text-zinc-400">{Math.round(typeof progress === 'number' ? progress : localProgress)}%</span>}
+          {!error && <span className="ml-2 text-xs font-black text-zinc-400">{Math.round(typeof progress === 'number' ? progress : localProgress)}%</span>}
         </div>
       </div>
     </div>

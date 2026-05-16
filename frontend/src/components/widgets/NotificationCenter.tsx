@@ -58,13 +58,13 @@ export function NotificationCenter() {
             <div className="p-4 border-b border-zinc-800 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <h3 className="text-sm font-black text-white uppercase tracking-widest">Transmissions</h3>
-                <span className="text-[10px] bg-zinc-800 text-zinc-400 px-1.5 py-0.5 rounded font-black">
+                <span className="text-xs bg-zinc-800 text-zinc-400 px-1.5 py-0.5 rounded font-black">
                   {unreadCount} NEW
                 </span>
               </div>
               <button 
                 onClick={markAllAsRead}
-                className="text-[10px] text-[#bd4a4a] hover:text-white transition-colors font-black uppercase tracking-widest"
+                className="text-xs text-[#bd4a4a] hover:text-white transition-colors font-black uppercase tracking-widest"
               >
                 Sync All
               </button>
@@ -77,7 +77,7 @@ export function NotificationCenter() {
                     <Bell className="w-5 h-5 text-zinc-600" />
                   </div>
                   <p className="text-sm text-zinc-500 font-medium">Archived frequency clear.</p>
-                  <p className="text-[10px] text-zinc-600 uppercase tracking-widest mt-1">No active updates detected</p>
+                  <p className="text-xs text-zinc-600 uppercase tracking-widest mt-1">No active updates detected</p>
                 </div>
               ) : (
                 <div className="divide-y divide-zinc-800/50">
@@ -91,18 +91,18 @@ export function NotificationCenter() {
                         <div className="flex-1 min-w-0">
                           <div className="flex items-start justify-between gap-2 mb-0.5">
                             <h4 className="text-xs font-bold text-zinc-200 truncate">{notif.title}</h4>
-                            <span className="text-[9px] text-zinc-600 font-mono whitespace-nowrap">
+                            <span className="text-xs text-zinc-600 font-mono whitespace-nowrap">
                               {new Date(notif.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                             </span>
                           </div>
-                          <p className="text-[11px] text-zinc-500 leading-relaxed mb-2">
+                          <p className="text-xs text-zinc-500 leading-relaxed mb-2">
                             {notif.message}
                           </p>
                           
                           <div className="flex items-center gap-3">
                             <button 
                               onClick={() => markAsRead(notif.id)}
-                              className="text-[9px] font-black uppercase tracking-widest text-[#bd4a4a] hover:text-white transition-colors"
+                              className="text-xs font-black uppercase tracking-widest text-[#bd4a4a] hover:text-white transition-colors"
                             >
                               Verify
                             </button>
@@ -110,7 +110,7 @@ export function NotificationCenter() {
                               <Link 
                                 to={notif.path}
                                 onClick={() => { setIsOpen(false); markAsRead(notif.id); }}
-                                className="text-[9px] font-black uppercase tracking-widest text-zinc-400 hover:text-white transition-colors flex items-center gap-1"
+                                className="text-xs font-black uppercase tracking-widest text-zinc-400 hover:text-white transition-colors flex items-center gap-1"
                               >
                                 View <ExternalLink className="w-2 h-2" />
                               </Link>
@@ -129,7 +129,7 @@ export function NotificationCenter() {
               onClick={() => setIsOpen(false)}
               className="block p-4 text-center border-t border-zinc-800 hover:bg-white/[0.02] transition-colors group"
             >
-              <span className="text-[10px] font-black text-zinc-400 group-hover:text-white transition-colors uppercase tracking-[0.2em] flex items-center justify-center gap-2">
+              <span className="text-xs font-black text-zinc-400 group-hover:text-white transition-colors uppercase tracking-[0.2em] flex items-center justify-center gap-2">
                 Open Command Archive Center
                 <X className="w-2.5 h-2.5" />
               </span>

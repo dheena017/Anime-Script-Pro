@@ -155,7 +155,7 @@ export function SceneViewPage() {
         <Button 
           variant="ghost" 
           onClick={() => navigate('..')}
-          className="text-zinc-500 hover:text-white uppercase font-black tracking-widest text-[10px] gap-2"
+          className="text-zinc-500 hover:text-white uppercase font-black tracking-widest text-xs gap-2"
         >
           <ArrowLeft className="w-4 h-4" />
           Return to Matrix
@@ -164,7 +164,7 @@ export function SceneViewPage() {
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2 px-6 py-2 bg-studio/5 border border-studio/20 rounded-2xl">
             <span className="text-xl font-black text-studio font-mono">{String(currentSceneIndex + 1).padStart(2, '0')}</span>
-            <span className="text-[10px] font-black text-zinc-700 uppercase">/ {String(scenes.length).padStart(2, '0')}</span>
+            <span className="text-xs font-black text-zinc-700 uppercase">/ {String(scenes.length).padStart(2, '0')}</span>
           </div>
           
           <div className="flex gap-2">
@@ -226,7 +226,7 @@ export function SceneViewPage() {
                     <div className="w-20 h-20 bg-white/[0.02] border border-white/5 rounded-3xl flex items-center justify-center">
                       <Film className="w-10 h-10 text-zinc-800" />
                     </div>
-                    <p className="text-[10px] text-zinc-600 font-black uppercase tracking-[0.4em]">Visual Synthesis Offline</p>
+                    <p className="text-xs text-zinc-600 font-black uppercase tracking-[0.4em]">Visual Synthesis Offline</p>
                   </div>
                 )}
                 
@@ -249,21 +249,21 @@ export function SceneViewPage() {
              <div className="p-8 space-y-8">
                 <div className="grid grid-cols-3 gap-6">
                    <div className="p-5 bg-white/[0.02] border border-white/5 rounded-2xl space-y-1">
-                      <p className="text-[9px] font-black text-zinc-500 uppercase tracking-widest">Production Phase</p>
+                      <p className="text-xs font-black text-zinc-500 uppercase tracking-widest">Production Phase</p>
                       <p className="text-xs font-black text-white uppercase tracking-widest">{scene.section}</p>
                    </div>
                    <div className="p-5 bg-white/[0.02] border border-white/5 rounded-2xl space-y-1">
-                      <p className="text-[9px] font-black text-zinc-500 uppercase tracking-widest">Temporal Unit</p>
+                      <p className="text-xs font-black text-zinc-500 uppercase tracking-widest">Temporal Unit</p>
                       <p className="text-xs font-black text-studio uppercase tracking-widest">{scene.duration}</p>
                    </div>
                    <div className="p-5 bg-white/[0.02] border border-white/5 rounded-2xl space-y-1">
-                      <p className="text-[9px] font-black text-zinc-500 uppercase tracking-widest">Audio Status</p>
+                      <p className="text-xs font-black text-zinc-500 uppercase tracking-widest">Audio Status</p>
                       <p className="text-xs font-black text-emerald-500 uppercase tracking-widest">Linked</p>
                    </div>
                 </div>
 
                 <div className="space-y-4">
-                   <h4 className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.3em] ml-1">Soundscape Blueprint</h4>
+                   <h4 className="text-xs font-black text-zinc-600 uppercase tracking-[0.3em] ml-1">Soundscape Blueprint</h4>
                    <div className="p-6 bg-[#050505] border border-white/5 rounded-3xl text-sm text-zinc-400 font-medium leading-relaxed italic">
                       "{scene.sound}"
                    </div>
@@ -282,14 +282,14 @@ export function SceneViewPage() {
                           <Sparkles className="w-5 h-5 text-studio" />
                           Narration Engine
                        </h3>
-                       <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest ml-8">Edit the character voiceover and dialogue sequence.</p>
+                       <p className="text-xs text-zinc-600 font-bold uppercase tracking-widest ml-8">Edit the character voiceover and dialogue sequence.</p>
                     </div>
                     <Button 
                       variant="outline" 
                       size="sm"
                       onClick={() => handleEnhance('narration')}
                       disabled={isEnhancing}
-                      className="h-10 px-6 bg-studio/5 border-studio/20 text-studio hover:bg-studio hover:text-black font-black uppercase tracking-widest text-[10px] rounded-xl transition-all"
+                      className="h-10 px-6 bg-studio/5 border-studio/20 text-studio hover:bg-studio hover:text-black font-black uppercase tracking-widest text-xs rounded-xl transition-all"
                     >
                       {isEnhancing ? <Wand2 className="w-3 h-3 animate-spin mr-2" /> : <Sparkles className="w-3 h-3 mr-2" />}
                       Optimize
@@ -310,14 +310,14 @@ export function SceneViewPage() {
                           <Zap className="w-5 h-5 text-purple-400" />
                           Visual Manifest
                        </h3>
-                       <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest ml-8">Define camera angles, lighting, and scene atmosphere.</p>
+                       <p className="text-xs text-zinc-600 font-bold uppercase tracking-widest ml-8">Define camera angles, lighting, and scene atmosphere.</p>
                     </div>
                     <Button 
                       variant="outline" 
                       size="sm"
                       onClick={() => handleEnhance('visuals')}
                       disabled={isEnhancing}
-                      className="h-10 px-6 bg-purple-500/5 border-purple-500/20 text-purple-400 hover:bg-purple-500 hover:text-black font-black uppercase tracking-widest text-[10px] rounded-xl transition-all"
+                      className="h-10 px-6 bg-purple-500/5 border-purple-500/20 text-purple-400 hover:bg-purple-500 hover:text-black font-black uppercase tracking-widest text-xs rounded-xl transition-all"
                     >
                       {isEnhancing ? <Wand2 className="w-3 h-3 animate-spin mr-2" /> : <Sparkles className="w-3 h-3 mr-2" />}
                       Enhance

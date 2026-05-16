@@ -44,7 +44,7 @@ export const AnimaticTab: React.FC<AnimaticTabProps> = ({ scenes, videoData }) =
         <div className="flex items-center gap-3 px-5 py-3 bg-black/40 border border-white/5 rounded-2xl">
           <Clock className="w-4 h-4 text-emerald-400" />
           <div>
-            <p className="text-[8px] font-black text-zinc-500 uppercase tracking-widest">Est. Runtime</p>
+            <p className="text-xs font-black text-zinc-500 uppercase tracking-widest">Est. Runtime</p>
             <p className="text-sm font-black text-white font-mono">{Math.floor(totalDuration / 60)}m {totalDuration % 60}s</p>
           </div>
         </div>
@@ -53,7 +53,7 @@ export const AnimaticTab: React.FC<AnimaticTabProps> = ({ scenes, videoData }) =
       {scenes.length === 0 ? (
         <div className="py-20 text-center space-y-4">
           <Film className="w-12 h-12 text-zinc-700 mx-auto" />
-          <p className="text-zinc-600 text-[10px] font-black uppercase tracking-widest">
+          <p className="text-zinc-600 text-xs font-black uppercase tracking-widest">
             No frames detected — parse a script to begin the animatic.
           </p>
         </div>
@@ -76,7 +76,7 @@ export const AnimaticTab: React.FC<AnimaticTabProps> = ({ scenes, videoData }) =
               >
                 {/* Frame Number */}
                 <div className="flex items-center justify-center w-12 flex-shrink-0">
-                  <span className="text-[10px] font-black text-zinc-600 font-mono">
+                  <span className="text-xs font-black text-zinc-600 font-mono">
                     {String(idx + 1).padStart(2, '0')}
                   </span>
                 </div>
@@ -109,13 +109,13 @@ export const AnimaticTab: React.FC<AnimaticTabProps> = ({ scenes, videoData }) =
                 {/* Scene Info */}
                 <div className="flex-1 space-y-2">
                   <div className="flex items-center justify-between">
-                    <h4 className="text-[10px] font-black text-white uppercase tracking-widest">{scene.section}</h4>
+                    <h4 className="text-xs font-black text-white uppercase tracking-widest">{scene.section}</h4>
                     <div className="flex items-center gap-2">
                       <Clock className="w-3 h-3 text-zinc-600" />
-                      <span className="text-[9px] font-black text-zinc-500">{scene.duration || '5s'}</span>
+                      <span className="text-xs font-black text-zinc-500">{scene.duration || '5s'}</span>
                     </div>
                   </div>
-                  <p className="text-[10px] text-zinc-500 leading-relaxed line-clamp-2">{scene.narration}</p>
+                  <p className="text-xs text-zinc-500 leading-relaxed line-clamp-2">{scene.narration}</p>
                 </div>
 
                 {/* Arrow */}
@@ -132,7 +132,7 @@ export const AnimaticTab: React.FC<AnimaticTabProps> = ({ scenes, videoData }) =
 
       {!hasVideos && scenes.length > 0 && (
         <div className="text-center py-6 border border-dashed border-white/10 rounded-3xl">
-          <p className="text-[10px] font-black text-zinc-600 uppercase tracking-widest">
+          <p className="text-xs font-black text-zinc-600 uppercase tracking-widest">
             Generate videos from the Frame Matrix tab to activate full animatic playback
           </p>
         </div>

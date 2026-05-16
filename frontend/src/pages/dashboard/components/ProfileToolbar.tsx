@@ -33,7 +33,7 @@ export function ProfileToolbar({ activeTab, onTabChange }: ProfileToolbarProps) 
               <motion.div layoutId="profile-tab" className="absolute inset-0 bg-white/5 border border-white/10 rounded-[2rem]" />
             )}
             <tab.icon className={cn("w-4 h-4 relative z-10", activeTab === tab.id && "text-studio")} />
-            <span className="text-[10px] font-black uppercase tracking-[0.2em] relative z-10">{tab.label}</span>
+            <span className="text-xs font-black uppercase tracking-[0.2em] relative z-10">{tab.label}</span>
           </button>
         ))}
       </div>

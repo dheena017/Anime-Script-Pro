@@ -31,7 +31,7 @@ export const LoreChronicle: React.FC<LoreChronicleProps> = ({ lore }) => {
           <History className="w-4 h-4 text-cyan-500" />
           The Great Chronicle
         </h3>
-        <Button variant="ghost" size="sm" className={cn(s.actionButtonGhost, "px-4 py-2 text-[9px]") }>
+        <Button variant="ghost" size="sm" className={cn(s.actionButtonGhost, "px-4 py-2 text-xs") }>
           Sync Lore <Sparkles className="w-3 h-3 ml-2" />
         </Button>
       </div>

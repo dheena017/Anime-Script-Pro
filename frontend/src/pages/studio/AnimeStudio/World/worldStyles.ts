@@ -14,9 +14,9 @@ export const worldStyles = {
     icon: "w-7 h-7 text-studio relative z-10 drop-shadow-[0_6px_20px_rgba(6,182,212,0.2)]",
     title: "header-title text-white font-extrabold uppercase tracking-widest text-lg",
     subtitle: "header-subtitle text-sm text-studio/60",
-    actionButton: "relative w-full sm:w-auto h-10 px-6 rounded-full border border-white/10 bg-white/5 text-zinc-400 hover:bg-white/10 hover:border-studio/50 hover:text-studio font-black uppercase tracking-widest text-[9px] transition-all duration-300 group/back shadow-lg",
-    actionButtonDanger: "relative w-full sm:w-auto h-10 px-6 rounded-full border border-red-500/30 bg-red-500/10 text-red-400 hover:bg-red-500/15 hover:border-red-500/60 hover:text-red-300 font-black uppercase tracking-widest text-[9px] transition-all duration-300 group/stop shadow-lg",
-    actionButtonPrimary: "relative w-full sm:w-auto h-10 px-8 rounded-full border border-studio/30 bg-studio/5 text-studio hover:bg-studio/10 hover:border-studio/60 hover:text-studio-light font-black uppercase tracking-widest text-[9px] transition-all duration-300 group/btn shadow-lg",
+    actionButton: "relative w-full sm:w-auto h-10 px-6 rounded-full border border-white/10 bg-white/5 text-zinc-400 hover:bg-white/10 hover:border-studio/50 hover:text-studio font-black uppercase tracking-widest text-xs transition-all duration-300 group/back shadow-lg",
+    actionButtonDanger: "relative w-full sm:w-auto h-10 px-6 rounded-full border border-red-500/30 bg-red-500/10 text-red-400 hover:bg-red-500/15 hover:border-red-500/60 hover:text-red-300 font-black uppercase tracking-widest text-xs transition-all duration-300 group/stop shadow-lg",
+    actionButtonPrimary: "relative w-full sm:w-auto h-10 px-8 rounded-full border border-studio/30 bg-studio/5 text-studio hover:bg-studio/10 hover:border-studio/60 hover:text-studio-light font-black uppercase tracking-widest text-xs transition-all duration-300 group/btn shadow-lg",
   },
 
   // --- TOOLBAR SECTION ---
@@ -27,8 +27,8 @@ export const worldStyles = {
     statusIcon: "toolbar-status-icon",
     statusActive: "text-studio drop-shadow-[0_0_8px_rgba(6,182,212,0.6)]",
     statusInactive: "text-zinc-600",
-    statusTitle: "text-[10px] font-black uppercase tracking-[0.2em] bg-gradient-to-r from-studio/80 to-cyan-400/60 bg-clip-text text-transparent",
-    statusSubtitle: "text-[8px] font-bold text-zinc-500 uppercase tracking-widest",
+    statusTitle: "text-xs font-black uppercase tracking-[0.2em] bg-gradient-to-r from-studio/80 to-cyan-400/60 bg-clip-text text-transparent",
+    statusSubtitle: "text-xs font-bold text-zinc-500 uppercase tracking-widest",
     actionGroup: "toolbar-action-group",
     btnGroup: "toolbar-btn-group",
     iconButton: "h-9 w-9 rounded-lg text-zinc-400 hover:text-studio border border-transparent hover:border-studio/40 hover:bg-studio/10 transition-all duration-300 group relative overflow-hidden",
@@ -55,19 +55,19 @@ export const worldStyles = {
     sidebarCard: "p-6 bg-gradient-to-b from-[#040404] to-[#060606] border border-white/5 rounded-2xl space-y-4 relative overflow-hidden group",
     sidebarGlow: "absolute inset-0 blur-[40px] pointer-events-none transition-all duration-700",
     sidebarContent: "relative z-10 space-y-4",
-    sidebarTitle: "text-[10px] font-black text-zinc-500 uppercase tracking-widest flex items-center gap-2",
-    sidebarPromptInput: "w-full bg-black/40 border border-white/5 rounded-xl p-3 text-[10px] font-medium text-zinc-300 placeholder:text-zinc-700 focus:outline-none focus:border-white/20 transition-colors min-h-[100px] resize-none overflow-hidden",
+    sidebarTitle: "text-xs font-black text-zinc-500 uppercase tracking-widest flex items-center gap-2",
+    sidebarPromptInput: "w-full bg-black/40 border border-white/5 rounded-xl p-3 text-xs font-medium text-zinc-300 placeholder:text-zinc-700 focus:outline-none focus:border-white/20 transition-colors min-h-[100px] resize-none overflow-hidden",
     sidebarPromptBox: "p-4 bg-black/40 border border-white/5 rounded-xl",
-    sidebarPromptText: "text-[9px] font-medium text-zinc-500 leading-relaxed italic",
-    sidebarNote: "text-[8px] text-zinc-600 font-bold uppercase tracking-tighter leading-relaxed",
+    sidebarPromptText: "text-xs font-medium text-zinc-500 leading-relaxed italic",
+    sidebarNote: "text-xs text-zinc-600 font-bold uppercase tracking-tighter leading-relaxed",
     // Stat card: stronger visual separation, subtle lift on hover
     statCard: "p-6 bg-gradient-to-b from-[#040404] to-[#050505] border border-white/5 rounded-2xl space-y-4 relative group overflow-hidden hover:scale-[1.01] transition-transform duration-200",
     statIconBox: "w-10 h-10 rounded-xl bg-white/[0.03] border border-white/10 flex items-center justify-center group-hover:scale-110 transition-transform",
-    statLabel: "text-[10px] font-black text-zinc-500 uppercase tracking-widest",
+    statLabel: "text-xs font-black text-zinc-500 uppercase tracking-widest",
     statValue: "text-sm font-black text-white uppercase tracking-tighter line-clamp-1",
     // small helpers for TableOfContents and internal layout
     tocContainer: "space-y-3",
-    tocItem: "text-[10px] text-zinc-500 hover:text-zinc-300 transition-colors",
+    tocItem: "text-xs text-zinc-500 hover:text-zinc-300 transition-colors",
   },
 
   // --- PAGE LAYOUT ---
@@ -82,7 +82,7 @@ export const worldStyles = {
   tabs: {
     container: "flex items-center gap-1 bg-black/50 border border-white/10 p-1.5 rounded-full backdrop-blur-xl shadow-2xl relative group overflow-hidden",
     overlay: "absolute inset-0 bg-gradient-to-r from-white/5 via-transparent to-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000",
-    button: "relative px-5 py-2 text-[10px] font-black tracking-[0.2em] transition-all duration-500 uppercase flex items-center gap-2.5",
+    button: "relative px-5 py-2 text-xs font-black tracking-[0.2em] transition-all duration-500 uppercase flex items-center gap-2.5",
     buttonActive: "text-studio",
     buttonInactive: "text-zinc-500 hover:text-zinc-300",
     pill: "absolute inset-0 bg-white/10 border border-white/20 rounded-full z-0",

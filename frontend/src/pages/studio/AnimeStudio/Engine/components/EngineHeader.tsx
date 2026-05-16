@@ -71,7 +71,7 @@ export const EngineHeader: React.FC<EngineHeaderProps> = ({
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent side="top">
-                    <p className="font-black uppercase tracking-widest text-[9px]">Proceed to World Builder</p>
+                    <p className="font-black uppercase tracking-widest text-xs">Proceed to World Builder</p>
                   </TooltipContent>
                 </Tooltip>
               )}

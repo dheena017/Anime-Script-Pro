@@ -93,15 +93,15 @@ export default function LibraryPage() {
       <div className="flex items-center gap-3">
         <Database className="w-4 h-4 text-[#bd4a4a]" />
         <div>
-          <p className="text-[7px] font-black text-zinc-500 uppercase tracking-widest leading-none">Archive Size</p>
-          <p className="text-[10px] font-black text-white uppercase tracking-tight">42.8 GB / 1.2 TB</p>
+          <p className="text-xs font-black text-zinc-500 uppercase tracking-widest leading-none">Archive Size</p>
+          <p className="text-xs font-black text-white uppercase tracking-tight">42.8 GB / 1.2 TB</p>
         </div>
       </div>
       <div className="flex items-center gap-3">
         <Cloud className="w-4 h-4 text-blue-500" />
         <div>
-          <p className="text-[7px] font-black text-zinc-500 uppercase tracking-widest leading-none">Cloud Sync</p>
-          <p className="text-[10px] font-black text-white uppercase tracking-tight">Continuous Protection Active</p>
+          <p className="text-xs font-black text-zinc-500 uppercase tracking-widest leading-none">Cloud Sync</p>
+          <p className="text-xs font-black text-white uppercase tracking-tight">Continuous Protection Active</p>
         </div>
       </div>
       <div className="flex items-center gap-6 ml-auto">
@@ -111,11 +111,11 @@ export default function LibraryPage() {
               <img src={`https://i.pravatar.cc/150?u=${i}`} alt="Contributor" className="w-full h-full object-cover" />
             </div>
           ))}
-          <div className="w-6 h-6 rounded-full bg-[#bd4a4a] flex items-center justify-center text-[8px] font-black text-white border border-black">
+          <div className="w-6 h-6 rounded-full bg-[#bd4a4a] flex items-center justify-center text-xs font-black text-white border border-black">
             +12
           </div>
         </div>
-        <p className="text-[7px] font-black text-zinc-500 uppercase tracking-widest leading-none">Active Contributors</p>
+        <p className="text-xs font-black text-zinc-500 uppercase tracking-widest leading-none">Active Contributors</p>
       </div>
     </>
   );

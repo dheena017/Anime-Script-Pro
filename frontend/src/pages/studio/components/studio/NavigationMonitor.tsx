@@ -69,7 +69,7 @@ export function NavigationMonitor() {
             className="absolute left-1/2 -translate-x-1/2 px-4 py-1.5 bg-black/80 backdrop-blur-md border border-white/10 rounded-full flex items-center gap-3 shadow-2xl"
           >
             <Activity className="w-3 h-3 text-cyan-400" />
-            <span className="text-[10px] font-black text-white uppercase tracking-[0.2em]">
+            <span className="text-xs font-black text-white uppercase tracking-[0.2em]">
               NAV LATENCY: <span className="text-cyan-400">{navLatency}ms</span>
             </span>
             <Clock className="w-3 h-3 text-zinc-500" />

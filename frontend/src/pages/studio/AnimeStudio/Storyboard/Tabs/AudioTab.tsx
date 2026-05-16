@@ -41,12 +41,12 @@ export const AudioTab: React.FC<AudioTabProps> = ({ scenes = [] }) => {
                 key={scene.id}
                 className="flex items-center gap-5 p-5 bg-white/5 border border-white/5 rounded-2xl hover:border-blue-500/20 transition-all group"
               >
-                <span className="text-[9px] font-black text-zinc-600 font-mono w-6 flex-shrink-0">
+                <span className="text-xs font-black text-zinc-600 font-mono w-6 flex-shrink-0">
                   {String(i + 1).padStart(2, '0')}
                 </span>
                 <div className="flex-1">
-                  <p className="text-[10px] font-black text-white uppercase tracking-widest">{scene.section}</p>
-                  <p className="text-[10px] text-zinc-500 mt-1 font-medium">{scene.sound || 'No sound cue specified'}</p>
+                  <p className="text-xs font-black text-white uppercase tracking-widest">{scene.section}</p>
+                  <p className="text-xs text-zinc-500 mt-1 font-medium">{scene.sound || 'No sound cue specified'}</p>
                 </div>
                 <div className="flex items-center gap-2">
                   {/* Waveform visualizer bars */}
@@ -58,7 +58,7 @@ export const AudioTab: React.FC<AudioTabProps> = ({ scenes = [] }) => {
                     />
                   ))}
                 </div>
-                <span className="text-[9px] font-black text-zinc-600 flex-shrink-0">{scene.duration || '5s'}</span>
+                <span className="text-xs font-black text-zinc-600 flex-shrink-0">{scene.duration || '5s'}</span>
               </div>
             ))}
           </div>

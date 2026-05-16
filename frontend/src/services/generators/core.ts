@@ -137,7 +137,7 @@ function logAIUserHint(message: string) {
   console.groupCollapsed("%c[AI Core] User Guidance", "color: #3b82f6; font-weight: bold;");
   console.info(message);
   console.info("• If you are running locally, set VITE_GEMINI_API_KEY in your .env file.");
-  console.info("• If you want to use the backend proxy, ensure the FastAPI backend is running and accessible at http://127.0.0.1:3050.");
+  console.info("• If you want to use the backend proxy, ensure the FastAPI backend is running and accessible via the proxy (/api).");
   console.groupEnd();
 }
 
@@ -259,7 +259,7 @@ export function setCachedResponse(requestKey: string, result: string) {
 }
 
 const inFlightRequests = new Map<string, Promise<string>>();
-const DEFAULT_BACKEND_URL = "http://127.0.0.1:3050";
+const DEFAULT_BACKEND_URL = "";
 const BACKEND_BASE_URL = API_BASE_URL || (import.meta as any)?.env?.VITE_API_BASE_URL || DEFAULT_BACKEND_URL;
 const BACKEND_GENERATE_URL = `${BACKEND_BASE_URL.replace(/\/+$|^\s+|\s+$/g, '')}/api/generate`;
 
@@ -441,7 +441,7 @@ export async function callAI(
     const primaryModel = normalizeModelId(model);
     const modelFallbacks = [
       primaryModel,
-      ...["gemini-3.1-flash-lite-preview", "gemini-2.5-flash-lite", "gemini-3-flash-preview", "gemini-2.5-flash", "gemma-3-27b-it"].filter(m => m !== primaryModel)
+      ...["gemini-3.1-flash", "gemini-3.1-flash-lite", "gemini-3-flash", "gemini-2.5-flash", "gemma-3-27b"].filter(m => m !== primaryModel)
     ];
 
     let lastError: Error | null = null;
@@ -559,8 +559,8 @@ export async function callAI(
         logger.warn(`Model ${currentModel} failed: ${errMessage}`);
 
         if (errMessage.includes('Failed to fetch') || errMessage.includes('ERR_EMPTY_RESPONSE')) {
-          logAIUserHint("The backend proxy fetch failed. Confirm that the frontend dev server can reach /api/generate and that the backend is running on port 3050.");
-          throw new NetworkError("Backend proxy unreachable. Ensure the backend is running at http://127.0.0.1:3050 and Vite proxy /api is configured.");
+          logAIUserHint("The backend proxy fetch failed. Confirm that the frontend dev server can reach /api/generate and that the backend is running.");
+          throw new NetworkError("Backend proxy unreachable. Ensure the backend is running and Vite proxy /api is configured.");
         }
 
         const nextModel = modelFallbacks[modelFallbacks.indexOf(currentModel) + 1];

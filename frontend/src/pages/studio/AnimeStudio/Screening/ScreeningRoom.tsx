@@ -209,7 +209,7 @@ export function ScreeningRoom() {
             <Monitor className="w-8 h-8 opacity-20 group-hover:opacity-60 transition-opacity" />
           </motion.div>
         </div>
-        <p className="font-black uppercase tracking-[0.3em] text-[10px] max-w-[280px] text-center leading-loose">
+        <p className="font-black uppercase tracking-[0.3em] text-xs max-w-[280px] text-center leading-loose">
           The <span className="text-studio">{activeTab} protocol</span> is currently being synchronized with the production core.
         </p>
       </div>

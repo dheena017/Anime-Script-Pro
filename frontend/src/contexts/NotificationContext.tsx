@@ -60,9 +60,39 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
   useEffect(() => {
     fetchNotifications();
-    // Refresh every 60 seconds
-    const interval = setInterval(fetchNotifications, 60000);
-    return () => clearInterval(interval);
+
+    // WebSocket Real-time Sync
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const wsUrl = `${protocol}//${window.location.host}/ws/templates/notifications`;
+    let ws: WebSocket | null = null;
+    let timeout: any = null;
+
+    function connect() {
+      try {
+        ws = new WebSocket(wsUrl);
+        ws.onmessage = (event) => {
+          try {
+            const data = JSON.parse(event.data);
+            if (data.type === 'NEW_NOTIFICATION') {
+              fetchNotifications();
+            }
+          } catch (e) {}
+        };
+        ws.onclose = () => { timeout = setTimeout(connect, 5000); };
+      } catch (e) {
+        timeout = setTimeout(connect, 5000);
+      }
+    }
+
+    connect();
+
+    // Refresh fallback every 120 seconds instead of 60 to save resources since we have WS
+    const interval = setInterval(fetchNotifications, 120000);
+    return () => {
+      clearInterval(interval);
+      if (ws) ws.close();
+      if (timeout) clearTimeout(timeout);
+    };
   }, [fetchNotifications]);
 
   const unreadCount = notifications.filter(n => !n.is_read).length;

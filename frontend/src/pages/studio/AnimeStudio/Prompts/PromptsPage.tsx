@@ -69,7 +69,7 @@ export function PromptsPage() {
           <div className="text-center space-y-4">
             <div className="space-y-2">
               <p className="font-black tracking-[0.3em] text-[12px] uppercase text-studio animate-pulse italic">Designing Visual Prompts...</p>
-              <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest">Bridging narrative with neural imagery</p>
+              <p className="text-xs font-bold text-zinc-600 uppercase tracking-widest">Bridging narrative with neural imagery</p>
             </div>
             
             <Button

@@ -24,10 +24,10 @@ export const TimelineTrack: React.FC<TimelineTrackProps> = ({ scenes }) => {
           >
             <div className="absolute top-0 left-0 w-1 h-full bg-studio/20 group-hover/item:bg-studio transition-colors" />
             <div className="flex items-center justify-between mb-1">
-              <span className="text-[8px] font-black text-studio uppercase tracking-tighter">BEAT {idx + 1}</span>
-              <span className="text-[8px] font-mono text-zinc-500">{scene.duration}</span>
+              <span className="text-xs font-black text-studio uppercase tracking-tighter">BEAT {idx + 1}</span>
+              <span className="text-xs font-mono text-zinc-500">{scene.duration}</span>
             </div>
-            <p className="text-[9px] font-bold text-zinc-300 uppercase tracking-tight line-clamp-1">{scene.section}</p>
+            <p className="text-xs font-bold text-zinc-300 uppercase tracking-tight line-clamp-1">{scene.section}</p>
             
             <div className="absolute inset-0 bg-studio/5 opacity-0 group-hover/item:opacity-100 transition-opacity flex items-center justify-center">
                <Play className="w-3 h-3 text-studio fill-current" />
@@ -35,7 +35,7 @@ export const TimelineTrack: React.FC<TimelineTrackProps> = ({ scenes }) => {
           </div>
         ))
       ) : (
-        <div className="flex-1 flex items-center justify-center text-[10px] text-zinc-600 font-bold uppercase tracking-widest italic">
+        <div className="flex-1 flex items-center justify-center text-xs text-zinc-600 font-bold uppercase tracking-widest italic">
            Awaiting Production Master...
         </div>
       )}

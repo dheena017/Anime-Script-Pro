@@ -81,7 +81,7 @@ export const SystemsTab: React.FC<SystemsTabProps> = ({
                   <h4 className={s.content.sidebarTitle}>
                     <Sparkles className="w-3 h-3 text-emerald-500" /> Core Seed
                   </h4>
-                  {isEditing && <span className="text-[8px] font-bold text-emerald-500/50 uppercase">Modular Prompt</span>}
+                  {isEditing && <span className="text-xs font-bold text-emerald-500/50 uppercase">Modular Prompt</span>}
                 </div>
                 
                 {isEditing ? (
@@ -125,7 +125,7 @@ export const SystemsTab: React.FC<SystemsTabProps> = ({
                   </div>
                   <div className="space-y-2">
                     <h3 className="text-sm font-black text-white uppercase tracking-widest line-clamp-1">{sys.title}</h3>
-                    <p className="text-[10px] font-medium text-zinc-500 leading-relaxed line-clamp-3">{sys.desc}</p>
+                    <p className="text-xs font-medium text-zinc-500 leading-relaxed line-clamp-3">{sys.desc}</p>
                   </div>
                 </motion.div>
               ))}

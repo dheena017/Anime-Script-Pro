@@ -241,18 +241,6 @@ class AIEngine:
                 messages=messages
             )
             text = response.choices[0].message.content
-        elif "llama" in self.model_name.lower() or "mixtral" in self.model_name.lower() or "deepseek" in self.model_name.lower():
-            client = await self._get_groq_client(user_id)
-            messages = []
-            if system_instruction:
-                messages.append({"role": "system", "content": system_instruction})
-            messages.append({"role": "user", "content": prompt})
-            
-            response = await client.chat.completions.create(
-                model=self.model_name,
-                messages=messages
-            )
-            text = response.choices[0].message.content
         elif "nvidia" in self.model_name.lower() or self.model_name.startswith("meta/") or "nemotron" in self.model_name.lower():
             client = await self._get_nvidia_client(user_id)
             messages = []
@@ -264,6 +252,18 @@ class AIEngine:
                 model=self.model_name,
                 messages=messages,
                 response_format={"type": "json_object"} if "json" in prompt.lower() else None
+            )
+            text = response.choices[0].message.content
+        elif "llama" in self.model_name.lower() or "mixtral" in self.model_name.lower() or "deepseek" in self.model_name.lower():
+            client = await self._get_groq_client(user_id)
+            messages = []
+            if system_instruction:
+                messages.append({"role": "system", "content": system_instruction})
+            messages.append({"role": "user", "content": prompt})
+            
+            response = await client.chat.completions.create(
+                model=self.model_name,
+                messages=messages
             )
             text = response.choices[0].message.content
         else:
@@ -320,8 +320,8 @@ class AIEngine:
             async for chunk in stream:
                 if chunk.choices[0].delta.content:
                     yield chunk.choices[0].delta.content
-        elif "llama" in self.model_name.lower() or "mixtral" in self.model_name.lower() or "deepseek" in self.model_name.lower():
-            client = await self._get_groq_client(user_id)
+        elif "nvidia" in self.model_name.lower() or self.model_name.startswith("meta/") or "nemotron" in self.model_name.lower():
+            client = await self._get_nvidia_client(user_id)
             messages = []
             if system_instruction:
                 messages.append({"role": "system", "content": system_instruction})
@@ -335,8 +335,8 @@ class AIEngine:
             async for chunk in stream:
                 if chunk.choices[0].delta.content:
                     yield chunk.choices[0].delta.content
-        elif "nvidia" in self.model_name.lower() or self.model_name.startswith("meta/") or "nemotron" in self.model_name.lower():
-            client = await self._get_nvidia_client(user_id)
+        elif "llama" in self.model_name.lower() or "mixtral" in self.model_name.lower() or "deepseek" in self.model_name.lower():
+            client = await self._get_groq_client(user_id)
             messages = []
             if system_instruction:
                 messages.append({"role": "system", "content": system_instruction})
