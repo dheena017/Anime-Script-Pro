@@ -482,6 +482,13 @@ You MUST return a JSON object with this EXACT structure:
 ✅ All social statuses align with world's economic/class system
 ✅ Output ready for downstream scene writing, image prompting, and metadata packaging
 
+JSON INTEGRITY RULE (CRITICAL):
+- You MUST use DOUBLE QUOTES (") for all keys and string values.
+- Never use single quotes (') as JSON delimiters.
+- If a string contains a quote, escape it with a backslash (\").
+- Ensure all arrays and objects are correctly closed.
+- The output must be a single, valid JSON object.
+
 Return ONLY the complete JSON object with all required fields populated. No preamble or explanation.
 `
 );

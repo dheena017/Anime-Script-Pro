@@ -55,7 +55,7 @@ export const worldStyles = {
     sidebarCard: "p-6 bg-gradient-to-b from-[#040404] to-[#060606] border border-white/5 rounded-2xl space-y-4 relative overflow-hidden group",
     sidebarGlow: "absolute inset-0 blur-[40px] pointer-events-none transition-all duration-700",
     sidebarContent: "relative z-10 space-y-4",
-    sidebarTitle: "text-xs font-black text-zinc-500 uppercase tracking-widest flex items-center gap-2",
+    sidebarTitle: "text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em] flex items-center gap-2 group-hover:text-zinc-400 transition-colors duration-500",
     sidebarPromptInput: "w-full bg-black/40 border border-white/5 rounded-xl p-3 text-xs font-medium text-zinc-300 placeholder:text-zinc-700 focus:outline-none focus:border-white/20 transition-colors min-h-[100px] resize-none overflow-hidden",
     sidebarPromptBox: "p-4 bg-black/40 border border-white/5 rounded-xl",
     sidebarPromptText: "text-xs font-medium text-zinc-500 leading-relaxed italic",
@@ -80,19 +80,24 @@ export const worldStyles = {
 
   // --- TABS SECTION ---
   tabs: {
-    container: "flex items-center gap-1 bg-black/50 border border-white/10 p-1.5 rounded-full backdrop-blur-xl shadow-2xl relative group overflow-hidden",
-    overlay: "absolute inset-0 bg-gradient-to-r from-white/5 via-transparent to-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000",
-    button: "relative px-5 py-2 text-xs font-black tracking-[0.2em] transition-all duration-500 uppercase flex items-center gap-2.5",
-    buttonActive: "text-studio",
+    container: "flex items-center gap-1.5 bg-black/60 border border-white/10 p-1.5 rounded-full backdrop-blur-3xl shadow-[0_20px_50px_rgba(0,0,0,0.4)] relative group overflow-hidden",
+    overlay: "absolute inset-0 bg-gradient-to-r from-studio/5 via-transparent to-studio/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000 pointer-events-none",
+    button: "relative z-10 px-6 py-2.5 text-[10px] font-black tracking-[0.25em] transition-all duration-500 uppercase flex items-center gap-3",
+    buttonActive: "text-white drop-shadow-[0_0_10px_rgba(6,182,212,0.4)]",
     buttonInactive: "text-zinc-500 hover:text-zinc-300",
-    pill: "absolute inset-0 bg-white/10 border border-white/20 rounded-full z-0",
+    pill: "absolute inset-0 bg-studio border border-studio/40 rounded-full z-0 shadow-[0_0_20px_rgba(6,182,212,0.3)]",
     icon: "w-3.5 h-3.5 transition-all duration-500",
-    iconActive: "opacity-100 scale-110",
+    iconActive: "opacity-100 scale-110 text-white",
     iconInactive: "opacity-40 group-hover:opacity-70",
     spinner: "w-3.5 h-3.5 border-2 border-transparent border-t-current rounded-full animate-spin",
-    label: "hidden lg:inline",
-    tabsBar: "studio-tabs-bar sticky top-0 z-40 flex items-center justify-center p-3 md:p-4 bg-[#050505]/95 backdrop-blur-md border border-white/10 rounded-[2rem] shadow-2xl mb-8 relative group overflow-hidden",
-    tabsBarGlow: "absolute inset-0 bg-gradient-to-r from-transparent via-studio/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000",
+    label: "inline",
+    tabsBar: "studio-tabs-bar sticky top-4 z-40 flex items-center justify-center p-3 md:p-4 bg-[#050505]/40 backdrop-blur-2xl border border-white/5 rounded-[3rem] shadow-2xl mb-12 relative group overflow-hidden mx-auto max-w-fit",
+    tabsBarGlow: "absolute inset-0 bg-gradient-to-r from-transparent via-studio/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000",
     tabsBarInner: "relative z-10 w-full flex justify-center",
-  }
+  },
+  
+  // --- FLAT ALIASES FOR BACKWARD COMPATIBILITY ---
+  actionButtonGhost: "relative h-10 px-6 rounded-full border border-white/5 bg-transparent text-zinc-400 hover:bg-white/5 hover:text-white font-black uppercase tracking-widest text-xs transition-all duration-300",
+  actionIconButtonSmall: "h-8 w-8 rounded-lg text-zinc-400 hover:text-studio border border-transparent hover:border-studio/40 hover:bg-studio/10 transition-all duration-300",
+  actionToolbarButton: "h-9 w-9 rounded-lg text-zinc-400 hover:text-studio border border-transparent hover:border-studio/40 hover:bg-studio/10 transition-all duration-300 flex items-center justify-center",
 };

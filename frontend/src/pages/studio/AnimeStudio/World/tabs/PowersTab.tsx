@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { StudioEditor } from '../../components/StudioEditor';
-import { Zap, Sparkles, Sword, Shield, Flame, Wind, Activity } from 'lucide-react';
+import { Zap, Sparkles, Sword, Shield, Flame, Wind, Activity, ScrollText } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { TableOfContents } from '../components/TableOfContents';
 import { worldStyles as s } from '../worldStyles';
@@ -130,6 +130,9 @@ export const PowersTab: React.FC<PowersTabProps> = ({
             </div>
 
             <div className="pt-2">
+              <h5 className={s.content.sidebarTitle + " mb-4"}>
+                <ScrollText className="w-3 h-3" /> Navigation Index
+              </h5>
               <TableOfContents content={content} />
             </div>
           </div>

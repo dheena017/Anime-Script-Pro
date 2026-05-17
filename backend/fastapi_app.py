@@ -5,6 +5,13 @@ import warnings
 from datetime import datetime
 from typing import List, Optional
 
+# --- RAW STARTUP SIGNAL (Guaranteed visibility) ---
+import sys
+print("\n" + "="*80, flush=True)
+print(">>> [SYSTEM] BOOTING NEURAL ENGINE...", flush=True)
+print(">>> [SYSTEM] Initializing Master API Core...", flush=True)
+print("="*80 + "\n", flush=True)
+
 from fastapi import FastAPI, HTTPException, Response, Request, WebSocket, WebSocketDisconnect, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -37,8 +44,8 @@ def configure_logging():
     log_file = log_dir / "backend.log"
 
     logger.remove()
-    # 1. Console Sink: Use rich colors for the developer's terminal
-    logger.add(sys.stderr, colorize=True, format="<magenta>[ENGINE]</magenta> <green>{time:HH:mm:ss}</green> | <level>{level: <8}</level> | <level>{message}</level>")
+    # 1. Console Sink: High-visibility terminal output at DEBUG level
+    logger.add(sys.stderr, level="DEBUG", colorize=True, format="<magenta>[NEURAL]</magenta> <green>{time:HH:mm:ss}</green> | <level>{level: <8}</level> | <level>{message}</level>")
     
     # 2. File Sink: Keep it clean and plain-text for the human auditor
     # Using str(log_file) ensures a clean absolute path for the Loguru sink
@@ -69,6 +76,10 @@ app = FastAPI(title="NEURAL ENGINE", description=DESCRIPTION, version="2.5.0-PRO
 # --- Static & Templates ---
 BACKEND_ROOT = os.path.dirname(os.path.abspath(__file__))
 app.mount("/static", StaticFiles(directory=os.path.join(BACKEND_ROOT, "static")), name="static")
+# Serve generated outputs (videos) from backend/outputs at /outputs
+outputs_dir = os.path.join(BACKEND_ROOT, "outputs")
+os.makedirs(outputs_dir, exist_ok=True)
+app.mount("/outputs", StaticFiles(directory=outputs_dir), name="outputs")
 templates = Jinja2Templates(directory=os.path.join(BACKEND_ROOT, "templates"))
 
 # --- Middleware ---
@@ -90,12 +101,10 @@ async def log_requests(request: Request, call_next):
     method = request.method
     path = request.url.path
     query = request.url.query
-    client_ip = request.client.host if request.client else "unknown"
-    user_agent = request.headers.get("user-agent", "unknown")
-
-    # 1. THE TRIGGER: Enhanced telemetry for the incoming request
+    
+    # RAW FAIL-SAFE TERMINAL LOG (Guaranteed visibility)
+    print(f"\n>>> [SIGNAL] Incoming: {method} {path}", flush=True)
     logger.info(f"REQUEST  [{signal_id}] -> {method} {path}{'?' + query if query else ''}")
-    logger.debug(f"METRICS  [{signal_id}] -> Client: {client_ip} | UA: {user_agent[:50]}... | Mem: {start_mem:.1f}MB")
 
     try:
         # 2. THE PROCESSING: Let the API handle the request
@@ -108,15 +117,16 @@ async def log_requests(request: Request, call_next):
         status_code = response.status_code
         status_desc = "OK" if status_code < 400 else "ERROR"
         
-        # 3. THE RESULT: Human-readable response log with memory delta
-        log_msg = f"RESPONSE [{signal_id}] <- {method} {path} | Status: {status_code} ({status_desc}) | Latency: {latency:.2f}ms | Mem Δ: {mem_delta:+.2f}MB"
+        # 3. THE RESULT: High-visibility terminal result
+        log_msg = f"[BACKEND]  {method} {path} | Status: {status_code} ({latency:.2f}ms)"
+        print(f"<<< [SIGNAL] Result:   {status_code} ({latency:.2f}ms)\n", flush=True)
         
         if status_code < 400:
-            logger.opt(colors=True).info(f"<green>{log_msg}</green>")
+            logger.opt(colors=True).info(f"<green><b>SUCCESS</b></green> | {log_msg}")
         elif status_code < 500:
-            logger.opt(colors=True).warning(f"<yellow>{log_msg}</yellow>")
+            logger.opt(colors=True).warning(f"<yellow><b>WARNING</b></yellow> | {log_msg}")
         else:
-            logger.opt(colors=True).error(f"<red>{log_msg}</red>")
+            logger.opt(colors=True).error(f"<red><b>FAILURE</b></red> | {log_msg}")
         
         # Attach the tracking ID to the response headers
         response.headers["X-Signal-ID"] = signal_id
@@ -175,6 +185,7 @@ async def ws_notifications(websocket: WebSocket):
     except WebSocketDisconnect: manager.disconnect(websocket)
 
 from backend.utils.telemetry import telemetry_manager
+from backend.utils.telemetry import install_telemetry_sink
 @app.websocket("/ws/telemetry")
 async def ws_telemetry(websocket: WebSocket):
     await telemetry_manager.connect(websocket)
@@ -198,6 +209,44 @@ async def on_startup():
     logger.info(f"\n{banner.strip()}")
     logger.info("📡 SIGNAL: Loading environment and preparing database...")
 
+    # --- Runtime dependency check for optional video rendering libs ---
+    try:
+        import shutil
+        missing_deps = []
+        try:
+            import PIL  # Pillow
+        except Exception:
+            missing_deps.append('Pillow')
+        try:
+            import moviepy.editor as _mpy  # type: ignore
+        except Exception:
+            missing_deps.append('moviepy')
+        try:
+            import imageio_ffmpeg as _iioff
+        except Exception:
+            missing_deps.append('imageio-ffmpeg')
+
+        ffmpeg_path = shutil.which('ffmpeg')
+        if not ffmpeg_path:
+            # try imageio-ffmpeg helper if available
+            try:
+                import imageio_ffmpeg as _iio
+                possible = _iio.get_ffmpeg_exe()
+                if possible:
+                    ffmpeg_path = possible
+            except Exception:
+                pass
+        if not ffmpeg_path:
+            missing_deps.append('ffmpeg (system executable)')
+
+        if missing_deps:
+            logger.warning("VIDEO RENDERING: Missing optional dependencies: %s", ", ".join(missing_deps))
+            logger.warning("VIDEO RENDERING: To enable local/free_ai rendering install: pip install Pillow moviepy imageio-ffmpeg and ensure ffmpeg is on PATH.")
+        else:
+            logger.info("VIDEO RENDERING: All optional deps present (ffmpeg: %s)", ffmpeg_path)
+    except Exception as e:
+        logger.debug("VIDEO RENDERING: Dependency check failed: %s", str(e))
+
     # 1. Sync Metadata
     async with async_engine.begin() as conn: 
         await conn.run_sync(SQLModel.metadata.create_all)
@@ -216,6 +265,9 @@ async def on_startup():
             logger.info(f"DATABASE: Persistence verified ({count} records found).")
     
     logger.success("🚀 NEURAL ENGINE ONLINE: Production Suite is ready for Architect requests.")
+    # Install WebSocket telemetry sink — must run after the event loop is live
+    install_telemetry_sink()
+    logger.info("📡 TELEMETRY: Live log stream active on ws:/telemetry")
 
 @app.on_event("shutdown")
 async def on_shutdown(): 

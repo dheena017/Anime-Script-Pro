@@ -13,6 +13,7 @@ import {
   useGeneratorTelemetryEffects,
 } from './generator/useGeneratorLifecycle';
 import { AI_EVENTS } from '../services/generators/core';
+import { AI_MODELS, AIModel } from '@/lib/aiModels';
 // ── Stable context refs ── must be imported at the top of the file, not mid-module ──
 import { GeneratorStateContext, GeneratorDispatchContext } from './GeneratorContextRefs';
 import { 
@@ -117,6 +118,7 @@ interface GeneratorState {
   worldLore?: any | null;
   activeModelAttempt: string | null;
   fallbackHistory: string[];
+  aiModels?: AIModel[];
   castDNA?: any | null;
   castDynamics?: any | null;
   castIntegrity?: any | null;

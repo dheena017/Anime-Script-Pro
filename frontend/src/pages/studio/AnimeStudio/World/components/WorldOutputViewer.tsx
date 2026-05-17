@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import { motion } from 'framer-motion';
-import { Zap } from 'lucide-react';
+import { Zap, ScrollText } from 'lucide-react';
 import { TableOfContents } from './TableOfContents';
 import { useAutoResizeTextarea } from '../hooks/useAutoResizeTextarea';
 
@@ -117,6 +117,9 @@ export const WorldOutputViewer = React.memo(({ isEditing, content, prompt, onCon
 
         {/* Quick Navigation TOC */}
         <div className="pt-2">
+          <h5 className="text-xs font-black text-zinc-500 uppercase tracking-widest flex items-center gap-2 mb-4">
+            <ScrollText className="w-3 h-3" /> Navigation Index
+          </h5>
           <TableOfContents content={content} />
         </div>
       </div>

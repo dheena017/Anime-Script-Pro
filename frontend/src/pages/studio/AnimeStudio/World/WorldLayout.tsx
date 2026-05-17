@@ -148,13 +148,14 @@ export default function WorldLayout() {
       generator: (p: string, m: string, c: string, base?: string) => Promise<string>,
       setter: (s: string) => void,
       flagSetter: (b: boolean) => void,
-      modulePrompt: string | undefined
+      modulePrompt: string | undefined,
+      baseWorld: string | undefined
     ) => {
       flagSetter(true);
       reportGeneration('WorldLayout', name, 'request', 'anime');
       try {
         const p = modulePrompt || prompt;
-        const res = await generator(p, selectedModel, contentType, generatedWorld || undefined);
+        const res = await generator(p, selectedModel, contentType, baseWorld);
         setter(res as any);
         reportGeneration('WorldLayout', name, 'success', 'anime', { length: res?.length || 0 });
         showNotification?.(`${name} generated successfully!`, 'success');
@@ -166,63 +167,39 @@ export default function WorldLayout() {
       }
     };
 
-    // Generate manifest/world
-    setGenerationProgress(5);
-    setSearchParams({ tab: 'manifest' });
-    setIsGeneratingWorld(true);
-    reportGeneration('WorldLayout', 'World Manifest', 'request', 'anime');
-    try {
-      const world = await generateWorld(prompt, selectedModel, contentType);
-      setGeneratedWorld(world);
-      setGenerationProgress(15);
-      reportGeneration('WorldLayout', 'World Manifest', 'success', 'anime', { length: world?.length || 0 });
-      showNotification?.('World created successfully!', 'success');
-    } catch (e: any) {
-      reportGeneration('WorldLayout', 'World Manifest', 'failure', 'anime', e);
-      showNotification?.('Failed to create world: ' + (e.message || 'Unknown error'), 'error');
-    } finally {
-      setIsGeneratingWorld(false);
-    }
-    await new Promise(r => setTimeout(r, 2000));
+    setGenerationProgress(10);
+    // Fire all generation processes simultaneously
+    await Promise.all([
+      // Main Manifest
+      (async () => {
+        setIsGeneratingWorld(true);
+        reportGeneration('WorldLayout', 'World Manifest', 'request', 'anime');
+        try {
+          const res = await generateWorld(prompt, selectedModel, contentType);
+          setGeneratedWorld(res);
+          reportGeneration('WorldLayout', 'World Manifest', 'success', 'anime', { length: res?.length || 0 });
+          showNotification?.('World created successfully!', 'success');
+        } catch (e: any) {
+          reportGeneration('WorldLayout', 'World Manifest', 'failure', 'anime', e);
+          showNotification?.('Failed to create world: ' + (e.message || 'Unknown error'), 'error');
+        } finally {
+          setIsGeneratingWorld(false);
+        }
+      })(),
 
-    // Run specialized modules sequentially with auto-tab flow
-    setSearchParams({ tab: 'lore' });
-    await runModule('History', generateLoreHistory, setGeneratedWorldLore, setIsGeneratingLore, promptLore);
-    setGenerationProgress(30);
-    await new Promise(r => setTimeout(r, 2000));
-    
-    setSearchParams({ tab: 'factions' });
-    await runModule('Factions', generateFactionSystem, setGeneratedWorldFactions, setIsGeneratingFactions, promptFactions);
-    setGenerationProgress(45);
-    await new Promise(r => setTimeout(r, 2000));
+      // Specialized Modules
+      runModule('History', generateLoreHistory, setGeneratedWorldLore, setIsGeneratingLore, promptLore, undefined),
+      runModule('Factions', generateFactionSystem, setGeneratedWorldFactions, setIsGeneratingFactions, promptFactions, undefined),
+      runModule('Powers', generatePowerSystem, setGeneratedWorldPowers, setIsGeneratingPowers, promptPowers, undefined),
+      runModule('Architecture', generateArchitecture, setGeneratedWorldArchitecture, setIsGeneratingArchitecture, promptArchitecture, undefined),
+      runModule('Atlas', generateAtlas, setGeneratedWorldAtlas, setIsGeneratingAtlas, promptAtlas, undefined),
+      runModule('Culture', generateCulture, setGeneratedWorldCulture, setIsGeneratingCulture, promptCulture, undefined),
+      runModule('Systems', generateSystems, setGeneratedWorldSystems, setIsGeneratingSystems, promptSystems, undefined)
+    ]);
 
-    setSearchParams({ tab: 'powers' });
-    await runModule('Powers', generatePowerSystem, setGeneratedWorldPowers, setIsGeneratingPowers, promptPowers);
-    setGenerationProgress(60);
-    await new Promise(r => setTimeout(r, 2000));
-    
-    setSearchParams({ tab: 'architecture' });
-    await runModule('Architecture', generateArchitecture, setGeneratedWorldArchitecture, setIsGeneratingArchitecture, promptArchitecture);
-    setGenerationProgress(70);
-    await new Promise(r => setTimeout(r, 2000));
-    
-    setSearchParams({ tab: 'atlas' });
-    await runModule('Atlas', generateAtlas, setGeneratedWorldAtlas, setIsGeneratingAtlas, promptAtlas);
-    setGenerationProgress(80);
-    await new Promise(r => setTimeout(r, 2000));
-    
-    setSearchParams({ tab: 'culture' });
-    await runModule('Culture', generateCulture, setGeneratedWorldCulture, setIsGeneratingCulture, promptCulture);
-    setGenerationProgress(90);
-    await new Promise(r => setTimeout(r, 2000));
-    
-    setSearchParams({ tab: 'systems' });
-    await runModule('Systems', generateSystems, setGeneratedWorldSystems, setIsGeneratingSystems, promptSystems);
     setGenerationProgress(100);
-    await new Promise(r => setTimeout(r, 2000));
-
     showNotification?.('Full World Manifest Sequence Complete!', 'success');
-    setSearchParams({ tab: 'manifest' });
+    
     // Reset progress after a short delay
     setTimeout(() => setGenerationProgress(0), 3000);
   };

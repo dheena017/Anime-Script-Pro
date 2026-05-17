@@ -47,6 +47,23 @@ export const scriptStyles = {
     contentWrapper: "w-full p-0",
   },
 
+  // --- CONTENT SECTION ---
+  content: {
+    container: "script-container px-6 py-6",
+    contentArea: "script-content-area grid grid-cols-1 lg:grid-cols-4 gap-8 items-start",
+    mainColumn: "script-main-column lg:col-span-3",
+    sidebar: "script-sidebar lg:col-span-1 sticky top-24 self-start max-h-[80vh] overflow-y-auto pr-4 hide-scrollbar",
+    sidebarCard: "p-6 bg-gradient-to-b from-[#040404] to-[#060606] border border-white/5 rounded-2xl space-y-4 relative overflow-hidden group",
+    sidebarGlow: "absolute inset-0 blur-[40px] pointer-events-none transition-all duration-700",
+    sidebarContent: "relative z-10 space-y-4",
+    sidebarTitle: "text-xs font-black text-zinc-500 uppercase tracking-widest flex items-center gap-2",
+    sidebarNote: "text-xs text-zinc-600 font-bold uppercase tracking-tighter leading-relaxed",
+    statCard: "p-6 bg-gradient-to-b from-[#040404] to-[#050505] border border-white/5 rounded-2xl space-y-4 relative group overflow-hidden hover:scale-[1.01] transition-transform duration-200",
+    statIconBox: "w-10 h-10 rounded-xl bg-white/[0.03] border border-white/10 flex items-center justify-center group-hover:scale-110 transition-transform",
+    statLabel: "text-xs font-black text-zinc-500 uppercase tracking-widest",
+    statValue: "text-sm font-black text-white uppercase tracking-tighter line-clamp-1",
+  },
+
   // --- TABS SECTION ---
   tabs: {
     container: 'tabs-nav-container flex-wrap group',
@@ -61,6 +78,7 @@ export const scriptStyles = {
     iconInactive: 'opacity-40 group-hover/tab:opacity-70 group-hover/tab:scale-105',
     underline: 'absolute bottom-0 left-4 right-4 h-[2px] bg-gradient-to-r rounded-full',
     spinner: 'w-3.5 h-3.5 border-2 border-transparent border-t-current rounded-full animate-spin',
+    label: 'inline',
     tabsBar: "studio-tabs-bar sticky top-0 z-40 flex items-center justify-center p-3 md:p-4 bg-[#050505]/95 backdrop-blur-md border border-white/10 rounded-[2rem] shadow-2xl mb-8 relative group overflow-hidden",
     tabsBarGlow: "absolute inset-0 bg-gradient-to-r from-transparent via-studio/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000",
     tabsBarInner: "relative z-10 w-full flex justify-center",

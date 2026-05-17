@@ -44,7 +44,10 @@ Design the architectural and visual language of this world. Ensure it connects l
       0.95, // topP
       40,   // topK
       180000, // timeoutMs
-      worldContext // worldLore
+      worldContext, // worldLore
+      null, // castDNA
+      null, // episodePlan
+      'world-architecture' // requestLabel
     );
     if (!text) throw new Error("Architecture synthesis produced no data.");
     studioLog('WorldEngine', 'Architectural language synthesized successfully.', 'success');
@@ -83,7 +86,10 @@ Map out the physical geography and environmental logic. The atlas must support t
       0.95, // topP
       40,   // topK
       180000, // timeoutMs
-      worldContext // worldLore
+      worldContext, // worldLore
+      null, // castDNA
+      null, // episodePlan
+      'world-atlas' // requestLabel
     );
     if (!text) throw new Error("Atlas synthesis produced no data.");
     studioLog('WorldEngine', 'Geographical atlas mapped successfully.', 'success');
@@ -122,7 +128,10 @@ Design the rituals, daily life, and social hierarchies. Ensure the culture refle
       0.95, // topP
       40,   // topK
       180000, // timeoutMs
-      worldContext // worldLore
+      worldContext, // worldLore
+      null, // castDNA
+      null, // episodePlan
+      'world-culture' // requestLabel
     );
     if (!text) throw new Error("Culture synthesis produced no data.");
     studioLog('WorldEngine', 'Societal ethos designed successfully.', 'success');
@@ -160,7 +169,10 @@ Architect the mechanical logic and technological infrastructure. Ensure the tech
       0.95, // topP
       40,   // topK
       180000, // timeoutMs
-      worldContext // worldLore
+      worldContext, // worldLore
+      null, // castDNA
+      null, // episodePlan
+      'world-systems' // requestLabel
     );
     if (!text) throw new Error("Systems synthesis produced no data.");
     return text;
@@ -308,7 +320,10 @@ Design the power mechanics so they align perfectly with the established world co
       0.95, // topP
       40,   // topK
       180000, // timeoutMs
-      worldContext // worldLore
+      worldContext, // worldLore
+      null, // castDNA
+      null, // episodePlan
+      'world-powers' // requestLabel
     );
     if (!text) throw new Error("Power synthesis produced no data.");
     return text;
@@ -344,7 +359,10 @@ Create factions, ideologies, and political tensions that feel like a natural con
       0.95, // topP
       40,   // topK
       180000, // timeoutMs
-      worldContext // worldLore
+      worldContext, // worldLore
+      null, // castDNA
+      null, // episodePlan
+      'world-factions' // requestLabel
     );
     if (!text) throw new Error("Faction synthesis produced no data.");
     return text;
@@ -380,7 +398,10 @@ Establish the history and eras that led to the world described in the context ab
       0.95, // topP
       40,   // topK
       180000, // timeoutMs
-      worldContext // worldLore
+      worldContext, // worldLore
+      null, // castDNA
+      null, // episodePlan
+      'world-lore-history' // requestLabel
     );
     if (!text) throw new Error("Lore synthesis produced no data.");
     return text;

@@ -33,7 +33,7 @@ def after_cursor_execute(conn, cursor, statement, parameters, context, executema
     clean_stmt = " ".join(statement.split())
     if len(clean_stmt) > 80:
         clean_stmt = clean_stmt[:77] + "..."
-    logger.debug(f"DATABASE: Query Executed -> {clean_stmt} | Time: {total:.4f}s")
+    logger.info(f"DATABASE: Query Executed -> {clean_stmt} | Time: {total:.4f}s")
     
     # Broadcast to Telemetry
     try:

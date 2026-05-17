@@ -24,6 +24,7 @@ export function WorldPage() {
   const { user } = useAuth();
   const {
     isEditing,
+    prompt,
     generatedWorld,
     generatedWorldLore,
     generatedWorldPowers,
@@ -194,6 +195,7 @@ export function WorldPage() {
           <ManifestTab
             isEditing={isEditing}
             content={generatedWorld || ''}
+            prompt={prompt}
             onContentChange={(val: string) => updateGlobalWorld(val)}
             onGenerate={() => window.dispatchEvent(new CustomEvent('studio-generate-world'))}
             isGenerating={isGeneratingWorld}

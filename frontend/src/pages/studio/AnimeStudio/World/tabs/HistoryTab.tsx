@@ -1,11 +1,12 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { StudioEditor } from '../../components/StudioEditor';
-import { History, Calendar, Sword, Sparkles, BookOpen } from 'lucide-react';
+import { History, Calendar, Sword, Sparkles, BookOpen, ScrollText } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { studioLog, reportGeneration } from '@/lib/studio-logger';
 import { useAutoResizeTextarea } from '../hooks/useAutoResizeTextarea';
 import { worldStyles as s } from '../worldStyles';
+import { TableOfContents } from '../components/TableOfContents';
 
 interface HistoryTabProps {
   isEditing: boolean;
@@ -120,6 +121,13 @@ export const HistoryTab: React.FC<HistoryTabProps> = ({
                   <p className="text-xs font-bold text-zinc-600 uppercase">No major events identified</p>
                 </div>
               )}
+            </div>
+            
+            <div className="pt-2">
+              <h5 className={s.content.sidebarTitle + " mb-4"}>
+                <ScrollText className="w-3 h-3" /> Navigation Index
+              </h5>
+              <TableOfContents content={content} />
             </div>
           </div>
         </div>

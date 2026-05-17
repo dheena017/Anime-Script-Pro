@@ -27,6 +27,8 @@ from .cast import router as cast_router
 from .diagnostic import router as diagnostic_router
 from .scenes import router as scenes_router
 from .sessions import router as sessions_router
+from .video import router as video_router
+from .audio import router as audio_router
 
 # Create the Master API Router
 api_router = APIRouter()
@@ -58,3 +60,5 @@ api_router.include_router(cast_router, tags=["Cast Management"])
 api_router.include_router(diagnostic_router, tags=["Neural Admin"])
 api_router.include_router(scenes_router, tags=["Production"])
 api_router.include_router(sessions_router, tags=["Production"])
+api_router.include_router(video_router, tags=["Video"])
+api_router.include_router(audio_router, tags=["Audio"])

@@ -364,7 +364,8 @@ export async function callAI(
   timeoutMs: number = 180000,
   worldLore?: string | null,
   castDNA?: string | null,
-  episodePlan?: string | null
+  episodePlan?: string | null,
+  requestLabel?: string // optional label to prevent cross-module deduplication
 ): Promise<string> {
   const detailedSystemInstruction = composeDetailedSystemInstruction(
     systemInstruction,
@@ -373,7 +374,8 @@ export async function callAI(
     episodePlan
   );
   
-  const requestKey = JSON.stringify({ model, prompt, systemInstruction: detailedSystemInstruction, temperature, maxTokens, topP, topK });
+  // Include requestLabel in the key so different modules never collide with each other
+  const requestKey = JSON.stringify({ label: requestLabel || null, model, prompt, systemInstruction: detailedSystemInstruction, temperature, maxTokens, topP, topK });
   
   // 1. Check Memory Cache
   const cachedResult = getCachedResponse(requestKey);

@@ -7,11 +7,8 @@ import {
   MapPin, 
   Clock, 
   Users, 
-  Heart, 
   Eye, 
   Sparkles,
-  Layers,
-  ChevronRight,
   Database,
   Cpu
 } from 'lucide-react';

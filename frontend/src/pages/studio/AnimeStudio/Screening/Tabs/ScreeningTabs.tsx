@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import { screeningStyles as s } from '../screeningStyles';
 
-export type ScreeningTab = 'player' | 'logs' | 'stats' | 'config';
+export type ScreeningTab = 'preview' | 'sequences' | 'dailies' | 'archives' | 'exports';
 
 interface ScreeningTabsProps {
   activeTab: ScreeningTab;
@@ -13,10 +13,11 @@ interface ScreeningTabsProps {
 }
 
 const TABS: { id: ScreeningTab; label: string; icon: any; color: string; glow: string }[] = [
-  { id: 'player', label: 'THEATRE', icon: Monitor, color: 'text-studio', glow: 'shadow-[0_0_15px_rgba(6,182,212,0.3)]' },
-  { id: 'logs',   label: 'LOGS',    icon: FileText, color: 'text-emerald-400', glow: 'shadow-[0_0_15px_rgba(16,185,129,0.3)]' },
-  { id: 'stats',  label: 'STATS',   icon: BarChart, color: 'text-amber-400', glow: 'shadow-[0_0_15px_rgba(251,191,36,0.3)]' },
-  { id: 'config', label: 'CONFIG',  icon: Settings, color: 'text-zinc-400', glow: 'shadow-[0_0_15px_rgba(161,161,170,0.3)]' },
+  { id: 'preview',   label: 'PREVIEW',   icon: Monitor,  color: 'text-studio',      glow: 'shadow-[0_0_15px_rgba(6,182,212,0.3)]' },
+  { id: 'sequences', label: 'SEQUENCES', icon: Play,     color: 'text-emerald-400', glow: 'shadow-[0_0_15px_rgba(16,185,129,0.3)]' },
+  { id: 'dailies',   label: 'DAILIES',   icon: FileText, color: 'text-amber-400',   glow: 'shadow-[0_0_15px_rgba(251,191,36,0.3)]' },
+  { id: 'archives',  label: 'ARCHIVES',  icon: Settings, color: 'text-zinc-400',    glow: 'shadow-[0_0_15px_rgba(161,161,170,0.3)]' },
+  { id: 'exports',   label: 'EXPORTS',   icon: BarChart, color: 'text-violet-400',  glow: 'shadow-[0_0_15px_rgba(139,92,246,0.3)]' },
 ];
 
 export const ScreeningTabs: React.FC<ScreeningTabsProps> = ({

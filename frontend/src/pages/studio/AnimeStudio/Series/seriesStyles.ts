@@ -6,18 +6,18 @@
 export const seriesStyles = {
   // --- HEADER SECTION ---
   header: {
-    wrapper: "relative group",
-    glow: "absolute -inset-0.5 rounded-3xl bg-gradient-to-r from-[#08162a] via-[#041428] to-[#000814] opacity-60 blur-xl pointer-events-none",
-    container: "relative header-container px-6 py-5 flex items-center justify-between gap-6 rounded-3xl bg-gradient-to-r from-[#071426]/80 to-[#071022]/60 border border-blue-900/30 shadow-[0_10px_30px_rgba(2,6,23,0.6)]",
-    iconBox: "header-icon-box group/icon rounded-2xl p-3 !bg-gradient-to-br !from-emerald-900/10 !to-emerald-500/6 !border-emerald-500/30",
-    iconGlow: "absolute inset-0 bg-gradient-to-br from-emerald-500/20 to-transparent opacity-0 group-hover/icon:opacity-100 transition-opacity duration-500 rounded-2xl",
-    icon: "w-7 h-7 text-emerald-400 relative z-10 drop-shadow-[0_6px_20px_rgba(16,185,129,0.18)]",
-    title: "header-title text-white font-extrabold uppercase tracking-widest text-base md:text-lg",
-    subtitle: "header-subtitle text-xs text-emerald-300/60",
-    actionButton: "relative w-full sm:w-auto h-10 px-6 rounded-full border border-white/10 bg-white/5 text-zinc-400 hover:bg-white/10 hover:border-emerald-500/50 hover:text-emerald-400 font-black uppercase tracking-widest text-xs transition-all duration-300 group/back shadow-lg",
-    actionButtonDanger: "relative w-full sm:w-auto h-10 px-6 rounded-full border border-red-500/30 bg-red-500/10 text-red-400 hover:bg-red-500/15 hover:border-red-500/60 hover:text-red-300 font-black uppercase tracking-widest text-xs transition-all duration-300 group/stop shadow-lg",
-    actionButtonPrimary: "relative w-full sm:w-auto h-10 px-6 rounded-full border border-emerald-500/30 bg-emerald-500/5 text-emerald-400 hover:bg-emerald-500/10 hover:border-emerald-500/60 hover:text-emerald-300 font-black uppercase tracking-widest text-xs transition-all duration-300 group/btn shadow-lg",
-    nextButton: "relative w-full sm:w-auto h-10 px-8 rounded-full border border-emerald-500/30 bg-emerald-500/5 text-emerald-400 hover:bg-emerald-500/10 hover:border-emerald-500/60 hover:text-emerald-300 font-black uppercase tracking-widest text-xs transition-all duration-300 group/next shadow-lg",
+    wrapper: "relative group mb-10",
+    glow: "absolute -inset-1 rounded-[2.5rem] bg-gradient-to-r from-emerald-500/20 via-studio/10 to-transparent opacity-40 blur-2xl pointer-events-none group-hover:opacity-60 transition-opacity duration-1000",
+    container: "relative header-container px-8 py-6 flex flex-col lg:flex-row items-center justify-between gap-8 rounded-[2.5rem] bg-[#050505]/80 backdrop-blur-3xl border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden",
+    iconBox: "header-icon-box relative group/icon rounded-[1.5rem] p-4 bg-gradient-to-br from-emerald-500/20 to-studio/5 border border-emerald-500/30 overflow-hidden",
+    iconGlow: "absolute inset-0 bg-gradient-to-br from-emerald-400/40 via-transparent to-transparent opacity-0 group-hover/icon:opacity-100 transition-opacity duration-700",
+    icon: "w-8 h-8 text-emerald-400 relative z-10 drop-shadow-[0_0_15px_rgba(52,211,153,0.5)] transition-transform duration-500 group-hover/icon:scale-110",
+    title: "header-title text-white font-black uppercase tracking-[0.3em] text-xl md:text-2xl drop-shadow-2xl",
+    subtitle: "header-subtitle text-[10px] font-black text-emerald-300/40 uppercase tracking-[0.4em]",
+    actionButton: "relative px-6 py-2.5 rounded-full border border-white/5 bg-white/[0.03] text-zinc-500 hover:text-white hover:bg-white/[0.08] hover:border-white/20 font-black uppercase tracking-widest text-[10px] transition-all duration-500 shadow-xl backdrop-blur-md",
+    actionButtonDanger: "relative px-6 py-2.5 rounded-full border border-red-500/20 bg-red-500/5 text-red-500/60 hover:text-red-400 hover:bg-red-500/10 hover:border-red-500/40 font-black uppercase tracking-widest text-[10px] transition-all duration-500 shadow-xl",
+    actionButtonPrimary: "relative px-8 py-3 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 hover:text-white hover:bg-emerald-500/20 hover:border-emerald-500/60 font-black uppercase tracking-widest text-[10px] transition-all duration-500 shadow-[0_0_30px_rgba(16,185,129,0.2)]",
+    nextButton: "relative px-10 py-3 rounded-full bg-gradient-to-r from-emerald-600 to-emerald-400 text-black hover:shadow-[0_0_30px_rgba(16,185,129,0.4)] hover:scale-105 active:scale-95 font-black uppercase tracking-[0.2em] text-[10px] transition-all duration-500",
   },
 
   // --- TOOLBAR SECTION ---
@@ -37,20 +37,37 @@ export const seriesStyles = {
 
   // --- TABS SECTION ---
   tabs: {
-    container: 'flex items-center gap-1 bg-black/50 border border-white/10 p-1.5 rounded-full backdrop-blur-xl shadow-2xl relative group overflow-hidden',
-    overlay: 'absolute inset-0 bg-gradient-to-r from-white/5 via-transparent to-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000',
-    button: 'relative px-5 py-2 text-xs font-black tracking-[0.2em] transition-all duration-500 uppercase flex items-center gap-2.5',
-    buttonActive: 'text-studio',
+    container: 'flex items-center gap-1.5 bg-black/60 border border-white/10 p-1.5 rounded-full backdrop-blur-3xl shadow-[0_20px_50px_rgba(0,0,0,0.4)] relative group overflow-hidden',
+    overlay: 'absolute inset-0 bg-gradient-to-r from-emerald-500/5 via-transparent to-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000 pointer-events-none',
+    button: 'relative z-20 px-6 py-2.5 text-[10px] font-black tracking-[0.25em] transition-all duration-500 uppercase flex items-center gap-3',
+    buttonActive: 'text-white drop-shadow-[0_0_10px_rgba(52,211,153,0.4)]',
     buttonInactive: 'text-zinc-500 hover:text-zinc-300',
-    pill: 'absolute inset-0 bg-white/10 border border-white/20 rounded-full z-0',
+    pill: 'absolute inset-0 bg-emerald-600 border border-emerald-400/40 rounded-full z-10 shadow-[0_0_20px_rgba(16,185,129,0.3)] pointer-events-none',
     icon: 'w-3.5 h-3.5 transition-all duration-500',
-    iconActive: 'opacity-100 scale-110',
+    iconActive: 'opacity-100 scale-110 text-white',
     iconInactive: 'opacity-40',
     spinner: 'w-3.5 h-3.5 border-2 border-transparent border-t-current rounded-full animate-spin',
-    label: 'hidden md:inline',
-    tabsBar: "studio-tabs-bar sticky top-0 z-40 flex items-center justify-center p-3 md:p-4 bg-[#050505]/95 backdrop-blur-md border border-white/10 rounded-[2rem] shadow-2xl mb-8 relative group overflow-hidden",
-    tabsBarGlow: "absolute inset-0 bg-gradient-to-r from-transparent via-studio/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000",
+    label: 'inline',
+    tabsBar: "studio-tabs-bar sticky top-4 z-40 flex items-center justify-center p-3 md:p-4 bg-[#050505]/40 backdrop-blur-2xl border border-white/5 rounded-[3rem] shadow-2xl mb-12 relative group overflow-hidden mx-auto max-w-fit",
+    tabsBarGlow: "absolute inset-0 bg-gradient-to-r from-transparent via-emerald-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000",
     tabsBarInner: "relative z-10 w-full flex justify-center",
+  },
+
+  // --- CONTENT SECTION ---
+  content: {
+    container: "series-container px-6 py-6",
+    contentArea: "series-content-area grid grid-cols-1 lg:grid-cols-4 gap-8 items-start",
+    mainColumn: "series-main-column lg:col-span-3",
+    sidebar: "series-sidebar lg:col-span-1 sticky top-24 self-start max-h-[80vh] overflow-y-auto pr-4 hide-scrollbar",
+    sidebarCard: "p-6 bg-gradient-to-b from-[#040404] to-[#060606] border border-white/5 rounded-2xl space-y-4 relative overflow-hidden group",
+    sidebarGlow: "absolute inset-0 blur-[40px] pointer-events-none transition-all duration-700",
+    sidebarContent: "relative z-10 space-y-4",
+    sidebarTitle: "text-xs font-black text-zinc-500 uppercase tracking-widest flex items-center gap-2",
+    sidebarNote: "text-xs text-zinc-600 font-bold uppercase tracking-tighter leading-relaxed",
+    statCard: "p-6 bg-gradient-to-b from-[#040404] to-[#050505] border border-white/5 rounded-2xl space-y-4 relative group overflow-hidden hover:scale-[1.01] transition-transform duration-200",
+    statIconBox: "w-10 h-10 rounded-xl bg-white/[0.03] border border-white/10 flex items-center justify-center group-hover:scale-110 transition-transform",
+    statLabel: "text-xs font-black text-zinc-500 uppercase tracking-widest",
+    statValue: "text-sm font-black text-white uppercase tracking-tighter line-clamp-1",
   },
 
   // --- PAGE LAYOUT ---

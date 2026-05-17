@@ -79,23 +79,28 @@ export async function simulateVideoRender(prompt: string) {
   });
 }
 
-export async function generateSceneVideo(prompt: string, model: string = "veo-2.0-generate-001"): Promise<string | null> {
+export async function generateSceneVideo(prompt: string, model: string = "veo-2.0-generate-001", provider?: string): Promise<string | null> {
   validateVideoScript(prompt);
-
-  // Try to use Veo or simulate it if the API is unsupported
-  console.info(`%c[Video Engine] %cInitiating Image-to-Video using %c${model} %cfor prompt: ${prompt}`, 'color: #8b5cf6; font-weight: bold;', 'color: #94a3b8;', 'color: #fff; font-weight: bold;', 'color: #94a3b8;');
-  
+  // Proxy the render request to the backend render endpoint which will call the configured provider
   try {
-    // We would use getAIClient().models.generateContent or predictLongRunning here,
-    // but standard Gemini API often simulates or restricts Veo to Vertex AI.
-    // For the studio experience, we'll return a simulated high-quality video response.
-    await new Promise(resolve => setTimeout(resolve, 3000));
-    
-    // Simulate returning a generated video URL
-    return buildFallbackVideoUrl();
+    const res = await fetch('/api/render/scene', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt, model, duration: 4, provider })
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      console.error('Render proxy failed', err);
+      return null;
+    }
+
+    const body = await res.json();
+    if (body && body.success && body.videoUrl) return body.videoUrl;
+    return null;
   } catch (error) {
-    console.error("Error generating video:", error);
-    return buildFallbackVideoUrl();
+    console.error('Error calling render proxy:', error);
+    return null;
   }
 }
 

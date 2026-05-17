@@ -143,10 +143,6 @@ export default function SeriesLayout() {
       // Response and Report Flow - Instant Impact
       const base = `/studio/series`;
 
-      // We navigate directly to episodes now to avoid "one by one" delay feeling
-      // Navigate to episodes tab via query param after generation
-      setSearchParams({ tab: 'episodes' }); 
-
       studioLog("SERIES", `UI Transition complete. Final plan state: ${plan?.length} episodes.`, 'info', {
         exists: !!plan,
         count: plan?.length,

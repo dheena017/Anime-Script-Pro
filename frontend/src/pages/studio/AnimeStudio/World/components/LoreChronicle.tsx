@@ -2,7 +2,7 @@ import React from 'react';
 import { History, Sparkles, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { worldStyles as s } from '../worldStyles/worldStyles';
+import { worldStyles as s } from '../worldStyles';
 
 interface LoreChronicleProps {
   lore?: string;

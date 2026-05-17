@@ -101,6 +101,10 @@ lighthouse-report.json
 coverage/
 playwright-reporters/
 
+# --- Backend Runtime Artifacts ---
+backend/outputs/
+backend/requirements-fix.txt
+
 # --- Editor & System ---
 .vscode/*
 !.vscode/extensions.json

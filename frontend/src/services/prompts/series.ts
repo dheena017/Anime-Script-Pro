@@ -152,6 +152,7 @@ MISSION:
 Design a cohesive ${episodeCount}-episode season plan that is emotionally escalating, narratively rigorous, and production-ready.
 
 SOURCE OF TRUTH:
+- CONTENT TYPE: ${contentType}
 - WORLD BIBLE: ${worldLore}
 - CAST DNA: ${castProfiles}
 - PRODUCTION SCAFFOLDING: ${totalSessions} Session(s), ${episodeCount} Episode(s) total, target ${numScenes} Scenes per episode.
@@ -216,7 +217,7 @@ SEASON DESIGN FRAMEWORK:
 - Do not include markdown, code fences, comments, or explanations.
 - Follow the schema exactly and keep property names unchanged.
 
-REQUIRED JSON SCHEMA:
+REQUIRED JSON SCHEMA (You MUST output an array containing EXACTLY ${episodeCount} episodes! Do not output just 1 episode if more are requested!):
 [
   {
     "episode": "01",
@@ -231,6 +232,21 @@ REQUIRED JSON SCHEMA:
       "image": "Visual style including grading, lensing, and lighting direction",
       "video": "Camera movement, blocking, and motion language",
       "scene_count": "Estimated core scene count for a long-form episode"
+    }
+  },
+  {
+    "episode": "02",
+    "title": "...",
+    "hook": "...",
+    "setting": "...",
+    "runtime": "...",
+    "focus_characters": ["..."],
+    "emotional_arc": "...",
+    "asset_matrix": {
+      "sound": "...",
+      "image": "...",
+      "video": "...",
+      "scene_count": "..."
     }
   }
 ]
@@ -271,6 +287,3 @@ export const SERIES_PLAN_GENERATION_PROMPT = (
   numScenes: number = 18,
   totalSessions: number = 1
 ) => safeSeriesPlanGeneration(contentType, episodeCount, worldLore, castProfiles, numScenes, totalSessions);
-
-
-

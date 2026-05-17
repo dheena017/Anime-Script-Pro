@@ -4,6 +4,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
+import { useStoryboard } from '@/contexts/generator';
 import { 
   ChevronLeft, 
   ChevronRight, 
@@ -18,7 +19,9 @@ import {
 } from 'lucide-react';
 import { 
   enhanceNarration, 
-  enhanceSceneVisuals} from '@/services/api/gemini';
+  enhanceSceneVisuals,
+  generateSceneVideo
+} from '@/services/api/gemini';
 
 interface Scene {
   id: string;
@@ -37,7 +40,8 @@ export function SceneViewPage() {
   const { 
     generatedScript,
     visualData, 
-    videoData, 
+    videoData,
+    selectedModel
   } = useGeneratorState();
   const {
     setGeneratedScript,
@@ -45,11 +49,16 @@ export function SceneViewPage() {
     addLog
   } = useGeneratorDispatch();
 
+  const { dispatch: storyboardDispatch } = useStoryboard();
+
   const [scenes, setScenes] = useState<Scene[]>([]);
   const [currentSceneIndex, setCurrentSceneIndex] = useState<number>(-1);
   const [editForm, setEditForm] = useState<Partial<Scene>>({});
   const [isSaving, setIsSaving] = useState(false);
   const [isEnhancing, setIsEnhancing] = useState(false);
+  const [isRendering, setIsRendering] = useState(false);
+  const [generatedVideoUrl, setGeneratedVideoUrl] = useState<string | null>(null);
+  const [renderError, setRenderError] = useState<string | null>(null);
 
   // Parse storyboard from script
   useEffect(() => {
@@ -117,6 +126,37 @@ export function SceneViewPage() {
       showNotification?.("Scene saved successfully!", "success");
       addLog("STORYBOARD", "COMPLETED", `Scene ${currentSceneIndex + 1} manifest successfully archived.`);
     }, 500);
+  };
+
+  const handleTryRender = async (index: number) => {
+    if (index < 0 || !editForm) return;
+    setRenderError(null);
+    setIsRendering(true);
+    addLog('STORYBOARD', 'RENDER', `Starting render for scene ${index + 1}...`);
+    try {
+      const promptToUse = editForm.linkedPrompt || editForm.visuals || '';
+      if (!promptToUse || promptToUse.trim().length < 10) {
+        throw new Error('Prompt too short for rendering. Edit the scene visuals or linked prompt.');
+      }
+      const url = await generateSceneVideo(promptToUse, selectedModel || undefined);
+      if (!url) throw new Error('Renderer returned no URL.');
+      setGeneratedVideoUrl(url);
+      // Persist to storyboard state so other views can access it
+      try {
+        storyboardDispatch({ type: 'UPDATE_VIDEO_ITEM', payload: { id: scene.originalIndex, data: url } });
+      } catch (e) {
+        console.warn('Failed to persist video to storyboard state', e);
+      }
+      showNotification?.('Render completed!', 'success');
+      addLog('STORYBOARD', 'COMPLETED', `Render succeeded for scene ${index + 1}.`);
+    } catch (error: any) {
+      const message = error?.message || String(error) || 'Unknown render error';
+      setRenderError(message);
+      showNotification?.(`Render failed: ${message}`, 'error');
+      addLog('STORYBOARD', 'ERROR', `Render failed for scene ${index + 1}: ${message}`);
+    } finally {
+      setIsRendering(false);
+    }
   };
 
   const handleEnhance = async (type: 'narration' | 'visuals') => {
@@ -207,8 +247,10 @@ export function SceneViewPage() {
         {/* Visual Engine Column */}
         <div className="space-y-8">
           <Card className="bg-black/60 backdrop-blur-md border-white/5 overflow-hidden rounded-[2.5rem] shadow-2xl relative group">
-             <div className="aspect-video bg-[#030303] flex items-center justify-center relative overflow-hidden">
-                {videoData?.[scene.originalIndex] ? (
+               <div className="aspect-video bg-[#030303] flex items-center justify-center relative overflow-hidden">
+                {generatedVideoUrl ? (
+                  <video src={generatedVideoUrl} controls autoPlay loop muted playsInline className="w-full h-full object-cover" />
+                ) : videoData?.[scene.originalIndex] ? (
                   <video 
                     src={videoData?.[scene.originalIndex]} 
                     autoPlay loop muted playsInline 
@@ -222,11 +264,40 @@ export function SceneViewPage() {
                     referrerPolicy="no-referrer"
                   />
                 ) : (
-                  <div className="flex flex-col items-center gap-6">
+                  <div className="flex flex-col items-center gap-4">
                     <div className="w-20 h-20 bg-white/[0.02] border border-white/5 rounded-3xl flex items-center justify-center">
                       <Film className="w-10 h-10 text-zinc-800" />
                     </div>
-                    <p className="text-xs text-zinc-600 font-black uppercase tracking-[0.4em]">Visual Synthesis Offline</p>
+                    <p className="text-sm font-bold text-red-400 uppercase tracking-widest">No generated video available</p>
+                    <p className="text-xs text-zinc-500 text-center">This scene has no synthesized video yet or the render failed.</p>
+                    {renderError && (
+                      <p className="text-xs text-red-500 mt-2 text-center">Render error: {renderError}</p>
+                    )}
+                    <div className="mt-4 flex gap-2">
+                      <Button onClick={() => handleTryRender(currentSceneIndex)} disabled={isRendering} className="bg-studio/10 text-studio">
+                        {isRendering ? 'Rendering...' : 'Try Render'}
+                      </Button>
+                      <Button onClick={async () => {
+                        setRenderError(null);
+                        setIsRendering(true);
+                        try {
+                          const promptToUse = editForm.linkedPrompt || editForm.visuals || '';
+                          const url = await generateSceneVideo(promptToUse, selectedModel || undefined, 'free_ai');
+                          if (!url) throw new Error('Renderer returned no URL.');
+                          setGeneratedVideoUrl(url);
+                          storyboardDispatch({ type: 'UPDATE_VIDEO_ITEM', payload: { id: scene.originalIndex, data: url } });
+                          showNotification?.('Free AI render completed!', 'success');
+                        } catch (e: any) {
+                          const message = e?.message || String(e) || 'Unknown render error';
+                          setRenderError(message);
+                          showNotification?.(`Render failed: ${message}`, 'error');
+                        } finally {
+                          setIsRendering(false);
+                        }
+                      }} disabled={isRendering} className="bg-studio text-black">
+                        {isRendering ? 'Rendering...' : 'Free AI Render'}
+                      </Button>
+                    </div>
                   </div>
                 )}
                 

@@ -35,7 +35,7 @@ export function StudioIntelligenceHUD() {
   const { syncCore, saveLocalSession, setIsIntelligenceOpen } = useGeneratorDispatch();
   const { masterLogs, dbLogs, clearLogs } = useLogs();
 
-  const [activeTerminalTab, setActiveTerminalTab] = useState<'system' | 'database'>('system');
+  const [activeTerminalTab, setActiveTerminalTab] = useState<'system' | 'intelligence'>('system');
   const [uptime, setUptime] = useState(0);
 
   useEffect(() => {
@@ -680,13 +680,13 @@ export function StudioIntelligenceHUD() {
                         System
                       </button>
                       <button 
-                        onClick={() => setActiveTerminalTab('database')}
+                        onClick={() => setActiveTerminalTab('intelligence')}
                         className={cn(
                           "px-3 py-1 rounded text-[9px] font-black uppercase tracking-widest transition-all",
-                          activeTerminalTab === 'database' ? "bg-amber-500 text-black shadow-[0_0_10px_rgba(245,158,11,0.5)]" : "text-zinc-500 hover:text-zinc-300"
+                          activeTerminalTab === 'intelligence' ? "bg-amber-500 text-black shadow-[0_0_10px_rgba(245,158,11,0.5)]" : "text-zinc-500 hover:text-zinc-300"
                         )}
                       >
-                        Database
+                        Intelligence
                       </button>
                     </div>
                     <button 
@@ -724,7 +724,7 @@ export function StudioIntelligenceHUD() {
                               "text-xs font-black uppercase tracking-[0.2em] px-2 py-0.5 rounded border",
                               log.status === 'ERROR' ? 'bg-red-500/10 border-red-500/20 text-red-500' :
                               log.status === 'WARN' ? 'bg-amber-500/10 border-amber-500/20 text-amber-500' :
-                              activeTerminalTab === 'database' ? 'bg-amber-500/10 border-amber-500/20 text-amber-500' :
+                              activeTerminalTab === 'intelligence' ? 'bg-amber-500/10 border-amber-500/20 text-amber-500' :
                               'bg-studio/10 border-studio/20 text-studio'
                             )}>{log.module}</span>
                           </div>

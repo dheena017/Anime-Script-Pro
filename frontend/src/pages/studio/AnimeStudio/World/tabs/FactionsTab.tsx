@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import { StudioEditor } from '../../components/StudioEditor';
-import { Users, Flag, Sword, Landmark, Sparkles } from 'lucide-react';
+import { Users, Flag, Sword, Landmark, Sparkles, ScrollText } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { TableOfContents } from '../components/TableOfContents';
 import { worldStyles as s } from '../worldStyles';
@@ -123,6 +123,9 @@ export const FactionsTab: React.FC<FactionsTabProps> = ({
               ))}
             </div>
             <div className="pt-2">
+              <h5 className={s.content.sidebarTitle + " mb-4"}>
+                <ScrollText className="w-3 h-3" /> Navigation Index
+              </h5>
               <TableOfContents content={content} />
             </div>
           </div>

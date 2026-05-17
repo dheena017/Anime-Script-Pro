@@ -1,11 +1,15 @@
 import React, { useMemo } from 'react';
 import { StudioEditor } from '../../components/StudioEditor';
 import ReactMarkdown from 'react-markdown';
+import { motion } from 'framer-motion';
+import { Sparkles, Zap, ScrollText } from 'lucide-react';
+import { TableOfContents } from '../components/TableOfContents';
 import { worldStyles as s } from '../worldStyles';
 
 interface ManifestTabProps {
   isEditing: boolean;
   content: string;
+  prompt?: string;
   onContentChange: (content: string) => void;
   onGenerate?: () => void;
   isGenerating?: boolean;
@@ -14,6 +18,7 @@ interface ManifestTabProps {
 export const ManifestTab: React.FC<ManifestTabProps> = ({
   isEditing,
   content,
+  prompt,
   onContentChange,
   onGenerate,
   isGenerating
@@ -25,8 +30,6 @@ export const ManifestTab: React.FC<ManifestTabProps> = ({
 
   return (
     <div className={s.content.container + " will-change-transform transform-gpu"}>
-
-
       {isEditing ? (
         <StudioEditor
           content={content}
@@ -47,7 +50,7 @@ Use markdown formatting:
           {/* Blueprint Background */}
           <div className="absolute inset-0 world-bible-blueprint pointer-events-none opacity-30 rounded-3xl" />
           
-          {/* Content */}
+          {/* Content Column */}
           <div className={s.content.mainColumn + " relative z-10"}>
             <div className="bg-gradient-to-b from-white/[0.02] to-transparent border border-white/5 rounded-3xl p-8 lg:p-16 backdrop-blur-sm relative overflow-hidden group">
               {/* Hover glow effect */}
@@ -65,6 +68,57 @@ Use markdown formatting:
                 </div>
                 <span className="text-xs font-black uppercase tracking-widest text-zinc-600">World Builder v2.0</span>
               </div>
+            </div>
+          </div>
+
+          {/* Sidebar Column */}
+          <div className={s.content.sidebar + " space-y-8"}>
+            {/* Core Seed Card */}
+            <div className={s.content.sidebarCard}>
+              <div className={s.content.sidebarGlow + " bg-studio/5 group-hover:bg-studio/10"} />
+              <div className={s.content.sidebarContent}>
+                <div className="flex items-center justify-between">
+                  <h4 className={s.content.sidebarTitle}>
+                    <Sparkles className="w-3 h-3 text-studio" /> Core Seed
+                  </h4>
+                </div>
+                <div className={s.content.sidebarPromptBox}>
+                  <p className={s.content.sidebarPromptText}>
+                    {prompt ? `"${prompt.substring(0, 160)}${prompt.length > 160 ? '...' : ''}"` : 'Using global project seed for synthesis.'}
+                  </p>
+                </div>
+                <p className={s.content.sidebarNote}>
+                  The foundational logline driving the AI's world-building logic.
+                </p>
+              </div>
+            </div>
+
+            {/* World Stats Card */}
+            <div className="p-6 bg-studio/5 border border-studio/10 rounded-[2rem] space-y-6">
+              <h4 className="text-xs font-black text-studio uppercase tracking-widest flex items-center gap-2">
+                <Zap className="w-3 h-3" /> World Nexus Status
+              </h4>
+              <div className="space-y-4">
+                {[
+                  { label: "Stability", val: "Optimal", color: "text-emerald-400" },
+                  { label: "Coherence", val: "High", color: "text-studio" },
+                  { label: "Detail Level", val: "Vivid", color: "text-fuchsia-400" },
+                  { label: "AI Node", val: "Synced", color: "text-amber-400" }
+                ].map((item, idx) => (
+                  <div key={idx} className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-zinc-500 uppercase">{item.label}</span>
+                    <span className={`text-xs font-black uppercase tracking-tighter ${item.color}`}>{item.val}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Quick Navigation TOC */}
+            <div className="pt-2">
+              <h5 className={s.content.sidebarTitle + " mb-4"}>
+                <ScrollText className="w-3 h-3" /> Navigation Index
+              </h5>
+              <TableOfContents content={content} />
             </div>
           </div>
         </div>

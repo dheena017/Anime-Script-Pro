@@ -46,9 +46,10 @@ export function cleanJson(content: string): any {
   // 3. Extract potential JSON block from the start point
   let potentialJson = cleaned.slice(startIndex);
   
-  // 4. Try straightforward parse
+  // 4. Try straightforward parse with sanitization
+  const sanitized = sanitizeJson(potentialJson);
   try {
-    return JSON.parse(potentialJson);
+    return JSON.parse(sanitized);
   } catch (_firstError) {
     // 5. If straightforward parse fails, try finding the last matching closer
     const lastBrace = potentialJson.lastIndexOf('}');
@@ -58,7 +59,7 @@ export function cleanJson(content: string): any {
     if (endIndex !== -1) {
       const trimmed = potentialJson.slice(0, endIndex + 1);
       try {
-        return JSON.parse(trimmed);
+        return JSON.parse(sanitizeJson(trimmed));
       } catch (_secondError) {
         // Still failing, proceed to repair logic
       }
@@ -67,13 +68,42 @@ export function cleanJson(content: string): any {
     // 6. Attempt truncation repair as a last resort
     try {
       const repaired = repairTruncatedJson(potentialJson);
-      return JSON.parse(repaired);
+      const fullySanitized = sanitizeJson(repaired);
+      return JSON.parse(fullySanitized);
     } catch (repairError) {
       console.error('Failed to parse JSON content after repair attempt:', content);
       console.error('Repair attempt resulted in:', repairError);
       throw new ApiError('Invalid AI output format. JSON structure is too corrupted to repair.');
     }
   }
+}
+
+/**
+ * Fixes common structural errors in AI-generated JSON, 
+ * such as single quotes used for delimiters or unescaped newlines in strings.
+ */
+function sanitizeJson(s: string): string {
+  if (!s) return s;
+  
+  let result = s.trim();
+  
+  // Replace structural single quotes with double quotes
+  // 1. Single quotes for keys: { 'key': ... } or , 'key': ...
+  result = result.replace(/([{,]\s*)'([^']*)'(\s*:)/g, '$1"$2"$3');
+  
+  // 2. Single quotes for string values: : 'value'
+  result = result.replace(/(:\s*)'([^']*)'(\s*[,}\]])/g, '$1"$2"$3');
+  
+  // 3. Single quotes in arrays: [ 'value1', 'value2' ]
+  // This is tricky because of nested structures, but we can do a basic pass
+  result = result.replace(/([\[,]\s*)'([^']*)'(\s*[,\]])/g, '$1"$2"$3');
+
+  // Fix unescaped newlines inside double-quoted strings
+  // This is a common AI error where it puts a real newline instead of \n
+  // We only do this if we can find a string that isn't closed on the same line
+  // but this is complex to do with regex perfectly.
+  
+  return result;
 }
 
 /**
@@ -118,22 +148,27 @@ function repairTruncatedJson(raw: string): string {
       stack.push(ch);
       lastValidIndex = i;
     } else if (ch === '}' || ch === ']') {
-      stack.pop();
-      lastValidIndex = i;
+      if (stack.length > 0) {
+        const last = stack[stack.length - 1];
+        if ((ch === '}' && last === '{') || (ch === ']' && last === '[')) {
+          stack.pop();
+          lastValidIndex = i;
+        }
+      }
     } else if (ch === ',') {
       lastValidIndex = i;
     } else if (ch === ':') {
-      // Colons are valid cut points if followed by a value start, 
-      // but let's keep it simple and not mark them as final cut points
+      // Colons are valid cut points if followed by a value start
+      // but we'll stick to the safer structural points
     }
   }
 
   // 3. If we are in an "unstable" state (mid-string or mid-token), backtrack
   if (inString || (lastValidIndex !== -1 && lastValidIndex < s.length - 1)) {
-    // If we are in a string, we might have a trailing backslash
     if (inString) {
-      // Find the last unescaped quote or separator
-      // Actually, backtracking to lastValidIndex is safer
+      // Backtracking to lastValidIndex is safe, but we might be able to just close the string
+      // However, if the string was truncated mid-key or mid-value, it's better to backtrack
+      // to the last complete structural element.
       s = s.slice(0, lastValidIndex + 1);
     } else {
       // If we are not in a string but after the last valid index, 
@@ -144,9 +179,9 @@ function repairTruncatedJson(raw: string): string {
       }
     }
     
-    // Clean up trailing commas
+    // Clean up trailing commas or colons
     s = s.trimEnd();
-    if (s.endsWith(',')) {
+    while (s.endsWith(',') || s.endsWith(':')) {
       s = s.slice(0, -1).trimEnd();
     }
   }
@@ -163,10 +198,20 @@ function repairTruncatedJson(raw: string): string {
     if (ch === '"') { finalInString = !finalInString; continue; }
     if (finalInString) continue;
     if (ch === '{' || ch === '[') finalStack.push(ch);
-    else if (ch === '}' || ch === ']') finalStack.pop();
+    else if (ch === '}' || ch === ']') {
+      if (finalStack.length > 0) {
+        const last = finalStack[finalStack.length - 1];
+        if ((ch === '}' && last === '{') || (ch === ']' && last === '[')) {
+          finalStack.pop();
+        }
+      }
+    }
   }
 
-  if (finalInString) s += '"';
+  if (finalInString) {
+    if (finalEscape) s += '"'; // Close the escape if it was trailing
+    s += '"';
+  }
   
   // Close any open brackets in reverse order
   for (let i = finalStack.length - 1; i >= 0; i--) {
@@ -181,6 +226,86 @@ const viteEnv = (import.meta as any)?.env ?? {};
 export const API_BASE_URL = viteEnv.VITE_API_BASE_URL
   ? trimTrailingSlash(viteEnv.VITE_API_BASE_URL)
   : '';
+
+type BackendStatus = 'unknown' | 'online' | 'offline';
+
+let cachedBackendStatus: BackendStatus = 'unknown';
+let cachedBackendStatusAt = 0;
+let backendHealthPromise: Promise<boolean> | null = null;
+
+function shouldRefreshBackendStatus() {
+  if (cachedBackendStatus === 'unknown') return true;
+  const age = Date.now() - cachedBackendStatusAt;
+  return cachedBackendStatus === 'online' ? age > 15000 : age > 5000;
+}
+
+export async function isBackendOnline(forceRefresh = false): Promise<boolean> {
+  if (!forceRefresh && !shouldRefreshBackendStatus()) {
+    return cachedBackendStatus === 'online';
+  }
+
+  if (backendHealthPromise) {
+    return backendHealthPromise;
+  }
+
+  backendHealthPromise = (async () => {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 2000);
+
+    try {
+      const response = await fetch('/_orchestrator/health', { signal: controller.signal });
+      if (!response.ok) {
+        cachedBackendStatus = 'offline';
+        cachedBackendStatusAt = Date.now();
+        return false;
+      }
+
+      const data = await response.json().catch(() => null);
+      const online = data?.backend?.status === 'ONLINE';
+      cachedBackendStatus = online ? 'online' : 'offline';
+      cachedBackendStatusAt = Date.now();
+      return online;
+    } catch {
+      cachedBackendStatus = 'offline';
+      cachedBackendStatusAt = Date.now();
+      return false;
+    } finally {
+      clearTimeout(timeoutId);
+      backendHealthPromise = null;
+    }
+  })();
+
+  return backendHealthPromise;
+}
+
+/**
+ * Returns the correct WebSocket base URL for backend connections.
+ * In development the Vite dev server proxy may NOT forward WebSocket traffic,
+ * so we connect directly to the backend port (3050).
+ * In production we use the same host as the page (wss:// for https).
+ */
+export function getBackendWsUrl(path: string): string {
+  const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+  // If a backend URL is configured (e.g. http://127.0.0.1:3050) use that host
+  if (API_BASE_URL) {
+    const backendHost = API_BASE_URL.replace(/^https?:\/\//, '');
+    return `${protocol}//${backendHost}${path}`;
+  }
+  // Dev fallback: Vite runs on :5173 / :3000 but backend is on :3050
+  const isDev = viteEnv.MODE === 'development' || 
+                 viteEnv.DEV === true || 
+                 viteEnv.VITE_ENV === 'development' || 
+                 window.location.hostname === 'localhost' || 
+                 window.location.hostname === '127.0.0.1';
+
+  if (isDev) {
+    // In development, use the same host (the proxy) for WebSockets
+    // The proxy in server.ts/vite will handle the upgrade.
+    return `${protocol}//${window.location.host}${path}`;
+  }
+  // Production: same origin
+  return `${protocol}//${window.location.host}${path}`;
+}
 
 async function getAuthToken(): Promise<string | null> {
   try {
@@ -218,6 +343,13 @@ export async function apiRequest<T>(url: string, options?: RequestInit & { timeo
       ? url
       : `${API_BASE_URL}${url.startsWith('/') ? url : `/${url}`}`;
     const token = await getAuthToken();
+
+    if (!API_BASE_URL && url.startsWith('/api')) {
+      const backendOnline = await isBackendOnline();
+      if (!backendOnline) {
+        throw new ApiError('Backend service is offline', 503, { url, displayLabel });
+      }
+    }
 
     console.info(`%c[FRONTEND] %cTRIGGER -> %c${label ? 'REQUESTING' : 'SENDING'}: ${displayLabel}`, 'color: #3b82f6; font-weight: bold', 'color: #94a3b8; font-weight: bold', 'color: #94a3b8');
 

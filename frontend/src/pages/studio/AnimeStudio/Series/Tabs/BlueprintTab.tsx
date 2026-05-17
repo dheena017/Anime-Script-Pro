@@ -1,8 +1,10 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle2, Table, ChevronRight, Activity, Sparkles, Database, BrainCircuit, Loader2, Clock, Users, Settings2 } from 'lucide-react';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { useGeneratorState } from '@/hooks/useGenerator';
+import { CheckCircle2, Table, ChevronRight, Activity, Sparkles, Database, BrainCircuit, Loader2, Clock, Users, Settings2, Zap, ScrollText } from 'lucide-react';
+import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
+import { useLogs } from '@/contexts/LogContext';
+import { manifestScenes } from '@/services/api/scenes';
+import { seriesStyles as s } from '../seriesStyles';
 import { cn } from '@/lib/utils';
 
 interface BlueprintTabProps {
@@ -46,8 +48,14 @@ export const BlueprintTab: React.FC<BlueprintTabProps> = ({
     genre,
     artStyle,
     selectedModel,
-    plan: contextPlan
+    plan: contextPlan,
+    currentScriptId
   } = useGeneratorState();
+
+  const { showNotification } = useGeneratorDispatch();
+  const { manifestationProgress } = useLogs();
+
+  const [isManifesting, setIsManifesting] = React.useState(false);
 
   const [localConfig, setLocalConfig] = React.useState({
     sessions: 1,
@@ -82,8 +90,10 @@ export const BlueprintTab: React.FC<BlueprintTabProps> = ({
   };
 
   return (
-    <div className="space-y-8 w-full max-w-[1600px] mx-auto px-4">
-      <div className="flex flex-col gap-8">
+    <div className={s.content.container}>
+      <div className={s.content.contentArea}>
+        <div className={s.content.mainColumn}>
+          <div className="flex flex-col gap-8">
 
         <div className="max-w-4xl mx-auto">
 
@@ -258,6 +268,83 @@ export const BlueprintTab: React.FC<BlueprintTabProps> = ({
                 )}>
                   {lastSyncDate ? "Synchronized" : "Pending Sync"}
                 </span>
+              </div>
+
+              {/* Bulk Manifestation Trigger */}
+              <div className="relative group/manifest">
+                <div className="p-6 bg-studio/5 border border-studio/20 rounded-[2rem] space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-studio/10 rounded-xl">
+                        <Zap className="w-4 h-4 text-studio" />
+                      </div>
+                      <div>
+                        <h5 className="text-[10px] font-black text-white uppercase tracking-[0.2em]">Neural Manifestation</h5>
+                        <p className="text-[8px] text-zinc-500 font-mono uppercase mt-0.5">Hydrate Scaffolding with AI Data</p>
+                      </div>
+                    </div>
+                    {isManifesting && (
+                      <Loader2 className="w-3 h-3 text-studio animate-spin" />
+                    )}
+                  </div>
+                  
+                  <p className="text-[10px] text-zinc-500 leading-relaxed px-1">
+                    Triggers a background neural cycle to populate {localConfig.episodes * localConfig.scenes} scenes with high-fidelity narration, visuals, and sound direction.
+                  </p>
+
+                  <button
+                    onClick={async () => {
+                      if (!currentScriptId) return;
+                      setIsManifesting(true);
+                      try {
+                        await manifestScenes({
+                          project_id: parseInt(currentScriptId),
+                          limit: 32, // One production session (2 episodes)
+                          model: selectedModel || 'gemini-2.0-flash'
+                        });
+                        showNotification?.('Manifestation cycle initialized in background', 'success');
+                      } catch (err: any) {
+                        showNotification?.(err.message || 'Manifestation failed', 'error');
+                      } finally {
+                        setIsManifesting(false);
+                      }
+                    }}
+                    disabled={isManifesting || !lastSyncDate}
+                    className={cn(
+                      "w-full py-3 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all border",
+                      isManifesting || !lastSyncDate
+                        ? "bg-zinc-900/50 border-white/5 text-zinc-700 cursor-not-allowed"
+                        : "bg-studio/20 border-studio/30 text-studio hover:bg-studio/30 hover:border-studio/50"
+                    )}
+                  >
+                    {isManifesting ? "Orchestrating..." : !lastSyncDate ? "Sync Required First" : "IGNITE NEURAL MANIFESTATION"}
+                  </button>
+
+                  {/* Real-time Progress Bar */}
+                  {manifestationProgress && manifestationProgress.project_id === parseInt(currentScriptId || '0') && manifestationProgress.progress < 100 && (
+                    <div className="space-y-3 pt-2">
+                      <div className="flex justify-between items-center px-1">
+                        <span className="text-[9px] font-mono text-studio uppercase tracking-widest animate-pulse">
+                          {manifestationProgress.message}
+                        </span>
+                        <span className="text-[9px] font-mono text-zinc-500">
+                          {Math.round(manifestationProgress.progress)}%
+                        </span>
+                      </div>
+                      <div className="h-1.5 bg-black/40 rounded-full overflow-hidden border border-white/5">
+                        <motion.div
+                          initial={{ width: 0 }}
+                          animate={{ width: `${manifestationProgress.progress}%` }}
+                          className="h-full bg-studio shadow-[0_0_10px_rgba(6,182,212,0.5)]"
+                        />
+                      </div>
+                      <div className="flex justify-between text-[8px] font-mono text-zinc-600 uppercase tracking-tighter px-1">
+                        <span>Unit {manifestationProgress.current}</span>
+                        <span>Total {manifestationProgress.total}</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>
@@ -570,6 +657,69 @@ export const BlueprintTab: React.FC<BlueprintTabProps> = ({
             </div>
           </div>
         </div>
+      </div>
+    </div>
+
+  {/* Sidebar */}
+    <aside className={s.content.sidebar + " space-y-8"}>
+      <div className={s.content.sidebarCard}>
+        <div className={s.content.sidebarGlow + " bg-emerald-500/5 group-hover:bg-emerald-500/10"} />
+        <div className={s.content.sidebarContent}>
+          <h4 className={s.content.sidebarTitle}>
+            <Activity className="w-3 h-3 text-emerald-400" /> Series Matrix
+                 </h4>
+                 <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                       <span className="text-[10px] font-black text-zinc-600 uppercase">Episodes</span>
+                       <span className="text-xs font-black text-white">{plan.length}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                       <span className="text-[10px] font-black text-zinc-600 uppercase">Est. Runtime</span>
+                       <span className="text-xs font-black text-white">
+                         {plan.reduce((acc, ep) => acc + (parseInt(ep.runtime) || 24), 0)}m
+                       </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                       <span className="text-[10px] font-black text-zinc-600 uppercase">Logic Check</span>
+                       <span className="text-[10px] font-black text-emerald-400 uppercase tracking-widest italic">Verified</span>
+                    </div>
+                 </div>
+              </div>
+           </div>
+
+           <div className="space-y-4">
+              <h5 className={s.content.sidebarTitle}>
+                <ScrollText className="w-3 h-3" /> Neural Links
+              </h5>
+              <div className="flex flex-col gap-2">
+                 {plan.map((ep: any, i: number) => (
+                   <div 
+                     key={i}
+                     className="w-full flex items-center justify-between p-3 bg-white/[0.02] border border-white/5 rounded-xl hover:bg-white/[0.04] transition-all group"
+                   >
+                      <div className="flex items-center gap-3">
+                         <div className="w-6 h-6 rounded-lg bg-zinc-900 flex items-center justify-center border border-white/5 text-[10px] font-black text-zinc-600 group-hover:text-emerald-400 transition-colors">
+                           {i + 1}
+                         </div>
+                         <span className="text-[10px] font-black text-zinc-500 group-hover:text-zinc-200 uppercase tracking-tight truncate max-w-[120px]">
+                           {ep.title || `Episode ${i + 1}`}
+                         </span>
+                      </div>
+                      <ChevronRight className="w-3 h-3 text-zinc-800 group-hover:text-emerald-500" />
+                   </div>
+                 ))}
+              </div>
+           </div>
+
+           <div className="p-6 bg-gradient-to-br from-emerald-500/10 to-studio/10 border border-white/5 rounded-[2rem] space-y-4">
+              <h4 className="text-[10px] font-black text-white uppercase tracking-widest flex items-center gap-2">
+                <Database className="w-3 h-3 text-emerald-400" /> Storage Note
+              </h4>
+              <p className="text-[10px] font-medium text-zinc-500 leading-relaxed uppercase">
+                The series blueprint serves as the master scaffolding. All episodic assets are anchored to this neural map.
+              </p>
+           </div>
+        </aside>
       </div>
     </div>
   );

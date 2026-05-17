@@ -1,38 +1,46 @@
-# Core Framework
+﻿# Core Framework
 fastapi
 uvicorn
 python-dotenv
-sqlalchemy
+
+# Database & ORM
 sqlmodel
-fastapi-users[sqlalchemy]
-fastapi-users-db-sqlalchemy
-jinja2
-
-# AI Engine
-google-genai
-anthropic
-openai
-groq
-
-# Database Drivers
+sqlalchemy
+alembic
 aiosqlite
 asyncpg
 psycopg2-binary
 
-# Security & Utilities
+# Authentication & Utilities
+fastapi-users[sqlalchemy]
+fastapi-users-db-sqlalchemy
 passlib[bcrypt]
-python-jose[cryptography]   
+python-jose[cryptography]
 email-validator
 python-multipart
 slowapi
-loguru
-pydantic
-psutil
 
-# Database Migrations
-alembic
+# AI / integrations (optional)
+google-genai
+anthropic
+openai
 
-# Development & Testing
-pytest
+# Multimedia / rendering
+Pillow>=9.0.0
+moviepy>=1.0.3
+imageio-ffmpeg>=0.4.7
+gTTS>=2.3.0
+
+# Development / tooling
+jinja2
+requests
 httpx
-pytest-asyncio
+loguru
+psutil
+anyio
+tqdm
+numpy
+
+# Optional extras (comment/uncomment as needed)
+# celery
+# redis

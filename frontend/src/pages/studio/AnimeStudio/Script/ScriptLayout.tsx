@@ -68,10 +68,6 @@ export default function ScriptLayout() {
     setGeneratedScript(null);
     setGeneratedImagePrompts(null);
     setGeneratedMetadata(null);
-
-    // Switch to teleprompter immediately so the user sees the stream
-    setSearchParams({ tab: 'teleprompter' });
-
     try {
       const currentEpisodePlan = generatedSeriesPlan?.find((ep: any) => parseInt(ep.episode) === parseInt(episode));
       reportGeneration('ScriptLayout', `Script generation for Session ${session}, Episode ${episode}`, 'request', 'anime');
@@ -100,26 +96,9 @@ export default function ScriptLayout() {
       setGenerationProgress(50);
       reportGeneration('ScriptLayout', 'Script generation', 'success', 'anime', { length: script?.length || 0 });
       showNotification?.('Script drafted.', 'success');
-      await new Promise((r) => setTimeout(r, 2000));
 
-      // Review linguistics analysis
-      setSearchParams({ tab: 'linguistics' });
-      setGenerationProgress(60);
-      await new Promise((r) => setTimeout(r, 2000));
-
-      // Review beat sheet
-      setSearchParams({ tab: 'beats' });
-      setGenerationProgress(70);
-      await new Promise((r) => setTimeout(r, 2000));
-
-      // Review dialogue
-      setSearchParams({ tab: 'dialogue' });
-      setGenerationProgress(80);
-      await new Promise((r) => setTimeout(r, 2000));
-
-      // Generate & review metadata/SEO
+      // Generate metadata/SEO in background
       try {
-        setSearchParams({ tab: 'metadata' });
         if (handlers.handleGenerateSEO) {
           reportGeneration('ScriptLayout', 'SEO metadata generation via handler', 'request', 'anime');
           await handlers.handleGenerateSEO();
@@ -131,12 +110,10 @@ export default function ScriptLayout() {
         }
         setGenerationProgress(95);
         showNotification?.('Script metadata indexed.', 'success');
-        await new Promise((r) => setTimeout(r, 2000));
       } catch (metaErr) {
         console.warn('Failed to generate metadata:', metaErr);
       }
 
-      setSearchParams({ tab: 'teleprompter' });
       setGenerationProgress(100);
       showNotification?.('Full Script Synthesized!', 'success');
       // Reset progress after a short delay

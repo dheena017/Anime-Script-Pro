@@ -3,7 +3,7 @@ import { Map, Layers, Maximize2, MapPin } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { worldStyles as s } from '../worldStyles/worldStyles';
+import { worldStyles as s } from '../worldStyles';
 
 export const WorldMapPreview: React.FC = () => {
   return (

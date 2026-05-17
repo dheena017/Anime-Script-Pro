@@ -50,6 +50,23 @@ export const storyboardStyles = {
     innerBorder: "absolute inset-0 border-[1px] rounded-[3rem] pointer-events-none transition-colors duration-700",
   },
   
+  // --- CONTENT SECTION ---
+  content: {
+    container: "storyboard-container px-6 py-6",
+    contentArea: "storyboard-content-area grid grid-cols-1 lg:grid-cols-4 gap-8 items-start",
+    mainColumn: "storyboard-main-column lg:col-span-3",
+    sidebar: "storyboard-sidebar lg:col-span-1 sticky top-24 self-start max-h-[80vh] overflow-y-auto pr-4 hide-scrollbar",
+    sidebarCard: "p-6 bg-gradient-to-b from-[#040404] to-[#060606] border border-white/5 rounded-2xl space-y-4 relative overflow-hidden group",
+    sidebarGlow: "absolute inset-0 blur-[40px] pointer-events-none transition-all duration-700",
+    sidebarContent: "relative z-10 space-y-4",
+    sidebarTitle: "text-xs font-black text-zinc-500 uppercase tracking-widest flex items-center gap-2",
+    sidebarNote: "text-xs text-zinc-600 font-bold uppercase tracking-tighter leading-relaxed",
+    statCard: "p-6 bg-gradient-to-b from-[#040404] to-[#050505] border border-white/5 rounded-2xl space-y-4 relative group overflow-hidden hover:scale-[1.01] transition-transform duration-200",
+    statIconBox: "w-10 h-10 rounded-xl bg-white/[0.03] border border-white/10 flex items-center justify-center group-hover:scale-110 transition-transform",
+    statLabel: "text-xs font-black text-zinc-500 uppercase tracking-widest",
+    statValue: "text-sm font-black text-white uppercase tracking-tighter line-clamp-1",
+  },
+  
   card: {
     wrapper: "bg-gradient-to-br from-[#0c0d11] to-[#050505] border transition-all duration-700 overflow-hidden rounded-[2.5rem] h-full flex flex-col relative",
     dragging: "border-studio shadow-[0_0_50px_rgba(6,182,212,0.4)] scale-[1.05] z-50",
@@ -104,5 +121,13 @@ export const storyboardStyles = {
     tabsBar: "studio-tabs-bar sticky top-0 z-40 flex items-center justify-center p-3 md:p-4 bg-[#050505]/95 backdrop-blur-md border border-white/10 rounded-[2rem] shadow-2xl mb-8 relative group overflow-hidden",
     tabsBarGlow: "absolute inset-0 bg-gradient-to-r from-transparent via-studio/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000",
     tabsBarInner: "relative z-10 w-full flex justify-center",
-  }
+  },
+  
+  // --- FLAT ALIASES FOR BACKWARD COMPATIBILITY ---
+  tabContent: "py-12 space-y-20",
+  tabSectionHeader: "flex items-center gap-8 border-b border-white/5 pb-12",
+  tabHeaderIconBox: "w-20 h-20 rounded-[2.5rem] border flex items-center justify-center shadow-[0_0_40px_rgba(0,0,0,0.5)] transition-transform duration-700 hover:scale-105",
+  tabSectionTitle: "text-4xl font-black text-white uppercase tracking-tighter italic",
+  tabSectionSubtitle: "text-zinc-500 text-xs font-black uppercase tracking-[0.4em] mt-2 flex items-center gap-3",
+  tabGridTitle: "text-xs font-black text-zinc-500 uppercase tracking-widest flex items-center gap-3 mb-8",
 };

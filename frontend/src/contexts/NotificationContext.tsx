@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 import { notificationService, Notification } from '@/services/api/notifications';
 import { useAuth } from '@/hooks/useAuth';
 import { studioLog } from '@/lib/studio-logger';
+import { getBackendWsUrl, isBackendOnline } from '@/lib/api-utils';
 
 interface NotificationContextType {
   notifications: Notification[];
@@ -59,15 +60,26 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
   };
 
   useEffect(() => {
-    fetchNotifications();
-
-    // WebSocket Real-time Sync
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const wsUrl = `${protocol}//${window.location.host}/ws/templates/notifications`;
+    let cancelled = false;
     let ws: WebSocket | null = null;
-    let timeout: any = null;
+    let timeout: number | null = null;
 
-    function connect() {
+    const start = async () => {
+      await fetchNotifications();
+
+      if (cancelled) return;
+
+      const online = await isBackendOnline();
+      if (cancelled || !online) {
+        timeout = window.setTimeout(start, 15000);
+        return;
+      }
+
+      // WebSocket Real-time Sync
+      const wsUrl = getBackendWsUrl('/ws/templates/notifications');
+
+      function connect() {
+        if (cancelled) return;
       try {
         ws = new WebSocket(wsUrl);
         ws.onmessage = (event) => {
@@ -78,17 +90,33 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
             }
           } catch (e) {}
         };
-        ws.onclose = () => { timeout = setTimeout(connect, 5000); };
+          ws.onclose = () => {
+            if (cancelled) return;
+            timeout = window.setTimeout(async () => {
+              const backendOnline = await isBackendOnline();
+              if (!cancelled && backendOnline) {
+                connect();
+              } else if (!cancelled) {
+                timeout = window.setTimeout(start, 15000);
+              }
+            }, 5000);
+          };
       } catch (e) {
-        timeout = setTimeout(connect, 5000);
+          if (!cancelled) {
+            timeout = window.setTimeout(start, 15000);
+          }
       }
-    }
+      }
 
-    connect();
+      connect();
+    };
+
+    start();
 
     // Refresh fallback every 120 seconds instead of 60 to save resources since we have WS
     const interval = setInterval(fetchNotifications, 120000);
     return () => {
+      cancelled = true;
       clearInterval(interval);
       if (ws) ws.close();
       if (timeout) clearTimeout(timeout);

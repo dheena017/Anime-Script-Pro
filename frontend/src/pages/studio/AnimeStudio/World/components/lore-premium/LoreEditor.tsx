@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { Bold, Italic, Heading2, Code, List, Quote, Sparkles } from 'lucide-react';
 import { useAutoResizeTextarea } from '../../hooks/useAutoResizeTextarea';
-import { worldStyles as s } from '../../worldStyles/worldStyles';
+import { worldStyles as s } from '../../worldStyles';
 
 interface LoreEditorProps {
   content: string;

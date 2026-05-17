@@ -180,16 +180,8 @@ export async function generateCharacters(
       const parsed = cleanJson(text) as GeneratedCast;
       studioLog('CastEngine', `Cast of ${parsed.characters?.length || 0} synthesized successfully.`, 'success');
       return parsed;
-    } catch (e) {
-      studioLog('CastEngine', 'AI returned unstructured cast data. Attempting recovery...', 'system');
-      const jsonMatch = text.match(/\{[\s\S]*\}/);
-      if (jsonMatch) {
-        try {
-          return JSON.parse(jsonMatch[0]) as GeneratedCast;
-        } catch {
-          return getEmptyCast();
-        }
-      }
+    } catch (e: any) {
+      studioLog('CastEngine', `JSON Repair failed: ${e.message}`, 'error');
       return getEmptyCast();
     }
   } catch (error: any) {
@@ -267,8 +259,7 @@ export async function generateRelationships(
     try {
       return cleanJson(text) as GeneratedCast['relationships'];
     } catch {
-      const jsonMatch = text.match(/\[[\s\S]*\]/);
-      return jsonMatch ? JSON.parse(jsonMatch[0]) : [];
+      return [];
     }
   } catch (error) {
     console.error("Error generating relationships:", error);

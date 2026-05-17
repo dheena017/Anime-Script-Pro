@@ -86,7 +86,7 @@ function extractBalancedJsonBlock(text: string, openChar: '{' | '[', closeChar: 
 function parseLooseJson<T>(text: string, expectedShape: 'array' | 'object'): T | null {
   try {
     const parsed = cleanJson(text);
-    
+
     if (expectedShape === 'array') {
       if (Array.isArray(parsed)) return parsed as unknown as T;
       if (parsed && typeof parsed === 'object') {
@@ -97,7 +97,7 @@ function parseLooseJson<T>(text: string, expectedShape: 'array' | 'object'): T |
     } else {
       if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) return parsed as unknown as T;
     }
-    
+
     return parsed as unknown as T;
   } catch (err) {
     console.error('parseLooseJson failed:', err);
@@ -133,95 +133,115 @@ SEASON ORCHESTRATION RULES:
 4. DEPTH: Scene summaries must be dense (40-60 words), detailing character motivations, emotional subtext, and visual/audio cues.
 
 REQUIRED OUTPUT CONTRACT:
-- Return ONLY a JSON array of episode objects.
+- Return ONLY a JSON array containing EXACTLY ${episodeCount} episode objects.
 - Do NOT include markdown code fences, backticks, or commentary.
 - Ensure all IDs are deterministic (e.g., E01_A1_S01).
 
-EPISODE SCHEMA:
-{
-  "episode": "01",
-  "title": "Evocative Title",
-  "hook": "2-3 sentence cinematic hook",
-  "summary": "150-200 word narrative synopsis",
-  "setting": "Primary location",
-  "runtime": "30m",
-  "focus_characters": ["Character A", "Character B"],
-  "emotional_arc": "Deep internal character shift",
-  "arc_progression": {
-    "character_id": "progression_percentage (e.g. +15%)",
-    "narrative_momentum": "Description of plot speed"
+EPISODE SCHEMA (Your array MUST contain ${episodeCount} of these objects! Do not output just 1 episode if more are requested!):
+[
+  {
+    "episode": "01",
+    "title": "Evocative Title",
+    "hook": "2-3 sentence cinematic hook",
+    "summary": "150-200 word narrative synopsis",
+    "setting": "Primary location",
+    "runtime": "30m",
+    "focus_characters": ["Character A", "Character B"],
+    "emotional_arc": "Deep internal character shift",
+    "arc_progression": {
+      "character_id": "progression_percentage",
+      "narrative_momentum": "Description"
+    },
+    "theme_mapping": {
+      "core_theme": "...",
+      "subtext_goals": "..."
+    },
+    "engagement_matrix": {
+      "pacing_intensity": "rating",
+      "tension_peak": "...",
+      "marketing_hooks": ["..."]
+    },
+    "production_palette": {
+      "dominant_colors": ["..."],
+      "lighting_setup": "...",
+      "audio_leitmotif": "...",
+      "foley_focus": "..."
+    },
+    "detailed_episode_spec": {
+      "cold_open": "...",
+      "script_opening_line": "...",
+      "acts": [
+        {
+          "act": 1,
+          "purpose": "...",
+          "key_turn": "...",
+          "scenes": [
+            {
+              "scene_id": "E01_A1_S01",
+              "location": "...",
+              "summary": "...",
+              "conflict": "...",
+              "character_focus": ["..."],
+              "visual_direction": "...",
+              "audio_direction": "...",
+              "dialogue_tone": "...",
+              "shot_list_preview": ["..."],
+              "transition": "...",
+              "production_stats": {
+                "cast_count": 0,
+                "extra_count": 0,
+                "stunt_required": false,
+                "vfx_heavy": false
+              },
+              "estimated_minutes": 0
+            }
+          ]
+        }
+      ],
+      "continuity_dependencies": [],
+      "foreshadowing": [],
+      "payoffs": [],
+      "thumbnail_prompts": [],
+      "video_prompts": []
+    },
+    "asset_matrix": {
+      "sound": "...",
+      "image": "...",
+      "video": "...",
+      "vfx_complexity": "...",
+      "render_priority": "...",
+      "scene_count": 18
+    },
+    "risk_matrix": {
+      "continuity_risks": [],
+      "production_risks": [],
+      "content_risks": []
+    },
+    "neural_audit": {
+      "logic_check": "...",
+      "lore_validation": "...",
+      "pacing_score": "..."
+    }
   },
-  "theme_mapping": {
-    "core_theme": "The specific series theme explored here",
-    "subtext_goals": "Hidden narrative objectives for this episode"
-  },
-  "engagement_matrix": {
-    "pacing_intensity": "1-10 rating",
-    "tension_peak": "Description of the highest tension moment",
-    "marketing_hooks": ["Key moments for trailer/social clips"]
-  },
-  "production_palette": {
-    "dominant_colors": ["Hex or Color Name"],
-    "lighting_setup": "Core lighting style",
-    "audio_leitmotif": "Recurring musical theme for this episode",
-    "foley_focus": "Key sound effects to emphasize"
-  },
-  "detailed_episode_spec": {
-    "cold_open": "2-4 cinematic sentences",
-    "script_opening_line": "The first line of dialogue to set the tone",
-    "acts": [
-      {
-        "act": 1,
-        "purpose": "Act objective",
-        "key_turn": "The core dramatic turn of this act",
-        "scenes": [
-          {
-            "scene_id": "E01_A1_S01",
-            "location": "Specific setting",
-            "summary": "40-60 word scene breakdown with dialogue beats",
-            "conflict": "The core struggle",
-            "character_focus": ["Character A"],
-            "visual_direction": "Camera, lighting, and lensing notes",
-            "audio_direction": "Soundscape and music cues",
-            "dialogue_tone": "The specific vibe of character interactions in this scene",
-            "shot_list_preview": ["Close-up: Character A's eyes", "Wide: The desolate city", "Pan: Tracking the movement"],
-            "transition": "Smash-cut / Cross-fade / Dissolve / Match-cut",
-            "production_stats": {
-              "cast_count": 2,
-              "extra_count": 10,
-              "stunt_required": false,
-              "vfx_heavy": true
-            },
-            "estimated_minutes": 2
-          }
-        ]
-      }
-    ],
-    "continuity_dependencies": ["Strings"],
-    "foreshadowing": ["Strings"],
-    "payoffs": ["Strings"],
-    "thumbnail_prompts": ["Strings"],
-    "video_prompts": ["Strings"]
-  },
-  "asset_matrix": {
-    "sound": "Atmospheric summary",
-    "image": "Visual tone summary",
-    "video": "Motion language summary",
-    "vfx_complexity": "Low/Medium/High/Extreme",
-    "render_priority": "High/Normal/Background",
-    "scene_count": 18
-  },
-  "risk_matrix": {
-    "continuity_risks": ["Strings"],
-    "production_risks": ["Strings"],
-    "content_risks": ["Strings"]
-  },
-  "neural_audit": {
-    "logic_check": "AI's internal verification of narrative consistency",
-    "lore_validation": "Confirmation of adherence to World Bible",
-    "pacing_score": "1-10 rating of episodic flow"
+  {
+    "episode": "02",
+    "title": "...",
+    "hook": "...",
+    "summary": "...",
+    "setting": "...",
+    "runtime": "30m",
+    "focus_characters": ["..."],
+    "emotional_arc": "...",
+    "arc_progression": { "character_id": "...", "narrative_momentum": "..." },
+    "theme_mapping": { "core_theme": "...", "subtext_goals": "..." },
+    "engagement_matrix": { "pacing_intensity": "...", "tension_peak": "...", "marketing_hooks": [] },
+    "production_palette": { "dominant_colors": [], "lighting_setup": "...", "audio_leitmotif": "...", "foley_focus": "..." },
+    "detailed_episode_spec": { "cold_open": "...", "script_opening_line": "...", "acts": [] },
+    "asset_matrix": { "sound": "...", "image": "...", "video": "...", "vfx_complexity": "...", "render_priority": "...", "scene_count": 18 },
+    "risk_matrix": { "continuity_risks": [], "production_risks": [], "content_risks": [] },
+    "neural_audit": { "logic_check": "...", "lore_validation": "...", "pacing_score": "..." }
   }
-}
+]
 
 NEURAL LOGIC AUDIT INSTRUCTION:
 - Before finalizing the JSON, you must perform a "Neural Audit":
@@ -238,7 +258,7 @@ OPTIONAL SESSION CONTEXT:
 
 // NOTE: Removed prototype fallback scaffolding to enforce strict production data integrity.
 
-async function expandEpisodeDetails(
+export async function expandEpisodeDetails(
   episodeSummary: any,
   model: string,
   contentType: string,
@@ -295,7 +315,7 @@ NEURAL LOGIC AUDIT:
     const res = await callAI(
       model,
       prompt,
-      SERIES_PLAN_GENERATION_PROMPT(contentType, 1, worldLore ?? '', castProfiles ?? '', numScenes),
+      "You are an expert anime showrunner and scriptwriter. You must strictly follow the user's output schema and return ONLY a valid JSON object.",
       opts?.temperature ?? 0.8,
       opts?.maxTokens ?? 2048,
       opts?.topP ?? 0.9,
@@ -307,7 +327,7 @@ NEURAL LOGIC AUDIT:
 
     if (!res) return episodeSummary;
 
-      const parsed = parseLooseJson<any>(res, 'object');
+    const parsed = parseLooseJson<any>(res, 'object');
 
     if (parsed) {
       return { ...episodeSummary, detailed_episode_spec: parsed };
@@ -327,9 +347,9 @@ export async function generateSeriesPlan(
   worldLore?: string,
   castProfiles?: string,
   expandSequentially: boolean = false,
-  opts?: { 
-    session?: string; 
-    episode?: string; 
+  opts?: {
+    session?: string;
+    episode?: string;
     numScenes?: number;
     temperature?: number;
     maxTokens?: number;
@@ -387,11 +407,11 @@ export async function generateSeriesPlan(
             // We pass minimal context to avoid heavy payloads
             // eslint-disable-next-line no-await-in-loop
             const full = await expandEpisodeDetails(
-              ep, 
-              model, 
-              contentType, 
-              worldLore as any, 
-              castProfiles as any, 
+              ep,
+              model,
+              contentType,
+              worldLore as any,
+              castProfiles as any,
               opts?.numScenes || 18,
               opts
             );

@@ -134,9 +134,6 @@ export default function CastLayout() {
       setGenerationProgress(100);
       showNotification?.('Cast Nexus Synthesized.', 'success');
       
-      // Navigate explicitly to the registry tab via query param routing
-      setSearchParams({ tab: 'registry' });
-
       // Reset progress after a short delay
       setTimeout(() => setGenerationProgress(0), 3000);
     } catch (e: any) {

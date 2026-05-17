@@ -68,7 +68,7 @@ export const ScriptTabs: React.FC<ScriptTabsProps> = ({
               ) : (
                 <tab.icon className={cn(s.tabs.icon, isActive ? s.tabs.iconActive : s.tabs.iconInactive)} />
               )}
-              <span className="hidden lg:inline">{tab.label}</span>
+              <span className={s.tabs.label}>{tab.label}</span>
             </div>
           </button>
         );

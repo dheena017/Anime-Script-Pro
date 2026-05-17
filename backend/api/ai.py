@@ -32,6 +32,12 @@ class NeuralHealthRegistry:
         stats["last_failure"] = time.time()
         self.health[model] = stats
         
+    def report_success(self, model: str):
+        stats = self.health.get(model)
+        if stats and stats["failures"] > 0:
+            stats["failures"] = 0
+            self.health[model] = stats
+        
     def is_degraded(self, model: str) -> bool:
         stats = self.health.get(model)
         if not stats: return False
@@ -200,9 +206,13 @@ async def generate_content(request: GenerationRequest, user_id: str = Depends(ge
 
     last_error = None
     for current_model in unique_fallbacks:
+        if health_registry.is_degraded(current_model) and current_model != unique_fallbacks[-1]:
+            logger.opt(colors=True).warning(f"ROUTING [#{request_id}]: Model <cyan>{current_model}</cyan> is degraded/busy. Skipping...")
+            continue
+            
         try:
-            if current_model != target_model:
-                logger.opt(colors=True).warning(f"RECOVERY [#{request_id}]: Primary model failed. Attempting failover to: <yellow>{current_model}</yellow>")
+            if current_model != target_model and current_model not in attempted_fallbacks:
+                logger.opt(colors=True).warning(f"RECOVERY [#{request_id}]: Primary model busy/failed. Attempting failover to: <yellow>{current_model}</yellow>")
                 attempted_fallbacks.append(current_model)
 
             # We need to resolve key for each attempt
@@ -246,6 +256,7 @@ async def generate_content(request: GenerationRequest, user_id: str = Depends(ge
             
             # --- Detailed Telemetry Logging ---
             logger.success(f"COMPLETED: [✅] Neural Synthesis Successful")
+            health_registry.report_success(current_model)
             logger.opt(colors=True).info(f"   | Model: <cyan>{current_model}</cyan>")
             logger.opt(colors=True).info(f"   | Latency: <yellow>{latency_ms:.2f}ms</yellow>")
             
@@ -282,6 +293,7 @@ async def generate_content(request: GenerationRequest, user_id: str = Depends(ge
                     latency_ms = (time.perf_counter() - start_time) * 1000
                     
                     logger.success(f"RECOVERY: [⚡] NVIDIA Emergency Failover Successful")
+                    health_registry.report_success(NVIDIA_FAILOVER)
                     return GenerationResponse(
                         text=output_text,
                         model_used=NVIDIA_FAILOVER,
@@ -321,11 +333,17 @@ async def stream_content(request: GenerationRequest, user_id: str = Depends(get_
             "gemma-3-27b"
         ]
         unique_fallbacks = [m for m in list(dict.fromkeys(FALLBACKS))]
+        attempted_fallbacks: list[str] = []
         
         for current_model in unique_fallbacks:
+            if health_registry.is_degraded(current_model) and current_model != unique_fallbacks[-1]:
+                logger.opt(colors=True).warning(f"STREAM ROUTING [#{request_id}]: Model <cyan>{current_model}</cyan> is degraded/busy. Skipping...")
+                continue
+                
             try:
-                if current_model != target_model:
+                if current_model != target_model and current_model not in attempted_fallbacks:
                     logger.opt(colors=True).warning(f"STREAM RECOVERY [#{request_id}]: Failing over to: <yellow>{current_model}</yellow>")
+                    attempted_fallbacks.append(current_model)
 
                 logger.opt(colors=True).info(f"STREAM [#{request_id}]: Initializing pipeline via <cyan>{current_model}</cyan>")
                 
@@ -333,6 +351,7 @@ async def stream_content(request: GenerationRequest, user_id: str = Depends(get_
                     yield f"data: {json.dumps({'text': chunk, 'done': False})}\n\n"
                 
                 logger.success(f"STREAM [#{request_id}]: Neural stream finalized successfully.")
+                health_registry.report_success(current_model)
                 yield "data: [DONE]\n\n"
                 return
             except Exception as e:
@@ -350,6 +369,7 @@ async def stream_content(request: GenerationRequest, user_id: str = Depends(get_
                         async for chunk in stream_ai(NVIDIA_FAIL_MODEL, request.prompt, request.systemInstruction, user_id):
                             yield f"data: {json.dumps({'text': chunk, 'done': False})}\n\n"
                         logger.success(f"STREAM RECOVERY: [⚡] NVIDIA Emergency Failover Successful")
+                        health_registry.report_success(NVIDIA_FAIL_MODEL)
                         yield "data: [DONE]\n\n"
                         return
                     except Exception as nvidia_e:

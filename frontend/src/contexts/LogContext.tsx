@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useCallback, useMemo } from 'react';
+import { getBackendWsUrl, isBackendOnline } from '@/lib/api-utils';
 
 export interface LogEntry {
   id: string;
@@ -9,9 +10,18 @@ export interface LogEntry {
   model_used?: string;
 }
 
+export interface ProgressEntry {
+  project_id: number;
+  progress: number;
+  current: number;
+  total: number;
+  message: string;
+}
+
 interface LogStateContextType {
   masterLogs: LogEntry[];
   dbLogs: LogEntry[];
+  manifestationProgress: ProgressEntry | null;
 }
 
 interface LogDispatchContextType {
@@ -25,24 +35,35 @@ const LogDispatchContext = createContext<LogDispatchContextType | undefined>(und
 export const LogProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [masterLogs, setMasterLogs] = React.useState<LogEntry[]>([]);
   const [dbLogs, setDbLogs] = React.useState<LogEntry[]>([]);
+  const [manifestationProgress, setManifestationProgress] = React.useState<ProgressEntry | null>(null);
 
   const addDbLog = React.useCallback((log: LogEntry) => {
     setDbLogs(prev => [log, ...prev].slice(0, 100));
   }, []);
 
   React.useEffect(() => {
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const wsUrl = `${protocol}//${window.location.host}/ws/telemetry`;
+    const wsUrl = getBackendWsUrl('/ws/telemetry');
     let ws: WebSocket | null = null;
-    let timeout: any = null;
+    let timeout: number | null = null;
+    let cancelled = false;
 
-    function connect() {
+    async function connect() {
+      if (cancelled) return;
+      const backendOnline = await isBackendOnline();
+      if (cancelled || !backendOnline) {
+        timeout = window.setTimeout(connect, 15000);
+        return;
+      }
+
       try {
         ws = new WebSocket(wsUrl);
         ws.onmessage = (event) => {
           try {
             const data = JSON.parse(event.data);
-            if (data.module === 'DATABASE') {
+            if (data.type === 'PROGRESS') {
+              setManifestationProgress(data);
+            } else {
+              // Add all other telemetry logs to dbLogs
               addDbLog(data);
             }
           } catch (e) {
@@ -50,20 +71,26 @@ export const LogProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           }
         };
         ws.onclose = () => {
-          timeout = setTimeout(connect, 5000);
+          if (cancelled) return;
+          timeout = window.setTimeout(connect, 5000);
         };
         ws.onerror = (err) => {
-          console.error('Telemetry WebSocket Error:', err);
+          if (!cancelled) {
+            console.error('Telemetry WebSocket Error:', err);
+          }
           ws?.close();
         };
       } catch (e) {
-        console.error('Failed to connect to telemetry', e);
-        timeout = setTimeout(connect, 5000);
+        if (!cancelled) {
+          console.error('Failed to connect to telemetry', e);
+          timeout = window.setTimeout(connect, 15000);
+        }
       }
     }
 
     connect();
     return () => {
+      cancelled = true;
       if (ws) ws.close();
       if (timeout) clearTimeout(timeout);
     };
@@ -87,7 +114,7 @@ export const LogProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setDbLogs([]);
   }, []);
 
-  const stateValue = useMemo(() => ({ masterLogs, dbLogs }), [masterLogs, dbLogs]);
+  const stateValue = useMemo(() => ({ masterLogs, dbLogs, manifestationProgress }), [masterLogs, dbLogs, manifestationProgress]);
   const dispatchValue = useMemo(() => ({ addLog, clearLogs }), [addLog, clearLogs]);
 
   return (

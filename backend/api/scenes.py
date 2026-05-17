@@ -1,3 +1,4 @@
+import asyncio
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from backend.database import async_session, async_engine
@@ -5,6 +6,7 @@ from loguru import logger
 from backend.database.models import Scene, Episode, Project
 from backend.utils.deps import get_auth_user_id
 from backend.utils.notifications import notify_user
+from backend.utils.scene_manifestor import manifest_all_queued_scenes
 
 router = APIRouter(prefix="/api/scenes", tags=["Scenes"])
 
@@ -130,3 +132,29 @@ async def get_scenes(project_id: int, user_id: str = Depends(get_auth_user_id)):
         statement = select(Scene).where(Scene.project_id == project_id)
         res = await session.execute(statement)
         return res.scalars().all()
+
+
+@router.post("/manifest")
+async def bulk_manifest_scenes(payload: dict, user_id: str = Depends(get_auth_user_id)):
+    """
+    Triggers a background manifestation cycle for queued scenes.
+    """
+    project_id = payload.get("project_id")
+    limit = payload.get("limit", 16) # Default to 16 scenes (one episode)
+    model = payload.get("model", "gemini-2.0-flash")
+    
+    if not project_id:
+        raise HTTPException(status_code=400, detail="project_id is required")
+        
+    # Run manifestation in the background to avoid timeout
+    async def run_manifestation():
+        try:
+            count = await manifest_all_queued_scenes(int(project_id), user_id, limit=limit, model=model)
+            await notify_user(user_id, "Manifestation Complete", f"Successfully manifested {count} scenes for project {project_id} using {model}.", "SUCCESS")
+        except Exception as e:
+            logger.error(f"Background manifestation failed: {e}")
+            await notify_user(user_id, "Manifestation Failed", str(e), "ERROR")
+
+    asyncio.create_task(run_manifestation())
+    
+    return {"status": "started", "message": f"Manifestation of up to {limit} scenes has been queued in the background."}
