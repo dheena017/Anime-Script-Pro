@@ -1,4 +1,4 @@
-﻿# Core Framework
+# Core Framework
 fastapi
 uvicorn
 python-dotenv
@@ -30,6 +30,7 @@ Pillow>=9.0.0
 moviepy>=1.0.3
 imageio-ffmpeg>=0.4.7
 gTTS>=2.3.0
+edge-tts>=7.2.8
 
 # Development / tooling
 jinja2

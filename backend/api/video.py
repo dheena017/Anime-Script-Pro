@@ -85,6 +85,7 @@ class RenderRequest(BaseModel):
     provider: str | None = None
     narration: str | None = None
     voice_id: str | None = None
+    bypass_cache: bool | None = False
 
 
 class RenderResponse(BaseModel):
@@ -274,37 +275,38 @@ async def render_scene(req: RenderRequest, background_tasks: BackgroundTasks):
 
     # 2. TRIGGER API SHIELD (CACHING)
     prompt_hash = hashlib.sha256(f"{provider}_{req.prompt}".encode()).hexdigest()
-    if prompt_hash in _render_cache:
-        cached_val = _render_cache[prompt_hash]
-        if isinstance(cached_val, dict):
-            cached_filename = cached_val.get("video_url", "").split("/outputs/")[-1]
-        else:
-            cached_filename = cached_val
-            
-        if cached_filename:
-            cached_file = out_dir / cached_filename
-            if cached_file.exists():
-                logger.info("Cache hit! Saving API credits.")
+    if not req.bypass_cache:
+        if prompt_hash in _render_cache:
+            cached_val = _render_cache[prompt_hash]
+            if isinstance(cached_val, dict):
+                cached_filename = cached_val.get("video_url", "").split("/outputs/")[-1]
+            else:
+                cached_filename = cached_val
+                
+            if cached_filename:
+                cached_file = out_dir / cached_filename
+                if cached_file.exists():
+                    logger.info("Cache hit! Saving API credits.")
+                    return RenderResponse(
+                        success=True,
+                        videoUrl=f"/outputs/{cached_file.name}",
+                        message="Served from Cache (API Shield Active)"
+                    )
+
+        # Check disk cache next
+        expected_filename = f"prod-anime-mux-{prompt_hash}.mp4"
+        disk_path = out_dir / expected_filename
+        if disk_path.exists():
+            age_seconds = time.time() - disk_path.stat().st_mtime
+            if age_seconds < 86400:
+                public_url = f"/outputs/{expected_filename}"
+                logger.info(f"API Shield: Cache hit (disk) for prompt hash {prompt_hash}. Age: {age_seconds/3600:.2f} hours. Populating in-memory cache.")
+                _render_cache[prompt_hash] = expected_filename
                 return RenderResponse(
                     success=True,
-                    videoUrl=f"/outputs/{cached_file.name}",
+                    videoUrl=public_url,
                     message="Served from Cache (API Shield Active)"
                 )
-
-    # Check disk cache next
-    expected_filename = f"prod-anime-mux-{prompt_hash}.mp4"
-    disk_path = out_dir / expected_filename
-    if disk_path.exists():
-        age_seconds = time.time() - disk_path.stat().st_mtime
-        if age_seconds < 86400:
-            public_url = f"/outputs/{expected_filename}"
-            logger.info(f"API Shield: Cache hit (disk) for prompt hash {prompt_hash}. Age: {age_seconds/3600:.2f} hours. Populating in-memory cache.")
-            _render_cache[prompt_hash] = expected_filename
-            return RenderResponse(
-                success=True,
-                videoUrl=public_url,
-                message="Served from Cache (API Shield Active)"
-            )
 
     # Key-based Fallback Check for Production Anime
     if provider == 'production_anime':
@@ -517,6 +519,137 @@ async def render_scene(req: RenderRequest, background_tasks: BackgroundTasks):
             except Exception:
                 pass
             raise HTTPException(status_code=500, detail=f"Muxing failed: {mux_err}")
+
+    # =========================================================================
+    # FREE AI ENGINE (Hugging Face + gTTS)
+    # =========================================================================
+    if provider == 'free_ai':
+        hf_token = os.environ.get('HF_API_TOKEN') or os.environ.get('HF_API_KEY')
+        hf_model = os.environ.get('HF_MODEL', 'stabilityai/stable-diffusion-2')
+        
+        if not hf_token:
+            logger.warning("HF_API_TOKEN missing. Falling back to local renderer.")
+            provider = 'local'
+        else:
+            logger.info("Manifesting Free AI Scene...")
+            try:
+                # 1. UPGRADED AUDIO FIRST LOGIC (Neural Free Audio)
+                audio_filename = f"free-audio-{prompt_hash[:8]}.mp3"
+                audio_path = out_dir / audio_filename
+                
+                try:
+                    import edge_tts
+                    # Using a high-quality free Neural Voice (Christopher is good for narration/anime)
+                    voice = "en-US-ChristopherNeural" 
+                    communicate = edge_tts.Communicate(req.prompt, voice)
+                    
+                    # edge_tts is beautifully async, so we await it directly without blocking!
+                    await communicate.save(str(audio_path))
+                    has_audio = True
+                except ImportError:
+                    logger.warning("edge-tts not installed. Falling back to gTTS fallback.")
+                    def _generate_gtts():
+                        try:
+                            from gtts import gTTS
+                            tts = gTTS(req.prompt)
+                            tts.save(str(audio_path))
+                            return True
+                        except Exception as e:
+                            logger.error(f"gTTS failed: {e}")
+                            return False
+                    has_audio = await asyncio.to_thread(_generate_gtts)
+                except Exception as e:
+                    logger.error(f"Free audio generation failed: {e}")
+                    has_audio = False
+                
+                dynamic_duration = req.duration or 4
+                if has_audio:
+                    try:
+                        from moviepy.editor import AudioFileClip # type: ignore
+                        temp_audio = AudioFileClip(str(audio_path))
+                        dynamic_duration = math.ceil(temp_audio.duration)
+                        temp_audio.close()
+                    except Exception:
+                        pass
+                else:
+                    audio_path = None
+
+                # 2. GENERATE IMAGES (HF API)
+                fps = 12
+                total_frames = dynamic_duration * fps
+                # Limit HF calls to save free tier rate limits (e.g., generate 3 keyframes)
+                images_to_generate = min(3, max(1, total_frames // fps)) 
+                
+                generated_images = []
+                async with httpx.AsyncClient(timeout=120.0) as client:
+                    headers = {"Authorization": f"Bearer {hf_token}"}
+                    for i in range(images_to_generate):
+                        # Force anime aesthetic onto the free model
+                        payload = {"inputs": f"High quality 2D anime style, ufotable studio style, cinematic lighting. {req.prompt}"}
+                        resp = await client.post(f"https://api-inference.huggingface.co/models/{hf_model}", json=payload, headers=headers)
+                        resp.raise_for_status()
+                        
+                        img_path = out_dir / f"freeai-{prompt_hash[:8]}-{i}.png"
+                        with img_path.open('wb') as f:
+                            f.write(resp.content)
+                        generated_images.append(str(img_path))
+                
+                # 3. OFFLOADED MUXING (Thread Blocking Fix)
+                def _mux_free_ai():
+                    try:
+                        from moviepy.editor import ImageSequenceClip, AudioFileClip # type: ignore
+                    except Exception:
+                        from moviepy import ImageSequenceClip, AudioFileClip # type: ignore
+                    
+                    # Stretch the limited images across the dynamic duration timeline
+                    sequence = []
+                    repeats = max(1, total_frames // max(1, len(generated_images)))
+                    for img in generated_images:
+                        sequence.extend([img] * repeats)
+                    while len(sequence) < total_frames:
+                        sequence.append(generated_images[-1])
+                        
+                    clip = ImageSequenceClip(sequence, fps=fps)
+                    final_filename = f"freeai-final-{prompt_hash[:8]}.mp4"
+                    dest = out_dir / final_filename
+                    
+                    if audio_path:
+                        audio_clip = AudioFileClip(str(audio_path))
+                        if audio_clip.duration > clip.duration:
+                            try:
+                                if hasattr(clip, 'loop'):
+                                    clip = clip.loop(duration=audio_clip.duration)
+                                else:
+                                    from moviepy.video.fx.all import loop
+                                    clip = loop(clip, duration=audio_clip.duration)
+                            except Exception:
+                                import math as sys_math
+                                from moviepy.editor import concatenate_videoclips
+                                n_repeats = sys_math.ceil(audio_clip.duration / clip.duration)
+                                clip = concatenate_videoclips([clip] * n_repeats).subclip(0, audio_clip.duration)
+                        clip = _attach_audio_to_clip(clip, audio_clip)
+                        
+                        # Export with strict codecs for web compatibility
+                        clip.write_videofile(str(dest), codec='libx264', audio_codec='aac', logger=None)
+                        audio_clip.close()
+                    else:
+                        clip.write_videofile(str(dest), codec='libx264', logger=None)
+                    
+                    clip.close()
+                    return final_filename
+                    
+                # Run the heavy video compilation in the background thread
+                final_filename = await asyncio.to_thread(_mux_free_ai)
+                
+                # Cache the result to save API calls
+                _render_cache[prompt_hash] = final_filename
+                public_url = f"/outputs/{final_filename}"
+                return RenderResponse(success=True, videoUrl=public_url, message="Free AI Anime Scene Manifested")
+                
+            except Exception as e:
+                logger.error(f'Free AI Engine failed: {e}')
+                logger.info("Falling back to local fallback engine.")
+                provider = 'local' # Triggers the local fallback below if HF API fails
 
     # Local free renderer: create a simple MP4 from the prompt using Pillow + moviepy
     if provider == 'local':
