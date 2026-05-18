@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, BackgroundTasks
 from pydantic import BaseModel
 import os
 import time
@@ -9,9 +9,68 @@ import math
 from pathlib import Path
 import hashlib
 
-_render_cache: dict[str, dict[str, any]] = {}
+# Simple in-memory cache for API Shielding
+_render_cache = {}
 
 router = APIRouter(prefix="/api", tags=["Video"])
+
+
+def _cleanup_old_renders(directory: Path, max_age_hours: int = 24):
+    """Background Task: Zombie File Explosion Fix"""
+    try:
+        now = time.time()
+        count = 0
+        for f in directory.glob("*.*"):
+            if f.suffix in ['.mp4', '.mp3', '.png']:
+                # If file is older than max_age_hours, delete it
+                if os.stat(f).st_mtime < now - (max_age_hours * 3600):
+                    try:
+                        os.remove(f)
+                        count += 1
+                    except Exception as fe:
+                        logger.warning(f"Failed to delete {f.name}: {fe}")
+        if count > 0:
+            logger.info(f"Garbage Collector: Cleared {count} old media files from {directory.name}")
+    except Exception as e:
+        logger.error(f"Garbage Collector failed: {e}")
+
+
+def _mux_media_task(video_path: Path, audio_path: Path | None, dest: Path):
+    """Synchronous offloaded task: Thread Blocking Fix"""
+    try:
+        from moviepy.editor import VideoFileClip, AudioFileClip # type: ignore
+    except Exception:
+        from moviepy import VideoFileClip, AudioFileClip # type: ignore
+        
+    video_clip = VideoFileClip(str(video_path))
+    
+    if audio_path:
+        audio_clip = AudioFileClip(str(audio_path))
+        # Temporal Desync Fix: Loop video if audio is longer
+        if audio_clip.duration > video_clip.duration:
+            try:
+                if hasattr(video_clip, 'loop'):
+                    video_clip = video_clip.loop(duration=audio_clip.duration)
+                else:
+                    from moviepy.video.fx.all import loop
+                    video_clip = loop(video_clip, duration=audio_clip.duration)
+            except Exception:
+                import math as sys_math
+                from moviepy.editor import concatenate_videoclips
+                n_repeats = sys_math.ceil(audio_clip.duration / video_clip.duration)
+                video_clip = concatenate_videoclips([video_clip] * n_repeats).subclip(0, audio_clip.duration)
+        
+        final_clip = _attach_audio_to_clip(video_clip, audio_clip)
+        final_clip.write_videofile(str(dest), codec='libx264', audio_codec='aac', logger=None)
+        
+        final_clip.close()
+        video_clip.close()
+        audio_clip.close()
+    else:
+        video_clip.write_videofile(str(dest), codec='libx264', logger=None)
+        video_clip.close()
+        
+    return dest
 
 
 class RenderRequest(BaseModel):
@@ -190,14 +249,14 @@ async def cleanup_old_renders(directory: Path, max_age_hours: int = 24):
 
 
 @router.post("/render/scene", response_model=RenderResponse)
-async def render_scene(req: RenderRequest):
+async def render_scene(req: RenderRequest, background_tasks: BackgroundTasks):
     """Proxy endpoint to dispatch scene render requests to a chosen provider.
 
     Environment variables:
     - VIDEO_PROVIDER: one of 'veo', 'runway', 'luma', 'sora' or 'local'
     - Provider-specific API keys must be set (e.g. VEO_API_KEY, RUNWAY_API_KEY)
     """
-    provider = (req.provider or os.environ.get('VIDEO_PROVIDER', '')).lower()
+    provider = (req.provider or os.environ.get('VIDEO_PROVIDER', 'production_anime')).lower()
     if not provider:
         logger.warning("Render requested but VIDEO_PROVIDER is not configured.")
         raise HTTPException(status_code=501, detail="No video provider configured. Set VIDEO_PROVIDER and provider API key in environment.")
@@ -206,31 +265,33 @@ async def render_scene(req: RenderRequest):
     if not req.prompt or len(req.prompt.strip()) < 10:
         raise HTTPException(status_code=400, detail="Prompt too short for rendering.")
 
-    # 1. API Shield: Request Hashing & Caching
-    prompt_hash = hashlib.sha256(req.prompt.strip().encode('utf-8')).hexdigest()
-    
-    # Check in-memory cache first
-    cached = _render_cache.get(prompt_hash)
-    if cached:
-        cached_time = cached.get("timestamp", 0.0)
-        if time.time() - cached_time < 86400:
-            video_url = cached.get("video_url")
-            filename = video_url.split("/outputs/")[-1]
-            backend_root = Path(__file__).parent.resolve().parent
-            local_path = backend_root / "outputs" / filename
-            if local_path.exists():
-                logger.info(f"API Shield: Cache hit (in-memory) for prompt hash {prompt_hash}. Returning cached video URL.")
-                # Trigger fire-and-forget background cleanup
-                asyncio.create_task(cleanup_old_renders(backend_root / "outputs"))
+    backend_root = Path(__file__).parent.resolve().parent
+    out_dir = backend_root / 'outputs'
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    # 1. TRIGGER GARBAGE COLLECTOR
+    background_tasks.add_task(_cleanup_old_renders, out_dir, max_age_hours=24)
+
+    # 2. TRIGGER API SHIELD (CACHING)
+    prompt_hash = hashlib.sha256(f"{provider}_{req.prompt}".encode()).hexdigest()
+    if prompt_hash in _render_cache:
+        cached_val = _render_cache[prompt_hash]
+        if isinstance(cached_val, dict):
+            cached_filename = cached_val.get("video_url", "").split("/outputs/")[-1]
+        else:
+            cached_filename = cached_val
+            
+        if cached_filename:
+            cached_file = out_dir / cached_filename
+            if cached_file.exists():
+                logger.info("Cache hit! Saving API credits.")
                 return RenderResponse(
                     success=True,
-                    videoUrl=video_url,
-                    message="Cached render retrieved successfully (API Shield Active)."
+                    videoUrl=f"/outputs/{cached_file.name}",
+                    message="Served from Cache (API Shield Active)"
                 )
 
     # Check disk cache next
-    backend_root = Path(__file__).parent.resolve().parent
-    out_dir = backend_root / 'outputs'
     expected_filename = f"prod-anime-mux-{prompt_hash}.mp4"
     disk_path = out_dir / expected_filename
     if disk_path.exists():
@@ -238,33 +299,30 @@ async def render_scene(req: RenderRequest):
         if age_seconds < 86400:
             public_url = f"/outputs/{expected_filename}"
             logger.info(f"API Shield: Cache hit (disk) for prompt hash {prompt_hash}. Age: {age_seconds/3600:.2f} hours. Populating in-memory cache.")
-            _render_cache[prompt_hash] = {
-                "video_url": public_url,
-                "timestamp": disk_path.stat().st_mtime
-            }
-            # Trigger fire-and-forget background cleanup
-            asyncio.create_task(cleanup_old_renders(out_dir))
+            _render_cache[prompt_hash] = expected_filename
             return RenderResponse(
                 success=True,
                 videoUrl=public_url,
-                message="Cached render retrieved successfully (API Shield Active)."
+                message="Served from Cache (API Shield Active)"
             )
+
+    # Key-based Fallback Check for Production Anime
+    if provider == 'production_anime':
+        runway_key = os.environ.get("RUNWAY_API_KEY")
+        elevenlabs_key = os.environ.get("ELEVENLABS_API_KEY")
+        if not runway_key or not elevenlabs_key:
+            logger.warning("Missing API Keys for production_anime. Falling back to local.")
+            provider = 'local'
 
     # Production Anime pipeline (Runway Gen-3 + ElevenLabs Neural Audio + MoviePy Muxing)
     if provider == 'production_anime':
         runway_key = os.environ.get("RUNWAY_API_KEY")
         elevenlabs_key = os.environ.get("ELEVENLABS_API_KEY")
-        if not runway_key or not elevenlabs_key:
-            raise HTTPException(
-                status_code=401,
-                detail="Authentication failed: RUNWAY_API_KEY and ELEVENLABS_API_KEY must be configured in environment."
-            )
 
         backend_root = Path(__file__).parent.resolve().parent
         out_dir = backend_root / 'outputs'
         out_dir.mkdir(parents=True, exist_ok=True)
         
-        prompt_hash = hashlib.sha256(req.prompt.strip().encode('utf-8')).hexdigest()
         video_filename = f"prod-anime-video-{prompt_hash}.mp4"
         audio_filename = f"prod-anime-audio-{prompt_hash}.mp3"
         final_filename = f"prod-anime-mux-{prompt_hash}.mp4"
@@ -442,10 +500,7 @@ async def render_scene(req: RenderRequest):
             public_url = f"/outputs/{final_filename}"
             
             # Populate in-memory cache
-            _render_cache[prompt_hash] = {
-                "video_url": public_url,
-                "timestamp": time.time()
-            }
+            _render_cache[prompt_hash] = final_filename
             # Trigger background cleanup in fire-and-forget task
             asyncio.create_task(cleanup_old_renders(out_dir))
             
@@ -898,6 +953,7 @@ async def render_scene(req: RenderRequest):
 
                 dest_path = await asyncio.to_thread(_create_local)
                 public_url = f"/outputs/{dest_path.name}"
+                _render_cache[prompt_hash] = dest_path.name
                 return RenderResponse(success=True, videoUrl=public_url, message='Local fallback render completed')
             except Exception as e:
                 logger.error('free_ai local fallback failed: %s', e)
@@ -970,6 +1026,7 @@ async def render_scene(req: RenderRequest):
 
                 clip.write_videofile(str(dest), codec='libx264', audio=bool(audio_path), logger=None)
                 public_url = f"/outputs/{filename}"
+                _render_cache[prompt_hash] = filename
                 return RenderResponse(success=True, videoUrl=public_url, message='Free AI render completed')
 
             except httpx.RequestError as exc:
@@ -1020,6 +1077,7 @@ async def render_scene(req: RenderRequest):
                     dest = out_dir / filename
                     await _download_file(video_url, dest, headers=None)
                     public_url = f"/outputs/{filename}"
+                    _render_cache[prompt_hash] = filename
                     return RenderResponse(success=True, videoUrl=public_url, message="Render completed")
 
                 job_id = data.get('id') or data.get('operation_id') or data.get('job_id')
