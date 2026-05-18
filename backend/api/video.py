@@ -15,6 +15,11 @@ class RenderRequest(BaseModel):
     prompt: str
     model: str | None = None
     duration: int | None = 4
+    image_url: str | None = None
+    character_name: str | None = None
+    sys_label: str | None = None
+    sync_rate: str | None = None
+    telemetry_logs: list[str] | None = None
 
 
 class RenderResponse(BaseModel):
@@ -87,44 +92,287 @@ async def render_scene(req: RenderRequest):
                 try:
                     from PIL import Image, ImageDraw, ImageFont
                     try:
-                        from moviepy.editor import ImageSequenceClip  # type: ignore
+                        from moviepy.editor import ImageSequenceClip, AudioFileClip  # type: ignore
                     except Exception:
-                        from moviepy import ImageSequenceClip  # type: ignore
+                        from moviepy import ImageSequenceClip, AudioFileClip  # type: ignore
                 except Exception as e:
                     raise RuntimeError('Missing dependencies for local renderer (Pillow, moviepy).') from e
 
                 fps = 24
                 frames = []
                 w, h = 1280, 720
-                # Simple animation: moving text from bottom to center
-                lines = []
                 text = req.prompt.strip()
+
+                backend_root = Path(__file__).parent.resolve().parent
+                out_dir = backend_root / 'outputs'
+                out_dir.mkdir(parents=True, exist_ok=True)
+
+                # 1. Synthesize gTTS audio first to determine exact video duration
+                audio_path = None
+                audio_clip = None
+                audio_duration = float(duration)
+                try:
+                    from gtts import gTTS
+                    mp3_path = out_dir / f"local-scene-audio-{int(time.time())}.mp3"
+                    tts = gTTS(text)
+                    tts.save(str(mp3_path))
+                    audio_path = mp3_path
+                    
+                    try:
+                        audio_clip = AudioFileClip(str(audio_path))
+                        audio_duration = audio_clip.duration
+                        # Add a small buffer so the voiceover doesn't clip off abruptly
+                        audio_duration = max(3.0, audio_duration + 0.5)
+                        logger.info(f"Local render: TTS audio generated successfully. Duration: {audio_duration:.2f}s")
+                    except Exception as ac_err:
+                        logger.warning(f"Local render: Failed to load AudioFileClip ({ac_err})")
+                except Exception as tts_err:
+                    logger.warning(f"Local render: gTTS generation failed, falling back to silent video ({tts_err})")
+
+                # Set duration dynamically to match voiceover speech length
+                final_duration = audio_duration
+                
                 # Split long text
+                lines = []
                 max_len = 60
                 for i in range(0, len(text), max_len):
                     lines.append(text[i:i+max_len])
 
-                total_frames = duration * fps
-                total_frames = duration * fps
+                # Load background image if specified
+                bg_img = None
+                if req.image_url:
+                    try:
+                        if '/outputs/' in req.image_url:
+                            filename = req.image_url.split('/outputs/')[-1]
+                            local_path = Path(__file__).parent.resolve().parent / 'outputs' / filename
+                            if local_path.exists():
+                                bg_img = Image.open(local_path).convert('RGB')
+                                logger.info(f"Local render: Loaded local background image {local_path}")
+                        
+                        if not bg_img and req.image_url.startswith('http'):
+                            logger.info(f"Local render: Downloading remote background image {req.image_url}")
+                            with httpx.Client(timeout=10.0) as client:
+                                r = client.get(req.image_url)
+                                r.raise_for_status()
+                                from io import BytesIO
+                                bg_img = Image.open(BytesIO(r.content)).convert('RGB')
+                    except Exception as e:
+                        logger.warning(f"Local render: Failed to load background image {req.image_url}; falling back to gradient background ({e})")
+
+                # Setup random particles for neural ambient atmosphere
+                import random
+                rng = random.Random(42)
+                particles = []
+                for _ in range(25):
+                    particles.append({
+                        'x': rng.randint(0, w),
+                        'y': rng.randint(0, h),
+                        'speed_x': rng.uniform(-1.5, 1.5),
+                        'speed_y': rng.uniform(1.0, 3.0),
+                        'size': rng.randint(2, 6),
+                        'color': rng.choice([
+                            (0, 240, 255),  # Cyber Cyan
+                            (255, 120, 0),  # Orange Glow
+                            (255, 255, 255) # Pure White
+                        ])
+                    })
+
+                # 2. Dynamic Character & Lore Context Extractor
+                import re
+                char_name = req.character_name or "SHOGUN ARCHITECT"
+                sys_label = req.sys_label or "SYS_PERSONA"
+                prompt_lower = text.lower()
+                
+                if not req.character_name:
+                    # Check common names
+                    known_names = ["Zephyr", "Vance", "Aria", "Lumina", "Kai", "Ren", "Yuki", "Sakura", "Kenji"]
+                    found_known = False
+                    for name in known_names:
+                        if name.lower() in prompt_lower:
+                            char_name = name.upper()
+                            sys_label = f"SYS_{name.upper()}"
+                            found_known = True
+                            break
+                            
+                    if not found_known:
+                        # Scan for first capitalised word (excluding common instruction words)
+                        match = re.search(r'\b([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)\b', text)
+                        if match and match.group(1).lower() not in ["scene", "image", "visuals", "narration", "sound"]:
+                            extracted = match.group(1).upper()
+                            char_name = extracted
+                            sys_label = f"SYS_{extracted.split()[-1]}"
+                
+                # Dynamic theme-aligned logs
+                if req.telemetry_logs:
+                    logs_hud = req.telemetry_logs
+                else:
+                    is_steampunk = "steam" in prompt_lower or "aether" in prompt_lower or "brass" in prompt_lower
+                    if is_steampunk:
+                        logs_hud = [
+                            "AETHER_RESONANCE // 94.2%",
+                            "STEAM_PRESSURE // SYNCED",
+                            "VALVE_LATENCY  // 12ms",
+                            "GEAR_COMPILER  // ACTIVE",
+                            "BOILER_CORE    // STABLE",
+                            "BRASS_MATRIX   // SECURE"
+                        ]
+                    else:
+                        logs_hud = [
+                            "SYS_LOAD // 14.2%",
+                            "MEM_POOL // RESOLVED",
+                            "LATENCY  // 12ms",
+                            "RENDERER // ACTIVE",
+                            "AUDIO_CH // SYNTH",
+                            "MATRIX   // SECURE"
+                        ]
+
+                total_frames = int(final_duration * fps)
                 for f in range(total_frames):
-                    # Aetheria Cinematic Gradient Background
-                    img = Image.new('RGB', (w, h))
-                    draw = ImageDraw.Draw(img)
-                    
-                    # Create a vertical gradient (Deep Indigo to Black)
-                    for row in range(h):
-                        r_c = max(0, 20 - int(row / h * 20))
-                        g_c = max(0, 15 - int(row / h * 15))
-                        b_c = max(0, 45 - int(row / h * 30))
-                        draw.line([(0, row), (w, row)], fill=(r_c, g_c, b_c))
+                    # Compute progress-based animations
+                    progress = f / max(1, total_frames - 1)
+
+                    # 1. Base Layer (Ken Burns Image Zoom/Pan or Tech Grid Gradient)
+                    if bg_img:
+                        scale = 1.0 + 0.08 * progress
+                        new_w = int(w * scale)
+                        new_h = int(h * scale)
+                        scaled_bg = bg_img.resize((new_w, new_h), Image.Resampling.LANCZOS)
+                        
+                        pan_x = int(math.sin(progress * math.pi) * 15)
+                        pan_y = int(progress * 10)
+                        
+                        left = max(0, min((new_w - w) // 2 + pan_x, new_w - w))
+                        top = max(0, min((new_h - h) // 2 + pan_y, new_h - h))
+                        img = scaled_bg.crop((left, top, left + w, top + h))
+                    else:
+                        img = Image.new('RGB', (w, h))
+                        draw_grad = ImageDraw.Draw(img)
+                        # Create deep indigo gradient
+                        for row in range(h):
+                            r_c = max(0, 20 - int(row / h * 20))
+                            g_c = max(0, 15 - int(row / h * 15))
+                            b_c = max(0, 45 - int(row / h * 30))
+                            draw_grad.line([(0, row), (w, row)], fill=(r_c, g_c, b_c))
+
+                        # Draw horizontal scrolling 3D-perspective grid
+                        horizon_y = h // 3
+                        center_x = w // 2
+                        phase = (progress * 50) % 50
+                        
+                        for angle_idx in range(-12, 13):
+                            target_x = center_x + angle_idx * 120
+                            draw_grad.line([(center_x, horizon_y), (target_x, h)], fill=(0, 240, 255, 30), width=1)
+                            
+                        for grid_idx in range(15):
+                            y = horizon_y + int(((grid_idx * 30 + phase) ** 1.8) * 0.05)
+                            if y < h:
+                                opacity = int(100 * (y - horizon_y) / (h - horizon_y))
+                                draw_grad.line([(0, y), (w, y)], fill=(0, 240, 255, opacity), width=1)
+
+                    # 2. Transparent High-Fidelity HUD & Watermark Overlays
+                    img_rgba = img.convert('RGBA')
+                    overlay = Image.new('RGBA', (w, h), (0, 0, 0, 0))
+                    draw = ImageDraw.Draw(overlay)
 
                     try:
                         font_main = ImageFont.truetype('arial.ttf', 32)
-                        font_sub = ImageFont.truetype('arial.ttf', 18)
+                        font_sub = ImageFont.truetype('arial.ttf', 16)
                     except Exception:
                         font_main = ImageFont.load_default()
                         font_sub = ImageFont.load_default()
 
+                    # Neon Ambient Particle Drift
+                    for p in particles:
+                        curr_x = int((p['x'] + p['speed_x'] * f) % w)
+                        curr_y = int((p['y'] - p['speed_y'] * f) % h)
+                        flicker = int(140 + math.sin(f * 0.2 + p['x']) * 100)
+                        flicker = max(0, min(flicker, 255))
+                        draw.ellipse(
+                            [(curr_x - p['size'], curr_y - p['size']), (curr_x + p['size'], curr_y + p['size'])],
+                            fill=(p['color'][0], p['color'][1], p['color'][2], int(flicker * 0.35))
+                        )
+                        draw.ellipse(
+                            [(curr_x - p['size']//2, curr_y - p['size']//2), (curr_x + p['size']//2, curr_y + p['size']//2)],
+                            fill=(255, 255, 255, flicker)
+                        )
+
+                    # Cyber Corner HUD Brackets
+                    pad = 30
+                    blen = 40
+                    color_hud = (0, 240, 255, 180)
+                    draw.line([(pad, pad), (pad + blen, pad)], fill=color_hud, width=2)
+                    draw.line([(pad, pad), (pad, pad + blen)], fill=color_hud, width=2)
+                    draw.line([(w - pad, pad), (w - pad - blen, pad)], fill=color_hud, width=2)
+                    draw.line([(w - pad, pad), (w - pad, pad + blen)], fill=color_hud, width=2)
+                    draw.line([(pad, h - pad), (pad + blen, h - pad)], fill=color_hud, width=2)
+                    draw.line([(pad, h - pad), (pad, h - pad - blen)], fill=color_hud, width=2)
+                    draw.line([(w - pad, h - pad), (w - pad - blen, h - pad)], fill=color_hud, width=2)
+                    draw.line([(w - pad, h - pad), (w - pad, h - pad - blen)], fill=color_hud, width=2)
+
+                    # Rotating Sighting Reticle (Upper Right)
+                    rx, ry = w - 160, 160
+                    draw.ellipse([(rx - 60, ry - 60), (rx + 60, ry + 60)], outline=(0, 240, 255, 80), width=1)
+                    draw.ellipse([(rx - 30, ry - 30), (rx + 30, ry + 30)], outline=(255, 120, 0, 100), width=1)
+                    angle = progress * 2 * math.pi
+                    for tick_angle in [angle, angle + math.pi/2, angle + math.pi, angle + 3*math.pi/2]:
+                        tx = rx + int(math.cos(tick_angle) * 55)
+                        ty = ry + int(math.sin(tick_angle) * 55)
+                        tx2 = rx + int(math.cos(tick_angle) * 45)
+                        ty2 = ry + int(math.sin(tick_angle) * 45)
+                        draw.line([(tx, ty), (tx2, ty2)], fill=(0, 240, 255, 150), width=2)
+                    draw.ellipse([(rx - 3, ry - 3), (rx + 3, ry + 3)], fill=(255, 120, 0, 200))
+                    draw.text((rx - 70, ry + 75), "TGT_LOCK: 99.8%", font=font_sub, fill=(0, 240, 255, 150))
+
+                    # Character Link Diagnostics Panel (Top Left)
+                    panel_w, panel_h = 320, 220
+                    draw.rectangle([(40, 40), (40 + panel_w, 40 + panel_h)], fill=(5, 15, 30, 180), outline=(0, 240, 255, 100), width=1)
+                    draw.rectangle([(40, 40), (40 + panel_w, 70)], fill=(0, 240, 255, 40))
+                    draw.text((55, 48), "NEURAL INTERFACE // CAST_PORTRAIT", font=font_sub, fill=(255, 255, 255, 220))
+                    
+                    # Stylized Vector Character Face Profile Wireframe (The Anime Character!)
+                    face_cx, face_cy = 100, 150
+                    draw.arc([(face_cx - 30, face_cy - 40), (face_cx + 30, face_cy + 30)], start=30, end=150, fill=(0, 240, 255, 200), width=2)
+                    draw.line([(face_cx - 30, face_cy - 20), (face_cx - 10, face_cy - 45)], fill=(0, 240, 255, 200), width=2)
+                    draw.line([(face_cx - 10, face_cy - 45), (face_cx + 10, face_cy - 45)], fill=(0, 240, 255, 200), width=2)
+                    draw.line([(face_cx + 10, face_cy - 45), (face_cx + 30, face_cy - 20)], fill=(0, 240, 255, 200), width=2)
+                    draw.line([(face_cx - 20, face_cy - 10), (face_cx + 20, face_cy - 10)], fill=(255, 120, 0, 255), width=3)
+                    draw.text((face_cx - 40, face_cy + 35), sys_label, font=font_sub, fill=(0, 240, 255, 180))
+
+                    # Diagnostics data readouts
+                    tx_start = 160
+                    draw.text((tx_start, 85), f"ID: {char_name}", font=font_sub, fill=(255, 255, 255, 200))
+                    sync_pct = int(95.0 + math.sin(f * 0.1) * 3)
+                    draw.text((tx_start, 110), f"SYNC RATE: {sync_pct}%", font=font_sub, fill=(255, 120, 0, 220))
+                    
+                    # ECG/Sync Waveform
+                    wave_points = []
+                    for wx in range(120):
+                        local_phase = (wx - f * 4) % 60
+                        wy = math.sin((local_phase - 20) * math.pi / 10) * 18 if 20 < local_phase < 30 else math.sin(wx * 0.1) * 2
+                        wave_points.append((tx_start + wx, 175 + int(wy)))
+                    for wp_idx in range(len(wave_points) - 1):
+                        draw.line([wave_points[wp_idx], wave_points[wp_idx + 1]], fill=(0, 240, 255, 180), width=2)
+
+                    # Dynamic Audio Spectrum Frequency Bars (Bottom Right HUD)
+                    bx, by = w - 300, h - 85
+                    draw.text((bx, by - 20), "AUDIO SPECTRUM PROTOCOL", font=font_sub, fill=(0, 240, 255, 150))
+                    for bar_idx in range(10):
+                        bar_h = int(12 + math.sin(f * 0.3 + bar_idx * 0.8) * 12 + math.cos(f * 0.1 + bar_idx) * 8)
+                        bar_h = max(2, min(bar_h, 35))
+                        x1 = bx + bar_idx * 16
+                        y1 = by + (35 - bar_h)
+                        x2 = x1 + 10
+                        y2 = by + 35
+                        draw.rectangle([(x1, y1), (x2, y2)], fill=(0, 210, 255, 200))
+
+                    # Scrolling Code Matrix readouts (Right Edge)
+                    mx, my = w - 190, 240
+                    shift_idx = (f // 8) % len(logs_hud)
+                    for log_row_idx in range(4):
+                        curr_log = logs_hud[(log_row_idx + shift_idx) % len(logs_hud)]
+                        draw.text((mx, my + log_row_idx * 22), curr_log, font=font_sub, fill=(0, 240, 255, 100))
+
+                    # High-Fidelity Dialog Banner (Bottom Center)
                     def _measure_text(text_line: str, font_obj):
                         try:
                             bbox = draw.textbbox((0, 0), text_line, font=font_obj)
@@ -132,63 +380,71 @@ async def render_scene(req: RenderRequest):
                         except Exception:
                             return len(text_line) * 10, 20
 
-                    # Compute progress-based animations
-                    progress = f / max(1, total_frames - 1)
+                    tw, th = _measure_text(lines[0], font_main)
+                    banner_h = int(th + 30) if len(lines) == 1 else int(len(lines) * (th + 12) + 30)
+                    banner_y = h - banner_h - 40
                     
-                    # Draw "NEURAL RENDER" watermark
-                    draw.text((40, 40), "NEURAL MANIFESTATION // AETHERIA", font=font_sub, fill=(100, 100, 150))
-                    draw.line([(40, 65), (200, 65)], fill=(100, 100, 150), width=1)
+                    draw.rectangle(
+                        [(w // 2 - 400, banner_y), (w // 2 + 400, h - 40)],
+                        fill=(0, 5, 15, 210),
+                        outline=(0, 240, 255, 80),
+                        width=1
+                    )
+                    draw.line([(w // 2 - 400, banner_y), (w // 2 + 400, banner_y)], fill=(0, 240, 255, 225), width=2)
+                    draw.text((w // 2 - 380, banner_y - 22), f"NARRATION FEED // {char_name}", font=font_sub, fill=(0, 240, 255, 160))
 
-                    # Draw animated text lines
-                    y_start = int(h * 0.6)
-                    alpha = int(255 * (1 - abs(progress - 0.5) * 2)) # Fade in/out
-                    
+                    # Render text with fade in/out animation
+                    alpha = int(255 * (1 - abs(progress - 0.5) * 2))
+                    y_start = banner_y + 15
                     for idx, line in enumerate(lines):
-                        tw, th = _measure_text(line, font_main)
-                        # Subtle horizontal float using sine wave
-                        x_off = int(math.sin(progress * math.pi) * 10)
-                        
-                        # Draw shadow
-                        draw.text(((w - tw) / 2 + 2, y_start + idx * (th + 12) + 2), line, font=font_main, fill=(0, 0, 0, alpha))
-                        # Draw main text
-                        draw.text(((w - tw) / 2 + x_off, y_start + idx * (th + 12)), line, font=font_main, fill=(255, 255, 255, alpha))
+                        line_tw, line_th = _measure_text(line, font_main)
+                        draw.text(((w - line_tw) / 2 + 1, y_start + idx * (line_th + 12) + 1), line, font=font_main, fill=(0, 0, 0, alpha))
+                        draw.text(((w - line_tw) / 2, y_start + idx * (line_th + 12)), line, font=font_main, fill=(255, 255, 255, alpha))
 
+                    img = Image.alpha_composite(img_rgba, overlay).convert('RGB')
                     frames.append(img)
 
                 import numpy as np
                 clip = ImageSequenceClip([np.array(frame) for frame in frames], fps=fps)
-                backend_root = Path(__file__).parent.resolve().parent
-                out_dir = backend_root / 'outputs'
-                out_dir.mkdir(parents=True, exist_ok=True)
                 filename = f"local-scene-{int(time.time())}.mp4"
                 dest = out_dir / filename
+                temp_audio = out_dir / f"temp-audio-{int(time.time())}.m4a"
 
-                # Attempt to generate TTS audio in-thread and attach to clip if available
-                audio_path = None
-                try:
+                # Attach audio
+                if audio_clip:
                     try:
-                        from gtts import gTTS
-                        mp3_path = out_dir / f"local-scene-audio-{int(time.time())}.mp3"
-                        tts = gTTS(text)
-                        tts.save(str(mp3_path))
-                        audio_path = mp3_path
-                    except Exception:
-                        audio_path = None
-                except Exception:
-                    audio_path = None
-
-                try:
-                    if audio_path:
-                        try:
-                            from moviepy.editor import AudioFileClip  # type: ignore
-                        except Exception:
-                            from moviepy import AudioFileClip  # type: ignore
-                        audio_clip = AudioFileClip(str(audio_path))
                         clip = _attach_audio_to_clip(clip, audio_clip)
-                except Exception as e:
-                    logger.warning(f"Local render: attaching TTS audio failed; proceeding without audio ({e})")
+                    except Exception as e:
+                        logger.warning(f"Local render: attaching audio failed; proceeding without audio ({e})")
 
-                clip.write_videofile(str(dest), codec='libx264', audio=bool(audio_path), logger=None)
+                # Render output mp4 with aac audio codec to make sure it plays nicely in HTML5
+                clip.write_videofile(
+                    str(dest),
+                    codec='libx264',
+                    audio_codec='aac',
+                    audio=bool(audio_clip),
+                    temp_audiofile=str(temp_audio),
+                    remove_temp=False,
+                    logger=None
+                )
+
+                # Close all clips to release file locks on Windows
+                clip.close()
+                if audio_clip:
+                    audio_clip.close()
+
+                # Cleanup temp audio files after a short delay
+                try:
+                    import time as sys_time
+                    sys_time.sleep(1.0)
+                    if temp_audio.exists():
+                        temp_audio.unlink()
+                    if audio_path and audio_path.exists():
+                        audio_path.unlink()
+                    logger.info("Local render: Cleaned up temporary audio tracks successfully")
+                except Exception as cleanup_err:
+                    logger.warning(f"Local render: Cleanup failed (non-blocking) ({cleanup_err})")
+
                 return dest
 
             dest_path = await asyncio.to_thread(_create)

@@ -131,6 +131,7 @@ SEASON ORCHESTRATION RULES:
 2. CONTINUITY: Every scene must strictly obey the World Bible and Cast DNA.
 3. COMPLEXITY: Each episode must contain 3 Acts, with 5-8 detailed scenes per Act (approx. 15-24 scenes total per episode).
 4. DEPTH: Scene summaries must be dense (40-60 words), detailing character motivations, emotional subtext, and visual/audio cues.
+5. NAMING: Include a readable session_name for each episode and a scene_name for every scene so the series page can surface both the session and scene labels, not just the episode number.
 
 REQUIRED OUTPUT CONTRACT:
 - Return ONLY a JSON array containing EXACTLY ${episodeCount} episode objects.
@@ -147,6 +148,7 @@ EPISODE SCHEMA (Your array MUST contain ${episodeCount} of these objects! Do not
     "setting": "Primary location",
     "runtime": "30m",
     "focus_characters": ["Character A", "Character B"],
+    "session_name": "A short cinematic name for the session/arc",
     "emotional_arc": "Deep internal character shift",
     "arc_progression": {
       "character_id": "progression_percentage",
@@ -178,6 +180,7 @@ EPISODE SCHEMA (Your array MUST contain ${episodeCount} of these objects! Do not
           "scenes": [
             {
               "scene_id": "E01_A1_S01",
+              "scene_name": "A concise cinematic scene title",
               "location": "...",
               "summary": "...",
               "conflict": "...",
@@ -287,6 +290,7 @@ PRODUCTION REQUIREMENTS:
 3. DENSITY: The episode MUST contain exactly ${numScenes} dense scenes total across the 3 acts. Distribution should be balanced for a 30-minute pacing.
 4. SCENE SCHEMA:
    - scene_id: E${epId}_A[ACT]_S[SCENE]
+  - scene_name: A short cinematic title for the scene.
    - location: Specific setting with architectural and atmospheric notes.
    - summary: 60-100 word hyper-detailed narrative breakdown with specific dialogue beats and subtext.
    - script_dialogue_teaser: A sample exchange of 3-5 dialogue lines showing character voice.

@@ -2,6 +2,8 @@ export interface ProductionUnit {
   sess: number;
   ep: number;
   scen: number;
+  sessionName: string;
+  sceneName: string;
 }
 
 /**
@@ -34,7 +36,9 @@ export function generateProductionSequences(
         result.push({
           sess: s,
           ep: e,
-          scen: sc
+          scen: sc,
+          sessionName: `Session ${s}`,
+          sceneName: `Scene ${sc}`
         });
       }
     }

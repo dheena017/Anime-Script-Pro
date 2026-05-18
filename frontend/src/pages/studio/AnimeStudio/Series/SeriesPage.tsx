@@ -107,7 +107,13 @@ export function SeriesPage() {
       showNotification?.(`Requested scene is outside the generated range. Loading Scene ${sceneIndex + 1} instead.`, 'info');
     }
 
-    showNotification?.(`Loaded S${sess} E${ep} Scene ${scen}.`, 'success');
+    const currentUnit = productionSequence.find(
+      (unit) => unit.sess === sess && unit.ep === ep && unit.scen === scen
+    );
+    showNotification?.(
+      `Loaded ${currentUnit?.sessionName || `Session ${sess}`} / E${ep} / ${currentUnit?.sceneName || `Scene ${scen}`}.`,
+      'success'
+    );
     navigate(`${studioBase}/storyboard/scenes/${sceneIndex}`);
   };
 

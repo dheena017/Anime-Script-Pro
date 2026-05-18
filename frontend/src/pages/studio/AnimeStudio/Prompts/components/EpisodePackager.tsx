@@ -13,6 +13,19 @@ export default function EpisodePackager() {
     episode,
     session,
     selectedModel,
+    generatedWorld,
+    generatedWorldLore,
+    generatedWorldPowers,
+    generatedWorldFactions,
+    generatedWorldArchitecture,
+    generatedWorldAtlas,
+    generatedWorldCulture,
+    generatedWorldSystems,
+    generatedCharacters,
+    castDNA,
+    castDynamics,
+    castIntegrity,
+    characterRelationships,
   } = useGeneratorState();
   const {
     setGeneratedImagePrompts,
@@ -142,7 +155,27 @@ export default function EpisodePackager() {
       const scene = packageJson.scenes.find((s:any) => s.index === index);
       const beatDescription = (scene?.parsed && (scene.parsed['Narration'] || scene.parsed['Visual Direction'])) || scene?.sceneOutput?.narration || '';
 
-      const newSceneOutput = await generateScene(packageJson.script, beatDescription, selectedModel, null, null, { temperature: 0.7, maxTokens: 1024 });
+      // Compile unified World and Cast DNA context dynamically
+      const worldSections: string[] = [];
+      if (generatedWorld) worldSections.push(`=== WORLD MANIFEST ===\n${generatedWorld}`);
+      if (generatedWorldLore) worldSections.push(`=== HISTORY & ERAS ===\n${generatedWorldLore}`);
+      if (generatedWorldFactions) worldSections.push(`=== FACTIONS & POWER BALANCE ===\n${generatedWorldFactions}`);
+      if (generatedWorldPowers) worldSections.push(`=== SYSTEMS & MECHANICS ===\n${generatedWorldPowers}`);
+      if (generatedWorldArchitecture) worldSections.push(`=== VISUAL STYLE & ARCHITECTURE ===\n${generatedWorldArchitecture}`);
+      if (generatedWorldAtlas) worldSections.push(`=== GEOGRAPHY & ENVIRONMENT ===\n${generatedWorldAtlas}`);
+      if (generatedWorldCulture) worldSections.push(`=== CUSTOMS & ETHOS ===\n${generatedWorldCulture}`);
+      if (generatedWorldSystems) worldSections.push(`=== TECHNOLOGICAL INFRASTRUCTURE ===\n${generatedWorldSystems}`);
+      const compiledWorldLore = worldSections.length > 0 ? worldSections.join("\n\n") : null;
+
+      const castSections: string[] = [];
+      if (generatedCharacters) castSections.push(`=== CAST SUMMARY ===\n${generatedCharacters}`);
+      if (castDNA) castSections.push(`=== IDENTITY & VOICE DNA ===\n${castDNA}`);
+      if (castDynamics) castSections.push(`=== RELATIONSHIP DYNAMICS ===\n${castDynamics}`);
+      if (castIntegrity) castSections.push(`=== TECHNICAL DESIGN RULES ===\n${castIntegrity}`);
+      if (characterRelationships) castSections.push(`=== INTERPERSONAL NETWORKS ===\n${characterRelationships}`);
+      const compiledCastDNA = castSections.length > 0 ? castSections.join("\n\n") : null;
+
+      const newSceneOutput = await generateScene(packageJson.script, beatDescription, selectedModel, compiledWorldLore, compiledCastDNA, { temperature: 0.7, maxTokens: 1024 });
       const newImagePrompts = await generateImagePrompts(newSceneOutput.visuals || newSceneOutput.narration, selectedModel);
       let newVideoPrompts: string | null = null;
       try {

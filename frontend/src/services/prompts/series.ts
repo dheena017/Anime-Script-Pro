@@ -1,6 +1,6 @@
 /*
  Series planning prompt and schema for Anime-Script-Pro
-
+          "session_name": string,
  Usage:
   - Import `SERIES_PLANNING_PROMPT` and pass it to your AI call function.
   - The prompt expects three inputs available to the model: `world`, `characters`, and `seriesRequest`.
@@ -205,6 +205,8 @@ SEASON DESIGN FRAMEWORK:
 - The runtime must reflect a full-scale, cinematic production.
 - Scene count MUST be exactly ${numScenes} scenes per episode to strictly match the production scaffolding. Each scene should have a distinct scene_index in the JSON.
 - The roadmap must span exactly ${episodeCount} episodes across ${totalSessions} sessions.
+- Each episode must include a readable session_name.
+- Each scene seed must include a scene_name alongside scene_index.
 
 ### 9. Output Quality Standards
 - Titles must be evocative and specific.
@@ -235,11 +237,12 @@ REQUIRED JSON SCHEMA (You MUST output an array containing EXACTLY ${episodeCount
     }
   },
   {
+          "sessionName": string,
     "episode": "02",
     "title": "...",
     "hook": "...",
-    "setting": "...",
-    "runtime": "...",
+          "actBreakdown": [ {"actNumber": number, "durationPercent": number, "beats": [{"beatId": string, "description": string, "linkedCharacterIds": string[], "locationId": string, "visualNotes": string}]} ],
+          "sceneSeeds": [ {"sceneIndex": number, "sceneName": string, "locationId": string, "primaryCharacters": string[], "conflict": string, "objective": string, "keyProps": string[], "visualMood": string, "estimatedPages": number} ],
     "focus_characters": ["..."],
     "emotional_arc": "...",
     "asset_matrix": {

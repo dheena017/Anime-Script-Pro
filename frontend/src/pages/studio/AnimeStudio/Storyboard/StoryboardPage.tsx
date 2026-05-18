@@ -50,6 +50,19 @@ export function StoryboardPage() {
   const {
     generatedScript,
     generatedImagePrompts,
+    generatedWorld,
+    generatedWorldLore,
+    generatedWorldPowers,
+    generatedWorldFactions,
+    generatedWorldArchitecture,
+    generatedWorldAtlas,
+    generatedWorldCulture,
+    generatedWorldSystems,
+    generatedCharacters,
+    castDNA,
+    castDynamics,
+    castIntegrity,
+    characterRelationships,
   } = useGeneratorState();
   const {
     setGeneratedScript,
@@ -206,10 +219,10 @@ export function StoryboardPage() {
     }
   }, [selectedModel, storyboardDispatch]);
 
-  const handleGenerateVideo = React.useCallback(async (originalIndex: number, _imageUrl: string, prompt: string) => {
+  const handleGenerateVideo = React.useCallback(async (originalIndex: number, imageUrl: string, prompt: string) => {
     storyboardDispatch({ type: 'UPDATE_VIDEO_ITEM', payload: { id: originalIndex, data: 'loading' } });
     try {
-      const videoUrl = await generateSceneVideo(prompt, selectedModel);
+      const videoUrl = await generateSceneVideo(prompt, selectedModel, undefined, imageUrl);
       if (videoUrl) {
         storyboardDispatch({ type: 'UPDATE_VIDEO_ITEM', payload: { id: originalIndex, data: videoUrl } });
       } else {
@@ -329,10 +342,32 @@ export function StoryboardPage() {
     addLog("STORYBOARD", "PROCESSING", `Generating AI data for Scene: ${scene.section}`);
 
     try {
+      // Compile unified World and Cast DNA context dynamically
+      const worldSections: string[] = [];
+      if (generatedWorld) worldSections.push(`=== WORLD MANIFEST ===\n${generatedWorld}`);
+      if (generatedWorldLore) worldSections.push(`=== HISTORY & ERAS ===\n${generatedWorldLore}`);
+      if (generatedWorldFactions) worldSections.push(`=== FACTIONS & POWER BALANCE ===\n${generatedWorldFactions}`);
+      if (generatedWorldPowers) worldSections.push(`=== SYSTEMS & MECHANICS ===\n${generatedWorldPowers}`);
+      if (generatedWorldArchitecture) worldSections.push(`=== VISUAL STYLE & ARCHITECTURE ===\n${generatedWorldArchitecture}`);
+      if (generatedWorldAtlas) worldSections.push(`=== GEOGRAPHY & ENVIRONMENT ===\n${generatedWorldAtlas}`);
+      if (generatedWorldCulture) worldSections.push(`=== CUSTOMS & ETHOS ===\n${generatedWorldCulture}`);
+      if (generatedWorldSystems) worldSections.push(`=== TECHNOLOGICAL INFRASTRUCTURE ===\n${generatedWorldSystems}`);
+      const compiledWorldLore = worldSections.length > 0 ? worldSections.join("\n\n") : null;
+
+      const castSections: string[] = [];
+      if (generatedCharacters) castSections.push(`=== CAST SUMMARY ===\n${generatedCharacters}`);
+      if (castDNA) castSections.push(`=== IDENTITY & VOICE DNA ===\n${castDNA}`);
+      if (castDynamics) castSections.push(`=== RELATIONSHIP DYNAMICS ===\n${castDynamics}`);
+      if (castIntegrity) castSections.push(`=== TECHNICAL DESIGN RULES ===\n${castIntegrity}`);
+      if (characterRelationships) castSections.push(`=== INTERPERSONAL NETWORKS ===\n${characterRelationships}`);
+      const compiledCastDNA = castSections.length > 0 ? castSections.join("\n\n") : null;
+
       const result = await generateScene(
         generatedScript || '',
         `Scene Section: ${scene.section}\nExisting Context: ${scene.narration}\nVisuals to maintain: ${scene.visuals}`,
-        selectedModel
+        selectedModel,
+        compiledWorldLore,
+        compiledCastDNA
       );
 
       if (result) {

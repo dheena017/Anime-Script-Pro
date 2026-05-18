@@ -26,6 +26,7 @@ export interface SeriesAssetMatrix {
 export interface SeriesEpisode {
   detailed_episode_spec: any;
   episode: string;
+  session_name?: string;
   title: string;
   hook: string;
   setting?: string;
@@ -72,6 +73,7 @@ export const SeriesCard = React.memo<SeriesCardProps>(({
   onViewEpisode
 }) => {
   const sceneCount = ep.asset_matrix?.scene_count || 0;
+  const firstSceneName = ep.detailed_episode_spec?.acts?.[0]?.scenes?.[0]?.scene_name;
 
   return (
     <motion.div
@@ -127,6 +129,15 @@ export const SeriesCard = React.memo<SeriesCardProps>(({
                    <h3 className="text-4xl font-black text-studio uppercase tracking-[-0.05em] leading-none drop-shadow-[0_0_15px_rgba(6,182,212,0.3)]">
                      {ep.title}
                    </h3>
+                   <div className="flex flex-wrap items-center gap-2 pt-1">
+                     <span className="text-[10px] font-black uppercase tracking-[0.25em] text-zinc-500">
+                       Session: {ep.session_name || 'Unassigned'}
+                     </span>
+                     <span className="text-[10px] font-black uppercase tracking-[0.25em] text-zinc-700">|</span>
+                     <span className="text-[10px] font-black uppercase tracking-[0.25em] text-zinc-500 truncate max-w-[16rem]">
+                       Scene: {firstSceneName || 'Unassigned'}
+                     </span>
+                   </div>
                 </div>
              </div>
 

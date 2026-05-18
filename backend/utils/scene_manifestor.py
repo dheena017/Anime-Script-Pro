@@ -15,6 +15,10 @@ You are an expert Anime Writer, Scene Architect, and Production Planner.
 MISSION:
 Generate one production-ready scene as a strict JSON object with narration, visuals, sound direction, and production notes.
 
+Naming requirements:
+- Include a readable "session_name" for the current production session or episode block.
+- Include a readable "scene_name" for the specific scene so the blueprint can surface it directly.
+
 {source_sections}
 
 JSON Schema:
@@ -23,6 +27,8 @@ JSON Schema:
     "visuals": "Production-ready visual direction with camera, lighting, color, lensing, blocking, and motion specifics.",
     "sound": "Production-ready sound direction with ambience, foley, music, silence, and intensity.",
     "scene_purpose": "Short description of the dramatic function of the scene.",
+    "session_name": "Readable label for the session or episode block.",
+    "scene_name": "Readable label for the scene itself.",
     "continuity_notes": "Key continuity elements that must remain unchanged.",
     "emotional_key": "The dominant emotional beat of the scene.",
     "camera_notes": "Optional but concrete camera grammar, if useful for the scene.",
@@ -63,10 +69,15 @@ async def manifest_scene(scene_id: int, user_id: str, model: str = "gemini-2.0-f
         
         world_lore_text = world_lore.full_lore_blob if world_lore else ""
         cast_text = cast_manifest.cast_list_blob if cast_manifest else ""
+        session_index = ((scene.scene_number - 1) // 16) + 1 if scene.scene_number and scene.scene_number > 0 else 1
+        scene_index = ((scene.scene_number - 1) % 16) + 1 if scene.scene_number and scene.scene_number > 0 else 1
         
         source_sections = []
         if world_lore_text: source_sections.append(f"WORLD LORE SOURCE OF TRUTH:\n{world_lore_text}")
         if cast_text: source_sections.append(f"CHARACTER DNA REGISTRY:\n{cast_text}")
+        source_sections.append(
+            f"SESSION / SCENE LABELS:\nSession Name: Session {session_index}\nScene Name: Scene {scene_index}\nScene Number: {scene.scene_number}"
+        )
         
         system_instruction = SCENE_MANIFEST_SYSTEM_PROMPT.format(source_sections="\n\n".join(source_sections))
         

@@ -711,6 +711,26 @@ export const BlueprintTab: React.FC<BlueprintTabProps> = ({
               </div>
            </div>
 
+           {productionSequence.length > 0 && (
+             <div className="p-4 bg-white/[0.02] border border-white/5 rounded-2xl space-y-3">
+               <div className="flex items-center justify-between">
+                 <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Blueprint Sequence Preview</span>
+                 <span className="text-[9px] font-mono text-zinc-600 uppercase">{productionSequence.length} Units</span>
+               </div>
+               <div className="space-y-2 max-h-48 overflow-auto pr-1 custom-scrollbar">
+                 {productionSequence.slice(0, 6).map((unit, idx) => (
+                   <div key={`${unit.sess}-${unit.ep}-${unit.scen}-${idx}`} className="flex items-center justify-between text-[10px] font-mono uppercase tracking-tight text-zinc-500">
+                     <span className="text-studio/80">{unit.sessionName}</span>
+                     <span className="text-zinc-700">/</span>
+                     <span>{`E${unit.ep}`}</span>
+                     <span className="text-zinc-700">/</span>
+                     <span className="text-amber-400">{unit.sceneName}</span>
+                   </div>
+                 ))}
+               </div>
+             </div>
+           )}
+
            <div className="p-6 bg-gradient-to-br from-emerald-500/10 to-studio/10 border border-white/5 rounded-[2rem] space-y-4">
               <h4 className="text-[10px] font-black text-white uppercase tracking-widest flex items-center gap-2">
                 <Database className="w-3 h-3 text-emerald-400" /> Storage Note

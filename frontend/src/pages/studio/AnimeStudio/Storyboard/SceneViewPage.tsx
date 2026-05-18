@@ -138,7 +138,9 @@ export function SceneViewPage() {
       if (!promptToUse || promptToUse.trim().length < 10) {
         throw new Error('Prompt too short for rendering. Edit the scene visuals or linked prompt.');
       }
-      const url = await generateSceneVideo(promptToUse, selectedModel || undefined);
+      const sceneImages = visualData[scene?.originalIndex];
+      const imageUrl = (sceneImages && sceneImages.length > 0 && sceneImages[0] !== 'loading') ? sceneImages[0] : undefined;
+      const url = await generateSceneVideo(promptToUse, selectedModel || undefined, undefined, imageUrl);
       if (!url) throw new Error('Renderer returned no URL.');
       setGeneratedVideoUrl(url);
       // Persist to storyboard state so other views can access it
@@ -282,7 +284,9 @@ export function SceneViewPage() {
                         setIsRendering(true);
                         try {
                           const promptToUse = editForm.linkedPrompt || editForm.visuals || '';
-                          const url = await generateSceneVideo(promptToUse, selectedModel || undefined, 'free_ai');
+                          const sceneImages = visualData[scene?.originalIndex];
+                          const imageUrl = (sceneImages && sceneImages.length > 0 && sceneImages[0] !== 'loading') ? sceneImages[0] : undefined;
+                          const url = await generateSceneVideo(promptToUse, selectedModel || undefined, 'free_ai', imageUrl);
                           if (!url) throw new Error('Renderer returned no URL.');
                           setGeneratedVideoUrl(url);
                           storyboardDispatch({ type: 'UPDATE_VIDEO_ITEM', payload: { id: scene.originalIndex, data: url } });
