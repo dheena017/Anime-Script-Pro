@@ -39,7 +39,7 @@ JSON Schema:
 Return ONLY JSON. No markdown.
 """
 
-async def manifest_scene(scene_id: int, user_id: str, model: str = "gemini-2.0-flash"):
+async def manifest_scene(scene_id: int, user_id: str, model: str = "gemini-2.0-flash", bypass_status_check: bool = False):
     async with async_session() as session:
         # 1. Fetch Scene
         scene = await session.get(Scene, scene_id)
@@ -47,7 +47,7 @@ async def manifest_scene(scene_id: int, user_id: str, model: str = "gemini-2.0-f
             logger.error(f"Scene {scene_id} not found.")
             return False
         
-        if scene.status == "MANIFESTED":
+        if not bypass_status_check and scene.status == "MANIFESTED":
             logger.info(f"Scene {scene_id} already manifested. Skipping.")
             return True
 
@@ -57,6 +57,11 @@ async def manifest_scene(scene_id: int, user_id: str, model: str = "gemini-2.0-f
             logger.error(f"Project {scene.project_id} not found for scene {scene_id}.")
             return False
             
+        # SECURITY: Double check ownership
+        if project.user_id != user_id:
+            logger.error(f"SECURITY: Unauthorized manifestation attempt by user {user_id} for scene {scene_id}")
+            return False
+
         # 3. Fetch Lore & Cast Manifest
         world_lore_stmt = select(WorldLore).where(WorldLore.project_id == project.id).order_by(WorldLore.created_at.desc())
         cast_manifest_stmt = select(CastManifest).where(CastManifest.project_id == project.id).order_by(CastManifest.created_at.desc())
@@ -72,9 +77,29 @@ async def manifest_scene(scene_id: int, user_id: str, model: str = "gemini-2.0-f
         session_index = ((scene.scene_number - 1) // 16) + 1 if scene.scene_number and scene.scene_number > 0 else 1
         scene_index = ((scene.scene_number - 1) % 16) + 1 if scene.scene_number and scene.scene_number > 0 else 1
         
+        # 3.1. Fetch Continuity Context (Previous Scenes)
+        prev_scenes_stmt = select(Scene).where(
+            Scene.project_id == project.id,
+            Scene.scene_number < scene.scene_number,
+            Scene.status == "MANIFESTED"
+        ).order_by(Scene.scene_number.desc()).limit(3)
+        prev_res = await session.execute(prev_scenes_stmt)
+        prev_scenes = prev_res.scalars().all()
+
+        continuity_context = ""
+        if prev_scenes:
+            continuity_context = "PREVIOUS SCENES CONTINUITY:\n"
+            for ps in reversed(prev_scenes):
+                try:
+                    ps_data = json.loads(ps.content)
+                    continuity_context += f"- Scene #{ps.scene_number}: {ps_data.get('narration', '')[:200]}...\n"
+                except:
+                    pass
+
         source_sections = []
         if world_lore_text: source_sections.append(f"WORLD LORE SOURCE OF TRUTH:\n{world_lore_text}")
         if cast_text: source_sections.append(f"CHARACTER DNA REGISTRY:\n{cast_text}")
+        if continuity_context: source_sections.append(continuity_context)
         source_sections.append(
             f"SESSION / SCENE LABELS:\nSession Name: Session {session_index}\nScene Name: Scene {scene_index}\nScene Number: {scene.scene_number}"
         )
@@ -124,6 +149,12 @@ async def manifest_all_queued_scenes(project_id: int, user_id: str, limit: int =
     Default limit is 16 (roughly one episode's worth).
     """
     async with async_session() as session:
+        # SECURITY: Verify project ownership first
+        project = await session.get(Project, project_id)
+        if not project or project.user_id != user_id:
+            logger.error(f"SECURITY: Unauthorized bulk manifestation attempt by user {user_id} for project {project_id}")
+            return 0
+
         stmt = select(Scene).where(
             Scene.project_id == project_id,
             Scene.status == "QUEUED"

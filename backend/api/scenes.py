@@ -6,7 +6,7 @@ from loguru import logger
 from backend.database.models import Scene, Episode, Project
 from backend.utils.deps import get_auth_user_id
 from backend.utils.notifications import notify_user
-from backend.utils.scene_manifestor import manifest_all_queued_scenes
+from backend.utils.scene_manifestor import manifest_all_queued_scenes, manifest_scene
 
 router = APIRouter(prefix="/api/scenes", tags=["Scenes"])
 
@@ -142,19 +142,68 @@ async def bulk_manifest_scenes(payload: dict, user_id: str = Depends(get_auth_us
     project_id = payload.get("project_id")
     limit = payload.get("limit", 16) # Default to 16 scenes (one episode)
     model = payload.get("model", "gemini-2.0-flash")
-    
+
     if not project_id:
         raise HTTPException(status_code=400, detail="project_id is required")
-        
+
+    try:
+        project_pk = int(project_id)
+    except Exception:
+        raise HTTPException(status_code=400, detail="project_id must be an integer")
+
+    # SECURITY: Verify project ownership before queuing background task
+    async with async_session() as session:
+        project = await session.get(Project, project_pk)
+        if not project or project.user_id != user_id:
+            logger.warning(f"SECURITY: Unauthorized manifestation attempt by user {user_id} for project {project_pk}")
+            raise HTTPException(status_code=401, detail="Project access denied")
+
     # Run manifestation in the background to avoid timeout
     async def run_manifestation():
         try:
-            count = await manifest_all_queued_scenes(int(project_id), user_id, limit=limit, model=model)
-            await notify_user(user_id, "Manifestation Complete", f"Successfully manifested {count} scenes for project {project_id} using {model}.", "SUCCESS")
+            # Re-verify inside task to be safe, though checked above
+            count = await manifest_all_queued_scenes(project_pk, user_id, limit=limit, model=model)
+            await notify_user(user_id, "Manifestation Complete", f"Successfully manifested {count} scenes for project {project_pk} using {model}.", "SUCCESS")
         except Exception as e:
             logger.error(f"Background manifestation failed: {e}")
             await notify_user(user_id, "Manifestation Failed", str(e), "ERROR")
 
     asyncio.create_task(run_manifestation())
-    
+
     return {"status": "started", "message": f"Manifestation of up to {limit} scenes has been queued in the background."}
+
+
+@router.post("/{scene_id}/manifest")
+async def manifest_single_scene_endpoint(
+    scene_id: int,
+    payload: dict = None,
+    user_id: str = Depends(get_auth_user_id)
+):
+    """
+    Triggers the manifestation of a single specific scene.
+    Accepts an optional prompt override to update the scene blueprint before generation.
+    """
+    payload = payload or {}
+    model = payload.get("model", "gemini-2.0-flash")
+    custom_prompt = payload.get("prompt")
+
+    async with async_session() as session:
+        scene = await session.get(Scene, scene_id)
+        if not scene:
+            raise HTTPException(status_code=404, detail="Scene not found")
+
+        project = await session.get(Project, scene.project_id)
+        if not project or project.user_id != user_id:
+            raise HTTPException(status_code=401, detail="Project access denied")
+
+        if custom_prompt:
+            # SECURITY: Limit custom prompt length
+            scene.prompt = custom_prompt[:2000]
+            session.add(scene)
+            await session.commit()
+
+    success = await manifest_scene(scene_id, user_id, model=model, bypass_status_check=True)
+    if success:
+        return {"status": "success", "message": f"Scene {scene_id} manifested successfully."}
+    else:
+        raise HTTPException(status_code=500, detail="Failed to manifest scene.")

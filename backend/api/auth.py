@@ -28,24 +28,10 @@ async def login_for_access_token(
     form_data: OAuth2PasswordRequestForm = Depends()
 ):
     """
-    OAuth2 compatible token login. Supports both real database users and 
-    the development architect bypass (email@gmail.com / password).
+    OAuth2 compatible token login. Supports real database users.
     """
     email = form_data.username
     password = form_data.password
-    
-    # Dev Bypass Logic
-    is_dev = os.getenv("ENV") == "development" or os.getenv("BYPASS_AUTH") == "true" or request.headers.get('x-bypass-auth') == 'true'
-    
-    if is_dev and email == "email@gmail.com" and password == "password":
-        logger.warning(f"[AUTH] Development ARCHITECT BYPASS triggered for: {email}")
-        user_id = "local-dev-architect-id"
-        access_token = create_access_token(data={"sub": user_id})
-        return {
-            "access_token": access_token,
-            "token_type": "bearer",
-            "message": "Architect Bypass Authorized"
-        }
 
     # Real DB Login Logic
     try:
@@ -53,14 +39,14 @@ async def login_for_access_token(
             statement = select(User).where(User.email == email)
             result = await db.execute(statement)
             user = result.scalars().first()
-            
+
             if not user or not verify_password(password, user.hashed_password):
                 raise HTTPException(
                     status_code=status.HTTP_401_UNAUTHORIZED,
                     detail="Incorrect email or password",
                     headers={"WWW-Authenticate": "Bearer"},
                 )
-            
+
             user_id = str(user.id)
             access_token = create_access_token(data={"sub": user_id})
             return {
@@ -79,54 +65,26 @@ async def secure_login(
     response: Response,
     login_data: LoginRequest
 ):
-    # Development Bypass: allow ENV or BYPASS_AUTH env var OR a dev header from local proxy
-    is_dev = os.getenv("ENV") == "development" or os.getenv("BYPASS_AUTH") == "true" or request.headers.get('x-bypass-auth') == 'true'
-    try:
-        header_items = list(request.headers.items())
-    except Exception:
-        header_items = str(request.headers)
-    logger.info(f"AUTH DEBUG: is_dev={is_dev}, email={login_data.email}, password={login_data.password}, headers={header_items}")
-    if is_dev and login_data.email == "email@gmail.com" and login_data.password == "password":
-        logger.info(f"Development login successful for: {login_data.email}")
-        user_id = "local-dev-architect-id"
-        access_token = create_access_token(data={"sub": user_id})
-        refresh_token = create_refresh_token(data={"sub": user_id})
-        
-        response.set_cookie(
-            key="refresh_token",
-            value=refresh_token,
-            httponly=True,
-            secure=True,
-            samesite="strict",
-            max_age=7 * 24 * 60 * 60
-        )
-        
-        return {
-            "access_token": access_token,
-            "token_type": "bearer",
-            "expires_in": 15 * 60
-        }
-
     try:
         async with async_session() as db:
             statement = select(User).where(User.email == login_data.email)
             result = await db.execute(statement)
             user = result.scalars().first()
-            
+
             if not user:
                 logger.warning(f"Login failed: User {login_data.email} not found")
                 raise HTTPException(
                     status_code=status.HTTP_401_UNAUTHORIZED,
                     detail="Invalid credentials"
                 )
-                
+
             if user.locked_until and user.locked_until.replace(tzinfo=timezone.utc) > datetime.now(timezone.utc):
                 logger.warning(f"Login failed: User {login_data.email} is locked until {user.locked_until}")
                 raise HTTPException(
                     status_code=status.HTTP_403_FORBIDDEN,
                     detail="Account temporarily locked due to multiple failed login attempts."
                 )
-                
+
             if not verify_password(login_data.password, user.hashed_password):
                 logger.warning(f"Login failed: Invalid password for user {login_data.email}")
                 user.failed_login_attempts += 1
@@ -138,16 +96,16 @@ async def secure_login(
                     status_code=status.HTTP_401_UNAUTHORIZED,
                     detail="Invalid credentials"
                 )
-                
+
             user_id = str(user.id)
             user.failed_login_attempts = 0
             user.locked_until = None
             db.add(user)
             await db.commit()
-            
+
             access_token = create_access_token(data={"sub": user_id})
             refresh_token = create_refresh_token(data={"sub": user_id})
-            
+
             response.set_cookie(
                 key="refresh_token",
                 value=refresh_token,
@@ -156,7 +114,7 @@ async def secure_login(
                 samesite="strict",
                 max_age=7 * 24 * 60 * 60
             )
-            
+
             logger.success(f"[AUTH] Architect Authorized: {login_data.email}")
             return {
                 "access_token": access_token,
