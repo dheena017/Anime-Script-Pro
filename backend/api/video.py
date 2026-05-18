@@ -20,6 +20,9 @@ class RenderRequest(BaseModel):
     sys_label: str | None = None
     sync_rate: str | None = None
     telemetry_logs: list[str] | None = None
+    provider: str | None = None
+    narration: str | None = None
+    voice_id: str | None = None
 
 
 class RenderResponse(BaseModel):
@@ -65,6 +68,91 @@ async def _generate_tts(text: str, out_dir: Path, basename: str):
     return await asyncio.to_thread(_sync_tts)
 
 
+def _get_audio_duration(audio_path: Path) -> float:
+    """Load the audio file and return its exact duration in seconds using MoviePy."""
+    try:
+        try:
+            from moviepy.editor import AudioFileClip
+        except ImportError:
+            from moviepy import AudioFileClip
+    except ImportError as e:
+        logger.error("Failed to import MoviePy AudioFileClip")
+        raise RuntimeError("Missing moviepy library.") from e
+
+    audio_clip = AudioFileClip(str(audio_path))
+    duration = audio_clip.duration
+    audio_clip.close()
+    return duration
+
+
+def _mux_media_task(video_path: Path, audio_path: Path, out_path: Path):
+    """Combine the Runway video and ElevenLabs audio, looping the video if needed to match audio length."""
+    try:
+        try:
+            from moviepy.editor import VideoFileClip, AudioFileClip, concatenate_videoclips
+        except ImportError:
+            from moviepy import VideoFileClip, AudioFileClip, concatenate_videoclips
+    except ImportError as e:
+        logger.error("Failed to import MoviePy components")
+        raise RuntimeError("Missing moviepy library.") from e
+
+    logger.info("Muxing video and audio with MoviePy...")
+    video_clip = VideoFileClip(str(video_path))
+    audio_clip = AudioFileClip(str(audio_path))
+
+    v_dur = video_clip.duration
+    a_dur = audio_clip.duration
+    logger.info(f"Video duration: {v_dur:.2f}s, Audio duration: {a_dur:.2f}s")
+
+    if a_dur > v_dur:
+        # Loop the video clip automatically so the duration perfectly matches the audio.
+        logger.info(f"Audio is longer than video. Looping video to {a_dur:.2f}s...")
+        try:
+            if hasattr(video_clip, 'loop'):
+                final_video = video_clip.loop(duration=a_dur)
+            else:
+                from moviepy.video.fx.all import loop
+                final_video = loop(video_clip, duration=a_dur)
+        except Exception as e:
+            logger.warning(f"Built-in looping failed, falling back to manual concatenation: {e}")
+            n_repeats = math.ceil(a_dur / v_dur)
+            final_video = concatenate_videoclips([video_clip] * n_repeats).subclip(0, a_dur)
+    else:
+        # Trim video to match the audio duration exactly
+        logger.info(f"Video is longer than or equal to audio. Trimming video to {a_dur:.2f}s...")
+        final_video = video_clip.subclip(0, a_dur)
+
+    # Attach the audio clip
+    final_clip = _attach_audio_to_clip(final_video, audio_clip)
+    
+    # Write to final destination
+    temp_audio = out_path.parent / f"temp-audio-mux-{int(time.time())}.m4a"
+    logger.info(f"Writing final muxed video to {out_path}...")
+    final_clip.write_videofile(
+        str(out_path),
+        codec='libx264',
+        audio_codec='aac',
+        temp_audiofile=str(temp_audio),
+        remove_temp=False,
+        logger=None
+    )
+    
+    # Close clips to release file locks on Windows
+    final_clip.close()
+    video_clip.close()
+    audio_clip.close()
+    
+    # Clean up temp audio after a short delay
+    try:
+        import time as sys_time
+        sys_time.sleep(1.0)
+        if temp_audio.exists():
+            temp_audio.unlink()
+    except Exception as cleanup_err:
+        logger.warning(f"Muxer temp audio cleanup failed (non-blocking): {cleanup_err}")
+    logger.info("Muxing completed successfully.")
+
+
 @router.post("/render/scene", response_model=RenderResponse)
 async def render_scene(req: RenderRequest):
     """Proxy endpoint to dispatch scene render requests to a chosen provider.
@@ -73,7 +161,7 @@ async def render_scene(req: RenderRequest):
     - VIDEO_PROVIDER: one of 'veo', 'runway', 'luma', 'sora' or 'local'
     - Provider-specific API keys must be set (e.g. VEO_API_KEY, RUNWAY_API_KEY)
     """
-    provider = os.environ.get('VIDEO_PROVIDER', '').lower()
+    provider = (req.provider or os.environ.get('VIDEO_PROVIDER', '')).lower()
     if not provider:
         logger.warning("Render requested but VIDEO_PROVIDER is not configured.")
         raise HTTPException(status_code=501, detail="No video provider configured. Set VIDEO_PROVIDER and provider API key in environment.")
@@ -81,6 +169,210 @@ async def render_scene(req: RenderRequest):
     # Basic validation
     if not req.prompt or len(req.prompt.strip()) < 10:
         raise HTTPException(status_code=400, detail="Prompt too short for rendering.")
+
+    # Production Anime pipeline (Runway Gen-3 + ElevenLabs Neural Audio + MoviePy Muxing)
+    if provider == 'production_anime':
+        runway_key = os.environ.get("RUNWAY_API_KEY")
+        elevenlabs_key = os.environ.get("ELEVENLABS_API_KEY")
+        if not runway_key or not elevenlabs_key:
+            raise HTTPException(
+                status_code=401,
+                detail="Authentication failed: RUNWAY_API_KEY and ELEVENLABS_API_KEY must be configured in environment."
+            )
+
+        backend_root = Path(__file__).parent.resolve().parent
+        out_dir = backend_root / 'outputs'
+        out_dir.mkdir(parents=True, exist_ok=True)
+        
+        timestamp = int(time.time())
+        video_filename = f"prod-anime-video-{timestamp}.mp4"
+        audio_filename = f"prod-anime-audio-{timestamp}.mp3"
+        final_filename = f"prod-anime-mux-{timestamp}.mp4"
+        
+        video_dest = out_dir / video_filename
+        audio_dest = out_dir / audio_filename
+        final_dest = out_dir / final_filename
+
+        # Step 1: Neural Audio Generation (ElevenLabs) first
+        voice_id = req.voice_id or "21m00Tcm4TlvDq8ikWAM"
+        tts_url = f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}"
+        tts_headers = {
+            "xi-api-key": elevenlabs_key,
+            "Content-Type": "application/json"
+        }
+        narration_text = req.narration or req.prompt
+        
+        logger.info(f"Step 1: Triggering ElevenLabs TTS generation for narration: '{narration_text[:60]}...' using voice ID: {voice_id}")
+        tts_payload = {
+            "text": narration_text,
+            "model_id": "eleven_multilingual_v2",
+            "voice_settings": {
+                "stability": 0.5,
+                "similarity_boost": 0.75
+            }
+        }
+        
+        try:
+            async with httpx.AsyncClient(timeout=60.0) as client:
+                resp = await client.post(tts_url, json=tts_payload, headers=tts_headers)
+                if resp.status_code >= 400:
+                    logger.error(f"ElevenLabs TTS failed: {resp.text}")
+                    raise HTTPException(status_code=502, detail=f"ElevenLabs TTS failed: {resp.text}")
+                
+                audio_content = resp.content
+                
+                def _write_audio():
+                    with audio_dest.open('wb') as f:
+                        f.write(audio_content)
+                    return audio_dest
+                
+                await asyncio.to_thread(_write_audio)
+                logger.info("ElevenLabs audio generated and saved successfully.")
+        except httpx.RequestError as exc:
+            logger.error(f"Network error while talking to ElevenLabs: {exc}")
+            raise HTTPException(status_code=502, detail=f"ElevenLabs connection failed: {exc}")
+        except Exception as e:
+            if isinstance(e, HTTPException):
+                raise e
+            logger.error(f"ElevenLabs generation failed: {e}")
+            raise HTTPException(status_code=500, detail=f"ElevenLabs generation failed: {e}")
+
+        # Step 2: Dynamic Duration Analysis
+        try:
+            audio_duration = await asyncio.to_thread(_get_audio_duration, audio_dest)
+            logger.info(f"Step 2: Dynamically calculated audio duration: {audio_duration:.2f}s")
+        except Exception as dur_err:
+            logger.error(f"Failed to calculate audio duration: {dur_err}")
+            try:
+                if audio_dest.exists():
+                    audio_dest.unlink()
+            except Exception:
+                pass
+            raise HTTPException(status_code=500, detail=f"Failed to analyze neural voiceover track: {dur_err}")
+        
+        runway_duration = math.ceil(audio_duration)
+        logger.info(f"Target duration for Runway Gen-3 payload: {runway_duration}s")
+
+        # Step 3: Video Generation (Runway Gen-3) passing the calculated duration
+        async def run_video_generation():
+            async with httpx.AsyncClient(timeout=120.0) as client:
+                wrapped_prompt = f"High quality 2D anime style, masterpiece, ufotable studio style, cinematic anime lighting. {req.prompt}"
+                payload = {
+                    "prompt": wrapped_prompt,
+                    "duration": runway_duration,
+                    "format": "mp4"
+                }
+                headers = {
+                    "Authorization": f"Bearer {runway_key}",
+                    "Content-Type": "application/json"
+                }
+                op_url = "https://api.runwayml.com/v1/models/gen-3/outputs"
+                
+                logger.info(f"Step 3: Triggering Runway Gen-3 generation with wrapped prompt and dynamic duration of {runway_duration}s")
+                resp = await client.post(op_url, json=payload, headers=headers)
+                if resp.status_code >= 400:
+                    logger.error(f"Runway Gen-3 API returned error: {resp.text}")
+                    raise HTTPException(status_code=502, detail=f"Runway Gen-3 API error: {resp.text}")
+                
+                data = resp.json()
+                outputs = data.get('outputs') or data.get('result') or []
+                if outputs and isinstance(outputs, list) and outputs[0].get('url'):
+                    video_url = outputs[0]['url']
+                    logger.info("Runway Gen-3 returned video URL immediately.")
+                    await _download_file(video_url, video_dest, headers=None)
+                    return video_dest
+                
+                job_id = data.get('id') or data.get('operation_id') or data.get('job_id')
+                if not job_id:
+                    logger.error(f"Runway response missing job ID and output: {data}")
+                    raise HTTPException(status_code=502, detail="Runway response missing job ID and outputs")
+                
+                status_url = f"https://api.runwayml.com/v1/operations/{job_id}"
+                timeout = int(os.environ.get('RENDER_TIMEOUT_SECONDS', '300'))
+                interval = float(os.environ.get('RENDER_POLL_INTERVAL', '3.0'))
+                waited = 0
+                logger.info(f"Runway job {job_id} started. Polling status...")
+                
+                while waited < timeout:
+                    st = await client.get(status_url, headers=headers)
+                    if st.status_code >= 400:
+                        logger.error(f"Runway status check failed: {st.text}")
+                        raise HTTPException(status_code=502, detail="Runway status check failed")
+                    
+                    stj = st.json()
+                    state = stj.get('state') or stj.get('status') or ''
+                    logger.debug(f"Runway job {job_id} state: {state}")
+                    
+                    if state.lower() in ('succeeded', 'completed', 'done'):
+                        out = stj.get('outputs') or stj.get('result') or []
+                        if out and out[0].get('url'):
+                            video_url = out[0]['url']
+                            logger.info(f"Runway job {job_id} succeeded. Downloading video...")
+                            await _download_file(video_url, video_dest, headers=None)
+                            return video_dest
+                        else:
+                            raise HTTPException(status_code=502, detail="Runway completed but no outputs found")
+                    
+                    if state.lower() in ('failed', 'error'):
+                        error_detail = stj.get('error') or stj
+                        raise HTTPException(status_code=502, detail=f"Runway generation failed: {error_detail}")
+                    
+                    await asyncio.sleep(interval)
+                    waited += interval
+                
+                raise HTTPException(status_code=504, detail="Runway generation timed out")
+
+        # Execute video generation
+        try:
+            video_path = await run_video_generation()
+            audio_path = audio_dest
+        except Exception as gen_err:
+            logger.error(f"Runway Gen-3 video generation failed: {gen_err}")
+            for p in [video_dest, audio_dest]:
+                try:
+                    if p.exists():
+                        p.unlink()
+                except Exception:
+                    pass
+            if isinstance(gen_err, HTTPException):
+                raise gen_err
+            raise HTTPException(status_code=500, detail=f"Production Anime video generation failed: {gen_err}")
+
+        # Step 4: Mux audio and video in a separate thread (Event Loop Freeze Protection)
+        try:
+            logger.info("Step 4: Scheduling synchronous MoviePy muxing task in separate thread...")
+            await asyncio.to_thread(
+                _mux_media_task,
+                video_path,
+                audio_path,
+                final_dest
+            )
+            
+            # Clean up intermediate video and audio
+            def _cleanup_intermediates():
+                for p in [video_path, audio_path]:
+                    try:
+                        if p.exists():
+                            p.unlink()
+                    except Exception as e:
+                        logger.warning(f"Failed to delete intermediate file {p}: {e}")
+            
+            await asyncio.to_thread(_cleanup_intermediates)
+            
+            public_url = f"/outputs/{final_filename}"
+            return RenderResponse(
+                success=True,
+                videoUrl=public_url,
+                message="High-fidelity production anime scene render and neural voiceover completed successfully with perfect duration synchronization."
+            )
+        except Exception as mux_err:
+            logger.error(f"Muxing or cleanup failed: {mux_err}")
+            try:
+                if final_dest.exists():
+                    final_dest.unlink()
+            except Exception:
+                pass
+            raise HTTPException(status_code=500, detail=f"Muxing failed: {mux_err}")
 
     # Local free renderer: create a simple MP4 from the prompt using Pillow + moviepy
     if provider == 'local':
