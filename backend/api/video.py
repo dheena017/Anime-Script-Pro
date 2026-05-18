@@ -7,6 +7,9 @@ import httpx
 import asyncio
 import math
 from pathlib import Path
+import hashlib
+
+_render_cache: dict[str, dict[str, any]] = {}
 
 router = APIRouter(prefix="/api", tags=["Video"])
 
@@ -153,6 +156,39 @@ def _mux_media_task(video_path: Path, audio_path: Path, out_path: Path):
     logger.info("Muxing completed successfully.")
 
 
+async def cleanup_old_renders(directory: Path, max_age_hours: int = 24):
+    """Scan the outputs directory and delete MP4, MP3, and PNG files older than max_age_hours in a non-blocking manner."""
+    logger.info(f"Garbage Collector: Starting non-blocking cleanup of {directory}...")
+    try:
+        if not directory.exists() or not directory.is_dir():
+            logger.warning(f"Garbage Collector: Directory {directory} does not exist. Skipping.")
+            return
+
+        max_age_seconds = max_age_hours * 3600
+        now = time.time()
+        deleted_count = 0
+
+        def _scan_and_delete():
+            nonlocal deleted_count
+            for p in directory.glob("*"):
+                if p.is_file() and p.suffix.lower() in ('.mp4', '.mp3', '.png'):
+                    try:
+                        file_mtime = p.stat().st_mtime
+                        age = now - file_mtime
+                        if age > max_age_seconds:
+                            logger.info(f"Garbage Collector: Deleting expired file {p.name} (age: {age/3600:.1f} hours)")
+                            p.unlink()
+                            deleted_count += 1
+                    except Exception as fe:
+                        logger.warning(f"Garbage Collector: Failed to process file {p.name}: {fe}")
+            return deleted_count
+
+        count = await asyncio.to_thread(_scan_and_delete)
+        logger.info(f"Garbage Collector: Cleanup completed. Deleted {count} expired file(s).")
+    except Exception as e:
+        logger.error(f"Garbage Collector: Cleanup failed: {e}")
+
+
 @router.post("/render/scene", response_model=RenderResponse)
 async def render_scene(req: RenderRequest):
     """Proxy endpoint to dispatch scene render requests to a chosen provider.
@@ -170,6 +206,50 @@ async def render_scene(req: RenderRequest):
     if not req.prompt or len(req.prompt.strip()) < 10:
         raise HTTPException(status_code=400, detail="Prompt too short for rendering.")
 
+    # 1. API Shield: Request Hashing & Caching
+    prompt_hash = hashlib.sha256(req.prompt.strip().encode('utf-8')).hexdigest()
+    
+    # Check in-memory cache first
+    cached = _render_cache.get(prompt_hash)
+    if cached:
+        cached_time = cached.get("timestamp", 0.0)
+        if time.time() - cached_time < 86400:
+            video_url = cached.get("video_url")
+            filename = video_url.split("/outputs/")[-1]
+            backend_root = Path(__file__).parent.resolve().parent
+            local_path = backend_root / "outputs" / filename
+            if local_path.exists():
+                logger.info(f"API Shield: Cache hit (in-memory) for prompt hash {prompt_hash}. Returning cached video URL.")
+                # Trigger fire-and-forget background cleanup
+                asyncio.create_task(cleanup_old_renders(backend_root / "outputs"))
+                return RenderResponse(
+                    success=True,
+                    videoUrl=video_url,
+                    message="Cached render retrieved successfully (API Shield Active)."
+                )
+
+    # Check disk cache next
+    backend_root = Path(__file__).parent.resolve().parent
+    out_dir = backend_root / 'outputs'
+    expected_filename = f"prod-anime-mux-{prompt_hash}.mp4"
+    disk_path = out_dir / expected_filename
+    if disk_path.exists():
+        age_seconds = time.time() - disk_path.stat().st_mtime
+        if age_seconds < 86400:
+            public_url = f"/outputs/{expected_filename}"
+            logger.info(f"API Shield: Cache hit (disk) for prompt hash {prompt_hash}. Age: {age_seconds/3600:.2f} hours. Populating in-memory cache.")
+            _render_cache[prompt_hash] = {
+                "video_url": public_url,
+                "timestamp": disk_path.stat().st_mtime
+            }
+            # Trigger fire-and-forget background cleanup
+            asyncio.create_task(cleanup_old_renders(out_dir))
+            return RenderResponse(
+                success=True,
+                videoUrl=public_url,
+                message="Cached render retrieved successfully (API Shield Active)."
+            )
+
     # Production Anime pipeline (Runway Gen-3 + ElevenLabs Neural Audio + MoviePy Muxing)
     if provider == 'production_anime':
         runway_key = os.environ.get("RUNWAY_API_KEY")
@@ -184,10 +264,10 @@ async def render_scene(req: RenderRequest):
         out_dir = backend_root / 'outputs'
         out_dir.mkdir(parents=True, exist_ok=True)
         
-        timestamp = int(time.time())
-        video_filename = f"prod-anime-video-{timestamp}.mp4"
-        audio_filename = f"prod-anime-audio-{timestamp}.mp3"
-        final_filename = f"prod-anime-mux-{timestamp}.mp4"
+        prompt_hash = hashlib.sha256(req.prompt.strip().encode('utf-8')).hexdigest()
+        video_filename = f"prod-anime-video-{prompt_hash}.mp4"
+        audio_filename = f"prod-anime-audio-{prompt_hash}.mp3"
+        final_filename = f"prod-anime-mux-{prompt_hash}.mp4"
         
         video_dest = out_dir / video_filename
         audio_dest = out_dir / audio_filename
@@ -360,6 +440,15 @@ async def render_scene(req: RenderRequest):
             await asyncio.to_thread(_cleanup_intermediates)
             
             public_url = f"/outputs/{final_filename}"
+            
+            # Populate in-memory cache
+            _render_cache[prompt_hash] = {
+                "video_url": public_url,
+                "timestamp": time.time()
+            }
+            # Trigger background cleanup in fire-and-forget task
+            asyncio.create_task(cleanup_old_renders(out_dir))
+            
             return RenderResponse(
                 success=True,
                 videoUrl=public_url,
