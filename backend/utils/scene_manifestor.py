@@ -39,7 +39,7 @@ JSON Schema:
 Return ONLY JSON. No markdown.
 """
 
-async def manifest_scene(scene_id: int, user_id: str, model: str = "gemini-2.0-flash"):
+async def manifest_scene(scene_id: int, user_id: str, model: str = "gemini-2.0-flash", bypass_status_check: bool = False):
     async with async_session() as session:
         # 1. Fetch Scene
         scene = await session.get(Scene, scene_id)
@@ -47,7 +47,7 @@ async def manifest_scene(scene_id: int, user_id: str, model: str = "gemini-2.0-f
             logger.error(f"Scene {scene_id} not found.")
             return False
         
-        if scene.status == "MANIFESTED":
+        if not bypass_status_check and scene.status == "MANIFESTED":
             logger.info(f"Scene {scene_id} already manifested. Skipping.")
             return True
 

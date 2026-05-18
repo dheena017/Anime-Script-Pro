@@ -163,6 +163,7 @@ class SceneRenderRequest(BaseModel):
     provider: Optional[str] = None
     bypass_cache: Optional[bool] = False
     voice_id: Optional[str] = None
+    generate_audio: Optional[bool] = True
 
 # --- Main API ---
 
@@ -236,30 +237,33 @@ async def render_scene_v2(
             final_dest = out_dir / f"scene-render-{prompt_hash}.mp4"
 
             # Step 1: Neural Audio
-            voice_id = req.voice_id or "21m00Tcm4TlvDq8ikWAM"
-            # SECURITY: voice_id validation
-            if not voice_id.isalnum():
-                voice_id = "21m00Tcm4TlvDq8ikWAM"
+            audio_duration = 4.0 # Default
+            if req.generate_audio:
+                voice_id = req.voice_id or "21m00Tcm4TlvDq8ikWAM"
+                # SECURITY: voice_id validation
+                if not voice_id.isalnum():
+                    voice_id = "21m00Tcm4TlvDq8ikWAM"
 
-            tts_url = f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}"
-            tts_payload = {
-                "text": narration or prompt,
-                "model_id": "eleven_multilingual_v2",
-                "voice_settings": {"stability": 0.5, "similarity_boost": 0.75}
-            }
+                tts_url = f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}"
+                tts_payload = {
+                    "text": narration or prompt,
+                    "model_id": "eleven_multilingual_v2",
+                    "voice_settings": {"stability": 0.5, "similarity_boost": 0.75}
+                }
 
-            try:
-                async with httpx.AsyncClient(timeout=60.0) as client:
-                    resp = await client.post(tts_url, json=tts_payload, headers={"xi-api-key": elevenlabs_key})
-                    resp.raise_for_status()
-                    with audio_dest.open('wb') as f:
-                        f.write(resp.content)
+                try:
+                    async with httpx.AsyncClient(timeout=60.0) as client:
+                        resp = await client.post(tts_url, json=tts_payload, headers={"xi-api-key": elevenlabs_key})
+                        resp.raise_for_status()
+                        with audio_dest.open('wb') as f:
+                            f.write(resp.content)
 
-                audio_duration = await asyncio.to_thread(_get_audio_duration, audio_dest)
-                runway_duration = min(10, max(4, math.ceil(audio_duration))) # Hard Limit duration for safety
-            except Exception as e:
-                logger.error(f"Neural Audio failed: {e}")
-                raise HTTPException(status_code=502, detail="Neural audio generation failed.")
+                    audio_duration = await asyncio.to_thread(_get_audio_duration, audio_dest)
+                except Exception as e:
+                    logger.error(f"Neural Audio failed: {e}")
+                    raise HTTPException(status_code=502, detail="Neural audio generation failed.")
+
+            runway_duration = min(10, max(4, math.ceil(audio_duration))) # Hard Limit duration for safety
 
             # Step 2: Video Generation (Runway Gen-3)
             try:

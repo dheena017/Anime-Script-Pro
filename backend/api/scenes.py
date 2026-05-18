@@ -6,7 +6,7 @@ from loguru import logger
 from backend.database.models import Scene, Episode, Project
 from backend.utils.deps import get_auth_user_id
 from backend.utils.notifications import notify_user
-from backend.utils.scene_manifestor import manifest_all_queued_scenes
+from backend.utils.scene_manifestor import manifest_all_queued_scenes, manifest_scene
 
 router = APIRouter(prefix="/api/scenes", tags=["Scenes"])
 
@@ -171,3 +171,30 @@ async def bulk_manifest_scenes(payload: dict, user_id: str = Depends(get_auth_us
     asyncio.create_task(run_manifestation())
 
     return {"status": "started", "message": f"Manifestation of up to {limit} scenes has been queued in the background."}
+
+
+@router.post("/{scene_id}/manifest")
+async def manifest_single_scene_endpoint(
+    scene_id: int,
+    payload: dict = None,
+    user_id: str = Depends(get_auth_user_id)
+):
+    """
+    Triggers the manifestation of a single specific scene.
+    """
+    model = (payload or {}).get("model", "gemini-2.0-flash")
+
+    async with async_session() as session:
+        scene = await session.get(Scene, scene_id)
+        if not scene:
+            raise HTTPException(status_code=404, detail="Scene not found")
+
+        project = await session.get(Project, scene.project_id)
+        if not project or project.user_id != user_id:
+            raise HTTPException(status_code=401, detail="Project access denied")
+
+    success = await manifest_scene(scene_id, user_id, model=model)
+    if success:
+        return {"status": "success", "message": f"Scene {scene_id} manifested successfully."}
+    else:
+        raise HTTPException(status_code=500, detail="Failed to manifest scene.")
