@@ -28,6 +28,10 @@ async def generate_specific_strategy(
     model: str = "gemini-1.5-flash-latest",
     user_id: str = Depends(get_auth_user_id)
 ):
+    # SECURITY: Limit script content length for AI processing
+    if len(script_content) > 20000:
+         raise HTTPException(status_code=400, detail="Script content exceeds maximum length for strategy analysis.")
+
     async with async_session() as session:
         strategy = await session.get(GrowthStrategy, strategy_id)
         if not strategy:

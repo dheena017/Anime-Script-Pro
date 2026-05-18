@@ -181,8 +181,11 @@ async def manifest_single_scene_endpoint(
 ):
     """
     Triggers the manifestation of a single specific scene.
+    Accepts an optional prompt override to update the scene blueprint before generation.
     """
-    model = (payload or {}).get("model", "gemini-2.0-flash")
+    payload = payload or {}
+    model = payload.get("model", "gemini-2.0-flash")
+    custom_prompt = payload.get("prompt")
 
     async with async_session() as session:
         scene = await session.get(Scene, scene_id)
@@ -193,7 +196,13 @@ async def manifest_single_scene_endpoint(
         if not project or project.user_id != user_id:
             raise HTTPException(status_code=401, detail="Project access denied")
 
-    success = await manifest_scene(scene_id, user_id, model=model)
+        if custom_prompt:
+            # SECURITY: Limit custom prompt length
+            scene.prompt = custom_prompt[:2000]
+            session.add(scene)
+            await session.commit()
+
+    success = await manifest_scene(scene_id, user_id, model=model, bypass_status_check=True)
     if success:
         return {"status": "success", "message": f"Scene {scene_id} manifested successfully."}
     else:

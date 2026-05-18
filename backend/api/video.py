@@ -244,9 +244,12 @@ async def render_scene_v2(
                 if not voice_id.isalnum():
                     voice_id = "21m00Tcm4TlvDq8ikWAM"
 
+                # SECURITY: Limit text length for TTS
+                safe_narration = (narration or prompt)[:5000]
+
                 tts_url = f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}"
                 tts_payload = {
-                    "text": narration or prompt,
+                    "text": safe_narration,
                     "model_id": "eleven_multilingual_v2",
                     "voice_settings": {"stability": 0.5, "similarity_boost": 0.75}
                 }
