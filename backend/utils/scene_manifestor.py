@@ -57,6 +57,11 @@ async def manifest_scene(scene_id: int, user_id: str, model: str = "gemini-2.0-f
             logger.error(f"Project {scene.project_id} not found for scene {scene_id}.")
             return False
             
+        # SECURITY: Double check ownership
+        if project.user_id != user_id:
+            logger.error(f"SECURITY: Unauthorized manifestation attempt by user {user_id} for scene {scene_id}")
+            return False
+
         # 3. Fetch Lore & Cast Manifest
         world_lore_stmt = select(WorldLore).where(WorldLore.project_id == project.id).order_by(WorldLore.created_at.desc())
         cast_manifest_stmt = select(CastManifest).where(CastManifest.project_id == project.id).order_by(CastManifest.created_at.desc())
@@ -124,6 +129,12 @@ async def manifest_all_queued_scenes(project_id: int, user_id: str, limit: int =
     Default limit is 16 (roughly one episode's worth).
     """
     async with async_session() as session:
+        # SECURITY: Verify project ownership first
+        project = await session.get(Project, project_id)
+        if not project or project.user_id != user_id:
+            logger.error(f"SECURITY: Unauthorized bulk manifestation attempt by user {user_id} for project {project_id}")
+            return 0
+
         stmt = select(Scene).where(
             Scene.project_id == project_id,
             Scene.status == "QUEUED"

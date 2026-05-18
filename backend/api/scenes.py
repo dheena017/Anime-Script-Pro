@@ -142,19 +142,32 @@ async def bulk_manifest_scenes(payload: dict, user_id: str = Depends(get_auth_us
     project_id = payload.get("project_id")
     limit = payload.get("limit", 16) # Default to 16 scenes (one episode)
     model = payload.get("model", "gemini-2.0-flash")
-    
+
     if not project_id:
         raise HTTPException(status_code=400, detail="project_id is required")
-        
+
+    try:
+        project_pk = int(project_id)
+    except Exception:
+        raise HTTPException(status_code=400, detail="project_id must be an integer")
+
+    # SECURITY: Verify project ownership before queuing background task
+    async with async_session() as session:
+        project = await session.get(Project, project_pk)
+        if not project or project.user_id != user_id:
+            logger.warning(f"SECURITY: Unauthorized manifestation attempt by user {user_id} for project {project_pk}")
+            raise HTTPException(status_code=401, detail="Project access denied")
+
     # Run manifestation in the background to avoid timeout
     async def run_manifestation():
         try:
-            count = await manifest_all_queued_scenes(int(project_id), user_id, limit=limit, model=model)
-            await notify_user(user_id, "Manifestation Complete", f"Successfully manifested {count} scenes for project {project_id} using {model}.", "SUCCESS")
+            # Re-verify inside task to be safe, though checked above
+            count = await manifest_all_queued_scenes(project_pk, user_id, limit=limit, model=model)
+            await notify_user(user_id, "Manifestation Complete", f"Successfully manifested {count} scenes for project {project_pk} using {model}.", "SUCCESS")
         except Exception as e:
             logger.error(f"Background manifestation failed: {e}")
             await notify_user(user_id, "Manifestation Failed", str(e), "ERROR")
 
     asyncio.create_task(run_manifestation())
-    
+
     return {"status": "started", "message": f"Manifestation of up to {limit} scenes has been queued in the background."}
