@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback, Suspense, startTransition } from 'react';
+import React, { useEffect, useCallback, Suspense } from 'react';
 import { Outlet, useNavigate, useLocation, useSearchParams, useParams, useOutlet } from 'react-router-dom';
 import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
 import { useAuth } from '@/hooks/useAuth';
@@ -31,7 +31,6 @@ export default function AnimeLayout() {
   const { projectId: urlProjectId } = useParams();
   const projectId = urlProjectId || location.state?.projectId;
   const basePath = '/studio'; // Force clean URL path
-  const projectIdFromUrl = projectId;
   const { addLog } = useLogs();
 
   // Sync Creative Engine state with URL query parameter
@@ -87,7 +86,7 @@ export default function AnimeLayout() {
   // Initialize content type and handle "Fresh Entry" reset
   useEffect(() => {
     setContentType('Anime');
-    
+
     // Check for hard browser reload
     const isReload = window.performance
       .getEntriesByType('navigation')
@@ -145,75 +144,27 @@ export default function AnimeLayout() {
     showNotification?.('Full Production Active — Generating all modules in sequence...', 'success');
 
     try {
-      // Dynamic imports to optimize initial bundle
-      const { generateWorld } = await import('@/services/generators/world');
-      const { generateCharacters } = await import('@/services/generators/characters');
-      const { generateSeriesPlan } = await import('@/services/generators/series');
-      const { generateScript, generateImagePrompts, generateMetadata } = await import('@/services/api/gemini');
+      const { productionPhases } = await import('@/services/generators/productionPhases');
 
-      // PHASE 1: WORLD Architecture
-      setGenerationProgress(5);
-      addGeneratorLog("WORLD", "STARTING", "Building World Foundation and Setting...");
-      const world = await generateWorld(prompt, selectedModel, 'Anime');
-      setGeneratedWorld(world);
-      addGeneratorLog("WORLD", "COMPLETED", "World foundation ready.");
+      const ctx: any = {
+        prompt, selectedModel, tone, audience, numScenes, recapperPersona, characterRelationships,
+        setGeneratedWorld, setGeneratedCharacters, setCastData, setCastList, setCharacterRelationships,
+        setGeneratedSeriesPlan, setGeneratedScript, setGeneratedImagePrompts, setVisualData, setGeneratedMetadata
+      };
 
-      // PHASE 2: Character Creation
-      setGenerationProgress(25);
-      addGeneratorLog("CAST", "STARTING", "Designing Character Profiles and Traits...");
-      const castResult = await generateCharacters(prompt, selectedModel, 'Anime', world);
-      if (typeof castResult === 'object' && castResult.characters) {
-        setGeneratedCharacters(castResult.markdown);
-        setCastData(castResult);
-        setCastList(castResult.characters);
-        if (castResult.relationships) {
-          setCharacterRelationships(JSON.stringify(castResult.relationships));
-        }
-      } else {
-        setGeneratedCharacters(castResult as string);
+      for (const phase of productionPhases) {
+        setGenerationProgress(phase.progress);
+        addGeneratorLog(phase.id, "STARTING", phase.message);
+        const result = await phase.action(ctx);
+
+        // Update context for downstream phases
+        if (phase.id === 'WORLD') ctx.world = result;
+        if (phase.id === 'CAST') ctx.castResult = result;
+        if (phase.id === 'SERIES') ctx.seriesPlan = result;
+        if (phase.id === 'SCRIPT') ctx.script = result;
+
+        addGeneratorLog(phase.id, "COMPLETED", `${phase.name} ready.`);
       }
-      addGeneratorLog("CAST", "COMPLETED", "Cast manifest generated.");
-
-      // PHASE 3: Series Structure
-      setGenerationProgress(40);
-      addGeneratorLog("SERIES", "STARTING", "Designing Series Overall Structure...");
-      const seriesPlan = await generateSeriesPlan(prompt, selectedModel, 'Anime', 12, world, typeof castResult === 'string' ? castResult : castResult.markdown);
-      setGeneratedSeriesPlan(seriesPlan);
-      addGeneratorLog("SERIES", "COMPLETED", "Series structure and beats mapped.");
-
-      // PHASE 4: Script Writing
-      setGenerationProgress(55);
-      addGeneratorLog("SCRIPT", "STARTING", "Generating Episode 1 Script (Streaming)...");
-      const ep1Plan = seriesPlan?.find((ep: any) => parseInt(ep.episode) === 1);
-      
-      const { generateScriptStream } = await import('@/services/generators/script');
-      
-      const script = await generateScriptStream(
-        prompt, tone, audience, "1", "1", numScenes, selectedModel, 'Anime',
-        recapperPersona, characterRelationships, world, typeof castResult === 'string' ? castResult : castResult.markdown, ep1Plan ? JSON.stringify(ep1Plan) : null,
-        (partial) => {
-          setGeneratedScript(partial);
-          // Optional: we could update progress based on chunk count, but simpler to just keep trickling
-        }
-      );
-      setGeneratedScript(script);
-      addGeneratorLog("SCRIPT", "COMPLETED", `Script generated successfully (${script.length} characters).`);
-
-      // PHASE 5: Visual Planning (Storyboard)
-      setGenerationProgress(75);
-      addGeneratorLog("STORYBOARD", "STARTING", "Creating Visual Descriptions for Scenes...");
-      const visualPrompts = await generateImagePrompts(script, selectedModel);
-      setGeneratedImagePrompts(visualPrompts);
-      setVisualData({ 0: ["pending"] });
-      addGeneratorLog("STORYBOARD", "COMPLETED", "Visual prompts created.");
-
-      // PHASE 6: Content Metadata
-      setGenerationProgress(90);
-      addGeneratorLog("SEO", "STARTING", "Generating Content Metadata and Tags...");
-      const seo = await generateMetadata(script, selectedModel);
-      setGeneratedMetadata(seo);
-      addGeneratorLog("SEO", "COMPLETED", "Metadata generation complete.");
-      setGenerationProgress(100);
 
       showNotification?.('Production Process Complete: All Modules Prepared', 'success');
       setGenerationProgress(100);
@@ -283,7 +234,7 @@ export default function AnimeLayout() {
       const { generateScriptStream } = await import('@/services/generators/script');
       const currentEpisodePlan = generatedSeriesPlan?.find((ep: any) => parseInt(ep.episode) === parseInt(episode));
       const script = await generateScriptStream(
-        prompt, tone, audience, session, episode, numScenes, selectedModel, 'Anime', recapperPersona, characterRelationships, generatedWorld, generatedCharacters, 
+        prompt, tone, audience, session, episode, numScenes, selectedModel, 'Anime', recapperPersona, characterRelationships, generatedWorld, generatedCharacters,
         currentEpisodePlan ? JSON.stringify(currentEpisodePlan) : null,
         (partial) => {
           setGeneratedScript(partial);

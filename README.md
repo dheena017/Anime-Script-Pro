@@ -1,5 +1,5 @@
-🌌 Anime Script Pro: God Mode Engine
-</h1>
+<div align="center">
+  <h1>🌌 Anime Script Pro: God Mode Engine (v2.5.0-PRO)</h1>
   <p><i>The Final Frontier of Autonomous Multimodal Production</i></p>
 </div>
 

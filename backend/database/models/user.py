@@ -57,8 +57,11 @@ class UserSettings(SQLModel, table=True):
     def __str__(self):
         return self.user_id
 
+from sqlalchemy import UniqueConstraint
+
 class Todo(SQLModel, table=True):
     __tablename__ = "todos"
+    __table_args__ = (UniqueConstraint("user_id", "text", name="uq_todo_user_text"),)
     id: Optional[int] = Field(default=None, primary_key=True)
     user_id: str = Field(index=True)
     text: str

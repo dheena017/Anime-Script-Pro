@@ -168,5 +168,5 @@ Save button appears successful but no data persisted:
 
 ---
 
-Version: 2.0
+Version: 2.5.0-PRO
 Last updated: 2026-05-12

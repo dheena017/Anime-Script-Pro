@@ -189,113 +189,52 @@ export function WorldPage() {
       return <WorldLoadingTab type={activeTab} />;
     }
 
-    switch (activeTab) {
-      case 'manifest':
-        return generatedWorld ? (
-          <ManifestTab
-            isEditing={isEditing}
-            content={generatedWorld || ''}
-            prompt={prompt}
-            onContentChange={(val: string) => updateGlobalWorld(val)}
-            onGenerate={() => window.dispatchEvent(new CustomEvent('studio-generate-world'))}
-            isGenerating={isGeneratingWorld}
-          />
-        ) : (
-          <WorldEmptyState
-            onLaunch={() => {
-              window.dispatchEvent(new CustomEvent('studio-generate-world'));
-            }}
-            onLoadDemo={handleLoadDemo}
-            isGenerating={isGeneratingWorld}
-          />
-        );
-      case 'lore':
-        return generatedWorldLore ? (
-          <HistoryTab
-            isEditing={isEditing}
-            content={generatedWorldLore}
-            onContentChange={(val: string) => setGeneratedWorldLore(val)}
-            onGenerate={() => handleGenerateSpecialized('lore')}
-            isGenerating={isGeneratingLore}
-            prompt={promptLore}
-            onPromptChange={setPromptLore}
-          />
-        ) : renderSpecializedEmpty('lore');
-      case 'powers':
-        return generatedWorldPowers ? (
-          <PowersTab
-            isEditing={isEditing}
-            content={generatedWorldPowers}
-            onContentChange={(val: string) => setGeneratedWorldPowers(val)}
-            onGenerate={() => handleGenerateSpecialized('powers')}
-            isGenerating={isGeneratingPowers}
-            prompt={promptPowers}
-            onPromptChange={setPromptPowers}
-          />
-        ) : renderSpecializedEmpty('powers');
-      case 'factions':
-        return generatedWorldFactions ? (
-          <FactionsTab
-            isEditing={isEditing}
-            content={generatedWorldFactions}
-            onContentChange={(val: string) => setGeneratedWorldFactions(val)}
-            onGenerate={() => handleGenerateSpecialized('factions')}
-            isGenerating={isGeneratingFactions}
-            prompt={promptFactions}
-            onPromptChange={setPromptFactions}
-          />
-        ) : renderSpecializedEmpty('factions');
-      case 'architecture':
-        return generatedWorldArchitecture ? (
-          <ArchitectureTab
-            isEditing={isEditing}
-            content={generatedWorldArchitecture}
-            onContentChange={(val: string) => setGeneratedWorldArchitecture(val)}
-            onGenerate={() => handleGenerateSpecialized('architecture')}
-            isGenerating={isGeneratingArchitecture}
-            prompt={promptArchitecture}
-            onPromptChange={setPromptArchitecture}
-          />
-        ) : renderSpecializedEmpty('architecture');
-      case 'atlas':
-        return generatedWorldAtlas ? (
-          <AtlasTab
-            isEditing={isEditing}
-            content={generatedWorldAtlas}
-            onContentChange={(val: string) => setGeneratedWorldAtlas(val)}
-            onGenerate={() => handleGenerateSpecialized('atlas')}
-            isGenerating={isGeneratingAtlas}
-            prompt={promptAtlas}
-            onPromptChange={setPromptAtlas}
-          />
-        ) : renderSpecializedEmpty('atlas');
-      case 'culture':
-        return generatedWorldCulture ? (
-          <CultureTab
-            isEditing={isEditing}
-            content={generatedWorldCulture}
-            onContentChange={(val: string) => setGeneratedWorldCulture(val)}
-            onGenerate={() => handleGenerateSpecialized('culture')}
-            isGenerating={isGeneratingCulture}
-            prompt={promptCulture}
-            onPromptChange={setPromptCulture}
-          />
-        ) : renderSpecializedEmpty('culture');
-      case 'systems':
-        return generatedWorldSystems ? (
-          <SystemsTab
-            isEditing={isEditing}
-            content={generatedWorldSystems}
-            onContentChange={(val: string) => setGeneratedWorldSystems(val)}
-            onGenerate={() => handleGenerateSpecialized('systems')}
-            isGenerating={isGeneratingSystems}
-            prompt={promptSystems}
-            onPromptChange={setPromptSystems}
-          />
-        ) : renderSpecializedEmpty('systems');
-      default:
-        return null;
+    if (activeTab === 'manifest') {
+      return generatedWorld ? (
+        <ManifestTab
+          isEditing={isEditing}
+          content={generatedWorld || ''}
+          prompt={prompt}
+          onContentChange={(val: string) => updateGlobalWorld(val)}
+          onGenerate={() => window.dispatchEvent(new CustomEvent('studio-generate-world'))}
+          isGenerating={isGeneratingWorld}
+        />
+      ) : (
+        <WorldEmptyState
+          onLaunch={() => {
+            window.dispatchEvent(new CustomEvent('studio-generate-world'));
+          }}
+          onLoadDemo={handleLoadDemo}
+          isGenerating={isGeneratingWorld}
+        />
+      );
     }
+
+    const tabConfig: Record<Exclude<WorldTab, 'manifest'>, { component: React.ComponentType<any>, content: string | null, setter: (val: string) => void, prompt: string, promptSetter: (val: string) => void }> = {
+      lore: { component: HistoryTab, content: generatedWorldLore, setter: setGeneratedWorldLore, prompt: promptLore, promptSetter: setPromptLore },
+      powers: { component: PowersTab, content: generatedWorldPowers, setter: setGeneratedWorldPowers, prompt: promptPowers, promptSetter: setPromptPowers },
+      factions: { component: FactionsTab, content: generatedWorldFactions, setter: setGeneratedWorldFactions, prompt: promptFactions, promptSetter: setPromptFactions },
+      architecture: { component: ArchitectureTab, content: generatedWorldArchitecture, setter: setGeneratedWorldArchitecture, prompt: promptArchitecture, promptSetter: setPromptArchitecture },
+      atlas: { component: AtlasTab, content: generatedWorldAtlas, setter: setGeneratedWorldAtlas, prompt: promptAtlas, promptSetter: setPromptAtlas },
+      culture: { component: CultureTab, content: generatedWorldCulture, setter: setGeneratedWorldCulture, prompt: promptCulture, promptSetter: setPromptCulture },
+      systems: { component: SystemsTab, content: generatedWorldSystems, setter: setGeneratedWorldSystems, prompt: promptSystems, promptSetter: setPromptSystems },
+    };
+
+    const config = tabConfig[activeTab as Exclude<WorldTab, 'manifest'>];
+    if (!config) return null;
+
+    const TabComponent = config.component;
+    return config.content ? (
+      <TabComponent
+        isEditing={isEditing}
+        content={config.content}
+        onContentChange={config.setter}
+        onGenerate={() => handleGenerateSpecialized(activeTab as Exclude<WorldTab, 'manifest'>)}
+        isGenerating={genStatus[activeTab]}
+        prompt={config.prompt}
+        onPromptChange={config.promptSetter}
+      />
+    ) : renderSpecializedEmpty(activeTab as Exclude<WorldTab, 'manifest'>);
   };
 
   const generationStatus: Record<string, boolean> = {
