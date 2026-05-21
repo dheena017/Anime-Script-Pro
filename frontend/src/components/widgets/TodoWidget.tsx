@@ -36,6 +36,19 @@ export const TodoWidget: React.FC = () => {
   const addTask = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newTask.trim() || !user) return;
+
+    // Check for duplicate locally
+    const isDuplicate = tasks.some(task =>
+      task.text.toLowerCase().trim() === newTask.toLowerCase().trim()
+    );
+
+    if (isDuplicate) {
+      // Assuming showNotification is available or we use a simple alert/console
+      // For now, let's keep it simple to match the current error handling
+      console.warn("Duplicate task detected in production queue.");
+      return;
+    }
+
     try {
       const todo = await todoService.createTodo(user.id, newTask);
       setTasks([...tasks, todo]);

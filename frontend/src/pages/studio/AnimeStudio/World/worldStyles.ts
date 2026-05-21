@@ -7,7 +7,7 @@ export const worldStyles = {
   // --- HEADER SECTION ---
   header: {
     wrapper: "relative group",
-    glow: "absolute -inset-0.5 rounded-3xl bg-gradient-to-r from-[#08162a] via-[#041428] to-[#000814] opacity-60 blur-xl pointer-events-none",
+    glow: "absolute -inset-0.5 rounded-3xl bg-gradient-to-r from-studio/20 via-studio/5 to-transparent opacity-60 blur-2xl pointer-events-none",
     container: "relative header-container px-6 py-5 flex items-center justify-between gap-6 rounded-3xl bg-gradient-to-r from-[#071426]/80 to-[#071022]/60 border border-blue-900/30 shadow-[0_10px_30px_rgba(2,6,23,0.6)]",
     iconBox: "header-icon-box group/icon rounded-2xl p-3 !bg-gradient-to-br !from-studio/10 !to-studio/6 !border-studio/30",
     iconGlow: "absolute inset-0 bg-gradient-to-br from-studio/20 to-transparent opacity-0 group-hover/icon:opacity-100 transition-opacity duration-500 rounded-2xl",
@@ -85,7 +85,7 @@ export const worldStyles = {
     button: "relative z-10 px-6 py-2.5 text-[10px] font-black tracking-[0.25em] transition-all duration-500 uppercase flex items-center gap-3",
     buttonActive: "text-white drop-shadow-[0_0_10px_rgba(6,182,212,0.4)]",
     buttonInactive: "text-zinc-500 hover:text-zinc-300",
-    pill: "absolute inset-0 bg-studio border border-studio/40 rounded-full z-0 shadow-[0_0_20px_rgba(6,182,212,0.3)]",
+    pill: "absolute inset-0 bg-gradient-to-br from-studio via-studio-dark to-black border border-studio/40 rounded-full z-0 shadow-[0_0_20px_rgba(6,182,212,0.3)]",
     icon: "w-3.5 h-3.5 transition-all duration-500",
     iconActive: "opacity-100 scale-110 text-white",
     iconInactive: "opacity-40 group-hover:opacity-70",

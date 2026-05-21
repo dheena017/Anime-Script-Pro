@@ -76,5 +76,5 @@ For real-time observability, you can visit the following internal dashboards:
 
 ---
 <div align="center">
-  <sub>Anime Script Pro API Manifest v2.0 - Optimized for God Mode.</sub>
+  <sub>Anime Script Pro API Manifest v2.5.0-PRO - Optimized for God Mode.</sub>
 </div>
