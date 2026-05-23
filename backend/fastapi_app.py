@@ -87,70 +87,92 @@ app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_credentials=True, 
 limiter = Limiter(key_func=get_remote_address)
 app.state.limiter = limiter
 
-@app.middleware("http")
-async def log_requests(request: Request, call_next):
-    import time
-    import uuid
-    import psutil
-    process = psutil.Process()
-    start_time = time.perf_counter()
-    start_mem = process.memory_info().rss / 1024 / 1024
-    
-    # Generate a tracking ID for this specific request cycle
-    signal_id = str(uuid.uuid4())[:8].upper()
-    method = request.method
-    path = request.url.path
-    query = request.url.query
-    
-    is_health = path == "/health"
-    
-    # RAW FAIL-SAFE TERMINAL LOG (Guaranteed visibility)
-    if not is_health:
-        print(f"\033[1;35m>>> [SIGNAL]\033[0m Incoming: \033[1;36m{method}\033[0m {path}", flush=True)
-        logger.info(f"REQUEST  [{signal_id}] -> {method} {path}{'?' + query if query else ''}")
+class LogRequestsMiddleware:
+    def __init__(self, app):
+        self.app = app
 
-    try:
-        # 2. THE PROCESSING: Let the API handle the request
-        response = await call_next(request)
-        latency = (time.perf_counter() - start_time) * 1000
-        end_mem = process.memory_info().rss / 1024 / 1024
-        mem_delta = end_mem - start_mem
+    async def __call__(self, scope, receive, send):
+        if scope["type"] != "http":
+            await self.app(scope, receive, send)
+            return
+
+        import time
+        import uuid
+        import psutil
         
-        # Determine status text and levels
-        status_code = response.status_code
-        status_desc = "OK" if status_code < 400 else "ERROR"
+        process = psutil.Process()
+        start_time = time.perf_counter()
+        start_mem = process.memory_info().rss / 1024 / 1024
         
-        # 3. THE RESULT: High-visibility terminal result
-        log_msg = f"[BACKEND]  {method} {path} | Status: {status_code} ({latency:.2f}ms)"
+        signal_id = str(uuid.uuid4())[:8].upper()
+        method = scope["method"]
+        path = scope["path"]
+        query = scope.get("query_string", b"").decode("utf-8")
+        
+        is_health = path == "/health"
+        
         if not is_health:
-            status_color = "\033[1;32m" if status_code < 400 else ("\033[1;33m" if status_code < 500 else "\033[1;31m")
-            print(f"\033[1;35m<<< [SIGNAL]\033[0m Result:   {status_color}{status_code}\033[0m (\033[1;36m{latency:.2f}ms\033[0m)\n", flush=True)
+            try:
+                print(f"\033[1;35m>>> [SIGNAL]\033[0m Incoming: \033[1;36m{method}\033[0m {path}", flush=True)
+            except Exception:
+                pass
+            try:
+                logger.info(f"REQUEST  [{signal_id}] -> {method} {path}{'?' + query if query else ''}")
+            except Exception:
+                pass
+
+        async def send_wrapper(message):
+            if message["type"] == "http.response.start":
+                # Intercept and append headers
+                headers = list(message.get("headers", []))
+                headers.append((b"x-signal-id", signal_id.encode("utf-8")))
+                message["headers"] = headers
+                
+                status_code = message.get("status", 200)
+                latency = (time.perf_counter() - start_time) * 1000
+                end_mem = process.memory_info().rss / 1024 / 1024
+                
+                log_msg = f"[BACKEND]  {method} {path} | Status: {status_code} ({latency:.2f}ms)"
+                if not is_health:
+                    status_color = "\033[1;32m" if status_code < 400 else ("\033[1;33m" if status_code < 500 else "\033[1;31m")
+                    try:
+                        print(f"\033[1;35m<<< [SIGNAL]\033[0m Result:   {status_color}{status_code}\033[0m (\033[1;36m{latency:.2f}ms\033[0m)\n", flush=True)
+                    except Exception:
+                        pass
+                    try:
+                        if status_code < 400:
+                            logger.opt(colors=True).info(f"<green><b>SUCCESS</b></green> | {log_msg}")
+                        elif status_code < 500:
+                            logger.opt(colors=True).warning(f"<yellow><b>WARNING</b></yellow> | {log_msg}")
+                        else:
+                            logger.opt(colors=True).error(f"<red><b>FAILURE</b></red> | {log_msg}")
+                    except Exception:
+                        pass
             
-            if status_code < 400:
-                logger.opt(colors=True).info(f"<green><b>SUCCESS</b></green> | {log_msg}")
-            elif status_code < 500:
-                logger.opt(colors=True).warning(f"<yellow><b>WARNING</b></yellow> | {log_msg}")
+            try:
+                await send(message)
+            except Exception as e:
+                # Catch Errno 22 / closed connection error on Windows
+                if "Errno 22" in str(e) or "connection" in str(e).lower() or "broken pipe" in str(e).lower():
+                    pass
+                else:
+                    raise e
+                    
+        try:
+            await self.app(scope, receive, send_wrapper)
+        except Exception as e:
+            # Catch Errno 22 / closed connection error on Windows
+            if "Errno 22" in str(e) or "connection" in str(e).lower() or "broken pipe" in str(e).lower():
+                pass
             else:
-                logger.opt(colors=True).error(f"<red><b>FAILURE</b></red> | {log_msg}")
-        
-        # Attach the tracking ID to the response headers
-        response.headers["X-Signal-ID"] = signal_id
-        return response
-        
-    except Exception as e:
-        # 4. THE FAILURE: Catch and loudly log any crashes
-        logger.error(f"CRITICAL [{signal_id}] !! Request Failed: {method} {path}")
-        logger.error(f"   Reason: {str(e)}")
-        import traceback
-        logger.error(traceback.format_exc())
-        return JSONResponse(
-            status_code=500,
-            content={
-                "error": "Internal Production Error",
-                "detail": str(e),
-                "signal_id": signal_id
-            }
-        )
+                if not is_health:
+                    logger.error(f"CRITICAL [{signal_id}] !! Request Failed: {method} {path}")
+                    logger.error(f"   Reason: {str(e)}")
+                    import traceback
+                    logger.error(traceback.format_exc())
+                raise e
+
+app.add_middleware(LogRequestsMiddleware)
 
 # --- Routers ---
 app.include_router(api_router)

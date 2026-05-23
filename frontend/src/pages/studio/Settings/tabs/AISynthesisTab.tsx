@@ -14,8 +14,20 @@ export function AISynthesisTab() {
   const [enforcer, setEnforcer] = useState(true);
   const [systemPrompt, setSystemPrompt] = useState("You are the Ultimate Production Architect. Never output generic anime tropes. Always utilize 'Show, Don't Tell' rules. Treat every action line as a highly detailed camera directive.");
 
+  const [mode, setMode] = useState('free');
   const [geminiKey, setGeminiKey] = useState('');
+  const [openaiKey, setOpenaiKey] = useState('');
+  const [anthropicKey, setAnthropicKey] = useState('');
+  const [groqKey, setGroqKey] = useState('');
+  const [nvidiaKey, setNvidiaKey] = useState('');
+  const [dbModels, setDbModels] = useState<any[]>([]);
+
   const [showKey, setShowKey] = useState(false);
+  const [showOpenai, setShowOpenai] = useState(false);
+  const [showAnthropic, setShowAnthropic] = useState(false);
+  const [showGroq, setShowGroq] = useState(false);
+  const [showNvidia, setShowNvidia] = useState(false);
+
   const [isTesting, setIsTesting] = useState(false);
   const [testStatus, setTestStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [testError, setTestError] = useState('');
@@ -36,6 +48,17 @@ export function AISynthesisTab() {
           if (ai.cinematic_enforcer !== undefined) setEnforcer(ai.cinematic_enforcer);
           if (ai.system_prompt) setSystemPrompt(ai.system_prompt);
           if (ai.gemini_api_key) setGeminiKey(ai.gemini_api_key);
+          if (ai.openai_api_key) setOpenaiKey(ai.openai_api_key);
+          if (ai.anthropic_api_key) setAnthropicKey(ai.anthropic_api_key);
+          if (ai.groq_api_key) setGroqKey(ai.groq_api_key);
+          if (ai.nvidia_api_key) setNvidiaKey(ai.nvidia_api_key);
+          if (ai.mode) setMode(ai.mode);
+        }
+        
+        // Dynamic fetch of all active AI models from database
+        const modelsRes = await settingsService.getAIModels();
+        if (modelsRes) {
+          setDbModels(modelsRes);
         }
       } catch (err) {
         console.error("Failed to hydrate settings:", err);
@@ -63,6 +86,11 @@ export function AISynthesisTab() {
           cinematic_enforcer: enforcer,
           system_prompt: systemPrompt,
           gemini_api_key: geminiKey,
+          openai_api_key: openaiKey,
+          anthropic_api_key: anthropicKey,
+          groq_api_key: groqKey,
+          nvidia_api_key: nvidiaKey,
+          mode,
           ...payloadOverrides
         }
       });
@@ -71,7 +99,20 @@ export function AISynthesisTab() {
     } finally {
       setIsSaving(false);
     }
-  }, [model, temperature, swarmMode, enforcer, systemPrompt, geminiKey]);
+  }, [model, temperature, swarmMode, enforcer, systemPrompt, geminiKey, openaiKey, anthropicKey, groqKey, nvidiaKey, mode]);
+
+  const handleModeToggle = (newMode: string) => {
+    setMode(newMode);
+    syncToCloud({ mode: newMode });
+  };
+
+  const getModelsByProvider = (providerName: string, fallbackText: string) => {
+    const matched = dbModels
+      .filter(m => m.provider?.toLowerCase() === providerName.toLowerCase() && m.is_active)
+      .map(m => m.display_name || m.model_id);
+    if (matched.length === 0) return fallbackText;
+    return `Powers: ${matched.slice(0, 3).join(', ')}${matched.length > 3 ? '...' : ''}`;
+  };
 
   const clearBrowserKey = async () => {
     localStorage.removeItem('gemini_api_key');
@@ -233,6 +274,54 @@ export function AISynthesisTab() {
         </div>
 
         <div className="space-y-8">
+          {/* Inference Mode Toggle Card */}
+          <Card className="bg-[#0a0a0a]/80 backdrop-blur-md border-zinc-800/50 shadow-2xl relative overflow-hidden group rounded-[2.5rem]">
+            <CardHeader className="border-b border-zinc-900 pb-6">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 bg-studio/10 rounded-xl border border-studio/20 shadow-[0_0_15px_rgba(6,182,212,0.15)]">
+                  <Activity className="w-4 h-4 text-studio animate-pulse" />
+                </div>
+                <div>
+                  <CardTitle className="text-xs font-black text-white uppercase tracking-widest">Inference Mode</CardTitle>
+                  <CardDescription className="text-zinc-500 text-[10px] font-bold uppercase tracking-wider">Choose your pricing and resource tier.</CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="pt-6 space-y-4">
+              <div className="grid grid-cols-2 gap-3">
+                <div
+                  onClick={() => handleModeToggle('free')}
+                  className={cn(
+                    "p-4 rounded-xl border cursor-pointer transition-all flex flex-col gap-2 text-center",
+                    mode === 'free' 
+                      ? "bg-studio/10 border-studio/50 text-studio shadow-[0_0_15px_rgba(6,182,212,0.15)] ring-1 ring-studio transform scale-[1.02]" 
+                      : "bg-black/40 border-zinc-800 hover:border-zinc-700 text-zinc-400 hover:text-white"
+                  )}
+                >
+                  <span className="text-xs font-black uppercase tracking-widest">Free Mode</span>
+                  <span className="text-[9px] font-bold uppercase text-zinc-500">Fast standard models</span>
+                </div>
+                <div
+                  onClick={() => handleModeToggle('paid')}
+                  className={cn(
+                    "p-4 rounded-xl border cursor-pointer transition-all flex flex-col gap-2 text-center",
+                    mode === 'paid' 
+                      ? "bg-fuchsia-500/10 border-fuchsia-500/50 text-fuchsia-400 shadow-[0_0_15px_rgba(217,70,239,0.15)] ring-1 ring-fuchsia-500 transform scale-[1.02]" 
+                      : "bg-black/40 border-zinc-800 hover:border-zinc-700 text-zinc-400 hover:text-white"
+                  )}
+                >
+                  <span className="text-xs font-black uppercase tracking-widest">Paid Mode</span>
+                  <span className="text-[9px] font-bold uppercase text-zinc-500">Premium & custom keys</span>
+                </div>
+              </div>
+              <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wide leading-relaxed pt-2 text-center">
+                {mode === 'free' 
+                  ? "⚡ FREE MODE active: Server sponsored. Enforces standard speed models without credit deductions."
+                  : "💎 PAID MODE active: Access premium models. Deducts credits from your ledger unless custom API keys are loaded."}
+              </p>
+            </CardContent>
+          </Card>
+
           <Card className="bg-[#0a0a0a]/80 backdrop-blur-md border-zinc-800/50 shadow-2xl relative overflow-hidden group rounded-[2.5rem]">
             <CardHeader className="border-b border-zinc-900">
               <div className="flex items-center gap-3">
@@ -243,8 +332,14 @@ export function AISynthesisTab() {
               </div>
             </CardHeader>
             <CardContent className="pt-6 space-y-6">
+              {/* Gemini API Key */}
               <div className="space-y-3">
-                <label className="text-xs font-black text-zinc-500 uppercase tracking-widest">Gemini API Key</label>
+                <div className="flex justify-between items-center">
+                  <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Gemini API Key</label>
+                  <span className="text-[8px] font-black text-studio uppercase bg-studio/10 border border-studio/20 px-2 py-0.5 rounded tracking-tighter">
+                    {getModelsByProvider('gemini', 'Powers: Gemini 2.0 Flash/Pro, 1.5 Pro')}
+                  </span>
+                </div>
                 <div className="relative">
                   <input
                     type={showKey ? "text" : "password"}
@@ -259,6 +354,110 @@ export function AISynthesisTab() {
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-600 hover:text-studio transition-colors"
                   >
                     {showKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+
+              {/* OpenAI API Key */}
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">OpenAI API Key</label>
+                  <span className="text-[8px] font-black text-emerald-400 uppercase bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded tracking-tighter">
+                    {getModelsByProvider('openai', 'Powers: GPT-4o, GPT-4o Mini, o1 Preview')}
+                  </span>
+                </div>
+                <div className="relative">
+                  <input
+                    type={showOpenai ? "text" : "password"}
+                    value={openaiKey}
+                    onChange={(e) => setOpenaiKey(e.target.value)}
+                    onBlur={() => syncToCloud()}
+                    placeholder="sk-proj-..."
+                    className="w-full bg-black/40 border border-zinc-800 rounded-xl px-4 py-2.5 text-xs text-white focus:border-studio/50 focus:outline-none transition-all pr-12 font-mono"
+                  />
+                  <button
+                    onClick={() => setShowOpenai(!showOpenai)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-600 hover:text-studio transition-colors"
+                  >
+                    {showOpenai ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+
+              {/* Anthropic API Key */}
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Anthropic API Key</label>
+                  <span className="text-[8px] font-black text-amber-400 uppercase bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded tracking-tighter">
+                    {getModelsByProvider('anthropic', 'Powers: Claude-3.5 Sonnet, Claude-3 Opus')}
+                  </span>
+                </div>
+                <div className="relative">
+                  <input
+                    type={showAnthropic ? "text" : "password"}
+                    value={anthropicKey}
+                    onChange={(e) => setAnthropicKey(e.target.value)}
+                    onBlur={() => syncToCloud()}
+                    placeholder="sk-ant-..."
+                    className="w-full bg-black/40 border border-zinc-800 rounded-xl px-4 py-2.5 text-xs text-white focus:border-studio/50 focus:outline-none transition-all pr-12 font-mono"
+                  />
+                  <button
+                    onClick={() => setShowAnthropic(!showAnthropic)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-600 hover:text-studio transition-colors"
+                  >
+                    {showAnthropic ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+
+              {/* Groq API Key */}
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Groq API Key</label>
+                  <span className="text-[8px] font-black text-orange-400 uppercase bg-orange-500/10 border border-orange-500/20 px-2 py-0.5 rounded tracking-tighter">
+                    {getModelsByProvider('groq', 'Powers: Llama-3-70b/8b, DeepSeek R1')}
+                  </span>
+                </div>
+                <div className="relative">
+                  <input
+                    type={showGroq ? "text" : "password"}
+                    value={groqKey}
+                    onChange={(e) => setGroqKey(e.target.value)}
+                    onBlur={() => syncToCloud()}
+                    placeholder="gsk_..."
+                    className="w-full bg-black/40 border border-zinc-800 rounded-xl px-4 py-2.5 text-xs text-white focus:border-studio/50 focus:outline-none transition-all pr-12 font-mono"
+                  />
+                  <button
+                    onClick={() => setShowGroq(!showGroq)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-600 hover:text-studio transition-colors"
+                  >
+                    {showGroq ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+
+              {/* NVIDIA API Key */}
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">NVIDIA API Key</label>
+                  <span className="text-[8px] font-black text-cyan-400 uppercase bg-cyan-500/10 border border-cyan-500/20 px-2 py-0.5 rounded tracking-tighter">
+                    {getModelsByProvider('nvidia', 'Powers: Nemotron-70b, Llama-3.1-70b')}
+                  </span>
+                </div>
+                <div className="relative">
+                  <input
+                    type={showNvidia ? "text" : "password"}
+                    value={nvidiaKey}
+                    onChange={(e) => setNvidiaKey(e.target.value)}
+                    onBlur={() => syncToCloud()}
+                    placeholder="nvapi-..."
+                    className="w-full bg-black/40 border border-zinc-800 rounded-xl px-4 py-2.5 text-xs text-white focus:border-studio/50 focus:outline-none transition-all pr-12 font-mono"
+                  />
+                  <button
+                    onClick={() => setShowNvidia(!showNvidia)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-600 hover:text-studio transition-colors"
+                  >
+                    {showNvidia ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
               </div>

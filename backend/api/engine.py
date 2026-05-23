@@ -3,7 +3,7 @@ from sqlalchemy import select
 from typing import List, Optional
 from datetime import datetime
 from backend.database import async_session, get_async_session, AsyncSession
-from backend.database.models.engine import EngineConfig, AITelemetry
+from backend.database.models.engine import EngineConfig, AITelemetry, AIModel
 from pydantic import BaseModel
 
 router = APIRouter(prefix="/api/engine", tags=["Engine Nexus"])
@@ -77,5 +77,11 @@ async def record_telemetry(telemetry: TelemetryCreate, user_id: Optional[str] = 
 @router.get("/telemetry/recent", response_model=List[AITelemetry])
 async def get_recent_telemetry(limit: int = 50, session: AsyncSession = Depends(get_async_session)):
     statement = select(AITelemetry).order_by(AITelemetry.timestamp.desc()).limit(limit)
+    result = await session.execute(statement)
+    return result.scalars().all()
+
+@router.get("/models")
+async def list_ai_models(session: AsyncSession = Depends(get_async_session)):
+    statement = select(AIModel).where(AIModel.is_active == True)
     result = await session.execute(statement)
     return result.scalars().all()

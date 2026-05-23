@@ -153,6 +153,15 @@ export const settingsService = {
       console.error("Error toggling favorite:", e);
       return false;
     }
+  },
+
+  async getAIModels(): Promise<any[]> {
+    try {
+      return await apiRequest<any[]>('/api/engine/models');
+    } catch (e) {
+      console.error("Error fetching AI models:", e);
+      return [];
+    }
   }
 };
 

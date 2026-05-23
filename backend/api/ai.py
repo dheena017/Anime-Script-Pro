@@ -12,7 +12,7 @@ from sqlalchemy import select
 
 from backend.database import async_session
 from backend.database.models import Project
-from backend.database.models.user import UserSettings
+from backend.database.models.user import UserSettings, UserBalance
 from backend.utils.deps import get_auth_user_id
 from backend.ai_engine import ai_engine, build_genai_client, stream_ai
 from backend.schemas import GenerationRequest, GenerationResponse
@@ -116,9 +116,18 @@ STABLE_MODELS = [
 ]
 
 async def get_api_key(user_id: str, target_model: str) -> str:
-    """Resolve API key from user settings or environment based on provider."""
+    """Resolve API key from user settings or environment based on provider and mode."""
     user_api_key = None
     target_lower = target_model.lower()
+    mode = "free"
+    
+    # Identify premium models (that demand credit deduction or custom keys)
+    PREMIUM_MODELS = [
+        "gpt-4o", "gpt-4-turbo", "o1-preview", "claude", "gemini-3.1-pro", 
+        "gemini-3-pro", "gemini-2.0-pro", "gemini-1.5-pro", "llama-3-70b", 
+        "nvidia-llama", "nemotron-70b", "llama-3.1-70b"
+    ]
+    is_premium = any(m in target_lower for m in PREMIUM_MODELS) and "mini" not in target_lower and "lite" not in target_lower and "flash" not in target_lower
     
     try:
         async with async_session() as session:
@@ -126,6 +135,7 @@ async def get_api_key(user_id: str, target_model: str) -> str:
             result = await session.execute(statement)
             settings = result.scalars().first()
             if settings and settings.ai_models:
+                mode = settings.ai_models.get("mode", "free").lower()
                 if "claude" in target_lower:
                     user_api_key = settings.ai_models.get("anthropic_api_key")
                 elif "gpt-" in target_lower or "o1-" in target_lower:
@@ -138,6 +148,45 @@ async def get_api_key(user_id: str, target_model: str) -> str:
                     user_api_key = settings.ai_models.get("gemini_api_key")
     except Exception as e:
         logger.warning(f"Failed to fetch user settings for key retrieval: {e}")
+
+    # --- Free Mode Routing ---
+    if mode == "free":
+        if is_premium and not user_api_key:
+            raise HTTPException(
+                status_code=402, 
+                detail=f"Model '{target_model}' is a premium model. Premium models require Paid Mode or a custom API key. Please switch to Paid Mode or configure your own API key in settings."
+            )
+        logger.debug(f"AI ENGINE: Running '{target_model}' under FREE Mode (server-sponsored standard keys).")
+        
+    # --- Paid Mode Routing ---
+    elif mode == "paid":
+        if not user_api_key:
+            # If utilizing server keys under Paid Mode, deduct credits as a billing transaction
+            try:
+                async with async_session() as session:
+                    bal_statement = select(UserBalance).where(UserBalance.user_id == user_id)
+                    bal_result = await session.execute(bal_statement)
+                    balance = bal_result.scalars().first()
+                    
+                    required_credits = 50 if is_premium else 10
+                    
+                    if not balance or balance.credits < required_credits:
+                        raise HTTPException(
+                            status_code=402,
+                            detail=f"Insufficient credits (Requires {required_credits} credits). Please configure your own API key in settings or top up your credit ledger."
+                        )
+                    
+                    # Process transaction
+                    balance.credits -= required_credits
+                    session.add(balance)
+                    await session.commit()
+                    logger.info(f"AI LEDGER: Transaction successful. Deducted {required_credits} credits from user {user_id} for '{target_model}'. Remaining: {balance.credits}")
+            except HTTPException:
+                raise
+            except Exception as e:
+                logger.warning(f"AI LEDGER: Credit transaction failed: {e}")
+        else:
+            logger.debug(f"AI ENGINE: Running '{target_model}' under PAID Mode with verified custom user key.")
 
     # Fallback to environment variables
     if "claude" in target_lower:

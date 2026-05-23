@@ -435,6 +435,54 @@ async function startServer() {
     const activeProviders = [openAiOk, anthropicOk, groqOk].filter(Boolean).length;
     const configuredProviders = aiProviders.filter(p => p.envKey).length;
 
+    // Smart Key Masking helper
+    const getMaskedStatus = (status: string, key: string | undefined) => {
+      if (status === "CONNECTED" && key) {
+        if (key.length <= 8) return `${status} (INVALID)`;
+        
+        let prefix = "";
+        let cleanKey = key;
+        
+        if (key.startsWith("sk-proj-")) {
+          prefix = "sk-proj-";
+          cleanKey = key.slice(8);
+        } else if (key.startsWith("sk-ant-")) {
+          prefix = "sk-ant-";
+          cleanKey = key.slice(7);
+        } else if (key.startsWith("gsk_")) {
+          prefix = "gsk_";
+          cleanKey = key.slice(4);
+        } else if (key.startsWith("sk-")) {
+          prefix = "sk-";
+          cleanKey = key.slice(3);
+        }
+        
+        const visiblePrefix = prefix + cleanKey.substring(0, 3);
+        const visibleSuffix = cleanKey.substring(cleanKey.length - 4);
+        return `${status} (${visiblePrefix}...${visibleSuffix})`;
+      }
+      return status;
+    };
+
+    // Smart URL Masking helper for Supabase
+    const getMaskedSupabase = (status: string, url: string | undefined) => {
+      if (status.startsWith("CONNECTED") && url) {
+        try {
+          const parsed = new URL(url);
+          const parts = parsed.hostname.split('.');
+          const host = parts[0];
+          const maskedHost = host.length > 8 
+            ? `${host.substring(0, 4)}...${host.substring(host.length - 4)}`
+            : `${host.substring(0, 2)}...`;
+          const domain = parts.slice(1).join('.');
+          return `${status} (${parsed.protocol}//${maskedHost}.${domain})`;
+        } catch {
+          return `${status} (${url.substring(0, 15)}...)`;
+        }
+      }
+      return status;
+    };
+
     // Core Services Check
     console.log("\n" + bold("--- SYSTEM INTEGRITY CHECK ---"));
 
@@ -446,12 +494,12 @@ async function startServer() {
 
     check("Node.js", nodeVersion, true);
     check("Environment", envName, true);
-    check("OpenAI", openAiStatus, openAiOk);
-    check("Anthropic", anthropicStatus, anthropicOk);
-    check("Groq", groqStatus, groqOk);
+    check("OpenAI", getMaskedStatus(openAiStatus, process.env.OPENAI_API_KEY), openAiOk);
+    check("Anthropic", getMaskedStatus(anthropicStatus, process.env.ANTHROPIC_API_KEY), anthropicOk);
+    check("Groq", getMaskedStatus(groqStatus, process.env.GROQ_API_KEY), groqOk);
     check("AI Providers", `${activeProviders}/${aiProviders.length} active (${configuredProviders} configured)`, activeProviders > 0);
     check("FastAPI", `${fastApiStatus} (${fastApiProbe})`, fastApiStatus === "ONLINE");
-    check("Supabase API", supabaseStatus, supabaseOk);
+    check("Supabase API", getMaskedSupabase(supabaseStatus, process.env.VITE_SUPABASE_URL), supabaseOk);
 
     if (fastApiStatus === "ONLINE") {
       console.log(`\n${bold(green("[SUCCESS]"))} Intelligence Layer verified at ${BACKEND_URL}`);
