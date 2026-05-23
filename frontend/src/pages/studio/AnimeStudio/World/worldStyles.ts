@@ -8,7 +8,8 @@ export const worldStyles = {
   header: {
     wrapper: "relative group",
     glow: "absolute -inset-0.5 rounded-3xl bg-gradient-to-r from-[#08162a] via-[#041428] to-[#000814] opacity-60 blur-xl pointer-events-none",
-    container: "relative header-container px-6 py-5 flex items-center justify-between gap-6 rounded-3xl bg-gradient-to-r from-[#071426]/80 to-[#071022]/60 border border-blue-900/30 shadow-[0_10px_30px_rgba(2,6,23,0.6)]",
+    container: "relative header-container px-6 py-5 flex items-center justify-between gap-6 rounded-3xl bg-gradient-to-r from-[#071426]/80 to-[#071022]/60 border border-blue-900/30 shadow-[0_10px_30px_rgba(2,6,23,0.6)] overflow-hidden",
+    shimmer: "absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000",
     iconBox: "header-icon-box group/icon rounded-2xl p-3 !bg-gradient-to-br !from-studio/10 !to-studio/6 !border-studio/30",
     iconGlow: "absolute inset-0 bg-gradient-to-br from-studio/20 to-transparent opacity-0 group-hover/icon:opacity-100 transition-opacity duration-500 rounded-2xl",
     icon: "w-7 h-7 text-studio relative z-10 drop-shadow-[0_6px_20px_rgba(6,182,212,0.2)]",
@@ -74,8 +75,9 @@ export const worldStyles = {
   page: {
     container: "space-y-8 pb-20",
     emptyWrapper: "w-full max-w-[1400px] mx-auto animate-in fade-in zoom-in-95 duration-700",
-    mainCard: "bg-[#030303] overflow-hidden border border-zinc-800/30 rounded-[3rem] shadow-[0_0_60px_rgba(0,0,0,0.5)] transition-all duration-700",
-    mainCardInner: "w-full p-8 lg:p-10 max-w-[1400px] mx-auto",
+    mainCard: "bg-[#030303] overflow-hidden border border-zinc-800/30 rounded-[3rem] shadow-[0_0_60px_rgba(0,0,0,0.5)] transition-all duration-700 relative group/card",
+    mainCardInner: "w-full p-8 lg:p-10 max-w-[1400px] mx-auto relative z-10",
+    mainCardGlow: "absolute inset-0 bg-gradient-to-br from-studio/5 via-transparent to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity duration-1000",
   },
 
   // --- TABS SECTION ---
@@ -95,7 +97,7 @@ export const worldStyles = {
     tabsBarGlow: "absolute inset-0 bg-gradient-to-r from-transparent via-studio/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000",
     tabsBarInner: "relative z-10 w-full flex justify-center",
   },
-  
+
   // --- FLAT ALIASES FOR BACKWARD COMPATIBILITY ---
   actionButtonGhost: "relative h-10 px-6 rounded-full border border-white/5 bg-transparent text-zinc-400 hover:bg-white/5 hover:text-white font-black uppercase tracking-widest text-xs transition-all duration-300",
   actionIconButtonSmall: "h-8 w-8 rounded-lg text-zinc-400 hover:text-studio border border-transparent hover:border-studio/40 hover:bg-studio/10 transition-all duration-300",

@@ -21,6 +21,7 @@ This document summarizes the major features implemented across the Anime Script 
 - **Tutorials & help content**: guided learning resources to onboard new users into the AI studio workflow.
 - **Notifications center**: centralized alerts for system updates, generation progress, and collaboration messages.
 - **Pricing & billing**: subscription tier display, usage credits, and account plan management.
+- **Production Queue**: Integrated task management within the studio, enforcing unique task naming for clarity and organization.
 - **Contact / feedback**: user support pathways and direct feedback submission.
 - **Terms & policy pages**: legal and compliance information for users and partners.
 

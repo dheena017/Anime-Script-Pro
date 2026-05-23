@@ -36,6 +36,7 @@ The Python/FastAPI backend has been fully modernized for high-concurrency studio
 
 ### Key Protocols:
 - **Asynchronous Integrity**: 100% of API routers use `async_session` to prevent database locks during heavy AI generation.
+- **Production Queue Scalability**: Implemented database-level `UniqueConstraint` on tasks to ensure zero duplication and high organizational integrity.
 - **Absolute API Pathing**: All communication is standardized to `/api/` absolute paths for robust service discovery.
 - **Non-Blocking Startup**: Metadata and table creation are handled via the `AsyncEngine` startup loop.
 - **Real-Time Observability**: Integrated `Loguru` for granular monitoring of the AI synthesis lifecycle.

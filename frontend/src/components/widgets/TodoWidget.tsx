@@ -40,8 +40,13 @@ export const TodoWidget: React.FC = () => {
       const todo = await todoService.createTodo(user.id, newTask);
       setTasks([...tasks, todo]);
       setNewTask('');
-    } catch (e) {
+    } catch (e: any) {
       console.error("Failed to add task:", e);
+      if (e.response?.status === 400) {
+        alert(e.response.data.detail || "Task already exists in your queue.");
+      } else {
+        alert("An error occurred while adding the task.");
+      }
     }
   };
 
