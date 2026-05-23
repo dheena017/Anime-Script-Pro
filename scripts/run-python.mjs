@@ -3,6 +3,14 @@ import { spawnSync } from 'child_process';
 import path from 'path';
 import os from 'os';
 import fs from 'fs';
+// ANSI Styling Utilities
+const cyan = (text) => `\x1b[36m${text}\x1b[0m`;
+const green = (text) => `\x1b[32m${text}\x1b[0m`;
+const yellow = (text) => `\x1b[33m${text}\x1b[0m`;
+const red = (text) => `\x1b[31m${text}\x1b[0m`;
+const bold = (text) => `\x1b[1m${text}\x1b[0m`;
+const gray = (text) => `\x1b[90m${text}\x1b[0m`;
+const magenta = (text) => `\x1b[35m${text}\x1b[0m`;
 
 /**
  * Cross-platform Python runner for Anime Script Pro.
@@ -49,8 +57,8 @@ function resolvePython() {
 
 const resolved = resolvePython();
 if (!resolved) {
-  console.error('[PYTHON-LAUNCHER] No usable Python interpreter found.');
-  console.error('[PYTHON-LAUNCHER] Expected one of: backend\\venv, py -3.11, py -3, python, python3');
+  console.error(`${bold(red('[PYTHON-LAUNCHER]'))} No usable Python interpreter found.`);
+  console.error(`${bold(red('[PYTHON-LAUNCHER]'))} Expected one of: backend\\venv, py -3.11, py -3, python, python3`);
   process.exit(1);
 }
 
@@ -59,31 +67,37 @@ const runArgs = [...resolved.prefix, ...args];
 const isReload = runArgs.includes('--reload');
 
 if (process.env.DEBUG || true) {
-  console.log(`\n[LAUNCHER] Platform: ${os.platform()}`);
-  console.log(`[LAUNCHER] Command: ${resolved.cmd} ${runArgs.join(' ')}`);
-  console.log(`[LAUNCHER] Directory: ${process.cwd()}\n`);
+  console.log(`\n${bold(magenta('[LAUNCHER]'))} Platform: ${cyan(os.platform())}`);
+  console.log(`${bold(magenta('[LAUNCHER]'))} Command:  ${yellow(resolved.cmd)} ${runArgs.join(' ')}`);
+  console.log(`${bold(magenta('[LAUNCHER]'))} Directory: ${gray(process.cwd())}\n`);
 }
+
+let activeChild = null;
 
 async function startProcess() {
   return new Promise((resolve) => {
     const child = spawn(resolved.cmd, runArgs, {
       stdio: 'inherit',
       shell: false,
-      env: { ...process.env, PYTHONPATH: process.cwd() }
+      env: { ...process.env, PYTHONPATH: process.cwd() },
+      ...(os.platform() === 'win32' ? { creationFlags: 0x00000200 } : {})
     });
+    activeChild = child;
 
     child.on('exit', (code) => {
-      if (code !== 0 && code !== null) {
-        console.error(`\n[PYTHON-LAUNCHER] Process exited with code ${code}`);
+      activeChild = null;
+      if (!isShuttingDown && code !== 0 && code !== null) {
+        console.error(`\n${bold(red('[PYTHON-LAUNCHER]'))} Process exited with code ${cyan(code)}`);
         if (code === 1) {
-          console.error('[PYTHON-LAUNCHER] Tip: This often indicates a syntax error or a port conflict.');
+          console.error(`${bold(yellow('[PYTHON-LAUNCHER]'))} Tip: This often indicates a syntax error or a port conflict.`);
         }
       }
       resolve(code);
     });
 
     child.on('error', (err) => {
-      console.error('\n[PYTHON-LAUNCHER] Critical Spawn Error:', err.message);
+      activeChild = null;
+      console.error(`\n${bold(red('[PYTHON-LAUNCHER]'))} Critical Spawn Error: ${err.message}`);
       resolve(1);
     });
   });
@@ -99,7 +113,22 @@ async function supervisor() {
   // Handle termination signals to ensure we don't restart when the user wants to quit
   const cleanup = () => {
     isShuttingDown = true;
-    console.log('\n[PYTHON-LAUNCHER] Shutdown signal received. Cleaning up...');
+    console.log(`\n${bold(yellow('[PYTHON-LAUNCHER]'))} Shutdown signal received. Cleaning up gracefully...`);
+    
+    // Give the child process 1.5 seconds to shut down gracefully before forcing it
+    setTimeout(() => {
+      if (activeChild) {
+        console.log(`${bold(yellow('[PYTHON-LAUNCHER]'))} Fail-safe: Forcefully terminating remaining Python processes.`);
+        try {
+          if (os.platform() === 'win32') {
+            spawnSync('taskkill', ['/pid', activeChild.pid, '/f', '/t']);
+          } else {
+            activeChild.kill('SIGKILL');
+          }
+        } catch (e) {}
+      }
+      process.exit(0);
+    }, 1500);
   };
   process.on('SIGINT', cleanup);
   process.on('SIGTERM', cleanup);
@@ -109,7 +138,7 @@ async function supervisor() {
     const code = await startProcess();
 
     if (isShuttingDown) {
-      process.exit(code || 0);
+      process.exit(0);
     }
 
     // In reload mode, uvicorn should never exit with 0 unless interrupted.
@@ -125,11 +154,11 @@ async function supervisor() {
 
     restartCount++;
     if (restartCount > maxRestarts) {
-      console.error(`[PYTHON-LAUNCHER] Maximum restart limit reached (${maxRestarts}). Aborting.`);
+      console.error(`${bold(red('[PYTHON-LAUNCHER]'))} Maximum restart limit reached (${maxRestarts}). Aborting.`);
       process.exit(1);
     }
 
-    console.log(`[PYTHON-LAUNCHER] Restarting in 2 seconds... (Attempt ${restartCount}/${maxRestarts})`);
+    console.log(`${bold(yellow('[PYTHON-LAUNCHER]'))} Restarting in 2 seconds... (Attempt ${restartCount}/${maxRestarts})`);
     await new Promise(r => setTimeout(r, 2000));
   }
 }
@@ -141,18 +170,43 @@ if (isReload) {
   const child = spawn(resolved.cmd, runArgs, {
     stdio: 'inherit',
     shell: false,
-    env: { ...process.env, PYTHONPATH: process.cwd() }
+    env: { ...process.env, PYTHONPATH: process.cwd() },
+    ...(os.platform() === 'win32' ? { creationFlags: 0x00000200 } : {})
   });
+  activeChild = child;
+
+  const cleanupOneShot = () => {
+    isShuttingDown = true;
+    console.log(`\n${bold(yellow('[PYTHON-LAUNCHER]'))} Shutdown signal received. Cleaning up gracefully...`);
+    
+    setTimeout(() => {
+      if (activeChild) {
+        console.log(`${bold(yellow('[PYTHON-LAUNCHER]'))} Fail-safe: Forcefully terminating remaining Python processes.`);
+        try {
+          if (os.platform() === 'win32') {
+            spawnSync('taskkill', ['/pid', activeChild.pid, '/f', '/t']);
+          } else {
+            activeChild.kill('SIGKILL');
+          }
+        } catch (e) {}
+      }
+      process.exit(0);
+    }, 1500);
+  };
+  process.on('SIGINT', cleanupOneShot);
+  process.on('SIGTERM', cleanupOneShot);
 
   child.on('exit', (code) => {
-    if (code !== 0 && code !== null) {
-      console.error(`\n[PYTHON-LAUNCHER] Process exited with code ${code}`);
+    activeChild = null;
+    if (!isShuttingDown && code !== 0 && code !== null) {
+      console.error(`\n${bold(red('[PYTHON-LAUNCHER]'))} Process exited with code ${cyan(code)}`);
     }
-    setTimeout(() => process.exit(code || 0), 100);
+    setTimeout(() => process.exit(isShuttingDown ? 0 : (code || 0)), 100);
   });
 
   child.on('error', (err) => {
-    console.error('\n[PYTHON-LAUNCHER] Critical Spawn Error:', err.message);
+    activeChild = null;
+    console.error(`\n${bold(red('[PYTHON-LAUNCHER]'))} Critical Spawn Error: ${err.message}`);
     process.exit(1);
   });
 }

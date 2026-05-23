@@ -4,9 +4,9 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "concurrently \"tsx server.ts\" \"npm run backend\"",
+    "dev": "tsx server.ts",
     "serve": "vite --host 0.0.0.0 --port 5173 --config frontend/vite.config.ts",
-    "studio": "npm run dev",
+    "server": "concurrently --silent -n \"FRONTEND,BACKEND\" -c \"cyan,magenta\" -p \"[{name}]\" \"tsx server.ts\" \"node scripts/run-python.mjs -m uvicorn backend.fastapi_app:app --port 3050 --reload --reload-dir backend --reload-exclude \\\"backend/logs\\\" --reload-exclude \\\"backend/outputs\\\" --reload-exclude \\\"backend/database\\\" --reload-exclude \\\"backend/venv\\\"\"",
     "backend": "node scripts/run-python.mjs -m uvicorn backend.fastapi_app:app --port 3050 --reload --reload-dir backend --reload-exclude \"backend/logs\" --reload-exclude \"backend/outputs\" --reload-exclude \"backend/database\" --reload-exclude \"backend/venv\"",
     "setup:backend": "node scripts/setup-backend.mjs",
     "db:seed": "node scripts/run-python.mjs backend/scripts/seeds/seed_all.py",

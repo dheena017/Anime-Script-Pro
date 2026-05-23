@@ -7,10 +7,10 @@ from typing import List, Optional
 
 # --- RAW STARTUP SIGNAL (Guaranteed visibility) ---
 import sys
-print("\n" + "="*80, flush=True)
-print(">>> [SYSTEM] BOOTING NEURAL ENGINE...", flush=True)
-print(">>> [SYSTEM] Initializing Master API Core...", flush=True)
-print("="*80 + "\n", flush=True)
+print("\n\033[1;35m" + "="*80 + "\033[0m", flush=True)
+print("\033[1;36m>>> [SYSTEM] BOOTING NEURAL ENGINE...\033[0m", flush=True)
+print("\033[1;36m>>> [SYSTEM] Initializing Master API Core...\033[0m", flush=True)
+print("\033[1;35m" + "="*80 + "\033[0m\n", flush=True)
 
 from fastapi import FastAPI, HTTPException, Response, Request, WebSocket, WebSocketDisconnect, Depends
 from fastapi.middleware.cors import CORSMiddleware
@@ -45,7 +45,7 @@ def configure_logging():
 
     logger.remove()
     # 1. Console Sink: High-visibility terminal output at DEBUG level
-    logger.add(sys.stderr, level="DEBUG", colorize=True, format="<magenta>[NEURAL]</magenta> <green>{time:HH:mm:ss}</green> | <level>{level: <8}</level> | <level>{message}</level>")
+    logger.add(sys.stderr, level="DEBUG", colorize=True, format="<green>{time:HH:mm:ss}</green> | <level>{level: <8}</level> | <level>{message}</level>")
     
     # 2. File Sink: Keep it clean and plain-text for the human auditor
     # Using str(log_file) ensures a clean absolute path for the Loguru sink
@@ -102,9 +102,12 @@ async def log_requests(request: Request, call_next):
     path = request.url.path
     query = request.url.query
     
+    is_health = path == "/health"
+    
     # RAW FAIL-SAFE TERMINAL LOG (Guaranteed visibility)
-    print(f"\n>>> [SIGNAL] Incoming: {method} {path}", flush=True)
-    logger.info(f"REQUEST  [{signal_id}] -> {method} {path}{'?' + query if query else ''}")
+    if not is_health:
+        print(f"\033[1;35m>>> [SIGNAL]\033[0m Incoming: \033[1;36m{method}\033[0m {path}", flush=True)
+        logger.info(f"REQUEST  [{signal_id}] -> {method} {path}{'?' + query if query else ''}")
 
     try:
         # 2. THE PROCESSING: Let the API handle the request
@@ -119,14 +122,16 @@ async def log_requests(request: Request, call_next):
         
         # 3. THE RESULT: High-visibility terminal result
         log_msg = f"[BACKEND]  {method} {path} | Status: {status_code} ({latency:.2f}ms)"
-        print(f"<<< [SIGNAL] Result:   {status_code} ({latency:.2f}ms)\n", flush=True)
-        
-        if status_code < 400:
-            logger.opt(colors=True).info(f"<green><b>SUCCESS</b></green> | {log_msg}")
-        elif status_code < 500:
-            logger.opt(colors=True).warning(f"<yellow><b>WARNING</b></yellow> | {log_msg}")
-        else:
-            logger.opt(colors=True).error(f"<red><b>FAILURE</b></red> | {log_msg}")
+        if not is_health:
+            status_color = "\033[1;32m" if status_code < 400 else ("\033[1;33m" if status_code < 500 else "\033[1;31m")
+            print(f"\033[1;35m<<< [SIGNAL]\033[0m Result:   {status_color}{status_code}\033[0m (\033[1;36m{latency:.2f}ms\033[0m)\n", flush=True)
+            
+            if status_code < 400:
+                logger.opt(colors=True).info(f"<green><b>SUCCESS</b></green> | {log_msg}")
+            elif status_code < 500:
+                logger.opt(colors=True).warning(f"<yellow><b>WARNING</b></yellow> | {log_msg}")
+            else:
+                logger.opt(colors=True).error(f"<red><b>FAILURE</b></red> | {log_msg}")
         
         # Attach the tracking ID to the response headers
         response.headers["X-Signal-ID"] = signal_id
@@ -285,7 +290,7 @@ async def on_shutdown():
     # 2. Close active data streams
     logger.info("📡 SIGNAL [2/3]: Closing active websocket streams and notification gates...")
     # Add brief async sleep to allow handles to close
-    await asyncio.sleep(0.5) 
+    await asyncio.sleep(0.01) 
     logger.success("STREAMS: All real-time signals disconnected.")
 
     # 3. Final Telemetry Flush

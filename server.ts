@@ -67,8 +67,11 @@ export async function createServer() {
     const start = Date.now();
     res.on('finish', () => {
       const duration = Date.now() - start;
-      const status = res.statusCode >= 400 ? red(res.statusCode.toString()) : green(res.statusCode.toString());
-      console.log(`${gray(`[${new Date().toLocaleTimeString()}]`)} ${bold(req.method)} ${req.originalUrl} | ${status} | ${duration}ms`);
+      // Silence background health probes to keep developer terminal clean
+      if (req.originalUrl !== '/_orchestrator/health') {
+        const status = res.statusCode >= 400 ? red(res.statusCode.toString()) : green(res.statusCode.toString());
+        console.log(`${gray(`[${new Date().toLocaleTimeString()}]`)} ${bold(req.method)} ${req.originalUrl} | ${status} | ${duration}ms`);
+      }
       logTraffic(req, res.statusCode, duration);
     });
     next();
@@ -248,7 +251,21 @@ async function startServer() {
   const BACKEND_URL = process.env.BACKEND_URL || "http://127.0.0.1:3050";
 
   const server = app.listen(PORT, "0.0.0.0", async () => {
-    // Using global styling utilities
+    // 1. Calculate active CPU usage percentage (necessary on Windows because os.loadavg() is always [0,0,0])
+    const startMeasure = os.cpus().map(cpu => cpu.times);
+    await new Promise(resolve => setTimeout(resolve, 150));
+    const endMeasure = os.cpus().map(cpu => cpu.times);
+    let totalDiff = 0;
+    let idleDiff = 0;
+    for (let i = 0; i < startMeasure.length; i++) {
+      const start = startMeasure[i];
+      const end = endMeasure[i];
+      const totalStart = start.user + start.nice + start.sys + start.idle + start.irq;
+      const totalEnd = end.user + end.nice + end.sys + end.idle + end.irq;
+      totalDiff += totalEnd - totalStart;
+      idleDiff += end.idle - start.idle;
+    }
+    const cpuLoadPercentage = totalDiff === 0 ? 0.0 : 100 * (1 - idleDiff / totalDiff);
 
     let pkg = { name: "Anime Script Pro", version: "1.0.0" };
     try {
@@ -266,40 +283,157 @@ async function startServer() {
     // System Metrics Component
     const freeMem = (os.freemem() / (1024 * 1024 * 1024)).toFixed(2);
     const totalMem = (os.totalmem() / (1024 * 1024 * 1024)).toFixed(2);
-    const cpuLoad = os.loadavg()[0].toFixed(2);
-    console.log(`${bold("[SYS]")}    Resources:     ${cyan(`${freeMem}GB/${totalMem}GB Free | CPU Load: ${cpuLoad}`)}`);
+    console.log(`${bold("[SYS]")}    Resources:     ${cyan(`${freeMem}GB Free of ${totalMem}GB | CPU Load: ${cpuLoadPercentage.toFixed(1)}%`)}`);
 
-    let fastApiStatus = "UNKNOWN";
-    let fastApiProbe = "No response";
     const nodeVersion = process.version;
     const envName = process.env.NODE_ENV || "development";
-    const supabaseUrlStatus = process.env.VITE_SUPABASE_URL ? "READY" : "MISSING";
-    const supabaseKeyStatus = process.env.VITE_SUPABASE_ANON_KEY ? "READY" : "MISSING";
+
+    let openAiStatus = "MISSING";
+    let openAiOk = false;
+    let anthropicStatus = "MISSING";
+    let anthropicOk = false;
+    let groqStatus = "MISSING";
+    let groqOk = false;
+    let supabaseStatus = "MISSING";
+    let supabaseOk = false;
+    let fastApiStatus = "UNKNOWN";
+    let fastApiProbe = "No response";
 
     const aiProviders = [
-      { name: "OpenAI", active: !!openai, envKey: !!process.env.OPENAI_API_KEY },
-      { name: "Anthropic", active: !!anthropic, envKey: !!process.env.ANTHROPIC_API_KEY },
-      { name: "Groq", active: !!groq, envKey: !!process.env.GROQ_API_KEY },
+      { name: "OpenAI", envKey: !!process.env.OPENAI_API_KEY },
+      { name: "Anthropic", envKey: !!process.env.ANTHROPIC_API_KEY },
+      { name: "Groq", envKey: !!process.env.GROQ_API_KEY },
     ];
-    const activeProviders = aiProviders.filter(p => p.active).length;
-    const configuredProviders = aiProviders.filter(p => p.envKey).length;
 
-    try {
-      const response = await fetch(`${BACKEND_URL}/health`).catch(() => null);
-      if (response && response.ok) {
-        fastApiStatus = "ONLINE";
-        const json = await response.json().catch(() => null);
-        fastApiProbe = json && typeof json === 'object'
-          ? `status=${json.status || 'ok'} version=${json.version || 'n/a'}`
-          : "healthy";
-      } else {
-        fastApiStatus = "OFFLINE";
-        fastApiProbe = response ? `status=${response.status}` : "no connection";
-      }
-    } catch (error: any) {
-      fastApiStatus = "OFFLINE";
-      fastApiProbe = error?.message || "fetch failed";
+    const probePromises: Promise<any>[] = [];
+
+    // OpenAI Real Authentication Check
+    if (openai) {
+      probePromises.push((async () => {
+        try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 2000);
+          await openai.models.list({ signal: controller.signal } as any);
+          clearTimeout(timeoutId);
+          openAiStatus = "CONNECTED";
+          openAiOk = true;
+        } catch (err: any) {
+          if (err.name === 'AbortError') {
+            openAiStatus = "TIMEOUT";
+          } else {
+            openAiStatus = `AUTH ERROR (${err.status || err.message || 'Key invalid'})`;
+          }
+        }
+      })());
+    } else if (process.env.OPENAI_API_KEY) {
+      openAiStatus = "AUTH ERROR";
     }
+
+    // Anthropic Real Authentication Check
+    if (anthropic) {
+      probePromises.push((async () => {
+        try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 2000);
+          await anthropic.models.list({ signal: controller.signal } as any);
+          clearTimeout(timeoutId);
+          anthropicStatus = "CONNECTED";
+          anthropicOk = true;
+        } catch (err: any) {
+          if (err.name === 'AbortError') {
+            anthropicStatus = "TIMEOUT";
+          } else {
+            anthropicStatus = `AUTH ERROR (${err.status || err.message || 'Key invalid'})`;
+          }
+        }
+      })());
+    } else if (process.env.ANTHROPIC_API_KEY) {
+      anthropicStatus = "AUTH ERROR";
+    }
+
+    // Groq Real Authentication Check
+    if (groq) {
+      probePromises.push((async () => {
+        try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 2000);
+          await groq.models.list({ signal: controller.signal } as any);
+          clearTimeout(timeoutId);
+          groqStatus = "CONNECTED";
+          groqOk = true;
+        } catch (err: any) {
+          if (err.name === 'AbortError') {
+            groqStatus = "TIMEOUT";
+          } else {
+            groqStatus = `AUTH ERROR (${err.status || err.message || 'Key invalid'})`;
+          }
+        }
+      })());
+    } else if (process.env.GROQ_API_KEY) {
+      groqStatus = "AUTH ERROR";
+    }
+
+    // Supabase Real Authentication Check
+    if (process.env.VITE_SUPABASE_URL && process.env.VITE_SUPABASE_ANON_KEY) {
+      probePromises.push((async () => {
+        try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 2000);
+          const start = Date.now();
+          const response = await fetch(`${process.env.VITE_SUPABASE_URL}/rest/v1/`, {
+            headers: {
+              'apikey': process.env.VITE_SUPABASE_ANON_KEY || "",
+              'Authorization': `Bearer ${process.env.VITE_SUPABASE_ANON_KEY || ""}`
+            },
+            signal: controller.signal
+          }).catch(() => null);
+          clearTimeout(timeoutId);
+          if (response && response.ok) {
+            supabaseStatus = `CONNECTED (${Date.now() - start}ms)`;
+            supabaseOk = true;
+          } else {
+            supabaseStatus = `AUTH ERROR (status: ${response ? response.status : 'No response'})`;
+          }
+        } catch (err: any) {
+          if (err.name === 'AbortError') {
+            supabaseStatus = "TIMEOUT";
+          } else {
+            supabaseStatus = `OFFLINE (${err.message || 'Connection failed'})`;
+          }
+        }
+      })());
+    } else if (process.env.VITE_SUPABASE_URL || process.env.VITE_SUPABASE_ANON_KEY) {
+      supabaseStatus = "CONFIGURATION INCOMPLETE";
+    }
+
+    // FastAPI Real Health Check
+    probePromises.push((async () => {
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 2000);
+        const response = await fetch(`${BACKEND_URL}/health`, { signal: controller.signal }).catch(() => null);
+        clearTimeout(timeoutId);
+        if (response && response.ok) {
+          fastApiStatus = "ONLINE";
+          const json = await response.json().catch(() => null);
+          fastApiProbe = json && typeof json === 'object'
+            ? `status=${json.status || 'ok'} version=${json.version || 'n/a'}`
+            : "healthy";
+        } else {
+          fastApiStatus = "OFFLINE";
+          fastApiProbe = response ? `status=${response.status}` : "no connection";
+        }
+      } catch (error: any) {
+        fastApiStatus = "OFFLINE";
+        fastApiProbe = error?.name === 'AbortError' ? "timeout" : (error?.message || "fetch failed");
+      }
+    })());
+
+    // Wait for all checks to complete concurrently (maximum 2 seconds delay)
+    await Promise.all(probePromises);
+
+    const activeProviders = [openAiOk, anthropicOk, groqOk].filter(Boolean).length;
+    const configuredProviders = aiProviders.filter(p => p.envKey).length;
 
     // Core Services Check
     console.log("\n" + bold("--- SYSTEM INTEGRITY CHECK ---"));
@@ -312,13 +446,12 @@ async function startServer() {
 
     check("Node.js", nodeVersion, true);
     check("Environment", envName, true);
-    check("OpenAI", openai ? "CONNECTED" : (process.env.OPENAI_API_KEY ? "AUTH OK" : "MISSING"), !!openai);
-    check("Anthropic", anthropic ? "CONNECTED" : (process.env.ANTHROPIC_API_KEY ? "AUTH OK" : "MISSING"), !!anthropic);
-    check("Groq", groq ? "CONNECTED" : (process.env.GROQ_API_KEY ? "AUTH OK" : "MISSING"), !!groq);
+    check("OpenAI", openAiStatus, openAiOk);
+    check("Anthropic", anthropicStatus, anthropicOk);
+    check("Groq", groqStatus, groqOk);
     check("AI Providers", `${activeProviders}/${aiProviders.length} active (${configuredProviders} configured)`, activeProviders > 0);
     check("FastAPI", `${fastApiStatus} (${fastApiProbe})`, fastApiStatus === "ONLINE");
-    check("Supabase URL", supabaseUrlStatus, !!process.env.VITE_SUPABASE_URL);
-    check("Supabase Key", supabaseKeyStatus, !!process.env.VITE_SUPABASE_ANON_KEY);
+    check("Supabase API", supabaseStatus, supabaseOk);
 
     if (fastApiStatus === "ONLINE") {
       console.log(`\n${bold(green("[SUCCESS]"))} Intelligence Layer verified at ${BACKEND_URL}`);
@@ -344,7 +477,14 @@ async function startServer() {
   // --- Graceful Shutdown ---
   const shutdown = () => {
     console.log(`\n${yellow('[SHUTDOWN]')} Closing Orchestration Layer...`);
-    process.exit(0);
+    try {
+      server.close();
+    } catch {}
+    
+    // Exit immediately after 150ms to allow logs to flush without waiting for Keep-Alive sockets
+    setTimeout(() => {
+      process.exit(0);
+    }, 150);
   };
 
   process.on('SIGINT', shutdown);
