@@ -3,7 +3,7 @@ from datetime import datetime
 from sqlmodel import SQLModel, Field, Column, JSON
 from fastapi_users_db_sqlalchemy import SQLAlchemyBaseUserTable
 from sqlalchemy.orm import Mapped, mapped_column, declarative_base
-from sqlalchemy import String
+from sqlalchemy import String, UniqueConstraint
 import uuid
 
 Base = declarative_base(metadata=SQLModel.metadata)
@@ -59,6 +59,7 @@ class UserSettings(SQLModel, table=True):
 
 class Todo(SQLModel, table=True):
     __tablename__ = "todos"
+    __table_args__ = (UniqueConstraint("user_id", "text", name="uq_todo_user_text"),)
     id: Optional[int] = Field(default=None, primary_key=True)
     user_id: str = Field(index=True)
     text: str

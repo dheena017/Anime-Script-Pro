@@ -331,6 +331,7 @@ export function WorldPage() {
         </div>
       ) : (
         <div className={s.page.mainCard}>
+          <div className={s.page.mainCardGlow} />
           <div className={s.page.mainCardInner}>
             {renderContent(generationStatus)}
           </div>
