@@ -277,8 +277,8 @@ async def system_integrity():
         # 5. Runway
         if runway_key:
             try:
-                r = await client.get("https://api.runwayml.com/v1/operations/probe", headers={"Authorization": f"Bearer {runway_key}"})
-                results["Runway"] = {"ok": r.status_code != 401, "status": mask_key(runway_key) if r.status_code != 401 else "AUTH ERROR (401)"}
+                r = await client.get("https://api.dev.runwayml.com/v1/organization", headers={"Authorization": f"Bearer {runway_key}", "X-Runway-Version": "2024-11-06"})
+                results["Runway"] = {"ok": r.status_code == 200, "status": mask_key(runway_key) if r.status_code == 200 else f"AUTH ERROR ({r.status_code})"}
             except Exception as e:
                 results["Runway"] = {"ok": False, "status": f"OFFLINE ({str(e)})"}
         else:

@@ -404,9 +404,10 @@ async def render_scene(req: RenderRequest, background_tasks: BackgroundTasks):
                 }
                 headers = {
                     "Authorization": f"Bearer {runway_key}",
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
+                    "X-Runway-Version": "2024-11-06"
                 }
-                op_url = "https://api.runwayml.com/v1/models/gen-3/outputs"
+                op_url = "https://api.dev.runwayml.com/v1/models/gen-3/outputs"
                 
                 logger.info(f"Step 3: Triggering Runway Gen-3 generation with wrapped prompt and dynamic duration of {runway_duration}s")
                 resp = await client.post(op_url, json=payload, headers=headers)
@@ -427,7 +428,7 @@ async def render_scene(req: RenderRequest, background_tasks: BackgroundTasks):
                     logger.error(f"Runway response missing job ID and output: {data}")
                     raise HTTPException(status_code=502, detail="Runway response missing job ID and outputs")
                 
-                status_url = f"https://api.runwayml.com/v1/operations/{job_id}"
+                status_url = f"https://api.dev.runwayml.com/v1/operations/{job_id}"
                 timeout = int(os.environ.get('RENDER_TIMEOUT_SECONDS', '300'))
                 interval = float(os.environ.get('RENDER_POLL_INTERVAL', '3.0'))
                 waited = 0
@@ -1178,7 +1179,7 @@ async def render_scene(req: RenderRequest, background_tasks: BackgroundTasks):
 
     if provider == 'runway':
         api_key = os.environ.get('RUNWAY_API_KEY')
-        runway_base = os.environ.get('RUNWAY_API_URL', 'https://api.runwayml.com/v1')
+        runway_base = os.environ.get('RUNWAY_API_URL', 'https://api.dev.runwayml.com/v1')
         runway_model = os.environ.get('RUNWAY_MODEL', 'gen-3')
         if not api_key:
             raise HTTPException(status_code=401, detail="RUNWAY_API_KEY missing for Runway provider.")
@@ -1193,7 +1194,11 @@ async def render_scene(req: RenderRequest, background_tasks: BackgroundTasks):
                     "duration": req.duration or 4,
                     "format": "mp4"
                 }
-                headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
+                headers = {
+                    "Authorization": f"Bearer {api_key}",
+                    "Content-Type": "application/json",
+                    "X-Runway-Version": "2024-11-06"
+                }
                 resp = await client.post(op_url, json=payload, headers=headers)
                 if resp.status_code >= 400:
                     logger.error("Runway API returned error: %s", resp.text)

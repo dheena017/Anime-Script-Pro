@@ -396,8 +396,8 @@ async function startServer() {
       }),
       process.env.RUNWAY_API_KEY 
         ? checkService(async (s) => {
-            const r = await fetch("https://api.runwayml.com/v1/operations/probe", { headers: { 'Authorization': `Bearer ${process.env.RUNWAY_API_KEY}` }, signal: s });
-            return { ok: r.status !== 401, status: r.status !== 401 ? "CONNECTED" : "AUTH ERROR (401)" };
+            const r = await fetch("https://api.dev.runwayml.com/v1/organization", { headers: { 'Authorization': `Bearer ${process.env.RUNWAY_API_KEY}`, 'X-Runway-Version': '2024-11-06' }, signal: s });
+            return { ok: r.status === 200, status: r.status === 200 ? "CONNECTED" : `AUTH ERROR (${r.status})` };
           }) 
         : Promise.resolve({ ok: false, status: "MISSING" }),
       process.env.ELEVENLABS_API_KEY ? checkService(s => fetchProbe("https://api.elevenlabs.io/v1/voices", { 'xi-api-key': process.env.ELEVENLABS_API_KEY as string }, s)) : Promise.resolve({ ok: false, status: "MISSING" }),
