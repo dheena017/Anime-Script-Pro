@@ -24,7 +24,7 @@ from loguru import logger
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
-from fastapi.openapi.docs import get_swagger_ui_html
+from fastapi.openapi.docs import get_swagger_ui_html, get_redoc_html
 
 from backend.database import async_engine, async_session, get_async_session, Tutorial
 from backend.user_manager import fastapi_users, auth_backend, UserRead, UserCreate, UserUpdate
@@ -185,13 +185,143 @@ app.include_router(fastapi_users.get_users_router(UserRead, UserUpdate), prefix=
 async def get_docs():
     return get_swagger_ui_html(openapi_url="/openapi.json", title="Neural Engine - Docs", swagger_css_url="/static/docs/swagger-custom.css")
 
+@app.get("/redoc", include_in_schema=False)
+async def get_redoc():
+    return get_redoc_html(openapi_url="/openapi.json", title="Neural Engine - Reference")
+
 @app.get("/health", tags=["system"])
 async def health_check():
     return {"status": "ok", "version": "2.5.0-PRO"}
 
+def mask_key(key: Optional[str]) -> str:
+    if not key:
+        return "MISSING"
+    if len(key) <= 8:
+        return "INVALID"
+    
+    prefix = ""
+    clean_key = key
+    if key.startswith("sk-proj-"):
+        prefix = "sk-proj-"
+        clean_key = key[8:]
+    elif key.startswith("sk-ant-"):
+        prefix = "sk-ant-"
+        clean_key = key[7:]
+    elif key.startswith("gsk_"):
+        prefix = "gsk_"
+        clean_key = key[4:]
+    elif key.startswith("sk-"):
+        prefix = "sk-"
+        clean_key = key[3:]
+        
+    visible_prefix = prefix + clean_key[:3]
+    visible_suffix = clean_key[-4:]
+    return f"CONNECTED ({visible_prefix}...{visible_suffix})"
+
+@app.get("/api/system/integrity", tags=["system"])
+async def system_integrity():
+    import httpx
+    gemini_key = os.environ.get("GEMINI_API_KEY") or os.environ.get("VITE_GEMINI_API_KEY")
+    openai_key = os.environ.get("OPENAI_API_KEY")
+    anthropic_key = os.environ.get("ANTHROPIC_API_KEY")
+    groq_key = os.environ.get("GROQ_API_KEY")
+    runway_key = os.environ.get("RUNWAY_API_KEY")
+    elevenlabs_key = os.environ.get("ELEVENLABS_API_KEY")
+    hf_token = os.environ.get("HF_API_TOKEN")
+    supabase_url = os.environ.get("VITE_SUPABASE_URL")
+    supabase_key = os.environ.get("VITE_SUPABASE_ANON_KEY")
+
+    results = {}
+
+    async with httpx.AsyncClient(timeout=5.0) as client:
+        # 1. Gemini
+        if gemini_key:
+            try:
+                r = await client.get(f"https://generativelanguage.googleapis.com/v1beta/models?key={gemini_key}")
+                results["Gemini"] = {"ok": r.is_success, "status": mask_key(gemini_key) if r.is_success else f"AUTH ERROR ({r.status_code})"}
+            except Exception as e:
+                results["Gemini"] = {"ok": False, "status": f"OFFLINE ({str(e)})"}
+        else:
+            results["Gemini"] = {"ok": False, "status": "MISSING"}
+
+        # 2. OpenAI
+        if openai_key:
+            try:
+                r = await client.get("https://api.openai.com/v1/models", headers={"Authorization": f"Bearer {openai_key}"})
+                results["OpenAI"] = {"ok": r.is_success, "status": mask_key(openai_key) if r.is_success else f"AUTH ERROR ({r.status_code})"}
+            except Exception as e:
+                results["OpenAI"] = {"ok": False, "status": f"OFFLINE ({str(e)})"}
+        else:
+            results["OpenAI"] = {"ok": False, "status": "MISSING"}
+
+        # 3. Anthropic
+        if anthropic_key:
+            try:
+                r = await client.get("https://api.anthropic.com/v1/models", headers={"x-api-key": anthropic_key, "anthropic-version": "2023-06-01"})
+                results["Anthropic"] = {"ok": r.is_success, "status": mask_key(anthropic_key) if r.is_success else f"AUTH ERROR ({r.status_code})"}
+            except Exception as e:
+                results["Anthropic"] = {"ok": False, "status": f"OFFLINE ({str(e)})"}
+        else:
+            results["Anthropic"] = {"ok": False, "status": "MISSING"}
+
+        # 4. Groq
+        if groq_key:
+            try:
+                r = await client.get("https://api.groq.com/openai/v1/models", headers={"Authorization": f"Bearer {groq_key}"})
+                results["Groq"] = {"ok": r.is_success, "status": mask_key(groq_key) if r.is_success else f"AUTH ERROR ({r.status_code})"}
+            except Exception as e:
+                results["Groq"] = {"ok": False, "status": f"OFFLINE ({str(e)})"}
+        else:
+            results["Groq"] = {"ok": False, "status": "MISSING"}
+
+        # 5. Runway
+        if runway_key:
+            try:
+                r = await client.get("https://api.runwayml.com/v1/operations/probe", headers={"Authorization": f"Bearer {runway_key}"})
+                results["Runway"] = {"ok": r.status_code != 401, "status": mask_key(runway_key) if r.status_code != 401 else "AUTH ERROR (401)"}
+            except Exception as e:
+                results["Runway"] = {"ok": False, "status": f"OFFLINE ({str(e)})"}
+        else:
+            results["Runway"] = {"ok": False, "status": "MISSING"}
+
+        # 6. ElevenLabs
+        if elevenlabs_key:
+            try:
+                r = await client.get("https://api.elevenlabs.io/v1/voices", headers={"xi-api-key": elevenlabs_key})
+                results["ElevenLabs"] = {"ok": r.is_success, "status": mask_key(elevenlabs_key) if r.is_success else f"AUTH ERROR ({r.status_code})"}
+            except Exception as e:
+                results["ElevenLabs"] = {"ok": False, "status": f"OFFLINE ({str(e)})"}
+        else:
+            results["ElevenLabs"] = {"ok": False, "status": "MISSING"}
+
+        # 7. Hugging Face
+        if hf_token:
+            try:
+                r = await client.get("https://huggingface.co/api/whoami-v2", headers={"Authorization": f"Bearer {hf_token}"})
+                results["HuggingFace"] = {"ok": r.is_success, "status": mask_key(hf_token) if r.is_success else f"AUTH ERROR ({r.status_code})"}
+            except Exception as e:
+                results["HuggingFace"] = {"ok": False, "status": f"OFFLINE ({str(e)})"}
+        else:
+            results["HuggingFace"] = {"ok": False, "status": "MISSING"}
+
+        # 8. Supabase
+        if supabase_url and supabase_key:
+            try:
+                r = await client.get(f"{supabase_url}/rest/v1/", headers={"apikey": supabase_key, "Authorization": f"Bearer {supabase_key}"})
+                results["Supabase"] = {"ok": r.is_success, "status": "CONNECTED" if r.is_success else f"AUTH ERROR ({r.status_code})"}
+            except Exception as e:
+                results["Supabase"] = {"ok": False, "status": f"OFFLINE ({str(e)})"}
+        else:
+            results["Supabase"] = {"ok": False, "status": "MISSING"}
+
+    return results
+
 @app.get("/", tags=["system"], include_in_schema=False)
 async def root(request: Request):
-    return templates.TemplateResponse(request, "index.html")
+    return templates.TemplateResponse(request, "index.html", {
+        "environment": os.environ.get("ENV", "development"),
+        "version": "2.5.0-PRO"
+    })
 
 # --- WebSocket ---
 class ConnectionManager:

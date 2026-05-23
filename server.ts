@@ -288,153 +288,6 @@ async function startServer() {
     const nodeVersion = process.version;
     const envName = process.env.NODE_ENV || "development";
 
-    let openAiStatus = "MISSING";
-    let openAiOk = false;
-    let anthropicStatus = "MISSING";
-    let anthropicOk = false;
-    let groqStatus = "MISSING";
-    let groqOk = false;
-    let supabaseStatus = "MISSING";
-    let supabaseOk = false;
-    let fastApiStatus = "UNKNOWN";
-    let fastApiProbe = "No response";
-
-    const aiProviders = [
-      { name: "OpenAI", envKey: !!process.env.OPENAI_API_KEY },
-      { name: "Anthropic", envKey: !!process.env.ANTHROPIC_API_KEY },
-      { name: "Groq", envKey: !!process.env.GROQ_API_KEY },
-    ];
-
-    const probePromises: Promise<any>[] = [];
-
-    // OpenAI Real Authentication Check
-    if (openai) {
-      probePromises.push((async () => {
-        try {
-          const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 2000);
-          await openai.models.list({ signal: controller.signal } as any);
-          clearTimeout(timeoutId);
-          openAiStatus = "CONNECTED";
-          openAiOk = true;
-        } catch (err: any) {
-          if (err.name === 'AbortError') {
-            openAiStatus = "TIMEOUT";
-          } else {
-            openAiStatus = `AUTH ERROR (${err.status || err.message || 'Key invalid'})`;
-          }
-        }
-      })());
-    } else if (process.env.OPENAI_API_KEY) {
-      openAiStatus = "AUTH ERROR";
-    }
-
-    // Anthropic Real Authentication Check
-    if (anthropic) {
-      probePromises.push((async () => {
-        try {
-          const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 2000);
-          await anthropic.models.list({ signal: controller.signal } as any);
-          clearTimeout(timeoutId);
-          anthropicStatus = "CONNECTED";
-          anthropicOk = true;
-        } catch (err: any) {
-          if (err.name === 'AbortError') {
-            anthropicStatus = "TIMEOUT";
-          } else {
-            anthropicStatus = `AUTH ERROR (${err.status || err.message || 'Key invalid'})`;
-          }
-        }
-      })());
-    } else if (process.env.ANTHROPIC_API_KEY) {
-      anthropicStatus = "AUTH ERROR";
-    }
-
-    // Groq Real Authentication Check
-    if (groq) {
-      probePromises.push((async () => {
-        try {
-          const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 2000);
-          await groq.models.list({ signal: controller.signal } as any);
-          clearTimeout(timeoutId);
-          groqStatus = "CONNECTED";
-          groqOk = true;
-        } catch (err: any) {
-          if (err.name === 'AbortError') {
-            groqStatus = "TIMEOUT";
-          } else {
-            groqStatus = `AUTH ERROR (${err.status || err.message || 'Key invalid'})`;
-          }
-        }
-      })());
-    } else if (process.env.GROQ_API_KEY) {
-      groqStatus = "AUTH ERROR";
-    }
-
-    // Supabase Real Authentication Check
-    if (process.env.VITE_SUPABASE_URL && process.env.VITE_SUPABASE_ANON_KEY) {
-      probePromises.push((async () => {
-        try {
-          const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 2000);
-          const start = Date.now();
-          const response = await fetch(`${process.env.VITE_SUPABASE_URL}/rest/v1/`, {
-            headers: {
-              'apikey': process.env.VITE_SUPABASE_ANON_KEY || "",
-              'Authorization': `Bearer ${process.env.VITE_SUPABASE_ANON_KEY || ""}`
-            },
-            signal: controller.signal
-          }).catch(() => null);
-          clearTimeout(timeoutId);
-          if (response && response.ok) {
-            supabaseStatus = `CONNECTED (${Date.now() - start}ms)`;
-            supabaseOk = true;
-          } else {
-            supabaseStatus = `AUTH ERROR (status: ${response ? response.status : 'No response'})`;
-          }
-        } catch (err: any) {
-          if (err.name === 'AbortError') {
-            supabaseStatus = "TIMEOUT";
-          } else {
-            supabaseStatus = `OFFLINE (${err.message || 'Connection failed'})`;
-          }
-        }
-      })());
-    } else if (process.env.VITE_SUPABASE_URL || process.env.VITE_SUPABASE_ANON_KEY) {
-      supabaseStatus = "CONFIGURATION INCOMPLETE";
-    }
-
-    // FastAPI Real Health Check
-    probePromises.push((async () => {
-      try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 2000);
-        const response = await fetch(`${BACKEND_URL}/health`, { signal: controller.signal }).catch(() => null);
-        clearTimeout(timeoutId);
-        if (response && response.ok) {
-          fastApiStatus = "ONLINE";
-          const json = await response.json().catch(() => null);
-          fastApiProbe = json && typeof json === 'object'
-            ? `status=${json.status || 'ok'} version=${json.version || 'n/a'}`
-            : "healthy";
-        } else {
-          fastApiStatus = "OFFLINE";
-          fastApiProbe = response ? `status=${response.status}` : "no connection";
-        }
-      } catch (error: any) {
-        fastApiStatus = "OFFLINE";
-        fastApiProbe = error?.name === 'AbortError' ? "timeout" : (error?.message || "fetch failed");
-      }
-    })());
-
-    // Wait for all checks to complete concurrently (maximum 2 seconds delay)
-    await Promise.all(probePromises);
-
-    const activeProviders = [openAiOk, anthropicOk, groqOk].filter(Boolean).length;
-    const configuredProviders = aiProviders.filter(p => p.envKey).length;
-
     // Smart Key Masking helper
     const getMaskedStatus = (status: string, key: string | undefined) => {
       if (status === "CONNECTED" && key) {
@@ -483,25 +336,100 @@ async function startServer() {
       return status;
     };
 
+    // Unified Service Prober
+    const checkService = async (
+      testFn: (signal: AbortSignal) => Promise<{ ok: boolean, status: string }>
+    ) => {
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000);
+        const res = await testFn(controller.signal);
+        clearTimeout(timeoutId);
+        return res;
+      } catch (err: any) {
+        if (err.name === 'AbortError' || (err.message && err.message.includes('aborted'))) {
+          return { ok: false, status: "TIMEOUT" };
+        }
+        return { ok: false, status: `OFFLINE (${err.message || 'Error'})` };
+      }
+    };
+
+    const fetchProbe = async (url: string, headers: HeadersInit, signal: AbortSignal) => {
+      const response = await fetch(url, { headers, signal });
+      return { ok: response.ok, status: response.ok ? "CONNECTED" : `AUTH ERROR (${response.status})` };
+    };
+
+    const sdkProbe = async (promise: Promise<any>) => {
+      await promise;
+      return { ok: true, status: "CONNECTED" };
+    };
+
+    const geminiKey = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY;
+
+    // Run Probes Concurrently
+    const [
+      resGemini, resOpenAI, resAnthropic, resGroq,
+      resSupabase, resFastAPI, resRunway, resElevenLabs, resHf
+    ] = await Promise.all([
+      geminiKey ? checkService(s => fetchProbe(`https://generativelanguage.googleapis.com/v1beta/models?key=${geminiKey}`, {}, s)) : Promise.resolve({ ok: false, status: "MISSING" }),
+      openai ? checkService(s => sdkProbe(openai.models.list({ signal: s } as any))) : Promise.resolve({ ok: false, status: process.env.OPENAI_API_KEY ? "AUTH ERROR" : "MISSING" }),
+      anthropic ? checkService(s => sdkProbe(anthropic.models.list({ signal: s } as any))) : Promise.resolve({ ok: false, status: process.env.ANTHROPIC_API_KEY ? "AUTH ERROR" : "MISSING" }),
+      groq ? checkService(s => sdkProbe(groq.models.list({ signal: s } as any))) : Promise.resolve({ ok: false, status: process.env.GROQ_API_KEY ? "AUTH ERROR" : "MISSING" }),
+      (process.env.VITE_SUPABASE_URL && process.env.VITE_SUPABASE_ANON_KEY) 
+        ? checkService(async (s) => {
+            const start = Date.now();
+            const r = await fetchProbe(`${process.env.VITE_SUPABASE_URL}/rest/v1/`, {
+              'apikey': process.env.VITE_SUPABASE_ANON_KEY as string,
+              'Authorization': `Bearer ${process.env.VITE_SUPABASE_ANON_KEY}`
+            }, s);
+            if (r.ok) r.status = `CONNECTED (${Date.now() - start}ms)`;
+            return r;
+          })
+        : Promise.resolve({ ok: false, status: (process.env.VITE_SUPABASE_URL || process.env.VITE_SUPABASE_ANON_KEY) ? "CONFIGURATION INCOMPLETE" : "MISSING" }),
+      checkService(async (s) => {
+        const r = await fetch(`${BACKEND_URL}/health`, { signal: s }).catch(() => null);
+        if (r && r.ok) {
+          const json = await r.json().catch(() => null);
+          return { ok: true, status: "ONLINE", detail: json && typeof json === 'object' ? `status=${json.status || 'ok'} version=${json.version || 'n/a'}` : "healthy" };
+        }
+        return { ok: false, status: "OFFLINE", detail: r ? `status=${r.status}` : "no connection" };
+      }),
+      process.env.RUNWAY_API_KEY 
+        ? checkService(async (s) => {
+            const r = await fetch("https://api.runwayml.com/v1/operations/probe", { headers: { 'Authorization': `Bearer ${process.env.RUNWAY_API_KEY}` }, signal: s });
+            return { ok: r.status !== 401, status: r.status !== 401 ? "CONNECTED" : "AUTH ERROR (401)" };
+          }) 
+        : Promise.resolve({ ok: false, status: "MISSING" }),
+      process.env.ELEVENLABS_API_KEY ? checkService(s => fetchProbe("https://api.elevenlabs.io/v1/voices", { 'xi-api-key': process.env.ELEVENLABS_API_KEY as string }, s)) : Promise.resolve({ ok: false, status: "MISSING" }),
+      process.env.HF_API_TOKEN ? checkService(s => fetchProbe("https://huggingface.co/api/whoami-v2", { 'Authorization': `Bearer ${process.env.HF_API_TOKEN}` }, s)) : Promise.resolve({ ok: false, status: "MISSING" }),
+    ]);
+
+    const activeProviders = [resGemini.ok, resOpenAI.ok, resAnthropic.ok, resGroq.ok].filter(Boolean).length;
+    const configuredProviders = [geminiKey, process.env.OPENAI_API_KEY, process.env.ANTHROPIC_API_KEY, process.env.GROQ_API_KEY].filter(Boolean).length;
+
     // Core Services Check
     console.log("\n" + bold("--- SYSTEM INTEGRITY CHECK ---"));
 
-    const check = (name: string, status: string, isOk: boolean) => {
+    const printCheck = (name: string, status: string, isOk: boolean) => {
       const statusText = isOk ? green(status) : red(status);
       const symbol = isOk ? "✅" : "❌";
       console.log(`${symbol} ${name.padEnd(18)} : ${statusText}`);
     };
 
-    check("Node.js", nodeVersion, true);
-    check("Environment", envName, true);
-    check("OpenAI", getMaskedStatus(openAiStatus, process.env.OPENAI_API_KEY), openAiOk);
-    check("Anthropic", getMaskedStatus(anthropicStatus, process.env.ANTHROPIC_API_KEY), anthropicOk);
-    check("Groq", getMaskedStatus(groqStatus, process.env.GROQ_API_KEY), groqOk);
-    check("AI Providers", `${activeProviders}/${aiProviders.length} active (${configuredProviders} configured)`, activeProviders > 0);
-    check("FastAPI", `${fastApiStatus} (${fastApiProbe})`, fastApiStatus === "ONLINE");
-    check("Supabase API", getMaskedSupabase(supabaseStatus, process.env.VITE_SUPABASE_URL), supabaseOk);
+    printCheck("Node.js", nodeVersion, true);
+    printCheck("Environment", envName, true);
+    printCheck("Gemini", getMaskedStatus(resGemini.status, geminiKey), resGemini.ok);
+    printCheck("OpenAI", getMaskedStatus(resOpenAI.status, process.env.OPENAI_API_KEY), resOpenAI.ok);
+    printCheck("Anthropic", getMaskedStatus(resAnthropic.status, process.env.ANTHROPIC_API_KEY), resAnthropic.ok);
+    printCheck("Groq", getMaskedStatus(resGroq.status, process.env.GROQ_API_KEY), resGroq.ok);
+    printCheck("AI Providers", `${activeProviders}/4 active (${configuredProviders} configured)`, activeProviders > 0);
+    printCheck("FastAPI", `${resFastAPI.status} (${(resFastAPI as any).detail})`, resFastAPI.ok);
+    printCheck("Supabase API", getMaskedSupabase(resSupabase.status, process.env.VITE_SUPABASE_URL), resSupabase.ok);
+    printCheck("Runway API", getMaskedStatus(resRunway.status, process.env.RUNWAY_API_KEY), resRunway.ok);
+    printCheck("ElevenLabs API", getMaskedStatus(resElevenLabs.status, process.env.ELEVENLABS_API_KEY), resElevenLabs.ok);
+    printCheck("Hugging Face", getMaskedStatus(resHf.status, process.env.HF_API_TOKEN), resHf.ok);
 
-    if (fastApiStatus === "ONLINE") {
+    if (resFastAPI.ok) {
       console.log(`\n${bold(green("[SUCCESS]"))} Intelligence Layer verified at ${BACKEND_URL}`);
     } else {
       console.log(`\n${bold(red("[CRITICAL]"))} Intelligence Layer (FastAPI) is ${bold("OFFLINE")}`);
