@@ -5,6 +5,11 @@ from datetime import datetime
 from backend.database import async_session, get_async_session, AsyncSession
 from backend.database.models.engine import EngineConfig, AITelemetry, AIModel
 from pydantic import BaseModel
+from backend.lib.text_models import DEFAULT_TEXT_MODELS
+from backend.lib.image_models import DEFAULT_IMAGE_MODELS
+from backend.lib.video_models import DEFAULT_VIDEO_MODELS
+from backend.lib.agent_models import DEFAULT_AGENT_MODELS
+from backend.lib.audio_models import DEFAULT_AUDIO_MODELS
 
 router = APIRouter(prefix="/api/engine", tags=["Engine Nexus"])
 
@@ -82,6 +87,21 @@ async def get_recent_telemetry(limit: int = 50, session: AsyncSession = Depends(
 
 @router.get("/models")
 async def list_ai_models(session: AsyncSession = Depends(get_async_session)):
+    # Fetch active models from DB
     statement = select(AIModel).where(AIModel.is_active == True)
     result = await session.execute(statement)
-    return result.scalars().all()
+    db_models = result.scalars().all()
+
+    # Compose default registry from split modules
+    defaults = DEFAULT_TEXT_MODELS + DEFAULT_IMAGE_MODELS + DEFAULT_VIDEO_MODELS + DEFAULT_AGENT_MODELS + DEFAULT_AUDIO_MODELS
+    # Remove duplicates and any that exist in DB
+    db_ids = {m.model_id for m in db_models}
+    unique_defaults = [m for m in dict.fromkeys(defaults) if m not in db_ids]
+
+    # Build AIModel-like entries for defaults (minimal fields)
+    default_entries = [
+        AIModel(model_id=m, provider="registry", display_name=m, capabilities={}, is_active=True)
+        for m in unique_defaults
+    ]
+
+    return db_models + default_entries

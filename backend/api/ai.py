@@ -17,6 +17,12 @@ from backend.utils.deps import get_auth_user_id
 from backend.ai_engine import AIEngine, ai_engine, build_genai_client, stream_ai
 from backend.schemas import GenerationRequest, GenerationResponse
 import uuid
+# Model registries split into focused modules
+from backend.lib.text_models import DEFAULT_TEXT_MODELS
+from backend.lib.image_models import DEFAULT_IMAGE_MODELS
+from backend.lib.video_models import DEFAULT_VIDEO_MODELS
+from backend.lib.agent_models import DEFAULT_AGENT_MODELS
+from backend.lib.audio_models import DEFAULT_AUDIO_MODELS
 
 router = APIRouter(prefix="/api", tags=["AI Engine"])
 
@@ -110,21 +116,13 @@ MODEL_MAP = {
     "nemotron-70b": "nvidia/llama-3.1-nemotron-70b-instruct"
 }
 
-STABLE_MODELS = [
-    "gemini-3.1-flash", "gemini-3.1-flash-lite", "gemini-3-flash", 
-    "gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-1.5-flash",
-    "gemini-3.1-pro", "gemini-3-pro", "gemini-2.5-pro", "gemini-1.5-pro",
-    "gemini-2.0-flash", "gemini-2.0-flash-lite", "gemini-2.0-pro",
-    "gemini-1.5-flash", "gemini-1.5-pro",
-    "gemma-3-27b", "gpt-4o", "gpt-4o-mini", "gpt-4-turbo", "o1-preview", "o1-mini",
-    "nvidia/llama-3.1-nemotron-70b-instruct", "meta/llama-3.1-70b-instruct",
-    "gemini-3.1-flash-image-preview", "gemini-2.5-flash-image", "gemini-3-pro-image-preview",
-    "imagen-4-ultra", "imagen-4-fast", "gemini-3-pro-image",
-    "flux-1-schnell", "stable-diffusion-xl", "stable-diffusion-3.5",
-    "hugging-face-inference", "deepai", "together-ai-replicate",
-    "leonardo-ai", "civitai", "flux-2-pro", "gpt-image-1.5",
-    "recraft-v4", "ideogram-3.0", "midjourney-v7", "fal-ai", "replicate"
-]
+STABLE_MODELS = list(dict.fromkeys(
+    DEFAULT_TEXT_MODELS
+    + DEFAULT_IMAGE_MODELS
+    + DEFAULT_VIDEO_MODELS
+    + DEFAULT_AGENT_MODELS
+    + DEFAULT_AUDIO_MODELS
+))
 
 async def get_api_key(user_id: str, target_model: str) -> str:
     """Resolve API key from user settings or environment based on provider and mode."""
