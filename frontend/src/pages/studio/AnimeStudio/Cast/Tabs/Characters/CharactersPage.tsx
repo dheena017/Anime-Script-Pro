@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { Plus, ListFilter, Search, Layout as LayoutGrid, List, User, Camera } from 'lucide-react';
 import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
+import { useStudioBasePath } from '@/hooks/useStudioBasePath';
 import { StudioEditor } from '../../../components/StudioEditor';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
@@ -11,6 +12,7 @@ import { StudioEmptyState } from '@/pages/studio/components/studio/shared/Studio
 
 export default function CharactersPage() {
   const navigate = useNavigate();
+  const basePath = useStudioBasePath();
   const { 
     castList, 
     isEditing,
@@ -78,13 +80,16 @@ export default function CharactersPage() {
               "h-10 px-6 rounded-xl border font-black uppercase tracking-widest text-xs transition-all duration-300",
               isEditing ? "bg-studio text-black border-studio shadow-studio" : "bg-white/5 border-white/10 text-zinc-400 hover:text-studio hover:border-studio/30"
             )}
-            onClick={() => setIsEditing?.(!isEditing)}
+            onClick={() => {
+              if (isEditing) notify?.('Character manifest saved successfully!', 'success');
+              setIsEditing?.(!isEditing);
+            }}
           >
             {isEditing ? "Save Bios" : "Manual Edit"}
           </Button>
           <Button 
             className="bg-studio text-black font-black uppercase tracking-wider hover:bg-studio/80 shadow-studio"
-            onClick={() => navigate(`/${contentType.toLowerCase()}/cast/add-lead`)}
+            onClick={() => navigate(`${basePath}/cast/add-lead`)}
           >
             <Plus className="w-4 h-4 mr-2" /> New character
           </Button>
@@ -142,7 +147,7 @@ export default function CharactersPage() {
                 isEditing={isEditing}
                 onUpdate={(updates) => handleUpdateCharacter(idx, updates)}
                 onViewCharacter={(charName) => {
-                  navigate(`/${contentType.toLowerCase()}/cast/characters/${charName}`);
+                  navigate(`${basePath}/cast/characters/${charName}`);
                 }}
               />
             ))

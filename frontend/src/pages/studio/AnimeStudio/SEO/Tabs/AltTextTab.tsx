@@ -15,30 +15,6 @@ interface AltTextTabProps {
 export const AltTextTab: React.FC<AltTextTabProps> = ({ content, isGenerating, onGenerate }) => {
   return (
     <div className="space-y-6">
-      <div className={s.headerContainer}>
-        <div>
-          <h3 className={s.headerTitle}>
-            <div className="w-1.5 h-1.5 rounded-full bg-cyan-500 shadow-[0_0_8px_rgba(56,189,248,0.5)]" />
-            Alt Text Matrix
-          </h3>
-          <p className={s.headerSubtitle}>A descriptive alt text bundle for your storyboard imagery and marketing visuals.</p>
-        </div>
-
-        <Button
-          size="sm"
-          className={s.generateButtonBase + ' bg-cyan-600 text-black hover:bg-cyan-500 shadow-[0_0_25px_rgba(56,189,248,0.4)]'}
-          onClick={onGenerate}
-          disabled={isGenerating}
-        >
-          {isGenerating ? (
-            <div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin mr-3" />
-          ) : (
-            <Sparkles className="w-4 h-4 mr-3" />
-          )}
-          {isGenerating ? 'Generating...' : 'Generate'}
-        </Button>
-      </div>
-
       <Card className={cn(
         s.cardContainer,
         content ? 'border-cyan-500/30 shadow-[0_0_40px_rgba(56,189,248,0.1)]' : 'border-white/5 hover:border-cyan-500/20'
@@ -52,8 +28,30 @@ export const AltTextTab: React.FC<AltTextTabProps> = ({ content, isGenerating, o
               <p className={s.loadingText}>Creating descriptive, accessibility-ready alt captions for your visual content.</p>
             </div>
           ) : content ? (
-            <div className="prose prose-invert prose-cyan max-w-none animate-in fade-in slide-in-from-bottom-4 duration-1000 prose-h1:text-cyan-400 prose-strong:text-cyan-300 prose-p:text-zinc-400 prose-p:leading-relaxed prose-p:font-medium">
-              <ReactMarkdown>{content}</ReactMarkdown>
+            <div className="animate-in fade-in slide-in-from-bottom-4 duration-1000">
+              <ReactMarkdown
+                components={{
+                  h1: ({node, ...props}) => <h1 className="text-xl font-black text-white uppercase tracking-tighter mb-6 mt-10 first:mt-0" {...props} />,
+                  h2: ({node, ...props}) => <h2 className="text-lg font-black text-cyan-400 uppercase tracking-widest mb-4 mt-8" {...props} />,
+                  h3: ({node, ...props}) => <h3 className="text-sm font-black text-white uppercase tracking-wider mb-3 mt-6" {...props} />,
+                  p: ({node, ...props}) => <p className="mb-4 last:mb-0 leading-relaxed text-zinc-400 font-medium whitespace-pre-wrap" {...props} />,
+                  ul: ({node, ...props}) => <ul className="list-disc pl-5 mb-4 space-y-2" {...props} />,
+                  ol: ({node, ...props}) => <ol className="list-decimal pl-5 mb-4 space-y-2 font-medium" {...props} />,
+                  li: ({node, ...props}) => <li className="text-zinc-400 font-medium" {...props} />,
+                  strong: ({node, ...props}) => <strong className="text-cyan-300 font-black" {...props} />,
+                  em: ({node, ...props}) => <em className="italic text-zinc-300" {...props} />,
+                  blockquote: ({node, ...props}) => <blockquote className="border-l-2 border-cyan-500 pl-4 italic text-zinc-400 bg-cyan-500/5 p-3 rounded-r-lg my-4" {...props} />,
+                  code: ({node, inline, className, children, ...props}: any) => {
+                    return inline ? (
+                      <code className="px-2 py-0.5 rounded bg-white/5 border border-white/10 text-xs font-mono text-cyan-300" {...props}>{children}</code>
+                    ) : (
+                      <pre className="p-4 rounded-xl bg-black/40 border border-white/5 overflow-x-auto font-mono text-xs text-zinc-300 leading-relaxed my-4" {...props}>{children}</pre>
+                    );
+                  }
+                }}
+              >
+                {content}
+              </ReactMarkdown>
             </div>
           ) : (
             <div className={s.emptyStateContainer}>

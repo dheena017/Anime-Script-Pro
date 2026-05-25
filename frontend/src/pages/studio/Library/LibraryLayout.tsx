@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { StudioTabRail } from '../components/studio/shared/StudioTabRail';
 import { sharedStyles as s } from '../components/studio/shared/sharedStyles';
 import { LibraryHeader, Stat } from './components/LibraryHeader';
 import { LibraryToolbar } from './components/LibraryToolbar';
@@ -67,17 +68,7 @@ export const LibraryLayout: React.FC<LibraryLayoutProps> = ({
       />
 
       {/* SECTION 3: TABS */}
-      <div className="relative">
-        <nav className={s.tabList}>
-          {tabs.map((tab) => (
-            <button type="button" key={tab.id} onClick={() => onTabChange(tab.id)} className={cn(s.tabItem, activeTab === tab.id ? s.tabActive : s.tabInactive)}>
-              {activeTab === tab.id && <motion.div layoutId="libTab" className={s.tabIndicator} />}
-              <tab.icon className={cn("w-4 h-4 transition-colors relative z-10", activeTab === tab.id ? "text-[#bd4a4a]" : "text-zinc-700 hover:text-zinc-500")} />
-              <span className="relative z-10">{tab.label}</span>
-            </button>
-          ))}
-        </nav>
-      </div>
+      <StudioTabRail tabs={tabs} activeTab={activeTab} onTabChange={onTabChange} layoutId="libTab" />
 
       {/* SECTION 4: CONTENT */}
       <div className={s.moduleContent}>

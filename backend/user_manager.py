@@ -19,7 +19,7 @@ from fastapi_users import BaseUserManager, FastAPIUsers, schemas as fa_schemas
 from fastapi_users.authentication import AuthenticationBackend, BearerTransport, JWTStrategy
 from fastapi_users_db_sqlalchemy import SQLAlchemyUserDatabase
 
-from backend.database.models import User, UserProfile, UserBalance, UserSettings
+from backend.database.models import User, UserProfile, UserBalance, UserSettings, Notification
 from backend.database import get_async_session, async_session
 from loguru import logger
 from fastapi import Depends, Request, Response
@@ -68,6 +68,34 @@ class UserManager(BaseUserManager[User, str]):
                 logger.debug(f"PROVISION: Initializing Neural Config for {user.id}...")
                 settings = UserSettings(user_id=str(user.id))
                 session.add(settings)
+                
+                # 4. Provision default welcome notifications
+                logger.debug(f"PROVISION: Initializing Default Notifications for {user.id}...")
+                default_notifications = [
+                    Notification(
+                        user_id=str(user.id),
+                        title="Welcome to Anime Script Pro!",
+                        message="Your production environment v2.4.0 is fully operational. Open the 'Directives Hub' to start architecting your series.",
+                        type="SUCCESS",
+                        is_read=False
+                    ),
+                    Notification(
+                        user_id=str(user.id),
+                        title="Neural Firewall Status",
+                        message="Active security shield configured. Safe ORM and rate-limiting modules synchronized.",
+                        type="INFO",
+                        is_read=False
+                    ),
+                    Notification(
+                        user_id=str(user.id),
+                        title="Synapse Engine Ready",
+                        message="Connected to Node Alpha-3 US-East-1. Latency nominal. Synthesizers online.",
+                        type="INFO",
+                        is_read=False
+                    )
+                ]
+                for n in default_notifications:
+                    session.add(n)
                 
                 await session.commit()
                 logger.success(f"PROVISION: Full production workspace deployed for {user.id}")

@@ -1,17 +1,18 @@
 export * from "../generators/core";
-export * from "../generators/script";
+export * from "../generators/scriptGenerator";
 export {
   generateMetadata,
   generateYouTubeDescription,
   generateAltTexts,
   generateGrowthStrategy,
   generateDistributionStrategy
-} from "../generators/metadata";
-export * from "../generators/image";
-export * from "../generators/series";
-export * from "../generators/characters";
-export * from "../generators/utils";
-export * from "../generators/world";
+} from "../generators/seoGenerator";
 
-export * from "../generators/video";
+export * from "../generators/imageGenerator";
+export * from "../generators/seriesGenerator";
+export * from "../generators/characterGenerator";
+export * from "../generators/utilsGenerator";
+export * from "../generators/worldGenerator";
+
+export * from "../generators/videoGenerator";
 export * from "../generators/sceneGenerator";

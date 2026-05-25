@@ -50,7 +50,9 @@ export default function CastLayout() {
 
   const { showNotification } = useApp();
   const {
-    prompt, selectedModel, contentType, generatedWorld,
+    prompt, selectedModel, contentType, 
+    generatedWorld, generatedWorldLore, generatedWorldPowers, generatedWorldFactions,
+    generatedWorldArchitecture, generatedWorldAtlas, generatedWorldCulture, generatedWorldSystems,
     session, episode, generatedCharacters, isSaving, isGeneratingCharacters, isAnalyzingCast,
     generationProgress, numCharacters, castList  } = useGeneratorState();
   const { currentScriptId } = useGeneratorState();
@@ -97,6 +99,19 @@ export default function CastLayout() {
       setCastDynamics(null);
       setCastIntegrity(null);
 
+      // Consolidate all 8 dimensions of the custom world lore
+      const worldSections: string[] = [];
+      if (generatedWorld) worldSections.push(`=== WORLD MANIFEST ===\n${generatedWorld}`);
+      if (generatedWorldLore) worldSections.push(`=== HISTORY & ERAS ===\n${generatedWorldLore}`);
+      if (generatedWorldFactions) worldSections.push(`=== FACTIONS & POWER BALANCE ===\n${generatedWorldFactions}`);
+      if (generatedWorldPowers) worldSections.push(`=== SYSTEMS & MECHANICS ===\n${generatedWorldPowers}`);
+      if (generatedWorldArchitecture) worldSections.push(`=== VISUAL STYLE & ARCHITECTURE ===\n${generatedWorldArchitecture}`);
+      if (generatedWorldAtlas) worldSections.push(`=== GEOGRAPHY & ENVIRONMENT ===\n${generatedWorldAtlas}`);
+      if (generatedWorldCulture) worldSections.push(`=== CUSTOMS & ETHOS ===\n${generatedWorldCulture}`);
+      if (generatedWorldSystems) worldSections.push(`=== TECHNOLOGICAL INFRASTRUCTURE ===\n${generatedWorldSystems}`);
+      
+      const fullWorldLore = worldSections.join('\n\n');
+
       let result: any = null;
       if (handlers && handlers.handleGenerateCharacter) {
         try {
@@ -107,7 +122,7 @@ export default function CastLayout() {
         }
       } else {
         reportGeneration('CastLayout', 'Characters generation', 'request', 'anime');
-        result = await generateCharacters(prompt, selectedModel, contentType, generatedWorld || undefined, numCharacters);
+        result = await generateCharacters(prompt, selectedModel, contentType, fullWorldLore || undefined, numCharacters);
         reportGeneration('CastLayout', 'Characters generation', 'success', 'anime', { length: JSON.stringify(result)?.length || 0 });
       }
 

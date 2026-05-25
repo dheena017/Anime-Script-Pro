@@ -120,7 +120,25 @@ export async function createServer() {
     }
   });
 
+  const outputsProxy = createProxyMiddleware({
+    target: process.env.BACKEND_URL || "http://127.0.0.1:3050",
+    changeOrigin: true,
+    on: {
+      error: (err: any, req: any, res: any) => {
+        console.error(`${red('[PROXY CRITICAL]')} Connection error for static outputs: ${err.message}`);
+        if (res && !res.headersSent) {
+          res.status(502).json({
+            error: "Outputs Layer Unreachable",
+            details: "The FastAPI backend is not responding.",
+            message: err.message
+          });
+        }
+      }
+    }
+  });
+
   app.use('/api', apiProxy);
+  app.use('/outputs', outputsProxy);
 
   // WebSocket Proxy for Real-time Telemetry and Notifications
   const wsProxy = createProxyMiddleware({

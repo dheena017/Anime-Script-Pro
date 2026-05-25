@@ -23,6 +23,7 @@ const LoginPage = lazy(() => import('@/pages/auth/LoginPage').then(m => ({ defau
 const RegisterPage = lazy(() => import('@/pages/auth/RegisterPage').then(m => ({ default: m.RegisterPage })));
 const ForgotPasswordPage = lazy(() => import('@/pages/auth/ForgotPasswordPage').then(m => ({ default: m.ForgotPasswordPage })));
 const NotificationsPage = lazy(() => import('@/pages/studio/Notifications/NotificationsPage'));
+const PopNotificationShowcase = lazy(() => import('@/pages/studio/Notifications/PopNotificationShowcase'));
 const CreateProject = lazy(() => import('@/pages/projects/CreateProject'));
 const Dashboard = lazy(() => import('@/pages/dashboard/Dashboard'));
 const ProfilePage = lazy(() => import('@/pages/dashboard/ProfilePage').then(m => ({ default: m.ProfilePage })));
@@ -92,7 +93,7 @@ function AppRoutes() {
   const location = useLocation();
   return (
     <AnimatePresence mode="wait">
-      <Routes location={location}>
+      <Routes location={location} key={location.pathname}>
         {/* Public Routes */}
         <Route path="/" element={<PageTransition><LandingPage /></PageTransition>} />
         <Route path="/auth" element={<PageTransition><AuthPage /></PageTransition>} />
@@ -108,6 +109,7 @@ function AppRoutes() {
         {/* Studio Global Layout */}
         <Route element={<AuthRoute><StudioLayout /></AuthRoute>}>
           <Route path="/dashboard" element={<PageTransition><Dashboard /></PageTransition>} />
+          <Route path="/notifications/showcase" element={<PageTransition><PopNotificationShowcase /></PageTransition>} />
           <Route path="/notifications/*" element={<PageTransition><NotificationsPage /></PageTransition>} />
           <Route path="/profile" element={<PageTransition><ProfilePage /></PageTransition>} />
           <Route path="/system/*" element={<PageTransition><SystemModule /></PageTransition>} />

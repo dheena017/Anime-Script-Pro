@@ -47,18 +47,43 @@ export default defineConfig(({ mode }) => {
     },
     build: {
       outDir: path.resolve(__dirname, '../dist'),
-      chunkSizeWarningLimit: 2000, // Increased for Studio heavy-lifting
+      chunkSizeWarningLimit: 1500,
       cssCodeSplit: true,
       reportCompressedSize: false, // Speed up builds
+      assetsInlineLimit: 4096,    // Only inline assets < 4KB
       rollupOptions: {
         output: {
+          // Manual chunks — only libraries that can be independently separated
+          // Note: react, react-dom, openai, anthropic, groq are statically co-imported
+          // with app code so Rollup cannot split them (they become empty if declared).
           manualChunks: {
-            'studio-core': ['react', 'react-dom', 'react-router-dom'],
-            'studio-ai': ['@google/genai', 'openai', 'groq-sdk', '@anthropic-ai/sdk'],
-            'studio-ui': ['lucide-react', 'motion', '@base-ui/react', 'framer-motion'],
-            'studio-data': ['axios', '@tanstack/react-query', 'jspdf', 'jspdf-autotable'],
+            // Router — loaded once, cached long-term
+            'vendor-router': ['react-router-dom'],
+
+            // Google AI SDK — largest standalone AI dep (~289KB)
+            'ai-google': ['@google/genai'],
+
+            // UI icon library — heavy but tree-shakeable per route
+            'ui-icons': ['lucide-react'],
+
+            // Animation runtimes — route-independent, large
+            'ui-motion': ['motion', 'framer-motion'],
+
+            // Base UI headless components
+            'ui-base': ['@base-ui/react'],
+
+            // Data layer
+            'data-query': ['@tanstack/react-query'],
+            'data-http': ['axios'],
+            'data-pdf': ['jspdf', 'jspdf-autotable'],
+
+            // Tiny CSS utility belt
             'studio-utils': ['clsx', 'tailwind-merge', 'class-variance-authority'],
-          }
+          },
+          // Deterministic hashed filenames for long-term caching
+          chunkFileNames: 'assets/[name]-[hash].js',
+          entryFileNames: 'assets/[name]-[hash].js',
+          assetFileNames: 'assets/[name]-[hash][extname]',
         }
       }
     },
@@ -73,6 +98,11 @@ export default defineConfig(({ mode }) => {
       },
       proxy: {
         '/api': {
+          target: 'http://127.0.0.1:3050',
+          changeOrigin: true,
+          secure: false,
+        },
+        '/outputs': {
           target: 'http://127.0.0.1:3050',
           changeOrigin: true,
           secure: false,

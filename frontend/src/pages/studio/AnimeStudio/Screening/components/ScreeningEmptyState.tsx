@@ -4,11 +4,13 @@ import { StudioEmptyState } from '@/pages/studio/components/studio/shared/Studio
 
 interface ScreeningEmptyStateProps {
   onLaunch: () => void;
+  onLoadDemo?: () => void;
   isGenerating: boolean;
 }
 
 export const ScreeningEmptyState: React.FC<ScreeningEmptyStateProps> = ({
   onLaunch,
+  onLoadDemo,
   isGenerating
 }) => {
   const features = [
@@ -22,6 +24,8 @@ export const ScreeningEmptyState: React.FC<ScreeningEmptyStateProps> = ({
       icon={Play}
       title="Projector Inactive"
       description="The final assembly of your anime assets has not been synthesized. Initialize the Screening Room to combine script, storyboard, and audio into a final production."
+      secondaryActionLabel="Load Aetheria Demo Project"
+      onSecondaryAction={onLoadDemo}
       features={features}
       accentColor="emerald"
     />

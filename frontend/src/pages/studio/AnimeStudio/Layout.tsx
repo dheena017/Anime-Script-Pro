@@ -146,9 +146,9 @@ export default function AnimeLayout() {
 
     try {
       // Dynamic imports to optimize initial bundle
-      const { generateWorld } = await import('@/services/generators/world');
-      const { generateCharacters } = await import('@/services/generators/characters');
-      const { generateSeriesPlan } = await import('@/services/generators/series');
+      const { generateWorld } = await import('@/services/generators/worldGenerator');
+      const { generateCharacters } = await import('@/services/generators/characterGenerator');
+      const { generateSeriesPlan } = await import('@/services/generators/seriesGenerator');
       const { generateScript, generateImagePrompts, generateMetadata } = await import('@/services/api/gemini');
 
       // PHASE 1: WORLD Architecture
@@ -186,7 +186,7 @@ export default function AnimeLayout() {
       addGeneratorLog("SCRIPT", "STARTING", "Generating Episode 1 Script (Streaming)...");
       const ep1Plan = seriesPlan?.find((ep: any) => parseInt(ep.episode) === 1);
       
-      const { generateScriptStream } = await import('@/services/generators/script');
+      const { generateScriptStream } = await import('@/services/generators/scriptGenerator');
       
       const script = await generateScriptStream(
         prompt, tone, audience, "1", "1", numScenes, selectedModel, 'Anime',
@@ -239,7 +239,7 @@ export default function AnimeLayout() {
     addGeneratorLog("WORLD", "INITIALIZED", "Generating World Foundation...");
 
     try {
-      const { generateWorld } = await import('@/services/generators/world');
+      const { generateWorld } = await import('@/services/generators/worldGenerator');
       const world = await generateWorld(prompt, selectedModel, 'Anime');
       setGeneratedWorld(world);
       addGeneratorLog("WORLD", "COMPLETED", "Lore synchronized to core.");
@@ -280,7 +280,7 @@ export default function AnimeLayout() {
     navigate(`${basePath}/script`);
 
     try {
-      const { generateScriptStream } = await import('@/services/generators/script');
+      const { generateScriptStream } = await import('@/services/generators/scriptGenerator');
       const currentEpisodePlan = generatedSeriesPlan?.find((ep: any) => parseInt(ep.episode) === parseInt(episode));
       const script = await generateScriptStream(
         prompt, tone, audience, session, episode, numScenes, selectedModel, 'Anime', recapperPersona, characterRelationships, generatedWorld, generatedCharacters, 

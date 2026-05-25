@@ -4,13 +4,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
 import { useAuth } from '@/hooks/useAuth';
 import { generateMetadata } from '@/services/api/gemini';
-import { useSEODispatch } from '@/contexts/generator';
+import { useSEOState, useSEODispatch } from '@/contexts/generator';
 import { SEOHeader } from './components/SEOHeader';
 import { SEOToolbar } from './components/SEOToolbar';
 import { SEOTabs, SEOTab } from './Tabs/SEOTabs';
 import { SEOLoadingPage } from './components/SEOLoadingPage';
 import { StudioTabsProgressBar } from '@/pages/studio/components/studio/layout/StudioTabsProgressBar';
 import { seoStyles as s } from './seoStyles';
+import { growthApi } from '@/services/api/growth';
 
 export const SEOContext = React.createContext<{
   setHandlers: React.Dispatch<React.SetStateAction<any>>;
@@ -20,7 +21,8 @@ export default function SEOLayout() {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [, setHandlers] = React.useState<any>({});
+  const activeTab = (searchParams.get('tab') as SEOTab) || 'keywords';
+  const [handlers, setHandlers] = React.useState<any>({});
 
   const {
     generatedMetadata,
@@ -46,8 +48,90 @@ export default function SEOLayout() {
 
   const {
     setGeneratedDescription, setGeneratedAltText,
-    setGeneratedDistributionPlan
+    setGeneratedDistributionPlan, setGeneratedGrowthStrategy
   } = useSEODispatch();
+
+  const {
+    generatedMetadata: localMetadata,
+    generatedDescription,
+    generatedAltText,
+    generatedGrowthStrategy,
+    generatedDistributionPlan,
+    isGeneratingMetadata,
+    isGeneratingDescription,
+    isGeneratingAltText,
+    isGeneratingGrowthStrategy,
+    isGeneratingDistribution,
+  } = useSEOState();
+
+  const isGeneratingActive = React.useMemo(() => {
+    switch (activeTab) {
+      case 'keywords':
+      case 'tags':
+        return isGeneratingMetadata;
+      case 'description':
+        return isGeneratingDescription;
+      case 'alt':
+        return isGeneratingAltText;
+      case 'distribution':
+        return isGeneratingDistribution;
+      case 'growth':
+        return isGeneratingGrowthStrategy;
+      default:
+        return false;
+    }
+  }, [activeTab, isGeneratingMetadata, isGeneratingDescription, isGeneratingAltText, isGeneratingDistribution, isGeneratingGrowthStrategy]);
+
+  const handleGenerateActive = React.useCallback(() => {
+    switch (activeTab) {
+      case 'keywords':
+      case 'tags':
+        handlers.handleGenerateMetadata?.();
+        break;
+      case 'description':
+        handlers.handleGenerateDescription?.();
+        break;
+      case 'alt':
+        handlers.handleGenerateAltText?.();
+        break;
+      case 'distribution':
+        handlers.handleGenerateDistribution?.();
+        break;
+      case 'growth':
+        handlers.handleGenerateGrowthStrategy?.();
+        break;
+    }
+  }, [activeTab, handlers]);
+
+  // Resolve active tab specific content
+  const activeTabContent = React.useMemo(() => {
+    switch (activeTab) {
+      case 'keywords':
+        return localMetadata;
+      case 'description':
+        return generatedDescription;
+      case 'alt':
+        return generatedAltText;
+      case 'tags':
+        if (!localMetadata) return null;
+        try {
+          const data = JSON.parse(localMetadata);
+          const combined = [
+            ...(data.primary_keywords || []),
+            ...(data.secondary_keywords || [])
+          ];
+          return combined.join(', ');
+        } catch (e) {
+          return localMetadata;
+        }
+      case 'distribution':
+        return generatedDistributionPlan;
+      case 'growth':
+        return generatedGrowthStrategy;
+      default:
+        return localMetadata;
+    }
+  }, [activeTab, localMetadata, generatedDescription, generatedAltText, generatedDistributionPlan, generatedGrowthStrategy]);
 
   useAuth();
 
@@ -74,45 +158,57 @@ export default function SEOLayout() {
         setGeneratedDescription(null);
         setGeneratedAltText(null);
         setGeneratedDistributionPlan(null);
+        setGeneratedGrowthStrategy(null);
   
         const { generateYouTubeDescription, generateAltTexts, generateDistributionStrategy } = await import('@/services/api/gemini');
         
-        // Sequence SEO generations with Response and Report flow
+        // Step 1: Keywords & Tags
         setSearchParams({ tab: 'keywords' });
         console.log('[SEOLayout] Requesting metadata/keywords generation...');
         const metadata = await generateMetadata(generatedScript, selectedModel);
         setGeneratedMetadata(metadata);
-        console.log(`[SEOLayout] Metadata generated successfully. Response length: ${JSON.stringify(metadata)?.length || 0} chars.`);
-        showNotification?.('Keywords indexed.', 'success');
-        setGenerationProgress(25);
-        await new Promise(r => setTimeout(r, 2000));
+        showNotification?.('Keywords and tags indexed.', 'success');
+        setGenerationProgress(20);
+        await new Promise(r => setTimeout(r, 1500));
   
+        // Step 2: Description
         setSearchParams({ tab: 'description' });
         console.log('[SEOLayout] Requesting YouTube description generation...');
         const description = await generateYouTubeDescription(generatedScript, selectedModel);
         setGeneratedDescription(description);
-        console.log(`[SEOLayout] Description generated successfully. Response length: ${description?.length || 0} chars.`);
-        showNotification?.('Description synthesized.', 'success');
-        setGenerationProgress(50);
-        await new Promise(r => setTimeout(r, 2000));
+        showNotification?.('Episodic description synthesized.', 'success');
+        setGenerationProgress(40);
+        await new Promise(r => setTimeout(r, 1500));
   
-        setSearchParams({ tab: 'alt-texts' });
+        // Step 3: Alt Text (fixed query tab from 'alt-texts' to 'alt')
+        setSearchParams({ tab: 'alt' });
         console.log('[SEOLayout] Requesting alt texts generation...');
         const altText = await generateAltTexts(generatedScript, selectedModel);
         setGeneratedAltText(altText);
-        console.log(`[SEOLayout] Alt texts generated successfully. Response length: ${altText?.length || 0} chars.`);
-        showNotification?.('Alt texts generated.', 'success');
-        setGenerationProgress(75);
-        await new Promise(r => setTimeout(r, 2000));
+        showNotification?.('Accessibility alt texts generated.', 'success');
+        setGenerationProgress(60);
+        await new Promise(r => setTimeout(r, 1500));
   
+        // Step 4: Distribution
         setSearchParams({ tab: 'distribution' });
         console.log('[SEOLayout] Requesting distribution strategy generation...');
         const dist = await generateDistributionStrategy(generatedScript, selectedModel);
         setGeneratedDistributionPlan(dist);
-        console.log(`[SEOLayout] Distribution strategy generated successfully. Response length: ${dist?.length || 0} chars.`);
-        showNotification?.('Distribution plan ready.', 'success');
+        showNotification?.('Distribution playbooks compiled.', 'success');
+        setGenerationProgress(80);
+        await new Promise(r => setTimeout(r, 1500));
+
+        // Step 5: Growth strategy
+        setSearchParams({ tab: 'growth' });
+        console.log('[SEOLayout] Requesting growth strategy generation...');
+        const strategies = await growthApi.getStrategies();
+        if (strategies && strategies.length > 0) {
+          const result = await growthApi.generateStrategy(strategies[0].id, generatedScript, selectedModel);
+          setGeneratedGrowthStrategy(result.content);
+        }
+        showNotification?.('Tactical growth blueprints synchronized.', 'success');
         setGenerationProgress(100);
-        await new Promise(r => setTimeout(r, 2000));
+        await new Promise(r => setTimeout(r, 1500));
   
         showNotification?.('Full SEO Nexus synchronized!', 'success');
         setSearchParams({ tab: 'keywords' }); // Return to start
@@ -135,8 +231,6 @@ export default function SEOLayout() {
   }, [handleGenerateAll]);
 
   const handleGenerate = handleGenerateAll;
-
-  const activeTab = (searchParams.get('tab') as SEOTab) || 'keywords';
 
   React.useEffect(() => {
     console.log(`[SEOLayout] Active tab changed to: ${activeTab.toUpperCase()}`);
@@ -179,15 +273,18 @@ export default function SEOLayout() {
           <StudioTabsProgressBar progress={generationProgress} theme="cyan" />
         </div>
 
-        {generatedMetadata && !isLoading && (
+        {activeTabContent && !isLoading && (
           <div className="mb-8">
             <SEOToolbar
               status="active"
+              activeTab={activeTab}
               session={session}
               episode={episode}
-              content={JSON.stringify(generatedMetadata)}
+              content={activeTabContent}
               isEditing={isEditing}
               onEditingChange={setIsEditing}
+              onGenerateActive={handleGenerateActive}
+              isGeneratingActive={isGeneratingActive}
             />
           </div>
         )}
@@ -199,7 +296,7 @@ export default function SEOLayout() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.2, ease: "easeOut" }}
+              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
               className="flex-1 flex flex-col"
             >
               <Suspense fallback={<div className="flex-1 flex items-center justify-center p-20"><SEOLoadingPage tab={activeTab} progress={generationProgress} /></div>}>

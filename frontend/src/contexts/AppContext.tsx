@@ -1,4 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { CheckCircle2, XCircle, Info, AlertTriangle, X } from 'lucide-react';
 import { notificationService } from '@/services/api/notifications';
 import { projectService } from '@/services/api/projects';
 
@@ -13,8 +15,8 @@ interface AppContextType {
   refreshAppData: () => Promise<void>;
   isFullscreen: boolean;
   setIsFullscreen: (f: boolean) => void;
-  notification: { message: string; type: 'error' | 'success' | 'info' } | null;
-  showNotification: (message: string, type?: 'error' | 'success' | 'info') => void;
+  notification: { message: string; type: 'error' | 'success' | 'info' | 'warning' } | null;
+  showNotification: (message: string, type?: 'error' | 'success' | 'info' | 'warning') => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -24,10 +26,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [notifications, setNotifications] = useState<any[]>([]);
   const [userTier] = useState<string>('Enterprise Plan');
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [notification, setNotification] = useState<{ message: string; type: 'error' | 'success' | 'info' } | null>(null);
+  const [notification, setNotification] = useState<{ message: string; type: 'error' | 'success' | 'info' | 'warning' } | null>(null);
   const [hasInitialized, setHasInitialized] = useState(false);
 
-  const showNotification = useCallback((message: string, type: 'error' | 'success' | 'info' = 'info') => {
+  const showNotification = useCallback((message: string, type: 'error' | 'success' | 'info' | 'warning' = 'info') => {
     setNotification({ message, type });
     setTimeout(() => setNotification(null), 5000);
   }, []);
@@ -84,20 +86,61 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   return (
     <AppContext.Provider value={value}>
       {children}
-      {notification && (
-        <div className={`fixed bottom-8 right-8 z-[100] p-4 rounded-2xl border backdrop-blur-md animate-in slide-in-from-right-10 duration-500 shadow-2xl ${notification.type === 'error' ? 'bg-red-500/10 border-red-500/50 text-red-500 shadow-red-500/20' :
-          notification.type === 'success' ? 'bg-emerald-500/10 border-emerald-500/50 text-emerald-500 shadow-emerald-500/20' :
-            'bg-cyan-500/10 border-cyan-500/50 text-cyan-500 shadow-cyan-500/20'
-          }`}>
-          <div className="flex items-center gap-3">
-            <div className={`w-2 h-2 rounded-full animate-pulse ${notification.type === 'error' ? 'bg-red-500' :
-              notification.type === 'success' ? 'bg-emerald-500' :
-                'bg-cyan-500'
-              }`} />
-            <p className="text-xs font-black uppercase tracking-widest">{notification.message}</p>
-          </div>
-        </div>
-      )}
+      <AnimatePresence>
+        {notification && (
+          <motion.div
+            key={notification.message + notification.type}
+            initial={{ opacity: 0, x: 120, scale: 0.92 }}
+            animate={{ opacity: 1, x: 0, scale: 1 }}
+            exit={{ opacity: 0, x: 120, scale: 0.92 }}
+            transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+            className={`fixed bottom-8 right-8 z-[9999] max-w-sm w-full pointer-events-auto`}
+          >
+            <div
+              className={`relative flex items-start gap-3 p-4 rounded-2xl border backdrop-blur-xl shadow-2xl overflow-hidden ${
+                notification.type === 'error'
+                  ? 'bg-red-950/80 border-red-500/40 text-red-300 shadow-red-900/40'
+                  : notification.type === 'success'
+                  ? 'bg-emerald-950/80 border-emerald-500/40 text-emerald-300 shadow-emerald-900/40'
+                  : notification.type === 'warning'
+                  ? 'bg-amber-950/80 border-amber-500/40 text-amber-300 shadow-amber-900/40'
+                  : 'bg-cyan-950/80 border-cyan-500/40 text-cyan-300 shadow-cyan-900/40'
+              }`}
+            >
+              {/* Glow stripe */}
+              <div
+                className={`absolute left-0 top-0 bottom-0 w-1 rounded-l-2xl ${
+                  notification.type === 'error'
+                    ? 'bg-red-500'
+                    : notification.type === 'success'
+                    ? 'bg-emerald-500'
+                    : notification.type === 'warning'
+                    ? 'bg-amber-500'
+                    : 'bg-cyan-500'
+                }`}
+              />
+              {/* Icon */}
+              <div className="mt-0.5 shrink-0">
+                {notification.type === 'error' && <XCircle className="w-5 h-5 text-red-400" />}
+                {notification.type === 'success' && <CheckCircle2 className="w-5 h-5 text-emerald-400" />}
+                {notification.type === 'warning' && <AlertTriangle className="w-5 h-5 text-amber-400" />}
+                {notification.type === 'info' && <Info className="w-5 h-5 text-cyan-400" />}
+              </div>
+              {/* Message */}
+              <p className="text-sm font-semibold leading-snug tracking-wide flex-1 pr-2">
+                {notification.message}
+              </p>
+              {/* Dismiss */}
+              <button
+                onClick={() => setNotification(null)}
+                className="shrink-0 mt-0.5 opacity-50 hover:opacity-100 transition-opacity"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </AppContext.Provider>
   );
 }

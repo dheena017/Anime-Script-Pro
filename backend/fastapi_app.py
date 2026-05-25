@@ -21,7 +21,7 @@ from fastapi.templating import Jinja2Templates
 from sqlmodel import SQLModel, select, func
 from sqlalchemy.exc import SQLAlchemyError
 from loguru import logger
-from slowapi import Limiter
+from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 from fastapi.openapi.docs import get_swagger_ui_html, get_redoc_html
@@ -83,9 +83,13 @@ app.mount("/outputs", StaticFiles(directory=outputs_dir), name="outputs")
 templates = Jinja2Templates(directory=os.path.join(BACKEND_ROOT, "templates"))
 
 # --- Middleware ---
-app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
+cors_origins_raw = os.environ.get("CORS_ORIGINS", "*")
+cors_origins = [o.strip() for o in cors_origins_raw.split(",") if o.strip()]
+app.add_middleware(CORSMiddleware, allow_origins=cors_origins, allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
+
 limiter = Limiter(key_func=get_remote_address)
 app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 class LogRequestsMiddleware:
     def __init__(self, app):

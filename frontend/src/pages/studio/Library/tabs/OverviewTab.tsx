@@ -12,26 +12,44 @@ import {
   BarChart3
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useEffect, useState } from 'react';
+import { libraryApi, LibraryOverviewData } from '@/services/api/library';
+import { useAuth } from '@/hooks/useAuth';
 
 interface OverviewTabProps {
   searchTerm: string;
 }
 
 export default function OverviewTab({ searchTerm: _searchTerm }: OverviewTabProps) {
-  const stats = [
-    { label: "Total Assets", value: "4,281", change: "+12.5%", icon: Database, color: "text-blue-500" },
-    { label: "Active Projects", value: "12", change: "+2", icon: Activity, color: "text-[#bd4a4a]" },
+  const { user } = useAuth();
+  const [overview, setOverview] = useState<LibraryOverviewData | null>(null);
+  const stats = overview ? [
+    { label: "Total Assets", value: String((overview.assets || []).length), change: "+12.5%", icon: Database, color: "text-blue-500" },
+    { label: "Active Projects", value: String((overview.projects || []).length), change: "+2", icon: Activity, color: "text-[#bd4a4a]" },
     { label: "Storage Used", value: "842 GB", change: "70%", icon: Zap, color: "text-amber-500" },
     { label: "Security Status", value: "OPTIMAL", change: "SECURE", icon: ShieldCheck, color: "text-emerald-500" },
-  ];
+  ] : [];
 
-  const recentCategories = [
-    { name: 'Scripts', count: 124, icon: FileText, color: 'bg-blue-500/10 text-blue-500' },
-    { name: 'Characters', count: 85, icon: Users, color: 'bg-purple-500/10 text-purple-500' },
-    { name: 'Storyboards', count: 42, icon: Film, color: 'bg-[#bd4a4a]/10 text-[#bd4a4a]' },
-    { name: 'World Lore', count: 156, icon: BookOpen, color: 'bg-emerald-500/10 text-emerald-500' },
-    { name: 'Asset Packs', count: 28, icon: Folder, color: 'bg-amber-500/10 text-amber-500' },
-  ];
+  const recentCategories = overview ? [
+    { name: 'Scripts', count: (overview.scripts || []).length, icon: FileText, color: 'bg-blue-500/10 text-blue-500' },
+    { name: 'Characters', count: (overview.cast?.cast_list_blob ? JSON.parse(overview.cast.cast_list_blob).length : 0), icon: Users, color: 'bg-purple-500/10 text-purple-500' },
+    { name: 'Storyboards', count: (overview.storyboards || []).length, icon: Film, color: 'bg-[#bd4a4a]/10 text-[#bd4a4a]' },
+    { name: 'World Lore', count: overview.worldLore ? 1 : 0, icon: BookOpen, color: 'bg-emerald-500/10 text-emerald-500' },
+    { name: 'Asset Packs', count: (overview.assets || []).length, icon: Folder, color: 'bg-amber-500/10 text-amber-500' },
+  ] : [];
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const data = await libraryApi.fetchOverview(user?.id);
+        if (mounted) setOverview(data);
+      } catch (e) {
+        console.error('Overview fetch failed', e);
+      }
+    })();
+    return () => { mounted = false; };
+  }, [user?.id]);
 
   return (
     <div className="space-y-8 p-1">

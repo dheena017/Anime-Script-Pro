@@ -6,43 +6,43 @@
 // ==================== ERROR HANDLING & VALIDATION ====================
 
 function validateSceneType(type: string): void {
-    if (!type || typeof type !== 'string' || type.trim().length < 2) {
-        throw new Error('Scene type must be a non-empty string with at least 2 characters.');
-    }
-    if (type.length > 120) {
-        throw new Error('Scene type must be 120 characters or fewer.');
-    }
+  if (!type || typeof type !== 'string' || type.trim().length < 2) {
+    throw new Error('Scene type must be a non-empty string with at least 2 characters.');
+  }
+  if (type.length > 120) {
+    throw new Error('Scene type must be 120 characters or fewer.');
+  }
 }
 
 function validateOptionalSourceText(value: string | null, fieldName: string, minimumLength = 10): void {
-    if (value === null) {
-        return;
-    }
+  if (value === null) {
+    return;
+  }
 
-    if (typeof value !== 'string' || value.trim().length < minimumLength) {
-        throw new Error(`${fieldName} must be at least ${minimumLength} characters when provided.`);
-    }
+  if (typeof value !== 'string' || value.trim().length < minimumLength) {
+    throw new Error(`${fieldName} must be at least ${minimumLength} characters when provided.`);
+  }
 }
 
 function safeScenePromptGeneration(type: string, worldLore: string | null, castProfiles: string | null): string {
-    try {
-        validateSceneType(type);
-        validateOptionalSourceText(worldLore, 'World lore source of truth');
-        validateOptionalSourceText(castProfiles, 'Character DNA registry');
-        return buildSceneGenerationPrompt(type, worldLore, castProfiles);
-    } catch (error) {
-        const message = error instanceof Error ? error.message : String(error);
-        return `ERROR: ${message}`;
-    }
+  try {
+    validateSceneType(type);
+    validateOptionalSourceText(worldLore, 'World lore source of truth');
+    validateOptionalSourceText(castProfiles, 'Character DNA registry');
+    return buildSceneGenerationPrompt(type, worldLore, castProfiles);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    return `ERROR: ${message}`;
+  }
 }
 
 function buildSceneGenerationPrompt(type: string, worldLore: string | null, castProfiles: string | null): string {
-    const sourceSections = [
-        worldLore ? `WORLD LORE SOURCE OF TRUTH:\n${worldLore}\n` : '',
-        castProfiles ? `CHARACTER DNA REGISTRY:\n${castProfiles}\n` : ''
-    ].join('');
+  const sourceSections = [
+    worldLore ? `WORLD LORE SOURCE OF TRUTH:\n${worldLore}\n` : '',
+    castProfiles ? `CHARACTER DNA REGISTRY:\n${castProfiles}\n` : ''
+  ].join('');
 
-    return `
+  return `
 You are an expert ${type} Writer, Scene Architect, and Production Planner.
 
 MISSION:
@@ -318,7 +318,7 @@ OUTPUT RULES:
 }
 
 export const SCENE_GENERATION_PROMPT = (type: string, worldLore: string | null, castProfiles: string | null) =>
-    safeScenePromptGeneration(type, worldLore, castProfiles);
+  safeScenePromptGeneration(type, worldLore, castProfiles);
 
 
 

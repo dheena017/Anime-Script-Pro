@@ -180,6 +180,7 @@ export function WorldPage() {
         tab={type}
         onGenerate={() => handleGenerateSpecialized(type)}
         isGenerating={isGenerating}
+        onLoadDemo={handleLoadDemo}
       />
     );
   };

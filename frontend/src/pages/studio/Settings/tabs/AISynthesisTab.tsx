@@ -15,12 +15,14 @@ export function AISynthesisTab() {
   const [systemPrompt, setSystemPrompt] = useState("You are the Ultimate Production Architect. Never output generic anime tropes. Always utilize 'Show, Don't Tell' rules. Treat every action line as a highly detailed camera directive.");
 
   const [mode, setMode] = useState('free');
+  const [imageModel, setImageModel] = useState('imagen-3.0-generate-001');
   const [geminiKey, setGeminiKey] = useState('');
   const [openaiKey, setOpenaiKey] = useState('');
   const [anthropicKey, setAnthropicKey] = useState('');
   const [groqKey, setGroqKey] = useState('');
   const [nvidiaKey, setNvidiaKey] = useState('');
   const [dbModels, setDbModels] = useState<any[]>([]);
+  const [activeModelTab, setActiveModelTab] = useState<'free' | 'paid'>('free');
 
   const [showKey, setShowKey] = useState(false);
   const [showOpenai, setShowOpenai] = useState(false);
@@ -43,6 +45,7 @@ export function AISynthesisTab() {
         if (dbSettings && dbSettings.ai_models) {
           const ai = dbSettings.ai_models;
           if (ai.primary_engine) setModel(ai.primary_engine);
+          if (ai.image_engine) setImageModel(ai.image_engine);
           if (ai.temperature) setTemperature(ai.temperature);
           if (ai.swarm_mode !== undefined) setSwarmMode(ai.swarm_mode);
           if (ai.cinematic_enforcer !== undefined) setEnforcer(ai.cinematic_enforcer);
@@ -52,7 +55,10 @@ export function AISynthesisTab() {
           if (ai.anthropic_api_key) setAnthropicKey(ai.anthropic_api_key);
           if (ai.groq_api_key) setGroqKey(ai.groq_api_key);
           if (ai.nvidia_api_key) setNvidiaKey(ai.nvidia_api_key);
-          if (ai.mode) setMode(ai.mode);
+          if (ai.mode) {
+            setMode(ai.mode);
+            setActiveModelTab(ai.mode as 'free' | 'paid');
+          }
         }
         
         // Dynamic fetch of all active AI models from database
@@ -81,6 +87,7 @@ export function AISynthesisTab() {
       await settingsService.updateSettings({
         ai_models: {
           primary_engine: model,
+          image_engine: imageModel,
           temperature,
           swarm_mode: swarmMode,
           cinematic_enforcer: enforcer,
@@ -99,10 +106,11 @@ export function AISynthesisTab() {
     } finally {
       setIsSaving(false);
     }
-  }, [model, temperature, swarmMode, enforcer, systemPrompt, geminiKey, openaiKey, anthropicKey, groqKey, nvidiaKey, mode]);
+  }, [model, imageModel, temperature, swarmMode, enforcer, systemPrompt, geminiKey, openaiKey, anthropicKey, groqKey, nvidiaKey, mode]);
 
   const handleModeToggle = (newMode: string) => {
     setMode(newMode);
+    setActiveModelTab(newMode as 'free' | 'paid');
     syncToCloud({ mode: newMode });
   };
 
@@ -182,35 +190,118 @@ export function AISynthesisTab() {
             </CardHeader>
 
             <CardContent className="relative z-10 space-y-8 pt-8">
-              <div className="space-y-4">
-                <h4 className="text-xs font-black tracking-[0.2em] text-zinc-500 uppercase flex items-center gap-2">
-                  <Activity className="w-3 h-3 text-studio" /> Primary Inference Engine
-                </h4>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {[
-                    { id: 'gemini-1.5-pro', label: 'Gemini 1.5 Pro', desc: 'Max compute for complex lore.', badge: 'Production' },
-                    { id: 'gemini-1.5-flash', label: 'Gemini 1.5 Flash', desc: 'High velocity synthesis.', badge: 'Standard' },
-                    { id: 'gemini-2.0-flash', label: 'Gemini 2.0 Flash', desc: 'Next-gen reasoning speed.', badge: 'Advanced' }
-                  ].map(engine => (
-                    <div
-                      key={engine.id}
-                      onClick={() => toggleModel(engine.id)}
+              <div className="space-y-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <h4 className="text-xs font-black tracking-[0.2em] text-zinc-500 uppercase flex items-center gap-2">
+                    <Activity className="w-3 h-3 text-studio" /> Primary Inference Engine
+                  </h4>
+                  
+                  {/* Glassmorphic Tab Selector */}
+                  <div className="flex bg-black/60 p-1 rounded-xl border border-zinc-800/80 shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => setActiveModelTab('free')}
                       className={cn(
-                        "relative p-6 rounded-2xl border cursor-pointer transition-all duration-300 flex flex-col gap-4 overflow-hidden",
-                        model === engine.id ? "bg-studio/10 border-studio/50 shadow-[0_0_30px_rgba(6,182,212,0.15)] transform scale-[1.02] ring-1 ring-studio" : "bg-black/40 border-zinc-800 hover:border-zinc-700 hover:bg-zinc-900/50"
+                        "px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all duration-300 flex items-center gap-2",
+                        activeModelTab === 'free'
+                          ? "bg-studio/20 text-studio border border-studio/30 shadow-[0_0_15px_rgba(6,182,212,0.2)]"
+                          : "text-zinc-500 hover:text-zinc-300 border border-transparent"
                       )}
                     >
-                      <div className="flex justify-between items-start">
-                        <Cpu className={cn("w-6 h-6", model === engine.id ? "text-studio" : "text-zinc-500")} />
-                        <span className="px-2 py-0.5 bg-zinc-800 text-xs font-black uppercase tracking-widest text-white rounded">{engine.badge}</span>
-                      </div>
-                      <div>
-                        <h5 className="text-sm font-black text-white uppercase tracking-widest">{engine.label}</h5>
-                        <p className="text-xs text-zinc-500 font-bold mt-1 uppercase tracking-tight">{engine.desc}</p>
-                      </div>
-                    </div>
-                  ))}
+                      <Sparkles className="w-3.5 h-3.5" />
+                      Free Tier
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setActiveModelTab('paid')}
+                      className={cn(
+                        "px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all duration-300 flex items-center gap-2",
+                        activeModelTab === 'paid'
+                          ? "bg-fuchsia-500/20 text-fuchsia-400 border border-fuchsia-500/30 shadow-[0_0_15px_rgba(217,70,239,0.2)]"
+                          : "text-zinc-500 hover:text-zinc-300 border border-transparent"
+                      )}
+                    >
+                      <Cpu className="w-3.5 h-3.5" />
+                      Paid Tier
+                    </button>
+                  </div>
+                </div>
+
+                {/* Subtitle / Mode hint */}
+                <div className="p-4 rounded-xl bg-zinc-950/60 border border-zinc-900 text-xs text-zinc-400 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                  <div className="flex items-center gap-2">
+                    <div className={cn("w-2 h-2 rounded-full animate-ping shrink-0", activeModelTab === 'free' ? "bg-studio" : "bg-fuchsia-400")} />
+                    <span className="font-bold uppercase tracking-wider text-[10px] text-zinc-400">
+                      {activeModelTab === 'free' 
+                        ? "Server-sponsored inference. No credit consumption."
+                        : "Premium capabilities active. Powered by custom keys or credits."}
+                    </span>
+                  </div>
+                  <span className={cn("text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded border shrink-0", 
+                    activeModelTab === 'free' ? "text-studio border-studio/20 bg-studio/5" : "text-fuchsia-400 border-fuchsia-400/20 bg-fuchsia-400/5")}>
+                    {activeModelTab === 'free' ? "Free Mode" : "Paid Mode"}
+                  </span>
+                </div>
+
+                {/* Models Grid with Custom Scrollbar */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[380px] overflow-y-auto pr-1 custom-scrollbar">
+                  {dbModels
+                    .filter(m => m.is_active && (m.is_free === (activeModelTab === 'free')))
+                    .map(engine => {
+                      const isSelected = model === engine.model_id;
+                      const providerName = engine.provider || 'gemini';
+                      
+                      // Theme classes based on selected status & free/paid active status
+                      const activeRingClass = activeModelTab === 'free' 
+                        ? "bg-studio/10 border-studio/50 shadow-[0_0_20px_rgba(6,182,212,0.15)] ring-1 ring-studio transform scale-[1.01]"
+                        : "bg-fuchsia-500/10 border-fuchsia-500/50 shadow-[0_0_20px_rgba(217,70,239,0.15)] ring-1 ring-fuchsia-500 transform scale-[1.01]";
+
+                      const providerColors: Record<string, string> = {
+                        gemini: "text-blue-400 bg-blue-500/10 border-blue-500/20",
+                        openai: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20",
+                        groq: "text-orange-400 bg-orange-500/10 border-orange-500/20",
+                        nvidia: "text-cyan-400 bg-cyan-500/10 border-cyan-500/20",
+                      };
+
+                      return (
+                        <div
+                          key={engine.model_id}
+                          onClick={() => {
+                            toggleModel(engine.model_id);
+                            if (activeModelTab === 'paid' && mode === 'free') {
+                              handleModeToggle('paid');
+                            }
+                          }}
+                          className={cn(
+                            "relative p-5 rounded-2xl border cursor-pointer transition-all duration-300 flex flex-col gap-3 overflow-hidden",
+                            isSelected 
+                              ? activeRingClass 
+                              : "bg-black/40 border-zinc-800 hover:border-zinc-700 hover:bg-zinc-900/40"
+                          )}
+                        >
+                          <div className="flex justify-between items-start">
+                            <Cpu className={cn("w-5 h-5", isSelected ? (activeModelTab === 'free' ? "text-studio" : "text-fuchsia-400") : "text-zinc-500")} />
+                            <span className={cn("px-2 py-0.5 text-[8px] font-black uppercase tracking-widest rounded border shrink-0", 
+                              providerColors[providerName.toLowerCase()] || "text-zinc-400 bg-zinc-800 border-zinc-700")}>
+                              {providerName}
+                            </span>
+                          </div>
+                          <div>
+                            <h5 className="text-xs font-black text-white uppercase tracking-widest leading-tight truncate" title={engine.display_name || engine.model_id}>
+                              {engine.display_name || engine.model_id}
+                            </h5>
+                            <div className="flex justify-between items-center mt-2 pt-2 border-t border-white/[0.03]">
+                              <span className="text-[9px] text-zinc-500 font-bold uppercase tracking-tight truncate max-w-[120px]" title={engine.model_id}>
+                                {engine.model_id}
+                              </span>
+                              <span className="text-[8px] text-zinc-400 font-black uppercase tracking-widest bg-zinc-900 px-1.5 py-0.5 rounded border border-zinc-800">
+                                {engine.is_free ? "FREE" : `${(engine.cost_per_token * 1_000_000).toFixed(2)}c/M`}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
                 </div>
               </div>
 
@@ -299,7 +390,7 @@ export function AISynthesisTab() {
                   )}
                 >
                   <span className="text-xs font-black uppercase tracking-widest">Free Mode</span>
-                  <span className="text-[9px] font-bold uppercase text-zinc-500">Fast standard models</span>
+                  <span className="text-[9px] font-bold uppercase text-zinc-500">Free Google AI</span>
                 </div>
                 <div
                   onClick={() => handleModeToggle('paid')}
@@ -311,14 +402,74 @@ export function AISynthesisTab() {
                   )}
                 >
                   <span className="text-xs font-black uppercase tracking-widest">Paid Mode</span>
-                  <span className="text-[9px] font-bold uppercase text-zinc-500">Premium & custom keys</span>
+                  <span className="text-[9px] font-bold uppercase text-zinc-500">Premium & Credit Tier</span>
                 </div>
               </div>
               <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wide leading-relaxed pt-2 text-center">
                 {mode === 'free' 
-                  ? "⚡ FREE MODE active: Server sponsored. Enforces standard speed models without credit deductions."
-                  : "💎 PAID MODE active: Access premium models. Deducts credits from your ledger unless custom API keys are loaded."}
+                  ? "⚡ FREE AI MODE active: Server sponsored. Generates real high-fidelity Google Imagen 3.0 graphics with 0 credit deductions."
+                  : "💎 PAID AI MODE active: Access premium speed resources. Deducts 100 credits from your balance ledger per visual run."}
               </p>
+            </CardContent>
+          </Card>
+
+          {/* Image Generation Engine Selector */}
+          <Card className="bg-[#0a0a0a]/80 backdrop-blur-md border-zinc-800/50 shadow-2xl relative overflow-hidden group rounded-[2.5rem]">
+            <CardHeader className="border-b border-zinc-900 pb-6">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 bg-fuchsia-500/10 rounded-xl border border-fuchsia-500/20 shadow-[0_0_15px_rgba(217,70,239,0.15)]">
+                  <Sparkles className="w-4 h-4 text-fuchsia-400" />
+                </div>
+                <div>
+                  <CardTitle className="text-xs font-black text-white uppercase tracking-widest">Image Synthesis Engine</CardTitle>
+                  <CardDescription className="text-zinc-500 text-[10px] font-bold uppercase tracking-wider">Configure the generative model for storyboarding and visuals.</CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="pt-6 space-y-4">
+              <div className="space-y-3 max-h-[360px] overflow-y-auto pr-1 custom-scrollbar">
+                {[
+                  { id: 'imagen-3.0-generate-001', name: 'Google Imagen 3.0 Standard', provider: 'Google', desc: 'Default studio grade frame compiler.' },
+                  { id: 'imagen-3.0-fast-generate-001', name: 'Google Imagen 3.0 Fast', provider: 'Google', desc: 'Accelerated latency for real-time storyboard loops.' },
+                  { id: 'imagen-3.0-generate-002', name: 'Google Imagen 3.0 Pro (v2)', provider: 'Google', desc: 'Elite composition, spatial details, and continuity.' },
+                  { id: 'dall-e-3', name: 'OpenAI DALL-E 3', provider: 'OpenAI', desc: 'High structural prompt adherence and graphic styling.' },
+                  { id: 'stable-diffusion-xl', name: 'Stability SDXL v1.0', provider: 'Stability', desc: 'Vibrant artistic textures and cinematic lighting.' },
+                  { id: 'flux-1-schnell', name: 'Flux.1 Schnell (Dynamic)', provider: 'Flux', desc: 'Ultra-realism, fine text rendering, and high detail.' },
+                  { id: 'midjourney-v6', name: 'Midjourney v6 Cinematic', provider: 'Midjourney', desc: 'Max aesthetic fidelity, gorgeous anime styling, and composition.' },
+                ].map((item) => {
+                  const isSelected = imageModel === item.id;
+                  const colors: Record<string, string> = {
+                    Google: "text-blue-400 bg-blue-500/10 border-blue-500/20",
+                    OpenAI: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20",
+                    Stability: "text-purple-400 bg-purple-500/10 border-purple-500/20",
+                    Flux: "text-orange-400 bg-orange-500/10 border-orange-500/20",
+                    Midjourney: "text-fuchsia-400 bg-fuchsia-500/10 border-fuchsia-500/20",
+                  };
+                  return (
+                    <div
+                      key={item.id}
+                      onClick={() => {
+                        setImageModel(item.id);
+                        syncToCloud({ image_engine: item.id });
+                      }}
+                      className={cn(
+                        "p-4 rounded-xl border cursor-pointer transition-all flex flex-col gap-1.5",
+                        isSelected 
+                          ? "bg-fuchsia-500/10 border-fuchsia-500/50 shadow-[0_0_15px_rgba(217,70,239,0.15)] ring-1 ring-fuchsia-500 transform scale-[1.01]" 
+                          : "bg-black/40 border-zinc-800 hover:border-zinc-700 hover:bg-zinc-900/40"
+                      )}
+                    >
+                      <div className="flex justify-between items-center">
+                        <span className="text-xs font-black uppercase text-white tracking-wide">{item.name}</span>
+                        <span className={cn("px-2 py-0.5 text-[8px] font-black uppercase tracking-widest rounded border shrink-0", colors[item.provider] || "text-zinc-400")}>
+                          {item.provider}
+                        </span>
+                      </div>
+                      <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">{item.desc}</span>
+                    </div>
+                  );
+                })}
+              </div>
             </CardContent>
           </Card>
 

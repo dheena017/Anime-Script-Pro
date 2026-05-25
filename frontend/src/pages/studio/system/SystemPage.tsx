@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useState, useEffect, startTransition } from 'react';
+import { useLocation, useSearchParams } from 'react-router-dom';
 import { studioLog, reportTabChange } from '@/lib/studio-logger';
 import { 
   Terminal, 
@@ -32,10 +32,13 @@ const tabs: { id: SystemTab; label: string; icon: any; desc: string }[] = [
 ];
 
 export default function SystemPage() {
-  const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const getTabFromUrl = () => {
+    const queryTab = searchParams.get('tab');
+    if (tabs.find(t => t.id === queryTab)) return queryTab as SystemTab;
+
     const path = location.pathname.split('/').pop();
     return tabs.find(t => t.id === path) ? (path as SystemTab) : 'map';
   };
@@ -54,14 +57,13 @@ export default function SystemPage() {
       reportTabChange('System', tab, 'system');
       setActiveTab(tab);
     }
-    if (location.pathname === '/system') {
-      navigate('/system/map', { replace: true });
-    }
-  }, [location.pathname, navigate]);
+  }, [location.pathname, searchParams, activeTab]);
 
   const handleTabChange = (id: string) => {
-    setActiveTab(id as SystemTab);
-    navigate(`/system/${id}`);
+    startTransition(() => {
+      setActiveTab(id as SystemTab);
+      setSearchParams({ tab: id });
+    });
   };
 
   const stats = [

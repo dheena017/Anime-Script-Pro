@@ -27,6 +27,7 @@ import { TagsTab } from './Tabs/TagsTab';
 import { DistributionTab } from './Tabs/DistributionTab';
 import { SEOLoadingPage } from './components/SEOLoadingPage';
 import { SEOEmptyState } from './components/SEOEmptyState';
+import { AIPromptViewer } from './components/AIPromptViewer';
 
 import { seoStyles as s } from './seoStyles';
 
@@ -34,8 +35,8 @@ export function SEOPage() {
   const { activeTab } = useOutletContext<{ activeTab: SEOTab }>();
   const { setHandlers } = useContext(SEOContext);
 
-  const { generatedScript } = useGeneratorState();
-  const { showNotification } = useGeneratorDispatch();
+  const { generatedScript, contentType } = useGeneratorState();
+  const { showNotification, loadDemoProject } = useGeneratorDispatch();
 
   const {
     generatedMetadata, generatedDescription, generatedAltText,
@@ -186,6 +187,7 @@ export function SEOPage() {
     if (!generatedScript) {
       return (
         <SEOEmptyState
+          onLoadDemo={loadDemoProject}
           onLaunch={() => {
             window.dispatchEvent(new CustomEvent('studio-generate-seo'));
           }}
@@ -265,6 +267,12 @@ export function SEOPage() {
           </div>
         </div>
       </Card>
+
+      <AIPromptViewer
+        activeTab={activeTab}
+        script={generatedScript}
+        contentType={contentType || 'Anime'}
+      />
     </div>
   );
 }

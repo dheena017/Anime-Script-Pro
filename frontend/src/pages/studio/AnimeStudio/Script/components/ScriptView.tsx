@@ -3,7 +3,7 @@ import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Clapperboard, Hash, Users, Film, Zap, ScrollText, PlayCircle } from 'lucide-react';
+import { Clapperboard, Hash, Users, Film, Zap, ScrollText, PlayCircle, Video, Sparkles } from 'lucide-react';
 import { useSceneReveal } from '@/hooks/useSceneReveal';
 
 interface ScriptViewProps {
@@ -162,7 +162,21 @@ export const ScriptView: React.FC<ScriptViewProps> = ({
                               className="p-6 border-b border-white/5 text-[13px] text-zinc-400 align-top leading-relaxed group-hover:text-zinc-200 transition-colors"
                             >
                               {/* Inject visual thumbnails in the visuals column */}
-                              {cellIdx === SCENE_COL_INDEX && hasVisual ? (
+                              {headers[cellIdx]?.toLowerCase().includes('video prompt') ? (
+                                <div className="space-y-1.5 min-w-[220px]">
+                                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-amber-500/10 border border-amber-500/20 text-[9px] font-black uppercase tracking-widest text-amber-400">
+                                    <Video className="w-2.5 h-2.5" /> Video Prompt
+                                  </span>
+                                  <p className="font-mono text-[11px] text-zinc-500 bg-black/30 p-2.5 rounded-xl border border-white/5 group-hover:text-zinc-400 transition-colors leading-normal select-all">{cell}</p>
+                                </div>
+                              ) : headers[cellIdx]?.toLowerCase().includes('image prompt') ? (
+                                <div className="space-y-1.5 min-w-[220px]">
+                                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-blue-500/10 border border-blue-500/20 text-[9px] font-black uppercase tracking-widest text-blue-400">
+                                    <Sparkles className="w-2.5 h-2.5" /> Image Prompt
+                                  </span>
+                                  <p className="font-mono text-[11px] text-zinc-500 bg-black/30 p-2.5 rounded-xl border border-white/5 group-hover:text-zinc-400 transition-colors leading-normal select-all">{cell}</p>
+                                </div>
+                              ) : cellIdx === SCENE_COL_INDEX && hasVisual ? (
                                 <div className="space-y-3">
                                   <span>{cell}</span>
                                   <motion.div

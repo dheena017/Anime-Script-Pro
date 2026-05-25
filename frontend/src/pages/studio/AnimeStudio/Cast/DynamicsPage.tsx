@@ -2,6 +2,7 @@ import React from 'react';
 import { GitBranch, ArrowRightLeft, Users, Zap, Workflow, RefreshCcw } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { useGeneratorState } from '@/hooks/useGenerator';
+import { useStudioBasePath } from '@/hooks/useStudioBasePath';
 import { useNavigate } from 'react-router-dom';
 import { StudioEmptyState } from '@/pages/studio/components/studio/shared/StudioEmptyState';
 import { Button } from '@/components/ui/button';
@@ -10,7 +11,8 @@ import { CastTabActionsContext } from './CastLayout';
 
 export function DynamicsPage() {
   const navigate = useNavigate();
-  const { characterRelationships, castList, contentType, castDynamics } = useGeneratorState();
+  const basePath = useStudioBasePath();
+  const { characterRelationships, castList, castDynamics } = useGeneratorState();
   const { handleGenerateDynamics, isAnalyzingCast } = React.useContext(CastTabActionsContext);
   const hasCast = Array.isArray(castList) && castList.length > 0;
 
@@ -21,7 +23,7 @@ export function DynamicsPage() {
         title="Dynamics Offline"
         description="Relationship dynamics require a generated cast before conflict maps can be synthesized."
         actionLabel="Open Cast Registry"
-        onAction={() => navigate(`/${contentType.toLowerCase()}/cast?tab=registry`)}
+        onAction={() => navigate(`${basePath}/cast?tab=registry`)}
         features={[
           { icon: Users, title: 'Character Network', description: 'Create cast nodes for relational analysis' },
           { icon: ArrowRightLeft, title: 'Thread Mapping', description: 'Enable ally and rival trajectories' },

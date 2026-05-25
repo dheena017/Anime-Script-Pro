@@ -16,12 +16,14 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useGeneratorState } from '@/hooks/useGenerator';
+import { useStudioBasePath } from '@/hooks/useStudioBasePath';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 
 export default function CharacterViewPage() {
   const { characterName } = useParams();
   const navigate = useNavigate();
+  const basePath = useStudioBasePath();
   const { castData, castList, contentType } = useGeneratorState();
 
   const displayCast = castData?.characters || castList || [];
@@ -77,7 +79,7 @@ export default function CharacterViewPage() {
           Back to Character Registry
         </Button>
         <Button 
-          onClick={() => navigate(`/${contentType.toLowerCase()}/cast/characters/${characterName}/edit`)}
+          onClick={() => navigate(`${basePath}/cast/characters/${encodeURIComponent(characterName!)}/edit`)}
           className="bg-studio/10 border border-studio/30 text-studio hover:bg-studio hover:text-black transition-all font-black uppercase tracking-widest text-xs px-6 h-10 rounded-xl"
         >
           <Edit3 className="w-3.5 h-3.5 mr-2" /> Refine DNA
@@ -87,7 +89,7 @@ export default function CharacterViewPage() {
       {/* Hero Section */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 items-start">
         <div className="lg:col-span-1 space-y-8">
-          <div className="aspect-[4/5] rounded-[3.5rem] bg-zinc-950 border border-white/5 shadow-[0_40px_80px_rgba(0,0,0,0.8)] flex items-center justify-center relative overflow-hidden group">
+          <div className="aspect-square md:aspect-[4/5] max-w-[300px] mx-auto rounded-3xl bg-zinc-950 border border-white/5 shadow-[0_30px_60px_rgba(0,0,0,0.7)] flex items-center justify-center relative overflow-hidden group">
             <div className="absolute inset-0 bg-gradient-to-br from-studio/10 via-transparent to-fuchsia-500/5" />
             
             {/* Animated Neural Circuit */}
@@ -105,12 +107,12 @@ export default function CharacterViewPage() {
             {character.imageUrl ? (
               <img src={character.imageUrl} alt={character.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-[2s]" />
             ) : (
-              <User className="w-32 h-32 text-zinc-900 group-hover:text-studio/20 transition-all duration-1000 group-hover:scale-110" />
+              <User className="w-20 h-20 text-zinc-900 group-hover:text-studio/20 transition-all duration-1000 group-hover:scale-110" />
             )}
             
-            <div className="absolute bottom-8 left-8 right-8 p-8 bg-black/80 backdrop-blur-xl border border-white/10 rounded-[2rem] transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-700">
-               <p className="text-xs font-black text-studio uppercase tracking-[0.3em] mb-2">Visual Parameters</p>
-               <p className="text-xs text-zinc-400 leading-relaxed italic">"{toText(character.technicalModel?.visualDNA || character.appearance || 'Aesthetic parameters pending.')}"</p>
+            <div className="absolute bottom-4 left-4 right-4 p-4 bg-black/85 backdrop-blur-xl border border-white/5 rounded-2xl transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-700">
+               <p className="text-[10px] font-black text-studio uppercase tracking-[0.2em] mb-1">Visual Parameters</p>
+               <p className="text-[10px] text-zinc-400 leading-relaxed italic">"{toText(character.technicalModel?.visualDNA || character.appearance || 'Aesthetic parameters pending.')}"</p>
             </div>
           </div>
 
@@ -230,17 +232,17 @@ export default function CharacterViewPage() {
             </div>
           </div>
 
-          <div className="space-y-8">
+          <div className="space-y-4">
              <div className="flex items-center gap-3 text-studio">
                 <MessageSquare className="w-4 h-4" />
                 <h3 className="text-xs font-black uppercase tracking-[0.3em]">Acoustic & Communication Protocol</h3>
              </div>
-             <div className="p-12 bg-black/60 border border-white/5 rounded-[3.5rem] relative overflow-hidden group/speech">
-                <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-20 transition-opacity">
-                   <Zap className="w-24 h-24 text-studio" />
+             <div className="p-6 md:p-8 bg-black/60 border border-white/5 rounded-3xl relative overflow-hidden group/speech">
+                <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-20 transition-opacity">
+                   <Zap className="w-16 h-16 text-studio" />
                 </div>
-                <div className="flex flex-col gap-6 relative z-10">
-                   <p className="text-3xl text-white font-black italic tracking-tighter leading-tight">
+                <div className="flex flex-col gap-4 relative z-10">
+                   <p className="text-lg md:text-xl text-white font-bold italic tracking-tight leading-relaxed">
                      "{toText(character.speakingStyle) || 'Clinical and precise communication protocols.'}"
                    </p>
                    <div className="flex gap-4">

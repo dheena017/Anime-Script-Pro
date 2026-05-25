@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useState, useEffect, startTransition } from 'react';
+import { useLocation, useSearchParams } from 'react-router-dom';
 import { studioLog, reportTabChange } from '@/lib/studio-logger';
 import { 
   User, 
@@ -14,34 +14,47 @@ import {
   Zap,
   Trash2,
   RefreshCw,
-  Clock
+  Clock,
+  BrainCircuit,
+  Wand2
 } from 'lucide-react';
 import { SettingsLayout } from './SettingsLayout';
 
 // Tab Components
 import ProfileTab from './tabs/ProfileTab';
 import { SecurityTab } from './tabs/SecurityTab';
-import AISynthesisTab from './tabs/AISynthesisTab';
+import GeminiTab from './tabs/GeminiTab';
+import { OpenAITab } from './tabs/OpenAITab';
+import { GroqTab } from './tabs/GroqTab';
+import { NvidiaTab } from './tabs/NvidiaTab';
+import { StableDiffusionTab } from './tabs/StableDiffusionTab';
 import NotificationsTab from './tabs/NotificationsTab';
 import GlobalTab from './tabs/GlobalTab';
 import AppearanceTab from './tabs/AppearanceTab';
 
-type SettingsTab = 'profile' | 'security' | 'ai' | 'notifications' | 'global' | 'appearance';
+type SettingsTab = 'profile' | 'security' | 'gemini' | 'openai' | 'groq' | 'nvidia' | 'stablediffusion' | 'notifications' | 'global' | 'appearance';
 
 const tabs: { id: SettingsTab; label: string; icon: any; desc: string }[] = [
   { id: 'profile', label: 'Architect Profile', icon: User, desc: 'Identity & Neural Bio' },
   { id: 'security', label: 'Security & Access', icon: Shield, desc: 'Encryption & Keys' },
-  { id: 'ai', label: 'AI Synthesis Nodes', icon: Cpu, desc: 'Engine Configurations' },
+  { id: 'gemini', label: 'Google Gemini Node', icon: BrainCircuit, desc: 'Primary AI Architecture' },
+  { id: 'openai', label: 'OpenAI GPT Node', icon: Cpu, desc: 'Advanced LLM Frameworks' },
+  { id: 'groq', label: 'Groq / Llama Node', icon: Activity, desc: 'Ultra High-Speed Core' },
+  { id: 'nvidia', label: 'NVIDIA Core Node', icon: Cpu, desc: 'Specialty Models & Audio' },
+  { id: 'stablediffusion', label: 'Stable Diffusion Node', icon: Wand2, desc: 'Image Synthesis & Samplers' },
   { id: 'notifications', label: 'Signal Config', icon: Bell, desc: 'Transmission Protocols' },
   { id: 'global', label: 'Network & Region', icon: Globe, desc: 'Geospatial Settings' },
   { id: 'appearance', label: 'Visual Interface', icon: Palette, desc: 'UI Aesthetics' },
 ];
 
 export default function SettingsPage() {
-  const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const getTabFromUrl = () => {
+    const queryTab = searchParams.get('tab');
+    if (tabs.find(t => t.id === queryTab)) return queryTab as SettingsTab;
+
     const path = location.pathname.split('/').pop();
     return tabs.find(t => t.id === path) ? (path as SettingsTab) : 'profile';
   };
@@ -60,14 +73,13 @@ export default function SettingsPage() {
       reportTabChange('Settings', tab, 'system');
       setActiveTab(tab);
     }
-    if (location.pathname === '/settings') {
-      navigate('/settings/profile', { replace: true });
-    }
-  }, [location.pathname, navigate]);
+  }, [location.pathname, searchParams, activeTab]);
 
   const handleTabChange = (id: string) => {
-    setActiveTab(id as SettingsTab);
-    navigate(`/settings/${id}`);
+    startTransition(() => {
+      setActiveTab(id as SettingsTab);
+      setSearchParams({ tab: id });
+    });
   };
 
   const stats = [
@@ -92,7 +104,11 @@ export default function SettingsPage() {
     switch (activeTab) {
       case 'profile': return <ProfileTab />;
       case 'security': return <SecurityTab />;
-      case 'ai': return <AISynthesisTab />;
+      case 'gemini': return <GeminiTab />;
+      case 'openai': return <OpenAITab />;
+      case 'groq': return <GroqTab />;
+      case 'nvidia': return <NvidiaTab />;
+      case 'stablediffusion': return <StableDiffusionTab />;
       case 'notifications': return <NotificationsTab />;
       case 'global': return <GlobalTab />;
       case 'appearance': return <AppearanceTab />;

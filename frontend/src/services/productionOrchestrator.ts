@@ -1,10 +1,10 @@
-import { generateWorld } from "./generators/world";
-import { generateCharacters } from "./generators/characters";
-import { generateRelationships } from "./generators/characters";
-import { generateSeriesPlan } from "./generators/series";
-import { generateScript } from "./generators/script";
-import { generateMetadata, generateYouTubeDescription, generateAltTexts, generateGrowthStrategy, generateDistributionStrategy } from "./generators/metadata";
-import { generateImagePrompts } from "./generators/image";
+import { generateWorld } from "./generators/worldGenerator";
+import { generateCharacters } from "./generators/characterGenerator";
+import { generateRelationships } from "./generators/characterGenerator";
+import { generateSeriesPlan } from "./generators/seriesGenerator";
+import { generateScript } from "./generators/scriptGenerator";
+import { generateMetadata, generateYouTubeDescription, generateAltTexts, generateGrowthStrategy, generateDistributionStrategy } from "./generators/seoGenerator";
+import { generateImagePrompts } from "./generators/imageGenerator";
 import { generateProductionSequences, ProductionUnit } from "@/lib/sequence-utils";
 import { apiRequest } from "@/lib/api-utils";
 import { seoApi } from "@/services/api/seo";

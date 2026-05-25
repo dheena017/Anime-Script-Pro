@@ -50,10 +50,8 @@ export function Layout() {
             <div className="max-w-7xl mx-auto">
               <AnimatePresence>
                 <motion.div
-                  key={location.pathname}
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
                   transition={{ duration: 0.15, ease: 'linear' }}
                   style={{ willChange: 'opacity' }}
                 >

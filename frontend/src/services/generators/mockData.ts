@@ -36,6 +36,8 @@ type ScriptBeat = {
     subtext: string;
     activeAssetList: string;
     time: string;
+    videoPrompt: string;
+    imagePrompt: string;
 };
 
 type StoryBible = {
@@ -136,7 +138,7 @@ export const MOCK_STORY_BIBLE: StoryBible = {
             focusCharacters: ['Anya', 'Taro', 'Sachi', 'Kenji'],
         },
     ],
-    script: [
+      script: [
         {
             scene: '1',
             section: 'Genesis',
@@ -149,6 +151,8 @@ export const MOCK_STORY_BIBLE: StoryBible = {
             subtext: 'Isolation in a crowded world.',
             activeAssetList: 'Anya, Custom Railgun Pistol',
             time: '0:00 - 0:15',
+            videoPrompt: 'Cinematic anime tracking shot of Anya walking through rain-slicked alley, volumetric steam rising, electric blue neon signs reflecting in puddles, 4k, Ufotable style, smooth camera sweep.',
+            imagePrompt: 'Anya Kisaragi with midnight-blue choppy hair, tactical streetwear, walking in rain-slicked neon alleyway, heterochromia, detailed cybernetic eye, gorgeous anime style, high contrast.'
         },
         {
             scene: '2',
@@ -162,6 +166,8 @@ export const MOCK_STORY_BIBLE: StoryBible = {
             subtext: 'Constant vigilance.',
             activeAssetList: 'Anya, Cyber-Eye',
             time: '0:15 - 0:25',
+            videoPrompt: 'Extreme close-up macro zoom of female cybernetic eye scanning with glowing purple HUD interface overlays, data streams scrolling, digital glitch, photorealistic anime, 60fps.',
+            imagePrompt: 'Close up on Anya Kisaragi’s cybernetic eye, glowing neon blue iris, futuristic UI scanning elements overlaid on screen, cyber-detective theme, stunning lighting, key visual.'
         },
         {
             scene: '3',
@@ -175,6 +181,8 @@ export const MOCK_STORY_BIBLE: StoryBible = {
             subtext: 'Predatory surveillance.',
             activeAssetList: 'Rika, Shadow Soldiers',
             time: '0:25 - 0:45',
+            videoPrompt: 'Slow low-angle camera tilt up revealing Rika standing atop a futuristic rooftop in volumetric steam, glowing purple eyes, synthetic cybernetic body, dark soldiers behind her, dramatic sci-fi anime.',
+            imagePrompt: 'Rika Tachibana with long silver hair, glowing purple eyes, elegant white futuristic dress, standing on dark high-tech rooftop, steam vents blowing behind her, cinematic high-fidelity anime.'
         },
         {
             scene: '4',
@@ -188,6 +196,8 @@ export const MOCK_STORY_BIBLE: StoryBible = {
             subtext: 'Defiance against the digital gods.',
             activeAssetList: 'Anya, Railgun',
             time: '0:45 - 1:00',
+            videoPrompt: 'Dynamic camera whip to close up of Anya drawing a massive high-tech railgun rifle, bright blue electrical sparks dancing across the metallic barrel, charging energy, cinematic action anime, 4k.',
+            imagePrompt: 'Anya Kisaragi wielding a glowing blue railgun pistol, electrical energy sparks erupting, high action pose, vibrant blue particle effects, dark industrial background, epic anime masterpiece.'
         },
         {
             scene: '5',
@@ -201,6 +211,8 @@ export const MOCK_STORY_BIBLE: StoryBible = {
             subtext: 'The burden of protection.',
             activeAssetList: 'Sachi, Plasma Katana',
             time: '1:00 - 1:15',
+            videoPrompt: 'Tracking action shot of Sachi running forward into dark alleyway, holding a glowing purple plasma katana drawing light trails in air, frantic expression, dynamic camera movement, sakuga action anime.',
+            imagePrompt: 'Sachi Nakamura with blue-purple twin tails, energetic combat pose, igniting a purple glowing plasma katana blade, detailed reflections on Tech-mod school uniform, high tension anime art.'
         },
         {
             scene: '6',
@@ -214,7 +226,9 @@ export const MOCK_STORY_BIBLE: StoryBible = {
             subtext: 'The crushing weight of progress.',
             activeAssetList: 'Rika',
             time: '1:15 - 1:30',
-        },
+            videoPrompt: 'Breathtaking cinematic slow motion of Rika diving down from a skyscrapers tier, glowing digital data wings of light expanding behind her, code fragments raining down, epic climax anime sakuga.',
+            imagePrompt: 'Rika Tachibana leaping through the air, wings of glowing purple data-shards and code lines, epic action scale, electric twilight sky, breathtaking sci-fi anime illustration.'
+        }
     ],
 };
 
@@ -231,11 +245,10 @@ function formatSeriesPlan(seriesPlan: SeriesBeat[]): string {
 }
 
 function formatScript(script: ScriptBeat[]): string {
-    const header = "| Scene # | Section | Soul Focus | Narration | Visual Direction | VFX Compounds | Audio Forge | Emotional Key | Subtext | Active Asset List | Time |\n| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |";
-    const rows = script.map(beat => `| ${beat.scene} | ${beat.section} | ${beat.soulFocus} | ${beat.narration} | ${beat.visualDirection} | ${beat.vfxCompounds} | ${beat.audioForge} | ${beat.emotionalKey} | ${beat.subtext} | ${beat.activeAssetList} | ${beat.time} |`);
+    const header = "| Scene # | Section | Soul Focus | Narration | Visual Direction | VFX Compounds | Audio Forge | Emotional Key | Subtext | Active Asset List | Time | Video Prompt | Image Prompt |\n| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |";
+    const rows = script.map(beat => `| ${beat.scene} | ${beat.section} | ${beat.soulFocus} | ${beat.narration} | ${beat.visualDirection} | ${beat.vfxCompounds} | ${beat.audioForge} | ${beat.emotionalKey} | ${beat.subtext} | ${beat.activeAssetList} | ${beat.time} | ${beat.videoPrompt} | ${beat.imagePrompt} |`);
     return [header, ...rows].join('\n');
 }
-
 
 export const MOCK_CHARACTERS = formatCastArchive(MOCK_STORY_BIBLE.cast);
 
@@ -363,3 +376,29 @@ export const MOCK_SCRIPT = formatScript(MOCK_STORY_BIBLE.script);
 
 
 
+
+export const MOCK_SEO_METADATA = JSON.stringify({
+  primary_keywords: ["cyberpunk anime", "steampunk", "sniper", "AI rebellion", "Aetheria"],
+  secondary_keywords: ["floating islands", "neon-steampunk", "mech combat", "Chronos Corp"],
+  title_suggestions: [
+    "Aetheria: Neon Descent | Cyberpunk Anime Opening",
+    "Aetheria Episode 1: The Sinking Sky",
+    "Sniper vs AI: Aetheria Official Trailer"
+  ],
+  meta_description: "Watch Anya Kisaragi take on the Chronos Corp in Aetheria, a neon-steampunk anime where humanity clings to floating islands."
+});
+
+export const MOCK_SEO_DESCRIPTION = "Welcome to Aetheria! In this episode, Anya 'Wraith' Kisaragi uncovers a dark secret...\n\nWatch more episodes on our channel!\n\n#Aetheria #CyberpunkAnime #NeonSteampunk";
+
+export const MOCK_SEO_ALT_TEXT = "A neon-lit alleyway in Aetheria with volumetric steam and a glowing cybernetic sniper.";
+
+export const MOCK_SEO_DISTRIBUTION = "1. YouTube Premiere on Friday at 8PM EST\n2. TikTok short clips of parkour scenes\n3. Twitter thread of character designs\n4. Crunchyroll simulcast announcement.";
+
+export const MOCK_SEO_GROWTH = "Focus on the 'enemies to lovers' trope in TikToks. Run a fan-art contest for Sachi's Katana. Collaborate with anime reaction channels.";
+
+export const MOCK_IMAGE_PROMPTS = "Anime character design, Anya Kisaragi, Midnight-blue choppy hair, heterochromia, tactical streetwear, neon kanji tattoos, high detail, professional concept art.\n---\nAnime character design, Sachi Nakamura, Blue-purple twin tails, tech-mod school uniform, energetic silhouette, plasma katana, high detail.";
+
+export const MOCK_VIDEO_PROMPTS = {
+    1: "A neon-lit alleyway in Aetheria with volumetric steam and a glowing cybernetic sniper.",
+    2: "Fast-paced parkour chase through high-rise scaffolding, sparks from metal grinding."
+};

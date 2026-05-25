@@ -17,7 +17,7 @@ interface NotificationsPanelProps {
   onDelete: (id: string) => void;
 }
 
-export const NotificationsPanel: React.FC<NotificationsPanelProps> = ({ notifications, onMarkRead }) => {
+export const NotificationsPanel: React.FC<NotificationsPanelProps> = ({ notifications, onMarkRead, onDelete }) => {
   if (notifications.length === 0) return <NotificationsEmptyState />;
 
   return (
@@ -32,6 +32,7 @@ export const NotificationsPanel: React.FC<NotificationsPanelProps> = ({ notifica
           time={n.timestamp}
           read={n.read}
           onRead={onMarkRead}
+          onDelete={onDelete}
         />
       ))}
     </div>

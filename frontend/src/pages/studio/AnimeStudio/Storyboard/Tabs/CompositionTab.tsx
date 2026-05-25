@@ -3,6 +3,8 @@ import { Layers } from 'lucide-react';
 import { SceneTimeline } from '../components/SceneTimeline';
 import { Moodboard } from '../../components/Moodboard/Moodboard';
 import { SoundscapeLibrary } from '../../components/Audio/SoundscapeLibrary';
+import { storyboardStyles as s } from '../storyboardStyles';
+import { cn } from '@/lib/utils';
 
 interface Scene {
   id: string;
@@ -12,6 +14,13 @@ interface Scene {
   visuals: string;
   sound: string;
   duration: string;
+  linkedPrompt?: string;
+  videoPrompt?: string;
+  soulFocus?: string;
+  vfxCompounds?: string;
+  emotionalKey?: string;
+  subtext?: string;
+  assets?: string;
 }
 
 interface CompositionTabProps {
@@ -20,15 +29,15 @@ interface CompositionTabProps {
 
 export const CompositionTab: React.FC<CompositionTabProps> = ({ scenes }) => {
   return (
-    <div className="py-10 space-y-16">
+    <div className={s.tabContent + " animate-in fade-in duration-700"}>
       {/* Header */}
-      <div className="flex items-center gap-6 border-b border-white/5 pb-10">
-        <div className="w-16 h-16 rounded-[2rem] bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shadow-[0_0_30px_rgba(245,158,11,0.1)]">
-          <Layers className="w-8 h-8 text-amber-400" />
+      <div className={s.tabSectionHeader}>
+        <div className={cn(s.tabHeaderIconBox, "bg-amber-500/10 border-amber-500/20 shadow-[0_0_40px_rgba(245,158,11,0.15)]")}>
+          <Layers className="w-8 h-8 text-amber-400 animate-pulse" />
         </div>
-        <div>
-          <h2 className="text-3xl font-black text-white uppercase tracking-tighter">Composition Suite</h2>
-          <p className="text-zinc-500 text-xs font-bold uppercase tracking-[0.3em] mt-1">
+        <div className="text-left">
+          <h2 className={s.tabSectionTitle}>Composition Suite</h2>
+          <p className={s.tabSectionSubtitle}>
             Scene timeline, visual moodboard, and spatial arrangement
           </p>
         </div>

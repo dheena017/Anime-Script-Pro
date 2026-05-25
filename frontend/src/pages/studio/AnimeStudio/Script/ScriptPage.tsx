@@ -241,17 +241,17 @@ export function ScriptPage() {
           />
         );
       case 'linguistics':
-        return <LinguisticsTab />;
+        return <LinguisticsTab generatedScript={generatedScript} />;
       case 'beats':
-        return <BeatSheetTab />;
+        return <BeatSheetTab generatedScript={generatedScript} />;
       case 'dialogue':
-        return <DialogueTab />;
+        return <DialogueTab generatedScript={generatedScript} />;
       case 'cinematics':
-        return <CinematicsTab />;
+        return <CinematicsTab generatedScript={generatedScript} />;
       case 'analysis':
-        return <AnalysisTab />;
+        return <AnalysisTab generatedScript={generatedScript} />;
       case 'audio':
-        return <AudioTab />;
+        return <AudioTab generatedScript={generatedScript} />;
       case 'metadata':
         return (
           <MetadataTab

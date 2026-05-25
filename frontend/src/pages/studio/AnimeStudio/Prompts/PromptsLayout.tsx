@@ -44,7 +44,8 @@ export default function PromptsLayout() {
     setIsSaving,
     setIsEditing,
     syncCore,
-    setGenerationProgress
+    setGenerationProgress,
+    loadDemoProject
   } = useGeneratorDispatch();
 
   const { user } = useAuth();
@@ -200,6 +201,7 @@ export default function PromptsLayout() {
                 ) : (!generatedImagePrompts && !videoData) ? (
                   <PromptsEmptyState 
                     onLaunch={handleGenerateAll}
+                    onLoadDemo={loadDemoProject}
                     isGenerating={isLoading}
                   />
                 ) : (

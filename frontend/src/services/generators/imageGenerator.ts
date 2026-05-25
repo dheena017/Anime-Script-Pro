@@ -91,7 +91,11 @@ export async function enhanceSceneVisuals(visuals: string, narration: string, mo
   }
 }
 
-export async function generateSceneImage(prompt: string, model: string = "imagen-3.0-generate-001"): Promise<string | null> {
+export async function generateSceneImage(
+  prompt: string, 
+  model: string = "imagen-3.0-generate-001",
+  isDemo: boolean = false
+): Promise<string | null> {
   try {
     // Route image generation through our stable proxy
     const imageData = await callAI(
@@ -104,10 +108,16 @@ export async function generateSceneImage(prompt: string, model: string = "imagen
       40,   // topK
       180000 // timeoutMs
     );
-    return imageData || buildFallbackSceneImageData(prompt); // The backend returns the full data URI
+    if (!imageData) {
+      throw new Error("AI engine failed to return image data.");
+    }
+    return imageData;
   } catch (error) {
     console.error("Error generating image via proxy:", error);
-    return buildFallbackSceneImageData(prompt);
+    if (isDemo) {
+      return buildFallbackSceneImageData(prompt);
+    }
+    throw error;
   }
 }
 

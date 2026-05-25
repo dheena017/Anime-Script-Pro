@@ -13,7 +13,7 @@ type StoryboardAction =
   | { type: 'SET_VISUAL_DATA'; payload: Record<number, string[]> }
   | { type: 'SET_VIDEO_DATA'; payload: Record<number, string> }
   | { type: 'SET_GENERATING_VISUALS'; payload: boolean }
-  | { type: 'SET_ENHANCING_SCENES'; payload: number[] }
+  | { type: 'SET_ENHANCING_SCENES'; payload: Set<string> }
   | { type: 'SET_GENERATING'; payload: boolean }
   | { type: 'SET_ENHANCING_SCENE'; payload: { id: number; isEnhancing: boolean } }
   | { type: 'UPDATE_SCENE'; id: number; updates: any }
@@ -25,7 +25,7 @@ const initialState: StoryboardState = {
   visualData: {},
   videoData: {},
   isGeneratingVisuals: false,
-  enhancingSceneIds: [],
+  enhancingSceneIds: new Set<string>(),
 };
 
 function storyboardReducer(state: StoryboardState, action: StoryboardAction): StoryboardState {

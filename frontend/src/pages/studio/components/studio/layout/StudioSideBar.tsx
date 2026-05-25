@@ -1,5 +1,5 @@
 import React from 'react';
-import { useLocation, NavLink } from 'react-router-dom';
+import { useLocation, NavLink, useNavigate } from 'react-router-dom';
 import {
   ScrollText,
   History,
@@ -20,6 +20,7 @@ import {
   X
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useApp } from '@/contexts/AppContext';
 import { AnimatePresence, motion } from 'framer-motion';
 
 const navItems = [
@@ -58,7 +59,20 @@ export const StudioSideBar = React.memo<StudioSideBarProps>(({ collapsed, setCol
  
   const prefix = getPrefix();
   const projectId = location.pathname.match(/^\/projects\/([^/]+)/)?.[1];
- 
+  const navigate = useNavigate();
+  const [recentProjects] = React.useState(() => {
+    const base = [
+      { id: 'local-project-1', name: 'Prototype A', path: '/projects/local-project-1' },
+      { id: 'local-project-2', name: 'Storyboard', path: '/projects/local-project-2' },
+      { id: 'local-project-3', name: 'Concepts', path: '/projects/local-project-3' },
+    ];
+    if (projectId) {
+      const current = { id: projectId, name: `Project ${projectId}`, path: `/projects/${projectId}` };
+      return [current, ...base.filter(p => p.id !== current.id)].slice(0, 4);
+    }
+    return base;
+  });
+  const { unreadCount, setCurrentProject } = useApp();
   const studioTypes = [
     { id: 'anime', label: 'Anime Studio', path: '/studio/engine', icon: Brain, color: 'text-cyan-400', bg: 'bg-cyan-500/10' },
   ];
@@ -120,6 +134,9 @@ export const StudioSideBar = React.memo<StudioSideBarProps>(({ collapsed, setCol
                     : "text-zinc-700 group-hover:text-zinc-400 group-hover:scale-110 group-hover:rotate-6"
                 )} />
                 <span className="relative z-10">{item.label}</span>
+                {item.path === '/notifications' && unreadCount > 0 && (
+                  <span className="ml-auto inline-flex items-center justify-center min-w-[18px] h-5 px-2 text-[11px] font-semibold rounded-full bg-red-500 text-white shadow-sm">{unreadCount > 99 ? '99+' : unreadCount}</span>
+                )}
               </NavLink>
             </motion.div>
           );
@@ -159,17 +176,74 @@ export const StudioSideBar = React.memo<StudioSideBarProps>(({ collapsed, setCol
               <span className="font-black tracking-[0.2em] text-[12px] uppercase text-white leading-none">Production <span className="text-red-500">Studio</span></span>
               <span className="text-xs font-bold text-zinc-600 uppercase tracking-[0.3em] mt-1.5">AI Core v2.5</span>
             </div>
-            <button
-              onClick={() => setCollapsed(true)}
-              className="ml-auto p-2 text-zinc-500 hover:text-white hover:bg-white/5 rounded-lg transition-all active:scale-90"
-            >
-              <X className="w-5 h-5" />
-            </button>
+            <div className="ml-auto flex items-center gap-2">
+              <button
+                onClick={() => navigate('/projects/new')}
+                title="Quick create project"
+                className="p-2 text-yellow-400 hover:text-white hover:bg-white/5 rounded-lg transition-all active:scale-95"
+              >
+                <Zap className="w-5 h-5" />
+              </button>
+              <button
+                onClick={() => setCollapsed(true)}
+                className="p-2 text-zinc-500 hover:text-white hover:bg-white/5 rounded-lg transition-all active:scale-90"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
       <div className="flex-1 overflow-y-auto hide-scrollbar pb-10">
         <nav className="p-4 space-y-8">
+          {/* Search + Quick actions */}
+          {!collapsed && (
+            <div className="px-3 mb-3">
+              <div className="relative">
+                <input
+                  placeholder="Search projects, assets, commands..."
+                  className="w-full bg-white/3 placeholder:text-zinc-500 text-sm text-white rounded-lg px-3 py-2 border border-zinc-800 focus:outline-none focus:ring-1 focus:ring-red-500"
+                />
+                <button
+                  onClick={() => navigate('/projects')}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-zinc-400 hover:text-white"
+                  title="Open projects"
+                >
+                  <LayoutGrid className="w-4 h-4" />
+                </button>
+              </div>
+              <div className="flex items-center gap-2 mt-2">
+                <button onClick={() => navigate('/projects/new')} className="px-3 py-1 text-xs font-black uppercase tracking-wider bg-red-500/10 text-red-400 rounded-md">Quick Create</button>
+                <button onClick={() => navigate('/library')} className="px-3 py-1 text-xs font-black uppercase tracking-wider bg-white/5 text-zinc-200 rounded-md">Library</button>
+              </div>
+              {/* Recent projects */}
+              <div className="mt-3">
+                <p className="text-xs font-black text-zinc-600 uppercase tracking-[0.28em] mb-3">Recent Projects</p>
+                <div className="flex flex-col gap-2">
+                  {recentProjects.map((p) => (
+                    <button
+                      key={p.id}
+                      onClick={() => { setCurrentProject?.(p); navigate(p.path); }}
+                      className="w-full text-left px-3 py-2 rounded-lg bg-gradient-to-br from-white/3 to-white/2 text-sm hover:from-white/4 hover:to-white/3 transition-colors"
+                    >
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-md flex items-center justify-center text-sm font-bold text-white bg-gradient-to-br from-red-600 to-amber-400">{p.name.charAt(0)}</div>
+                          <div className="min-w-0">
+                            <div className="text-sm font-semibold truncate">{p.name}</div>
+                            <div className="text-[11px] text-zinc-500 truncate">{p.path.replace('/projects/', '')}</div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-zinc-400 px-2 py-0.5 bg-white/3 rounded">Open</span>
+                        </div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
           {!collapsed && (
             <div className="px-2 space-y-1">
               <p className="text-xs font-black text-zinc-600 uppercase tracking-[0.4em] px-3 mb-3">Studio Selection</p>
@@ -209,8 +283,6 @@ export const StudioSideBar = React.memo<StudioSideBarProps>(({ collapsed, setCol
           )}
         </nav>
       </div>
-
-
     </motion.aside>
   );
 });

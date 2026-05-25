@@ -6,7 +6,7 @@ import {
   CAST_DNA_PROMPT,
   CAST_DYNAMICS_PROMPT,
   CAST_INTEGRITY_PROMPT
-} from "../prompts/characters";
+} from "../prompts/characterPrompts";
 import { studioLog, studioGroup, studioEnd } from "@/lib/studio-logger";
 
 export type RelationshipType =

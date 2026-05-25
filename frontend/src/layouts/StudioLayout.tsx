@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useLocation, Outlet } from 'react-router-dom';
+import { Outlet } from 'react-router-dom';
 import { StudioSideBar } from '@/pages/studio/components/studio/layout/StudioSideBar';
 import { StudioTopBar } from '@/pages/studio/components/studio/layout/StudioTopBar';
 import { NeuralPulseLayer } from '@/components/neural/NeuralPulseLayer';
@@ -9,7 +9,6 @@ import { DeferredRender } from '@/pages/studio/components/studio/DeferredRender'
 import { studioLog, studioGroup, studioEnd } from '@/lib/studio-logger';
 
 export const StudioLayout: React.FC = () => {
-  const location = useLocation();
   const [collapsed, setCollapsed] = React.useState(true); // Default closed
   const [showNotifications, setShowNotifications] = React.useState(false);
 
@@ -72,10 +71,8 @@ export const StudioLayout: React.FC = () => {
             <div className="absolute top-0 left-0 w-full h-full pointer-events-none opacity-[0.03]" style={backdropTextureStyle} />
             <AnimatePresence>
               <motion.div
-                key={location.pathname}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
                 transition={{ duration: 0.15, ease: "linear" }}
                 className="relative z-10 h-full flex flex-col min-h-[48vh]"
                 style={{ willChange: 'opacity' }}

@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useState, useEffect, startTransition } from 'react';
+import { useLocation, useSearchParams } from 'react-router-dom';
 import { studioLog, reportTabChange } from '@/lib/studio-logger';
 import {
   GraduationCap,
@@ -27,10 +27,13 @@ const tabs: { id: AcademyTab; label: string; icon: any }[] = [
 ];
 
 export default function AcademyPage() {
-  const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const getTabFromUrl = () => {
+    const queryTab = searchParams.get('tab');
+    if (tabs.find(t => t.id === queryTab)) return queryTab as AcademyTab;
+
     const path = location.pathname.split('/').pop();
     return tabs.find(t => t.id === path) ? (path as AcademyTab) : 'all';
   };
@@ -51,14 +54,13 @@ export default function AcademyPage() {
       reportTabChange('Academy', tab, 'system');
       setActiveTab(tab);
     }
-    if (location.pathname === '/academy' || location.pathname === '/tutorials') {
-      navigate('/tutorials/all', { replace: true });
-    }
-  }, [location.pathname, navigate]);
+  }, [location.pathname, searchParams, activeTab]);
 
   const handleTabChange = (id: string) => {
-    setActiveTab(id as AcademyTab);
-    navigate(`/tutorials/${id}`);
+    startTransition(() => {
+      setActiveTab(id as AcademyTab);
+      setSearchParams({ tab: id });
+    });
   };
 
   const fetchAcademyContent = async () => {

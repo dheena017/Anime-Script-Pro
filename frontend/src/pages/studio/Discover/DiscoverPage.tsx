@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useState, useEffect, startTransition } from 'react';
+import { useLocation, useSearchParams } from 'react-router-dom';
 import { studioLog, reportTabChange } from '@/lib/studio-logger';
 import { 
   Compass, 
@@ -27,10 +27,13 @@ const tabs: { id: DiscoverTab; label: string; icon: any }[] = [
 ];
 
 export default function DiscoverPage() {
-  const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const getTabFromUrl = () => {
+    const queryTab = searchParams.get('tab');
+    if (tabs.find(t => t.id === queryTab)) return queryTab as DiscoverTab;
+
     const path = location.pathname.split('/').pop();
     return tabs.find(t => t.id === path) ? (path as DiscoverTab) : 'trending';
   };
@@ -51,14 +54,13 @@ export default function DiscoverPage() {
       reportTabChange('Discover', tab, 'system');
       setActiveTab(tab);
     }
-    if (location.pathname === '/discover') {
-      navigate('/discover/trending', { replace: true });
-    }
-  }, [location.pathname, navigate]);
+  }, [location.pathname, searchParams, activeTab]);
 
   const handleTabChange = (id: string) => {
-    setActiveTab(id as DiscoverTab);
-    navigate(`/discover/${id}`);
+    startTransition(() => {
+      setActiveTab(id as DiscoverTab);
+      setSearchParams({ tab: id });
+    });
   };
 
   useEffect(() => {

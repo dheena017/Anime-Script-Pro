@@ -6,12 +6,12 @@ export interface GalleryItem {
 }
 
 export const GALLERY_DATA: GalleryItem[] = [
-  { src: '/cyberpunk_thumbnail_1776537282821.png', prompt: 'A neon-lit cyberpunk city at night with rain reflections', architect: 'K. AKIRA', node: 'TOKYO-01' },
-  { src: '/dark_isekai_thumbnail_1776537262155.png', prompt: 'A cel-shaded fantasy warrior wielding a glowing katana', architect: 'S. CHEN', node: 'SEOUL-04' },
-  { src: '/magical_girl_thumbnail_1776537629295.png', prompt: 'Watercolor-style sakura blossoms falling over a quiet temple', architect: 'Y. TANAKA', node: 'KYOTO-02' },
-  { src: '/mecha_rebellion_thumbnail_1776537334398.png', prompt: 'A massive mecha battle in a ruined metropolis, 90s anime style', architect: 'M. ROSSI', node: 'ROME-09' },
-  { src: '/sports_anime_thumbnail_1776537646600.png', prompt: 'An anime girl watching the ocean sunset from a cliff, Studio Ghibli style', architect: 'E. DUPONT', node: 'PARIS-03' },
-  { src: '/steampunk_chronicle_thumbnail_1776586554491.png', prompt: 'Interior of a futuristic space station with holographic displays', architect: 'J. DOE', node: 'SF-12' },
+  { src: '/cyberpunk_thumbnail_1776537282821.webp', prompt: 'A neon-lit cyberpunk city at night with rain reflections', architect: 'K. AKIRA', node: 'TOKYO-01' },
+  { src: '/dark_isekai_thumbnail_1776537262155.webp', prompt: 'A cel-shaded fantasy warrior wielding a glowing katana', architect: 'S. CHEN', node: 'SEOUL-04' },
+  { src: '/magical_girl_thumbnail_1776537629295.webp', prompt: 'Watercolor-style sakura blossoms falling over a quiet temple', architect: 'Y. TANAKA', node: 'KYOTO-02' },
+  { src: '/mecha_rebellion_thumbnail_1776537334398.webp', prompt: 'A massive mecha battle in a ruined metropolis, 90s anime style', architect: 'M. ROSSI', node: 'ROME-09' },
+  { src: '/sports_anime_thumbnail_1776537646600.webp', prompt: 'An anime girl watching the ocean sunset from a cliff, Studio Ghibli style', architect: 'E. DUPONT', node: 'PARIS-03' },
+  { src: '/steampunk_chronicle_thumbnail_1776586554491.webp', prompt: 'Interior of a futuristic space station with holographic displays', architect: 'J. DOE', node: 'SF-12' },
 ];
 
 export const STYLE_OPTIONS = [

@@ -10,6 +10,7 @@ import {
   Loader2
 } from 'lucide-react';
 import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
+import { useStudioBasePath } from '@/hooks/useStudioBasePath';
 import { Button } from '@/components/ui/button';
 import { generateRelationships } from '@/services/api/gemini';
 import { CastEmptyState } from '../../components/CastEmptyState';
@@ -19,6 +20,7 @@ import { RelationshipCard } from '../../components/RelationshipCard';
 
 export default function RelationshipsPage() {
   const navigate = useNavigate();
+  const basePath = useStudioBasePath();
   const { handleLoadDemo } = React.useContext(CastContext);
   const { 
     characterRelationships, 
@@ -127,7 +129,7 @@ export default function RelationshipsPage() {
 
           <Button
             className="bg-fuchsia-600 text-white font-black uppercase tracking-wider hover:bg-fuchsia-500 shadow-[0_0_20px_rgba(217,70,239,0.3)] h-12 px-8 rounded-2xl"
-            onClick={() => navigate(`/${contentType.toLowerCase()}/cast/relationships/new`)}
+            onClick={() => navigate(`${basePath}/cast/relationships/new`)}
           >
             <Plus className="w-5 h-5 mr-2" /> Establish Connection
           </Button>
@@ -151,7 +153,7 @@ export default function RelationshipsPage() {
                 <RelationshipCard
                   connection={conn}
                   onRemove={handleRemove}
-                  onView={(id: string) => navigate(`/${contentType.toLowerCase()}/cast/relationships/${id}`)}
+                  onView={(id: string) => navigate(`${basePath}/cast/relationships/${id}`)}
                 />
               </motion.div>
             ))

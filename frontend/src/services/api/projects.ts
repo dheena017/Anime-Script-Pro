@@ -28,9 +28,10 @@ export const projectService = {
     return LOCAL_STRATEGIC_USER;
   },
 
-  async getProjects(): Promise<Project[]> {
+  async getProjects(includeArchived: boolean = false): Promise<Project[]> {
     try {
-      return await apiRequest<Project[]>('/api/projects', { label: 'Project List' });
+      const query = includeArchived ? '?include_archived=true' : '';
+      return await apiRequest<Project[]>(`/api/projects${query}`, { label: 'Project List' });
     } catch (e) {
       console.error("Error fetching projects:", e);
       return [];

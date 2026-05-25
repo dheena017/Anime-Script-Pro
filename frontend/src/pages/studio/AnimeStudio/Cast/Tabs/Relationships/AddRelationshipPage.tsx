@@ -13,6 +13,8 @@ import {
   Info
 } from 'lucide-react';
 import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
+import { useStudioBasePath } from '@/hooks/useStudioBasePath';
+import { useApp } from '@/contexts/AppContext';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
@@ -22,7 +24,9 @@ import { Slider } from "@/components/ui/slider";
 
 export default function AddRelationshipPage() {
   const navigate = useNavigate();
-  const { castData, castList, characterRelationships, contentType } = useGeneratorState();
+  const basePath = useStudioBasePath();
+  const { showNotification } = useApp();
+  const { castData, castList, characterRelationships } = useGeneratorState();
   const { setCharacterRelationships } = useGeneratorDispatch();
 
   const displayCast = castData?.characters || castList || [];
@@ -56,7 +60,8 @@ export default function AddRelationshipPage() {
     
     const newList = [...connections, newConnection];
     setCharacterRelationships(JSON.stringify(newList));
-    navigate(`/${contentType.toLowerCase()}/cast/relationships`);
+    showNotification(`Emotional connection (${formData.source} ↔ ${formData.target}) established successfully!`, 'success');
+    navigate(`${basePath}/cast/relationships`);
   };
 
   const types = [

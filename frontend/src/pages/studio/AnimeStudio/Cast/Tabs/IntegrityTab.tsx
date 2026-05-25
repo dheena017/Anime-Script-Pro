@@ -1,13 +1,15 @@
 import React from 'react';
 import { ShieldCheck, AlertTriangle, CheckCircle2, Search, RefreshCcw } from 'lucide-react';
 import { useGeneratorState } from '@/hooks/useGenerator';
+import { useStudioBasePath } from '@/hooks/useStudioBasePath';
 import { StudioEmptyState } from '@/pages/studio/components/studio/shared/StudioEmptyState';
 import { useNavigate } from 'react-router-dom';
 import { CastTabActionsContext } from '../CastLayout';
 
 export const IntegrityTab: React.FC = () => {
   const navigate = useNavigate();
-  const { castList, contentType, castIntegrity } = useGeneratorState();
+  const basePath = useStudioBasePath();
+  const { castList, castIntegrity } = useGeneratorState();
   const { handleGenerateIntegrity, isAnalyzingCast } = React.useContext(CastTabActionsContext);
 
   const characters = castList || [];
@@ -22,7 +24,7 @@ export const IntegrityTab: React.FC = () => {
         title="Integrity Scan Pending"
         description="Integrity checks require at least one character profile before verification can run."
         actionLabel="Open Cast Registry"
-        onAction={() => navigate(`/${contentType.toLowerCase()}/cast?tab=registry`)}
+        onAction={() => navigate(`${basePath}/cast?tab=registry`)}
         features={[
           { icon: CheckCircle2, title: 'Validation Rules', description: 'Enable duplicate and profile consistency checks' },
           { icon: Search, title: 'Anomaly Detection', description: 'Surface missing goals and weak personas' },

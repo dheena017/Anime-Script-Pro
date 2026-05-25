@@ -23,6 +23,7 @@ interface ScriptsTabProps {
 export const ScriptsTab: React.FC<ScriptsTabProps> = ({ searchTerm, viewMode }) => {
   const [prompts, setPrompts] = useState<SavedPrompt[]>([]);
   const [loading, setLoading] = useState(true);
+  const [scripts, setScripts] = useState<any[]>([]);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedPrompt, setSelectedPrompt] = useState<SavedPrompt | null>(null);
 
@@ -38,6 +39,10 @@ export const ScriptsTab: React.FC<ScriptsTabProps> = ({ searchTerm, viewMode }) 
         created_at: t.created_at,
         usage_count: t.stats?.usage || 0
       })));
+
+      // Fetch scripts from library
+      const libScripts = await (await import('@/services/api/library')).libraryApi.fetchScripts();
+      setScripts(libScripts || []);
     } catch (error) {
       console.error("Failed to load script blueprints:", error);
     } finally {

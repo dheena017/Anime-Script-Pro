@@ -45,13 +45,18 @@ export const CHARACTER_GENERATION_PROMPT = (contentType: string, contextInjected
 You are an expert ${contentType} Character Designer, Story Consultant, Cast Architect, and Character Psychology Specialist.
 Build a cast that is tailored to the world, series arc, scene structure, script rhythm, metadata packaging, and visual prompt pipeline already established in this project.
 
-CAST OBJECTIVE:
-- Generate a COMPREHENSIVE, INTERCONNECTED ensemble cast of at least ${count} characters (MINIMUM 5-8, can expand to 20-30+ if needed)
-- Fill Core, Support, Tertiary, Periphery, and Incidental tiers with specific, purposeful characters
-- Ensure every character has dramatic function, visual distinctiveness, relationship vectors, and growth potential
-- Make the cast feel like an interconnected web, not isolated concept art
-
-BASELINE: You may generate MORE than ${count} characters if the world context and story structure warrant it. Maximum is 40 characters for a single cast generation.
+CAST OBJECTIVE (CRITICAL COUNT LIMITS):
+- You MUST generate EXACTLY ${count} characters. Do NOT generate more, and do NOT generate less.
+- Every single character generated MUST have complete, fully populated profiles for all 7 core production dimensions:
+  1. IDENTITY (Full profile, visual appearance, body type, age, archetype, silhouette)
+  2. VOICE (Speaking style, rhythm, voice archetype, repeated verbal tics)
+  3. COMBAT (Power system details, signature abilities, camera choreography, limitations)
+  4. ARCS (Core psychological wound, primary fear, desire, arc roadmap)
+  5. DYNAMICS (Faction alignment, core friction, group etiquette, social standing)
+  6. RELATIONSHIPS (Deep relationship vectors mapped to other cast members)
+  7. TECHNICAL (Movement style, height comparisons, VFX signature, lighting logic)
+- Ensure every character has dramatic function, visual distinctiveness, and growth potential.
+- Keep all description text fields punchy, vivid, and highly concise (1-2 sentences per field maximum) to ensure all JSON objects can be fully returned within the token limits without truncation.
 
 PIPELINE CONTEXT:
 ${contextInjected}
@@ -79,10 +84,9 @@ PRIME DIRECTIVE:
 - Relationship dynamics must create natural story pressure and conflict escalation.
 
 TOKEN-EFFICIENCY MANDATE (CRITICAL):
-- For Tier 1 (Core) characters: Provide full, high-fidelity detail as requested.
-- For Tier 2 (Support) characters: Be concise. Keep descriptions to 1-2 punchy sentences.
-- For Tier 3 (Tertiary) and Tier 4 (Periphery) characters: Be extremely minimal. Use short bullet points or single-sentence descriptions for psychological and appearance fields.
-- The goal is to ensure AT LEAST 20 characters are generated within the output limit. If you reach the limit, the JSON will be broken. PRIORITIZE BREADTH OVER DEPTH for non-core characters.
+- Keep all string values incredibly punchy (1-2 sentences max). Avoid excessive preamble or long repetitive text in descriptions.
+- Focus on high-fidelity, high-density keywords and precise directives.
+- This token efficiency guarantees that all ${count} characters are fully generated with 100% complete JSON keys and zero truncation. Every character MUST be fully completed!
 
 STRUCTURAL FRAMEWORK:
 
@@ -350,17 +354,12 @@ For EVERY character in the cast, you MUST define HYPER-DETAILED profiles:
 
 --- MANDATORY CHARACTER QUANTITY & VARIETY ---
 
-You MUST generate:
-- Minimum 1 Protagonist with complete psychological depth
-- Minimum 1 Prime Antagonist with sympathetic motivation
-- Minimum 1-2 Deuteragonists or major supporting characters
-- Minimum 2-4 Nakama/core party members with distinct roles
-- Minimum 1 Mentor figure
-- Minimum 1-2 Antagonist lieutenants or arc-level bosses
-- Minimum 1-2 Love interest or romantic subplot characters
-- Minimum 3-5 Tertiary/episodic characters adding world texture
-- Total cast: MINIMUM ${count} (baseline 5-8), MAXIMUM 40 characters
-- Can add MORE characters if the world context warrants larger ensemble
+You MUST generate EXACTLY ${count} characters. Populate the cast using the following dynamic structure based on the requested count:
+- First character MUST be the Protagonist (Tier 1: Core, critical lead).
+- Second character MUST be the Prime Antagonist (Tier 1: Core, critical lead).
+- Third character MUST be the Deuteragonist/Rival (Tier 1: Core, critical lead).
+- Remaining characters should populate Tier 2 (Support) Nakama, mentors, or supporting roles.
+- The total size of the "characters" array MUST be EXACTLY ${count}. Do not exceed this number!
 
 --- OUTPUT FORMAT & STRUCTURE ---
 
@@ -425,11 +424,11 @@ You MUST return a JSON object with this EXACT structure:
           "moralDilemma": "<the core impossible choice they must make>"
         }
       },
-      "secrets": ["<secret1>"],
-      "conflict": "<conflict>",
-      "goal": "<goal>",
-      "flaw": "<flaw>",
-      "sceneFunction": ["<function1>"],
+      "secrets": ["<shocking, plot-defining classified secret (e.g. actually a double agent, possesses forbidden bloodline, holds key to the primary antagonist's weakness, or caused a past tragedy). Must be complete and highly narrative-driven. NEVER leave this empty!>"],
+      "conflict": "<core ideological or personal conflict they face in their scenes>",
+      "goal": "<what they desperately want to achieve or uncover>",
+      "flaw": "<their fatal character flaw that causes friction>",
+      "sceneFunction": ["<narrative scene role 1>", "<narrative scene role 2>"],
       "worldAlignment": {
         "factionAffiliation": "<faction>",
         "socialClass": "<class>",

@@ -11,10 +11,12 @@ import {
   Wand2,
   Edit2,
   Zap,
-  Maximize2
+  Maximize2,
+  Film
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
+import { storyboardStyles as s } from '../storyboardStyles';
 
 interface Scene {
   id: string;
@@ -25,6 +27,12 @@ interface Scene {
   sound: string;
   duration: string;
   linkedPrompt?: string;
+  videoPrompt?: string;
+  soulFocus?: string;
+  vfxCompounds?: string;
+  emotionalKey?: string;
+  subtext?: string;
+  assets?: string;
 }
 
 interface SceneCardProps {
@@ -72,6 +80,7 @@ export const SceneCard = React.memo<SceneCardProps>(({
   setEditForm,
   handleGenerateVisual,
   videoData,
+  handleGenerateVideo,
   startEditing,
   cancelEditing,
   saveSceneEdits,
@@ -99,8 +108,8 @@ export const SceneCard = React.memo<SceneCardProps>(({
       className="relative"
     >
       <Card className={cn(
-        "scene-card group",
-        isDragging ? "scene-card-dragging" : "scene-card-normal",
+        s.card.wrapper,
+        isDragging ? s.card.dragging : s.card.normal,
         isBulkEnhancing && "border-studio/50 shadow-studio/10"
       )}>
         <div className="absolute inset-0 opacity-[0.03] bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:10px_10px] pointer-events-none" />
@@ -129,7 +138,7 @@ export const SceneCard = React.memo<SceneCardProps>(({
         )}
 
         {/* Scene Image Area */}
-        <div className="scene-image-area">
+        <div className={s.card.imageArea}>
           {videoData?.[scene.originalIndex] && videoData[scene.originalIndex] !== 'loading' ? (
             <div className="relative w-full h-full">
               <video
@@ -184,7 +193,7 @@ export const SceneCard = React.memo<SceneCardProps>(({
           )}
 
           {/* Scene Label & Drag Handle */}
-          <div className="scene-label-badge">
+          <div className={s.card.labelBadge}>
             <div {...dragHandleProps} className="cursor-grab active:cursor-grabbing hover:scale-110 transition-transform">
               <GripVertical className="w-4 h-4 text-studio opacity-60 hover:opacity-100 transition-opacity" />
             </div>
@@ -193,7 +202,7 @@ export const SceneCard = React.memo<SceneCardProps>(({
           </div>
 
           {/* Action Overlay */}
-          <div className="scene-action-overlay">
+          <div className={s.card.actionOverlay}>
             <Button
               onClick={() => navigate(`scenes/${scene.originalIndex}`)}
               className="bg-white text-black hover:bg-studio hover:text-black font-black uppercase tracking-widest text-xs h-10 px-6 rounded-xl shadow-2xl transition-all transform translate-y-4 group-hover:translate-y-0"
@@ -214,6 +223,19 @@ export const SceneCard = React.memo<SceneCardProps>(({
             >
               <Zap className="w-3.5 h-3.5 mr-2" /> Manifest Scene
             </Button>
+            {handleGenerateVideo && (
+              <Button
+                onClick={() => {
+                  const currentVisuals = visualData[scene.originalIndex] || [];
+                  const imageUrl = currentVisuals[0] && currentVisuals[0] !== 'loading' ? currentVisuals[0] : `https://picsum.photos/seed/scene-${scene.originalIndex}/800/450`;
+                  handleGenerateVideo(scene.originalIndex, imageUrl, scene.linkedPrompt || scene.visuals);
+                }}
+                variant="outline"
+                className="bg-orange-500/10 text-orange-400 border-orange-500/30 hover:bg-orange-500 hover:text-black font-black uppercase tracking-widest text-xs h-10 px-6 rounded-xl shadow-2xl transition-all transform translate-y-4 group-hover:translate-y-0 delay-100"
+              >
+                <Film className="w-3.5 h-3.5 mr-2" /> Generate Video
+              </Button>
+            )}
           </div>
 
           <div className="absolute bottom-4 left-4 right-4 z-20 opacity-0 group-hover:opacity-100 transition-all duration-700 transform translate-y-4 group-hover:translate-y-0">
@@ -224,7 +246,7 @@ export const SceneCard = React.memo<SceneCardProps>(({
         </div>
 
         {/* Scene Content Area */}
-        <div className="scene-content-area">
+        <div className={s.card.contentArea}>
           {editingSceneId === scene.id ? (
             <div className="space-y-5 animate-in fade-in slide-in-from-bottom-2 duration-500">
               <div className="space-y-2">
@@ -370,6 +392,68 @@ export const SceneCard = React.memo<SceneCardProps>(({
                 </div>
               </div>
 
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-xs font-black text-zinc-600 uppercase tracking-[0.3em] ml-1">Soul Focus</label>
+                  <Input
+                    value={editForm.soulFocus || ''}
+                    onChange={(e) => setEditForm({ ...editForm, soulFocus: e.target.value })}
+                    className="h-10 text-xs bg-white/[0.02] border-white/10 focus:border-studio/50 focus:bg-studio/[0.02] rounded-xl font-bold uppercase tracking-wider text-white"
+                    placeholder="e.g. Anya"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-black text-zinc-600 uppercase tracking-[0.3em] ml-1">Emotional Key</label>
+                  <Input
+                    value={editForm.emotionalKey || ''}
+                    onChange={(e) => setEditForm({ ...editForm, emotionalKey: e.target.value })}
+                    className="h-10 text-xs bg-white/[0.02] border-white/10 focus:border-orange-500/50 focus:bg-orange-500/[0.02] rounded-xl font-bold uppercase tracking-wider text-white"
+                    placeholder="e.g. Tension"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-xs font-black text-zinc-600 uppercase tracking-[0.3em] ml-1">Narrative Subtext</label>
+                <Textarea
+                  value={editForm.subtext || ''}
+                  onChange={(e) => setEditForm({ ...editForm, subtext: e.target.value })}
+                  className="min-h-[80px] text-xs bg-white/[0.02] border-white/10 focus:border-studio/50 focus:bg-studio/[0.02] resize-none transition-all rounded-xl leading-relaxed text-zinc-400 p-3"
+                  placeholder="Specify hidden motives, subtext, or internal character psychology..."
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-xs font-black text-zinc-600 uppercase tracking-[0.3em] ml-1">VFX Compounds</label>
+                  <Input
+                    value={editForm.vfxCompounds || ''}
+                    onChange={(e) => setEditForm({ ...editForm, vfxCompounds: e.target.value })}
+                    className="h-10 text-xs bg-white/[0.02] border-white/10 focus:border-purple-500/50 rounded-xl text-white font-mono"
+                    placeholder="e.g. Volumetrics, lens bloom"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-black text-zinc-600 uppercase tracking-[0.3em] ml-1">Active Assets</label>
+                  <Input
+                    value={editForm.assets || ''}
+                    onChange={(e) => setEditForm({ ...editForm, assets: e.target.value })}
+                    className="h-10 text-xs bg-white/[0.02] border-white/10 focus:border-studio/50 rounded-xl text-white"
+                    placeholder="e.g. Anya, Railgun"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-xs font-black text-orange-400 uppercase tracking-[0.3em] ml-1">Video Motion Prompt</label>
+                <Textarea
+                  value={editForm.videoPrompt || ''}
+                  onChange={(e) => setEditForm({ ...editForm, videoPrompt: e.target.value })}
+                  className="min-h-[100px] text-xs font-mono bg-black/40 border-orange-500/20 focus:border-orange-500/50 focus:bg-black/60 resize-none transition-all rounded-xl leading-relaxed text-zinc-400 p-3"
+                  placeholder="High-fidelity cinematic prompt for video synthesis (Sora, Runway)..."
+                />
+              </div>
+
               <div className="flex justify-end gap-3 pt-6 border-t border-white/5 mt-2">
                 <Button variant="ghost" size="sm" onClick={cancelEditing} className="h-10 px-6 text-xs uppercase tracking-widest font-black rounded-xl hover:bg-white/5 text-zinc-500">
                   Abort
@@ -382,9 +466,9 @@ export const SceneCard = React.memo<SceneCardProps>(({
           ) : (
             <div className="animate-in fade-in duration-700 space-y-4">
               <div className="flex justify-between items-start mb-5">
-                <div className="scene-narration-box">
+                <div className={s.card.narrationBox}>
                   <h4 className="text-xs font-black text-zinc-600 uppercase tracking-[0.3em] ml-1">Narration Layer</h4>
-                  <p className="scene-narration-text">
+                  <p className={s.card.narrationText}>
                     <span className="text-studio/40 font-serif mr-2 text-lg">"</span>
                     {scene.narration}
                     <span className="text-studio/40 font-serif ml-1 text-lg">"</span>
@@ -392,8 +476,34 @@ export const SceneCard = React.memo<SceneCardProps>(({
                 </div>
               </div>
 
+              {/* Focus & Key Indicators */}
+              {(scene.soulFocus || scene.emotionalKey) && (
+                <div className="grid grid-cols-2 gap-4">
+                  {scene.soulFocus && (
+                    <div className="px-4 py-2.5 bg-[#050505]/40 border border-white/5 rounded-xl text-left">
+                      <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest block mb-1">👤 Soul Focus</span>
+                      <span className="text-xs font-black text-white uppercase tracking-wider">{scene.soulFocus}</span>
+                    </div>
+                  )}
+                  {scene.emotionalKey && (
+                    <div className="px-4 py-2.5 bg-[#050505]/40 border border-white/5 rounded-xl text-left">
+                      <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest block mb-1">🔥 Emotional Key</span>
+                      <span className="text-xs font-black text-orange-400 uppercase tracking-wider">{scene.emotionalKey}</span>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Subtext Display */}
+              {scene.subtext && (
+                <div className="px-4 py-3 bg-[#050505]/40 border border-white/5 rounded-2xl text-left">
+                  <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest block mb-1">🧠 Narrative Subtext</span>
+                  <p className="text-xs text-zinc-400 font-bold uppercase tracking-tight leading-relaxed">{scene.subtext}</p>
+                </div>
+              )}
+
               <div className="space-y-4">
-                <div className="scene-visual-blueprint group/visual">
+                <div className={s.card.visualBlueprint}>
                   <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-transparent opacity-0 group-hover/visual:opacity-100 transition-opacity duration-700" />
                   <div className="flex items-center justify-between mb-3 relative z-10">
                     <h4 className="text-xs font-black text-purple-400 uppercase tracking-[0.3em] flex items-center gap-2">
@@ -409,25 +519,49 @@ export const SceneCard = React.memo<SceneCardProps>(({
                       Generate
                     </Button>
                   </div>
-                  <p className="scene-visual-text">{scene.visuals}</p>
+                  <p className={s.card.visualText}>{scene.visuals}</p>
+                  
+                  {/* VFX & Active Assets Display */}
+                  {scene.vfxCompounds && (
+                    <div className="mt-4 pt-4 border-t border-white/5 text-left relative z-10">
+                      <span className="text-[10px] font-black text-purple-400 uppercase tracking-widest block mb-1">✨ VFX Compounds</span>
+                      <p className="text-xs text-zinc-400 font-mono leading-relaxed">{scene.vfxCompounds}</p>
+                    </div>
+                  )}
+                  {scene.assets && (
+                    <div className="mt-3 pt-3 border-t border-white/5 text-left relative z-10">
+                      <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest block mb-1">📦 Active Assets</span>
+                      <p className="text-xs text-zinc-400 font-bold uppercase tracking-wider">{scene.assets}</p>
+                    </div>
+                  )}
+
                   {scene.linkedPrompt && (
-                    <div className="mt-4 pt-4 border-t border-white/5 space-y-2 relative z-10">
+                    <div className="mt-4 pt-4 border-t border-white/5 space-y-2 relative z-10 text-left">
                       <span className="text-xs font-black text-studio uppercase tracking-[0.3em] block ml-1">Linked Scene Design</span>
                       <p className="text-xs text-zinc-300 font-mono italic bg-black/40 p-3 rounded-lg whitespace-pre-wrap break-words transition-all cursor-default">
                         {scene.linkedPrompt}
                       </p>
                     </div>
                   )}
+
+                  {scene.videoPrompt && (
+                    <div className="mt-4 pt-4 border-t border-white/5 space-y-2 relative z-10 text-left">
+                      <span className="text-xs font-black text-orange-400 uppercase tracking-[0.3em] block ml-1">Video Motion Prompt</span>
+                      <p className="text-xs text-zinc-300 font-mono italic bg-black/40 p-3 rounded-lg whitespace-pre-wrap break-words transition-all cursor-default">
+                        {scene.videoPrompt}
+                      </p>
+                    </div>
+                  )}
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="scene-stat-box">
+                  <div className={s.card.statBox}>
                     <h4 className="text-xs font-black text-blue-400 uppercase tracking-[0.3em] flex items-center gap-2 mb-3">
                       <Sparkles className="w-3.5 h-3.5" /> Audio Matrix
                     </h4>
                     <p className="text-xs text-zinc-400 font-mono leading-relaxed italic">{scene.sound || "No cues defined"}</p>
                   </div>
-                  <div className="scene-stat-box flex flex-col justify-between">
+                  <div className={cn(s.card.statBox, "flex flex-col justify-between")}>
                     <h4 className="text-xs font-black text-emerald-400 uppercase tracking-[0.3em] flex items-center gap-2 mb-3">
                       <Zap className="w-3.5 h-3.5" /> Temporal
                     </h4>
@@ -443,7 +577,7 @@ export const SceneCard = React.memo<SceneCardProps>(({
         </div>
 
         {/* Scene Card Footer - Action Hub */}
-        <div className="scene-footer">
+        <div className={s.card.footer}>
           <Button
             variant="ghost"
             size="sm"

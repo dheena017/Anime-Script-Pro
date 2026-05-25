@@ -15,7 +15,7 @@ interface SEOLoadingPageProps {
 const TAB_META: Record<string, { title: string; description: string; icon: any; color: string; accentColor: string; borderColor: string; bgColor: string; shadowColor: string }> = {
   keywords: { title: 'Indexing Keywords', description: 'Generating search-engine friendly titles and indexing tags', icon: FileSearch, color: 'text-green-400', accentColor: 'text-green-400', borderColor: 'border-green-500/20', bgColor: 'bg-green-500/5', shadowColor: 'rgba(34, 197, 94, 0.1)' },
   description: { title: 'Writing Descriptions', description: 'Drafting compelling series and episode summaries', icon: Megaphone, color: 'text-emerald-400', accentColor: 'text-emerald-400', borderColor: 'border-emerald-500/20', bgColor: 'bg-emerald-500/5', shadowColor: 'rgba(16, 185, 129, 0.1)' },
-  'alt-texts': { title: 'Generating Alt Texts', description: 'Creating accessibility-compliant image descriptions', icon: Search, color: 'text-teal-400', accentColor: 'text-teal-400', borderColor: 'border-teal-500/20', bgColor: 'bg-teal-500/5', shadowColor: 'rgba(20, 184, 166, 0.1)' },
+  alt: { title: 'Generating Alt Texts', description: 'Creating accessibility-compliant image descriptions', icon: Search, color: 'text-teal-400', accentColor: 'text-teal-400', borderColor: 'border-teal-500/20', bgColor: 'bg-teal-500/5', shadowColor: 'rgba(20, 184, 166, 0.1)' },
   tags: { title: 'Building Meta Tags', description: 'Structuring metadata for platform indexing', icon: FileSearch, color: 'text-cyan-400', accentColor: 'text-cyan-400', borderColor: 'border-cyan-500/20', bgColor: 'bg-cyan-500/5', shadowColor: 'rgba(34, 211, 238, 0.1)' },
   distribution: { title: 'Planning Distribution', description: 'Mapping content strategy and platform reach', icon: Share2, color: 'text-blue-400', accentColor: 'text-blue-400', borderColor: 'border-blue-500/20', bgColor: 'bg-blue-500/5', shadowColor: 'rgba(59, 130, 246, 0.1)' },
   growth: { title: 'Analyzing Growth', description: 'Projecting audience retention and growth trends', icon: TrendingUp, color: 'text-lime-400', accentColor: 'text-lime-400', borderColor: 'border-lime-500/20', bgColor: 'bg-lime-500/5', shadowColor: 'rgba(132, 204, 22, 0.1)' },
@@ -49,7 +49,7 @@ export function SEOLoadingPage({ tab, title, description, progress }: SEOLoading
     return () => { if (interval) clearInterval(interval); };
   }, [isActive, progress]);
 
-  const meta = tab ? TAB_META[tab] : { 
+  const meta = (tab && TAB_META[tab]) ? TAB_META[tab] : { 
     title: title || 'Optimizing SEO', 
     description: description || 'Improving discoverability and platform reach',
     icon: Search,

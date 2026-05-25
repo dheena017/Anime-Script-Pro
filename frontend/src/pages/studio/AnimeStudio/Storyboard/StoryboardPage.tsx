@@ -42,6 +42,12 @@ interface Scene {
   sound: string;
   duration: string;
   linkedPrompt?: string;
+  videoPrompt?: string;
+  soulFocus?: string;
+  vfxCompounds?: string;
+  emotionalKey?: string;
+  subtext?: string;
+  assets?: string;
 }
 
 import { storyboardStyles as s } from './storyboardStyles';
@@ -66,7 +72,8 @@ export function StoryboardPage() {
   } = useGeneratorState();
   const {
     setGeneratedScript,
-    addLog
+    addLog,
+    loadDemoProject
   } = useGeneratorDispatch();
 
   const { state: storyboardState, dispatch: storyboardDispatch } = useStoryboard();
@@ -104,6 +111,28 @@ export function StoryboardPage() {
 
     return tableLines.slice(1).map((row, idx) => {
       const cells = row.split('|').filter(cell => cell.trim() !== "").map(cell => cell.trim());
+      
+      // If we have at least 11 columns, it's the premium 13-column format!
+      if (cells.length >= 11) {
+        return {
+          id: `scene-${Math.random().toString(36).substring(2, 9)}-${idx}`,
+          originalIndex: idx,
+          section: cells[1] || '',
+          soulFocus: cells[2] || '',
+          narration: cells[3] || '',
+          visuals: cells[4] || '',
+          vfxCompounds: cells[5] || '',
+          sound: cells[6] || '',
+          emotionalKey: cells[7] || '',
+          subtext: cells[8] || '',
+          assets: cells[9] || '',
+          duration: cells[10] || '5s',
+          videoPrompt: cells[11] || '',
+          linkedPrompt: cells[12] || ''
+        };
+      }
+
+      // Legacy 6-column format fallback
       return {
         id: `scene-${Math.random().toString(36).substring(2, 9)}-${idx}`,
         originalIndex: idx,
@@ -112,7 +141,8 @@ export function StoryboardPage() {
         visuals: cells[2] || '',
         sound: cells[3] || '',
         duration: cells[4] || '5s',
-        linkedPrompt: cells[5] || ''
+        linkedPrompt: cells[5] || '',
+        videoPrompt: ''
       };
     });
   };
@@ -136,7 +166,17 @@ export function StoryboardPage() {
       let tableEndIndex = tableHeaderIndex + 2;
       while (tableEndIndex < lines.length && lines[tableEndIndex].includes('|')) tableEndIndex++;
       const postTable = lines.slice(tableEndIndex);
-      const newTableRows = items.map(scene => `| ${scene.section} | ${scene.narration} | ${scene.visuals} | ${scene.sound} | ${scene.duration} | ${scene.linkedPrompt || ''} |`);
+      
+      const firstRow = lines[tableHeaderIndex];
+      const isPremiumFormat = firstRow.split('|').map(c => c.trim().toLowerCase()).some(c => c.includes('video prompt') || c.includes('image prompt'));
+
+      const newTableRows = items.map(scene => {
+        if (isPremiumFormat) {
+          const sceneNum = scene.originalIndex + 1;
+          return `| ${sceneNum} | ${scene.section} | ${scene.soulFocus || ''} | ${scene.narration} | ${scene.visuals} | ${scene.vfxCompounds || ''} | ${scene.sound} | ${scene.emotionalKey || ''} | ${scene.subtext || ''} | ${scene.assets || ''} | ${scene.duration} | ${scene.videoPrompt || ''} | ${scene.linkedPrompt || ''} |`;
+        }
+        return `| ${scene.section} | ${scene.narration} | ${scene.visuals} | ${scene.sound} | ${scene.duration} | ${scene.linkedPrompt || ''} |`;
+      });
       const newScript = [...preTable, ...newTableRows, ...postTable].join('\n');
       lastScriptRef.current = newScript;
       setGeneratedScript(newScript);
@@ -207,22 +247,60 @@ export function StoryboardPage() {
   const handleGenerateVisual = React.useCallback(async (originalIndex: number, visualsDescription: string) => {
     storyboardDispatch({ type: 'UPDATE_VISUAL_ITEM', payload: { id: originalIndex, data: ['loading'] } });
     try {
-      const promises = Array(4).fill(0).map((_, i) => generateSceneImage(`${visualsDescription} Variation ${i + 1}`, selectedModel));
+      const scene = scenes.find(s => s.originalIndex === originalIndex);
+      
+      // Premium 13-Topic hyper-accurate prompt synthesis
+      const promptToUse = scene?.linkedPrompt || [
+        scene?.section ? `Setting: ${scene.section}.` : "",
+        scene?.soulFocus ? `Subject Focus: ${scene.soulFocus}.` : "",
+        visualsDescription ? `Action: ${visualsDescription}.` : "",
+        scene?.assets ? `Objects & Elements: ${scene.assets}.` : "",
+        scene?.sound ? `Environment Atmosphere: ${scene.sound}.` : "",
+        scene?.emotionalKey ? `Visual Tone & Mood: ${scene.emotionalKey}.` : "",
+        scene?.subtext ? `Psychological Undercurrent: ${scene.subtext}.` : "",
+        scene?.vfxCompounds ? `Cinematography & Special Effects: ${scene.vfxCompounds}.` : ""
+      ].filter(Boolean).join(" ");
+
+      const promises = Array(4).fill(0).map((_, i) => generateSceneImage(`${promptToUse} Variation ${i + 1}`));
       const results = await Promise.all(promises);
-      const images = results.map((url, i) => url || `https://picsum.photos/seed/${encodeURIComponent(visualsDescription.slice(0, 50))}-${originalIndex}-${i}/800/450`);
+      const images = results.map((url, i) => url || `https://picsum.photos/seed/${encodeURIComponent(promptToUse.slice(0, 50))}-${originalIndex}-${i}/800/450`);
       storyboardDispatch({ type: 'UPDATE_VISUAL_ITEM', payload: { id: originalIndex, data: images } });
     } catch (error) {
       console.error("Failed to generate image:", error);
-      const seed = encodeURIComponent(visualsDescription.slice(0, 50));
+      const scene = scenes.find(s => s.originalIndex === originalIndex);
+      
+      const promptToUse = scene?.linkedPrompt || [
+        scene?.section ? `Setting: ${scene.section}.` : "",
+        scene?.soulFocus ? `Subject Focus: ${scene.soulFocus}.` : "",
+        visualsDescription ? `Action: ${visualsDescription}.` : "",
+        scene?.assets ? `Objects & Elements: ${scene.assets}.` : "",
+        scene?.sound ? `Environment Atmosphere: ${scene.sound}.` : "",
+        scene?.emotionalKey ? `Visual Tone & Mood: ${scene.emotionalKey}.` : "",
+        scene?.subtext ? `Psychological Undercurrent: ${scene.subtext}.` : "",
+        scene?.vfxCompounds ? `Cinematography & Special Effects: ${scene.vfxCompounds}.` : ""
+      ].filter(Boolean).join(" ");
+
+      const seed = encodeURIComponent(promptToUse.slice(0, 50));
       const fallbacks = Array(4).fill(0).map((_, i) => `https://picsum.photos/seed/${seed}-${originalIndex}-${i}/800/450`);
       storyboardDispatch({ type: 'UPDATE_VISUAL_ITEM', payload: { id: originalIndex, data: fallbacks } });
     }
-  }, [selectedModel, storyboardDispatch]);
+  }, [scenes, selectedModel, storyboardDispatch]);
 
   const handleGenerateVideo = React.useCallback(async (originalIndex: number, imageUrl: string, prompt: string) => {
     storyboardDispatch({ type: 'UPDATE_VIDEO_ITEM', payload: { id: originalIndex, data: 'loading' } });
     try {
-      const videoUrl = await generateSceneVideo(prompt, selectedModel, undefined, imageUrl);
+      const scene = scenes.find(s => s.originalIndex === originalIndex);
+      
+      // Premium 13-Topic hyper-accurate motion synthesis
+      const promptToUse = scene?.videoPrompt || [
+        scene?.linkedPrompt ? `Concept Base: ${scene.linkedPrompt}.` : "",
+        prompt ? `Shot Context: ${prompt}.` : "",
+        scene?.soulFocus ? `Primary Character Motion: ${scene.soulFocus}.` : "",
+        scene?.vfxCompounds ? `Lens Settings & Dynamic VFX: ${scene.vfxCompounds}.` : "",
+        `Motion Spec: High-fidelity cinematic anime keyframe flow, smooth dynamic camera pan, highly detailed.`
+      ].filter(Boolean).join(" ");
+
+      const videoUrl = await generateSceneVideo(promptToUse, selectedModel, undefined, imageUrl);
       if (videoUrl) {
         storyboardDispatch({ type: 'UPDATE_VIDEO_ITEM', payload: { id: originalIndex, data: videoUrl } });
       } else {
@@ -232,7 +310,7 @@ export function StoryboardPage() {
       console.error("Failed to generate video:", error);
       storyboardDispatch({ type: 'UPDATE_VIDEO_ITEM', payload: { id: originalIndex, data: "https://vjs.zencdn.net/v/oceans.mp4" } });
     }
-  }, [selectedModel, storyboardDispatch]);
+  }, [scenes, selectedModel, storyboardDispatch]);
 
   const handleGenerateAll = React.useCallback(async () => {
     addLog("STORYBOARD", "PROCESSING", `Starting AI generation for ${scenes.length} scenes.`);
@@ -243,13 +321,33 @@ export function StoryboardPage() {
       if (!visualData[scene.originalIndex] || visualData[scene.originalIndex].length === 0 || visualData[scene.originalIndex][0] === 'loading') {
         storyboardDispatch({ type: 'UPDATE_VISUAL_ITEM', payload: { id: scene.originalIndex, data: ['loading'] } });
         try {
-          const promptToUse = scene.linkedPrompt || scene.visuals;
-          const promises = Array(4).fill(0).map((_, idx) => generateSceneImage(`${promptToUse} Variation ${idx + 1}`, selectedModel));
+          const promptToUse = scene.linkedPrompt || [
+            scene.section ? `Setting: ${scene.section}.` : "",
+            scene.soulFocus ? `Subject Focus: ${scene.soulFocus}.` : "",
+            scene.visuals ? `Action: ${scene.visuals}.` : "",
+            scene.assets ? `Objects & Elements: ${scene.assets}.` : "",
+            scene.sound ? `Environment Atmosphere: ${scene.sound}.` : "",
+            scene.emotionalKey ? `Visual Tone & Mood: ${scene.emotionalKey}.` : "",
+            scene.subtext ? `Psychological Undercurrent: ${scene.subtext}.` : "",
+            scene.vfxCompounds ? `Cinematography & Special Effects: ${scene.vfxCompounds}.` : ""
+          ].filter(Boolean).join(" ");
+
+          const promises = Array(4).fill(0).map((_, idx) => generateSceneImage(`${promptToUse} Variation ${idx + 1}`));
           const results = await Promise.all(promises);
           const images = results.map((url, idx) => url || `https://picsum.photos/seed/${encodeURIComponent(promptToUse.slice(0, 50))}-${scene.originalIndex}-${idx}/800/450`);
           storyboardDispatch({ type: 'UPDATE_VISUAL_ITEM', payload: { id: scene.originalIndex, data: images } });
         } catch (error) {
-          const promptToUse = scene.linkedPrompt || scene.visuals;
+          const promptToUse = scene.linkedPrompt || [
+            scene.section ? `Setting: ${scene.section}.` : "",
+            scene.soulFocus ? `Subject Focus: ${scene.soulFocus}.` : "",
+            scene.visuals ? `Action: ${scene.visuals}.` : "",
+            scene.assets ? `Objects & Elements: ${scene.assets}.` : "",
+            scene.sound ? `Environment Atmosphere: ${scene.sound}.` : "",
+            scene.emotionalKey ? `Visual Tone & Mood: ${scene.emotionalKey}.` : "",
+            scene.subtext ? `Psychological Undercurrent: ${scene.subtext}.` : "",
+            scene.vfxCompounds ? `Cinematography & Special Effects: ${scene.vfxCompounds}.` : ""
+          ].filter(Boolean).join(" ");
+
           const fallbacks = Array(4).fill(0).map((_, idx) => `https://picsum.photos/seed/${encodeURIComponent(promptToUse.slice(0, 50))}-${scene.originalIndex}-${idx}/800/450`);
           storyboardDispatch({ type: 'UPDATE_VISUAL_ITEM', payload: { id: scene.originalIndex, data: fallbacks } });
         }
@@ -389,11 +487,18 @@ export function StoryboardPage() {
     const newScene: Scene = {
       id: `scene-${Math.random().toString(36).substring(2, 9)}-${nextIndex}`,
       originalIndex: nextIndex,
-      section: 'New Scene',
+      section: `SCENE ${nextIndex + 1} - INT. STUDIO - DAY`,
       narration: 'Character narration or dialogue goes here...',
-      visuals: 'Cinematic shot description...',
-      sound: 'SFX and BGM cues',
-      duration: '5s'
+      visuals: 'Cinematic shot description with camera details...',
+      sound: 'Ambient soundscape, BGM, and foley cues...',
+      duration: '5s',
+      soulFocus: 'Active Subject',
+      emotionalKey: 'Tension',
+      vfxCompounds: 'Volumetric bloom, HSL color grade',
+      assets: 'Key environment props',
+      subtext: 'Psychological narrative undercurrent',
+      linkedPrompt: '',
+      videoPrompt: ''
     };
     const updatedScenes = [...scenes, newScene];
     storyboardDispatch({ type: 'SET_SCENES', payload: updatedScenes });
@@ -462,6 +567,7 @@ export function StoryboardPage() {
     if (scenes.length === 0 && activeTab !== 'animatic') {
       return (
         <StoryboardEmptyState
+          onLoadDemo={loadDemoProject}
           onLaunch={() => {
             window.dispatchEvent(new CustomEvent('studio-generate-storyboard'));
           }}
@@ -501,6 +607,7 @@ export function StoryboardPage() {
             isGenerating={isGeneratingVisuals}
             handleManifestScene={handleManifestScene}
             isManifestingSceneId={isManifestingSceneId}
+            onLoadDemo={loadDemoProject}
           />
         );
       case 'angles':
@@ -540,6 +647,7 @@ export function StoryboardPage() {
             isGenerating={isGeneratingVisuals}
             handleManifestScene={handleManifestScene}
             isManifestingSceneId={isManifestingSceneId}
+            onLoadDemo={loadDemoProject}
           />
         );
     }

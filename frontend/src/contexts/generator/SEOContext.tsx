@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
 
 interface SEOState {
   generatedMetadata: string | null;
@@ -30,6 +31,9 @@ const SEOStateContext = createContext<SEOState | undefined>(undefined);
 const SEODispatchContext = createContext<SEODispatch | undefined>(undefined);
 
 export function SEOProvider({ children }: { children: React.ReactNode }) {
+  const globalState = useGeneratorState();
+  const globalDispatch = useGeneratorDispatch();
+
   const [generatedMetadata, setGeneratedMetadata] = useState<string | null>(null);
   const [generatedDescription, setGeneratedDescription] = useState<string | null>(null);
   const [generatedAltText, setGeneratedAltText] = useState<string | null>(null);
@@ -41,6 +45,130 @@ export function SEOProvider({ children }: { children: React.ReactNode }) {
   const [isGeneratingAltText, setIsGeneratingAltText] = useState(false);
   const [isGeneratingGrowthStrategy, setIsGeneratingGrowthStrategy] = useState(false);
   const [isGeneratingDistribution, setIsGeneratingDistribution] = useState(false);
+
+  // Sync Global to Local (e.g. on Load Demo or load session)
+  useEffect(() => {
+    if (globalState.generatedMetadata !== generatedMetadata) {
+      setGeneratedMetadata(globalState.generatedMetadata);
+    }
+  }, [globalState.generatedMetadata]);
+
+  useEffect(() => {
+    if (globalState.generatedDescription !== generatedDescription) {
+      setGeneratedDescription(globalState.generatedDescription);
+    }
+  }, [globalState.generatedDescription]);
+
+  useEffect(() => {
+    if (globalState.generatedAltText !== generatedAltText) {
+      setGeneratedAltText(globalState.generatedAltText);
+    }
+  }, [globalState.generatedAltText]);
+
+  useEffect(() => {
+    if (globalState.generatedGrowthStrategy !== generatedGrowthStrategy) {
+      setGeneratedGrowthStrategy(globalState.generatedGrowthStrategy);
+    }
+  }, [globalState.generatedGrowthStrategy]);
+
+  useEffect(() => {
+    if (globalState.generatedDistributionPlan !== generatedDistributionPlan) {
+      setGeneratedDistributionPlan(globalState.generatedDistributionPlan);
+    }
+  }, [globalState.generatedDistributionPlan]);
+
+  // Sync generating states Global to Local
+  useEffect(() => {
+    if (globalState.isGeneratingMetadata !== isGeneratingMetadata) {
+      setIsGeneratingMetadata(globalState.isGeneratingMetadata);
+    }
+  }, [globalState.isGeneratingMetadata]);
+
+  useEffect(() => {
+    if (globalState.isGeneratingDescription !== isGeneratingDescription) {
+      setIsGeneratingDescription(globalState.isGeneratingDescription);
+    }
+  }, [globalState.isGeneratingDescription]);
+
+  useEffect(() => {
+    if (globalState.isGeneratingAltText !== isGeneratingAltText) {
+      setIsGeneratingAltText(globalState.isGeneratingAltText);
+    }
+  }, [globalState.isGeneratingAltText]);
+
+  useEffect(() => {
+    if (globalState.isGeneratingGrowthStrategy !== isGeneratingGrowthStrategy) {
+      setIsGeneratingGrowthStrategy(globalState.isGeneratingGrowthStrategy);
+    }
+  }, [globalState.isGeneratingGrowthStrategy]);
+
+  useEffect(() => {
+    if (globalState.isGeneratingDistribution !== isGeneratingDistribution) {
+      setIsGeneratingDistribution(globalState.isGeneratingDistribution);
+    }
+  }, [globalState.isGeneratingDistribution]);
+
+  // Sync Local to Global (when user generates or updates SEO)
+  useEffect(() => {
+    if (generatedMetadata !== globalState.generatedMetadata) {
+      globalDispatch.setGeneratedMetadata(generatedMetadata);
+    }
+  }, [generatedMetadata]);
+
+  useEffect(() => {
+    if (generatedDescription !== globalState.generatedDescription) {
+      globalDispatch.setGeneratedDescription(generatedDescription);
+    }
+  }, [generatedDescription]);
+
+  useEffect(() => {
+    if (generatedAltText !== globalState.generatedAltText) {
+      globalDispatch.setGeneratedAltText(generatedAltText);
+    }
+  }, [generatedAltText]);
+
+  useEffect(() => {
+    if (generatedGrowthStrategy !== globalState.generatedGrowthStrategy) {
+      globalDispatch.setGeneratedGrowthStrategy(generatedGrowthStrategy);
+    }
+  }, [generatedGrowthStrategy]);
+
+  useEffect(() => {
+    if (generatedDistributionPlan !== globalState.generatedDistributionPlan) {
+      globalDispatch.setGeneratedDistributionPlan(generatedDistributionPlan);
+    }
+  }, [generatedDistributionPlan]);
+
+  // Sync generating states Local to Global
+  useEffect(() => {
+    if (isGeneratingMetadata !== globalState.isGeneratingMetadata) {
+      globalDispatch.setIsGeneratingMetadata(isGeneratingMetadata);
+    }
+  }, [isGeneratingMetadata]);
+
+  useEffect(() => {
+    if (isGeneratingDescription !== globalState.isGeneratingDescription) {
+      globalDispatch.setIsGeneratingDescription(isGeneratingDescription);
+    }
+  }, [isGeneratingDescription]);
+
+  useEffect(() => {
+    if (isGeneratingAltText !== globalState.isGeneratingAltText) {
+      globalDispatch.setIsGeneratingAltText(isGeneratingAltText);
+    }
+  }, [isGeneratingAltText]);
+
+  useEffect(() => {
+    if (isGeneratingGrowthStrategy !== globalState.isGeneratingGrowthStrategy) {
+      globalDispatch.setIsGeneratingGrowthStrategy(isGeneratingGrowthStrategy);
+    }
+  }, [isGeneratingGrowthStrategy]);
+
+  useEffect(() => {
+    if (isGeneratingDistribution !== globalState.isGeneratingDistribution) {
+      globalDispatch.setIsGeneratingDistribution(isGeneratingDistribution);
+    }
+  }, [isGeneratingDistribution]);
 
   const state = { 
     generatedMetadata, generatedDescription, generatedAltText, 

@@ -4,11 +4,13 @@ import { StudioEmptyState } from '@/pages/studio/components/studio/shared/Studio
 
 interface PromptsEmptyStateProps {
   onLaunch: () => void;
+  onLoadDemo?: () => void;
   isGenerating: boolean;
 }
 
 export const PromptsEmptyState: React.FC<PromptsEmptyStateProps> = ({
   onLaunch,
+  onLoadDemo,
   isGenerating
 }) => {
   const features = [
@@ -22,6 +24,8 @@ export const PromptsEmptyState: React.FC<PromptsEmptyStateProps> = ({
       icon={Terminal}
       title="No Prompts Available"
       description="Your production is missing generation prompts. Create optimized prompts to guide visual and audio generation engines."
+      secondaryActionLabel="Load Aetheria Demo Project"
+      onSecondaryAction={onLoadDemo}
       features={features}
       accentColor="cyan"
     />

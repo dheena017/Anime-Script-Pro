@@ -65,15 +65,22 @@ export function cleanJson(content: string): any {
       }
     }
     
-    // 6. Attempt truncation repair as a last resort
+    // 6. Attempt Strategy A: Direct closure of unclosed keys/strings and brace matching
     try {
-      const repaired = repairTruncatedJson(potentialJson);
-      const fullySanitized = sanitizeJson(repaired);
-      return JSON.parse(fullySanitized);
-    } catch (repairError) {
-      console.error('Failed to parse JSON content after repair attempt:', content);
-      console.error('Repair attempt resulted in:', repairError);
-      throw new ApiError('Invalid AI output format. JSON structure is too corrupted to repair.');
+      const repairedA = repairTruncatedJson(potentialJson, false);
+      const fullySanitizedA = sanitizeJson(repairedA);
+      return JSON.parse(fullySanitizedA);
+    } catch (_errA) {
+      // 7. Fallback to Strategy B: Backtracking to last complete structural delimiter
+      try {
+        const repairedB = repairTruncatedJson(potentialJson, true);
+        const fullySanitizedB = sanitizeJson(repairedB);
+        return JSON.parse(fullySanitizedB);
+      } catch (repairError) {
+        console.error('Failed to parse JSON content after all repair attempts:', content);
+        console.error('Repair attempt resulted in:', repairError);
+        throw new ApiError('Invalid AI output format. JSON structure is too corrupted to repair.');
+      }
     }
   }
 }
@@ -109,8 +116,9 @@ function sanitizeJson(s: string): string {
 /**
  * Attempts to close an incomplete JSON string that was truncated mid-output.
  * Handles unclosed arrays, objects, and strings.
+ * Has both backtrack and direct closure modes to maximize recovered content.
  */
-function repairTruncatedJson(raw: string): string {
+function repairTruncatedJson(raw: string, forceBacktrack: boolean): string {
   // 1. Initial cleanup
   let s = raw.trimEnd();
   
@@ -157,36 +165,21 @@ function repairTruncatedJson(raw: string): string {
       }
     } else if (ch === ',') {
       lastValidIndex = i;
-    } else if (ch === ':') {
-      // Colons are valid cut points if followed by a value start
-      // but we'll stick to the safer structural points
     }
   }
 
-  // 3. If we are in an "unstable" state (mid-string or mid-token), backtrack
-  if (inString || (lastValidIndex !== -1 && lastValidIndex < s.length - 1)) {
-    if (inString) {
-      // Backtracking to lastValidIndex is safe, but we might be able to just close the string
-      // However, if the string was truncated mid-key or mid-value, it's better to backtrack
-      // to the last complete structural element.
-      s = s.slice(0, lastValidIndex + 1);
-    } else {
-      // If we are not in a string but after the last valid index, 
-      // check if it's just whitespace or if we should trim it.
-      const trailing = s.slice(lastValidIndex + 1).trim();
-      if (trailing.length > 0) {
-        s = s.slice(0, lastValidIndex + 1);
-      }
-    }
-    
-    // Clean up trailing commas or colons
-    s = s.trimEnd();
-    while (s.endsWith(',') || s.endsWith(':')) {
-      s = s.slice(0, -1).trimEnd();
-    }
+  // 3. Backtrack to last safe index if requested
+  if (forceBacktrack && lastValidIndex !== -1 && lastValidIndex < s.length - 1) {
+    s = s.slice(0, lastValidIndex + 1);
   }
 
-  // 4. Re-calculate stack for the trimmed string to ensure we close correctly
+  // 4. Strip trailing commas/colons unconditionally before suffix synthesis
+  s = s.trimEnd();
+  while (s.endsWith(',') || s.endsWith(':')) {
+    s = s.slice(0, -1).trimEnd();
+  }
+
+  // 5. Re-verify the stack and string state for suffix generation
   const finalStack: string[] = [];
   let finalInString = false;
   let finalEscape = false;
@@ -209,11 +202,17 @@ function repairTruncatedJson(raw: string): string {
   }
 
   if (finalInString) {
-    if (finalEscape) s += '"'; // Close the escape if it was trailing
+    if (finalEscape) s += '"';
     s += '"';
   }
   
-  // Close any open brackets in reverse order
+  // Clean up any trailing comma after closing string
+  s = s.trimEnd();
+  while (s.endsWith(',') || s.endsWith(':')) {
+    s = s.slice(0, -1).trimEnd();
+  }
+
+  // Close open brackets in reverse order
   for (let i = finalStack.length - 1; i >= 0; i--) {
     s += finalStack[i] === '{' ? '}' : ']';
   }

@@ -21,6 +21,12 @@ interface Scene {
   sound: string;
   duration: string;
   linkedPrompt?: string;
+  videoPrompt?: string;
+  soulFocus?: string;
+  vfxCompounds?: string;
+  emotionalKey?: string;
+  subtext?: string;
+  assets?: string;
 }
 
 interface FramesTabProps {
@@ -51,6 +57,7 @@ interface FramesTabProps {
   isGenerating: boolean;
   handleManifestScene: (sceneId: string) => void;
   isManifestingSceneId: string | null;
+  onLoadDemo?: () => void;
 }
 
 export const FramesTab = React.memo<FramesTabProps>(({
@@ -81,9 +88,10 @@ export const FramesTab = React.memo<FramesTabProps>(({
   isGenerating,
   handleManifestScene,
   isManifestingSceneId,
+  onLoadDemo,
 }) => {
   if (scenes.length === 0) {
-    return <EmptyState onLaunch={handleAddScene} isGenerating={isGenerating} />;
+    return <EmptyState onLaunch={handleAddScene} onLoadDemo={onLoadDemo} isGenerating={isGenerating} />;
   }
 
   const handleSetEditForm = React.useCallback((form: Partial<Scene> | ((prevState: Partial<Scene>) => Partial<Scene>)) => {
@@ -110,13 +118,13 @@ export const FramesTab = React.memo<FramesTabProps>(({
                 ref={provided.innerRef}
                 className={cn(
                   "frames-grid",
-                  viewMode === 'grid' ? "grid grid-cols-1 lg:grid-cols-2" : "grid grid-cols-1"
+                  viewMode === 'grid' ? "grid grid-cols-1 lg:grid-cols-2 gap-8" : "grid grid-cols-1 gap-8"
                 )}
               >
                 {scenes.map((scene, idx) => (
                   <Draggable key={scene.id} draggableId={scene.id} index={idx}>
                     {(provided, snapshot) => (
-                      <div id={`scene-card-${scene.id}`}>
+                      <div id={`scene-card-${scene.id}`} className="transition-all duration-300">
                         <SceneCard
                           scene={scene}
                           index={idx}

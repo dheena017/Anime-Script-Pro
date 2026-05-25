@@ -33,7 +33,8 @@ export function ScreeningRoom() {
   } = useGeneratorState();
   const {
     showNotification,
-    setSession
+    setSession,
+    loadDemoProject
   } = useGeneratorDispatch();
 
   const [scenes, setScenes] = useState<Scene[]>([]);
@@ -171,6 +172,7 @@ export function ScreeningRoom() {
                 onLaunch={() => {
                   window.dispatchEvent(new CustomEvent('studio-generate-screening'));
                 }} 
+                onLoadDemo={loadDemoProject}
                 isGenerating={isRendering} 
               />
             </motion.div>

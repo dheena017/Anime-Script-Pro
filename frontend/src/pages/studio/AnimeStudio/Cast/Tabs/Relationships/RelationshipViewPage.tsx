@@ -10,6 +10,7 @@ import {
    AlertTriangle
 } from 'lucide-react';
 import { useGeneratorState } from '@/hooks/useGenerator';
+import { useStudioBasePath } from '@/hooks/useStudioBasePath';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { getTypeIcon } from '../../components/RelationshipCard';
@@ -17,7 +18,8 @@ import { getTypeIcon } from '../../components/RelationshipCard';
 export default function RelationshipViewPage() {
    const { relationshipId } = useParams();
    const navigate = useNavigate();
-   const { characterRelationships, contentType } = useGeneratorState();
+   const basePath = useStudioBasePath();
+   const { characterRelationships } = useGeneratorState();
 
    const connections = React.useMemo(() => {
       if (typeof characterRelationships === 'string') {
@@ -64,7 +66,7 @@ export default function RelationshipViewPage() {
                Back to Relationship Matrix
             </Button>
             <Button
-               onClick={() => navigate(`/${contentType.toLowerCase()}/cast/relationships/${relationshipId}/edit`)}
+               onClick={() => navigate(`${basePath}/cast/relationships/${relationshipId}/edit`)}
                className="bg-fuchsia-500/10 border border-fuchsia-500/30 text-fuchsia-500 hover:bg-fuchsia-500 hover:text-white transition-all font-black uppercase tracking-widest text-xs px-6 h-10 rounded-xl"
             >
                <Edit3 className="w-3.5 h-3.5 mr-2" /> Modify Connection

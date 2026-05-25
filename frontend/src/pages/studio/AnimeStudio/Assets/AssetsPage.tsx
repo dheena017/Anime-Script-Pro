@@ -32,7 +32,8 @@ export function AssetsPage() {
     setIsGeneratingMetadata,
     setIsGeneratingDescription,
     setIsGeneratingImagePrompts,
-    showNotification
+    showNotification,
+    loadDemoProject
   } = useGeneratorDispatch();
 
   const activeTab = location.pathname.includes('prompts') ? 'prompts' : 'seo';
@@ -153,6 +154,7 @@ export function AssetsPage() {
               {!hasAnyAsset && !isGeneratingMetadata ? (
                 <SEOEmptyState 
                   onLaunch={onLaunch}
+                  onLoadDemo={loadDemoProject}
                   isGenerating={isGeneratingMetadata || isGeneratingDescription || isGeneratingImagePrompts}
                 />
               ) : (

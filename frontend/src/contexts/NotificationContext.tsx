@@ -64,6 +64,11 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
     let ws: WebSocket | null = null;
     let timeout: number | null = null;
 
+    const setSafeTimeout = (fn: () => void, ms: number) => {
+      if (timeout) window.clearTimeout(timeout);
+      timeout = window.setTimeout(fn, ms);
+    };
+
     const start = async () => {
       await fetchNotifications();
 
@@ -71,7 +76,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
       const online = await isBackendOnline();
       if (cancelled || !online) {
-        timeout = window.setTimeout(start, 15000);
+        setSafeTimeout(start, 15000);
         return;
       }
 
@@ -80,32 +85,32 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
       function connect() {
         if (cancelled) return;
-      try {
-        ws = new WebSocket(wsUrl);
-        ws.onmessage = (event) => {
-          try {
-            const data = JSON.parse(event.data);
-            if (data.type === 'NEW_NOTIFICATION') {
-              fetchNotifications();
-            }
-          } catch (e) {}
-        };
+        try {
+          ws = new WebSocket(wsUrl);
+          ws.onmessage = (event) => {
+            try {
+              const data = JSON.parse(event.data);
+              if (data.type === 'NEW_NOTIFICATION') {
+                fetchNotifications();
+              }
+            } catch (e) {}
+          };
           ws.onclose = () => {
             if (cancelled) return;
-            timeout = window.setTimeout(async () => {
+            setSafeTimeout(async () => {
               const backendOnline = await isBackendOnline();
               if (!cancelled && backendOnline) {
                 connect();
               } else if (!cancelled) {
-                timeout = window.setTimeout(start, 15000);
+                setSafeTimeout(start, 15000);
               }
             }, 5000);
           };
-      } catch (e) {
+        } catch (e) {
           if (!cancelled) {
-            timeout = window.setTimeout(start, 15000);
+            setSafeTimeout(start, 15000);
           }
-      }
+        }
       }
 
       connect();

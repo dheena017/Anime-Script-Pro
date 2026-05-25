@@ -12,6 +12,8 @@ import {
   Trash2
 } from 'lucide-react';
 import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
+import { useStudioBasePath } from '@/hooks/useStudioBasePath';
+import { useApp } from '@/contexts/AppContext';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -21,10 +23,14 @@ import { Textarea } from '@/components/ui/textarea';
 export default function CharacterEditPage() {
   const { characterName } = useParams();
   const navigate = useNavigate();
+  const basePath = useStudioBasePath();
+  const { showNotification } = useApp();
   const { castData, castList, contentType } = useGeneratorState();
   const { setCastList } = useGeneratorDispatch();
 
-  const displayCast = castData?.characters || castList || [];
+  // Prefer castList for both read AND write so setCastList always updates the right state.
+  // Fall back to castData.characters only when castList is empty (e.g. first load from API).
+  const displayCast = (castList && castList.length > 0) ? castList : (castData?.characters || []);
   const characterIndex = displayCast.findIndex((c: any) => c.name === characterName);
   const character = characterIndex !== -1 ? displayCast[characterIndex] : null;
 
@@ -86,25 +92,42 @@ export default function CharacterEditPage() {
   }
 
   const handleSave = () => {
-    const newList = [...displayCast];
-    // Deep update logic
-    const updatedChar = { 
-      ...character, 
+    // Re-resolve from the live displayCast to avoid any stale closure issues
+    const liveList = [...displayCast];
+    const liveIndex = liveList.findIndex((c: any) => c.name === characterName);
+    const baseChar = liveIndex !== -1 ? liveList[liveIndex] : character;
+
+    const updatedChar = {
+      ...baseChar,
       ...formData,
-      powerSystem: { ...character.powerSystem, cameraChoreography: formData.cameraChoreography },
-      narrative: { 
-        ...character.narrative, 
-        arcRoadmap: { ...character.narrative?.arcRoadmap, moralDilemma: formData.moralDilemma } 
+      // Merge flat form fields back into proper nested sub-objects
+      powerSystem: { ...baseChar.powerSystem, cameraChoreography: formData.cameraChoreography },
+      narrative: {
+        ...baseChar.narrative,
+        arcRoadmap: { ...baseChar.narrative?.arcRoadmap, moralDilemma: formData.moralDilemma }
       },
-      technicalModel: { ...character.technicalModel, vfxSignature: formData.vfxSignature },
+      technicalModel: { ...baseChar.technicalModel, vfxSignature: formData.vfxSignature },
       worldAlignment: {
-        ...character.worldAlignment,
-        socialDynamics: { ...character.worldAlignment?.socialDynamics, groupEtiquette: formData.groupEtiquette }
+        ...baseChar.worldAlignment,
+        socialDynamics: { ...baseChar.worldAlignment?.socialDynamics, groupEtiquette: formData.groupEtiquette }
       }
     };
-    newList[characterIndex] = updatedChar;
-    setCastList(newList);
-    navigate(`/${contentType.toLowerCase()}/cast/characters/${formData.name}`);
+
+    if (liveIndex !== -1) {
+      liveList[liveIndex] = updatedChar;
+    } else {
+      liveList.push(updatedChar);
+    }
+    setCastList(liveList);
+    showNotification(`Character DNA for ${formData.name} successfully updated & synced.`, 'success');
+    navigate(`${basePath}/cast/characters/${encodeURIComponent(formData.name)}`);
+  };
+
+  const handleDelete = () => {
+    const liveList = displayCast.filter((c: any) => c.name !== characterName);
+    setCastList(liveList);
+    showNotification(`Character ${characterName} dissolved and purged from production manifest.`, 'warning');
+    navigate(`${basePath}/cast`);
   };
 
   return (
@@ -122,6 +145,7 @@ export default function CharacterEditPage() {
         <div className="flex items-center gap-3">
           <Button 
             variant="ghost" 
+            onClick={handleDelete}
             className="text-red-500/50 hover:text-red-500 hover:bg-red-500/5 transition-all font-black uppercase tracking-widest text-xs px-6 h-10 rounded-xl"
           >
             <Trash2 className="w-3.5 h-3.5 mr-2" /> Delete Character

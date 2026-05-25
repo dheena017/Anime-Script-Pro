@@ -21,7 +21,14 @@ import {
   MOCK_WORLD_DATA, 
   MOCK_CAST_DATA, 
   MOCK_SERIES_PLAN, 
-  MOCK_SCRIPT 
+  MOCK_SCRIPT,
+  MOCK_SEO_METADATA,
+  MOCK_SEO_DESCRIPTION,
+  MOCK_SEO_ALT_TEXT,
+  MOCK_SEO_DISTRIBUTION,
+  MOCK_SEO_GROWTH,
+  MOCK_IMAGE_PROMPTS,
+  MOCK_VIDEO_PROMPTS
 } from '../services/generators/mockData';
 
 
@@ -126,6 +133,7 @@ interface GeneratorState {
   numCharacters: number;
   numEpisodes: number;
   isIntelligenceOpen: boolean;
+  isDemoMode: boolean;
 }
 
 interface GeneratorDispatch {
@@ -195,7 +203,7 @@ interface GeneratorDispatch {
   setStoryboardVisuals: (v: Record<number, string[]>) => void;
   setStoryboardVideos: (v: Record<number, string>) => void;
   setStoryboardPrompts: (p: any) => void;
-  showNotification: (message: string, type?: 'error' | 'success' | 'info') => void;
+  showNotification: (message: string, type?: 'error' | 'success' | 'info' | 'warning') => void;
   // Backwards-compatible setters (no-ops or proxies)
   setTemperature: (t: number) => void;
   setMaxTokens: (n: number) => void;
@@ -231,6 +239,7 @@ interface GeneratorDispatch {
   saveLocalSession: () => void;
   loadLocalSession: () => void;
   loadDemoProject: () => void;
+  clearProject: () => void;
   setIsIntelligenceOpen: (isOpen: boolean) => void;
 }
 
@@ -243,7 +252,7 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
   const location = useLocation();
   const { user } = useAuth();
   const { showNotification: rawShowNotification } = useApp();
-  const [prompt, setPrompt] = useState('');
+  const [prompt, setPromptInternal] = useState('');
   const [promptLore, setPromptLore] = useState('');
   const [promptPowers, setPromptPowers] = useState('');
   const [promptFactions, setPromptFactions] = useState('');
@@ -289,6 +298,14 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
   const [storyboardVideos, setStoryboardVideos] = useState<Record<number, string>>({});
   const [storyboardPrompts, setStoryboardPrompts] = useState<any>(null);
   const [isIntelligenceOpen, setIsIntelligenceOpen] = useState(false);
+  const [isDemoMode, setIsDemoMode] = useState(false);
+
+  const setPrompt = useCallback((p: string) => {
+    setPromptInternal(p);
+    if (p !== MOCK_STORY_BIBLE.logline) {
+      setIsDemoMode(false);
+    }
+  }, [setIsDemoMode]);
 
   // Helper to update world manifest
   const setGeneratedWorld = useCallback((fullBlob: string | null) => {
@@ -323,7 +340,7 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     return abortController.signal;
   }, [abortController]);
 
-  const showNotification = useCallback((message: string, type?: 'error' | 'success' | 'info') => {
+  const showNotification = useCallback((message: string, type?: 'error' | 'success' | 'info' | 'warning') => {
     rawShowNotification(message, type);
   }, [rawShowNotification]);
 
@@ -396,6 +413,12 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
   const [numCharacters, setNumCharacters] = useState<number>(8);
   const [numEpisodes, setNumEpisodes] = useState<number>(12);
 
+  useEffect(() => {
+    if (currentScriptId) {
+      setIsDemoMode(false);
+    }
+  }, [currentScriptId]);
+
   const resolveProjectId = useResolveProjectId(currentScriptId);
 
   const { addLog } = useLogDispatch();
@@ -465,6 +488,7 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
         if (data.generatedWorld !== undefined) setGeneratedWorld(data.generatedWorld);
         if (data.generatedCharacters !== undefined) setGeneratedCharacters(data.generatedCharacters);
         if (data.generatedSeriesPlan !== undefined) setGeneratedSeriesPlan(data.generatedSeriesPlan);
+        setIsDemoMode(false);
         showNotification('Local session loaded!', 'success');
       } catch (e) {
         console.error('Failed to parse local session', e);
@@ -473,7 +497,7 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     } else {
       showNotification('No local session found', 'info');
     }
-  }, [setPrompt, setGeneratedWorld, setGeneratedCharacters, setGeneratedSeriesPlan, showNotification]);
+  }, [setPrompt, setGeneratedWorld, setGeneratedCharacters, setGeneratedSeriesPlan, showNotification, setIsDemoMode]);
 
   const loadDemoProject = useCallback(() => {
     // Phase 1: Core Identity
@@ -484,6 +508,7 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     setTone("Analytical / Gritty");
     setAudience("Sci-Fi Enthusiasts");
     setContentType("Anime");
+    setRecapperPersona("Anya");
     
     // Phase 2: World Lore (Story Bible) - Setting to READY state
     setGeneratedWorld(MOCK_WORLD_DATA.manifest);
@@ -526,6 +551,16 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     // Phase 6: Production Matrix Materialization
     const demoSequence = generateProductionSequences(1, 3, 3);
     setProductionSequence(demoSequence);
+
+    // Additional Phase 7: Assets & SEO Demo Data
+    setGeneratedImagePrompts(MOCK_IMAGE_PROMPTS);
+    setVideoData(MOCK_VIDEO_PROMPTS);
+    setGeneratedMetadata(MOCK_SEO_METADATA);
+    setGeneratedDescription(MOCK_SEO_DESCRIPTION);
+    setGeneratedAltText(MOCK_SEO_ALT_TEXT);
+    setGeneratedDistributionPlan(MOCK_SEO_DISTRIBUTION);
+    setGeneratedGrowthStrategy(MOCK_SEO_GROWTH);
+
     
     // System Logs (Story Bible & Cast DNA Manifest)
     addLog("AETHERIA_CORE_SYNC", "INITIALIZED", "Stabilizing Aetheria Neural Hub.");
@@ -535,10 +570,9 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     addLog("MOD_FACTIONS", "READY", "Social hierarchy mapped.");
     addLog("MOD_ATLAS", "READY", "Floating archipelago coordinates synced.");
     addLog("MOD_SYSTEMS", "READY", "Steam-Resonance logic active.");
-    
     addLog("ENTITY_DNA_REGISTRY", "SYNCED", "5 Entities detected in registry.");
     addLog("DNA_SOCIAL_WEB", "MAPPED", "Relational dynamics established.");
-    
+    setIsDemoMode(true);
     showNotification('Aetheria Core Sync: Demo project loaded successfully.', 'success');
   }, [
     setPrompt, 
@@ -573,8 +607,60 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     setTopP,
     setTopK,
     setContentType,
+    setRecapperPersona,
     addLog,
-    showNotification
+    showNotification,
+    setGeneratedImagePrompts,
+    setVideoData,
+    setGeneratedMetadata,
+    setGeneratedDescription,
+    setGeneratedAltText,
+    setGeneratedDistributionPlan,
+    setGeneratedGrowthStrategy,
+    setIsDemoMode
+  ]);
+
+  const clearProject = useCallback(() => {
+    setPrompt('');
+    setTheme('');
+    setGenre('');
+    setArtStyle('');
+    setTone('');
+    setAudience('');
+    setContentType('Anime');
+    setRecapperPersona('');
+    
+    setGeneratedWorldInternal(null);
+    setGeneratedWorldContent(null);
+    setGeneratedWorldLore(null);
+    setGeneratedWorldPowers(null);
+    setGeneratedWorldFactions(null);
+    setGeneratedWorldArchitecture(null);
+    setGeneratedWorldAtlas(null);
+    setGeneratedWorldCulture(null);
+    setGeneratedWorldSystems(null);
+    
+    setCastData(null);
+    setGeneratedCharacters(null);
+    setCastList([]);
+    setCastDNA(null);
+    setCastDynamics(null);
+    setCastIntegrity(null);
+    setCharacterRelationships(null);
+    
+    setGeneratedSeriesPlan(null);
+    setGeneratedScript(null);
+    setProductionSequence([]);
+    
+    setIsDemoMode(false);
+    showNotification('Project cleared. Exited demo mode.', 'info');
+  }, [
+    setPrompt, setGeneratedWorldInternal, setGeneratedWorldContent, setGeneratedWorldLore, setGeneratedWorldPowers, 
+    setGeneratedWorldFactions, setGeneratedWorldArchitecture, setGeneratedWorldAtlas, 
+    setGeneratedWorldCulture, setGeneratedWorldSystems, setCastData, setGeneratedCharacters, 
+    setCastList, setCharacterRelationships, setGeneratedSeriesPlan, setGeneratedScript, 
+    setProductionSequence, setTheme, setGenre, setArtStyle, setTone, setAudience, 
+    setCastDNA, setCastDynamics, setCastIntegrity, setContentType, setRecapperPersona, showNotification, setIsDemoMode
   ]);
 
   useGeneratorTelemetryEffects({
@@ -633,6 +719,7 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     numScenes,
     numEpisodes,
     isIntelligenceOpen,
+    isDemoMode,
     contentType,
     genre,
     artStyle,
@@ -705,7 +792,7 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     isEditing, isSaving,
     isContinuingScript, isGeneratingVisuals, isGeneratingAltText, currentScriptId, 
     activeModelAttempt, fallbackHistory, castDNA, castDynamics, castIntegrity, isAnalyzingCast, generationProgress, numCharacters,
-    genre, artStyle, storyboardScenes, storyboardVisuals, storyboardVideos, storyboardPrompts, isIntelligenceOpen
+    genre, artStyle, storyboardScenes, storyboardVisuals, storyboardVideos, storyboardPrompts, isIntelligenceOpen, isDemoMode
   ]);
 
   const dispatch = useMemo<GeneratorDispatch>(() => ({
@@ -803,13 +890,14 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     saveLocalSession,
     loadLocalSession,
     loadDemoProject,
+    clearProject,
     setGlobalPrompt: setPrompt,
     setGlobalContentType: setContentType,
   }), [
     syncCore, addLog, showNotification, setGeneratedWorldLore, setGeneratedWorldPowers, setGeneratedWorldFactions,
     setGeneratedWorldArchitecture, setGeneratedWorldAtlas, setGeneratedWorldCulture, setGeneratedWorldSystems,
     setPromptLore, setPromptPowers, setPromptFactions, setPromptArchitecture, setPromptAtlas, setPromptCulture, setPromptSystems,
-    stopGeneration, getSignal, saveLocalSession, loadLocalSession, loadDemoProject
+    stopGeneration, getSignal, saveLocalSession, loadLocalSession, loadDemoProject, clearProject
   ]);
 
   return (

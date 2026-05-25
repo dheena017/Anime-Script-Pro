@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { BarChart3, ShieldCheck, Activity, Brain, Search, Shield, Sparkles, RefreshCcw } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { useGeneratorState } from '@/hooks/useGenerator';
+import { useStudioBasePath } from '@/hooks/useStudioBasePath';
 import { useNavigate } from 'react-router-dom';
 import { StudioEmptyState } from '@/pages/studio/components/studio/shared/StudioEmptyState';
 import { Button } from '@/components/ui/button';
@@ -11,7 +12,8 @@ import { CastTabActionsContext } from './CastLayout';
 
 export function DNAPage() {
   const navigate = useNavigate();
-  const { castList, contentType, castDNA } = useGeneratorState();
+  const basePath = useStudioBasePath();
+  const { castList, castDNA } = useGeneratorState();
   const { handleGenerateDNA, isAnalyzingCast } = React.useContext(CastTabActionsContext);
   const hasCast = castList && castList.length > 0;
 
@@ -22,7 +24,7 @@ export function DNAPage() {
         title="Trait Analysis Unavailable"
         description="Character traits cannot be analyzed until your cast manifest is generated."
         actionLabel="Open Cast Registry"
-        onAction={() => navigate(`/${contentType.toLowerCase()}/cast?tab=registry`)}
+        onAction={() => navigate(`${basePath}/cast?tab=registry`)}
         features={[
           { icon: Sparkles, title: 'Identity Creation', description: 'Generate core identities and personality traits' },
           { icon: ShieldCheck, title: 'Logic Consistency', description: 'Enable stability and consistency metrics' },

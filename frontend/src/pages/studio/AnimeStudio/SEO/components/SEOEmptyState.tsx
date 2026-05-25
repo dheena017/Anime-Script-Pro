@@ -4,11 +4,13 @@ import { StudioEmptyState } from '@/pages/studio/components/studio/shared/Studio
 
 interface SEOEmptyStateProps {
   onLaunch: () => void;
+  onLoadDemo?: () => void;
   isGenerating: boolean;
 }
 
 export const SEOEmptyState: React.FC<SEOEmptyStateProps> = ({
   onLaunch,
+  onLoadDemo,
   isGenerating
 }) => {
   const features = [
@@ -22,6 +24,8 @@ export const SEOEmptyState: React.FC<SEOEmptyStateProps> = ({
       icon={Search}
       title="No Asset Metadata"
       description="Your production is missing SEO and metadata. Generate optimized keywords, descriptions, and tags for better visibility."
+      secondaryActionLabel="Load Aetheria Demo Project"
+      onSecondaryAction={onLoadDemo}
       features={features}
       accentColor="emerald"
     />

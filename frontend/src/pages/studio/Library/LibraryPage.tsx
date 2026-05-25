@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useState, useEffect, startTransition } from 'react';
+import { useLocation, useSearchParams } from 'react-router-dom';
 import { studioLog, reportTabChange } from '@/lib/studio-logger';
 import {
   Folder,
@@ -50,10 +50,13 @@ const tabs: { id: LibraryTab; label: string; icon: any }[] = [
 ];
 
 export default function LibraryPage() {
-  const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const getTabFromUrl = () => {
+    const queryTab = searchParams.get('tab');
+    if (tabs.find(t => t.id === queryTab)) return queryTab as LibraryTab;
+
     const path = location.pathname.split('/').pop();
     return tabs.find(t => t.id === path) ? (path as LibraryTab) : 'overview';
   };
@@ -72,14 +75,13 @@ export default function LibraryPage() {
       reportTabChange('Library', tab, 'system');
       setActiveTab(tab);
     }
-    if (location.pathname === '/library') {
-      navigate('/library/overview', { replace: true });
-    }
-  }, [location.pathname, navigate]);
+  }, [location.pathname, searchParams, activeTab]);
 
   const handleTabChange = (id: string) => {
-    setActiveTab(id as LibraryTab);
-    navigate(`/library/${id}`);
+    startTransition(() => {
+      setActiveTab(id as LibraryTab);
+      setSearchParams({ tab: id });
+    });
   };
 
   const stats = [

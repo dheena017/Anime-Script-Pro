@@ -2,6 +2,7 @@ import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, SlidersHorizontal, ChevronDown, LayoutGrid, List, Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { StudioTabRail } from '../components/studio/shared/StudioTabRail';
 import { sharedStyles as s } from '../components/studio/shared/sharedStyles';
 
 interface Stat {
@@ -135,17 +136,7 @@ export const CommunityLayout: React.FC<CommunityLayoutProps> = ({
       </div>
 
       {/* SECTION 3: TABS */}
-      <div className="relative">
-        <nav className={s.tabList}>
-          {tabs.map((tab) => (
-            <button type="button" key={tab.id} onClick={() => onTabChange(tab.id)} className={cn(s.tabItem, activeTab === tab.id ? s.tabActive : s.tabInactive)}>
-              {activeTab === tab.id && <motion.div layoutId="comTab" className={s.tabIndicator} />}
-              <tab.icon className={cn("w-4 h-4 transition-colors relative z-10", activeTab === tab.id ? "text-[#bd4a4a]" : "text-zinc-700 hover:text-zinc-500")} />
-              <span className="relative z-10">{tab.label}</span>
-            </button>
-          ))}
-        </nav>
-      </div>
+      <StudioTabRail tabs={tabs} activeTab={activeTab} onTabChange={onTabChange} layoutId="comTab" />
 
       {/* SECTION 4: CONTENT */}
       <div className="studio-module-content">

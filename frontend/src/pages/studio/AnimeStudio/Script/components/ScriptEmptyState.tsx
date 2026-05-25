@@ -11,7 +11,6 @@ interface ScriptEmptyStateProps {
 export const ScriptEmptyState: React.FC<ScriptEmptyStateProps> = ({
   onLaunch,
   onLoadDemo,
-  isGenerating
 }) => {
   const features = [
     { icon: MessageSquare, title: 'Dynamic Dialogue', description: 'AI synthesizes character-specific speech patterns' },

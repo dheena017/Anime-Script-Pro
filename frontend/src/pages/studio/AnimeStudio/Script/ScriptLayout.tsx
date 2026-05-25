@@ -8,7 +8,7 @@ import { ScriptHeader } from './components/ScriptHeader';
 import { ScriptToolbar } from './components/ScriptToolbar';
 import { ScriptLoadingPage } from './components/ScriptLoadingPage';
 import { generateScript, generateMetadata } from '@/services/api/gemini';
-import { generateScriptStream } from '@/services/generators/script';
+import { generateScriptStream } from '@/services/generators/scriptGenerator';
 import { ScriptTabs, ScriptTab } from './Tabs/ScriptTabs';
 import { studioLog, reportTabChange, reportGeneration } from '@/lib/studio-logger';
 import { StudioTabsProgressBar } from '@/pages/studio/components/studio/layout/StudioTabsProgressBar';
@@ -23,7 +23,6 @@ export default function ScriptLayout() {
   const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   const [handlers, setHandlers] = React.useState<any>({});
-
   const { showNotification } = useApp();
   const {
     generatedScript, isLoading, prompt, tone, audience,
@@ -129,7 +128,6 @@ export default function ScriptLayout() {
 
 
   const activeTab = (searchParams.get('tab') as ScriptTab) || 'teleprompter';
-
   const handleTabChange = (tab: ScriptTab) => {
     setSearchParams({ tab });
   };

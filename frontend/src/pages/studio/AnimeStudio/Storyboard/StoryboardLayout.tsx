@@ -43,7 +43,8 @@ export default function StoryboardLayout() {
     showNotification,
     syncCore,
     setIsEditing,
-    setGenerationProgress
+    setGenerationProgress,
+    loadDemoProject
   } = useGeneratorDispatch();
 
   useAuth();
@@ -117,7 +118,7 @@ export default function StoryboardLayout() {
   React.useEffect(() => {
     const handleGlobalGenerate = () => {
       console.log('[StoryboardLayout] Global storyboard generation event received.');
-      if (handlers.handleGenerateAll) {
+      if (handlers.handleGenerateAll && handlers.scenesLength > 0) {
         handlers.handleGenerateAll();
       } else {
         handleGenerate();
@@ -125,14 +126,14 @@ export default function StoryboardLayout() {
     };
     window.addEventListener('studio-generate-storyboard', handleGlobalGenerate);
     return () => window.removeEventListener('studio-generate-storyboard', handleGlobalGenerate);
-  }, [handlers.handleGenerateAll, handleGenerate]);
+  }, [handlers.handleGenerateAll, handlers.scenesLength, handleGenerate]);
 
   return (
     <StoryboardContext.Provider value={{ setHandlers }}>
       <div className="space-y-6">
         <div className="studio-module-header">
           <StoryboardHeader
-            onRegenerate={handlers.handleGenerateAll || handleGenerate}
+            onRegenerate={(handlers.handleGenerateAll && handlers.scenesLength > 0) ? handlers.handleGenerateAll : handleGenerate}
             isGenerating={handlers.isGenerating || isGeneratingImagePrompts}
             onNext={() => {
               startTransition(() => {
@@ -149,7 +150,7 @@ export default function StoryboardLayout() {
             hasContent={!!generatedImagePrompts}
             session={session}
             episode={episode}
-            progress={handlers.productionProgress}
+            progress={handlers.productionProgress || generationProgress}
           />
         </div>
 
@@ -158,7 +159,7 @@ export default function StoryboardLayout() {
           <div className={s.tabs.tabsBarInner}>
             <StoryboardTabs activeTab={activeTab} setActiveTab={handleTabChange} />
           </div>
-          <StudioTabsProgressBar progress={generationProgress} theme="cyan" />
+          <StudioTabsProgressBar progress={generationProgress || handlers.productionProgress || 0} theme="cyan" />
         </div>
 
         {/* Toolbar Section */}
@@ -195,6 +196,7 @@ export default function StoryboardLayout() {
                 ) : !generatedImagePrompts ? (
                   <StoryboardEmptyState 
                     onLaunch={handleGenerate}
+                    onLoadDemo={loadDemoProject}
                     isGenerating={isGeneratingImagePrompts}
                   />
                 ) : (

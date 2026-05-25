@@ -36,4 +36,5 @@ class AIModel(SQLModel, table=True):
     display_name: Optional[str] = None
     capabilities: Dict = Field(default_factory=dict, sa_column=Column(JSON))
     is_active: bool = Field(default=True)
+    is_free: bool = Field(default=False)
     cost_per_token: float = Field(default=0.0)

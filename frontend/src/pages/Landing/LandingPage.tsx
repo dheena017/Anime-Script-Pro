@@ -74,7 +74,7 @@ export default function LandingPage() {
                 <Video className="w-4 h-4 text-studio" />
                 <span className={s.videoLabelText}>Live Demo</span>
               </div>
-              <video className="w-full h-auto aspect-video object-cover" controls poster="/cyberpunk_thumbnail_1776537282821.png">
+              <video className="w-full h-auto aspect-video object-cover" controls poster="/cyberpunk_thumbnail_1776537282821.webp">
                 <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4" />
               </video>
               <div className={s.videoOverlay}>

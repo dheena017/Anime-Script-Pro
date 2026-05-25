@@ -13,10 +13,12 @@ router = APIRouter(prefix="/api", tags=["Projects"])
 
 # --- Projects ---
 @router.get("/projects", response_model=List[Project])
-async def get_projects(user_id: str = Depends(get_auth_user_id)):
-    """Get all active projects for the authenticated user."""
+async def get_projects(user_id: str = Depends(get_auth_user_id), include_archived: bool = False):
+    """Get projects for the authenticated user."""
     async with async_session() as session:
-        statement = select(Project).where(Project.user_id == user_id, Project.is_active == True)
+        statement = select(Project).where(Project.user_id == user_id)
+        if not include_archived:
+            statement = statement.where(Project.is_active == True)
         result = await session.execute(statement)
         return result.scalars().all()
 

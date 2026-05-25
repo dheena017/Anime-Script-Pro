@@ -412,7 +412,7 @@ interface GeneratorSaveCoreParams {
   resolveProjectId: (overrideProjectId?: number) => number | undefined;
   setIsSaving: Dispatch<SetStateAction<boolean>>;
   addLog: (module: string, status: string, message?: string) => void;
-  showNotification: (message: string, type?: 'error' | 'success' | 'info') => void;
+  showNotification: (message: string, type?: 'error' | 'success' | 'info' | 'warning') => void;
   prompt: string;
   contentType: string;
   selectedModel: string;

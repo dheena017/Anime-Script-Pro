@@ -68,7 +68,7 @@ export const CastView: React.FC<CastViewProps> = ({
                   <CastCard
                     character={char}
                     index={idx}
-                    isEditing={isEditing}
+                    isEditing={false}
                     onUpdate={(updates) => handleUpdateCharacter(idx, updates)}
                     onViewCharacter={onViewCharacter}
                   />

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy import select, func
 from backend.database import get_async_session, AsyncSession, Tutorial
 from backend.database.models import (
@@ -144,47 +144,105 @@ async def seed_subsystem(subsystem: str, session: AsyncSession = Depends(get_asy
 
 
 @router.get("/security")
-async def get_security_status():
+async def get_security_status(request: Request, session: AsyncSession = Depends(get_async_session)):
     """Returns real security layer statuses by inspecting actual app configuration."""
     import os
+    from backend.utils.auth_utils import SECRET_KEY as JWT_KEY
+    from slowapi.errors import RateLimitExceeded
+
     env = os.environ.get("ENV", os.environ.get("ENVIRONMENT", "development")).lower()
-    cors_origins = os.environ.get("CORS_ORIGINS", "*")
-    secret_key = os.environ.get("SECRET_KEY", "")
-    supabase_url = os.environ.get("VITE_SUPABASE_URL", "")
-    db_url = os.environ.get("DATABASE_URL", os.environ.get("ASYNC_DATABASE_URL", ""))
 
-    # Auth Layer: real if SECRET_KEY is set and non-trivial
-    auth_active = len(secret_key) > 16
+    # 1. Auth Layer Check
+    # Verify if fastapi_users auth routes are actually registered in request.app
+    has_auth_routes = any(route.path.startswith("/api/auth") for route in request.app.routes)
+    # Check if a custom, secure key is used rather than the default "your-super-secret-key"
+    auth_key_is_secure = JWT_KEY != "your-super-secret-key" and len(JWT_KEY) > 16
+    auth_active = has_auth_routes and auth_key_is_secure
 
-    # Rate limiter: slowapi is always active (it's mounted unconditionally in fastapi_app.py)
-    rate_limiter_active = True
+    if auth_active:
+        auth_label = "JWT Active (Secure)"
+        auth_mode = "active"
+    elif has_auth_routes:
+        auth_label = "JWT Active (Insecure Default Key)"
+        auth_mode = "warning"
+    else:
+        auth_label = "Auth Routes Missing"
+        auth_mode = "warning"
 
-    # CORS: check if wildcard origins are used (dev mode) vs. restricted
-    cors_is_open = cors_origins.strip() == "*"
+    # 2. Rate Limiter Check
+    # Check if the slowapi limiter is mounted on the application state
+    limiter = getattr(request.app.state, "limiter", None)
+    rate_limiter_active = limiter is not None
+    # Check if the RateLimitExceeded exception handler is registered in the application exception handlers
+    handler_active = RateLimitExceeded in request.app.exception_handlers
 
-    # DB ORM Guard: SQLModel/SQLAlchemy ORM is always active when DB URL is present
-    db_orm_active = len(db_url) > 0
+    if rate_limiter_active and handler_active:
+        rate_label = "SlowAPI Active"
+        rate_mode = "active"
+    elif rate_limiter_active:
+        rate_label = "Limiter Unconfigured"
+        rate_mode = "warning"
+    else:
+        rate_label = "Disabled"
+        rate_mode = "warning"
+
+    # 3. CORS Policy Check
+    # Check if CORSMiddleware is mounted and what origins are allowed
+    cors_middleware = next((m for m in request.app.user_middleware if m.cls.__name__ == "CORSMiddleware"), None)
+    if cors_middleware:
+        allow_origins = cors_middleware.kwargs.get("allow_origins", [])
+        cors_is_open = "*" in allow_origins or ["*"] == allow_origins
+        cors_label = "Open (Dev)" if cors_is_open else "Restricted"
+        cors_mode = "dev" if cors_is_open else "active"
+    else:
+        cors_is_open = True
+        cors_label = "Disabled"
+        cors_mode = "warning"
+
+    # 4. DB ORM Guard Check
+    # Verify we can execute a real probe query using the injected SQLAlchemy AsyncSession
+    db_connected = False
+    try:
+        await session.execute(select(1))
+        db_connected = True
+    except Exception as e:
+        logger.error(f"[DIAGNOSTIC] DB Connection check failed in security dashboard: {e}")
+
+    # Check if any database metadata tables are mapped
+    import sqlmodel
+    has_orm_schemas = len(sqlmodel.SQLModel.metadata.tables) > 0
+    db_orm_active = has_orm_schemas and db_connected
+
+    if db_orm_active:
+        db_label = "SQLModel ORM (Connected)"
+        db_mode = "active"
+    elif has_orm_schemas:
+        db_label = "SQLModel ORM (Disconnected)"
+        db_mode = "warning"
+    else:
+        db_label = "No ORM Schemas"
+        db_mode = "warning"
 
     return {
         "auth_layer": {
             "active": auth_active,
-            "label": "JWT Active" if auth_active else "No Secret Key",
-            "mode": "active" if auth_active else "warning"
+            "label": auth_label,
+            "mode": auth_mode
         },
         "rate_limiter": {
             "active": rate_limiter_active,
-            "label": "SlowAPI Active",
-            "mode": "active"
+            "label": rate_label,
+            "mode": rate_mode
         },
         "cors_policy": {
-            "active": True,
-            "label": "Open (Dev)" if cors_is_open else "Restricted",
-            "mode": "dev" if cors_is_open else "active"
+            "active": cors_middleware is not None,
+            "label": cors_label,
+            "mode": cors_mode
         },
         "db_orm_guard": {
             "active": db_orm_active,
-            "label": "SQLModel ORM" if db_orm_active else "No DB URL",
-            "mode": "active" if db_orm_active else "warning"
+            "label": db_label,
+            "mode": db_mode
         },
         "environment": {
             "active": True,

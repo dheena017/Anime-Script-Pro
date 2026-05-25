@@ -4,16 +4,18 @@ import { StudioEmptyState } from '@/pages/studio/components/studio/shared/Studio
 
 interface StoryboardEmptyStateProps {
   onLaunch: () => void;
+  onLoadDemo?: () => void;
   isGenerating: boolean;
 }
 
 export const StoryboardEmptyState: React.FC<StoryboardEmptyStateProps> = ({
   onLaunch,
+  onLoadDemo,
   isGenerating
 }) => {
   const features = [
     { icon: Box, title: 'Spatial Rendering', description: 'AI maps 3D coordinates for cinematic depth' },
-    { icon: Play, title: 'Dynamic Flow', description: 'Ensures visual continuity between frames' },
+    { icon: Play, title: 'Dynamic Flow', description: 'Ensures visual continuity between videos' },
     { icon: Camera, title: 'Shot Composition', description: 'Auto-generates professional camera angles' }
   ];
 
@@ -21,7 +23,9 @@ export const StoryboardEmptyState: React.FC<StoryboardEmptyStateProps> = ({
     <StudioEmptyState
       icon={Layout}
       title="Optics Not Synthesized"
-      description="The visual flow of your production is currently invisible. Initialize the Storyboard Engine to render cinematic frames based on your script."
+      description="The visual flow of your production is currently invisible. Initialize the Storyboard Engine to render cinematic videos based on your script."
+      secondaryActionLabel="Load Aetheria Demo Project"
+      onSecondaryAction={onLoadDemo}
       features={features}
       accentColor="rose"
     />

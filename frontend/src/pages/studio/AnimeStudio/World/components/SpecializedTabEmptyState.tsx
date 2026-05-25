@@ -7,6 +7,7 @@ interface SpecializedTabEmptyStateProps {
   tab: Exclude<WorldTab, 'manifest'>;
   onGenerate: () => void;
   isGenerating: boolean;
+  onLoadDemo?: () => void;
 }
 
 const TAB_CONFIG: Record<Exclude<WorldTab, 'manifest'>, { 
@@ -62,7 +63,8 @@ const TAB_CONFIG: Record<Exclude<WorldTab, 'manifest'>, {
 export const SpecializedTabEmptyState: React.FC<SpecializedTabEmptyStateProps> = ({
   tab,
   onGenerate,
-  isGenerating
+  isGenerating,
+  onLoadDemo
 }) => {
   const config = TAB_CONFIG[tab];
 
@@ -72,6 +74,8 @@ export const SpecializedTabEmptyState: React.FC<SpecializedTabEmptyStateProps> =
       title={config.label}
       description={config.description}
       accentColor={config.accentColor}
+      secondaryActionLabel="Load Aetheria Demo World"
+      onSecondaryAction={onLoadDemo}
       footerLabel="AI will create this section based on your world foundation"
     />
   );
