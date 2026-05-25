@@ -262,6 +262,7 @@ const inFlightRequests = new Map<string, Promise<string>>();
 const DEFAULT_BACKEND_URL = "";
 const BACKEND_BASE_URL = API_BASE_URL || (import.meta as any)?.env?.VITE_API_BASE_URL || DEFAULT_BACKEND_URL;
 const BACKEND_GENERATE_URL = `${BACKEND_BASE_URL.replace(/\/+$|^\s+|\s+$/g, '')}/api/generate`;
+const BACKEND_GENERATE_IMAGE_URL = `${BACKEND_BASE_URL.replace(/\/+$|^\s+|\s+$/g, '')}/api/generate/image`;
 
 const DETAIL_DEPTH_DIRECTIVE = `
 DETAIL DEPTH POLICY:
@@ -591,6 +592,48 @@ export async function callAI(
   generationPromise.finally(() => inFlightRequests.delete(requestKey));
   
   return generationPromise;
+}
+
+export async function callAIImage(
+  prompt: string,
+  model: string = "stable-image/generate/core"
+): Promise<string> {
+  const startTime = performance.now();
+  logger.info(`Starting image generation request for model: ${model}`);
+
+  const payload = { prompt, model };
+
+  let response: Response | null = null;
+  try {
+    response = await fetch("/api/generate/image", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+  } catch (fetchError: any) {
+    const fetchErrorMessage = fetchError?.message?.toString() || "";
+    if (fetchError instanceof TypeError || fetchErrorMessage.includes("Failed to fetch") || fetchErrorMessage.includes("ERR_EMPTY_RESPONSE")) {
+      logger.warn(`/api proxy fetch failed, retrying direct backend URL: ${BACKEND_GENERATE_IMAGE_URL}`);
+      response = await fetch(BACKEND_GENERATE_IMAGE_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+    } else {
+      throw fetchError;
+    }
+  }
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.detail || errorData.error || "Failed to generate image.");
+  }
+
+  const data = await response.json();
+  const latency = performance.now() - startTime;
+  logger.success(`Image generated in ${latency.toFixed(2)}ms`);
+
+  return data.image_data;
 }
 
 /**

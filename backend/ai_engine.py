@@ -1,6 +1,9 @@
 import os
 import json
 import asyncio
+import base64
+
+import aiohttp
 from google import genai
 from google.genai import types
 try:
@@ -69,6 +72,51 @@ def build_genai_client(api_key: str | None = None) -> genai.Client:
 class AIEngine:
     def __init__(self, model_name="gemini-1.5-flash-latest"):
         self.model_name = model_name
+
+    async def generate_image(self, prompt: str, model_name: str = "stable-image/generate/core", user_id: str = None) -> str:
+        """Generates an image with Stability AI and returns a Base64 data URI."""
+        logger.info(f"AI IMAGE SYNTHESIS: Started with model {model_name}")
+
+        api_key = None
+        if user_id:
+            try:
+                async with async_session() as session:
+                    statement = select(UserSettings).where(UserSettings.user_id == user_id)
+                    res = await session.execute(statement)
+                    settings = res.scalars().first()
+                    if settings and settings.ai_models:
+                        api_key = settings.ai_models.get("stability_api_key")
+            except Exception as e:
+                logger.warning(f"Failed to fetch user settings for {user_id}: {e}")
+
+        if not api_key:
+            api_key = os.getenv("STABILITY_API_KEY")
+
+        if not api_key:
+            raise ValueError("No Stability API key found in settings or .env")
+
+        url = f"https://api.stability.ai/v2beta/{model_name}"
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Accept": "image/*"
+        }
+        data = {
+            "prompt": prompt,
+            "output_format": "jpeg",
+            "aspect_ratio": "16:9"
+        }
+
+        async with aiohttp.ClientSession() as http_session:
+            async with http_session.post(url, headers=headers, data=data) as response:
+                if response.status == 200:
+                    img_bytes = await response.read()
+                    base64_encoded = base64.b64encode(img_bytes).decode("utf-8")
+                    logger.success("AI IMAGE SYNTHESIS: Successfully generated image.")
+                    return f"data:image/jpeg;base64,{base64_encoded}"
+
+                error_text = await response.text()
+                logger.error(f"Stability AI Error: {error_text}")
+                raise Exception(f"Image generation failed: {error_text}")
 
     async def _get_client(self, user_id: str = None):
         """Retrieves a genai.Client initialized with the best available API key."""

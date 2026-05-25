@@ -2,7 +2,11 @@ import { useEffect, useState, useCallback } from 'react';
 import { Sparkles, Wand2, Loader2, Save, Play, Image as ImageIcon, Sliders, Settings, RefreshCw, Cpu, Activity } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
+import { callAIImage } from '@/services/generators/core';
 import { settingsService } from '@/services/api/settings';
+import {
+  IMAGE_MODEL_GROUPS,
+} from '@/lib/aiModels/imageModels';
 
 export function StableDiffusionTab() {
   const [imageModel, setImageModel] = useState('gemini-3.1-flash-image-preview');
@@ -126,33 +130,8 @@ export function StableDiffusionTab() {
 
     const startTime = Date.now();
     try {
-      // Direct call to our FastAPI engine
-      const headers: Record<string, string> = {
-        'Content-Type': 'application/json'
-      };
-      
-      const token = localStorage.getItem('token');
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-      }
-
-      const response = await fetch('/api/generate', {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({
-          prompt,
-          model: imageModel,
-          systemInstruction: 'Generate a highly detailed anime storyboard keyframe matching specified configurations.'
-        })
-      });
-
-      if (!response.ok) {
-        const errorJson = await response.json();
-        throw new Error(errorJson.detail || 'Synthesis request failed.');
-      }
-
-      const resJson = await response.json();
-      setGeneratedImage(resJson.text);
+      const imageData = await callAIImage(prompt, imageModel);
+      setGeneratedImage(imageData);
       setSynthesisTime((Date.now() - startTime) / 1000);
     } catch (e: any) {
       console.error("Sandbox generation failed:", e);
@@ -167,50 +146,14 @@ export function StableDiffusionTab() {
   }
 
   // Model lists categorized
-  const googleStudioModels = [
-    { id: 'gemini-3.1-flash-image-preview', name: 'Nano Banana 2', desc: '4K resolution default. High-fidelity & prints.', price: '~$0.045' },
-    { id: 'gemini-2.5-flash-image', name: 'Nano Banana', desc: 'Creative Flash workhorse. Ultra speed batching.', price: '~$0.039' },
-    { id: 'gemini-3-pro-image-preview', name: 'Nano Banana Pro', desc: 'Reasoning native model. Elite prompt understanding.', price: '~$0.134' },
-  ];
-
-  const googleVertexModels = [
-    { id: 'imagen-4-ultra', name: 'Imagen 4 Ultra', desc: 'Flagship commercial faces, micro-details & products.', price: 'Vertex AI Pro' },
-    { id: 'imagen-4-fast', name: 'Imagen 4 Fast', desc: 'Cost-efficient large scale Vertex production.', price: '~$0.02' },
-    { id: 'gemini-3-pro-image', name: 'Gemini 3 Pro Image', desc: 'Reasoning, text rendering & references consistency.', price: 'Vertex Flagship' },
-  ];
-
-  const openWeightModels = [
-    { id: 'flux-1-schnell', name: 'FLUX.1 Schnell', desc: 'Elite open-weights. 4-step ultra high speed renders.', price: 'Free / Local' },
-    { id: 'stable-diffusion-xl', name: 'SDXL v1.0', desc: 'Open-source workhorse. Massive custom ecosystem.', price: 'Free / Local' },
-    { id: 'stable-diffusion-3.5', name: 'Stable Diffusion 3.5', desc: 'Flagsip text-in-image rendering & composition.', price: 'Free / Local' },
-  ];
-
-  const freeApiModels = [
-    { id: 'hugging-face-inference', name: 'Hugging Face API', desc: 'Access 1000s of custom fine-tunes & models.', price: 'Generous Free' },
-    { id: 'deepai', name: 'DeepAI REST API', desc: 'Fast, straightforward developers integration API.', price: 'Generous Free' },
-    { id: 'together-ai-replicate', name: 'Together & Replicate Proxy', desc: 'Routing open-source API endpoints.', price: 'Pay per use' },
-  ];
-
-  const webPrototypingModels = [
-    { id: 'leonardo-ai', name: 'Leonardo.ai Portal', desc: 'Professional dashboard, daily tokens & LoRA layers.', price: 'Daily Tokens' },
-    { id: 'civitai', name: 'Civitai Hub', desc: 'Community model playground and LoRA catalog.', price: 'Free Tokens' },
-  ];
-
-  const paidHeavyweightModels = [
-    { id: 'flux-2-pro', name: 'FLUX.2 Pro', desc: 'Gold standard details, lightning, solved anatomy/hands.', price: '~$0.05/img' },
-    { id: 'gpt-image-1.5', name: 'GPT Image 1.5', desc: 'OpenAI elite upgrade. Prompts reasoning & composition.', price: '~$0.04/img' },
-  ];
-
-  const nicheSpecializedModels = [
-    { id: 'recraft-v4', name: 'Recraft V4', desc: 'Only paid API generating native, editable Vector SVG files.', price: '~$0.04 - $0.08' },
-    { id: 'ideogram-3.0', name: 'Ideogram 3.0', desc: 'Undisputed typographic king for posters, text & labels.', price: '~$0.03/img' },
-    { id: 'midjourney-v7', name: 'Midjourney v7', desc: 'Gold standard cinematic visual styling and anime frames.', price: 'Subscription' },
-  ];
-
-  const aggregatorsModels = [
-    { id: 'fal-ai', name: 'FAL.AI Routing API', desc: 'Fastest cost-effective routing endpoints for open models.', price: 'API Proxy' },
-    { id: 'replicate', name: 'Replicate API', desc: 'Run thousand of custom trained models on demand.', price: 'API Proxy' },
-  ];
+  const googleStudioModels = IMAGE_MODEL_GROUPS.googleStudio;
+  const googleVertexModels = IMAGE_MODEL_GROUPS.googleVertex;
+  const openWeightModels = IMAGE_MODEL_GROUPS.openWeights;
+  const freeApiModels = IMAGE_MODEL_GROUPS.freeApi;
+  const webPrototypingModels = IMAGE_MODEL_GROUPS.web;
+  const paidHeavyweightModels = IMAGE_MODEL_GROUPS.premium;
+  const nicheSpecializedModels = IMAGE_MODEL_GROUPS.niche;
+  const aggregatorsModels = IMAGE_MODEL_GROUPS.aggregators;
 
   const renderModelCard = (item: any) => {
     const isSelected = imageModel === item.id;

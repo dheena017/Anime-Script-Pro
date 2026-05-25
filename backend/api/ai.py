@@ -14,11 +14,16 @@ from backend.database import async_session
 from backend.database.models import Project
 from backend.database.models.user import UserSettings, UserBalance
 from backend.utils.deps import get_auth_user_id
-from backend.ai_engine import ai_engine, build_genai_client, stream_ai
+from backend.ai_engine import AIEngine, ai_engine, build_genai_client, stream_ai
 from backend.schemas import GenerationRequest, GenerationResponse
 import uuid
 
 router = APIRouter(prefix="/api", tags=["AI Engine"])
+
+
+class ImageRequest(BaseModel):
+    prompt: str
+    model: str = "stable-image/generate/core"
 
 # --- Neural Health Registry ---
 # Tracks model performance and failures in real-time to optimize fallback selection
@@ -346,11 +351,11 @@ async def generate_content(request: GenerationRequest, user_id: str = Depends(ge
             import asyncio
             try:
                 # Normalize target model name to Imagen standard for Vertex/Gemini
-                google_model_name = "imagen-3.0-generate-001"
+                google_model_name = "imagen-3.0-generate-002"
                 if "fast" in target_image_model_lower:
-                    google_model_name = "imagen-3.0-fast-generate-001"
-                elif "generate-002" in target_image_model_lower or "imagen-4" in target_image_model_lower:
-                    google_model_name = "imagen-3.0-generate-002"
+                    google_model_name = "imagen-3.0-generate-002" # Fallback to stable generate-002
+                elif "generate-001" in target_image_model_lower:
+                    google_model_name = "imagen-3.0-generate-002" # Rewrite generate-001 to 002
                 
                 logger.info(f"IMAGEN ROUTING: Rendering visual via Google {google_model_name} (Requested: {target_image_model})...")
                 
@@ -543,6 +548,21 @@ async def generate_content(request: GenerationRequest, user_id: str = Depends(ge
     # If all fail
     logger.error(f"SYNTHESIS [#{request_id}]: All connections failed.")
     raise HTTPException(status_code=500, detail=f"Neural Engine Synthesis Failed: {str(last_error)}")
+
+
+@router.post("/generate/image")
+async def generate_image_endpoint(request: ImageRequest, user_id: str = Depends(get_auth_user_id)):
+    engine = AIEngine()
+
+    try:
+        image_data_uri = await engine.generate_image(
+            prompt=request.prompt,
+            model_name=request.model,
+            user_id=user_id,
+        )
+        return {"image_data": image_data_uri}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/generate/stream")
 async def stream_content(request: GenerationRequest, user_id: str = Depends(get_auth_user_id)):

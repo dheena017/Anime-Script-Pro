@@ -14,7 +14,8 @@ import {
   Zap,
   Volume2,
   VolumeX,
-  Check
+  Check,
+  Globe
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -38,6 +39,8 @@ export const AnimeStudioTopBar = React.memo<AnimeStudioTopBarProps>(({
   onToggleEngine,
   isEngineOpen,
   onToggleSidebar,
+  onToggleGlobalSidebar,
+  isGlobalSidebarOpen,
   isSidebarCollapsed,
 }) => {
   const navigate = useNavigate();
@@ -311,6 +314,24 @@ export const AnimeStudioTopBar = React.memo<AnimeStudioTopBarProps>(({
           >
             <Menu className={cn("w-5 h-5 transition-transform duration-500", isSidebarCollapsed && "rotate-90")} />
           </button>
+
+          {onToggleGlobalSidebar && (
+            <button
+              onClick={() => {
+                playNeonSound('click');
+                onToggleGlobalSidebar();
+              }}
+              className={cn(
+                "w-10 h-10 flex items-center justify-center rounded-xl transition-all duration-300 cursor-pointer border",
+                isGlobalSidebarOpen
+                  ? "text-cyan-400 bg-cyan-500/5 border-cyan-500/10 shadow-[0_0_15px_rgba(6,182,212,0.15)]"
+                  : "text-zinc-500 hover:text-white hover:bg-white/5 border-transparent"
+              )}
+              title={isGlobalSidebarOpen ? "Close Global Sidebar" : "Open Global Sidebar"}
+            >
+              <Globe className={cn("w-5 h-5 transition-transform duration-500", isGlobalSidebarOpen && "scale-110")} />
+            </button>
+          )}
 
           <div className="h-8 w-px bg-zinc-800/50 hidden lg:block" />
 
