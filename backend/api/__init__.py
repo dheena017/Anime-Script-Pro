@@ -13,6 +13,9 @@ from .stats import router as stats_router
 from .admin import router as admin_router
 from .world import router as world_router
 from .ai import router as ai_router
+from .text import router as text_router
+from .agent import router as agent_router
+from .image import router as image_router
 from .tutorials import router as tutorials_router
 from .library import router as library_router
 from .seo import router as seo_router
@@ -27,7 +30,6 @@ from .cast import router as cast_router
 from .diagnostic import router as diagnostic_router
 from .scenes import router as scenes_router
 from .sessions import router as sessions_router
-from .video import router as video_router
 from .audio import router as audio_router
 
 # Create the Master API Router
@@ -46,6 +48,9 @@ api_router.include_router(stats_router, tags=["Architect Context"])
 api_router.include_router(admin_router, tags=["Neural Admin"])
 api_router.include_router(world_router, tags=["World Lore"])
 api_router.include_router(ai_router, tags=["Neural Engine"])
+api_router.include_router(text_router, tags=["Neural Engine"])
+api_router.include_router(agent_router, tags=["Neural Engine"])
+api_router.include_router(image_router, tags=["Neural Engine"])
 api_router.include_router(tutorials_router, tags=["Architect Context"])
 api_router.include_router(library_router, tags=["Production"])
 api_router.include_router(seo_router, tags=["Production"])
@@ -60,5 +65,4 @@ api_router.include_router(cast_router, tags=["Cast Management"])
 api_router.include_router(diagnostic_router, tags=["Neural Admin"])
 api_router.include_router(scenes_router, tags=["Production"])
 api_router.include_router(sessions_router, tags=["Production"])
-api_router.include_router(video_router, tags=["Video"])
 api_router.include_router(audio_router, tags=["Audio"])

@@ -7,7 +7,7 @@ export interface AudioRequest {
 }
 
 export const generateAudio = async (request: AudioRequest) => {
-    return apiRequest<any>('/api/audio/generate', {
+    return apiRequest<any>('/api/audio', {
         method: 'POST',
         label: 'Generate Audio',
         body: JSON.stringify(request)

@@ -83,7 +83,7 @@ export async function generateSceneVideo(prompt: string, model: string = "veo-2.
   validateVideoScript(prompt);
   // Proxy the render request to the backend render endpoint which will call the configured provider
   try {
-    const res = await fetch('/api/render/scene', {
+    const res = await fetch('/api/video', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ prompt, model, duration: 4, provider, image_url: imageUrl })

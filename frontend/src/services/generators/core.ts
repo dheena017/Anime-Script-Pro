@@ -261,8 +261,8 @@ export function setCachedResponse(requestKey: string, result: string) {
 const inFlightRequests = new Map<string, Promise<string>>();
 const DEFAULT_BACKEND_URL = "";
 const BACKEND_BASE_URL = API_BASE_URL || (import.meta as any)?.env?.VITE_API_BASE_URL || DEFAULT_BACKEND_URL;
-const BACKEND_GENERATE_URL = `${BACKEND_BASE_URL.replace(/\/+$|^\s+|\s+$/g, '')}/api/generate`;
-const BACKEND_GENERATE_IMAGE_URL = `${BACKEND_BASE_URL.replace(/\/+$|^\s+|\s+$/g, '')}/api/generate/image`;
+const BACKEND_GENERATE_URL = `${BACKEND_BASE_URL.replace(/\/+$|^\s+|\s+$/g, '')}/api/text`;
+const BACKEND_GENERATE_IMAGE_URL = `${BACKEND_BASE_URL.replace(/\/+$|^\s+|\s+$/g, '')}/api/image`;
 
 const DETAIL_DEPTH_DIRECTIVE = `
 DETAIL DEPTH POLICY:
@@ -470,9 +470,15 @@ export async function callAI(
 
         studioLog("AI CORE", `Trying model: ${currentModel}`, 'info');
         
+        const isAgent = ["antigravity", "deep-research-pro", "computer-use-preview"].includes(normalizeModelId(currentModel));
+        const activeEndpoint = isAgent ? "/api/agent" : "/api/text";
+        const activeDirectUrl = isAgent 
+          ? `${BACKEND_BASE_URL.replace(/\/+$|^\s+|\s+$/g, '')}/api/agent`
+          : BACKEND_GENERATE_URL;
+
         let response: Response | null = null;
         try {
-          response = await fetch("/api/generate", {
+          response = await fetch(activeEndpoint, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload),
@@ -481,8 +487,8 @@ export async function callAI(
         } catch (fetchError: any) {
           const fetchErrorMessage = fetchError?.message?.toString() || "";
           if (fetchError instanceof TypeError || fetchErrorMessage.includes('Failed to fetch') || fetchErrorMessage.includes('ERR_EMPTY_RESPONSE')) {
-            logger.warn(`/api proxy fetch failed, retrying direct backend URL: ${BACKEND_GENERATE_URL}`);
-            response = await fetch(BACKEND_GENERATE_URL, {
+            logger.warn(`/api proxy fetch failed, retrying direct backend URL: ${activeDirectUrl}`);
+            response = await fetch(activeDirectUrl, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify(payload),
@@ -605,7 +611,7 @@ export async function callAIImage(
 
   let response: Response | null = null;
   try {
-    response = await fetch("/api/generate/image", {
+    response = await fetch("/api/image", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
@@ -668,10 +674,14 @@ export async function* streamAI(
     top_k: topK
   };
 
-  const response = await fetch("/api/generate/stream", {
+  const isAgent = ["antigravity", "deep-research-pro", "computer-use-preview"].includes(normalizeModelId(model));
+  const activeEndpoint = isAgent ? "/api/agent" : "/api/text";
+  const payloadWithStream = { ...payload, stream: true };
+
+  const response = await fetch(activeEndpoint, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload)
+    body: JSON.stringify(payloadWithStream)
   });
 
   if (!response.ok) {

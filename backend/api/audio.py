@@ -19,6 +19,7 @@ class AudioResponse(BaseModel):
     audioUrl: str | None = None
     message: str | None = None
 
+@router.post("", response_model=AudioResponse)
 @router.post("/generate", response_model=AudioResponse)
 async def generate_audio(req: AudioRequest):
     """Generate TTS audio for a given text manifest."""
