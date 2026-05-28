@@ -64,6 +64,7 @@ The following resource modules are proxied to the backend and handle the bulk of
 | **Media** | `/api/media` | Image and video asset management. |
 | **Production** | `/api/production` | Orchestration of the 10-state production cycle. |
 | **Library** | `/api/library` | Global asset and prompt template discovery. |
+| **Todos** | `/api/todos` | Personal production task queue management. |
 
 ---
 

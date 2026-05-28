@@ -4,6 +4,7 @@ import { apiRequest } from '@/lib/api-utils';
 
 vi.mock('@/lib/api-utils', () => ({
   apiRequest: vi.fn(),
+  API_BASE_URL: 'http://localhost:3050',
 }));
 
 describe('ProductionOrchestrator - scaffoldGeneration baseline', () => {
