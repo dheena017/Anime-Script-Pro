@@ -364,7 +364,10 @@ export default function AnimeLayout() {
         <div className="flex-1 overflow-y-auto relative">
           <div className="min-h-full flex flex-col">
             <div className="w-full max-w-7xl mx-auto px-0 sm:px-8 py-8 relative z-10 flex-1">
-              <div id="studio-content-area" className="w-full min-h-[calc(100vh-250px)] bg-black/60 backdrop-blur-xl border border-cyan-900/30 shadow-[0_20px_50px_rgba(0,0,0,0.5)] rounded-[2.5rem] relative flex flex-col">
+              <div id="studio-content-area" className="w-full min-h-[calc(100vh-250px)] bg-black/60 backdrop-blur-xl border border-cyan-900/30 shadow-[0_20px_50px_rgba(0,0,0,0.5)] rounded-[2.5rem] relative flex flex-col overflow-hidden group">
+                {/* Noir Shimmer Overlay */}
+                <div className="absolute inset-0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-[2000ms] bg-gradient-to-r from-transparent via-cyan-500/5 to-transparent pointer-events-none z-0" />
+
                 <div className="relative z-10 w-full flex-1 flex flex-col">
                   <AnimatePresence mode="wait">
                     <motion.div

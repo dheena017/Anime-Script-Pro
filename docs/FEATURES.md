@@ -51,6 +51,7 @@ This document summarizes the major features implemented across the Anime Script 
 - **Screening room**: review generated scenes, playback, and production notes.
 - **Generation engine orchestration**: manage model choices, provider failover, and prompt execution flow.
 - **Template library**: curated templates for common anime and storytelling structures.
+- **Todo (Production Queue)**: Enforces unique task names per user via `UniqueConstraint(user_id, text)`. Duplicates are prevented in the UI (TodoWidget.tsx) and handled as 400 Bad Request errors by the backend API.
 
 ## 4. Protocol & Production Modules
 - **Script Architect**: high-level script generation and structure modeling.

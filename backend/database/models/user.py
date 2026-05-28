@@ -25,7 +25,7 @@ import uuid
 # 2. THIRD-PARTY IMPORTS
 # ==============================================================================
 from fastapi_users_db_sqlalchemy import SQLAlchemyBaseUserTable
-from sqlalchemy import String
+from sqlalchemy import String, UniqueConstraint
 from sqlalchemy.orm import Mapped, declarative_base, mapped_column
 from sqlmodel import Column, Field, JSON, SQLModel
 
@@ -116,6 +116,7 @@ class UserSettings(SQLModel, table=True):
 class Todo(SQLModel, table=True):
     """A developer checklist item tracked on the studio workspace dashboard."""
     __tablename__ = "todos"
+    __table_args__ = (UniqueConstraint("user_id", "text", name="uq_todo_user_text"),)
 
     id: Optional[int] = Field(default=None, primary_key=True)
     user_id: str = Field(index=True)

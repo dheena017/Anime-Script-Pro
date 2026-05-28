@@ -104,7 +104,7 @@ export default function Dashboard() {
       )}
 
       <div className={cn("space-y-10 pt-16 pb-20 px-6 transition-opacity duration-200", showFullscreenLoader ? "opacity-0 pointer-events-none" : "opacity-100")}>
-        
+
         {/* INCOMING DIRECTIVE CTA */}
         {incomingPrompt && (
           <div className="p-8 rounded-[2.5rem] border border-studio/30 bg-studio/5 flex flex-col md:flex-row items-center justify-between gap-6 animate-in slide-in-from-top-4 duration-500">
@@ -117,7 +117,7 @@ export default function Dashboard() {
                    <p className="text-xs text-zinc-500 font-bold uppercase tracking-widest max-w-lg truncate italic">"{incomingPrompt}"</p>
                 </div>
              </div>
-             <Button 
+             <Button
               onClick={handleInitializeIncoming}
               className="bg-studio text-black hover:bg-white h-14 px-10 rounded-2xl font-black uppercase tracking-widest transition-all shadow-xl"
              >
@@ -196,12 +196,19 @@ export default function Dashboard() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             {[
-              { label: 'Production Archives', val: stats.total, sub: 'Online', icon: Activity, color: 'from-studio/20 to-transparent', border: 'hover:border-studio/40' },
-              { label: 'Studio Activity', val: stats.week, sub: 'Active', icon: Zap, color: 'from-fuchsia-500/20 to-transparent', border: 'hover:border-fuchsia-500/40' },
-              { label: 'Latency', val: error ? 'INF' : '24ms', sub: error ? 'DISRUPTED' : 'STABLE', icon: SignalHigh, color: 'from-emerald-500/20 to-transparent', border: 'hover:border-emerald-500/40' },
-              { label: 'Active Blueprint', val: stats.recent?.title?.substring(0, 8) || 'N/A', sub: 'SYNCED', icon: Cpu, color: 'from-violet-500/20 to-transparent', border: 'hover:border-violet-500/40' },
+              { label: 'Production Archives', val: stats.total, sub: 'Online', icon: Activity, border: 'hover:border-studio/40', glow: 'group-hover:shadow-[0_0_20px_rgba(6,182,212,0.15)]' },
+              { label: 'Studio Activity', val: stats.week, sub: 'Active', icon: Zap, border: 'hover:border-fuchsia-500/40', glow: 'group-hover:shadow-[0_0_20px_rgba(217,70,239,0.15)]' },
+              { label: 'Latency', val: error ? 'INF' : '24ms', sub: error ? 'DISRUPTED' : 'STABLE', icon: SignalHigh, border: 'hover:border-emerald-500/40', glow: 'group-hover:shadow-[0_0_20px_rgba(16,185,129,0.15)]' },
+              { label: 'Active Blueprint', val: stats.recent?.title?.substring(0, 8) || 'N/A', sub: 'SYNCED', icon: Cpu, border: 'hover:border-violet-500/40', glow: 'group-hover:shadow-[0_0_20px_rgba(139,92,246,0.15)]' },
             ].map((stat, i) => (
-              <Card key={i} className={cn("cyber-panel p-8 flex flex-col justify-between group transition-colors duration-300", stat.border)}>
+              <Card key={i} className={cn(
+                "p-8 flex flex-col justify-between group transition-all duration-500 relative overflow-hidden rounded-[2rem]",
+                "bg-zinc-900/40 backdrop-blur-xl border border-white/5",
+                stat.border,
+                stat.glow
+              )}>
+                {/* Noir Shimmer Effect */}
+                <div className="absolute inset-0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/5 to-transparent pointer-events-none" />
 
                 <div className="flex items-center justify-between mb-8 relative z-10">
                   <p className="text-xs font-black text-zinc-400 uppercase tracking-[0.4em]">{stat.label}</p>

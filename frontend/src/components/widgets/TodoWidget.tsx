@@ -7,9 +7,11 @@ import { Input } from '@/components/ui/input';
 
 import { todoService, Todo } from '@/services/api/todos';
 import { useAuth } from '@/hooks/useAuth';
+import { useApp } from '@/contexts/AppContext';
 
 export const TodoWidget: React.FC = () => {
   const { user } = useAuth();
+  const { showNotification } = useApp();
   const [tasks, setTasks] = useState<Todo[]>([]);
   const [newTask, setNewTask] = useState('');
   const [, setLoading] = useState(true);
@@ -35,13 +37,24 @@ export const TodoWidget: React.FC = () => {
 
   const addTask = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newTask.trim() || !user) return;
+    const taskText = newTask.trim();
+    if (!taskText || !user) return;
+
+    // Client-side duplicate check
+    if (tasks.some(t => t.text.toLowerCase() === taskText.toLowerCase())) {
+      showNotification?.('Task already exists in your production queue.', 'error');
+      return;
+    }
+
     try {
-      const todo = await todoService.createTodo(user.id, newTask);
+      const todo = await todoService.createTodo(user.id, taskText);
       setTasks([...tasks, todo]);
       setNewTask('');
-    } catch (e) {
+      showNotification?.('Task added to production queue.', 'success');
+    } catch (e: any) {
       console.error("Failed to add task:", e);
+      const errorMsg = e.detail || "Failed to add task. Please try again.";
+      showNotification?.(errorMsg, 'error');
     }
   };
 
@@ -102,8 +115,8 @@ export const TodoWidget: React.FC = () => {
                   {task.text}
                 </span>
               </div>
-              <button 
-                onClick={() => deleteTask(task.id)} 
+              <button
+                onClick={() => deleteTask(task.id)}
                 className="opacity-0 group-hover:opacity-100 p-1.5 hover:bg-red-500/10 hover:text-red-500 rounded-lg transition-all"
               >
                 <Trash2 className="w-3.5 h-3.5" />
@@ -115,6 +128,3 @@ export const TodoWidget: React.FC = () => {
     </Card>
   );
 };
-
-
-
