@@ -2,7 +2,7 @@
 // Properly named SEO generation module — replaces the legacy generators/metadata.ts naming.
 // Calls Gemini AI with the enhanced SEO prompt templates from prompts/seoPrompts.ts.
 
-import { callAI } from "./core";
+import { generateText } from "./core";
 import { MOCK_STORY_BIBLE } from "./mockData";
 import {
   METADATA_GENERATION_PROMPT,
@@ -74,7 +74,7 @@ export async function generateMetadata(
   const systemInstruction = METADATA_GENERATION_PROMPT(script);
 
   try {
-    const text = await callAI(
+    const text = await generateText(
       model,
       `Generate YouTube metadata for this script: ${script}`,
       systemInstruction,
@@ -103,7 +103,7 @@ export async function generateYouTubeDescription(
   const systemInstruction = YOUTUBE_DESCRIPTION_GENERATION_PROMPT(contentType, script);
 
   try {
-    const text = await callAI(
+    const text = await generateText(
       model,
       `Generate a YouTube description for this script: ${script}`,
       systemInstruction,
@@ -131,7 +131,7 @@ export async function generateAltTexts(
   const systemInstruction = ALT_TEXT_GENERATION_PROMPT(script);
 
   try {
-    const text = await callAI(
+    const text = await generateText(
       model,
       `Generate alt text captions for this script: ${script}`,
       systemInstruction,
@@ -161,7 +161,7 @@ export async function generateGrowthStrategy(
   const systemInstruction = GROWTH_STRATEGY_PROMPT(contentType, script);
 
   try {
-    const text = await callAI(
+    const text = await generateText(
       model,
       `Develop a comprehensive YouTube growth strategy for this script: ${script}`,
       systemInstruction,
@@ -190,7 +190,7 @@ export async function generateDistributionStrategy(
   const systemInstruction = REPURPOSE_MATRIX_PROMPT(script);
 
   try {
-    const text = await callAI(
+    const text = await generateText(
       model,
       `Develop a cross-platform distribution matrix for this script: ${script}`,
       systemInstruction,

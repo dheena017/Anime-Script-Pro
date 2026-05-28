@@ -1,14 +1,43 @@
-import json
-import asyncio
-from typing import List, Optional
-from sqlalchemy import select, update
-from backend.database import async_session
-from backend.database.models import Scene, Project
-from backend.database.models.world import WorldLore, CastManifest
-from backend.ai_engine import call_ai
-from backend.utils.telemetry import telemetry_manager
-from loguru import logger
+"""
+Anime Script Pro — Scene Manifestation Subsystem
 
+This module orchestrates individual and batch generative manifestation cycles, pulling from
+active projects and narrative lore documents to synthesize production-ready scene scripts.
+
+Sections (in order):
+  1. Standard Library Imports
+  2. Third-Party Imports
+  3. Local Imports
+  4. Core System Prompts
+  5. Scene Manifestation Operations
+"""
+
+# ==============================================================================
+# 1. STANDARD LIBRARY IMPORTS
+# ==============================================================================
+import asyncio
+import json
+from typing import List, Optional
+
+# ==============================================================================
+# 2. THIRD-PARTY IMPORTS
+# ==============================================================================
+from loguru import logger
+from sqlalchemy import select, update
+
+# ==============================================================================
+# 3. LOCAL IMPORTS
+# ==============================================================================
+from backend.ai_engine import generate_ai_text
+from backend.database import async_session
+from backend.database.models import Project, Scene
+from backend.database.models.world import CastManifest, WorldLore
+from backend.lib.defaults import DEFAULT_SCENE_BATCH_LIMIT, DEFAULT_SCRIPT_MODEL
+from backend.utils.telemetry import telemetry_manager
+
+# ==============================================================================
+# 4. CORE SYSTEM PROMPTS
+# ==============================================================================
 SCENE_MANIFEST_SYSTEM_PROMPT = """
 You are an expert Anime Writer, Scene Architect, and Production Planner.
 
@@ -39,22 +68,41 @@ JSON Schema:
 Return ONLY JSON. No markdown.
 """
 
-async def manifest_scene(scene_id: int, user_id: str, model: str = "gemini-2.0-flash"):
+# ==============================================================================
+# 5. SCENE MANIFESTATION OPERATIONS
+# ==============================================================================
+
+async def manifest_scene(
+    scene_id: int,
+    user_id: str,
+    model: str = DEFAULT_SCRIPT_MODEL,
+) -> bool:
+    """Manifest a single scene blueprint via neural narrative generation models.
+
+    Args:
+        scene_id: The specific database key of the target Scene to manifest.
+        user_id: The active authorized user initiating orchestration.
+        model: Target text-model path or identifier override.
+
+    Returns:
+        bool: True if synthesis succeeded and was saved to persistence, False otherwise.
+    """
+    logger.info(f"AI MANIFEST: Initiating synthesis routine for Scene #{scene_id}...")
     async with async_session() as session:
         # 1. Fetch Scene
         scene = await session.get(Scene, scene_id)
         if not scene:
-            logger.error(f"Scene {scene_id} not found.")
+            logger.error(f"AI MANIFEST: Target Scene ID {scene_id} not found in database records.")
             return False
         
         if scene.status == "MANIFESTED":
-            logger.info(f"Scene {scene_id} already manifested. Skipping.")
+            logger.info(f"AI MANIFEST: Scene ID {scene_id} is already in MANIFESTED status. Skipping.")
             return True
 
         # 2. Fetch Project & Lore
         project = await session.get(Project, scene.project_id)
         if not project:
-            logger.error(f"Project {scene.project_id} not found for scene {scene_id}.")
+            logger.error(f"AI MANIFEST: Project blueprint #{scene.project_id} not resolved for Scene {scene_id}.")
             return False
             
         # 3. Fetch Lore & Cast Manifest
@@ -73,8 +121,11 @@ async def manifest_scene(scene_id: int, user_id: str, model: str = "gemini-2.0-f
         scene_index = ((scene.scene_number - 1) % 16) + 1 if scene.scene_number and scene.scene_number > 0 else 1
         
         source_sections = []
-        if world_lore_text: source_sections.append(f"WORLD LORE SOURCE OF TRUTH:\n{world_lore_text}")
-        if cast_text: source_sections.append(f"CHARACTER DNA REGISTRY:\n{cast_text}")
+        if world_lore_text: 
+            source_sections.append(f"WORLD LORE SOURCE OF TRUTH:\n{world_lore_text}")
+        if cast_text: 
+            source_sections.append(f"CHARACTER DNA REGISTRY:\n{cast_text}")
+            
         source_sections.append(
             f"SESSION / SCENE LABELS:\nSession Name: Session {session_index}\nScene Name: Scene {scene_index}\nScene Number: {scene.scene_number}"
         )
@@ -88,41 +139,54 @@ Target Scene Beat: Scene #{scene.scene_number} (Current Status: {scene.status})
 Additional Context: {scene.prompt or "Generate an appropriate scene following the narrative arc."}
 """
 
-        logger.info(f"AI MANIFEST: Synthesizing Scene #{scene.scene_number} for Project {project.id} using {model}")
+        logger.info(f"AI MANIFEST: Dispatched LLM request using model '{model}' for Scene #{scene.scene_number}...")
 
         try:
-            response = await call_ai(model, user_prompt, system_instruction, user_id)
+            response = await generate_ai_text(model, user_prompt, system_instruction, user_id)
             
-            # Repair JSON if needed
+            # Repair JSON formatting structure if minor artifacts exist
             clean_json = response.replace("```json", "").replace("```", "").strip()
             
-            # Try to parse to validate
+            # Attempt parsing to validate JSON compliance
             try:
                 scene_data = json.loads(clean_json)
             except json.JSONDecodeError:
-                logger.warning(f"AI MANIFEST: Truncated JSON detected for Scene {scene_id}. Attempting manual fix.")
-                # Basic fix for common truncation
+                logger.warning(f"AI MANIFEST: Malformed/Truncated output block for Scene ID {scene_id}. Attempting suffix patch.")
                 if not clean_json.endswith("}"):
                     clean_json += "}"
                 scene_data = json.loads(clean_json)
             
-            # 4. Update Scene
+            # 4. Save and Update persistent Scene status
             scene.content = json.dumps(scene_data)
             scene.status = "MANIFESTED"
             session.add(scene)
             await session.commit()
             
-            logger.success(f"AI MANIFEST: Scene {scene_id} manifested successfully.")
+            logger.success(f"AI MANIFEST: Scene ID {scene_id} successfully parsed, validated, and updated in database.")
             return True
         except Exception as e:
-            logger.error(f"AI MANIFEST: Failed to manifest scene {scene_id}: {e}")
+            logger.error(f"AI MANIFEST: Engine failure during manifestation cycle of Scene ID {scene_id}: {e}")
             return False
 
-async def manifest_all_queued_scenes(project_id: int, user_id: str, limit: int = 16, model: str = "gemini-2.0-flash"):
+
+async def manifest_all_queued_scenes(
+    project_id: int,
+    user_id: str,
+    limit: int = DEFAULT_SCENE_BATCH_LIMIT,
+    model: str = DEFAULT_SCRIPT_MODEL,
+) -> int:
+    """Iterate and manifest all queued scene blueprints associated with a project.
+
+    Args:
+        project_id: Target project ID.
+        user_id: Active authenticated user ID.
+        limit: Max batch count to manifest in this cycle.
+        model: Override target narrative model to invoke.
+
+    Returns:
+        int: Number of successfully manifested scene models in this run.
     """
-    Manifests a batch of queued scenes for a project.
-    Default limit is 16 (roughly one episode's worth).
-    """
+    logger.info(f"NEURAL SYNC: Initiating sequential manifestation query for Project {project_id}...")
     async with async_session() as session:
         stmt = select(Scene).where(
             Scene.project_id == project_id,
@@ -133,16 +197,18 @@ async def manifest_all_queued_scenes(project_id: int, user_id: str, limit: int =
         queued_scenes = res.scalars().all()
         
         if not queued_scenes:
-            logger.info(f"NEURAL SYNC: No queued scenes found for project {project_id}.")
+            logger.info(f"NEURAL SYNC: Zero pending queued scenes found for Project ID {project_id}.")
             return 0
             
-        logger.info(f"NEURAL SYNC: Starting bulk manifestation for {len(queued_scenes)} scenes in project {project_id} using {model}...")
+        logger.info(f"NEURAL SYNC: Beginning active loop for {len(queued_scenes)} scenes in Project {project_id}...")
         
         total = len(queued_scenes)
         success_count = 0
         for i, scene in enumerate(queued_scenes):
-            # Broadcast progress before starting each scene
             progress = (i / total) * 100
+            
+            logger.info(f"NEURAL SYNC: Processing item [{i + 1}/{total}] (Scene Number: {scene.scene_number}). Progress: {progress:.1f}%")
+            
             await telemetry_manager.broadcast_event(
                 event_type="PROGRESS",
                 module="MANIFEST",
@@ -160,10 +226,10 @@ async def manifest_all_queued_scenes(project_id: int, user_id: str, limit: int =
             if success:
                 success_count += 1
             
-            # Progressive delay to respect rate limits (longer for free tier)
+            # Rate-limiting pause to prevent API endpoint degradation
             await asyncio.sleep(2.0)
             
-        # Final broadcast
+        # Final status sync broadcast
         await telemetry_manager.broadcast_event(
             event_type="PROGRESS",
             module="MANIFEST",
@@ -176,5 +242,5 @@ async def manifest_all_queued_scenes(project_id: int, user_id: str, limit: int =
             }
         )
 
-        logger.success(f"NEURAL SYNC: Completed batch manifestation. {success_count}/{len(queued_scenes)} succeeded.")
+        logger.success(f"NEURAL SYNC: Manifestation cycle complete. Successfully compiled {success_count} out of {total} items.")
         return success_count

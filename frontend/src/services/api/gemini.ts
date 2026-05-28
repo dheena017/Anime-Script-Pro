@@ -16,3 +16,4 @@ export * from "../generators/worldGenerator";
 
 export * from "../generators/videoGenerator";
 export * from "../generators/sceneGenerator";
+export * from "../generators/audioGenerator";

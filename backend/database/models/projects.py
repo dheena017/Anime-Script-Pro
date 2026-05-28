@@ -1,10 +1,39 @@
-from typing import Optional, List, Dict, Any
+"""
+Anime Script Pro — Project & Creative Blueprint Models
+
+This module defines SQLModel database tables mapping production project manifests, creative
+production sessions, active series outlines, narrative script variants, storyboards, and
+compiled output archives.
+
+Sections (in order):
+  1. Standard Library Imports
+  2. Third-Party Imports
+  3. Production Project blue prints
+  4. Episode & Session Management Models
+  5. Script & Storyboard Version control Models
+  6. Consolidated Project Outputs Models
+"""
+
+# ==============================================================================
+# 1. STANDARD LIBRARY IMPORTS
+# ==============================================================================
 from datetime import datetime
-from sqlmodel import SQLModel, Field, Column, JSON
+from typing import Any, Dict, List, Optional
+
+# ==============================================================================
+# 2. THIRD-PARTY IMPORTS
+# ==============================================================================
+from sqlmodel import Column, Field, JSON, SQLModel
+
+# ==============================================================================
+# 3. PRODUCTION PROJECT BLUE PRINTS
+# ==============================================================================
 
 class Project(SQLModel, table=True):
+    """Stores high-level settings, vibe prompts, and art style details for a production."""
     __tablename__ = "projects"
     __table_args__ = {"extend_existing": True}
+
     id: Optional[int] = Field(default=None, primary_key=True)
     user_id: str = Field(index=True)
     title: Optional[str] = Field(default=None)
@@ -13,34 +42,45 @@ class Project(SQLModel, table=True):
     content_type: str = Field(default="ANIME")
     genre: Optional[str] = None
     art_style: Optional[str] = None
-    episode_length: str = Field(default="FULL") # "SHORT" or "FULL"
+    episode_length: str = Field(default="FULL")  # SHORT or FULL
     description: Optional[str] = None
     prompt: Optional[str] = None
     status: str = Field(default="draft")
     model_used: str = Field(default="God Mode Engine v2.0")
-    prod_metadata: Dict = Field(default_factory=dict, sa_column=Column(JSON))
+    prod_metadata: Dict = Field(sa_column=Column(JSON), default_factory=dict)
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
     is_active: bool = Field(default=True, index=True)
-    def __repr__(self):
+
+    def __repr__(self) -> str:
         return f"<Project(id={self.id}, title={self.title})>"
-    def __str__(self):
-        return self.title
+
+    def __str__(self) -> str:
+        return self.title or ""
+
+# ==============================================================================
+# 4. EPISODE & SESSION MANAGEMENT MODELS
+# ==============================================================================
 
 class ProductionSession(SQLModel, table=True):
+    """Groups multiple generated scripts and scenes into active workspace sessions."""
     __tablename__ = "sessions"
+
     id: Optional[int] = Field(default=None, primary_key=True)
     project_id: int = Field(index=True)
     session_number: int
     title: str
     summary: str
-    prod_metadata: Dict = Field(default_factory=dict, sa_column=Column(JSON))
+    prod_metadata: Dict = Field(sa_column=Column(JSON), default_factory=dict)
     created_at: datetime = Field(default_factory=datetime.utcnow)
     is_active: bool = Field(default=True, index=True)
 
+
 class Episode(SQLModel, table=True):
+    """Tracks sequence blueprints mapping hooks, runtime indices, and generated asset matrices."""
     __tablename__ = "episodes"
     __table_args__ = {"extend_existing": True}
+
     id: Optional[int] = Field(default=None, primary_key=True)
     project_id: int = Field(index=True)
     user_id: Optional[str] = Field(default=None, index=True)
@@ -50,14 +90,17 @@ class Episode(SQLModel, table=True):
     hook: Optional[str] = None
     synopsis: Optional[str] = None
     runtime: Optional[str] = Field(default="24:00")
-    asset_matrix: Dict[str, Any] = Field(default_factory=dict, sa_column=Column(JSON))
+    asset_matrix: Dict[str, Any] = Field(sa_column=Column(JSON), default_factory=dict)
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
     is_active: bool = Field(default=True, index=True)
 
+
 class Scene(SQLModel, table=True):
+    """Represents a single concrete scene description containing JSON visual directions."""
     __tablename__ = "scenes"
     __table_args__ = {"extend_existing": True}
+
     id: Optional[int] = Field(default=None, primary_key=True)
     project_id: int = Field(index=True)
     episode_id: int = Field(foreign_key="episodes.id")
@@ -68,9 +111,15 @@ class Scene(SQLModel, table=True):
     content: Optional[str] = None
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
+# ==============================================================================
+# 5. SCRIPT & STORYBOARD VERSION CONTROL MODELS
+# ==============================================================================
+
 class Series(SQLModel, table=True):
+    """Blueprints representing overarching series story guides."""
     __tablename__ = "series"
     __table_args__ = {"extend_existing": True}
+
     id: Optional[int] = Field(default=None, primary_key=True)
     user_id: str = Field(index=True)
     title: str
@@ -78,13 +127,18 @@ class Series(SQLModel, table=True):
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
     is_active: bool = Field(default=True, index=True)
-    def __repr__(self):
+
+    def __repr__(self) -> str:
         return f"<Series(id={self.id}, title={self.title})>"
-    def __str__(self):
+
+    def __str__(self) -> str:
         return self.title
 
+
 class Script(SQLModel, table=True):
+    """Auditable screenplays tied to parent projects, episodes, or series outlines."""
     __tablename__ = "scripts"
+
     id: Optional[int] = Field(default=None, primary_key=True)
     title: str
     content: str
@@ -94,21 +148,29 @@ class Script(SQLModel, table=True):
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
     is_active: bool = Field(default=True, index=True)
-    def __repr__(self):
+
+    def __repr__(self) -> str:
         return f"<Script(id={self.id}, title={self.title})>"
-    def __str__(self):
+
+    def __str__(self) -> str:
         return self.title
 
+
 class ScriptVersion(SQLModel, table=True):
+    """Archival revision logs of script scriptwriting iterations."""
     __tablename__ = "script_versions"
+
     id: Optional[int] = Field(default=None, primary_key=True)
     script_id: int = Field(foreign_key="scripts.id")
     content: str
     created_at: datetime = Field(default_factory=datetime.utcnow)
     is_active: bool = Field(default=True, index=True)
 
+
 class Storyboard(SQLModel, table=True):
+    """Visual sequencing board containing generated keyframes and camera descriptors."""
     __tablename__ = "storyboards"
+
     id: Optional[int] = Field(default=None, primary_key=True)
     script_id: int = Field(foreign_key="scripts.id")
     image_url: str
@@ -116,29 +178,37 @@ class Storyboard(SQLModel, table=True):
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
     is_active: bool = Field(default=True, index=True)
-    def __repr__(self):
+
+    def __repr__(self) -> str:
         return f"<Storyboard(id={self.id}, script_id={self.script_id})>"
-    def __str__(self):
+
+    def __str__(self) -> str:
         return self.image_url
 
+# ==============================================================================
+# 6. CONSOLIDATED PROJECT OUTPUTS MODELS
+# ==============================================================================
+
 class ProjectContent(SQLModel, table=True):
+    """Stores full aggregated text compiles, plans, prompts, and distribution assets."""
     __tablename__ = "project_content"
+
     id: Optional[int] = Field(default=None, primary_key=True)
     user_id: str = Field(index=True)
     project_id: Optional[int] = Field(default=None, index=True)
     
     # Cast & Character Data
     cast_profiles: Optional[str] = Field(default=None)
-    cast_data: Dict[str, Any] = Field(default_factory=dict, sa_type=JSON)
+    cast_data: Dict[str, Any] = Field(sa_column=Column(JSON), default_factory=dict)
     cast_relationships: Optional[str] = Field(default=None)
     
     # Narrative Data
-    scenes: List[Dict[str, Any]] = Field(default_factory=list, sa_type=JSON)
+    scenes: List[Dict[str, Any]] = Field(sa_column=Column(JSON), default_factory=list)
     script_content: Optional[str] = Field(default=None)
-    series_plan: List[Dict[str, Any]] = Field(default_factory=list, sa_type=JSON)
+    series_plan: List[Dict[str, Any]] = Field(sa_column=Column(JSON), default_factory=list)
     
     # Production Data
-    storyboard: Dict[str, Any] = Field(default_factory=dict, sa_type=JSON)
+    storyboard: Dict[str, Any] = Field(sa_column=Column(JSON), default_factory=dict)
     seo_metadata: Optional[str] = Field(default=None)
     growth_strategy: Optional[str] = Field(default=None)
     distribution_plan: Optional[str] = Field(default=None)
@@ -146,13 +216,12 @@ class ProjectContent(SQLModel, table=True):
     alt_texts: Optional[str] = Field(default=None)
     
     # Protocols & Prompts
-    custom_prompts: Dict[str, str] = Field(default_factory=dict, sa_type=JSON)
-    active_protocols: List[str] = Field(default_factory=list, sa_type=JSON)
+    custom_prompts: Dict[str, str] = Field(sa_column=Column(JSON), default_factory=dict)
+    active_protocols: List[str] = Field(sa_column=Column(JSON), default_factory=list)
     
     # Screening Room
-    screening_logs: List[Dict[str, Any]] = Field(default_factory=list, sa_type=JSON)
+    screening_logs: List[Dict[str, Any]] = Field(sa_column=Column(JSON), default_factory=list)
     
     # Timestamps
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
-

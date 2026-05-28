@@ -6,6 +6,8 @@ import { SoundscapeLibrary } from '../../components/Audio/SoundscapeLibrary';
 import { storyboardStyles as s } from '../storyboardStyles';
 import { cn } from '@/lib/utils';
 
+import { StoryboardPageContext } from '../StoryboardPage';
+
 interface Scene {
   id: string;
   originalIndex: number;
@@ -24,10 +26,12 @@ interface Scene {
 }
 
 interface CompositionTabProps {
-  scenes: Scene[];
+  scenes?: Scene[];
 }
 
-export const CompositionTab: React.FC<CompositionTabProps> = ({ scenes }) => {
+export const CompositionTab: React.FC<CompositionTabProps> = ({ scenes: propsScenes }) => {
+  const context = React.useContext(StoryboardPageContext);
+  const scenes = propsScenes || context?.scenes || [];
   return (
     <div className={s.tabContent + " animate-in fade-in duration-700"}>
       {/* Header */}

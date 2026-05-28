@@ -11,6 +11,7 @@ import { SceneCard } from '../components/SceneCard';
 import { EmptyState } from '../components/EmptyState';
 import { StudioEditor } from '../../components/StudioEditor';
 import { storyboardStyles as s } from '../storyboardStyles';
+import { StoryboardPageContext } from '../StoryboardPage';
 
 interface Scene {
   id: string;
@@ -60,36 +61,39 @@ interface FramesTabProps {
   onLoadDemo?: () => void;
 }
 
-export const FramesTab = React.memo<FramesTabProps>(({
-  scenes,
-  visualData,
-  videoData,
-  viewMode = 'list',
-  promptList,
-  editingSceneId,
-  editForm,
-  isEnhancingNarration,
-  isEnhancing,
-  isRewritingTension,
-  isSuggestingDuration,
-  enhancingSceneIds,
-  setEditForm,
-  handleDragEnd,
-  handleGenerateVisual,
-  handleGenerateVideo,
-  startEditing,
-  cancelEditing,
-  saveSceneEdits,
-  handleEnhanceNarration,
-  handleEnhanceVisuals,
-  handleRewriteTension,
-  handleSuggestDuration,
-  handleAddScene,
-  isGenerating,
-  handleManifestScene,
-  isManifestingSceneId,
-  onLoadDemo,
-}) => {
+export const FramesTab = React.memo<Partial<FramesTabProps>>((props) => {
+  const context = React.useContext(StoryboardPageContext);
+
+  const {
+    scenes = context?.scenes || [],
+    visualData = context?.visualData || {},
+    videoData = context?.videoData || {},
+    viewMode = props.viewMode || context?.viewMode || 'list',
+    promptList = context?.promptList || [],
+    editingSceneId = context?.editingSceneId || null,
+    editForm = context?.editForm || {},
+    isEnhancingNarration = context?.isEnhancingNarration || false,
+    isEnhancing = context?.isEnhancing || false,
+    isRewritingTension = context?.isRewritingTension || false,
+    isSuggestingDuration = context?.isSuggestingDuration || false,
+    enhancingSceneIds = context?.enhancingSceneIds || new Set<string>(),
+    setEditForm = context?.setEditForm || (() => {}),
+    handleDragEnd = context?.handleDragEnd || (() => {}),
+    handleGenerateVisual = context?.handleGenerateVisual || (() => {}),
+    handleGenerateVideo = context?.handleGenerateVideo || (() => {}),
+    startEditing = context?.startEditing || (() => {}),
+    cancelEditing = context?.cancelEditing || (() => {}),
+    saveSceneEdits = context?.saveSceneEdits || (() => {}),
+    handleEnhanceNarration = context?.handleEnhanceNarration || (() => {}),
+    handleEnhanceVisuals = context?.handleEnhanceVisuals || (() => {}),
+    handleRewriteTension = context?.handleRewriteTension || (() => {}),
+    handleSuggestDuration = context?.handleSuggestDuration || (() => {}),
+    handleAddScene = context?.handleAddScene || (() => {}),
+    isGenerating = context?.isGenerating || false,
+    handleManifestScene = context?.handleManifestScene || (() => {}),
+    isManifestingSceneId = context?.isManifestingSceneId || null,
+    onLoadDemo = context?.onLoadDemo || (() => {}),
+  } = props;
   if (scenes.length === 0) {
     return <EmptyState onLaunch={handleAddScene} onLoadDemo={onLoadDemo} isGenerating={isGenerating} />;
   }

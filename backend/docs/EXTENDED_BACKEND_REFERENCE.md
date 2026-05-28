@@ -189,7 +189,7 @@ manifest_service = ManifestService()
 
 ## 📝 Additional Backend Files
 
-### Scripts (`backend/scripts/`)
+### Scripts (`backend/folder_management/`)
 | File | Purpose |
 |------|---------|
 | `list_models.py` | List available Gemini models |

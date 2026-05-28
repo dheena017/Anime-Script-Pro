@@ -10,7 +10,7 @@ import { apiRequest } from "@/lib/api-utils";
 import { seoApi } from "@/services/api/seo";
 import { VIBE_LIBRARY } from "@/lib/vibe-presets";
 
-import { callAI } from "./generators/core";
+import { generateText } from "./generators/core";
 
 export interface ProductionContext {
   prompt: string;
@@ -317,7 +317,7 @@ export class ProductionOrchestrator {
     const orchestratorModel = this.context.model || "gemini-2.0-flash-exp";
 
     try {
-      const result = await callAI(
+      const result = await generateText(
         orchestratorModel,
         prompt,
         systemInstruction,

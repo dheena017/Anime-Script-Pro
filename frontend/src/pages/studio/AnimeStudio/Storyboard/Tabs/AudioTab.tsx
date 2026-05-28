@@ -6,6 +6,8 @@ import { cn } from '@/lib/utils';
 import { storyboardStyles as s } from '../storyboardStyles';
 import { motion } from 'framer-motion';
 
+import { StoryboardPageContext } from '../StoryboardPage';
+
 interface Scene {
   id: string;
   originalIndex?: number;
@@ -27,7 +29,9 @@ interface AudioTabProps {
   scenes?: Scene[];
 }
 
-export const AudioTab: React.FC<AudioTabProps> = ({ scenes = [] }) => {
+export const AudioTab: React.FC<AudioTabProps> = ({ scenes: propsScenes }) => {
+  const context = React.useContext(StoryboardPageContext);
+  const scenes = propsScenes || context?.scenes || [];
   const [generatingId, setGeneratingId] = React.useState<string | null>(null);
   const [audioUrls, setAudioUrls] = React.useState<Record<string, string>>({});
   const [playingId, setPlayingId] = React.useState<string | null>(null);

@@ -354,7 +354,7 @@ const normalizeModelId = (id: string | undefined): string => {
  * Robust AI Call Utility with built-in retries, timeouts, and error handling.
  * Optional context parameters allow story state injection for consistent generation.
  */
-export async function callAI(
+export async function generateText(
   model: string,
   prompt: string,
   systemInstruction: string,
@@ -600,7 +600,7 @@ export async function callAI(
   return generationPromise;
 }
 
-export async function callAIImage(
+export async function generateImage(
   prompt: string,
   model: string = "stable-image/generate/core"
 ): Promise<string> {
@@ -645,7 +645,7 @@ export async function callAIImage(
 /**
  * Stream AI Response from the backend.
  */
-export async function* streamAI(
+export async function* streamText(
   model: string,
   prompt: string,
   systemInstruction: string,

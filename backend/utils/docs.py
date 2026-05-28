@@ -1,3 +1,17 @@
+"""
+Anime Script Pro — API Documentation Config
+
+This module defines tags, descriptors, metadata, and core copy blocks for the Swagger UI
+and Redoc OpenAPI specifications.
+
+Sections (in order):
+  1. Swagger Tags Metadata
+  2. Main Description Copy
+"""
+
+# ==============================================================================
+# 1. SWAGGER TAGS METADATA
+# ==============================================================================
 TAGS_METADATA = [
     {"name": "Neural Engine", "description": "Core AI synthesis operations."},
     {"name": "Production", "description": "Project lifecycle and production cycles."},
@@ -5,6 +19,9 @@ TAGS_METADATA = [
     {"name": "Neural Admin", "description": "System administration protocols."},
 ]
 
+# ==============================================================================
+# 2. MAIN DESCRIPTION COPY
+# ==============================================================================
 DESCRIPTION = """
 ## 🚀 NEURAL ENGINE // Studio Architect Suite v2.5.0
 **The backbone of Anime Script Pro's generative architecture.**

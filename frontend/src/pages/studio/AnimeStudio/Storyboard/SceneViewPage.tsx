@@ -20,7 +20,7 @@ import {
 import { 
   enhanceNarration, 
   enhanceSceneVisuals,
-  generateSceneVideo
+  generateVideo
 } from '@/services/api/gemini';
 
 interface Scene {
@@ -140,7 +140,7 @@ export function SceneViewPage() {
       }
       const sceneImages = visualData[scene?.originalIndex];
       const imageUrl = (sceneImages && sceneImages.length > 0 && sceneImages[0] !== 'loading') ? sceneImages[0] : undefined;
-      const url = await generateSceneVideo(promptToUse, selectedModel || undefined, undefined, imageUrl);
+      const url = await generateVideo(promptToUse, selectedModel || undefined, undefined, imageUrl);
       if (!url) throw new Error('Renderer returned no URL.');
       setGeneratedVideoUrl(url);
       // Persist to storyboard state so other views can access it
@@ -286,7 +286,7 @@ export function SceneViewPage() {
                           const promptToUse = editForm.linkedPrompt || editForm.visuals || '';
                           const sceneImages = visualData[scene?.originalIndex];
                           const imageUrl = (sceneImages && sceneImages.length > 0 && sceneImages[0] !== 'loading') ? sceneImages[0] : undefined;
-                          const url = await generateSceneVideo(promptToUse, selectedModel || undefined, 'free_ai', imageUrl);
+                          const url = await generateVideo(promptToUse, selectedModel || undefined, 'free_ai', imageUrl);
                           if (!url) throw new Error('Renderer returned no URL.');
                           setGeneratedVideoUrl(url);
                           storyboardDispatch({ type: 'UPDATE_VIDEO_ITEM', payload: { id: scene.originalIndex, data: url } });

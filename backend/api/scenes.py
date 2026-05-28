@@ -7,6 +7,7 @@ from backend.database.models import Scene, Episode, Project
 from backend.utils.deps import get_auth_user_id
 from backend.utils.notifications import notify_user
 from backend.utils.scene_manifestor import manifest_all_queued_scenes
+from backend.lib.defaults import DEFAULT_SCRIPT_MODEL, DEFAULT_SCENE_BATCH_LIMIT
 
 router = APIRouter(prefix="/api/scenes", tags=["Scenes"])
 
@@ -140,8 +141,8 @@ async def bulk_manifest_scenes(payload: dict, user_id: str = Depends(get_auth_us
     Triggers a background manifestation cycle for queued scenes.
     """
     project_id = payload.get("project_id")
-    limit = payload.get("limit", 16) # Default to 16 scenes (one episode)
-    model = payload.get("model", "gemini-2.0-flash")
+    limit = payload.get("limit", DEFAULT_SCENE_BATCH_LIMIT)
+    model = payload.get("model", DEFAULT_SCRIPT_MODEL)
     
     if not project_id:
         raise HTTPException(status_code=400, detail="project_id is required")

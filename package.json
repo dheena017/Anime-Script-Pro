@@ -9,7 +9,7 @@
     "server": "concurrently --silent -n \"FRONTEND,BACKEND\" -c \"cyan,magenta\" -p \"[{name}]\" \"tsx server.ts\" \"node scripts/run-python.mjs -m uvicorn backend.fastapi_app:app --port 3050 --reload --reload-dir backend --reload-exclude \\\"backend/logs\\\" --reload-exclude \\\"backend/outputs\\\" --reload-exclude \\\"backend/database\\\" --reload-exclude \\\"backend/venv\\\"\"",
     "backend": "node scripts/run-python.mjs -m uvicorn backend.fastapi_app:app --port 3050 --reload --reload-dir backend --reload-exclude \"backend/logs\" --reload-exclude \"backend/outputs\" --reload-exclude \"backend/database\" --reload-exclude \"backend/venv\"",
     "setup:backend": "node scripts/setup-backend.mjs",
-    "db:seed": "node scripts/run-python.mjs backend/scripts/seeds/seed_all.py",
+    "db:seed": "node scripts/run-python.mjs backend/folder_management/seeds/seed_all.py",
     "db:reset": "node scripts/run-python.mjs -c \"import os; os.remove('backend/database/anime_script_pro.db') if os.path.exists('backend/database/anime_script_pro.db') else None\" && npm run db:seed",
     "build": "vite build --config frontend/vite.config.ts && esbuild server.ts --platform=node --outfile=dist/server.cjs --format=cjs --bundle --external:pg --external:express",
     "preview": "vite preview --config frontend/vite.config.ts",

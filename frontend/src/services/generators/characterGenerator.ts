@@ -1,4 +1,4 @@
-import { callAI, streamAI } from "./core";
+import { generateText, streamText } from "./core";
 import { cleanJson } from "@/lib/api-utils";
 import { 
   CHARACTER_GENERATION_PROMPT, 
@@ -164,7 +164,7 @@ export async function generateCharacters(
       Production Type: ${contentType}
     `;
     studioGroup('CastEngine', 'Character Synthesis', 'anime');
-    const text = await callAI(
+    const text = await generateText(
       model,
       aiPrompt,
       systemInstruction,
@@ -217,7 +217,7 @@ CRITICAL: Return the response as a markdown document with detailed character pro
 
   let fullText = "";
   try {
-    const stream = streamAI(model, userPrompt, systemInstruction);
+    const stream = streamText(model, userPrompt, systemInstruction);
     for await (const chunk of stream) {
       fullText += chunk;
       onChunk(fullText);
@@ -243,7 +243,7 @@ export async function generateRelationships(
 
   try {
     const prompt = `Generate a relationship matrix for the following characters in a ${genre} ${contentType}: ${cast}`;
-    const text = await callAI(
+    const text = await generateText(
       model,
       prompt,
       systemInstruction,
@@ -277,7 +277,7 @@ export async function generateCastDNA(
 ): Promise<any> {
   try {
     const sysPrompt = CAST_DNA_PROMPT(castData, worldContext);
-    const text = await callAI(
+    const text = await generateText(
       model,
       "Provide deep narrative DNA analysis of this cast.",
       sysPrompt,
@@ -306,7 +306,7 @@ export async function generateCastDynamics(
 ): Promise<any> {
   try {
     const sysPrompt = CAST_DYNAMICS_PROMPT(relationships, cast);
-    const text = await callAI(
+    const text = await generateText(
       model,
       "Synthesize a complex dynamics map of growth arcs and tension points.",
       sysPrompt,
@@ -333,7 +333,7 @@ export async function generateCastIntegrity(
 ): Promise<any> {
   try {
     const sysPrompt = CAST_INTEGRITY_PROMPT(cast);
-    const text = await callAI(
+    const text = await generateText(
       model,
       "Audit the cast for consistency, logic gaps, and character depth.",
       sysPrompt,

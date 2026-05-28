@@ -1,29 +1,86 @@
-import os
-import time
-import uuid
+"""
+Anime Script Pro — Image Generation Router
+
+This router manages visual synthesis endpoints, orchestrating image generation across
+DALL-E 3, Google Imagen 3, Stable Diffusion, SDXL, and Flux models. It handles user settings,
+billing verification, custom vs free mode routing, and payload serialization.
+
+Sections (in order):
+  1. Standard Library Imports
+  2. Third-Party Imports
+  3. Local Imports
+  4. Pydantic Schemas / Request Payload Models
+  5. Router Initialization
+  6. Image Generation Endpoints
+"""
+
+# ==============================================================================
+# 1. STANDARD LIBRARY IMPORTS
+# ==============================================================================
 import asyncio
 import base64
-import httpx
+import os
+import time
+from typing import Optional
+import uuid
+
+# ==============================================================================
+# 2. THIRD-PARTY IMPORTS
+# ==============================================================================
 from fastapi import APIRouter, Depends, HTTPException
+import httpx
+from loguru import logger
 from pydantic import BaseModel
 from sqlalchemy import select
-from loguru import logger
 
+# ==============================================================================
+# 3. LOCAL IMPORTS
+# ==============================================================================
+from backend.ai_engine import create_gemini_client
 from backend.database import async_session
-from backend.database.models.user import UserSettings, UserBalance
-from backend.utils.deps import get_auth_user_id
-from backend.ai_engine import build_genai_client
+from backend.database.models.user import UserBalance, UserSettings
 from backend.schemas import GenerationRequest, GenerationResponse
 from backend.api.ai import get_api_key
+from backend.utils.deps import get_auth_user_id
 
-router = APIRouter(prefix="/api/image", tags=["Image Synthesis"])
+# ==============================================================================
+# 4. PYDANTIC SCHEMAS / REQUEST PAYLOAD MODELS
+# ==============================================================================
 
 class ImageGenerationRequest(GenerationRequest):
+    """Pydantic request wrapper for image generation parameters."""
     pass
 
+# ==============================================================================
+# 5. ROUTER INITIALIZATION
+# ==============================================================================
+router = APIRouter(prefix="/api/image", tags=["Image Synthesis"])
+
+# ==============================================================================
+# 6. IMAGE GENERATION ENDPOINTS
+# ==============================================================================
+
 @router.post("", response_model=GenerationResponse)
-async def generate_image(request: ImageGenerationRequest, user_id: str = Depends(get_auth_user_id)):
-    """Unified Image generation endpoint supporting DALL-E 3, Google Imagen 3.0, Flux, and SDXL."""
+async def generate_image(
+    request: ImageGenerationRequest,
+    user_id: str = Depends(get_auth_user_id),
+) -> GenerationResponse:
+    """Unified Image generation endpoint supporting DALL-E 3, Google Imagen 3.0, Flux, and SDXL.
+
+    Handles engine resolution based on user settings, deducts paid credits if user is in paid mode
+    without custom keys, dispatches api calls, and maps responses to standardized JSON.
+
+    Args:
+        request: The ImageGenerationRequest configuration.
+        user_id: The authenticated user's ID.
+
+    Returns:
+        GenerationResponse: The base64-encoded image data URI and generation telemetry.
+
+    Raises:
+        HTTPException(402): If the user does not have enough balance for generation.
+        HTTPException(500): If the provider's API returns an error or visual synthesis fails.
+    """
     start_time = time.perf_counter()
     
     # Determine mode & custom keys
@@ -63,6 +120,7 @@ async def generate_image(request: ImageGenerationRequest, user_id: str = Depends
                         status_code=402,
                         detail=f"Insufficient credits for Paid Image Generation (Requires {required_credits} credits). Please supply a custom API key, switch to Free mode, or purchase more credits."
                     )
+                    
                 balance.credits -= required_credits
                 session.add(balance)
                 await session.commit()
@@ -121,7 +179,7 @@ async def generate_image(request: ImageGenerationRequest, user_id: str = Depends
             
             logger.info(f"IMAGEN ROUTING: Rendering visual via Google {google_model_name} (Requested: {target_image_model})...")
             
-            client = build_genai_client(api_key=api_key)
+            client = create_gemini_client(api_key=api_key)
             
             from google.genai import types
             result = await asyncio.to_thread(

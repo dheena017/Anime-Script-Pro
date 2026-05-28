@@ -4,6 +4,8 @@ import { cn } from '@/lib/utils';
 import { storyboardStyles as s } from '../storyboardStyles';
 import { motion } from 'framer-motion';
 
+import { StoryboardPageContext } from '../StoryboardPage';
+
 interface Scene {
   id: string;
   originalIndex: number;
@@ -22,11 +24,14 @@ interface Scene {
 }
 
 interface AnimaticTabProps {
-  scenes: Scene[];
-  videoData: Record<number, string>;
+  scenes?: Scene[];
+  videoData?: Record<number, string>;
 }
 
-export const AnimaticTab: React.FC<AnimaticTabProps> = ({ scenes, videoData }) => {
+export const AnimaticTab: React.FC<AnimaticTabProps> = ({ scenes: propsScenes, videoData: propsVideoData }) => {
+  const context = React.useContext(StoryboardPageContext);
+  const scenes = propsScenes || context?.scenes || [];
+  const videoData = propsVideoData || context?.videoData || {};
   const [playingIndex, setPlayingIndex] = useState<number | null>(null);
   const [isPlayingAll, setIsPlayingAll] = useState(false);
   const [activeTheaterIndex, setActiveTheaterIndex] = useState<number | null>(null);

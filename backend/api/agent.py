@@ -1,43 +1,97 @@
+"""
+Anime Script Pro — Agent Execution Router
+
+This router manages agentic synthesis and generation workflows, supporting fallbacks,
+custom and system API keys, error handling, SSE streaming response, and recovery strategies.
+
+Sections (in order):
+  1. Standard Library Imports
+  2. Third-Party Imports
+  3. Local Imports
+  4. Pydantic Schemas / Request Payload Models
+  5. Router Initialization
+  6. Core Agent Generation Endpoints
+  7. Streaming Event Generators
+"""
+
+# ==============================================================================
+# 1. STANDARD LIBRARY IMPORTS
+# ==============================================================================
 import json
 import time
+from typing import Dict, List, Optional
 import uuid
+
+# ==============================================================================
+# 2. THIRD-PARTY IMPORTS
+# ==============================================================================
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
-from pydantic import BaseModel
-from typing import Optional, Dict, List
 from google.genai import types
 from loguru import logger
+from pydantic import BaseModel
 
-from backend.utils.deps import get_auth_user_id
-from backend.ai_engine import stream_ai, call_ai, build_genai_client, ai_engine
+# ==============================================================================
+# 3. LOCAL IMPORTS
+# ==============================================================================
+from backend.ai_engine import (
+    ai_engine,
+    create_gemini_client,
+    generate_ai_text,
+    resolve_engine_model,
+    stream_ai_text,
+)
+from backend.api.ai import get_api_key, health_registry
+from backend.lib.agent_models import DEFAULT_AGENT_MODELS
+from backend.lib.text_models import DEFAULT_TEXT_MODELS
 from backend.schemas import GenerationRequest, GenerationResponse
-from backend.api.ai import get_api_key, resolve_model, health_registry
+from backend.utils.deps import get_auth_user_id
 
-router = APIRouter(prefix="/api/agent", tags=["Agent Execution"])
+# ==============================================================================
+# 4. PYDANTIC SCHEMAS / REQUEST PAYLOAD MODELS
+# ==============================================================================
 
 class AgentGenerationRequest(GenerationRequest):
+    """Pydantic model extending GenerationRequest to support streaming boolean options."""
     stream: Optional[bool] = False
 
+# ==============================================================================
+# 5. ROUTER INITIALIZATION
+# ==============================================================================
+router = APIRouter(prefix="/api/agent", tags=["Agent Execution"])
+
+# ==============================================================================
+# 6. CORE AGENT GENERATION ENDPOINTS
+# ==============================================================================
+
 @router.post("", response_model=GenerationResponse)
-async def generate_agent(request: AgentGenerationRequest, user_id: str = Depends(get_auth_user_id)):
-    """Agentic generation endpoint supporting both standard response and streaming workflows."""
+async def generate_agent(
+    request: AgentGenerationRequest,
+    user_id: str = Depends(get_auth_user_id),
+) -> GenerationResponse:
+    """Agentic generation endpoint supporting both standard response and streaming workflows.
+
+    Inspects request configuration, attempts execution across default and backup models,
+    handles rate limits with automatic NVIDIA failover, and returns structured metadata.
+
+    Args:
+        request: The AgentGenerationRequest options.
+        user_id: The authenticated user's ID.
+
+    Returns:
+        GenerationResponse: The synthesized agent output, details of model used, and latency.
+
+    Raises:
+        HTTPException(400): If the API Key validation fails.
+        HTTPException(500): If all recovery and failover options fail.
+    """
     if request.stream:
         return await stream_agent_response(request, user_id)
         
-    target_model = resolve_model(request.model)
+    target_model = resolve_engine_model(request.model)
     
     # Fallbacks for Agents
-    FALLBACK_MODELS = [
-        target_model,
-        "gemini-3.1-pro",
-        "gemini-3-pro",
-        "gemini-2.5-pro",
-        "gemini-2.0-pro",
-        "gemini-1.5-pro",
-        "gemini-3.1-flash",
-        "gemini-2.5-flash",
-        "gemma-3-27b"
-    ]
+    FALLBACK_MODELS = [target_model] + DEFAULT_AGENT_MODELS + DEFAULT_TEXT_MODELS
     
     NVIDIA_FAILOVER = "nvidia/llama-3.1-nemotron-70b-instruct"
     unique_fallbacks = [m for m in list(dict.fromkeys(FALLBACK_MODELS))]
@@ -66,13 +120,14 @@ async def generate_agent(request: AgentGenerationRequest, user_id: str = Depends
             is_nvidia = "nvidia" in current_model.lower() or "nemotron" in current_model.lower() or current_model.startswith("meta/")
 
             if is_claude or is_openai or is_groq or is_nvidia:
-                output_text = await call_ai(current_model, request.prompt, request.systemInstruction, user_id)
+                output_text = await generate_ai_text(current_model, request.prompt, request.systemInstruction, user_id)
                 usage_dict = {}
             else:
-                client = build_genai_client(api_key=api_key)
+                client = create_gemini_client(api_key=api_key)
                 config = {"system_instruction": request.systemInstruction} if request.systemInstruction else None
+                resolved_model = resolve_engine_model(current_model)
                 response = await client.aio.models.generate_content(
-                    model=current_model,
+                    model=resolved_model,
                     contents=request.prompt,
                     config=types.GenerateContentConfig(**config) if config else None
                 )
@@ -83,7 +138,7 @@ async def generate_agent(request: AgentGenerationRequest, user_id: str = Depends
                 
                 if output_text.strip().startswith("{") and not output_text.strip().endswith("}"):
                     logger.warning(f"AGENT REPAIR [#{request_id}]: Truncated JSON. Repairing.")
-                    output_text = ai_engine._repair_json(output_text)
+                    output_text = ai_engine.repair_truncated_json(output_text)
 
                 usage_dict = {
                     "prompt_tokens": getattr(response.usage_metadata, "prompt_token_count", 0),
@@ -121,7 +176,7 @@ async def generate_agent(request: AgentGenerationRequest, user_id: str = Depends
                 logger.opt(colors=True).critical(f"AGENT RATE LIMIT [#{request_id}]: 429 on {current_model}. Emergency NVIDIA failover.")
                 try:
                     api_key = await get_api_key(user_id, NVIDIA_FAILOVER)
-                    output_text = await call_ai(NVIDIA_FAILOVER, request.prompt, request.systemInstruction, user_id)
+                    output_text = await generate_ai_text(NVIDIA_FAILOVER, request.prompt, request.systemInstruction, user_id)
                     latency_ms = (time.perf_counter() - start_time) * 1000
                     
                     logger.success(f"AGENT RECOVERY: [⚡] NVIDIA Emergency Failover Successful")
@@ -143,20 +198,25 @@ async def generate_agent(request: AgentGenerationRequest, user_id: str = Depends
     logger.error(f"AGENT SYNTHESIS [#{request_id}]: All connections failed.")
     raise HTTPException(status_code=500, detail=f"Neural Agent Synthesis Failed: {str(last_error)}")
 
-async def stream_agent_response(request: AgentGenerationRequest, user_id: str):
-    """Internal SSE stream generator for agent logic."""
-    target_model = resolve_model(request.model)
+# ==============================================================================
+# 7. STREAMING EVENT GENERATORS
+# ==============================================================================
+
+async def stream_agent_response(request: AgentGenerationRequest, user_id: str) -> StreamingResponse:
+    """Internal SSE stream generator for agent logic.
+
+    Args:
+        request: The AgentGenerationRequest details.
+        user_id: The authenticated user's ID.
+
+    Returns:
+        StreamingResponse: SSE stream rendering chunks to client.
+    """
+    target_model = resolve_engine_model(request.model)
     request_id = str(uuid.uuid4())[:8]
     
     async def event_generator():
-        FALLBACKS = [
-            target_model,
-            "gemini-3.1-pro",
-            "gemini-2.5-pro",
-            "gemini-3.1-flash",
-            "gemini-2.5-flash",
-            "gemma-3-27b"
-        ]
+        FALLBACKS = [target_model] + DEFAULT_AGENT_MODELS + DEFAULT_TEXT_MODELS
         unique_fallbacks = [m for m in list(dict.fromkeys(FALLBACKS))]
         attempted_fallbacks: list[str] = []
         
@@ -172,7 +232,7 @@ async def stream_agent_response(request: AgentGenerationRequest, user_id: str):
 
                 logger.opt(colors=True).info(f"AGENT STREAM [#{request_id}]: Initializing via <cyan>{current_model}</cyan>")
                 
-                async for chunk in stream_ai(current_model, request.prompt, request.systemInstruction, user_id):
+                async for chunk in stream_ai_text(current_model, request.prompt, request.systemInstruction, user_id):
                     yield f"data: {json.dumps({'text': chunk, 'done': False})}\n\n"
                 
                 logger.success(f"AGENT STREAM [#{request_id}]: Stream finalized successfully.")

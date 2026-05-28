@@ -1,4 +1,4 @@
-import { callAI, callAIImage } from "./core";
+import { generateText, generateImage } from "./core";
 import { MOCK_STORY_BIBLE } from "./mockData";
 import { 
   IMAGE_PROMPT_GENERATION_PROMPT, 
@@ -51,7 +51,7 @@ export async function generateImagePrompts(script: string, model: string = "gemi
   const systemInstruction = IMAGE_PROMPT_GENERATION_PROMPT(contentType, script);
 
   try {
-    const text = await callAI(
+    const text = await generateText(
       model,
       `Generate image prompts for this script: ${script}`,
       systemInstruction,
@@ -73,7 +73,7 @@ export async function enhanceSceneVisuals(visuals: string, narration: string, mo
 
   try {
     const prompt = `Narration context: "${narration}"\nCurrent Visuals: "${visuals}"\n\nEnhance these visuals.`;
-    const text = await callAI(
+    const text = await generateText(
       model,
       prompt,
       systemInstruction,
@@ -96,7 +96,7 @@ export async function generateSceneImage(
   isDemo: boolean = false
 ): Promise<string | null> {
   try {
-    const imageData = await callAIImage(prompt, model);
+    const imageData = await generateImage(prompt, model);
     if (!imageData) {
       throw new Error("AI engine failed to return image data.");
     }

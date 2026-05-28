@@ -1,4 +1,17 @@
-"""Image model registry for backend routing."""
+"""
+Anime Script Pro — Image Generation Model Registries
+
+This module lists supported model paths for graphic illustrations, storyboard sketching,
+and visual synthesis.
+
+Sections (in order):
+  1. Registry Definitions
+  2. Fallback Assignments
+"""
+
+# ==============================================================================
+# 1. REGISTRY DEFINITIONS
+# ==============================================================================
 IMAGE_MODEL_IDS = [
     "gemini-3.1-flash-image-preview",
     "gemini-2.5-flash-image",
@@ -9,6 +22,17 @@ IMAGE_MODEL_IDS = [
     "flux-1-schnell",
     "stable-diffusion-xl",
     "stable-diffusion-3.5",
+    "stable-diffusion-3",
+    "stable-diffusion-3-medium",
+    "auraflow",
+    "hunyuan-dit",
+    "kolors",
+    "kandinsky-3",
+    "pixart-sigma",
+    "tripo-sr",
+    "sv3d",
+    "unique3d",
+    "instantmesh",
     "hugging-face-inference",
     "deepai",
     "together-ai-replicate",
@@ -23,6 +47,9 @@ IMAGE_MODEL_IDS = [
     "replicate",
 ]
 
+# ==============================================================================
+# 2. FALLBACK ASSIGNMENTS
+# ==============================================================================
 DEFAULT_IMAGE_MODELS = IMAGE_MODEL_IDS
 
 __all__ = ["IMAGE_MODEL_IDS", "DEFAULT_IMAGE_MODELS"]

@@ -1,4 +1,4 @@
-import { callAI, streamAI } from "./core";
+import { generateText, streamText } from "./core";
 import { MOCK_WORLD } from "./mockData";
 import { 
   WORLD_GENERATION_PROMPT, 
@@ -12,10 +12,10 @@ import {
 } from "../prompts";
 import { studioLog, studioGroup, studioEnd } from "@/lib/studio-logger";
 
-let worldCallAI: typeof callAI = callAI;
+let worldGenerateText: typeof generateText = generateText;
 
-export function __setWorldCallAIForTests(mockCallAI: typeof callAI | null) {
-  worldCallAI = mockCallAI ?? callAI;
+export function __setWorldCallAIForTests(mockGenerateText: typeof generateText | null) {
+  worldGenerateText = mockGenerateText ?? generateText;
 }
 
 export async function generateArchitecture(prompt: string, model: string = "gemini-2.5-flash", contentType: string = "Anime", worldContext?: string): Promise<string> {
@@ -35,7 +35,7 @@ Design the architectural and visual language of this world. Ensure it connects l
 `;
   studioGroup('WorldEngine', 'Architectural Synthesis', 'anime');
   try {
-    const text = await worldCallAI(
+    const text = await worldGenerateText(
       model, 
       userPrompt, 
       systemInstruction,
@@ -77,7 +77,7 @@ Map out the physical geography and environmental logic. The atlas must support t
 `;
   studioGroup('WorldEngine', 'Atlas Cartography', 'anime');
   try {
-    const text = await worldCallAI(
+    const text = await worldGenerateText(
       model,
       userPrompt,
       systemInstruction,
@@ -119,7 +119,7 @@ Design the rituals, daily life, and social hierarchies. Ensure the culture refle
 `;
   studioGroup('WorldEngine', 'Cultural Ethos Design', 'anime');
   try {
-    const text = await worldCallAI(
+    const text = await worldGenerateText(
       model,
       userPrompt,
       systemInstruction,
@@ -160,7 +160,7 @@ TASK:
 Architect the mechanical logic and technological infrastructure. Ensure the technology level and biological rules align with the world manifest provided above.
 `;
   try {
-    const text = await worldCallAI(
+    const text = await worldGenerateText(
       model,
       userPrompt,
       systemInstruction,
@@ -247,7 +247,7 @@ export async function generateWorld(prompt: string, model: string = "gemini-2.5-
   const systemInstruction = WORLD_GENERATION_PROMPT(normalizedContentType);
 
   try {
-    const text = await worldCallAI(
+    const text = await worldGenerateText(
       model,
       enhancedPrompt,
       systemInstruction,
@@ -282,7 +282,7 @@ export async function streamWorld(
 
   let fullText = "";
   try {
-    const stream = streamAI(model, enhancedPrompt, systemInstruction);
+    const stream = streamText(model, enhancedPrompt, systemInstruction);
     for await (const chunk of stream) {
       fullText += chunk;
       onChunk(fullText);
@@ -311,7 +311,7 @@ Design the power mechanics so they align perfectly with the established world co
 `;
   
   try {
-    const text = await worldCallAI(
+    const text = await worldGenerateText(
       model,
       userPrompt,
       systemInstruction,
@@ -350,7 +350,7 @@ Create factions, ideologies, and political tensions that feel like a natural con
 `;
   
   try {
-    const text = await callAI(
+    const text = await generateText(
       model,
       userPrompt,
       systemInstruction,
@@ -389,7 +389,7 @@ Establish the history and eras that led to the world described in the context ab
 `;
   
   try {
-    const text = await callAI(
+    const text = await generateText(
       model,
       userPrompt,
       systemInstruction,

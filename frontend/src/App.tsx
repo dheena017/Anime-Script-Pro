@@ -76,6 +76,12 @@ const SeriesLayout = lazy(() => import('@/pages/studio/AnimeStudio/Series/Series
 const ScriptLayout = lazy(() => import('@/pages/studio/AnimeStudio/Script/ScriptLayout'));
 const StoryboardLayout = lazy(() => import('@/pages/studio/AnimeStudio/Storyboard/StoryboardLayout'));
 const SceneViewPage = lazy(() => import('@/pages/studio/AnimeStudio/Storyboard/SceneViewPage').then(m => ({ default: m.SceneViewPage })));
+
+const FramesTab = lazy(() => import('@/pages/studio/AnimeStudio/Storyboard/Tabs/FramesTab').then(m => ({ default: m.FramesTab })));
+const AnglesTab = lazy(() => import('@/pages/studio/AnimeStudio/Storyboard/Tabs/AnglesTab').then(m => ({ default: m.AnglesTab })));
+const CompositionTab = lazy(() => import('@/pages/studio/AnimeStudio/Storyboard/Tabs/CompositionTab').then(m => ({ default: m.CompositionTab })));
+const AnimaticTab = lazy(() => import('@/pages/studio/AnimeStudio/Storyboard/Tabs/AnimaticTab').then(m => ({ default: m.AnimaticTab })));
+const AudioTab = lazy(() => import('@/pages/studio/AnimeStudio/Storyboard/Tabs/AudioTab').then(m => ({ default: m.AudioTab })));
 const SEOLayout = lazy(() => import('@/pages/studio/AnimeStudio/SEO/SEOLayout'));
 const PromptsLayout = lazy(() => import('@/pages/studio/AnimeStudio/Prompts/PromptsLayout'));
 const ScreeningLayout = lazy(() => import('@/pages/studio/AnimeStudio/Screening/ScreeningLayout'));
@@ -170,7 +176,14 @@ function AppRoutes() {
               <Route index element={<PageTransition><AnimeScript /></PageTransition>} />
             </Route>
             <Route path="storyboard" element={<StoryboardLayout />}>
-              <Route index element={<PageTransition><AnimeStoryboard /></PageTransition>} />
+              <Route element={<AnimeStoryboard />}>
+                <Route index element={<Navigate to="frames" replace />} />
+                <Route path="frames" element={<PageTransition><FramesTab /></PageTransition>} />
+                <Route path="angles" element={<PageTransition><AnglesTab /></PageTransition>} />
+                <Route path="composition" element={<PageTransition><CompositionTab /></PageTransition>} />
+                <Route path="animatic" element={<PageTransition><AnimaticTab /></PageTransition>} />
+                <Route path="audio" element={<PageTransition><AudioTab /></PageTransition>} />
+              </Route>
               <Route path="scenes" element={<PageTransition><AnimeStoryboard /></PageTransition>} />
               <Route path="scenes/:id" element={<PageTransition><SceneViewPage /></PageTransition>} />
             </Route>

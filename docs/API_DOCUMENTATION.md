@@ -1,13 +1,14 @@
 # 📡 Anime Script Pro: API Documentation
 
 This document provides a comprehensive overview of the technical endpoints available in the **Anime Script Pro** ecosystem. The system follows a dual-layer architecture:
-1.  **Orchestrator Layer (Node.js)**: Handles frontend hosting, proxying, and system telemetry.
-2.  **Intelligence Layer (FastAPI)**: Handles AI generation, database persistence, and business logic.
+1.  **Orchestrator Layer (Node.js)**: Serves the frontend, exposes lightweight telemetry endpoints, and proxies production API traffic to the intelligence layer.
+2.  **Intelligence Layer (FastAPI)**: Hosts the AI generation endpoints, authentication, and the primary business logic.
 
 ---
 
 ## 🏛️ 1. Orchestrator Endpoints (Node.js)
-These endpoints are served directly by the Express orchestrator and are used for system monitoring and internal health checks.
+
+These endpoints are served directly by the Express orchestrator and are used for system monitoring and internal health checks. The orchestrator also proxies requests to the Python backend (default `http://127.0.0.1:3050`) — see Proxy Configuration below.
 
 | Endpoint | Method | Description |
 | :--- | :--- | :--- |
@@ -15,10 +16,14 @@ These endpoints are served directly by the Express orchestrator and are used for
 | `/_orchestrator/ai` | `GET` | Reports the status of AI providers (OpenAI, Anthropic, Groq) and active count. |
 | `/_orchestrator/traffic` | `GET` | Returns a list of the 20 most recent requests handled by the orchestrator. |
 
+Notes:
+- The orchestrator listens on the port defined by the `PORT` environment variable or `3000` by default.
+- The orchestrator proxy forwards traffic to the FastAPI backend at `BACKEND_URL` (defaults to `http://127.0.0.1:3050`).
+
 ---
 
 ## 🧠 2. Intelligence Layer Endpoints (FastAPI)
-All frontend requests to `/api/*` are proxied to the Python backend. The backend is 100% asynchronous and utilizes sqlalchemy for persistence.
+All production API requests are proxied to the Python backend. The orchestrator proxy accepts both requests that already start with `/api` and requests without the `/api` prefix: it rewrites non-`/api` paths by prefixing `/api` before forwarding. The backend is 100% asynchronous and utilizes sqlalchemy for persistence.
 
 ### 🛠️ Core System
 | Endpoint | Method | Description |
@@ -28,6 +33,8 @@ All frontend requests to `/api/*` are proxied to the Python backend. The backend
 | `/docs` | `GET` | **Interactive Swagger UI** (Full API Reference). |
 | `/redoc` | `GET` | ReDoc documentation interface. |
 | `/api/debug-env` | `GET` | (Dev Only) Returns internal environment configuration. |
+
+Note: These endpoints are exposed by the FastAPI backend and are reachable through the orchestrator proxy at `/api/*` (for example, `/api/health`, `/api/docs`).
 
 ### 🎭 Neural Engine (AI)
 | Endpoint | Method | Description |
@@ -61,10 +68,16 @@ The following resource modules are proxied to the backend and handle the bulk of
 ---
 
 ## 🛠️ 4. Proxy Configuration
-The Orchestrator uses `http-proxy-middleware` to route traffic.
--- **Target**: `http://localhost:3050` (Default Backend URL)
-- **Timeout**: 90 seconds (Optimized for heavy AI generation)
-- **Bypass**: In development, requests include the `x-bypass-auth` header to facilitate local testing.
+The Orchestrator uses `http-proxy-middleware` to route traffic to the Intelligence Layer.
+
+- **Target / Default Backend URL**: `http://127.0.0.1:3050` (override with `BACKEND_URL` env var).
+- **Path rewrite behavior**: Requests that already start with `/api` are forwarded unchanged. Requests that do not begin with `/api` are rewritten by prefixing `/api` before being forwarded. This allows both `/api/generate` and `/generate` to reach `/api/generate` on the backend.
+- **Proxy mountpoints**:
+  - `/api` → proxied to backend (primary API surface, includes generation, auth, projects, scripts, etc.)
+  - `/outputs` → proxied to backend for static outputs and generated artifacts
+  - `/ws` → proxied with `ws: true` for WebSocket upgrades (real-time telemetry and notifications)
+- **Timeouts**: `proxyTimeout` and `timeout` are set large to accommodate heavy AI generation (600000ms by default).
+- **Development bypass**: In non-production environments the proxy sets `x-bypass-auth: true` to help local login flows.
 
 ---
 
@@ -73,6 +86,20 @@ For real-time observability, you can visit the following internal dashboards:
 - **FastAPI Logs**: Check your terminal running `npm run backend`.
 - **Orchestrator Logs**: Check your terminal running `npm run dev`.
 - **Traffic Dashboard**: Access `/_orchestrator/traffic` via your browser.
+
+Orchestrator endpoints:
+- `/_orchestrator/health`
+- `/_orchestrator/traffic`
+- `/_orchestrator/ai`
+
+To start services locally:
+```bash
+# Start the Node.js orchestrator/dev server (serves frontend + proxy)
+npm run dev
+
+# Start the FastAPI backend (default port 3050)
+npm run backend
+```
 
 ---
 <div align="center">

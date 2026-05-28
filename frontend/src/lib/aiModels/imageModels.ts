@@ -22,6 +22,17 @@ export const OPEN_WEIGHT_IMAGE_MODELS: ImageModelOption[] = [
   { id: 'flux-1-schnell', name: 'FLUX.1 Schnell', desc: 'Elite open-weights. 4-step ultra high speed renders.', price: 'Free / Local', isFree: true },
   { id: 'stable-diffusion-xl', name: 'SDXL v1.0', desc: 'Open-source workhorse. Massive custom ecosystem.', price: 'Free / Local', isFree: true },
   { id: 'stable-diffusion-3.5', name: 'Stable Diffusion 3.5', desc: 'Flagsip text-in-image rendering & composition.', price: 'Free / Local', isFree: true },
+  { id: 'stable-diffusion-3', name: 'Stable Diffusion 3', desc: 'Open diffusion foundation model for free mode.', price: 'Free / Local', isFree: true },
+  { id: 'stable-diffusion-3-medium', name: 'Stable Diffusion 3 Medium', desc: 'Balanced SD3 variant for high-quality renders.', price: 'Free / Local', isFree: true },
+  { id: 'auraflow', name: 'AuraFlow', desc: 'Open image model with strong prompt fidelity.', price: 'Free / Local', isFree: true },
+  { id: 'hunyuan-dit', name: 'Hunyuan-DiT', desc: 'Tencent Hunyuan diffusion transformer model.', price: 'Free / Local', isFree: true },
+  { id: 'kolors', name: 'Kolors', desc: 'Free artistic image generation model.', price: 'Free / Local', isFree: true },
+  { id: 'kandinsky-3', name: 'Kandinsky 3', desc: 'Creative image synthesis model with strong style control.', price: 'Free / Local', isFree: true },
+  { id: 'pixart-sigma', name: 'PixArt-Sigma', desc: 'Text-to-image model optimized for semantic alignment.', price: 'Free / Local', isFree: true },
+  { id: 'tripo-sr', name: 'TripoSR', desc: 'Single-image 3D reconstruction model.', price: 'Free / Local', isFree: true },
+  { id: 'sv3d', name: 'SV3D', desc: 'Stable video / 3D view synthesis model.', price: 'Free / Local', isFree: true },
+  { id: 'unique3d', name: 'Unique3D', desc: '3D asset generation model for free mode.', price: 'Free / Local', isFree: true },
+  { id: 'instantmesh', name: 'InstantMesh', desc: 'Fast mesh generation from images.', price: 'Free / Local', isFree: true },
 ];
 
 export const FREE_API_IMAGE_MODELS: ImageModelOption[] = [

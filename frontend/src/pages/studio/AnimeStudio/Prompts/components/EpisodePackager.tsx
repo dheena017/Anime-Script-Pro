@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
-import { generateEpisodeAssets, generateScene, generateImagePrompts, generateVideoPrompts, generateSceneImage, generateSceneVideo } from '@/services/api/gemini';
+import { generateEpisodeAssets, generateScene, generateImagePrompts, generateVideoPrompts, generateSceneImage, generateVideo } from '@/services/api/gemini';
 import { seriesRenderService, type ServerRenderJobStatus } from '@/services/api/seriesRender';
 
 const TERMINAL_JOB_STATUSES = ['completed', 'failed', 'cancelled'];
@@ -102,7 +102,7 @@ export default function EpisodePackager() {
       setVideoLoading((prev) => ({ ...prev, [index]: true }));
       try {
         const videoPrompt = scene.videoPrompts || scene.sceneOutput.narration || scene.sceneOutput.visuals;
-        const videoUrl = await generateSceneVideo(videoPrompt, selectedModel);
+        const videoUrl = await generateVideo(videoPrompt, selectedModel);
         setSceneVideoUrls((prev) => ({ ...prev, [index]: videoUrl }));
       } catch (e) {
         console.warn('Video generation failed:', e);
@@ -285,7 +285,7 @@ export default function EpisodePackager() {
 
         // Video preview
         try {
-          const videoUrl = await generateSceneVideo(videoPrompt, selectedModel);
+          const videoUrl = await generateVideo(videoPrompt, selectedModel);
           if (videoUrl) {
             zip.file(`videos/scene-${s.index}-url.txt`, videoUrl);
             zip.file(`videos/scene-${s.index}-prompt.txt`, videoPrompt);

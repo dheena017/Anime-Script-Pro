@@ -1,4 +1,4 @@
-import { callAI } from "./core";
+import { generateText } from "./core";
 import { ENHANCE_NARRATION_PROMPT, SUGGEST_DURATION_PROMPT } from "../prompts";
 
 function validateNarrationInput(narration: string): void {
@@ -54,7 +54,7 @@ export async function enhanceNarration(narration: string, model: string = "gemin
 
   try {
     const prompt = buildNarrationEnhancementPrompt(narration);
-    const text = await callAI(
+    const text = await generateText(
       model,
       prompt,
       systemInstruction,
@@ -78,7 +78,7 @@ export async function suggestDuration(narration: string, model: string = "gemini
 
   try {
     const prompt = buildDurationPrompt(narration);
-    const text = await callAI(
+    const text = await generateText(
       model,
       prompt,
       systemInstruction,

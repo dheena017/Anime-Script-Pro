@@ -1,4 +1,4 @@
-import { callAI } from "./core";
+import { generateText } from "./core";
 import { SCENE_GENERATION_PROMPT } from "../prompts";
 
 type SceneOutput = {
@@ -82,7 +82,7 @@ export async function generateScene(
   const systemInstruction = SCENE_GENERATION_PROMPT(type, worldLore, castProfiles);
 
   try {
-    const result = await callAI(
+    const result = await generateText(
       model,
       `Overall Context: ${prompt}\nBeat: ${beatDescription}`,
       systemInstruction,

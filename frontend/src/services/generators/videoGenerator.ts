@@ -1,4 +1,4 @@
-import { callAI } from "./core";
+import { generateText } from "./core";
 import { MOCK_STORY_BIBLE } from "./mockData";
 import { VIDEO_PROMPT_GENERATION_PROMPT } from "../prompts";
 
@@ -47,7 +47,7 @@ PIPELINE REQUIREMENTS:
 - Make the prompts specific enough for image-to-video or scene animation workflows.
 `;
 
-    const text = await callAI(
+    const text = await generateText(
       model,
       prompt,
       systemInstruction,
@@ -79,7 +79,7 @@ export async function simulateVideoRender(prompt: string) {
   });
 }
 
-export async function generateSceneVideo(prompt: string, model: string = "veo-2.0-generate-001", provider?: string, imageUrl?: string): Promise<string | null> {
+export async function generateVideo(prompt: string, model: string = "veo-2.0-generate-001", provider?: string, imageUrl?: string): Promise<string | null> {
   validateVideoScript(prompt);
   // Proxy the render request to the backend render endpoint which will call the configured provider
   try {

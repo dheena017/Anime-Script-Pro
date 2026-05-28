@@ -1,4 +1,4 @@
-import { callAI, RateLimitError } from "./core";
+import { generateText, RateLimitError } from "./core";
 import { SERIES_PLAN_GENERATION_PROMPT } from "../prompts";
 import JSON5 from "json5";
 import { cleanJson } from "../../lib/api-utils";
@@ -316,7 +316,7 @@ NEURAL LOGIC AUDIT:
 `;
 
   try {
-    const res = await callAI(
+    const res = await generateText(
       model,
       prompt,
       "You are an expert anime showrunner and scriptwriter. You must strictly follow the user's output schema and return ONLY a valid JSON object.",
@@ -377,7 +377,7 @@ export async function generateSeriesPlan(
   const userPrompt = buildSeriesPrompt(prompt, contentType, episodeCount, worldLore, castProfiles, opts);
 
   try {
-    const text = await callAI(
+    const text = await generateText(
       model,
       userPrompt,
       systemInstruction,

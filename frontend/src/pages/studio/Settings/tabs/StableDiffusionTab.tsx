@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { Sparkles, Wand2, Loader2, Save, Play, Image as ImageIcon, Sliders, Settings, RefreshCw, Cpu, Activity } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-import { callAIImage } from '@/services/generators/core';
+import { generateImage } from '@/services/generators/core';
 import { settingsService } from '@/services/api/settings';
 import {
   IMAGE_MODEL_GROUPS,
@@ -130,7 +130,7 @@ export function StableDiffusionTab() {
 
     const startTime = Date.now();
     try {
-      const imageData = await callAIImage(prompt, imageModel);
+      const imageData = await generateImage(prompt, imageModel);
       setGeneratedImage(imageData);
       setSynthesisTime((Date.now() - startTime) / 1000);
     } catch (e: any) {

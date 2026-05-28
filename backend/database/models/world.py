@@ -1,23 +1,53 @@
+"""
+Anime Script Pro — Narrative World Lore & Character Models
+
+This module defines SQLModel database tables mapping narrative world guides, faction details,
+speaking styles, active cast rosters, relationship lattices, and modular group dynamics manifests.
+
+Sections (in order):
+  1. Standard Library Imports
+  2. Third-Party Imports
+  3. Master World Lore & Timelines
+  4. Cast Member Profiles
+  5. Narrative Beats & Story Outlines
+  6. Reusable Characters & Relationship Matrices
+  7. Compiled Cast Manifest Archives
+"""
+
+# ==============================================================================
+# 1. STANDARD LIBRARY IMPORTS
+# ==============================================================================
 from datetime import datetime
-from typing import Optional, Dict, Any
-from sqlmodel import SQLModel, Field, JSON
+from typing import Any, Dict, List, Optional
+
+# ==============================================================================
+# 2. THIRD-PARTY IMPORTS
+# ==============================================================================
+from sqlmodel import Column, Field, JSON, SQLModel
+
+# ==============================================================================
+# 3. MASTER WORLD LORE & TIMELINES
+# ==============================================================================
 
 class WorldLore(SQLModel, table=True):
+    """Stores master lore guides, historic timelines, factions, and power system limits."""
+    __tablename__ = "world_lore"
+
     id: Optional[int] = Field(default=None, primary_key=True)
     user_id: str = Field(index=True)
     project_id: Optional[int] = Field(default=None, index=True)
     series_id: Optional[int] = Field(default=None, index=True)
 
     # Modular Lore Data
-    full_lore_blob: Optional[str] = Field(default=None) # The Master Manifest
-    history_blob: Optional[str] = Field(default=None)   # Detailed Timeline
-    powers_blob: Optional[str] = Field(default=None)    # Power Systems
-    factions_blob: Optional[str] = Field(default=None)  # Factions & Politics
+    full_lore_blob: Optional[str] = Field(default=None)  # The Master Manifest
+    history_blob: Optional[str] = Field(default=None)    # Detailed Timeline
+    powers_blob: Optional[str] = Field(default=None)     # Power Systems
+    factions_blob: Optional[str] = Field(default=None)   # Factions & Politics
     
     # Modular Lore Data (Category Tabs)
     architecture: Optional[str] = Field(default=None)
     atlas: Optional[str] = Field(default=None)
-    history: Optional[str] = Field(default=None)        # Legacy field
+    history: Optional[str] = Field(default=None)         # Legacy field
     systems: Optional[str] = Field(default=None)
     culture: Optional[str] = Field(default=None)
     
@@ -37,11 +67,18 @@ class WorldLore(SQLModel, table=True):
     systems_blob: Optional[str] = Field(default=None)
 
     # Metadata
-    lore_metadata: Dict[str, Any] = Field(default_factory=dict, sa_type=JSON)
+    lore_metadata: Dict[str, Any] = Field(sa_column=Column(JSON), default_factory=dict)
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 
+# ==============================================================================
+# 4. CAST MEMBER PROFILES
+# ==============================================================================
+
 class CastMember(SQLModel, table=True):
+    """Holds individual character bio, core flaws, visual styling traits, and speech logic."""
+    __tablename__ = "cast_members"
+
     id: Optional[int] = Field(default=None, primary_key=True)
     series_id: Optional[int] = Field(default=None, index=True)
     project_id: Optional[int] = Field(default=None, index=True)
@@ -66,7 +103,14 @@ class CastMember(SQLModel, table=True):
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 
+# ==============================================================================
+# 5. NARRATIVE BEATS & STORY OUTLINES
+# ==============================================================================
+
 class NarrativeBeat(SQLModel, table=True):
+    """Tied beat milestones that guide pacing before scene manifestation."""
+    __tablename__ = "narrative_beats"
+
     id: Optional[int] = Field(default=None, primary_key=True)
     script_id: Optional[int] = Field(default=None, index=True)
     project_id: Optional[int] = Field(default=None, index=True)
@@ -75,7 +119,14 @@ class NarrativeBeat(SQLModel, table=True):
     order: int = Field(default=0)
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
+# ==============================================================================
+# 6. REUSABLE CHARACTERS & RELATIONSHIP MATRICES
+# ==============================================================================
+
 class ReusableCharacter(SQLModel, table=True):
+    """Pre-curated characters exported to user inventories for multi-series mapping."""
+    __tablename__ = "reusable_characters"
+
     id: Optional[int] = Field(default=None, primary_key=True)
     user_id: str = Field(index=True)
     name: str = Field(index=True)
@@ -87,7 +138,11 @@ class ReusableCharacter(SQLModel, table=True):
     reference_image_url: Optional[str] = None
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
+
 class CharacterRelationship(SQLModel, table=True):
+    """Maps custom relationship matrices, core conflicts, and dramatic tensions."""
+    __tablename__ = "character_relationships"
+
     id: Optional[int] = Field(default=None, primary_key=True)
     project_id: Optional[int] = Field(default=None, index=True)
     user_id: Optional[str] = Field(default=None, index=True)
@@ -95,9 +150,9 @@ class CharacterRelationship(SQLModel, table=True):
     target_character_id: Optional[int] = Field(default=None, index=True)
     source_name: str = Field(default="")
     target_name: str = Field(default="")
-    type: str = Field(default="Ally") # Ally, Rival, Enemy, Love, Secret
-    subtype: Optional[str] = Field(default=None) # Ideological Rivalry, Slow Burn, etc.
-    tension: int = Field(default=5) # 1-10
+    type: str = Field(default="Ally")  # Ally, Rival, Enemy, Love, Secret
+    subtype: Optional[str] = Field(default=None)  # Ideological Rivalry, Slow Burn, etc.
+    tension: int = Field(default=5)  # 1-10
     description: Optional[str] = None
     dynamic_setup: Optional[str] = Field(default=None)
     escalation_path: Optional[str] = Field(default=None)
@@ -106,10 +161,14 @@ class CharacterRelationship(SQLModel, table=True):
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 
+# ==============================================================================
+# 7. COMPILED CAST MANIFEST ARCHIVES
+# ==============================================================================
 
 class CastManifest(SQLModel, table=True):
-    """Unified cast manifest blob table — mirrors the frontend characterApi."""
+    """Consolidated JSON blobs mapping active cast and group dynamics reports."""
     __tablename__ = "cast_manifests"
+
     id: Optional[int] = Field(default=None, primary_key=True)
     user_id: str = Field(index=True)
     project_id: Optional[int] = Field(default=None, index=True)

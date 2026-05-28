@@ -5,6 +5,7 @@ from backend.database.models.assets import GrowthStrategy
 from backend.database import async_session, async_engine
 from backend.utils.deps import get_auth_user_id
 from backend.schemas import GenerationResponse
+from backend.lib.defaults import DEFAULT_SCRIPT_MODEL
 
 router = APIRouter(prefix="/api/growth", tags=["Growth"])
 
@@ -25,7 +26,7 @@ async def get_growth_strategies(
 async def generate_specific_strategy(
     strategy_id: int,
     script_content: str,
-    model: str = "gemini-1.5-flash-latest",
+    model: str = DEFAULT_SCRIPT_MODEL,
     user_id: str = Depends(get_auth_user_id)
 ):
     async with async_session() as session:
@@ -35,9 +36,9 @@ async def generate_specific_strategy(
         
         try:
             # Call AI with the specific prompt from the strategy blueprint
-            from backend.ai_engine import call_ai
+            from backend.ai_engine import generate_ai_text
             system_instruction = f"{strategy.prompt}\n\nUSE THIS SCRIPT AS SOURCE DATA:\n{script_content}"
-            content = await call_ai(model, "Generate the strategy blueprint based on my script.", system_instruction)
+            content = await generate_ai_text(model, "Generate the strategy blueprint based on my script.", system_instruction)
             
             return {
                 "content": content,

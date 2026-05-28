@@ -63,34 +63,46 @@ export default function StoryboardLayout() {
       showNotification?.('Please write a script first before creating your storyboard.', 'error');
       return;
     }
+    const navigateToTab = (tab: string) => {
+      const segments = location.pathname.split('/');
+      const lastSegment = segments[segments.length - 1];
+      const validTabs = ['frames', 'angles', 'composition', 'animatic', 'audio'];
+      if (validTabs.includes(lastSegment)) {
+        segments[segments.length - 1] = tab;
+      } else {
+        segments.push(tab);
+      }
+      navigate(segments.join('/'));
+    };
+
     setGenerationProgress(5);
     setIsGeneratingImagePrompts(true);
     console.log('[StoryboardLayout] Requesting image prompts generation...');
     try {
-      setSearchParams({ tab: 'frames' });
+      navigateToTab('frames');
       const prompts = await generateImagePrompts(generatedScript, selectedModel);
       setGeneratedImagePrompts(prompts);
       setGenerationProgress(30);
       console.log(`[StoryboardLayout] Image prompts generated successfully. Response length: ${prompts?.length || 0} chars.`);
       await new Promise(r => setTimeout(r, 2000));
       
-      setSearchParams({ tab: 'angles' });
+      navigateToTab('angles');
       setGenerationProgress(45);
       await new Promise(r => setTimeout(r, 2000));
       
-      setSearchParams({ tab: 'composition' });
+      navigateToTab('composition');
       setGenerationProgress(60);
       await new Promise(r => setTimeout(r, 2000));
       
-      setSearchParams({ tab: 'animatic' });
+      navigateToTab('animatic');
       setGenerationProgress(75);
       await new Promise(r => setTimeout(r, 2000));
       
-      setSearchParams({ tab: 'audio' });
+      navigateToTab('audio');
       setGenerationProgress(90);
       await new Promise(r => setTimeout(r, 2000));
       
-      setSearchParams({ tab: 'frames' });
+      navigateToTab('frames');
       setGenerationProgress(100);
       showNotification?.('Full Storyboard Sequence Generated!', 'success');
       
@@ -105,10 +117,26 @@ export default function StoryboardLayout() {
     }
   };
 
-  const activeTab = (searchParams.get('tab') as StoryboardTab) || 'frames';
+  const activeTab = React.useMemo(() => {
+    const segments = location.pathname.split('/');
+    const lastSegment = segments[segments.length - 1];
+    const validTabs: StoryboardTab[] = ['frames', 'angles', 'composition', 'animatic', 'audio'];
+    if (validTabs.includes(lastSegment as StoryboardTab)) {
+      return lastSegment as StoryboardTab;
+    }
+    return 'frames';
+  }, [location.pathname]);
 
   const handleTabChange = (tab: StoryboardTab) => {
-    setSearchParams({ tab });
+    const segments = location.pathname.split('/');
+    const lastSegment = segments[segments.length - 1];
+    const validTabs = ['frames', 'angles', 'composition', 'animatic', 'audio'];
+    if (validTabs.includes(lastSegment)) {
+      segments[segments.length - 1] = tab;
+    } else {
+      segments.push(tab);
+    }
+    navigate(segments.join('/'));
   };
 
   React.useEffect(() => {

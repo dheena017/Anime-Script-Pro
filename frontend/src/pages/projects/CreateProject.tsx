@@ -41,7 +41,7 @@ export default function CreateProject() {
   const [error, setError] = useState<string | null>(null);
 
   const navigate = useNavigate();
-  const { setCurrentProject, refreshAppData } = useApp();
+  const { refreshAppData } = useApp();
 
   const handleInitialize = async () => {
     if (!title.trim()) return;

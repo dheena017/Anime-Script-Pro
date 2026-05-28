@@ -5,7 +5,7 @@ import { AnimatePresence } from 'framer-motion';
 import { Card } from '@/components/ui/card';
 import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
 import { useStoryboard, useEngineState } from '@/contexts/generator';
-import { useOutletContext } from 'react-router-dom';
+import { useOutletContext, Outlet } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { DropResult } from '@hello-pangea/dnd';
 import {
@@ -14,7 +14,7 @@ import {
   enhanceNarration,
   rewriteForTension,
   suggestDuration,
-  generateSceneVideo,
+  generateVideo,
   generateScene
 } from '@/services/api/gemini';
 import { StoryboardTab } from './Tabs/StoryboardTabs';
@@ -51,6 +51,8 @@ interface Scene {
 }
 
 import { storyboardStyles as s } from './storyboardStyles';
+
+export const StoryboardPageContext = React.createContext<any>(null);
 
 export function StoryboardPage() {
   const {
@@ -300,15 +302,15 @@ export function StoryboardPage() {
         `Motion Spec: High-fidelity cinematic anime keyframe flow, smooth dynamic camera pan, highly detailed.`
       ].filter(Boolean).join(" ");
 
-      const videoUrl = await generateSceneVideo(promptToUse, selectedModel, undefined, imageUrl);
+      const videoUrl = await generateVideo(promptToUse, selectedModel, undefined, imageUrl);
       if (videoUrl) {
         storyboardDispatch({ type: 'UPDATE_VIDEO_ITEM', payload: { id: originalIndex, data: videoUrl } });
       } else {
-        storyboardDispatch({ type: 'UPDATE_VIDEO_ITEM', payload: { id: originalIndex, data: "https://vjs.zencdn.net/v/oceans.mp4" } });
+        storyboardDispatch({ type: 'UPDATE_VIDEO_ITEM', payload: { id: originalIndex, data: "" } });
       }
     } catch (error) {
       console.error("Failed to generate video:", error);
-      storyboardDispatch({ type: 'UPDATE_VIDEO_ITEM', payload: { id: originalIndex, data: "https://vjs.zencdn.net/v/oceans.mp4" } });
+      storyboardDispatch({ type: 'UPDATE_VIDEO_ITEM', payload: { id: originalIndex, data: "" } });
     }
   }, [scenes, selectedModel, storyboardDispatch]);
 
@@ -653,49 +655,105 @@ export function StoryboardPage() {
     }
   };
 
+  const contextValue = React.useMemo(() => ({
+    scenes,
+    visualData,
+    videoData,
+    viewMode,
+    promptList,
+    editingSceneId,
+    editForm,
+    isEnhancingNarration,
+    isEnhancing,
+    isRewritingTension,
+    isSuggestingDuration,
+    enhancingSceneIds,
+    setEditForm,
+    handleDragEnd,
+    handleGenerateVisual,
+    handleGenerateVideo,
+    startEditing,
+    cancelEditing: () => { setEditingSceneId(null); setEditForm({}); },
+    saveSceneEdits,
+    handleEnhanceNarration,
+    handleEnhanceVisuals,
+    handleRewriteTension,
+    handleSuggestDuration,
+    handleAddScene,
+    isGenerating: isGeneratingVisuals,
+    handleManifestScene,
+    isManifestingSceneId,
+    onLoadDemo: loadDemoProject
+  }), [
+    scenes, visualData, videoData, viewMode, promptList, editingSceneId, editForm,
+    isEnhancingNarration, isEnhancing, isRewritingTension, isSuggestingDuration,
+    enhancingSceneIds, setEditForm, handleDragEnd, handleGenerateVisual,
+    handleGenerateVideo, startEditing, saveSceneEdits, handleEnhanceNarration,
+    handleEnhanceVisuals, handleRewriteTension, handleSuggestDuration,
+    handleAddScene, isGeneratingVisuals, handleManifestScene, isManifestingSceneId,
+    loadDemoProject
+  ]);
+
   return (
-    <div data-testid="marker-visual-storyboard" className="storyboard-container">
-      <AnimatePresence>
-        {isGuideOpen && <PlanningGuide />}
-      </AnimatePresence>
+    <StoryboardPageContext.Provider value={contextValue}>
+      <div data-testid="marker-visual-storyboard" className="storyboard-container">
+        <AnimatePresence>
+          {isGuideOpen && <PlanningGuide />}
+        </AnimatePresence>
 
-      <Card className={cn(
-        s.page.mainCard,
-        activeTab === 'frames' ? s.page.mainCardFrames : s.page.mainCardNormal
-      )}>
-        <div className={cn(
-          s.page.innerBorder,
-          activeTab === 'frames' ? "border-orange-500/20 group-hover/card:border-orange-500/40" : "border-white/5"
-        )} />
+        <Card className={cn(
+          s.page.mainCard,
+          activeTab === 'frames' ? s.page.mainCardFrames : s.page.mainCardNormal
+        )}>
+          <div className={cn(
+            s.page.innerBorder,
+            activeTab === 'frames' ? "border-orange-500/20 group-hover/card:border-orange-500/40" : "border-white/5"
+          )} />
 
-        <div className={s.page.mainCardInner}>
-          {activeTab === 'frames' && scenes.length > 0 && (
-            <div className="flex justify-end mb-6">
-              <div className="flex items-center gap-1 bg-black/40 p-1 rounded-xl border border-white/5">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setViewMode('grid')}
-                  className={cn("w-9 h-9 rounded-lg transition-all", viewMode === 'grid' ? "bg-studio text-black hover:bg-studio" : "text-zinc-500 hover:text-white")}
-                >
-                  <LayoutGrid className="w-4 h-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setViewMode('list')}
-                  className={cn("w-9 h-9 rounded-lg transition-all", viewMode === 'list' ? "bg-studio text-black hover:bg-studio" : "text-zinc-500 hover:text-white")}
-                >
-                  <List className="w-4 h-4" />
-                </Button>
+          <div className={s.page.mainCardInner}>
+            {activeTab === 'frames' && scenes.length > 0 && (
+              <div className="flex justify-end mb-6">
+                <div className="flex items-center gap-1 bg-black/40 p-1 rounded-xl border border-white/5">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setViewMode('grid')}
+                    className={cn("w-9 h-9 rounded-lg transition-all", viewMode === 'grid' ? "bg-studio text-black hover:bg-studio" : "text-zinc-500 hover:text-white")}
+                  >
+                    <LayoutGrid className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setViewMode('list')}
+                    className={cn("w-9 h-9 rounded-lg transition-all", viewMode === 'list' ? "bg-studio text-black hover:bg-studio" : "text-zinc-500 hover:text-white")}
+                  >
+                    <List className="w-4 h-4" />
+                  </Button>
+                </div>
               </div>
-            </div>
-          )}
-          <DeferredRender delay={16} fallback={<div className="h-96 flex items-center justify-center opacity-10"><LayoutGrid className="w-12 h-12 animate-pulse" /></div>}>
-            {renderTabContent()}
-          </DeferredRender>
-        </div>
-      </Card>
-    </div>
+            )}
+            <DeferredRender delay={16} fallback={<div className="h-96 flex items-center justify-center opacity-10"><LayoutGrid className="w-12 h-12 animate-pulse" /></div>}>
+              {isGeneratingVisuals ? (
+                <StoryboardLoadingPage
+                  message={getLoadingMessage()}
+                  subtext="AI model is rendering cinematic manifests"
+                />
+              ) : (scenes.length === 0 && activeTab !== 'animatic') ? (
+                <StoryboardEmptyState
+                  onLoadDemo={loadDemoProject}
+                  onLaunch={() => {
+                    window.dispatchEvent(new CustomEvent('studio-generate-storyboard'));
+                  }}
+                  isGenerating={isGeneratingVisuals}
+                />
+              ) : (
+                <Outlet />
+              )}
+            </DeferredRender>
+          </div>
+        </Card>
+      </div>
+    </StoryboardPageContext.Provider>
   );
 }
