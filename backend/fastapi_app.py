@@ -28,6 +28,7 @@ import sys
 import time
 import traceback
 import uuid
+import json
 import warnings
 from typing import Optional
 
@@ -67,10 +68,10 @@ from backend.utils.telemetry import install_telemetry_sink, telemetry_manager
 # ==============================================================================
 
 # --- Raw Startup Signal (guaranteed terminal visibility before any logger is ready) ---
-print("\n\033[1;35m" + "=" * 80 + "\033[0m", flush=True)
-print("\033[1;36m>>> [SYSTEM] BOOTING NEURAL ENGINE...\033[0m", flush=True)
-print("\033[1;36m>>> [SYSTEM] Initializing Master API Core...\033[0m", flush=True)
-print("\033[1;35m" + "=" * 80 + "\033[0m\n", flush=True)
+print("\n\033[1;35m" + "🤖 " + "=" * 74 + " 🤖\033[0m", flush=True)
+print("\033[1;36m>>> [NEURAL ENGINE] INITIALIZING MASTER SYSTEM CORE...\033[0m", flush=True)
+print("\033[1;36m>>> [NEURAL ENGINE] Active Environment: \033[1;33m" + os.environ.get("ENV", "development").upper() + "\033[0m", flush=True)
+print("\033[1;35m" + "🤖 " + "=" * 74 + " 🤖\033[0m\n", flush=True)
 
 BACKEND_ROOT = os.path.dirname(os.path.abspath(__file__))
 APP_VERSION  = "2.5.0-PRO"
@@ -87,6 +88,7 @@ def configure_logging() -> None:
     - Intercept     : Routes uvicorn / SQLAlchemy stdlib loggers into Loguru.
     """
     from pathlib import Path
+    import platform
 
     # Use pathlib for robust Windows path handling (avoids Errno 22)
     log_dir  = Path(__file__).parent.resolve() / "logs"
@@ -97,21 +99,30 @@ def configure_logging() -> None:
 
     # Console sink — high-visibility terminal output at DEBUG level
     logger.add(
-        sys.stderr,
+        sys.stdout,
         level="DEBUG",
         colorize=True,
         format="<green>{time:HH:mm:ss}</green> | <level>{level: <8}</level> | <level>{message}</level>",
     )
 
-    # File sink — clean plain-text for auditing and production logs
-    logger.add(
-        str(log_file),
-        rotation="10 MB",
-        retention="1 week",
-        level="DEBUG",
-        format="{time:YYYY-MM-DD HH:mm:ss} | {level: <8} | {name}:{function}:{line} - {message}",
-        enqueue=True,
-    )
+    # File sink — plain-text for auditing and production logs.
+    # Windows + multiprocessing + Loguru rotation can trigger OSError [Errno 22]
+    # in spawned workers, so keep the sink simple on Windows.
+    file_sink_kwargs = {
+        "level": "DEBUG",
+        "format": "{time:YYYY-MM-DD HH:mm:ss} | {level: <8} | {name}:{function}:{line} - {message}",
+        "enqueue": True,
+    }
+
+    if platform.system().lower() == "windows":
+        logger.add(str(log_file), **file_sink_kwargs)
+    else:
+        logger.add(
+            str(log_file),
+            rotation="10 MB",
+            retention="1 week",
+            **file_sink_kwargs,
+        )
 
     # Intercept handler: redirect stdlib loggers into Loguru
     class InterceptHandler(logging.Handler):
@@ -122,7 +133,22 @@ def configure_logging() -> None:
                 level = record.levelno
             logger.opt(depth=6, exception=record.exc_info).log(level, record.getMessage())
 
-    for name in ["uvicorn", "uvicorn.error", "uvicorn.access", "fastapi", "sqlalchemy"]:
+    logging.basicConfig(handlers=[InterceptHandler()], level=logging.INFO, force=True)
+
+    # Silence highly verbose database connection/thread-pooling logs
+    logging.getLogger("sqlalchemy.engine").setLevel(logging.WARNING)
+    logging.getLogger("aiosqlite").setLevel(logging.WARNING)
+    logging.getLogger("httpx").setLevel(logging.WARNING)
+    logging.getLogger("httpcore").setLevel(logging.WARNING)
+    logging.getLogger("watchfiles").setLevel(logging.WARNING)
+    logging.getLogger("anyio").setLevel(logging.WARNING)
+    logging.getLogger("urllib3").setLevel(logging.WARNING)
+
+    for name in [
+        "uvicorn", "uvicorn.error", "uvicorn.access", 
+        "fastapi", "sqlalchemy", "aiosqlite", 
+        "httpx", "httpcore", "watchfiles", "anyio", "urllib3"
+    ]:
         logging.getLogger(name).handlers  = [InterceptHandler()]
         logging.getLogger(name).propagate = False
 
@@ -202,11 +228,9 @@ class LogRequestsMiddleware:
 
         if not is_health:
             try:
-                print(f"\033[1;35m>>> [SIGNAL]\033[0m Incoming: \033[1;36m{method}\033[0m {path}", flush=True)
-            except Exception:
-                pass
-            try:
-                logger.info(f"REQUEST  [{signal_id}] -> {method} {path}{'?' + query if query else ''}")
+                logger.opt(colors=True).info(
+                    f"<magenta>[SIGNAL IN]</magenta>  <cyan><b>{method: <6}</b></cyan> {path}{'?' + query if query else ''} | ID: <yellow>{signal_id}</yellow>"
+                )
             except Exception:
                 pass
 
@@ -220,29 +244,19 @@ class LogRequestsMiddleware:
 
                 status_code = message.get("status", 200)
                 latency     = (time.perf_counter() - start_time) * 1000
-                log_msg     = f"[BACKEND]  {method} {path} | Status: {status_code} ({latency:.2f}ms)"
 
                 if not is_health:
-                    status_color = (
-                        "\033[1;32m" if status_code < 400 else
-                        "\033[1;33m" if status_code < 500 else
-                        "\033[1;31m"
+                    status_color_tag = (
+                        "green" if status_code < 400 else
+                        "yellow" if status_code < 500 else
+                        "red"
                     )
                     try:
-                        print(
-                            f"\033[1;35m<<< [SIGNAL]\033[0m Result:   "
-                            f"{status_color}{status_code}\033[0m (\033[1;36m{latency:.2f}ms\033[0m)\n",
-                            flush=True,
+                        logger.opt(colors=True).info(
+                            f"<magenta>[SIGNAL OUT]</magenta> <cyan><b>{method: <6}</b></cyan> {path} | "
+                            f"Status: <{status_color_tag}><b>{status_code}</b></{status_color_tag}> | "
+                            f"Latency: <light-blue>{latency:.2f}ms</light-blue> | ID: <yellow>{signal_id}</yellow>"
                         )
-                    except Exception:
-                        pass
-                    try:
-                        if status_code < 400:
-                            logger.opt(colors=True).info(f"<green><b>SUCCESS</b></green> | {log_msg}")
-                        elif status_code < 500:
-                            logger.opt(colors=True).warning(f"<yellow><b>WARNING</b></yellow> | {log_msg}")
-                        else:
-                            logger.opt(colors=True).error(f"<red><b>FAILURE</b></red> | {log_msg}")
                     except Exception:
                         pass
 
@@ -385,7 +399,7 @@ async def get_neural_flow(refresh: bool = False):
     # Dummy comment to trigger uvicorn file watch reload
     """Serves the interactive standalone full-screen Global Neural Flow topology map, dynamically compiled on-the-fly."""
     scripts_dir    = os.path.join(os.path.dirname(os.path.abspath(__file__)), "folder_management")
-    neural_flow_path = os.path.join(scripts_dir, "folder_management.html")
+    neural_flow_path = os.path.join(scripts_dir, "Flow.html")
     
     if refresh or not os.path.exists(neural_flow_path):
         try:
@@ -496,8 +510,25 @@ async def run_script_api(script: str):
 
 @app.get("/health", tags=["system"])
 async def health_check():
-    """Simple health check — confirms the API is running and returns the version."""
-    return {"status": "ok", "version": APP_VERSION}
+    """Confirm the API and database engine are healthy and return the runtime version."""
+    from datetime import datetime
+    from sqlalchemy import text as sql_text
+    
+    db_status = "unhealthy"
+    try:
+        # Perform a lightweight ping query
+        async with async_engine.begin() as conn:
+            await conn.execute(sql_text("SELECT 1"))
+        db_status = "healthy"
+    except Exception as e:
+        logger.error(f"[HEALTH CHECK] Database ping failed: {e}")
+        
+    return {
+        "status": "ok" if db_status == "healthy" else "degraded",
+        "version": APP_VERSION,
+        "database": db_status,
+        "timestamp": datetime.now().isoformat()
+    }
 
 
 @app.get("/api/system/integrity", tags=["system"])
@@ -513,7 +544,8 @@ async def system_integrity():
     groq_key       = os.environ.get("GROQ_API_KEY")
     runway_key     = os.environ.get("RUNWAY_API_KEY")
     elevenlabs_key = os.environ.get("ELEVENLABS_API_KEY")
-    hf_token       = os.environ.get("HF_API_TOKEN")
+    hf_token       = os.environ.get("HF_API_TOKEN") or os.environ.get("HF_TOKEN")
+    hf_image_model = os.environ.get("HF_IMAGE_MODEL")
     supabase_url   = os.environ.get("VITE_SUPABASE_URL")
     supabase_key   = os.environ.get("VITE_SUPABASE_ANON_KEY")
 
@@ -591,7 +623,13 @@ async def system_integrity():
         else:
             results["HuggingFace"] = {"ok": False, "status": "MISSING"}
 
-        # 8. Supabase
+        # 8. Hugging Face Image Model Configuration
+        if hf_image_model:
+            results["HuggingFaceImageModel"] = {"ok": True, "status": hf_image_model}
+        else:
+            results["HuggingFaceImageModel"] = {"ok": False, "status": "DEFAULT black-forest-labs/FLUX.1-schnell"}
+
+        # 9. Supabase
         if supabase_url and supabase_key:
             try:
                 r = await client.get(f"{supabase_url}/rest/v1/", headers={"apikey": supabase_key, "Authorization": f"Bearer {supabase_key}"})
@@ -602,6 +640,35 @@ async def system_integrity():
             results["Supabase"] = {"ok": False, "status": "MISSING"}
 
     return results
+
+
+@app.post("/api/system/export-diagnostics", tags=["system"])
+async def export_diagnostics(request: Request):
+    """Accepts a diagnostics snapshot JSON payload and persists it to disk under outputs/diagnostics_snapshots.
+
+    Returns a JSON response with the saved file path and a URL under the mounted `/outputs` static route.
+    """
+    try:
+        payload = await request.json()
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Invalid JSON payload: {e}")
+
+    try:
+        snapshots_dir = os.path.join(BACKEND_ROOT, "outputs", "diagnostics_snapshots")
+        os.makedirs(snapshots_dir, exist_ok=True)
+        ts = time.strftime("%Y%m%d-%H%M%S")
+        fname = f"diagnostics-snapshot-{ts}-{uuid.uuid4().hex[:6]}.json"
+        file_path = os.path.join(snapshots_dir, fname)
+
+        with open(file_path, "w", encoding="utf-8") as f:
+            json.dump(payload, f, ensure_ascii=False, indent=2)
+
+        # Return a URL relative to the mounted /outputs static route so the frontend can link to it
+        public_url = f"/outputs/diagnostics_snapshots/{fname}"
+        return {"status": "success", "file": file_path, "url": public_url}
+    except Exception as e:
+        logger.error(f"[SYSTEM] Failed to write diagnostics snapshot: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to write snapshot: {e}")
 
 
 # --- Root / Frontend ---
@@ -678,15 +745,15 @@ async def on_startup() -> None:
       4. Install the WebSocket telemetry log sink.
     """
     banner = """
-    +------------------------------------------------------------------------------+
-    |                                                                              |
-    |   ANIME SCRIPT PRO | NEURAL ENGINE v2.5.0-PRO                                |
-    |   STATUS: INITIALIZING CORE PRODUCTION SUITE...                              |
-    |                                                                              |
-    +------------------------------------------------------------------------------+
+<magenta>+------------------------------------------------------------------------------+</magenta>
+<magenta>|</magenta>                                                                              <magenta>|</magenta>
+<magenta>|</magenta>   <cyan><b>ANIME SCRIPT PRO | NEURAL ENGINE v2.5.0-PRO</b></cyan>                               <magenta>|</magenta>
+<magenta>|</magenta>   STATUS: <green><b>INITIALIZING CORE PRODUCTION SUITE...</b></green>                               <magenta>|</magenta>
+<magenta>|</magenta>                                                                              <magenta>|</magenta>
+<magenta>+------------------------------------------------------------------------------+</magenta>
     """
-    logger.info(f"\n{banner.strip()}")
-    logger.info("📡 SIGNAL: Loading environment and preparing database...")
+    logger.opt(colors=True).info(f"\n{banner.strip()}")
+    logger.opt(colors=True).info("<cyan>📡 SIGNAL:</cyan> Loading environment and preparing database...")
 
     # Step 1 — Runtime dependency check for optional video rendering libs
     try:
@@ -722,36 +789,109 @@ async def on_startup() -> None:
             missing_deps.append("ffmpeg (system executable)")
 
         if missing_deps:
-            logger.warning("VIDEO RENDERING: Missing optional dependencies: %s", ", ".join(missing_deps))
-            logger.warning("VIDEO RENDERING: Install with: pip install Pillow moviepy imageio-ffmpeg and ensure ffmpeg is on PATH.")
+            logger.opt(colors=True).warning(
+                f"<yellow><b>[VIDEO RENDERING]</b></yellow> Missing optional dependencies: <red>{', '.join(missing_deps)}</red>"
+            )
+            logger.opt(colors=True).warning(
+                "<yellow><b>[VIDEO RENDERING]</b></yellow> Install with: <cyan>pip install Pillow moviepy imageio-ffmpeg</cyan> and ensure ffmpeg is on PATH."
+            )
         else:
-            logger.info("VIDEO RENDERING: All optional deps present (ffmpeg: %s)", ffmpeg_path)
+            logger.opt(colors=True).info(
+                f"<cyan><b>[VIDEO RENDERING]</b></cyan> All optional deps present (ffmpeg: <green>{ffmpeg_path}</green>)"
+            )
 
     except Exception as e:
-        logger.debug("VIDEO RENDERING: Dependency check failed: %s", str(e))
+        logger.opt(colors=True).debug(f"<cyan><b>[VIDEO RENDERING]</b></cyan> Dependency check failed: {e}")
 
     # Step 2 — Sync database metadata (creates tables if they don't exist)
     async with async_engine.begin() as conn:
         await conn.run_sync(SQLModel.metadata.create_all)
-    logger.success("DATABASE: Metadata synced successfully.")
+    logger.opt(colors=True).success("<green><b>[DATABASE]</b></green> Metadata synced successfully.")
+
+    # Step 2b — Migrate legacy SQLite cast → character table/column renames (idempotent)
+    try:
+        from sqlalchemy import text as sql_text
+        async with async_engine.begin() as conn:
+            # Detect SQLite dialect (no-op on PostgreSQL which handles this via the schema)
+            dialect = async_engine.dialect.name
+            if dialect == "sqlite":
+                # ── Table renames ──────────────────────────────────────────────
+                tables = await conn.run_sync(
+                    lambda sync_conn: sync_conn.execute(
+                        sql_text("SELECT name FROM sqlite_master WHERE type='table'")
+                    ).fetchall()
+                )
+                existing_tables = {row[0] for row in tables}
+
+                if "cast_members" in existing_tables and "characters" not in existing_tables:
+                    await conn.execute(sql_text("ALTER TABLE cast_members RENAME TO characters"))
+                    logger.opt(colors=True).success("<green><b>[MIGRATION]</b></green> Renamed table <yellow>cast_members</yellow> → <cyan>characters</cyan>")
+
+                if "cast_manifests" in existing_tables and "character_manifests" not in existing_tables:
+                    await conn.execute(sql_text("ALTER TABLE cast_manifests RENAME TO character_manifests"))
+                    logger.opt(colors=True).success("<green><b>[MIGRATION]</b></green> Renamed table <yellow>cast_manifests</yellow> → <cyan>character_manifests</cyan>")
+
+                # ── Column renames for character_manifests ──────────────────────
+                manifest_columns = await conn.run_sync(
+                    lambda sync_conn: sync_conn.execute(
+                        sql_text("PRAGMA table_info(character_manifests)")
+                    ).fetchall()
+                )
+                manifest_col_names = {row[1] for row in manifest_columns}
+
+                if "cast_list_blob" in manifest_col_names and "character_list_blob" not in manifest_col_names:
+                    await conn.execute(sql_text(
+                        "ALTER TABLE character_manifests RENAME COLUMN cast_list_blob TO character_list_blob"
+                    ))
+                    logger.opt(colors=True).success("<green><b>[MIGRATION]</b></green> Renamed column <yellow>cast_list_blob</yellow> → <cyan>character_list_blob</cyan>")
+
+                if "prompt_cast" in manifest_col_names and "prompt_characters" not in manifest_col_names:
+                    await conn.execute(sql_text(
+                        "ALTER TABLE character_manifests RENAME COLUMN prompt_cast TO prompt_characters"
+                    ))
+                    logger.opt(colors=True).success("<green><b>[MIGRATION]</b></green> Renamed column <yellow>prompt_cast</yellow> → <cyan>prompt_characters</cyan>")
+
+                # ── Column renames for project_content ─────────────────────────
+                pc_columns = await conn.run_sync(
+                    lambda sync_conn: sync_conn.execute(
+                        sql_text("PRAGMA table_info(project_content)")
+                    ).fetchall()
+                )
+                pc_col_names = {row[1] for row in pc_columns}
+
+                for old, new in [
+                    ("cast_profiles", "character_profiles"),
+                    ("cast_data", "character_data"),
+                    ("cast_relationships", "character_relationships"),
+                ]:
+                    if old in pc_col_names and new not in pc_col_names:
+                        await conn.execute(sql_text(
+                            f"ALTER TABLE project_content RENAME COLUMN {old} TO {new}"
+                        ))
+                        logger.opt(colors=True).success(f"<green><b>[MIGRATION]</b></green> Renamed column <yellow>{old}</yellow> → <cyan>{new}</cyan> in project_content")
+        logger.opt(colors=True).success("<green><b>[MIGRATION]</b></green> Legacy cast → character schema migration <green><b>complete</b></green>.")
+    except Exception as migration_err:
+        logger.opt(colors=True).warning(f"<yellow><b>[MIGRATION]</b></yellow> Non-critical migration step issue: <red>{migration_err}</red>")
 
     # Step 3 — Auto-seed tutorials if the table is empty
     async with async_session() as session:
         count = (await session.execute(select(func.count(Tutorial.id)))).scalar()
         if count == 0:
-            logger.warning("DATABASE: Studio data missing. Initializing core templates...")
+            logger.opt(colors=True).warning("<yellow><b>[DATABASE]</b></yellow> Studio data missing. Initializing core templates...")
             await seed_tutorials()
-            logger.success("DATABASE: Studio assets deployed successfully.")
+            logger.opt(colors=True).success("<green><b>[DATABASE]</b></green> Studio assets deployed successfully.")
         else:
-            logger.info(f"DATABASE: Persistence verified ({count} records found).")
+            logger.opt(colors=True).info(f"<cyan><b>[DATABASE]</b></cyan> Persistence verified (<green>{count}</green> records found).")
 
     # Step 4 — Install WebSocket telemetry sink (must run after event loop is live)
     install_telemetry_sink()
     
     # Step 5 — Automatically update codebase reference indexes and compile the dashboard on startup
-    logger.info("📡 SIGNAL: Auto-compiling codebase reference indexes and architecture dashboard...")
+    logger.opt(colors=True).info("<cyan>📡 SIGNAL:</cyan> Auto-compiling codebase reference indexes and architecture dashboard...")
     try:
         def run_compilations():
+            # Allow uvicorn to fully bind and become ready first (reduces startup delay)
+            time.sleep(1.5)
             project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
             old_cwd = os.getcwd()
             try:
@@ -760,33 +900,33 @@ async def on_startup() -> None:
                 # 1. Update backend architecture index
                 try:
                     _load_script_module("scan_backend_index").extract_functions()
-                    logger.success("INDEX: Backend architectural reference index updated successfully (backend_architecture_index.md).")
+                    logger.opt(colors=True).success("<green><b>[INDEX]</b></green> Backend architectural reference index updated successfully (backend_architecture_index.md).")
                 except Exception as e:
-                    logger.error(f"INDEX: Failed to generate backend architectural reference index: {e}")
+                    logger.opt(colors=True).error(f"<red><b>[INDEX]</b></red> Failed to generate backend architectural reference index: {e}")
 
                 # 2. Update frontend architecture index
                 try:
                     _load_script_module("scan_frontend_index").scan_frontend()
-                    logger.success("INDEX: Frontend architectural reference index updated successfully (frontend_architecture_index.md).")
+                    logger.opt(colors=True).success("<green><b>[INDEX]</b></green> Frontend architectural reference index updated successfully (frontend_architecture_index.md).")
                 except Exception as e:
-                    logger.error(f"INDEX: Failed to generate frontend architectural reference index: {e}")
+                    logger.opt(colors=True).error(f"<red><b>[INDEX]</b></red> Failed to generate frontend architectural reference index: {e}")
 
                 # 3. Compile architecture dashboard
                 try:
                     _load_script_module("build_architecture_dashboard").compile_dashboard()
-                    logger.success("DASHBOARD: Architecture dashboard compiled successfully (architecture_dashboard.html).")
+                    logger.opt(colors=True).success("<green><b>[DASHBOARD]</b></green> Architecture dashboard compiled successfully (architecture_dashboard.html).")
                 except Exception as e:
-                    logger.error(f"DASHBOARD: Failed to compile architecture dashboard: {e}")
+                    logger.opt(colors=True).error(f"<red><b>[DASHBOARD]</b></red> Failed to compile architecture dashboard: {e}")
             finally:
                 os.chdir(old_cwd)
         
         import threading
         threading.Thread(target=run_compilations, daemon=True).start()
     except Exception as e:
-        logger.error(f"AUTO-STARTUP: Failed to trigger codebase crawlers/dashboard compilation: {e}")
+        logger.opt(colors=True).error(f"<red><b>[AUTO-STARTUP]</b></red> Failed to trigger codebase crawlers/dashboard compilation: {e}")
 
-    logger.success("🚀 NEURAL ENGINE ONLINE: Production Suite is ready for Architect requests.")
-    logger.info("📡 TELEMETRY: Live log stream active on ws:/telemetry")
+    logger.opt(colors=True).success("🚀 <green><b>NEURAL ENGINE ONLINE</b></green>: Production Suite is ready for Architect requests.")
+    logger.opt(colors=True).info("<cyan>📡 TELEMETRY:</cyan> Live log stream active on ws:/telemetry")
 
 
 @app.on_event("shutdown")
@@ -798,33 +938,33 @@ async def on_shutdown() -> None:
       2. Allow active WebSocket handles to close gracefully.
       3. Flush the final telemetry log entries.
     """
-    logger.warning("🔴 SIGNAL: Neural Engine shutdown initiated. Starting structural teardown...")
+    logger.opt(colors=True).warning("🔴 <yellow><b>SIGNAL:</b></yellow> Neural Engine shutdown initiated. Starting structural teardown...")
 
     # Step 1 — Terminate database connection pool
     try:
-        logger.info("📡 SIGNAL [1/3]: Terminating database connection pool...")
+        logger.opt(colors=True).info("<cyan>📡 SIGNAL [1/3]:</cyan> Terminating database connection pool...")
         await async_engine.dispose()
-        logger.success("DATABASE: Connection pool drained successfully.")
+        logger.opt(colors=True).success("<green><b>[DATABASE]</b></green> Connection pool drained successfully.")
     except Exception as e:
-        logger.error(f"DATABASE: Error during pool disposal: {e}")
+        logger.opt(colors=True).error(f"<red><b>[DATABASE]</b></red> Error during pool disposal: {e}")
 
     # Step 2 — Allow WebSocket handles to close
-    logger.info("📡 SIGNAL [2/3]: Closing active WebSocket streams and notification gates...")
+    logger.opt(colors=True).info("<cyan>📡 SIGNAL [2/3]:</cyan> Closing active WebSocket streams and notification gates...")
     await asyncio.sleep(0.01)
-    logger.success("STREAMS: All real-time signals disconnected.")
+    logger.opt(colors=True).success("<green><b>[STREAMS]</b></green> All real-time signals disconnected.")
 
     # Step 3 — Final telemetry flush
-    logger.info("📡 SIGNAL [3/3]: Flushing final telemetry buffers to persistent logs...")
+    logger.opt(colors=True).info("<cyan>📡 SIGNAL [3/3]:</cyan> Flushing final telemetry buffers to persistent logs...")
 
     footer = """
-    +------------------------------------------------------------------------------+
-    |                                                                              |
-    |   ANIME SCRIPT PRO | NEURAL ENGINE OFFLINE                                   |
-    |   STATUS: CORE DATA STREAMS TERMINATED SUCCESSFULLY                          |
-    |                                                                              |
-    +------------------------------------------------------------------------------+
+<red>+------------------------------------------------------------------------------+</red>
+<red>|</red>                                                                              <red>|</red>
+<red>|</red>   <yellow><b>ANIME SCRIPT PRO | NEURAL ENGINE OFFLINE</b></yellow>                                  <red>|</red>
+<red>|</red>   STATUS: <red><b>CORE DATA STREAMS TERMINATED SUCCESSFULLY</b></red>                          <red>|</red>
+<red>|</red>                                                                              <red>|</red>
+<red>+------------------------------------------------------------------------------+</red>
     """
-    logger.warning(f"\n{footer.strip()}")
+    logger.opt(colors=True).warning(f"\n{footer.strip()}")
 
 # ==============================================================================
 # 13. SERVER ENTRY POINT
@@ -832,5 +972,13 @@ async def on_shutdown() -> None:
 
 if __name__ == "__main__":
     import uvicorn
-    # Run the server directly: python -m backend.fastapi_app
-    uvicorn.run("backend.fastapi_app:app", host="0.0.0.0", port=8000, reload=True)
+    # Resolve host, port, and auto-reload dynamically from environmental configuration
+    host_ip = os.getenv("HOST", "0.0.0.0")
+    port_num = int(os.getenv("PORT", "8000"))
+    env_mode = os.getenv("ENV", "development").lower()
+    auto_reload = env_mode in ("development", "dev")
+    
+    logger.opt(colors=True).info(
+        f"<cyan>📡 BOOT:</cyan> Binding server socket to <yellow>{host_ip}:{port_num}</yellow> | reload=<cyan>{auto_reload}</cyan>"
+    )
+    uvicorn.run("backend.fastapi_app:app", host=host_ip, port=port_num, reload=auto_reload)

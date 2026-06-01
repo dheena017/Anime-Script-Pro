@@ -24,7 +24,7 @@ export function useStudioBasePath(): string {
 
   // Fallback: parse the base from the current URL up to (not including) /cast or /series etc.
   const path = window.location.pathname;
-  const match = path.match(/^(.*?)\/(cast|world|series|script|storyboard|seo|prompts|screening|assets|engine|api|lore)(\/|$)/);
+  const match = path.match(/^(.*?)\/(cast|world|series|storyboard|seo|prompts|screening|assets|engine|api|lore)(\/|$)/);
   if (match) return match[1];
 
   return '/studio'; // safe default

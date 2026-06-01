@@ -41,7 +41,7 @@ def test_resolution() -> None:
     
     print("\n--- TESTING MODEL RESOLUTION ---")
     tests = [
-        ("gemini-3.5-flash", "gemini-2.0-flash"),
+        ("gemini-3.5-flash", "gemini-3.5-flash"),
         ("gemini-3.5-pro", "gemini-2.0-pro"),
         ("nano-banana", "gemini-2.5-flash"),
         ("nvidia-llama", "nvidia/llama-3.1-nemotron-70b-instruct"),
@@ -60,7 +60,7 @@ def test_resolution() -> None:
     engine = AIEngine("gemini-3.5-flash")
     print(f"Initial model name: gemini-3.5-flash")
     print(f"Resolved engine model name: {engine.model_name}")
-    if engine.model_name == "gemini-2.0-flash":
+    if engine.model_name == "gemini-3.5-flash":
         print("Engine resolution: PASSED")
     else:
         print("Engine resolution: FAILED")

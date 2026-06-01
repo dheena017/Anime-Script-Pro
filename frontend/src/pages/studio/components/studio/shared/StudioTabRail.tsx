@@ -104,6 +104,20 @@ export const StudioTabRail: React.FC<StudioTabRailProps> = ({ tabs, activeTab, o
       >
         <ChevronRight className="h-4 w-4" />
       </button>
+
+      {/* Mobile bottom rail (icon-only) */}
+      <div className="sm:hidden fixed bottom-4 left-1/2 -translate-x-1/2 z-[320] bg-[#050505]/95 backdrop-blur-md px-3 py-2 rounded-3xl shadow-2xl flex items-center gap-2">
+        {tabs.map(tab => (
+          <button
+            key={`mobile-${tab.id}`}
+            onClick={() => onTabChange(tab.id)}
+            title={tab.label}
+            className={cn("w-10 h-10 rounded-lg flex items-center justify-center text-zinc-300", activeTab === tab.id ? 'bg-white/[0.04] text-white' : 'bg-transparent')}
+          >
+            <tab.icon className="w-5 h-5" />
+          </button>
+        ))}
+      </div>
     </div>
   );
 };

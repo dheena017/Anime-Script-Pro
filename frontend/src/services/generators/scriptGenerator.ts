@@ -58,14 +58,14 @@ function buildScriptSystemPrompt(
   recapperPersona: string,
   characterRelationships: string | null,
   worldBuilding: string | null,
-  castProfiles: string | null,
+  characterProfiles: string | null,
   episodePlan: string | null,
   prompt: string
 ): string {
   const sourceContext = [
     episodePlan ? `EPISODE PLAN:\n${episodePlan}` : "",
     worldBuilding ? `WORLD CONTEXT:\n${worldBuilding}` : "",
-    castProfiles ? `CAST REGISTRY:\n${castProfiles}` : "",
+    characterProfiles ? `CAST REGISTRY:\n${characterProfiles}` : "",
     characterRelationships ? `RELATIONSHIP MAP:\n${characterRelationships}` : "",
   ]
     .filter(Boolean)
@@ -80,7 +80,7 @@ function buildScriptSystemPrompt(
     numScenes,
     episodePlan,
     worldBuilding,
-    castProfiles,
+    characterProfiles,
     characterRelationships,
     recapperPersona
   );
@@ -117,7 +117,7 @@ export async function generateScript(
   recapperPersona: string = DEFAULT_RECAPPER_PERSONA,
   characterRelationships: string | null = null,
   worldBuilding: string | null = null,
-  castProfiles: string | null = null,
+  characterProfiles: string | null = null,
   episodePlan: string | null = null
 ) {
   validateScriptInput(prompt, "Script prompt", 20);
@@ -138,7 +138,7 @@ export async function generateScript(
     recapperPersona,
     characterRelationships,
     worldBuilding,
-    castProfiles,
+    characterProfiles,
     episodePlan,
     prompt
   );
@@ -155,6 +155,9 @@ Scene Count: ${numScenes}
 
 Project Prompt:
 ${prompt}
+
+CRITICAL DIRECTIVE:
+Ensure the script is highly accurate, logically consistent, and deeply detailed. Focus on realistic pacing, coherent character motivations, rich dialogue, and vivid scene descriptions. The output must be the absolute best, most compelling script possible, seamlessly tying together the world lore and cast profiles without any logical gaps.
 `;
 
     const text = await generateText(
@@ -167,17 +170,18 @@ ${prompt}
       40,      // topK
       240000,  // timeoutMs
       worldBuilding,  // worldLore
-      castProfiles,   // castDNA
+      characterProfiles,   // characterDNA
       episodePlan     // episodePlan
     );
 
-    if (text) {
-      studioLog("ScriptEngine", `Script synthesized successfully (${text.length} chars).`, "success");
+    if (!text) {
+      throw new Error("Failed to generate script: Empty response returned from AI model.");
     }
-    return text || "Failed to generate script.";
+    studioLog("ScriptEngine", `Script synthesized successfully (${text.length} chars).`, "success");
+    return text;
   } catch (error: any) {
-    studioLog("ScriptEngine", "Failed to draft script. Falling back to MOCK_SCRIPT.", "error", error);
-    return MOCK_SCRIPT;
+    studioLog("ScriptEngine", "Failed to draft script.", "error", error);
+    throw error;
   } finally {
     studioEnd();
   }
@@ -202,7 +206,7 @@ export async function generateScriptStream(
   recapperPersona: string = DEFAULT_RECAPPER_PERSONA,
   characterRelationships: string | null = null,
   worldBuilding: string | null = null,
-  castProfiles: string | null = null,
+  characterProfiles: string | null = null,
   episodePlan: string | null = null,
   onChunk?: (partial: string) => void
 ): Promise<string> {
@@ -219,7 +223,7 @@ export async function generateScriptStream(
     recapperPersona,
     characterRelationships,
     worldBuilding,
-    castProfiles,
+    characterProfiles,
     episodePlan,
     prompt
   );
@@ -256,7 +260,7 @@ ${prompt}`;
       return generateScript(
         prompt, tone, audience, session, episode, numScenes,
         model, contentType, recapperPersona,
-        characterRelationships, worldBuilding, castProfiles, episodePlan
+        characterRelationships, worldBuilding, characterProfiles, episodePlan
       );
     }
 
@@ -301,7 +305,7 @@ ${prompt}`;
     return generateScript(
       prompt, tone, audience, session, episode, numScenes,
       model, contentType, recapperPersona,
-      worldBuilding, castProfiles, episodePlan
+      worldBuilding, characterProfiles, episodePlan
     );
   } finally {
     studioEnd();
@@ -398,6 +402,59 @@ TENSION RULES:
 // generateEpisodeAssets — Bundles script + scene + prompt data for an episode
 // ─────────────────────────────────────────────────────────────────────────────
 
+function parseScenesJson(text: string, numScenes: number, episode: string): any[] {
+  let cleanText = text.trim();
+  const firstBracket = cleanText.indexOf('[');
+  const lastBracket = cleanText.lastIndexOf(']');
+  if (firstBracket !== -1 && lastBracket !== -1 && lastBracket > firstBracket) {
+    cleanText = cleanText.slice(firstBracket, lastBracket + 1);
+  }
+
+  try {
+    const parsed = JSON.parse(cleanText);
+    if (Array.isArray(parsed)) {
+      return parsed.map((item, idx) => {
+        const index = typeof item.index === 'number' ? item.index : idx + 1;
+        const sceneOutput = item.sceneOutput || {};
+        return {
+          index,
+          sceneOutput: {
+            narration: typeof sceneOutput.narration === 'string' && sceneOutput.narration.trim()
+              ? sceneOutput.narration.trim()
+              : `Narration for scene ${index} of episode ${episode}.`,
+            visuals: typeof sceneOutput.visuals === 'string' && sceneOutput.visuals.trim()
+              ? sceneOutput.visuals.trim()
+              : `Visual description for scene ${index}.`,
+            sound: typeof sceneOutput.sound === 'string' && sceneOutput.sound.trim()
+              ? sceneOutput.sound.trim()
+              : `Ambient soundscape for scene ${index}.`,
+          },
+          imagePrompts: typeof item.imagePrompts === 'string' && item.imagePrompts.trim()
+            ? item.imagePrompts.trim()
+            : `Image prompt for scene ${index}`,
+          videoPrompts: typeof item.videoPrompts === 'string' && item.videoPrompts.trim()
+            ? item.videoPrompts.trim()
+            : `Video prompt for scene ${index}`,
+        };
+      });
+    }
+  } catch (err) {
+    console.warn("Failed to parse scenes JSON from LLM response:", err);
+  }
+
+  // Fallback to placeholders if parsing completely fails
+  return Array.from({ length: numScenes }, (_, i) => ({
+    index: i + 1,
+    sceneOutput: {
+      narration: `Narration for scene ${i + 1} of episode ${episode}.`,
+      visuals: `Visual description for scene ${i + 1}.`,
+      sound: `Ambient soundscape for scene ${i + 1}.`,
+    },
+    imagePrompts: `Image prompt for scene ${i + 1}`,
+    videoPrompts: `Video prompt for scene ${i + 1}`,
+  }));
+}
+
 export async function generateEpisodeAssets(options: {
   prompt: string;
   script?: string;
@@ -405,8 +462,10 @@ export async function generateEpisodeAssets(options: {
   session: string;
   numScenes: string;
   model: string;
+  worldLore?: string | null;
+  characterProfiles?: string | null;
 }) {
-  const { prompt, script, episode, session, numScenes, model } = options;
+  const { prompt, script, episode, session, numScenes, model, worldLore, characterProfiles } = options;
 
   // 1. Generate or use existing script
   const finalScript =
@@ -418,24 +477,78 @@ export async function generateEpisodeAssets(options: {
       session,
       episode,
       numScenes,
-      model
+      model,
+      undefined,
+      undefined,
+      undefined,
+      worldLore,
+      characterProfiles
     ));
 
   // 2. Episode-level image and video prompt summaries
   const episodeImagePrompts = `Episode ${episode} Image Prompt Matrix: High-fidelity, cinematic style, consistent with the script: ${finalScript.slice(0, 100)}...`;
   const episodeVideoPrompts = `Episode ${episode} Video Sequence Guidance: Dynamic camera work, story-led motion, consistent with: ${finalScript.slice(0, 100)}...`;
 
-  // 3. Generate placeholder scene objects
-  const scenes = Array.from({ length: parseInt(numScenes) }, (_, i) => ({
-    index: i + 1,
-    sceneOutput: {
-      narration: `Narration for scene ${i + 1} of episode ${episode}.`,
-      visuals: `Visual description for scene ${i + 1}.`,
-      sound: `Ambient soundscape for scene ${i + 1}.`,
-    },
-    imagePrompts: `Image prompt for scene ${i + 1}`,
-    videoPrompts: `Video prompt for scene ${i + 1}`,
-  }));
+  // 3. Generate high-fidelity scene objects using the LLM instead of static placeholders
+  let scenes: any[] = [];
+  try {
+    const scenesCount = parseInt(numScenes) || 6;
+    const systemInstruction = `You are a professional Screenplay and Anime Scene Director. Your task is to break down a full production script into exactly ${scenesCount} sequential, high-fidelity scenes.
+For each scene, you must provide highly descriptive and customized details including narration/dialogue, cinematic visual descriptions, ambient soundscapes, and AI prompts.
+
+You MUST respond with a strict, valid JSON array of objects, and absolutely nothing else. Do not include markdown formatting, code block fences, or any trailing/leading explanation text.
+
+Each object in the JSON array must follow this exact schema:
+{
+  "index": 1,
+  "sceneOutput": {
+    "narration": "The narration, dialogue, or voiceover lines heard in this scene.",
+    "visuals": "Cinematic visual description, including camera angles, lighting, characters, and actions.",
+    "sound": "Atmospheric sound direction, background music, or foley sound effects."
+  },
+  "imagePrompts": "A detailed, descriptive AI text-to-image prompt to generate a keyframe for this scene.",
+  "videoPrompts": "A motion-focused AI text-to-video prompt describing the camera movement and character actions for this scene."
+}`;
+
+    const breakdownPrompt = `Read the following script and break it down into exactly ${scenesCount} detailed, sequential scenes.
+Each scene must represent a consecutive dramatic beat of the script. Make the descriptions highly specific, cinematic, and faithful to the story.
+
+SCRIPT:
+${finalScript}
+
+Generate exactly ${scenesCount} JSON scene objects in a flat array.`;
+
+    const response = await generateText(
+      model,
+      breakdownPrompt,
+      systemInstruction,
+      0.75, // temperature
+      4096, // maxTokens
+      0.95, // topP
+      40,   // topK
+      180000, // timeoutMs
+      worldLore,
+      characterProfiles
+    );
+
+    if (response) {
+      scenes = parseScenesJson(response, scenesCount, episode);
+    } else {
+      throw new Error("Empty response from AI when generating scenes");
+    }
+  } catch (error) {
+    console.error("Failed to generate scenes for episode assets, falling back to placeholders:", error);
+    scenes = Array.from({ length: parseInt(numScenes) || 6 }, (_, i) => ({
+      index: i + 1,
+      sceneOutput: {
+        narration: `Narration for scene ${i + 1} of episode ${episode}.`,
+        visuals: `Visual description for scene ${i + 1}.`,
+        sound: `Ambient soundscape for scene ${i + 1}.`,
+      },
+      imagePrompts: `Image prompt for scene ${i + 1}`,
+      videoPrompts: `Video prompt for scene ${i + 1}`,
+    }));
+  }
 
   return {
     script: finalScript,

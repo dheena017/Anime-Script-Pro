@@ -1,12 +1,12 @@
-import React from 'react';
-import { SoundscapeLibrary } from '../../components/Audio/SoundscapeLibrary';
-import { Music, Play, Loader2, Volume2 } from 'lucide-react';
-import { generateAudio } from '@/services/api/audio';
-import { cn } from '@/lib/utils';
-import { storyboardStyles as s } from '../storyboardStyles';
-import { motion } from 'framer-motion';
+import React from "react";
+import { SoundscapeLibrary } from "../../components/Audio/SoundscapeLibrary";
+import { Music, Play, Loader2, Volume2 } from "lucide-react";
+import { generateAudio } from "@/services/api/audio";
+import { cn } from "@/lib/utils";
+import { storyboardStyles as s } from "../storyboardStyles";
+import { motion } from "framer-motion";
 
-import { StoryboardPageContext } from '../StoryboardPage';
+import { StoryboardPageContext } from "../StoryboardPage";
 
 interface Scene {
   id: string;
@@ -38,11 +38,11 @@ export const AudioTab: React.FC<AudioTabProps> = ({ scenes: propsScenes }) => {
   const [selectedTld, setSelectedTld] = React.useState<string>("com");
 
   const voiceProfiles = [
-    { id: 'com', name: 'US (Neutral)', flag: '🇺🇸' },
-    { id: 'co.uk', name: 'UK (Elegant)', flag: '🇬🇧' },
-    { id: 'ca', name: 'Canada (Clean)', flag: '🇨🇦' },
-    { id: 'co.in', name: 'India (Clear)', flag: '🇮🇳' },
-    { id: 'com.au', name: 'Australia (Bold)', flag: '🇦🇺' },
+    { id: "com", name: "US (Neutral)", flag: "🇺🇸" },
+    { id: "co.uk", name: "UK (Elegant)", flag: "🇬🇧" },
+    { id: "ca", name: "Canada (Clean)", flag: "🇨🇦" },
+    { id: "co.in", name: "India (Clear)", flag: "🇮🇳" },
+    { id: "com.au", name: "Australia (Bold)", flag: "🇦🇺" },
   ];
 
   const handlePlayAudio = async (sceneId: string, text: string) => {
@@ -59,7 +59,7 @@ export const AudioTab: React.FC<AudioTabProps> = ({ scenes: propsScenes }) => {
     try {
       const result = await generateAudio({ text, tld: selectedTld });
       if (result.success && result.audioUrl) {
-        setAudioUrls(prev => ({ ...prev, [cacheKey]: result.audioUrl }));
+        setAudioUrls((prev) => ({ ...prev, [cacheKey]: result.audioUrl! }));
         const audio = new Audio(result.audioUrl);
         setPlayingId(sceneId);
         audio.play();
@@ -75,7 +75,12 @@ export const AudioTab: React.FC<AudioTabProps> = ({ scenes: propsScenes }) => {
     <div className={s.tabContent + " animate-in fade-in duration-700"}>
       {/* Header */}
       <div className={s.tabSectionHeader}>
-        <div className={cn(s.tabHeaderIconBox, "bg-blue-500/10 border-blue-500/20 shadow-[0_0_40px_rgba(59,130,246,0.15)]")}>
+        <div
+          className={cn(
+            s.tabHeaderIconBox,
+            "bg-blue-500/10 border-blue-500/20 shadow-[0_0_40px_rgba(59,130,246,0.15)]",
+          )}
+        >
           <Music className="w-8 h-8 text-blue-400 animate-pulse" />
         </div>
         <div className="text-left">
@@ -87,14 +92,20 @@ export const AudioTab: React.FC<AudioTabProps> = ({ scenes: propsScenes }) => {
 
         {/* Voice Profile Selector */}
         <div className="ml-auto flex items-center gap-3 px-4 py-2 bg-[#050505]/60 border border-white/5 rounded-xl">
-          <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Profile:</span>
-          <select 
+          <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">
+            Profile:
+          </span>
+          <select
             value={selectedTld}
             onChange={(e) => setSelectedTld(e.target.value)}
             className="bg-transparent text-xs font-bold text-blue-400 outline-none cursor-pointer"
           >
-            {voiceProfiles.map(p => (
-              <option key={p.id} value={p.id} className="bg-zinc-900 text-white">
+            {voiceProfiles.map((p) => (
+              <option
+                key={p.id}
+                value={p.id}
+                className="bg-zinc-900 text-white"
+              >
                 {p.flag} {p.name}
               </option>
             ))}
@@ -118,11 +129,15 @@ export const AudioTab: React.FC<AudioTabProps> = ({ scenes: propsScenes }) => {
                 className="flex items-center gap-5 p-5 bg-gradient-to-r from-[#0c0c0c] to-[#040404] border border-white/5 rounded-2xl hover:border-blue-500/30 transition-all duration-500 group relative overflow-hidden text-left"
               >
                 <span className="text-xs font-black text-zinc-600 font-mono w-6 flex-shrink-0">
-                  {String(i + 1).padStart(2, '0')}
+                  {String(i + 1).padStart(2, "0")}
                 </span>
                 <div className="flex-1">
-                  <p className="text-xs font-black text-white uppercase tracking-widest">{scene.section}</p>
-                  <p className="text-[11px] text-zinc-500 mt-1 font-bold uppercase tracking-tight leading-relaxed">{scene.sound || 'No sound cue specified'}</p>
+                  <p className="text-xs font-black text-white uppercase tracking-widest">
+                    {scene.section}
+                  </p>
+                  <p className="text-[11px] text-zinc-500 mt-1 font-bold uppercase tracking-tight leading-relaxed">
+                    {scene.sound || "No sound cue specified"}
+                  </p>
                 </div>
                 <div className="flex items-center gap-2">
                   {/* Waveform visualizer bars */}
@@ -131,24 +146,34 @@ export const AudioTab: React.FC<AudioTabProps> = ({ scenes: propsScenes }) => {
                       key={j}
                       className={cn(
                         "w-0.5 rounded-full transition-all duration-300",
-                        playingId === scene.id ? "bg-blue-400 animate-pulse" : "bg-blue-500/40 group-hover:bg-blue-400/60"
+                        playingId === scene.id
+                          ? "bg-blue-400 animate-pulse"
+                          : "bg-blue-500/40 group-hover:bg-blue-400/60",
                       )}
-                      style={{ 
-                        height: playingId === scene.id ? `${Math.random() * 20 + 5}px` : `${h * 3}px`, 
-                        animationDelay: `${j * 100}ms` 
+                      style={{
+                        height:
+                          playingId === scene.id
+                            ? `${Math.random() * 20 + 5}px`
+                            : `${h * 3}px`,
+                        animationDelay: `${j * 100}ms`,
                       }}
                     />
                   ))}
                 </div>
-                
+
                 <button
-                  onClick={() => handlePlayAudio(scene.id, (scene as any).narration || scene.section)}
+                  onClick={() =>
+                    handlePlayAudio(
+                      scene.id,
+                      (scene as any).narration || scene.section,
+                    )
+                  }
                   disabled={generatingId === scene.id}
                   className={cn(
                     "w-10 h-10 rounded-xl flex items-center justify-center transition-all border",
-                    generatingId === scene.id 
+                    generatingId === scene.id
                       ? "bg-blue-500/10 border-blue-500/30 text-blue-400"
-                      : "bg-white/5 border-white/5 hover:border-blue-500/40 text-zinc-500 hover:text-blue-400"
+                      : "bg-white/5 border-white/5 hover:border-blue-500/40 text-zinc-500 hover:text-blue-400",
                   )}
                 >
                   {generatingId === scene.id ? (
@@ -160,7 +185,9 @@ export const AudioTab: React.FC<AudioTabProps> = ({ scenes: propsScenes }) => {
                   )}
                 </button>
 
-                <span className="text-xs font-black text-zinc-600 flex-shrink-0 w-8 text-right font-mono">{scene.duration || '5s'}</span>
+                <span className="text-xs font-black text-zinc-600 flex-shrink-0 w-8 text-right font-mono">
+                  {scene.duration || "5s"}
+                </span>
               </motion.div>
             ))}
           </div>
@@ -174,7 +201,3 @@ export const AudioTab: React.FC<AudioTabProps> = ({ scenes: propsScenes }) => {
     </div>
   );
 };
-
-
-
-

@@ -51,7 +51,7 @@ function safeScriptPromptGeneration(
     numScenes: string,
     episodePlan: string | null,
     worldBuilding: string | null,
-    castProfiles: string | null,
+    characterProfiles: string | null,
     characterRelationships: string | null,
     recapperPersona: string
 ): string {
@@ -66,7 +66,7 @@ function safeScriptPromptGeneration(
             numScenes,
             episodePlan,
             worldBuilding,
-            castProfiles,
+            characterProfiles,
             characterRelationships,
             recapperPersona
         );
@@ -85,14 +85,14 @@ function buildScriptGenerationPrompt(
     numScenes: string,
     episodePlan: string | null,
     worldBuilding: string | null,
-    castProfiles: string | null,
+    characterProfiles: string | null,
     characterRelationships: string | null,
     recapperPersona: string
 ): string {
     const optionalSections = [
         episodePlan ? `EPISODE MASTER BLUEPRINT:\n${episodePlan}\n` : '',
         worldBuilding ? `WORLD LORE SOURCE OF TRUTH:\n${worldBuilding}\n` : '',
-        castProfiles ? `CHARACTER DNA REGISTRY:\n${castProfiles}\n` : '',
+        characterProfiles ? `CHARACTER DNA REGISTRY:\n${characterProfiles}\n` : '',
         characterRelationships ? `INTERPERSONAL DYNAMICS:\n${characterRelationships}\n` : ''
     ].join('');
 
@@ -158,9 +158,10 @@ QUALITY BAR:
 - Make the table feel like a premium production blueprint.
 
 CRITICAL OUTPUT RULES & PARSING ENFORCEMENT:
+- **EXACT ROW COUNT ENFORCEMENT**: You MUST generate EXACTLY ${numScenes} rows in the table. The Scene # column must count sequentially from 1 to ${numScenes} (e.g. 1, 2, ..., ${numScenes}). Do NOT truncate, summarize, or skip any scenes. Every single scene must be fully generated with all columns filled.
 - **ZERO CONVERSATIONAL FILLER**: Do not include any introductory greetings (e.g., "Here is your script:"), concluding remarks, or conversational transitions. Start the response immediately with the markdown table.
 - **NO CODE BLOCKS OR FENCES**: Do NOT wrap the table in markdown code blocks or triple backticks (e.g., do NOT start with \`\`\` or \`\`\`markdown, and do NOT end with \`\`\`). The raw output MUST start immediately with the header row: "| Scene # | Section | ...".
-- **EXACT COLUMN COUNT**: The generated table must contain exactly 13 columns separated by "|" pipes. The separator row must contain valid alignments (e.g., "| :--- | :--- | ...").
+- **EXACT COLUMN COUNT**: The generated table must contain exactly 13 columns separated by "|" pipes. The separator row must contain valid alignments (e.g., "| :--- | :--- | ..."). Each row must start and end with a "|" pipe.
 - **RAW TEXT ONLY**: Output purely raw markdown table text. Any trailing or leading characters outside of the raw table will break the frontend diagnostics parser.
 `;
 }
@@ -181,7 +182,7 @@ export const SCRIPT_GENERATION_PROMPT = (
     numScenes: string,
     episodePlan: string | null,
     worldBuilding: string | null,
-    castProfiles: string | null,
+    characterProfiles: string | null,
     characterRelationships: string | null,
     recapperPersona: string
 ) => safeScriptPromptGeneration(
@@ -193,7 +194,7 @@ export const SCRIPT_GENERATION_PROMPT = (
     numScenes,
     episodePlan,
     worldBuilding,
-    castProfiles,
+    characterProfiles,
     characterRelationships,
     recapperPersona
 );

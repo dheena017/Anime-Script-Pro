@@ -42,6 +42,10 @@ export const AnimeStudioSideBar = React.memo<AnimeStudioSideBarProps>(({
 }) => {
   const location = useLocation();
 
+  const coreItems = [
+    { icon: Cpu, label: 'Master Console', path: '/console' },
+  ];
+
   const foundationItems = [
     { icon: Zap, label: 'Creative Engine', path: '/engine' },
     { icon: Globe, label: 'World Builder', path: '/world' },
@@ -183,6 +187,7 @@ export const AnimeStudioSideBar = React.memo<AnimeStudioSideBarProps>(({
               </div>
             )}
 
+            {renderNavGroup(coreItems, "MASTER WORKSPACE")}
             {renderNavGroup(foundationItems, "PHASE 1: FOUNDATION")}
             {renderNavGroup(architectureItems, "PHASE 2: STRUCTURE")}
             {renderNavGroup(generationItems, "PHASE 3: PRODUCTION")}

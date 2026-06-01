@@ -40,6 +40,8 @@ export function SeriesPage() {
     setGeneratedSeriesPlan,
     setProductionSequence,
     setSession,
+    setNumEpisodes,
+    setNumScenes,
     setEpisode,
     syncCore,
     showNotification,
@@ -55,6 +57,8 @@ export function SeriesPage() {
     const promptProjectId = Number.parseInt(prompt, 10);
     return Number.isFinite(promptProjectId) ? promptProjectId : undefined;
   }, [currentScriptId, prompt]);
+
+  const studioBase = currentScriptId ? `/projects/${currentScriptId}` : '/studio';
 
   const handleLoadDemo = () => {
     loadDemoProject();
@@ -80,8 +84,6 @@ export function SeriesPage() {
   const applySequenceItem = (sess: number, ep: number, scen: number) => {
     setSession(sess.toString());
     setEpisode(ep.toString());
-
-    const studioBase = currentScriptId ? `/projects/${currentScriptId}` : '/studio';
 
     const explicitIndex = productionSequence.findIndex(
       (unit) => unit.sess === sess && unit.ep === ep && unit.scen === scen
@@ -117,14 +119,30 @@ export function SeriesPage() {
     navigate(`${studioBase}/storyboard/scenes/${sceneIndex}`);
   };
 
-  const handleManifestContinue = async (config: { sessions: number; episodes: number; scenes: number }) => {
-    const sequence = generateProductionSequences(
-      config.sessions,
-      config.episodes,
-      config.scenes
-    );
-    setProductionSequence(sequence);
+  const handleManifestContinue = async (config: { episodes: number; sessions?: number; scenes?: number }) => {
+    // Require explicit sessions and scenes — do not silently default values.
+    if (config.sessions === undefined || config.scenes === undefined) {
+      showNotification?.('Please provide explicit session and scene counts before continuing.', 'warning');
+      return;
+    }
 
+    const resolvedSessions = config.sessions;
+    const resolvedScenes = config.scenes;
+
+    const sequence = generateProductionSequences(
+      resolvedSessions,
+      config.episodes,
+      resolvedScenes
+    );
+    // Persist scaffolding selections into global generator state so HUD and other modules reflect them
+    setProductionSequence(sequence);
+    try {
+      setNumEpisodes?.(config.episodes);
+      setNumScenes?.(String(resolvedScenes));
+      setSession?.(String(resolvedSessions));
+    } catch (e) {
+      // ignore if not available
+    }
     if (!user) return;
     setIsSyncing(true);
 
@@ -137,7 +155,8 @@ export function SeriesPage() {
       }
 
       const scenesPayload = sequence.map((u, idx) => {
-        const sceneNumber = (u.ep - 1) * config.scenes + u.scen;
+        const globalEpIndex = (u.sess - 1) * config.episodes + u.ep;
+        const sceneNumber = (globalEpIndex - 1) * resolvedScenes + u.scen;
         return {
           scene_number: sceneNumber,
           status: 'QUEUED',
@@ -148,7 +167,11 @@ export function SeriesPage() {
       const resJson = await apiRequest<{ episodes?: Array<any>; scenes?: Array<any> }>('/api/scenes', {
         method: 'POST',
         label: 'Bulk Scene Sync',
-        body: JSON.stringify({ project_id: activeProjectId, scenes: scenesPayload })
+        body: JSON.stringify({
+          project_id: activeProjectId,
+          scenes: scenesPayload,
+          scenes_per_episode: resolvedScenes
+        })
       });
 
       const createdEpisodesCount = (resJson.episodes || []).length;
@@ -177,7 +200,8 @@ export function SeriesPage() {
 
   const renderTabContent = () => {
     // Only show global loading if NOT on the blueprint tab (which has its own HUD)
-    if (isGeneratingSeries) {
+    // Keep BlueprintTab mounted during synthesis so localConfig values are preserved
+    if (isGeneratingSeries && activeTab !== 'blueprint') {
       return (
         <SeriesLoadingPage
           message={getLoadingMessage()}
@@ -209,6 +233,7 @@ export function SeriesPage() {
             productionSequence={productionSequence}
             applySequenceItem={applySequenceItem}
             plan={generatedSeriesPlan || []}
+            onViewEpisode={(epNum, section) => navigate(`${studioBase}/series/episodes/${epNum}${section ? `?section=${section}` : ''}`)}
           />
         );
 
@@ -231,3 +256,5 @@ export function SeriesPage() {
     </div>
   );
 }
+
+export default SeriesPage;

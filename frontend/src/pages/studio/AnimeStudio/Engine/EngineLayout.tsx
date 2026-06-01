@@ -57,12 +57,12 @@ export default function EngineLayout() {
           episode={episode}
           onPrev={() => {
             startTransition(() => {
-              navigate(`/studio/screening`);
+              navigate(`${currentScriptId ? `/projects/${currentScriptId}` : '/studio'}/screening`);
             });
           }}
           onNext={() => {
             startTransition(() => {
-              navigate(`/studio/world`);
+              navigate(`${currentScriptId ? `/projects/${currentScriptId}` : '/studio'}/world`);
             });
           }}
           onSave={handleSaveCurrent}

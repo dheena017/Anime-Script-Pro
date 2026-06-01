@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy import select, func
 from backend.database import get_async_session, AsyncSession, Tutorial
 from backend.database.models import (
-    WorldLore, CastManifest, Project, Script, Series, Storyboard, Prompt, SEOEntry, ScreeningRoomEntry
+    WorldLore, CharacterManifest, Project, Script, Series, Storyboard, Prompt, SEOEntry, ScreeningRoomEntry
 )
 from datetime import datetime
 from loguru import logger
@@ -22,7 +22,7 @@ async def get_system_pulse(include_db: bool = False, session: AsyncSession = Dep
         vitals = None
         if include_db:
             lore_count      = (await session.execute(select(func.count(WorldLore.id)))).scalar() or 0
-            cast_count      = (await session.execute(select(func.count(CastManifest.id)))).scalar() or 0
+            character_count  = (await session.execute(select(func.count(CharacterManifest.id)))).scalar() or 0
             script_count    = (await session.execute(select(func.count(Script.id)))).scalar() or 0
             series_count    = (await session.execute(select(func.count(Series.id)))).scalar() or 0
             storyboard_count= (await session.execute(select(func.count(Storyboard.id)))).scalar() or 0
@@ -34,7 +34,7 @@ async def get_system_pulse(include_db: bool = False, session: AsyncSession = Dep
 
             vitals = {
                 "lore_records":      lore_count,
-                "cast_manifests":    cast_count,
+                "character_manifests": character_count,
                 "script_count":      script_count,
                 "series_count":      series_count,
                 "storyboard_count":  storyboard_count,
@@ -109,8 +109,8 @@ async def seed_subsystem(subsystem: str, session: AsyncSession = Depends(get_asy
     try:
         if subsystem == "lore":
             session.add(WorldLore(module="Manifest", title="Galactic Empire Chronicles", content="Historical context.", status="Active"))
-        elif subsystem == "cast":
-            session.add(CastManifest(name="Aria Vance", role="Protagonist", status="Synchronized"))
+        elif subsystem == "characters":
+            session.add(CharacterManifest(user_id="anonymous"))
         elif subsystem == "script":
             session.add(Script(title="Episode 1: The Spark", content="[SCENE 1] Space. Stars count..."))
         elif subsystem == "series":

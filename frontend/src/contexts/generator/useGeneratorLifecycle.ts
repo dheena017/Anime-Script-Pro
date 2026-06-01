@@ -28,7 +28,7 @@ interface ProjectHistoryItem {
 interface GeneratorQueriesResult {
   worldLore: any;
   production: any;
-  castDataFromApi: any;
+  characterDataFromApi: any;
   projectHistory: ProjectHistoryItem[];
 }
 
@@ -66,9 +66,9 @@ export function useGeneratorQueries({ userId, currentScriptId, episode }: Genera
     enabled: !!userId && !!currentScriptId,
   });
 
-  const { data: castDataFromApi } = useQuery({
+  const { data: characterDataFromApi } = useQuery({
     queryKey: ['characterCast', userId, currentScriptId],
-    queryFn: () => characterApi.getCast(userId!, currentScriptId ? parseInt(currentScriptId, 10) : undefined),
+    queryFn: () => characterApi.getCharacters(userId!, currentScriptId ? parseInt(currentScriptId, 10) : undefined),
     enabled: !!userId && !!currentScriptId,
   });
 
@@ -93,7 +93,7 @@ export function useGeneratorQueries({ userId, currentScriptId, episode }: Genera
   return {
     worldLore,
     production,
-    castDataFromApi,
+    characterDataFromApi,
     projectHistory,
   };
 }
@@ -104,10 +104,10 @@ interface GeneratorSyncEffectsParams {
   episode: string;
   production: any;
   worldLore: any;
-  castDataFromApi: any;
+  characterDataFromApi: any;
   generatedScript: string | null;
   generatedWorld: string | null;
-  castListLength: number;
+  characterListLength: number;
   isGeneratingSeries: boolean;
   isGeneratingCharacters: boolean;
   isGeneratingWorld: boolean;
@@ -135,12 +135,12 @@ interface GeneratorSyncEffectsParams {
   setGeneratedWorldCulture: Dispatch<SetStateAction<string | null>>;
   setGeneratedWorldSystems: Dispatch<SetStateAction<string | null>>;
   setGeneratedWorldContent: Dispatch<SetStateAction<any>>;
-  setCastList: Dispatch<SetStateAction<any[]>>;
-  setCastProfiles: Dispatch<SetStateAction<any>>;
+  setCharacterList: Dispatch<SetStateAction<any[]>>;
+  setCharacterProfiles: Dispatch<SetStateAction<any>>;
   setCharacterRelationships: Dispatch<SetStateAction<string | null>>;
-  setCastDNA: Dispatch<SetStateAction<any>>;
-  setCastDynamics: Dispatch<SetStateAction<any>>;
-  setCastIntegrity: Dispatch<SetStateAction<any>>;
+  setCharacterDNA: Dispatch<SetStateAction<any>>;
+  setCharacterDynamics: Dispatch<SetStateAction<any>>;
+  setCharacterIntegrity: Dispatch<SetStateAction<any>>;
   setGeneratedImagePrompts: Dispatch<SetStateAction<string | null>>;
   setGeneratedDescription: Dispatch<SetStateAction<string | null>>;
   setGeneratedAltText: Dispatch<SetStateAction<string | null>>;
@@ -165,10 +165,10 @@ export function useGeneratorSyncEffects(params: GeneratorSyncEffectsParams) {
     episode,
     production,
     worldLore,
-    castDataFromApi,
+    characterDataFromApi,
     generatedScript,
     generatedWorld,
-    castListLength,
+    characterListLength,
     isGeneratingSeries,
     isGeneratingCharacters,
     isGeneratingWorld,
@@ -196,12 +196,12 @@ export function useGeneratorSyncEffects(params: GeneratorSyncEffectsParams) {
     setGeneratedWorldCulture,
     setGeneratedWorldSystems,
     setGeneratedWorldContent,
-    setCastList,
-    setCastProfiles,
+    setCharacterList,
+    setCharacterProfiles,
     setCharacterRelationships,
-    setCastDNA,
-    setCastDynamics,
-    setCastIntegrity,
+    setCharacterDNA,
+    setCharacterDynamics,
+    setCharacterIntegrity,
     setGeneratedImagePrompts,
     setGeneratedDescription,
     setGeneratedAltText,
@@ -244,12 +244,12 @@ export function useGeneratorSyncEffects(params: GeneratorSyncEffectsParams) {
     setGeneratedWorldCulture(null);
     setGeneratedWorldSystems(null);
     setGeneratedWorldContent(null);
-    setCastList([]);
-    setCastProfiles(null);
+    setCharacterList([]);
+    setCharacterProfiles(null);
     setCharacterRelationships('');
-    setCastDNA(null);
-    setCastDynamics(null);
-    setCastIntegrity(null);
+    setCharacterDNA(null);
+    setCharacterDynamics(null);
+    setCharacterIntegrity(null);
     setGeneratedImagePrompts(null);
     setGeneratedDescription(null);
     setGeneratedAltText(null);
@@ -277,12 +277,12 @@ export function useGeneratorSyncEffects(params: GeneratorSyncEffectsParams) {
     setGeneratedWorldCulture,
     setGeneratedWorldSystems,
     setGeneratedWorldContent,
-    setCastList,
-    setCastProfiles,
+    setCharacterList,
+    setCharacterProfiles,
     setCharacterRelationships,
-    setCastDNA,
-    setCastDynamics,
-    setCastIntegrity,
+    setCharacterDNA,
+    setCharacterDynamics,
+    setCharacterIntegrity,
     setGeneratedImagePrompts,
     setGeneratedDescription,
     setGeneratedAltText,
@@ -379,30 +379,30 @@ export function useGeneratorSyncEffects(params: GeneratorSyncEffectsParams) {
   ]);
 
   useEffect(() => {
-    const canSync = !hasLoadedCast.current || (castListLength === 0 && !isGeneratingCharacters);
+    const canSync = !hasLoadedCast.current || (characterListLength === 0 && !isGeneratingCharacters);
 
-    if (castDataFromApi && canSync) {
-      if (castDataFromApi.cast_list_blob || castDataFromApi.num_characters) {
+    if (characterDataFromApi && canSync) {
+      if (characterDataFromApi.cast_list_blob || characterDataFromApi.num_characters) {
         try {
-          if (castDataFromApi.num_characters) {
-            setNumCharacters(castDataFromApi.num_characters);
+          if (characterDataFromApi.num_characters) {
+            setNumCharacters(characterDataFromApi.num_characters);
           }
-          setCastList(castDataFromApi.cast_list_blob ? JSON.parse(castDataFromApi.cast_list_blob) : []);
+          setCharacterList(characterDataFromApi.cast_list_blob ? JSON.parse(characterDataFromApi.cast_list_blob) : []);
         } catch (e) {
           console.error('Failed to parse cast list from API', e);
         }
       }
-      setCharacterRelationships(castDataFromApi.relationships_blob || '');
+      setCharacterRelationships(characterDataFromApi.relationships_blob || '');
       hasLoadedCast.current = true;
     }
   }, [
-    castDataFromApi,
-    castListLength,
+    characterDataFromApi,
+    characterListLength,
     isGeneratingCharacters,
     currentScriptId,
     hasLoadedCast,
     setNumCharacters,
-    setCastList,
+    setCharacterList,
     setCharacterRelationships,
   ]);
 }
@@ -443,11 +443,11 @@ interface GeneratorSaveCoreParams {
   promptAtlas: string;
   promptCulture: string;
   promptSystems: string;
-  castList: any[];
+  characterList: any[];
   characterRelationships: string | null;
-  castDNA: any;
-  castDynamics: any;
-  castIntegrity: any;
+  characterDNA: any;
+  characterDynamics: any;
+  characterIntegrity: any;
   setCurrentScriptId: Dispatch<SetStateAction<string | null>>;
   queryClient: QueryClient;
 }
@@ -489,11 +489,11 @@ export function useGeneratorSaveCore(params: GeneratorSaveCoreParams) {
     promptAtlas,
     promptCulture,
     promptSystems,
-    castList,
+    characterList,
     characterRelationships,
-    castDNA,
-    castDynamics,
-    castIntegrity,
+    characterDNA,
+    characterDynamics,
+    characterIntegrity,
     setCurrentScriptId,
     queryClient,
   } = params;
@@ -599,13 +599,13 @@ export function useGeneratorSaveCore(params: GeneratorSaveCoreParams) {
 
       addLog('CAST', 'SAVING', 'Saving characters and relationships...');
       console.info('[GeneratorContext] Saving cast content.', { projectId: resolvedProjectId });
-      await characterApi.updateCast(userId, {
-        cast_list_blob: castList ? JSON.stringify(castList) : null,
+      await characterApi.updateCharacters(userId, {
+        character_list_blob: characterList ? JSON.stringify(characterList) : null,
         relationships_blob: characterRelationships,
-        dna_config_blob: castDNA ? JSON.stringify(castDNA) : null,
-        dynamics_blob: castDynamics ? JSON.stringify(castDynamics) : null,
-        integrity_blob: castIntegrity ? JSON.stringify(castIntegrity) : null,
-        prompt_cast: prompt,
+        dna_config_blob: characterDNA ? JSON.stringify(characterDNA) : null,
+        dynamics_blob: characterDynamics ? JSON.stringify(characterDynamics) : null,
+        integrity_blob: characterIntegrity ? JSON.stringify(characterIntegrity) : null,
+        prompt_characters: prompt,
       }, resolvedProjectId);
 
       addLog('PRODUCTION', 'SUCCESS', 'All project data saved successfully.');
@@ -663,11 +663,11 @@ export function useGeneratorSaveCore(params: GeneratorSaveCoreParams) {
     promptAtlas,
     promptCulture,
     promptSystems,
-    castList,
+    characterList,
     characterRelationships,
-    castDNA,
-    castDynamics,
-    castIntegrity,
+    characterDNA,
+    characterDynamics,
+    characterIntegrity,
     setCurrentScriptId,
     queryClient,
   ]);

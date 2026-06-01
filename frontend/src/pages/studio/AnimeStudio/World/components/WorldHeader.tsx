@@ -1,15 +1,24 @@
-import React from 'react';
-import { Button } from '@/components/ui/button';
+import React from "react";
+import { Button } from "@/components/ui/button";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
-  TooltipTrigger
-} from '@/components/ui/tooltip';
-import { ChevronLeft, ChevronRight, Cpu, Globe, Save, Zap, Square, Box } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { worldStyles as s } from '../worldStyles';
-import { useGeneratorDispatch } from '@/hooks/useGenerator';
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Cpu,
+  Globe,
+  Save,
+  Zap,
+  Square,
+  Box,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { worldStyles as s } from "../worldStyles";
+import { useGeneratorDispatch } from "@/hooks/useGenerator";
 
 interface WorldHeaderProps {
   onRegenerate: () => void;
@@ -23,7 +32,7 @@ interface WorldHeaderProps {
   episode: string;
   prompt?: string;
   content?: string | null;
-  status?: 'active' | 'draft' | 'empty';
+  status?: "active" | "draft" | "empty";
 }
 
 export const WorldHeader: React.FC<WorldHeaderProps> = ({
@@ -36,7 +45,7 @@ export const WorldHeader: React.FC<WorldHeaderProps> = ({
   isGenerating,
   session,
   episode,
-  status = 'empty'
+  status = "empty",
 }) => {
   const { stopGeneration } = useGeneratorDispatch();
 
@@ -45,7 +54,7 @@ export const WorldHeader: React.FC<WorldHeaderProps> = ({
       <div className={s.header.wrapper}>
         <div className={s.header.glow} />
         <div className={s.header.container}>
-          <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-8 z-10 w-full lg:w-auto">
+          <div className="flex flex-row flex-wrap sm:flex-nowrap items-center gap-4 sm:gap-8 z-10 w-full lg:w-auto">
             <div className="relative shrink-0">
               <div className={s.header.iconBox}>
                 <div className={s.header.iconGlow} />
@@ -54,40 +63,34 @@ export const WorldHeader: React.FC<WorldHeaderProps> = ({
               </div>
             </div>
 
-            <div className="flex flex-col items-center sm:items-start text-center sm:text-left">
+            <div className="flex flex-row items-center sm:items-start text-center sm:text-left">
               <div className="flex items-center gap-3">
-                 <h1 className={s.header.title}>
-                   World Builder
-                 </h1>
+                <h1 className={s.header.title}>World Builder</h1>
               </div>
-              <div className="flex items-center gap-2 mt-2">
-                <Cpu className="w-3.5 h-3.5 text-studio/40 shrink-0" />
-                <p className={s.header.subtitle}>S{session} // EP{episode} // AI World Building Engine</p>
-              </div>
+              {/* subtitle and small icon removed */}
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-center gap-4 z-10 w-full lg:w-auto">
+          <div className="flex flex-row flex-wrap sm:flex-nowrap items-center gap-2 sm:gap-4 z-10 w-full lg:w-auto justify-center sm:justify-start">
             {onPrev && (
               <Tooltip>
                 <TooltipTrigger>
-                  <Button
-                    className={s.header.actionButton}
-                    onClick={onPrev}
-                  >
+                  <Button className={s.header.actionButton} onClick={onPrev}>
                     <ChevronLeft className="w-4 h-4 mr-2 group-hover/back:-translate-x-1 transition-transform" />
                     PREVIOUS
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="top">
-                  <p className="font-black uppercase tracking-widest text-xs">Return to Engine Matrix</p>
+                  <p className="font-black uppercase tracking-widest text-xs">
+                    Return to Engine Matrix
+                  </p>
                 </TooltipContent>
               </Tooltip>
             )}
 
-            <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
+            <div className="flex flex-row items-center gap-2 sm:gap-4 w-full sm:w-auto justify-center sm:justify-start">
               <Tooltip>
-                <TooltipTrigger >
+                <TooltipTrigger>
                   {isGenerating ? (
                     <Button
                       className={s.header.actionButtonDanger}
@@ -108,24 +111,29 @@ export const WorldHeader: React.FC<WorldHeaderProps> = ({
                 </TooltipTrigger>
                 <TooltipContent side="top">
                   <p className="font-black uppercase tracking-widest text-xs">
-                    {isGenerating ? "Terminate Active Process" : "Initiate World Synthesis"}
+                    {isGenerating
+                      ? "Terminate Active Process"
+                      : "Initiate World Synthesis"}
                   </p>
                 </TooltipContent>
               </Tooltip>
 
               <Tooltip>
-                <TooltipTrigger >
+                <TooltipTrigger>
                   <Button
                     className={s.header.actionButtonPrimary}
                     onClick={onNext}
                   >
                     <span className="relative z-10 flex items-center gap-2">
-                      NEXT <ChevronRight className="w-4 h-4 group-hover/next:translate-x-1 transition-transform" />
+                      NEXT{" "}
+                      <ChevronRight className="w-4 h-4 group-hover/next:translate-x-1 transition-transform" />
                     </span>
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="top">
-                  <p className="font-black uppercase tracking-widest text-xs">Proceed to Modules Hub</p>
+                  <p className="font-black uppercase tracking-widest text-xs">
+                    Proceed to Modules Hub
+                  </p>
                 </TooltipContent>
               </Tooltip>
             </div>
@@ -135,10 +143,3 @@ export const WorldHeader: React.FC<WorldHeaderProps> = ({
     </TooltipProvider>
   );
 };
-
-
-
-
-
-
-

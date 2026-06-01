@@ -39,6 +39,26 @@ export const LogProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const addDbLog = React.useCallback((log: LogEntry) => {
     setDbLogs(prev => [log, ...prev].slice(0, 100));
+
+    // Print websocket telemetry logs beautiful styled in actual browser console
+    const timeStr = log.created_at ? new Date(log.created_at).toLocaleTimeString() : new Date().toLocaleTimeString();
+    const status = log.status || 'INFO';
+    const badgeBg = 
+      status === 'COMPLETED' || status === 'SUCCESS' || status === 'READY' || status === 'SYNCED' ? '#059669' :
+      status === 'STARTING' || status === 'INITIALIZED' || status === 'GENERATING' || status === 'SYNTHESIZING' || status === 'PROCESSED' || status === 'SYNCING' ? '#0891b2' :
+      status === 'RETRYING' || status === 'WARNING' ? '#d97706' : '#dc2626';
+
+    const modelPart = log.model_used ? ` (Engine: ${log.model_used})` : '';
+    console.log(
+      `%c[${timeStr}] [TELEMETRY]%c %c ${log.module} %c %c ${status} %c ${log.message || ''}${modelPart}`,
+      'color: #8b5cf6; font-family: monospace; font-weight: bold;',
+      '',
+      'color: #ffffff; background: #311042; padding: 2px 6px; border-radius: 4px; font-weight: bold;',
+      '',
+      `color: #ffffff; background: ${badgeBg}; padding: 2px 6px; border-radius: 4px; font-weight: bold;`,
+      '',
+      log.model_used ? 'color: #f472b6; font-weight: 500;' : 'color: inherit;'
+    );
   }, []);
 
   React.useEffect(() => {
@@ -75,10 +95,8 @@ export const LogProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           timeout = window.setTimeout(connect, 5000);
         };
         ws.onerror = (err) => {
-          if (!cancelled) {
-            console.error('Telemetry WebSocket Error:', err);
-          }
-          ws?.close();
+          if (!cancelled) console.error('Telemetry WebSocket Error:', err);
+          timeout = window.setTimeout(connect, 5000);
         };
       } catch (e) {
         if (!cancelled) {
@@ -91,7 +109,15 @@ export const LogProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     connect();
     return () => {
       cancelled = true;
-      if (ws) ws.close();
+      if (ws) {
+        ws.onopen = null;
+        ws.onmessage = null;
+        ws.onerror = null;
+        ws.onclose = null;
+        if (ws.readyState === WebSocket.OPEN) {
+          ws.close();
+        }
+      }
       if (timeout) clearTimeout(timeout);
     };
   }, [addDbLog]);
@@ -107,6 +133,25 @@ export const LogProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
     
     setMasterLogs(prev => [newLog, ...prev].slice(0, 50));
+
+    // Print local frontend logs beautifully styled in actual browser console
+    const timeStr = new Date().toLocaleTimeString();
+    const badgeBg = 
+      status === 'COMPLETED' || status === 'SUCCESS' || status === 'READY' || status === 'SYNCED' ? '#059669' :
+      status === 'STARTING' || status === 'INITIALIZED' || status === 'GENERATING' || status === 'SYNTHESIZING' || status === 'PROCESSED' || status === 'SYNCING' ? '#0891b2' :
+      status === 'RETRYING' || status === 'WARNING' ? '#d97706' : '#dc2626';
+
+    const modelPart = model_used ? ` (Engine: ${model_used})` : '';
+    console.log(
+      `%c[${timeStr}]%c %c ${module} %c %c ${status} %c ${message || ''}${modelPart}`,
+      'color: #6b7280; font-family: monospace;',
+      '',
+      'color: #ffffff; background: #1e1b4b; padding: 2px 6px; border-radius: 4px; font-weight: bold;',
+      '',
+      `color: #ffffff; background: ${badgeBg}; padding: 2px 6px; border-radius: 4px; font-weight: bold;`,
+      '',
+      model_used ? 'color: #a78bfa; font-weight: 500;' : 'color: inherit;'
+    );
   }, []);
 
   const clearLogs = useCallback(() => {

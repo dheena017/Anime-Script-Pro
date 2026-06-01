@@ -22,6 +22,7 @@ import {
   LogOut,
   Key
 } from 'lucide-react';
+import { Menu, Maximize2, Brain } from 'lucide-react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -30,7 +31,8 @@ import { useNotifications } from '@/contexts/NotificationContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { NotificationItem } from '../../../Notifications/components/NotificationItem';
 import { useAuth } from '@/hooks/useAuth';
-import { apiRequest, signalBus } from '@/lib/api-utils';
+import { apiRequest } from '@/lib/api-utils';
+import { signalBus } from '@/lib/dev-console-logs';
 
 export const StudioTopBar: React.FC<{ 
   showNotifications: boolean; 
@@ -172,7 +174,7 @@ export const StudioTopBar: React.FC<{
   const commandSuggestions = [
     { label: 'Creative Engine', category: 'Studio', to: '/anime/engine', desc: 'Core production orchestration', icon: Zap },
     { label: 'World Builder', category: 'Studio', to: '/anime/world', desc: 'Lore & geography architecture', icon: Cpu },
-    { label: 'Cast Planner', category: 'Studio', to: '/anime/cast', desc: 'Character profiles & relationships', icon: User },
+    { label: 'Cast Planner', category: 'Studio', to: '/anime/characters', desc: 'Character profiles & relationships', icon: User },
     { label: 'Series Planner', category: 'Studio', to: '/anime/series', desc: 'Episodic structure mapping', icon: Layers },
     { label: 'Script Writing', category: 'Production', to: '/anime/script', desc: 'AI-assisted screenplay flow', icon: ScrollText },
     { label: 'SEO Optimizer', category: 'Distribution', to: '/anime/seo', desc: 'Search engine metadata sync', icon: Search },
@@ -341,8 +343,34 @@ export const StudioTopBar: React.FC<{
   const userAvatar = profileData?.avatarUrl || defaultAvatar;
 
   return (
-    <header 
-      className="fixed top-0 left-0 right-0 h-[64px] border-b border-zinc-800/40 flex items-center justify-between px-6 bg-black/70 backdrop-blur-md z-[400] transition-all duration-300 ease-out shadow-[0_4px_30px_rgba(0,0,0,0.4)]"
+    <>
+      {/* Mobile compact header */}
+      <div className="sm:hidden fixed top-0 left-0 right-0 h-[56px] bg-[#050505]/95 border-b border-white/5 flex items-center justify-between px-3 z-[450]">
+        <div className="flex items-center gap-2">
+          <button onClick={() => { playNeonSound('click'); setCollapsed(!collapsed); }} className="w-9 h-9 rounded-lg flex items-center justify-center text-zinc-300">
+            <Menu className="w-5 h-5" />
+          </button>
+        </div>
+
+        <div className="flex items-center gap-2 truncate">
+          <Link to="/dashboard" className="flex items-center gap-2 no-underline">
+            <div className="w-8 h-8 bg-black border border-cyan-500/30 rounded-lg flex items-center justify-center">
+              <ScrollText className="text-cyan-400 w-4 h-4" />
+            </div>
+            <h2 className="text-sm font-black uppercase tracking-wider text-white truncate max-w-[60vw]">Anime Script Pro</h2>
+          </Link>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <button onClick={() => setShowNotifications(!showNotifications)} className="w-9 h-9 rounded-lg flex items-center justify-center text-zinc-300 relative">
+            <Bell className="w-5 h-5" />
+            {unreadCount > 0 && <span className="absolute -top-1 -right-1 inline-flex items-center justify-center px-1.5 py-0.5 text-[9px] font-black bg-rose-500 rounded-full text-white">{unreadCount}</span>}
+          </button>
+        </div>
+      </div>
+
+      <header 
+      className="hidden sm:flex fixed top-0 left-0 right-0 h-[64px] border-b border-zinc-800/40 flex items-center justify-between px-6 bg-black/70 backdrop-blur-md z-[400] transition-all duration-300 ease-out shadow-[0_4px_30px_rgba(0,0,0,0.4)]"
     >
       {/* Left: Branding & Core Navigation */}
       <div className="flex items-center gap-5">
@@ -869,5 +897,6 @@ export const StudioTopBar: React.FC<{
         </div>
       </div>
     </header>
+    </>
   );
 };

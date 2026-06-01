@@ -30,7 +30,7 @@ interface SceneData {
 }
 
 interface TechnicalMatrixTableProps {
-  scenes: SceneData[];
+  scenes: Array<SceneData | null | undefined>;
 }
 
 /**
@@ -83,7 +83,9 @@ export const TechnicalMatrixTable: React.FC<TechnicalMatrixTableProps> = ({ scen
             </tr>
           </thead>
           <tbody className="divide-y divide-white/5">
-            {scenes.map((scene, idx) => (
+            {scenes.filter(Boolean).map((scene, idx) => {
+              const safeScene = scene as SceneData;
+              return (
               <motion.tr 
                 key={idx}
                 initial={{ opacity: 0, y: 10 }}
@@ -91,36 +93,37 @@ export const TechnicalMatrixTable: React.FC<TechnicalMatrixTableProps> = ({ scen
                 transition={{ delay: idx * 0.05 }}
                 className="group hover:bg-white/[0.02] transition-colors"
               >
-                <td className="p-6 text-sm font-black text-white">{scene.scene || idx + 1}</td>
-                <td className="p-6 text-[10px] font-bold text-zinc-500 uppercase tracking-widest">{scene.section || 'Continuity'}</td>
+                <td className="p-6 text-sm font-black text-white">{safeScene.scene || idx + 1}</td>
+                <td className="p-6 text-[10px] font-bold text-zinc-500 uppercase tracking-widest">{safeScene.section || 'Continuity'}</td>
                 <td className="p-6">
                   <span className="px-3 py-1 bg-studio/10 border border-studio/20 rounded-full text-[10px] font-black text-studio uppercase tracking-widest">
-                    {scene.soulFocus || (scene.characters && scene.characters[0]) || 'Omniscient'}
+                    {safeScene.soulFocus || (safeScene.characters && safeScene.characters[0]) || 'Omniscient'}
                   </span>
                 </td>
                 <td className="p-6">
                   <p className="text-xs text-zinc-400 font-medium leading-relaxed group-hover:text-zinc-200 transition-colors">
-                    {scene.narration || scene.summary}
+                    {safeScene.narration || safeScene.summary}
                   </p>
                 </td>
                 <td className="p-6">
                   <p className="text-xs text-zinc-400 font-medium leading-relaxed group-hover:text-zinc-200 transition-colors">
-                    {scene.visualDirection || scene.visual_direction}
+                    {safeScene.visualDirection || safeScene.visual_direction}
                   </p>
                 </td>
                 <td className="p-6 text-xs text-zinc-500 font-medium italic group-hover:text-studio/60 transition-colors">
-                  {scene.vfxCompounds || scene.vfx || 'Ambient Lighting'}
+                  {safeScene.vfxCompounds || safeScene.vfx || 'Ambient Lighting'}
                 </td>
                 <td className="p-6 text-xs text-zinc-500 font-medium italic group-hover:text-studio/60 transition-colors">
-                  {scene.audioForge || scene.sound || 'Atmospheric Hub'}
+                  {safeScene.audioForge || safeScene.sound || 'Atmospheric Hub'}
                 </td>
                 <td className="p-6">
                   <span className="text-[10px] font-black text-zinc-600 uppercase tracking-widest group-hover:text-white transition-colors">
-                    {scene.emotionalKey || 'Stable'}
+                    {safeScene.emotionalKey || 'Stable'}
                   </span>
                 </td>
               </motion.tr>
-            ))}
+              );
+            })}
           </tbody>
         </table>
       </div>

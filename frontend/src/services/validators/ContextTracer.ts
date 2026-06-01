@@ -1,13 +1,13 @@
 export interface ContextTrace {
   worldLorePresent: boolean;
   worldLoreLength: number;
-  castDNAPresent: boolean;
-  castDNALength: number;
+  characterDNAPresent: boolean;
+  characterDNALength: number;
   episodePlanPresent: boolean;
   episodePlanLength: number;
   excerpts: {
     worldLore?: string;
-    castDNA?: string;
+    characterDNA?: string;
     episodePlan?: string;
   };
 }
@@ -19,8 +19,8 @@ export function traceContextFromInstruction(instruction: string): ContextTrace {
   const trace: ContextTrace = {
     worldLorePresent: false,
     worldLoreLength: 0,
-    castDNAPresent: false,
-    castDNALength: 0,
+    characterDNAPresent: false,
+    characterDNALength: 0,
     episodePlanPresent: false,
     episodePlanLength: 0,
     excerpts: {}
@@ -39,9 +39,9 @@ export function traceContextFromInstruction(instruction: string): ContextTrace {
   const castMatch = instruction.match(/=== CHARACTER DNA REGISTRY ===\s*([\s\S]*?)(?====|$)/i);
   if (castMatch && castMatch[1]) {
     const txt = castMatch[1].trim();
-    trace.castDNAPresent = true;
-    trace.castDNALength = txt.length;
-    trace.excerpts.castDNA = txt.slice(0, 800);
+    trace.characterDNAPresent = true;
+    trace.characterDNALength = txt.length;
+    trace.excerpts.characterDNA = txt.slice(0, 800);
   }
 
   const planMatch = instruction.match(/=== EPISODE MASTER BLUEPRINT ===\s*([\s\S]*?)(?====|$)/i);

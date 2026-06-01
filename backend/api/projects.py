@@ -2,7 +2,7 @@
 Anime Script Pro — Projects, Series, and Library Router
 
 This router manages endpoints related to project instances, creative series blueprints,
-associated script references, cast member list resources, and prompt libraries.
+associated script references, character list resources, and prompt libraries.
 
 Sections (in order):
   1. Third-Party Imports
@@ -28,7 +28,7 @@ from sqlalchemy import select
 # ==============================================================================
 from backend.database import async_session
 from backend.database.models import (
-    CastMember,
+    Character,
     Category,
     Episode,
     ProductionSession,
@@ -356,19 +356,19 @@ async def get_scripts_for_series(
         return result.scalars().all()
 
 
-@router.get("/series/{series_id}/cast", response_model=List[CastMember])
-async def get_cast_for_series(
+@router.get("/series/{series_id}/characters", response_model=List[Character])
+async def get_characters_for_series(
     series_id: int,
     user_id: str = Depends(get_auth_user_id),
-) -> List[CastMember]:
-    """Retrieve cast roster assigned to a specific series.
+) -> List[Character]:
+    """Retrieve character roster assigned to a specific series.
 
     Args:
         series_id: The series ID.
         user_id: The authenticated user's ID.
 
     Returns:
-        List[CastMember]: Roster of cast members.
+        List[Character]: Roster of characters.
 
     Raises:
         HTTPException(404): If series not found.
@@ -378,7 +378,7 @@ async def get_cast_for_series(
         if not series or series.user_id != user_id:
             raise HTTPException(status_code=404, detail="Series not found")
 
-        statement = select(CastMember).where(CastMember.series_id == series_id)
+        statement = select(Character).where(Character.series_id == series_id)
         result = await session.execute(statement)
         return result.scalars().all()
 

@@ -1,25 +1,25 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import { Card } from '@/components/ui/card';
-import { MapPin, Users, Heart, Target } from 'lucide-react';
+import React from "react";
+import { motion } from "framer-motion";
+import { Card } from "@/components/ui/card";
+import { MapPin, Users, Heart, Target } from "lucide-react";
 
 export const PlanningGuide: React.FC = () => {
   return (
     <motion.div
       initial={{ opacity: 0, height: 0 }}
-      animate={{ opacity: 1, height: 'auto' }}
+      animate={{ opacity: 1, height: "auto" }}
       exit={{ opacity: 0, height: 0 }}
       className="overflow-hidden"
     >
       <Card className="planning-guide-card">
         <div className="absolute top-0 right-0 w-96 h-96 bg-studio/10 blur-[120px] rounded-full pointer-events-none" />
         <div className="absolute bottom-0 left-0 w-64 h-64 bg-orange-500/5 blur-[100px] rounded-full pointer-events-none" />
-        
+
         <h3 className="planning-guide-title">
           <div className="w-12 h-[2px] bg-gradient-to-r from-studio to-transparent rounded-full" />
           Strategic Directive
         </h3>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           <div className="space-y-4 group/item">
             <div className="planning-guide-item-title text-studio">
@@ -29,7 +29,8 @@ export const PlanningGuide: React.FC = () => {
               Atmosphere
             </div>
             <p className="planning-guide-item-desc">
-              Define the environment, time of day, and atmosphere. How does the location reflect the scene's tone?
+              Define the environment, time of day, and atmosphere. How does the
+              location reflect the scene's tone?
             </p>
           </div>
           <div className="space-y-4 group/item">
@@ -40,7 +41,8 @@ export const PlanningGuide: React.FC = () => {
               Manifest
             </div>
             <p className="planning-guide-item-desc">
-              Who is present? What are their current states, motivations, and power dynamics in this specific moment?
+              Who is present? What are their current states, motivations, and
+              power dynamics in this specific moment?
             </p>
           </div>
           <div className="space-y-4 group/item">
@@ -51,7 +53,8 @@ export const PlanningGuide: React.FC = () => {
               Resonance
             </div>
             <p className="planning-guide-item-desc">
-              Establish the emotional tone. Is it tense, melancholic, or mysterious? Use lighting to convey this.
+              Establish the emotional tone. Is it tense, melancholic, or
+              mysterious? Use lighting to convey this.
             </p>
           </div>
           <div className="space-y-4 group/item">
@@ -62,7 +65,8 @@ export const PlanningGuide: React.FC = () => {
               Objective
             </div>
             <p className="planning-guide-item-desc">
-              What changes by the end? Note any information revealed, character growth, or plot advancement.
+              What changes by the end? Note any information revealed, character
+              growth, or plot advancement.
             </p>
           </div>
         </div>
@@ -70,7 +74,3 @@ export const PlanningGuide: React.FC = () => {
     </motion.div>
   );
 };
-
-
-
-

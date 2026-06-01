@@ -32,6 +32,13 @@ class GenerationRequest(BaseModel):
     model: str
     prompt: str
     systemInstruction: Optional[str] = None
+    temperature: Optional[float] = None
+    max_tokens: Optional[int] = None
+    maxTokens: Optional[int] = None
+    top_p: Optional[float] = None
+    topP: Optional[float] = None
+    top_k: Optional[int] = None
+    topK: Optional[int] = None
 
 
 class GenerationResponse(BaseModel):

@@ -5,7 +5,7 @@ import { ProductionUnit, generateProductionSequences } from '@/lib/sequence-util
 import { useAuth } from '@/hooks/useAuth';
 import { useApp } from '@/contexts/AppContext';
 import { WorldLore } from '../services/api/world';
-import { useLogDispatch } from './LogContext';
+import { useLogDispatch } from '@/contexts/LogContext';
 import {
   useGeneratorProgressEffect,
   useResolveProjectId,
@@ -16,11 +16,11 @@ import { AI_EVENTS } from '../services/generators/core';
 import { AI_MODELS, AIModel } from '@/lib/aiModels';
 // ── Stable context refs ── must be imported at the top of the file, not mid-module ──
 import { GeneratorStateContext, GeneratorDispatchContext } from './GeneratorContextRefs';
-import { 
-  MOCK_STORY_BIBLE, 
-  MOCK_WORLD_DATA, 
-  MOCK_CAST_DATA, 
-  MOCK_SERIES_PLAN, 
+import {
+  MOCK_STORY_BIBLE,
+  MOCK_WORLD_DATA,
+  MOCK_CAST_DATA,
+  MOCK_SERIES_PLAN,
   MOCK_SCRIPT,
   MOCK_SEO_METADATA,
   MOCK_SEO_DESCRIPTION,
@@ -109,10 +109,10 @@ interface GeneratorState {
   genre: string;
   artStyle: string;
 
-  // Cast / World compatibility
-  castData?: any | null;
-  castList?: any[];
-  castProfiles?: any | null;
+  // Character / World compatibility
+  characterData?: any | null;
+  characterList?: any[];
+  characterProfiles?: any | null;
   characterRelationships?: string | null;
 
   // Visual / storyboard compatibility
@@ -126,10 +126,10 @@ interface GeneratorState {
   activeModelAttempt: string | null;
   fallbackHistory: string[];
   aiModels?: AIModel[];
-  castDNA?: any | null;
-  castDynamics?: any | null;
-  castIntegrity?: any | null;
-  isAnalyzingCast: boolean;
+  characterDNA?: any | null;
+  characterDynamics?: any | null;
+  characterIntegrity?: any | null;
+  isAnalyzingCharacters: boolean;
   numCharacters: number;
   numEpisodes: number;
   isIntelligenceOpen: boolean;
@@ -167,7 +167,7 @@ interface GeneratorDispatch {
   setGeneratedAltText: (a: string | null) => void;
   setRecapperPersona: (p: string) => void;
   syncCore: (projectId?: number, projectName?: string) => Promise<number | undefined>;
-  addLog: (module: string, status: string, message?: string) => void;
+  addLog: (module: string, status: string, message?: string, model_used?: string) => void;
   setEpisode: (e: string) => void;
   setSession: (s: string) => void;
   setNumScenes: (n: string) => void;
@@ -215,17 +215,17 @@ interface GeneratorDispatch {
   setGenre: (g: string) => void;
   setArtStyle: (a: string) => void;
 
-  setCastData: (d: any | null) => void;
-  setCastList: (l: any[]) => void;
-  setCastProfiles: (p: any | null) => void;
+  setCharacterData: (d: any | null) => void;
+  setCharacterList: (l: any[]) => void;
+  setCharacterProfiles: (p: any | null) => void;
   setCharacterRelationships: (r: string | null) => void;
 
   setVisualData: (v: any) => void;
   setVideoData: (v: any) => void;
-  setCastDNA: (d: any | null) => void;
-  setCastDynamics: (d: any | null) => void;
-  setCastIntegrity: (i: any | null) => void;
-  setIsAnalyzingCast: (l: boolean) => void;
+  setCharacterDNA: (d: any | null) => void;
+  setCharacterDynamics: (d: any | null) => void;
+  setCharacterIntegrity: (i: any | null) => void;
+  setIsAnalyzingCharacters: (l: boolean) => void;
 
   // Stop Generation
   stopGeneration: () => void;
@@ -369,7 +369,7 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
 
   const [episode, setEpisode] = useState('1');
   const [session, setSession] = useState('1');
-  const [numScenes, setNumScenes] = useState('6');
+  const [numScenes, setNumScenes] = useState('12');
   const [recapperPersona, setRecapperPersona] = useState('');
   const [contentType, setContentType] = useState('Anime');
   const [isLoading, setIsLoading] = useState(false);
@@ -393,23 +393,23 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
   const [maxTokens, setMaxTokens] = useState(2048);
   const [topP, setTopP] = useState(0.95);
   const [topK, setTopK] = useState(40);
-  const [selectedModel, setSelectedModel] = useState<string>('gemini-3.1-flash');
+  const [selectedModel, setSelectedModel] = useState<string>('gemini-3.1-flash-lite');
   const [tone, setTone] = useState('Analytical');
   const [audience, setAudience] = useState('Developers');
   const [genre, setGenre] = useState('');
   const [artStyle, setArtStyle] = useState('');
 
-  // Compatibility cast/world/visual placeholders
-  const [castData, setCastData] = useState<any | null>(null);
-  const [castList, setCastList] = useState<any[]>([]);
-  const [castProfiles, setCastProfiles] = useState<any | null>(null);
+  // Compatibility character/world/visual placeholders
+  const [characterData, setCharacterData] = useState<any | null>(null);
+  const [characterList, setCharacterList] = useState<any[]>([]);
+  const [characterProfiles, setCharacterProfiles] = useState<any | null>(null);
   const [characterRelationships, setCharacterRelationships] = useState<string | null>('');
   const [visualData, setVisualData] = useState<any>([]);
   const [videoData, setVideoData] = useState<any>([]);
-  const [castDNA, setCastDNA] = useState<any | null>(null);
-  const [castDynamics, setCastDynamics] = useState<any | null>(null);
-  const [castIntegrity, setCastIntegrity] = useState<any | null>(null);
-  const [isAnalyzingCast, setIsAnalyzingCast] = useState(false);
+  const [characterDNA, setCharacterDNA] = useState<any | null>(null);
+  const [characterDynamics, setCharacterDynamics] = useState<any | null>(null);
+  const [characterIntegrity, setCharacterIntegrity] = useState<any | null>(null);
+  const [isAnalyzingCharacters, setIsAnalyzingCharacters] = useState(false);
   const [numCharacters, setNumCharacters] = useState<number>(8);
   const [numEpisodes, setNumEpisodes] = useState<number>(12);
 
@@ -459,11 +459,11 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     promptAtlas,
     promptCulture,
     promptSystems,
-    castList,
+    characterList: characterList,
     characterRelationships,
-    castDNA,
-    castDynamics,
-    castIntegrity,
+    characterDNA: characterDNA,
+    characterDynamics: characterDynamics,
+    characterIntegrity: characterIntegrity,
     setCurrentScriptId,
     queryClient,
   });
@@ -509,7 +509,7 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     setAudience("Sci-Fi Enthusiasts");
     setContentType("Anime");
     setRecapperPersona("Anya");
-    
+
     // Phase 2: World Lore (Story Bible) - Setting to READY state
     setGeneratedWorld(MOCK_WORLD_DATA.manifest);
     setGeneratedWorldLore(MOCK_WORLD_DATA.lore);
@@ -519,35 +519,35 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     setGeneratedWorldAtlas(MOCK_WORLD_DATA.atlas);
     setGeneratedWorldCulture(MOCK_WORLD_DATA.culture);
     setGeneratedWorldSystems(MOCK_WORLD_DATA.systems);
-    
-    // Phase 3: Cast DNA Registry
-    setCastData(MOCK_CAST_DATA);
+
+    // Phase 3: Character DNA Registry
+    setCharacterData(MOCK_CAST_DATA);
     setGeneratedCharacters(MOCK_CAST_DATA.markdown);
-    setCastList(MOCK_CAST_DATA.characters);
+    setCharacterList(MOCK_CAST_DATA.characters);
     setNumCharacters(5); // 5_ENTITIES
-    
+
     // DNA Metadata States (Per User Request)
-    setCastDNA(null); // DNA_DNA_PROFILES: EMPTY
-    setCastDynamics(null); // DNA_PSYCH_DYNAMICS: EMPTY
-    setCastIntegrity(null); // DNA_LORE_INTEGRITY: EMPTY
-    
+    setCharacterDNA(null); // DNA_DNA_PROFILES: EMPTY
+    setCharacterDynamics(null); // DNA_PSYCH_DYNAMICS: EMPTY
+    setCharacterIntegrity(null); // DNA_LORE_INTEGRITY: EMPTY
+
     // Social Web is derived from characterRelationships in BlueprintTab
     if (MOCK_CAST_DATA.relationships) {
       setCharacterRelationships(JSON.stringify(MOCK_CAST_DATA.relationships));
     }
-    
+
     // Phase 4: Production Roadmap
     setGeneratedSeriesPlan(MOCK_SERIES_PLAN);
     setGeneratedScript(MOCK_SCRIPT);
     setNumEpisodes(MOCK_SERIES_PLAN.length);
-    
+
     // Phase 5: Engine Metaparameters
-    setSelectedModel("gemini-3.1-flash");
+    setSelectedModel("gemini-3.1-flash-lite");
     setTemperature(0.85);
     setMaxTokens(2048);
     setTopP(0.95);
     setTopK(40);
-    
+
     // Phase 6: Production Matrix Materialization
     const demoSequence = generateProductionSequences(1, 3, 3);
     setProductionSequence(demoSequence);
@@ -561,7 +561,7 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     setGeneratedDistributionPlan(MOCK_SEO_DISTRIBUTION);
     setGeneratedGrowthStrategy(MOCK_SEO_GROWTH);
 
-    
+
     // System Logs (Story Bible & Cast DNA Manifest)
     addLog("AETHERIA_CORE_SYNC", "INITIALIZED", "Stabilizing Aetheria Neural Hub.");
     addLog("MOD_MANIFEST", "READY", "Global manifest synchronized.");
@@ -575,21 +575,21 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     setIsDemoMode(true);
     showNotification('Aetheria Core Sync: Demo project loaded successfully.', 'success');
   }, [
-    setPrompt, 
-    setGeneratedWorld, 
-    setGeneratedWorldLore, 
-    setGeneratedWorldPowers, 
-    setGeneratedWorldFactions, 
-    setGeneratedWorldArchitecture, 
-    setGeneratedWorldAtlas, 
-    setGeneratedWorldCulture, 
-    setGeneratedWorldSystems, 
-    setCastData,
-    setGeneratedCharacters, 
-    setCastList, 
+    setPrompt,
+    setGeneratedWorld,
+    setGeneratedWorldLore,
+    setGeneratedWorldPowers,
+    setGeneratedWorldFactions,
+    setGeneratedWorldArchitecture,
+    setGeneratedWorldAtlas,
+    setGeneratedWorldCulture,
+    setGeneratedWorldSystems,
+    setCharacterData,
+    setGeneratedCharacters,
+    setCharacterList,
     setCharacterRelationships,
-    setGeneratedSeriesPlan, 
-    setGeneratedScript, 
+    setGeneratedSeriesPlan,
+    setGeneratedScript,
     setProductionSequence,
     setTheme,
     setGenre,
@@ -598,9 +598,9 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     setAudience,
     setNumEpisodes,
     setNumCharacters,
-    setCastDNA,
-    setCastDynamics,
-    setCastIntegrity,
+    setCharacterDNA,
+    setCharacterDynamics,
+    setCharacterIntegrity,
     setSelectedModel,
     setTemperature,
     setMaxTokens,
@@ -629,7 +629,7 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     setAudience('');
     setContentType('Anime');
     setRecapperPersona('');
-    
+
     setGeneratedWorldInternal(null);
     setGeneratedWorldContent(null);
     setGeneratedWorldLore(null);
@@ -639,28 +639,28 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     setGeneratedWorldAtlas(null);
     setGeneratedWorldCulture(null);
     setGeneratedWorldSystems(null);
-    
-    setCastData(null);
+
+    setCharacterData(null);
     setGeneratedCharacters(null);
-    setCastList([]);
-    setCastDNA(null);
-    setCastDynamics(null);
-    setCastIntegrity(null);
+    setCharacterList([]);
+    setCharacterDNA(null);
+    setCharacterDynamics(null);
+    setCharacterIntegrity(null);
     setCharacterRelationships(null);
-    
+
     setGeneratedSeriesPlan(null);
     setGeneratedScript(null);
     setProductionSequence([]);
-    
+
     setIsDemoMode(false);
     showNotification('Project cleared. Exited demo mode.', 'info');
   }, [
-    setPrompt, setGeneratedWorldInternal, setGeneratedWorldContent, setGeneratedWorldLore, setGeneratedWorldPowers, 
-    setGeneratedWorldFactions, setGeneratedWorldArchitecture, setGeneratedWorldAtlas, 
-    setGeneratedWorldCulture, setGeneratedWorldSystems, setCastData, setGeneratedCharacters, 
-    setCastList, setCharacterRelationships, setGeneratedSeriesPlan, setGeneratedScript, 
-    setProductionSequence, setTheme, setGenre, setArtStyle, setTone, setAudience, 
-    setCastDNA, setCastDynamics, setCastIntegrity, setContentType, setRecapperPersona, showNotification, setIsDemoMode
+    setPrompt, setGeneratedWorldInternal, setGeneratedWorldContent, setGeneratedWorldLore, setGeneratedWorldPowers,
+    setGeneratedWorldFactions, setGeneratedWorldArchitecture, setGeneratedWorldAtlas,
+    setGeneratedWorldCulture, setGeneratedWorldSystems, setCharacterData, setGeneratedCharacters,
+    setCharacterList, setCharacterRelationships, setGeneratedSeriesPlan, setGeneratedScript,
+    setProductionSequence, setTheme, setGenre, setArtStyle, setTone, setAudience,
+    setCharacterDNA, setCharacterDynamics, setCharacterIntegrity, setContentType, setRecapperPersona, showNotification, setIsDemoMode
   ]);
 
   useGeneratorTelemetryEffects({
@@ -761,9 +761,9 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     selectedModel,
     tone,
     audience,
-    castData,
-    castList,
-    castProfiles,
+    characterData,
+    characterList,
+    characterProfiles,
     characterRelationships,
     visualData,
     videoData,
@@ -772,27 +772,29 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     generationProgress,
     activeModelAttempt,
     fallbackHistory,
-    castDNA,
-    castDynamics,
-    castIntegrity,
-    isAnalyzingCast,
+    characterDNA,
+    characterDynamics,
+    characterIntegrity,
+    isAnalyzingCharacters,
     numCharacters
   }), [
     prompt, promptLore, promptPowers, promptFactions, promptArchitecture, promptAtlas, promptCulture, promptSystems,
-    theme, generatedScript, generatedCharacters, generatedMetadata, 
+    theme, generatedScript, generatedCharacters, generatedMetadata,
     generatedImagePrompts, generatedSeriesPlan, generatedDescription, generatedWorld, generatedWorldContent,
-    generatedWorldLore, generatedWorldPowers, generatedWorldFactions, generatedWorldArchitecture, 
+    generatedWorldLore, generatedWorldPowers, generatedWorldFactions, generatedWorldArchitecture,
     generatedWorldAtlas, generatedWorldCulture, generatedWorldSystems,
     worldGenerationStatus, worldGenerationError, worldGenerationLatency, generatedAltText,
-    recapperPersona, episode, session, numScenes, contentType, 
+    recapperPersona, episode, session, numScenes, contentType,
     isLoading, isGeneratingCharacters, isGeneratingMetadata, isGeneratingImagePrompts,
-    isGeneratingSeries, isGeneratingDescription, isGeneratingWorld, 
-    isGeneratingLore, isGeneratingPowers, isGeneratingFactions, 
+    isGeneratingSeries, isGeneratingDescription, isGeneratingWorld,
+    isGeneratingLore, isGeneratingPowers, isGeneratingFactions,
     isGeneratingArchitecture, isGeneratingAtlas, isGeneratingCulture, isGeneratingSystems,
     isEditing, isSaving,
-    isContinuingScript, isGeneratingVisuals, isGeneratingAltText, currentScriptId, 
-    activeModelAttempt, fallbackHistory, castDNA, castDynamics, castIntegrity, isAnalyzingCast, generationProgress, numCharacters,
-    genre, artStyle, storyboardScenes, storyboardVisuals, storyboardVideos, storyboardPrompts, isIntelligenceOpen, isDemoMode
+    isContinuingScript, isGeneratingVisuals, isGeneratingAltText, currentScriptId,
+    activeModelAttempt, fallbackHistory, characterDNA, characterDynamics, characterIntegrity, isAnalyzingCharacters, generationProgress, numCharacters, numEpisodes,
+    genre, artStyle, storyboardScenes, storyboardVisuals, storyboardVideos, storyboardPrompts, isIntelligenceOpen, isDemoMode, characterData, characterList, characterProfiles, characterRelationships,
+    temperature, maxTokens, topP, topK, selectedModel, tone, audience, isLiked, isGeneratingGrowthStrategy, isGeneratingDistribution,
+    generatedGrowthStrategy, generatedDistributionPlan, visualData, videoData, productionSequence
   ]);
 
   const dispatch = useMemo<GeneratorDispatch>(() => ({
@@ -872,16 +874,16 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     setAudience,
     setGenre,
     setArtStyle,
-    setCastData,
-    setCastList,
-    setCastProfiles,
+    setCharacterData,
+    setCharacterList,
+    setCharacterProfiles,
     setCharacterRelationships,
     setVisualData,
     setVideoData,
-    setCastDNA,
-    setCastDynamics,
-    setCastIntegrity,
-    setIsAnalyzingCast,
+    setCharacterDNA,
+    setCharacterDynamics,
+    setCharacterIntegrity,
+    setIsAnalyzingCharacters,
     setIsIntelligenceOpen,
     stopGeneration,
     getSignal,

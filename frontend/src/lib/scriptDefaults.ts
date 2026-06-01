@@ -26,7 +26,7 @@ export const DEFAULT_SESSION = "1" as const;
 export const DEFAULT_EPISODE = "1" as const;
 
 /** Default number of scenes per episode */
-export const DEFAULT_NUM_SCENES = "6" as const;
+export const DEFAULT_NUM_SCENES = "12" as const;
 
 /** Default recapper persona (empty = no persona override) */
 export const DEFAULT_RECAPPER_PERSONA = "" as const;

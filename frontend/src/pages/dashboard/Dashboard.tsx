@@ -28,7 +28,7 @@ import { useOptimizedData } from '@/hooks/useOptimizedData';
 import { StatsGridSkeleton, ProjectsGridSkeleton, SystemLogsSkeleton } from '@/pages/studio/components/studio/skeletons/SkeletonLoaders';
 
 
-import { studioLog } from '@/lib/studio-logger';
+import { studioLog } from '@/lib/dev-console-logs';
 import React from 'react';
 
 export default function Dashboard() {

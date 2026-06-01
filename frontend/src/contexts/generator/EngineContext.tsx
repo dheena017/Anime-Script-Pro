@@ -32,7 +32,7 @@ export function EngineProvider({ children }: { children: React.ReactNode }) {
   const [topK, setTopK] = useState(40);
   const [tone, setTone] = useState('Hype/Energetic');
   const [audience, setAudience] = useState('General Fans');
-  const [selectedModel, setSelectedModel] = useState('Gemini-2.5-Flash');
+  const [selectedModel, setSelectedModel] = useState('gemini-3.1-flash-lite');
   const [contentType, setContentType] = useState('Anime');
 
   const dispatch = {

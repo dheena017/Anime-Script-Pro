@@ -7,7 +7,7 @@ import {
   generateWorld,
   parseWorldLore,
   __setWorldCallAIForTests,
-} from '../../frontend/src/services/generators/world';
+} from '../../frontend/src/services/generators/worldGenerator';
 import {
   WORLD_GENERATION_PROMPT,
   POWER_SYSTEM_PROMPT,

@@ -10,7 +10,7 @@ import {
   CULTURE_GENERATION_PROMPT, 
   SYSTEMS_GENERATION_PROMPT 
 } from "../prompts";
-import { studioLog, studioGroup, studioEnd } from "@/lib/studio-logger";
+import { studioLog, studioGroup, studioEnd } from "@/lib/dev-console-logs";
 
 let worldGenerateText: typeof generateText = generateText;
 
@@ -32,6 +32,9 @@ ${worldContext || 'No established rules.'}
 
 TASK:
 Design the architectural and visual language of this world. Ensure it connects logically to the geography and culture described in the context above.
+
+CRITICAL DIRECTIVE:
+Ensure the output is highly accurate, logically consistent, and deeply detailed. The result must be the absolute best and most immersive architectural design possible.
 `;
   studioGroup('WorldEngine', 'Architectural Synthesis', 'anime');
   try {
@@ -45,7 +48,7 @@ Design the architectural and visual language of this world. Ensure it connects l
       40,   // topK
       180000, // timeoutMs
       worldContext, // worldLore
-      null, // castDNA
+      null, // characterDNA
       null, // episodePlan
       'world-architecture' // requestLabel
     );
@@ -74,6 +77,9 @@ ${worldContext || 'No established rules.'}
 
 TASK:
 Map out the physical geography and environmental logic. The atlas must support the geopolitical tensions described in the world context above.
+
+CRITICAL DIRECTIVE:
+Ensure the output is highly accurate, logically consistent, and deeply detailed. The result must be the absolute best and most immersive geographical design possible.
 `;
   studioGroup('WorldEngine', 'Atlas Cartography', 'anime');
   try {
@@ -87,7 +93,7 @@ Map out the physical geography and environmental logic. The atlas must support t
       40,   // topK
       180000, // timeoutMs
       worldContext, // worldLore
-      null, // castDNA
+      null, // characterDNA
       null, // episodePlan
       'world-atlas' // requestLabel
     );
@@ -116,6 +122,9 @@ ${worldContext || 'No established rules.'}
 
 TASK:
 Design the rituals, daily life, and social hierarchies. Ensure the culture reflects the history and power systems established in the context above.
+
+CRITICAL DIRECTIVE:
+Ensure the output is highly accurate, logically consistent, and deeply detailed. The result must be the absolute best and most immersive cultural design possible.
 `;
   studioGroup('WorldEngine', 'Cultural Ethos Design', 'anime');
   try {
@@ -129,7 +138,7 @@ Design the rituals, daily life, and social hierarchies. Ensure the culture refle
       40,   // topK
       180000, // timeoutMs
       worldContext, // worldLore
-      null, // castDNA
+      null, // characterDNA
       null, // episodePlan
       'world-culture' // requestLabel
     );
@@ -158,6 +167,9 @@ ${worldContext || 'No established rules.'}
 
 TASK:
 Architect the mechanical logic and technological infrastructure. Ensure the technology level and biological rules align with the world manifest provided above.
+
+CRITICAL DIRECTIVE:
+Ensure the output is highly accurate, logically consistent, and deeply detailed. The result must be the absolute best and most cohesive systems design possible.
 `;
   try {
     const text = await worldGenerateText(
@@ -170,7 +182,7 @@ Architect the mechanical logic and technological infrastructure. Ensure the tech
       40,   // topK
       180000, // timeoutMs
       worldContext, // worldLore
-      null, // castDNA
+      null, // characterDNA
       null, // episodePlan
       'world-systems' // requestLabel
     );
@@ -221,6 +233,9 @@ SOURCE OF TRUTH:
 - Treat the project prompt as the canonical story seed.
 - Build a coherent world that can sustain long-form narrative, visual storytelling, and SEO packaging.
 - Prefer specific, reusable lore elements over vague atmosphere.
+
+CRITICAL DIRECTIVE:
+Ensure the world-building is exceptionally accurate, highly logical, and deeply detailed. Every element must be intricately connected without plot holes or inconsistencies. Deliver the absolute best, most comprehensive and immersive world possible.
 `;
 }
 
@@ -262,7 +277,7 @@ export async function generateWorld(prompt: string, model: string = "gemini-2.5-
     return text;
   } catch (error: any) {
     console.error("Error generating world:", error);
-    return MOCK_WORLD;
+    throw error;
   }
 }
 
@@ -308,6 +323,9 @@ ${worldContext || 'No established world rules yet.'}
 
 TASK:
 Design the power mechanics so they align perfectly with the established world context above. Focus on mechanics, tiers, and limitations.
+
+CRITICAL DIRECTIVE:
+Ensure the output is highly accurate, logically consistent, and deeply detailed. The result must be the absolute best and most structured power system possible.
 `;
   
   try {
@@ -321,7 +339,7 @@ Design the power mechanics so they align perfectly with the established world co
       40,   // topK
       180000, // timeoutMs
       worldContext, // worldLore
-      null, // castDNA
+      null, // characterDNA
       null, // episodePlan
       'world-powers' // requestLabel
     );
@@ -347,6 +365,9 @@ ${worldContext || 'No established world rules yet.'}
 
 TASK:
 Create factions, ideologies, and political tensions that feel like a natural consequence of the world described above.
+
+CRITICAL DIRECTIVE:
+Ensure the output is highly accurate, logically consistent, and deeply detailed. The result must be the absolute best and most realistic factional design possible.
 `;
   
   try {
@@ -360,7 +381,7 @@ Create factions, ideologies, and political tensions that feel like a natural con
       40,   // topK
       180000, // timeoutMs
       worldContext, // worldLore
-      null, // castDNA
+      null, // characterDNA
       null, // episodePlan
       'world-factions' // requestLabel
     );
@@ -386,6 +407,9 @@ ${worldContext || 'No established world rules yet.'}
 
 TASK:
 Establish the history and eras that led to the world described in the context above. Ensure the timeline explains the origins of current geography and social rules.
+
+CRITICAL DIRECTIVE:
+Ensure the output is highly accurate, logically consistent, and deeply detailed. The result must be the absolute best and most cohesive historical timeline possible.
 `;
   
   try {
@@ -399,7 +423,7 @@ Establish the history and eras that led to the world described in the context ab
       40,   // topK
       180000, // timeoutMs
       worldContext, // worldLore
-      null, // castDNA
+      null, // characterDNA
       null, // episodePlan
       'world-lore-history' // requestLabel
     );

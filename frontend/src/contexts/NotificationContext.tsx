@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { notificationService, Notification } from '@/services/api/notifications';
 import { useAuth } from '@/hooks/useAuth';
-import { studioLog } from '@/lib/studio-logger';
+import { studioLog } from '@/lib/dev-console-logs';
 import { getBackendWsUrl, isBackendOnline } from '@/lib/api-utils';
 
 interface NotificationContextType {
@@ -70,15 +70,17 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
     };
 
     const start = async () => {
-      await fetchNotifications();
-
+      const online = await isBackendOnline();
       if (cancelled) return;
 
-      const online = await isBackendOnline();
-      if (cancelled || !online) {
+      if (!online) {
         setSafeTimeout(start, 15000);
         return;
       }
+
+      await fetchNotifications();
+
+      if (cancelled) return;
 
       // WebSocket Real-time Sync
       const wsUrl = getBackendWsUrl('/ws/templates/notifications');
@@ -87,6 +89,10 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
         if (cancelled) return;
         try {
           ws = new WebSocket(wsUrl);
+          ws.onerror = () => {
+                if (cancelled) return;
+                setSafeTimeout(start, 5000);
+          };
           ws.onmessage = (event) => {
             try {
               const data = JSON.parse(event.data);
@@ -119,11 +125,23 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
     start();
 
     // Refresh fallback every 120 seconds instead of 60 to save resources since we have WS
-    const interval = setInterval(fetchNotifications, 120000);
+    const interval = setInterval(async () => {
+      if (cancelled) return;
+      if (!(await isBackendOnline())) return;
+      await fetchNotifications();
+    }, 120000);
     return () => {
       cancelled = true;
       clearInterval(interval);
-      if (ws) ws.close();
+      if (ws) {
+        ws.onopen = null;
+        ws.onmessage = null;
+        ws.onerror = null;
+        ws.onclose = null;
+        if (ws.readyState === WebSocket.OPEN) {
+          ws.close();
+        }
+      }
       if (timeout) clearTimeout(timeout);
     };
   }, [fetchNotifications]);

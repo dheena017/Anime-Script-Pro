@@ -25,7 +25,7 @@ export function SeriesEmptyTab({
     if (onGenerate) {
       onGenerate();
     } else {
-      window.dispatchEvent(new CustomEvent('studio-generate-series'));
+      window.dispatchEvent(new CustomEvent('show-notification', { detail: { message: 'Open the Blueprint tab and set explicit sessions/episodes/scenes before generating.', type: 'warning' } }));
     }
   };
 

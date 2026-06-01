@@ -3,6 +3,7 @@ import { Film, Box, LayoutGrid } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import { seriesStyles as s } from '../seriesStyles';
+import { useGeneratorState } from '@/hooks/useGenerator';
 
 export type SeriesTab = 'episodes' | 'assets' | 'blueprint';
 
@@ -13,9 +14,9 @@ interface SeriesTabsProps {
 }
 
 const TABS: { id: SeriesTab; label: string; icon: React.FC<any>; color: string; glow: string }[] = [
+  { id: 'blueprint', label: 'BLUEPRINT', icon: LayoutGrid, color: 'text-amber-400', glow: 'shadow-[0_0_15px_rgba(251,191,36,0.3)]' },
   { id: 'episodes', label: 'EPISODES', icon: Film, color: 'text-cyan-400', glow: 'shadow-[0_0_15px_rgba(34,211,238,0.3)]' },
   { id: 'assets', label: 'ASSETS', icon: Box, color: 'text-emerald-400', glow: 'shadow-[0_0_15px_rgba(52,211,153,0.3)]' },
-  { id: 'blueprint', label: 'BLUEPRINT', icon: LayoutGrid, color: 'text-amber-400', glow: 'shadow-[0_0_15px_rgba(251,191,36,0.3)]' },
 ];
 
 export const SeriesTabs: React.FC<SeriesTabsProps> = ({
@@ -23,6 +24,9 @@ export const SeriesTabs: React.FC<SeriesTabsProps> = ({
   setActiveTab,
   loadingStates = {}
 }) => {
+  const { generatedSeriesPlan } = useGeneratorState();
+  const hasContent = Boolean(generatedSeriesPlan && generatedSeriesPlan.length > 0);
+
   return (
     <div className={s.tabs.container}>
       <div className={s.tabs.overlay} />
@@ -30,13 +34,20 @@ export const SeriesTabs: React.FC<SeriesTabsProps> = ({
       {TABS.map((tab) => {
         const loading = loadingStates[tab.id] || false;
         const isActive = activeTab === tab.id;
+        const isDisabled = !hasContent && tab.id !== 'blueprint';
 
         return (
           <button
             key={tab.id}
             type="button"
+            disabled={isDisabled}
             onClick={() => setActiveTab(tab.id)}
-            className={cn(s.tabs.button, isActive ? s.tabs.buttonActive : s.tabs.buttonInactive)}
+            className={cn(
+              s.tabs.button, 
+              isDisabled 
+                ? "opacity-25 cursor-not-allowed border-transparent pointer-events-none hover:bg-transparent"
+                : (isActive ? s.tabs.buttonActive : s.tabs.buttonInactive)
+            )}
           >
             {isActive && (
               <motion.div

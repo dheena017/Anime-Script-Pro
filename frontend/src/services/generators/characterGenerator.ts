@@ -1,13 +1,13 @@
 import { generateText, streamText } from "./core";
 import { cleanJson } from "@/lib/api-utils";
-import { 
-  CHARACTER_GENERATION_PROMPT, 
+import {
+  CHARACTER_GENERATION_PROMPT,
   CHARACTER_RELATIONSHIP_PROMPT,
   CAST_DNA_PROMPT,
   CAST_DYNAMICS_PROMPT,
   CAST_INTEGRITY_PROMPT
 } from "../prompts/characterPrompts";
-import { studioLog, studioGroup, studioEnd } from "@/lib/studio-logger";
+import { studioLog, studioGroup, studioEnd } from "@/lib/dev-console-logs";
 
 export type RelationshipType =
   | 'Ally'
@@ -134,6 +134,13 @@ function getEmptyCast(): GeneratedCast {
   };
 }
 
+function limitPromptSize(value: string | undefined, maxChars: number): string | undefined {
+  if (!value) return undefined;
+  const trimmed = value.trim();
+  if (trimmed.length <= maxChars) return trimmed;
+  return `${trimmed.slice(0, maxChars).trimEnd()}\n\n[Truncated to keep cast synthesis within model limits.]`;
+}
+
 /**
  * generateCharacters
  * Synthesizes a cast of characters with deep psychological profiles and visual DNA.
@@ -146,8 +153,11 @@ export async function generateCharacters(
   count: number = 8
 ): Promise<GeneratedCast | string> {
 
+  const compactUserRequest = limitPromptSize(userRequest, 1800) || userRequest;
+  const compactWorldLore = limitPromptSize(worldLore, 3500);
+
   const contextInjected = `
-    ${worldLore ? `\nWORLD LORE CONTEXT: ${worldLore}\n` : ""}
+    ${compactWorldLore ? `\nWORLD LORE CONTEXT: ${compactWorldLore}\n` : ""}
     Characters MUST inhabit and reflect the above context's logic, history, and planned plot points.
   `;
 
@@ -160,7 +170,7 @@ export async function generateCharacters(
       YOUR OUTPUT WILL BE REJECTED IF THE "characters" ARRAY HAS FEWER THAN ${count} OBJECTS.
       Do NOT stop after generating just the core leads. You must populate the world with necessary Tier 2 (Support) and Tier 3 (Periphery) characters (e.g., mentors, villains, sleeper agents, mascots).
       
-      User Request / Genre / Theme: ${userRequest}
+      User Request / Genre / Theme: ${compactUserRequest}
       Production Type: ${contentType}
     `;
     studioGroup('CastEngine', 'Character Synthesis', 'anime');
@@ -169,12 +179,12 @@ export async function generateCharacters(
       aiPrompt,
       systemInstruction,
       0.85, // temperature
-      16000, // maxTokens — large casts (10–30 chars) need 8k–16k tokens
+      8192, // maxTokens — enough for large casts while reducing provider pressure
       0.95, // topP
       40,   // topK
       300000 // timeoutMs — allow up to 5 min for large casts
     );
-    if (!text) return getEmptyCast();
+    if (!text) throw new Error("Character synthesis produced no data.");
 
     try {
       const parsed = cleanJson(text) as GeneratedCast;
@@ -182,11 +192,11 @@ export async function generateCharacters(
       return parsed;
     } catch (e: any) {
       studioLog('CastEngine', `JSON Repair failed: ${e.message}`, 'error');
-      return getEmptyCast();
+      throw new Error(`JSON Repair failed: ${e.message}`);
     }
   } catch (error: any) {
     studioLog('CastEngine', 'Failed to synthesize characters.', 'error', error);
-    return getEmptyCast();
+    throw error;
   } finally {
     studioEnd();
   }
@@ -203,14 +213,17 @@ export async function streamCharacters(
   worldContext?: string,
   count: number = 8
 ): Promise<string> {
+  const compactWorldContext = limitPromptSize(worldContext, 3500);
+  const compactPrompt = limitPromptSize(prompt, 1800) || prompt;
+
   const contextInjected = `
-    ${worldContext ? `\nWORLD LORE CONTEXT: ${worldContext}\n` : ""}
+    ${compactWorldContext ? `\nWORLD LORE CONTEXT: ${compactWorldContext}\n` : ""}
     Characters MUST inhabit and reflect the above context's logic, history, and planned plot points.
   `;
   const systemInstruction = CHARACTER_GENERATION_PROMPT(contentType, contextInjected, count);
   const userPrompt = `
 Generate a diverse cast manifesto for a ${contentType} project based on this seed:
-${prompt}
+${compactPrompt}
 
 CRITICAL: Return the response as a markdown document with detailed character profiles.
 `;
@@ -271,12 +284,12 @@ export async function generateRelationships(
  * Analyzes the archetypal resonance and narrative weight of the cast.
  */
 export async function generateCastDNA(
-  castData: string,
+  characterData: string,
   worldContext: string,
   model: string = "gemini-1.5-flash"
 ): Promise<any> {
   try {
-    const sysPrompt = CAST_DNA_PROMPT(castData, worldContext);
+    const sysPrompt = CAST_DNA_PROMPT(characterData, worldContext);
     const text = await generateText(
       model,
       "Provide deep narrative DNA analysis of this cast.",

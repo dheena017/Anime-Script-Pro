@@ -1,5 +1,6 @@
 import { generateText } from "./core";
 import { ENHANCE_NARRATION_PROMPT, SUGGEST_DURATION_PROMPT } from "../prompts";
+import { TEXT_MODELS } from "@/lib/aiModels/textModels";
 
 function validateNarrationInput(narration: string): void {
   if (!narration || typeof narration !== 'string' || narration.trim().length < 2) {
@@ -47,7 +48,7 @@ CONSIDER:
 `;
 }
 
-export async function enhanceNarration(narration: string, model: string = "gemini-1.5-flash-latest") {
+export async function enhanceNarration(narration: string, model: string = TEXT_MODELS[0].id) {
   validateNarrationInput(narration);
   validateModelName(model);
   const systemInstruction: string = ENHANCE_NARRATION_PROMPT(narration);
@@ -71,7 +72,7 @@ export async function enhanceNarration(narration: string, model: string = "gemin
   }
 }
 
-export async function suggestDuration(narration: string, model: string = "gemini-1.5-flash-latest") {
+export async function suggestDuration(narration: string, model: string = TEXT_MODELS[0].id) {
   validateNarrationInput(narration);
   validateModelName(model);
   const systemInstruction: string = SUGGEST_DURATION_PROMPT(narration);

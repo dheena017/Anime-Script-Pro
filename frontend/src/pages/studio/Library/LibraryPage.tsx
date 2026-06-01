@@ -1,6 +1,6 @@
 import { useState, useEffect, startTransition } from 'react';
 import { useLocation, useSearchParams } from 'react-router-dom';
-import { studioLog, reportTabChange } from '@/lib/studio-logger';
+import { studioLog, reportTabChange } from '@/lib/dev-console-logs';
 import {
   Folder,
   FileText,

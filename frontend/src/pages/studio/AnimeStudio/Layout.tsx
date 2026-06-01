@@ -71,14 +71,15 @@ export default function AnimeLayout() {
     prompt, tone, audience, episode, session, numScenes, selectedModel,
     isLoading, isSaving, generatedScript, generatedCharacters,
     generatedSeriesPlan, generatedWorld, currentScriptId,
-    history, characterRelationships, recapperPersona
+    history, characterRelationships, recapperPersona, numEpisodes,
+    temperature, maxTokens, topP, topK
   } = useGeneratorState();
 
   const {
     setPrompt, setTone, setAudience, setEpisode, setSession, setNumScenes,
     setSelectedModel, setIsLoading, setIsSaving, setGeneratedScript,
     setGeneratedCharacters, setGeneratedSeriesPlan, setGeneratedWorld,
-    setCurrentScriptId, setContentType, setCastData, setCastList,
+    setCurrentScriptId, setContentType, setCharacterData, setCharacterList,
     setCharacterRelationships, setVisualData, setGeneratedMetadata,
     setGeneratedImagePrompts, addLog: addGeneratorLog, setTheme, setRecapperPersona,
     syncCore, setGenerationProgress
@@ -141,7 +142,7 @@ export default function AnimeLayout() {
     }
     setIsLoading(true);
     setGenerationProgress(2);
-    addGeneratorLog("MASTER_GENERATOR", "INITIALIZED", "Starting Full Production Cycle...");
+    addGeneratorLog("MASTER_GENERATOR", "INITIALIZED", "Starting Full Production Cycle...", selectedModel);
     showNotification?.('Full Production Active — Generating all modules in sequence...', 'success');
 
     try {
@@ -153,81 +154,98 @@ export default function AnimeLayout() {
 
       // PHASE 1: WORLD Architecture
       setGenerationProgress(5);
-      addGeneratorLog("WORLD", "STARTING", "Building World Foundation and Setting...");
+      addGeneratorLog("WORLD", "STARTING", "Building World Foundation and Setting... [Target: world_bible.json]", selectedModel);
       const world = await generateWorld(prompt, selectedModel, 'Anime');
       setGeneratedWorld(world);
-      addGeneratorLog("WORLD", "COMPLETED", "World foundation ready.");
+      addGeneratorLog("WORLD", "COMPLETED", "World foundation ready. [Saved to: world_bible.json]", selectedModel);
 
       // PHASE 2: Character Creation
       setGenerationProgress(25);
-      addGeneratorLog("CAST", "STARTING", "Designing Character Profiles and Traits...");
+      addGeneratorLog("CHARACTERS", "STARTING", "Designing Character Profiles and Traits... [Target: character_dna.json]", selectedModel);
       const castResult = await generateCharacters(prompt, selectedModel, 'Anime', world);
       if (typeof castResult === 'object' && castResult.characters) {
         setGeneratedCharacters(castResult.markdown);
-        setCastData(castResult);
-        setCastList(castResult.characters);
+        setCharacterData(castResult);
+        setCharacterList(castResult.characters);
         if (castResult.relationships) {
           setCharacterRelationships(JSON.stringify(castResult.relationships));
         }
       } else {
         setGeneratedCharacters(castResult as string);
       }
-      addGeneratorLog("CAST", "COMPLETED", "Cast manifest generated.");
+      addGeneratorLog("CHARACTERS", "COMPLETED", "Characters manifest generated. [Saved to: character_dna.json]", selectedModel);
 
       // PHASE 3: Series Structure
       setGenerationProgress(40);
-      addGeneratorLog("SERIES", "STARTING", "Designing Series Overall Structure...");
-      const seriesPlan = await generateSeriesPlan(prompt, selectedModel, 'Anime', 12, world, typeof castResult === 'string' ? castResult : castResult.markdown);
+      addGeneratorLog("SERIES", "STARTING", `Designing Series Overall Structure (${numEpisodes || 12} Episodes)... [Target: series_blueprint.json]`, selectedModel);
+      const seriesPlan = await generateSeriesPlan(
+        prompt,
+        selectedModel,
+        'Anime',
+        numEpisodes || 12,
+        world,
+        typeof castResult === 'string' ? castResult : castResult.markdown,
+        true, // expandSequentially - Enable to generate detailed acts/scenes
+        {
+          session: session || '1',
+          episode: episode || '1',
+          numScenes: numScenes ? parseInt(numScenes, 10) : 18,
+          temperature,
+          maxTokens,
+          topP,
+          topK
+        }
+      );
       setGeneratedSeriesPlan(seriesPlan);
-      addGeneratorLog("SERIES", "COMPLETED", "Series structure and beats mapped.");
+      addGeneratorLog("SERIES", "COMPLETED", "Series structure and beats mapped. [Saved to: series_blueprint.json]", selectedModel);
 
       // PHASE 4: Script Writing
       setGenerationProgress(55);
-      addGeneratorLog("SCRIPT", "STARTING", "Generating Episode 1 Script (Streaming)...");
-      const ep1Plan = seriesPlan?.find((ep: any) => parseInt(ep.episode) === 1);
+      addGeneratorLog("SCRIPT", "STARTING", `Generating Episode ${episode || '1'} Script (Streaming)... [Target: screenplay.md]`, selectedModel);
+      const currentEpPlan = seriesPlan?.find((ep: any) => parseInt(ep.episode) === parseInt(episode || "1"));
       
       const { generateScriptStream } = await import('@/services/generators/scriptGenerator');
       
       const script = await generateScriptStream(
-        prompt, tone, audience, "1", "1", numScenes, selectedModel, 'Anime',
-        recapperPersona, characterRelationships, world, typeof castResult === 'string' ? castResult : castResult.markdown, ep1Plan ? JSON.stringify(ep1Plan) : null,
+        prompt, tone, audience, session || "1", episode || "1", numScenes, selectedModel, 'Anime',
+        recapperPersona, characterRelationships, world, typeof castResult === 'string' ? castResult : castResult.markdown, currentEpPlan ? JSON.stringify(currentEpPlan) : null,
         (partial) => {
           setGeneratedScript(partial);
           // Optional: we could update progress based on chunk count, but simpler to just keep trickling
         }
       );
       setGeneratedScript(script);
-      addGeneratorLog("SCRIPT", "COMPLETED", `Script generated successfully (${script.length} characters).`);
+      addGeneratorLog("SCRIPT", "COMPLETED", `Script generated successfully (${script.length} characters). [Saved to: screenplay.md]`, selectedModel);
 
       // PHASE 5: Visual Planning (Storyboard)
       setGenerationProgress(75);
-      addGeneratorLog("STORYBOARD", "STARTING", "Creating Visual Descriptions for Scenes...");
+      addGeneratorLog("STORYBOARD", "STARTING", "Creating Visual Descriptions for Scenes... [Target: visual_prompts.json]", selectedModel);
       const visualPrompts = await generateImagePrompts(script, selectedModel);
       setGeneratedImagePrompts(visualPrompts);
       setVisualData({ 0: ["pending"] });
-      addGeneratorLog("STORYBOARD", "COMPLETED", "Visual prompts created.");
+      addGeneratorLog("STORYBOARD", "COMPLETED", "Visual prompts created. [Saved to: visual_prompts.json]", selectedModel);
 
       // PHASE 6: Content Metadata
       setGenerationProgress(90);
-      addGeneratorLog("SEO", "STARTING", "Generating Content Metadata and Tags...");
+      addGeneratorLog("SEO", "STARTING", "Generating Content Metadata and Tags... [Target: seo_metadata.json]", selectedModel);
       const seo = await generateMetadata(script, selectedModel);
       setGeneratedMetadata(seo);
-      addGeneratorLog("SEO", "COMPLETED", "Metadata generation complete.");
+      addGeneratorLog("SEO", "COMPLETED", "Metadata generation complete. [Saved to: seo_metadata.json]", selectedModel);
       setGenerationProgress(100);
 
       showNotification?.('Production Process Complete: All Modules Prepared', 'success');
       setGenerationProgress(100);
       setTimeout(() => setGenerationProgress(0), 3000);
-      navigate(`${basePath}/world`);
+      navigate(`${basePath}/console`);
     } catch (error: any) {
       console.error("Production Failed:", error);
-      addGeneratorLog("CORE", "FAILURE", error.message || "Unknown error during production");
+      addGeneratorLog("CORE", "FAILURE", error.message || "Unknown error during production", selectedModel);
       showNotification?.(`Production Failure: ${error.message || 'Check logs'}`, 'error');
       setGenerationProgress(0);
     } finally {
       setIsLoading(false);
     }
-  }, [prompt, user, selectedModel, tone, audience, numScenes, recapperPersona, characterRelationships, setGeneratedWorld, setGeneratedCharacters, setCastData, setCastList, setCharacterRelationships, setGeneratedSeriesPlan, setGeneratedScript, setGeneratedImagePrompts, setVisualData, setGeneratedMetadata, showNotification, addGeneratorLog, navigate, basePath, setIsLoading, syncCore]);
+  }, [prompt, user, selectedModel, tone, audience, numScenes, recapperPersona, characterRelationships, setGeneratedWorld, setGeneratedCharacters, setCharacterData, setCharacterList, setCharacterRelationships, setGeneratedSeriesPlan, setGeneratedScript, setGeneratedImagePrompts, setVisualData, setGeneratedMetadata, showNotification, addGeneratorLog, navigate, basePath, setIsLoading, syncCore]);
 
   const handleWorldGenerate = useCallback(async () => {
     if (!prompt.trim() || !user) {
@@ -236,19 +254,19 @@ export default function AnimeLayout() {
     }
     setIsLoading(true);
     setGenerationProgress(10);
-    addGeneratorLog("WORLD", "INITIALIZED", "Generating World Foundation...");
+    addGeneratorLog("WORLD", "INITIALIZED", "Generating World Foundation... [Target: world_bible.json]", selectedModel);
 
     try {
       const { generateWorld } = await import('@/services/generators/worldGenerator');
       const world = await generateWorld(prompt, selectedModel, 'Anime');
       setGeneratedWorld(world);
-      addGeneratorLog("WORLD", "COMPLETED", "Lore synchronized to core.");
+      addGeneratorLog("WORLD", "COMPLETED", "Lore synchronized to core. [Saved to: world_bible.json]", selectedModel);
       showNotification?.('World Lore synthesized successfully!', 'success');
       setGenerationProgress(100);
       setTimeout(() => setGenerationProgress(0), 3000);
     } catch (error: any) {
       console.error("World Generation Failed:", error);
-      addGeneratorLog("WORLD", "FAILURE", error.message || "Unknown error");
+      addGeneratorLog("WORLD", "FAILURE", error.message || "Unknown error", selectedModel);
       showNotification?.(`World Generation Failure: ${error.message}`, 'error');
       setGenerationProgress(0);
     } finally {
@@ -427,8 +445,8 @@ export default function AnimeLayout() {
         setCharacterRelationships={setCharacterRelationships}
         worldBuilding={generatedWorld || ''}
         setWorldBuilding={setGeneratedWorld}
-        castProfiles={generatedCharacters || ''}
-        setCastProfiles={setGeneratedCharacters}
+        characterProfiles={generatedCharacters || ''}
+        setCharacterProfiles={setGeneratedCharacters}
         handleGenerate={handleGenerate}
         handleMasterGenerate={handleMasterGenerate}
         handleSaveCurrent={handleSaveCurrent}

@@ -36,8 +36,8 @@ from .system import (
 # AI Models & Performance Metrics
 from .engine import EngineConfig, AITelemetry, AIModel
 
-# Narrative Lore & Cast Blueprints
-from .world import WorldLore, CastMember, NarrativeBeat, ReusableCharacter, CharacterRelationship, CastManifest
+# Narrative Lore & Character Blueprints
+from .world import WorldLore, Character, NarrativeBeat, ReusableCharacter, CharacterRelationship, CharacterManifest
 
 # Logging & Auditing Data Blueprints
 from .logs import SystemLog, GenerationLog
@@ -49,7 +49,7 @@ __all__ = [
     "SQLModel",
     "User", "UserProfile", "UserBalance", "UserSettings", "Todo",
     "Project", "ProductionSession", "Episode", "Scene", "Series", "Script", "ScriptVersion", "Storyboard", "ProjectContent",
-    "WorldLore", "CastMember", "NarrativeBeat", "ReusableCharacter", "CharacterRelationship", "CastManifest",
+    "WorldLore", "Character", "NarrativeBeat", "ReusableCharacter", "CharacterRelationship", "CharacterManifest",
     "Template", "MediaAsset", "UserFavorite", "SavedPrompt", "PromptLibrary", "Prompt", "GrowthStrategy",
     "Category", "Tutorial", "Notification", "SEOEntry", "HelpCategory", "FAQ",
     "DocSection", "DocArticle", "ScreeningRoomEntry", "CommunityPost", "SiteConfig",

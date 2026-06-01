@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from typing import List, Optional, Dict, Any
-from backend.database.models import SavedPrompt, ReusableCharacter, CastMember
+from backend.database.models import SavedPrompt, ReusableCharacter, Character
 from backend.database import async_session, async_engine
 from backend.utils.deps import get_auth_user_id
 
@@ -50,16 +50,16 @@ async def create_character(payload: Dict[str, Any], user_id: str = Depends(get_a
             project_id = payload.get("project_id")
             created = []
             for char_data in payload["characters"]:
-                # Orchestrator characters are more like CastMembers
-                cast_member = CastMember(
+                # Orchestrator characters are more like Character records
+                character = Character(
                     project_id=project_id,
                     name=char_data.get("name"),
                     role=char_data.get("role", "Character"),
-                    description=char_data.get("personality") or char_data.get("appearance"),
+                    personality=char_data.get("personality") or char_data.get("appearance"),
                     visual_dna=char_data.get("visual_dna")
                 )
-                session.add(cast_member)
-                created.append(cast_member)
+                session.add(character)
+                created.append(character)
             await session.commit()
             return {"status": "success", "count": len(created)}
         else:

@@ -122,7 +122,7 @@ export function estimateTokenCount(text: string): number {
   return Math.ceil(text.length / 4);
 }
 
-import { studioLog, studioGroup, studioEnd } from "@/lib/studio-logger";
+import { studioLog, studioGroup, studioEnd } from "@/lib/dev-console-logs";
 
 export const logger = {
   info: (msg: string, ...args: any[]) => studioLog("AI CORE", msg, "info", ...args),
@@ -278,7 +278,7 @@ DETAIL DEPTH POLICY:
 function composeDetailedSystemInstruction(
   systemInstruction: string,
   worldLore?: string | null,
-  castDNA?: string | null,
+  characterDNA?: string | null,
   episodePlan?: string | null
 ): string {
   const trimmedInstruction = systemInstruction?.trim() || "";
@@ -308,7 +308,7 @@ function composeDetailedSystemInstruction(
   // Inject context blocks if provided
   const contextBlocks: string[] = [];
   if (worldLore?.trim()) contextBlocks.push(`=== WORLD LORE SOURCE OF TRUTH ===\n${worldLore.trim()}`);
-  if (castDNA?.trim()) contextBlocks.push(`=== CHARACTER DNA REGISTRY ===\n${castDNA.trim()}`);
+  if (characterDNA?.trim()) contextBlocks.push(`=== CHARACTER DNA REGISTRY ===\n${characterDNA.trim()}`);
   if (episodePlan?.trim()) contextBlocks.push(`=== EPISODE MASTER BLUEPRINT ===\n${episodePlan.trim()}`);
 
   const contextSection = contextBlocks.length > 0
@@ -342,11 +342,12 @@ function broadcastAIStart(model: string) {
  * Normalize and prepare model ID
  */
 const normalizeModelId = (id: string | undefined): string => {
-  if (!id) return "gemini-2.5-flash";
+  if (!id) return "gemini-3.1-flash-lite";
   let normalized = id.toLowerCase().trim().replace(/^models\//, "");
   // Common aliases mapping to most capable modern models
-  if (normalized === "gemini-flash" || normalized === "gemini-1.5-flash") return "gemini-2.5-flash";
-  if (normalized === "gemini-pro" || normalized === "gemini-1.5-pro") return "gemini-2.5-pro";
+  if (normalized === "gemini-flash" || normalized === "gemini-1.5-flash") return "gemini-3.1-flash";
+  if (normalized === "gemini-pro" || normalized === "gemini-1.5-pro") return "gemini-3.1-pro";
+  // Allow gemini-3.x and gemini-2.x modern models to pass through natively
   return normalized;
 };
 
@@ -364,14 +365,14 @@ export async function generateText(
   topK: number = 40,
   timeoutMs: number = 180000,
   worldLore?: string | null,
-  castDNA?: string | null,
+  characterDNA?: string | null,
   episodePlan?: string | null,
   requestLabel?: string // optional label to prevent cross-module deduplication
 ): Promise<string> {
   const detailedSystemInstruction = composeDetailedSystemInstruction(
     systemInstruction,
     worldLore,
-    castDNA,
+    characterDNA,
     episodePlan
   );
   
@@ -408,7 +409,7 @@ export async function generateText(
     // Neural Context Audit with detailed metrics
     const auditMetrics = {
       "World Lore Sync": detailedSystemInstruction.includes("WORLD LORE SOURCE OF TRUTH") ? `ACTIVE ✅ (${worldLore?.length || 0} chars)` : "NONE ❌",
-      "Cast DNA Sync": detailedSystemInstruction.includes("CHARACTER DNA REGISTRY") ? `ACTIVE ✅ (${castDNA?.length || 0} chars)` : "NONE ❌",
+      "Cast DNA Sync": detailedSystemInstruction.includes("CHARACTER DNA REGISTRY") ? `ACTIVE ✅ (${characterDNA?.length || 0} chars)` : "NONE ❌",
       "Episode Plan Sync": detailedSystemInstruction.includes("EPISODE MASTER BLUEPRINT") ? `ACTIVE ✅ (${episodePlan?.length || 0} chars)` : "NONE ❌",
       "Total Instruction Volume": `${detailedSystemInstruction.length} chars`,
       "User Prompt Volume": `${prompt.length} chars`,
@@ -444,7 +445,16 @@ export async function generateText(
     const primaryModel = normalizeModelId(model);
     const modelFallbacks = [
       primaryModel,
-      ...["gemini-3.1-flash", "gemini-3.1-flash-lite", "gemini-3-flash", "gemini-2.5-flash", "gemma-3-27b"].filter(m => m !== primaryModel)
+      ...[
+        "gemini-3.1-flash-lite",  // Standard default, massive daily quota
+        "gemini-3.1-flash",       // Highly recommended
+        "gemini-3.5-flash",       // Advanced flash
+        "gemini-2.5-flash",       // Primary real model — fast & capable
+        "gemini-2.5-flash-lite",  // Lightweight fallback
+        "gemma-4-26b",            // Open weights, large daily quota
+        "gemma-4-31b",            // Advanced reasoning, large quota
+        "gemma-3-27b"             // Last resort open weights
+      ].filter(m => m !== primaryModel)
     ];
 
     let lastError: Error | null = null;
@@ -607,39 +617,60 @@ export async function generateImage(
   const startTime = performance.now();
   logger.info(`Starting image generation request for model: ${model}`);
 
-  const payload = { prompt, model };
+  const modelFallbacks = [
+    model,
+    "stable-image/generate/core",
+    "black-forest-labs/flux-1-schnell",
+    "stabilityai/stable-diffusion-3-5-large",
+  ].filter((item, pos, self) => self.indexOf(item) == pos);
 
-  let response: Response | null = null;
-  try {
-    response = await fetch("/api/image", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-  } catch (fetchError: any) {
-    const fetchErrorMessage = fetchError?.message?.toString() || "";
-    if (fetchError instanceof TypeError || fetchErrorMessage.includes("Failed to fetch") || fetchErrorMessage.includes("ERR_EMPTY_RESPONSE")) {
-      logger.warn(`/api proxy fetch failed, retrying direct backend URL: ${BACKEND_GENERATE_IMAGE_URL}`);
-      response = await fetch(BACKEND_GENERATE_IMAGE_URL, {
+  let lastError: Error | null = null;
+
+  for (const currentModel of modelFallbacks) {
+    logger.info(`Trying image model: ${currentModel}`);
+    const payload = { prompt, model: currentModel };
+    let response: Response | null = null;
+
+    try {
+      response = await fetch("/api/image", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-    } else {
-      throw fetchError;
+    } catch (fetchError: any) {
+      const fetchErrorMessage = fetchError?.message?.toString() || "";
+      if (fetchError instanceof TypeError || fetchErrorMessage.includes("Failed to fetch") || fetchErrorMessage.includes("ERR_EMPTY_RESPONSE")) {
+        logger.warn(`/api proxy fetch failed, retrying direct backend URL: ${BACKEND_GENERATE_IMAGE_URL}`);
+        try {
+          response = await fetch(BACKEND_GENERATE_IMAGE_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+        } catch (e: any) {
+          lastError = e;
+          continue;
+        }
+      } else {
+        lastError = fetchError;
+        continue;
+      }
     }
+
+    if (!response || !response.ok) {
+      const errorData = await response?.json().catch(() => ({})) || {};
+      lastError = new Error(errorData.detail || errorData.error || `Failed to generate image with ${currentModel}.`);
+      continue;
+    }
+
+    const data = await response.json();
+    const latency = performance.now() - startTime;
+    logger.success(`Image generated in ${latency.toFixed(2)}ms with model ${currentModel}`);
+
+    return data.text || data.image_data;
   }
-
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData.detail || errorData.error || "Failed to generate image.");
-  }
-
-  const data = await response.json();
-  const latency = performance.now() - startTime;
-  logger.success(`Image generated in ${latency.toFixed(2)}ms`);
-
-  return data.image_data;
+  
+  throw lastError || new Error("All image generation models failed.");
 }
 
 /**
@@ -654,13 +685,13 @@ export async function* streamText(
   topP: number = 0.95,
   topK: number = 40,
   worldLore?: string | null,
-  castDNA?: string | null,
+  characterDNA?: string | null,
   episodePlan?: string | null
 ): AsyncGenerator<string> {
   const detailedSystemInstruction = composeDetailedSystemInstruction(
     systemInstruction,
     worldLore,
-    castDNA,
+    characterDNA,
     episodePlan
   );
 

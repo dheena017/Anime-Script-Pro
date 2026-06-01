@@ -5,16 +5,10 @@ export class ApiError extends Error {
   }
 }
 
-// Global Signal Bus for real-time Neural events
-export const signalBus = new EventTarget();
+import { emitNeuralSignal, persistLogHistory, studioLog, signalBus } from './dev-console-logs';
+export type { NeuralSignalEvent } from './dev-console-logs';
 
-export interface NeuralSignalEvent {
-  signalId: string;
-  method: string;
-  url: string;
-  status: number;
-  duration: number;
-}
+import JSON5 from 'json5';
 
 export function cleanJson(content: string): any {
   if (!content) return null;
@@ -38,7 +32,7 @@ export function cleanJson(content: string): any {
     try {
       return JSON.parse(cleaned);
     } catch (e) {
-      console.error('Failed to parse JSON content (no structure found):', content);
+      studioLog('System', 'Failed to parse JSON content (no structure found)', 'error', content);
       throw new ApiError('Invalid AI output format. No JSON structure detected.');
     }
   }
@@ -51,6 +45,13 @@ export function cleanJson(content: string): any {
   try {
     return JSON.parse(sanitized);
   } catch (_firstError) {
+    // Try JSON5 as a more permissive parser before entering repair flows
+    try {
+      return JSON5.parse(sanitized);
+    } catch (json5err) {
+      // continue to repair logic
+    }
+  }
     // 5. If straightforward parse fails, try finding the last matching closer
     const lastBrace = potentialJson.lastIndexOf('}');
     const lastBracket = potentialJson.lastIndexOf(']');
@@ -69,21 +70,35 @@ export function cleanJson(content: string): any {
     try {
       const repairedA = repairTruncatedJson(potentialJson, false);
       const fullySanitizedA = sanitizeJson(repairedA);
-      return JSON.parse(fullySanitizedA);
+      try {
+        return JSON.parse(fullySanitizedA);
+      } catch (e) {
+        try {
+          return JSON5.parse(fullySanitizedA);
+        } catch (e2) {
+          // fall through to next strategy
+        }
+      }
     } catch (_errA) {
       // 7. Fallback to Strategy B: Backtracking to last complete structural delimiter
       try {
         const repairedB = repairTruncatedJson(potentialJson, true);
         const fullySanitizedB = sanitizeJson(repairedB);
-        return JSON.parse(fullySanitizedB);
+        try {
+          return JSON.parse(fullySanitizedB);
+        } catch (e) {
+          try {
+            return JSON5.parse(fullySanitizedB);
+          } catch (e2) {
+            throw e2 || reportError;
+          }
+        }
       } catch (repairError) {
-        console.error('Failed to parse JSON content after all repair attempts:', content);
-        console.error('Repair attempt resulted in:', repairError);
+        studioLog('System', 'Failed to parse JSON content after all repair attempts', 'error', { content, repairError });
         throw new ApiError('Invalid AI output format. JSON structure is too corrupted to repair.');
       }
     }
   }
-}
 
 /**
  * Fixes common structural errors in AI-generated JSON, 
@@ -105,10 +120,46 @@ function sanitizeJson(s: string): string {
   // This is tricky because of nested structures, but we can do a basic pass
   result = result.replace(/([\[,]\s*)'([^']*)'(\s*[,\]])/g, '$1"$2"$3');
 
+  // 4. Quote unquoted object keys: { key: or , key:
+  // Matches keys that are valid identifier-like tokens
+  result = result.replace(/([{,]\s*)([A-Za-z0-9_\-\$]+)\s*:/g, '$1"$2":');
+
   // Fix unescaped newlines inside double-quoted strings
   // This is a common AI error where it puts a real newline instead of \n
-  // We only do this if we can find a string that isn't closed on the same line
-  // but this is complex to do with regex perfectly.
+  let inside = false;
+  let escaped = false;
+  let output = "";
+  for (let i = 0; i < result.length; i++) {
+    const char = result[i];
+    if (escaped) {
+      output += char;
+      escaped = false;
+      continue;
+    }
+    if (char === '\\') {
+      output += char;
+      escaped = true;
+      continue;
+    }
+    if (char === '"') {
+      inside = !inside;
+      output += char;
+      continue;
+    }
+    if (inside && char === '\r') {
+      if (result[i + 1] === '\n') {
+        i++;
+      }
+      output += '\\n';
+      continue;
+    }
+    if (inside && char === '\n') {
+      output += '\\n';
+      continue;
+    }
+    output += char;
+  }
+  result = output;
   
   return result;
 }
@@ -325,7 +376,13 @@ export async function apiRequest<T>(url: string, options?: RequestInit & { timeo
   // Deduplicate GET requests
   const requestKey = `${method}:${url}`;
   if (method === 'GET' && pendingRequests.has(requestKey)) {
-    console.info(`%c[Frontend] %cDEDUPLICATED: ${displayLabel}`, 'color: #8b5cf6; font-weight: bold', 'color: #94a3b8');
+    studioLog('Frontend', `DEDUPLICATED: ${displayLabel}`, 'manhwa', undefined, {
+      source: 'api-utils',
+      category: 'network',
+      action: 'dedupe',
+      tags: [method, requestKey],
+      summary: `Deduplicated ${displayLabel}`,
+    });
     return pendingRequests.get(requestKey);
   }
 
@@ -350,7 +407,13 @@ export async function apiRequest<T>(url: string, options?: RequestInit & { timeo
       }
     }
 
-    console.info(`%c[FRONTEND] %cTRIGGER -> %c${label ? 'REQUESTING' : 'SENDING'}: ${displayLabel}`, 'color: #3b82f6; font-weight: bold', 'color: #94a3b8; font-weight: bold', 'color: #94a3b8');
+    studioLog('Frontend', `${label ? 'REQUESTING' : 'SENDING'}: ${displayLabel}`, 'anime', undefined, {
+      source: 'api-utils',
+      category: 'network',
+      action: method.toLowerCase(),
+      tags: [method, url],
+      summary: `${method} ${displayLabel}`,
+    });
 
     try {
       const response = await fetch(finalUrl, {
@@ -367,12 +430,27 @@ export async function apiRequest<T>(url: string, options?: RequestInit & { timeo
       const signalId = response.headers.get('X-Signal-ID') || 'NO-SIGNAL';
 
       // Dispatch to Signal Bus
-      signalBus.dispatchEvent(new CustomEvent('neural_signal', {
-        detail: { signalId, method, url, status: response.status, duration }
-      }));
+      emitNeuralSignal({
+        signalId,
+        method,
+        url,
+        status: response.status,
+        duration,
+        source: 'api-utils',
+        category: 'network',
+        summary: `${method} ${displayLabel}`,
+        tags: [signalId, method],
+      });
+      persistLogHistory();
 
       if (!response.ok) {
-        console.error(`%c[Backend] %cERROR [${signalId}]: ${response.status} ${response.statusText} (${duration}ms)`, 'color: #ef4444; font-weight: bold', 'color: #94a3b8');
+        studioLog('Backend', `ERROR [${signalId}]: ${response.status} ${response.statusText} (${duration}ms)`, 'error', undefined, {
+          source: 'api-utils',
+          category: 'network-error',
+          action: 'response-error',
+          tags: [signalId, method],
+          summary: `${method} ${displayLabel} failed with ${response.status}`,
+        });
         let errorData;
         try {
           const raw = await response.json();
@@ -385,7 +463,14 @@ export async function apiRequest<T>(url: string, options?: RequestInit & { timeo
         throw new ApiError(message, response.status, { ...errorData, signalId });
       }
 
-      console.info(`%c[BACKEND]  %cRESULT  <- %cSUCCESS [${signalId}]: ${displayLabel} | Status: ${response.status} (${duration}ms)`, 'color: #10b981; font-weight: bold', 'color: #94a3b8; font-weight: bold', 'color: #94a3b8');
+      studioLog('Backend', `SUCCESS [${signalId}]: ${displayLabel} | Status: ${response.status} (${duration}ms)`, 'success', undefined, {
+        source: 'api-utils',
+        category: 'network-success',
+        action: 'response-ok',
+        tags: [signalId, method],
+        summary: `${method} ${displayLabel} completed successfully`,
+      });
+      persistLogHistory();
       return await response.json();
     } catch (error: any) {
       if (error instanceof ApiError) throw error;
@@ -399,7 +484,14 @@ export async function apiRequest<T>(url: string, options?: RequestInit & { timeo
         throw new ApiError(`Request timed out after ${timeout}ms`, 408);
       }
 
-      console.error(`%c[System] %cNETWORK ERROR: ${errorMessage}`, 'color: #f59e0b; font-weight: bold', 'color: #94a3b8');
+      studioLog('System', `NETWORK ERROR: ${errorMessage}`, 'error', undefined, {
+        source: 'api-utils',
+        category: 'network-exception',
+        action: 'request-failed',
+        tags: [method, url],
+        summary: `${method} ${displayLabel} threw a network error`,
+      });
+      persistLogHistory();
       throw new ApiError(errorMessage || 'Network error');
     } finally {
       clearTimeout(id);

@@ -4,9 +4,10 @@ import { Outlet } from 'react-router-dom';
 import { StudioSideBar } from '@/pages/studio/components/studio/layout/StudioSideBar';
 import { StudioTopBar } from '@/pages/studio/components/studio/layout/StudioTopBar';
 import { NeuralPulseLayer } from '@/components/neural/NeuralPulseLayer';
+import { NeuralConsole } from '@/pages/studio/components/studio/NeuralConsole';
 import { StudioLoading } from '@/pages/studio/components/studio/StudioLoading';
 import { DeferredRender } from '@/pages/studio/components/studio/DeferredRender';
-import { studioLog, studioGroup, studioEnd } from '@/lib/studio-logger';
+import { studioLog, studioGroup, studioEnd } from '@/lib/dev-console-logs';
 
 export const StudioLayout: React.FC = () => {
   const [collapsed, setCollapsed] = React.useState(true); // Default closed
@@ -83,6 +84,8 @@ export const StudioLayout: React.FC = () => {
               </motion.div>
             </AnimatePresence>
           </div>
+          {/* Dev console (floating) */}
+          <NeuralConsole />
         </div>
       </main>
     </div>

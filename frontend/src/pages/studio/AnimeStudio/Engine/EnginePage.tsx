@@ -14,7 +14,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useProjects } from '@/hooks/useProjects';
 import { Project } from '@/services/api/projects';
-import { studioLog } from '@/lib/studio-logger';
+import { studioLog } from '@/lib/dev-console-logs';
 // Context
 
 import { EngineContext } from './EngineLayout';

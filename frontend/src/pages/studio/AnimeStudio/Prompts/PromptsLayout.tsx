@@ -30,7 +30,7 @@ export default function PromptsLayout() {
     isLoading,
     generatedScript, selectedModel, session, episode,
     isSaving,
-    castProfiles, castData, generatedSeriesPlan, generatedMetadata,
+    characterProfiles, characterData, generatedSeriesPlan, generatedMetadata,
     contentType,
     generationProgress,
     isEditing,

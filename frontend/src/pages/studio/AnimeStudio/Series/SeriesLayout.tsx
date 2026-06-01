@@ -11,7 +11,7 @@ import { SeriesLoadingPage } from './components/SeriesLoadingPage';
 import { cn } from '@/lib/utils';
 import { StudioTabsProgressBar } from '@/pages/studio/components/studio/layout/StudioTabsProgressBar';
 import { seriesStyles as s } from './seriesStyles';
-import { studioLog } from '@/lib/studio-logger';
+import { studioLog } from '@/lib/dev-console-logs';
 
 export default function SeriesLayout() {
   const navigate = useNavigate();
@@ -34,9 +34,9 @@ export default function SeriesLayout() {
     generatedWorldCulture,
     generatedWorldSystems,
     generatedCharacters,
-    castList,
+    characterList,
     characterRelationships,
-    castDNA,
+    characterDNA,
     currentScriptId,
     isSaving,
     isGeneratingSeries,
@@ -73,8 +73,11 @@ export default function SeriesLayout() {
     await syncCore(projectId);
   };
 
-  // Memoize handleGenerate to prevent unnecessary effect re-runs and improve stability
-  const handleGenerate = React.useCallback(async (episodesToGenerate: number = 12, numScenes: number = 16) => {
+  const getStoryboardBasePath = () => (
+    currentScriptId ? `/projects/${currentScriptId}` : '/studio'
+  );
+
+  const handleGenerate = React.useCallback(async (episodesToGenerate: number, numScenes: number, sessionsToGenerate: number) => {
     if (!prompt) {
       showNotification?.('Project prompt is missing. Please define your series core logline.', 'warning');
       return;
@@ -82,7 +85,7 @@ export default function SeriesLayout() {
     setGenerationError(null);
     setIsGeneratingSeries(true);
     setGenerationProgress(5);
-    addGeneratorLog?.("SERIES", "STARTING", `Synthesizing full series roadmap and ${episodesToGenerate} episode beats...`);
+    addGeneratorLog?.("SERIES", "STARTING", `Synthesizing full series roadmap across ${sessionsToGenerate} sessions and ${episodesToGenerate} episode beats...`);
 
     try {
       // We only reset the Series Plan, not the World or Cast. 
@@ -92,7 +95,7 @@ export default function SeriesLayout() {
       setGeneratedImagePrompts(null);
       setGeneratedMetadata(null);
 
-      const totalEpisodes = episodesToGenerate;
+      const totalEpisodes = episodesToGenerate * sessionsToGenerate;
 
       // BUILD THE SOURCE OF TRUTH (WORLD BIBLE)
       const worldBible = [
@@ -108,9 +111,9 @@ export default function SeriesLayout() {
 
       // BUILD THE CAST DNA
       const castContext = [
-        `CHARACTERS: ${JSON.stringify(castList || [])}`,
+        `CHARACTERS: ${JSON.stringify(characterList || [])}`,
         `RELATIONSHIPS: ${characterRelationships || 'N/A'}`,
-        `DNA METADATA: ${JSON.stringify(castDNA || {})}`
+        `DNA METADATA: ${JSON.stringify(characterDNA || {})}`
       ].join('\n\n');
 
       studioLog("SERIES", `Requesting series plan generation for ${totalEpisodes} episodes using full story bible...`, 'anime');
@@ -121,9 +124,10 @@ export default function SeriesLayout() {
         totalEpisodes,
         worldBible,
         castContext,
-        false, // expandSequentially
+        true, // expandSequentially - Enable this to generate detailed scenes for each episode
         {
-          session,
+          session: String(sessionsToGenerate), // Pass custom sessions to the API as a string
+          episodesPerSession: episodesToGenerate,
           episode,
           temperature,
           maxTokens,
@@ -174,9 +178,9 @@ export default function SeriesLayout() {
     generatedWorldAtlas,
     generatedWorldCulture,
     generatedWorldSystems,
-    castList,
+    characterList,
     characterRelationships,
-    castDNA,
+    characterDNA,
     setGeneratedSeriesPlan,
     setGeneratedScript,
     setGeneratedImagePrompts,
@@ -203,7 +207,7 @@ export default function SeriesLayout() {
     ? queryTab
     : (pathTab && VALID_TABS.includes(pathTab))
       ? pathTab
-      : 'episodes';
+      : 'blueprint';
 
   const handleTabChange = (tab: SeriesTab) => {
     startTransition(() => {
@@ -218,9 +222,17 @@ export default function SeriesLayout() {
   React.useEffect(() => {
     const handleGlobalGenerate = (e: any) => {
       studioLog("SERIES", 'Global series generation event received.', 'anime');
-      const customEpisodes = e.detail?.episodes || 12;
-      const customScenes = e.detail?.scenes || 16;
-      handleGenerate(customEpisodes, customScenes);
+      const hasDetail = e && e.detail;
+      const customSessions = hasDetail ? e.detail.sessions : undefined;
+      const customEpisodes = hasDetail ? e.detail.episodes : undefined;
+      const customScenes = hasDetail ? e.detail.scenes : undefined;
+
+      if (customSessions === undefined || customEpisodes === undefined || customScenes === undefined) {
+        showNotification?.('Generation event must include explicit sessions, episodes and scenes counts.', 'warning');
+        return;
+      }
+
+      handleGenerate(Number(customEpisodes), Number(customScenes), Number(customSessions));
     };
     window.addEventListener('studio-generate-series', handleGlobalGenerate);
     return () => window.removeEventListener('studio-generate-series', handleGlobalGenerate);
@@ -233,12 +245,12 @@ export default function SeriesLayout() {
         <SeriesHeader
           onPrev={() => {
             startTransition(() => {
-              navigate(`${currentScriptId ? `/projects/${currentScriptId}` : '/studio'}/cast`);
+              navigate(`${getStoryboardBasePath()}/cast`);
             });
           }}
           onNext={() => {
             startTransition(() => {
-              navigate(`${currentScriptId ? `/projects/${currentScriptId}` : '/studio'}/script`);
+              navigate(`${getStoryboardBasePath()}/storyboard`);
             });
           }}
           onManifest={() => handleTabChange('blueprint')}

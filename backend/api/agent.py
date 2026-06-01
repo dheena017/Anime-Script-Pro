@@ -46,6 +46,7 @@ from backend.lib.agent_models import DEFAULT_AGENT_MODELS
 from backend.lib.text_models import DEFAULT_TEXT_MODELS
 from backend.schemas import GenerationRequest, GenerationResponse
 from backend.utils.deps import get_auth_user_id
+from backend.api.text import estimate_token_count
 
 # ==============================================================================
 # 4. PYDANTIC SCHEMAS / REQUEST PAYLOAD MODELS
@@ -120,6 +121,19 @@ async def generate_agent(
             is_nvidia = "nvidia" in current_model.lower() or "nemotron" in current_model.lower() or current_model.startswith("meta/")
 
             if is_claude or is_openai or is_groq or is_nvidia:
+                # Guard: Prevent sending very large prompts to Groq Llama fallbacks
+                GROQ_SAFE_LIMIT = 4500  # tokens — keep below Groq's TPM limit (6000) with a safe buffer for response tokens
+                prompt_tokens = estimate_token_count(request.prompt or "")
+                system_tokens = estimate_token_count(request.systemInstruction or "")
+                total_estimated = prompt_tokens + system_tokens
+
+                if is_groq and total_estimated > GROQ_SAFE_LIMIT:
+                    logger.opt(colors=True).warning(
+                        f"AGENT ROUTING [#{request_id}]: Skipping Groq model {current_model} — estimated tokens={total_estimated} exceeds safe limit {GROQ_SAFE_LIMIT}"
+                    )
+                    health_registry.report_failure(current_model)
+                    continue
+
                 output_text = await generate_ai_text(current_model, request.prompt, request.systemInstruction, user_id)
                 usage_dict = {}
             else:
@@ -223,6 +237,22 @@ async def stream_agent_response(request: AgentGenerationRequest, user_id: str) -
         for current_model in unique_fallbacks:
             if health_registry.is_degraded(current_model) and current_model != unique_fallbacks[-1]:
                 logger.opt(colors=True).warning(f"AGENT STREAM ROUTING [#{request_id}]: Model <cyan>{current_model}</cyan> degraded. Skipping...")
+                continue
+                
+            # Compute provider flags early so guards can use them
+            is_groq = any(m in current_model.lower() for m in ["llama", "mixtral", "deepseek"]) and "gemma" not in current_model.lower() and "nvidia" not in current_model.lower() and "meta/" not in current_model.lower()
+
+            # Guard: Prevent sending very large prompts to Groq Llama fallbacks
+            GROQ_SAFE_LIMIT = 4500  # tokens — keep below Groq's TPM limit (6000) with a safe buffer for response tokens
+            prompt_tokens = estimate_token_count(request.prompt or "")
+            system_tokens = estimate_token_count(request.systemInstruction or "")
+            total_estimated = prompt_tokens + system_tokens
+
+            if is_groq and total_estimated > GROQ_SAFE_LIMIT:
+                logger.opt(colors=True).warning(
+                    f"AGENT STREAM ROUTING [#{request_id}]: Skipping Groq model {current_model} — estimated tokens={total_estimated} exceeds safe limit {GROQ_SAFE_LIMIT}"
+                )
+                health_registry.report_failure(current_model)
                 continue
                 
             try:

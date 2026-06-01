@@ -32,7 +32,7 @@ export default function OverviewTab({ searchTerm: _searchTerm }: OverviewTabProp
 
   const recentCategories = overview ? [
     { name: 'Scripts', count: (overview.scripts || []).length, icon: FileText, color: 'bg-blue-500/10 text-blue-500' },
-    { name: 'Characters', count: (overview.cast?.cast_list_blob ? JSON.parse(overview.cast.cast_list_blob).length : 0), icon: Users, color: 'bg-purple-500/10 text-purple-500' },
+    { name: 'Characters', count: (overview.cast?.character_list_blob ? JSON.parse(overview.cast.character_list_blob).length : 0), icon: Users, color: 'bg-purple-500/10 text-purple-500' },
     { name: 'Storyboards', count: (overview.storyboards || []).length, icon: Film, color: 'bg-[#bd4a4a]/10 text-[#bd4a4a]' },
     { name: 'World Lore', count: overview.worldLore ? 1 : 0, icon: BookOpen, color: 'bg-emerald-500/10 text-emerald-500' },
     { name: 'Asset Packs', count: (overview.assets || []).length, icon: Folder, color: 'bg-amber-500/10 text-amber-500' },

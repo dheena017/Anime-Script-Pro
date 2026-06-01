@@ -26,6 +26,7 @@ export interface SeriesAssetMatrix {
 export interface SeriesEpisode {
   detailed_episode_spec: any;
   episode: string;
+  session?: number | string;
   session_name?: string;
   title: string;
   hook: string;
@@ -130,9 +131,9 @@ export const SeriesCard = React.memo<SeriesCardProps>(({
                      {ep.title}
                    </h3>
                    <div className="flex flex-wrap items-center gap-2 pt-1">
-                     <span className="text-[10px] font-black uppercase tracking-[0.25em] text-zinc-500">
-                       Session: {ep.session_name || 'Unassigned'}
-                     </span>
+                      <span className="text-[10px] font-black uppercase tracking-[0.25em] text-zinc-500">
+                        Session {ep.session || '1'}: {ep.session_name || 'Unassigned'}
+                      </span>
                      <span className="text-[10px] font-black uppercase tracking-[0.25em] text-zinc-700">|</span>
                      <span className="text-[10px] font-black uppercase tracking-[0.25em] text-zinc-500 truncate max-w-[16rem]">
                        Scene: {firstSceneName || 'Unassigned'}
@@ -203,15 +204,18 @@ export const SeriesCard = React.memo<SeriesCardProps>(({
                   {ep.theme_mapping?.core_theme || 'Locked'}
                 </p>
              </div>
-             <div className="p-5 bg-black/40 border border-white/5 rounded-3xl hover:border-studio/30 transition-all duration-500 group/badge shadow-sm">
-                <div className="flex items-center gap-3 mb-2">
-                   <Database className="w-4 h-4 text-studio/40 group-hover/badge:text-studio transition-colors" />
-                   <span className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.2em]">Scene Units</span>
-                </div>
-                <p className="text-xs font-black text-zinc-100 group-hover:text-white uppercase tracking-wide">
-                  {sceneCount} Production Units
-                </p>
-             </div>
+              <div 
+                onClick={() => onViewEpisode?.(ep.episode, 'scenes')}
+                className="p-5 bg-black/40 border border-white/5 rounded-3xl hover:border-studio/30 transition-all duration-500 group/badge shadow-sm cursor-pointer hover:bg-studio/[0.02]"
+              >
+                 <div className="flex items-center gap-3 mb-2">
+                    <Database className="w-4 h-4 text-studio/40 group-hover/badge:text-studio transition-colors" />
+                    <span className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.2em]">Scene Units</span>
+                 </div>
+                 <p className="text-xs font-black text-zinc-100 group-hover:text-white uppercase tracking-wide">
+                   {sceneCount} Production Units
+                 </p>
+              </div>
           </div>
         </div>
 

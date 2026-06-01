@@ -26,7 +26,7 @@ from .production import router as production_router
 from .todos import router as todos_router
 from .growth import router as growth_router
 from .episodes import router as episodes_router
-from .cast import router as cast_router
+from .characters import router as characters_router
 from .diagnostic import router as diagnostic_router
 from .scenes import router as scenes_router
 from .sessions import router as sessions_router
@@ -61,7 +61,7 @@ api_router.include_router(production_router, tags=["Production"])
 api_router.include_router(todos_router, tags=["Production"])
 api_router.include_router(growth_router, tags=["Production"])
 api_router.include_router(episodes_router, tags=["Production"])
-api_router.include_router(cast_router, tags=["Cast Management"])
+api_router.include_router(characters_router, tags=["Character Management"])
 api_router.include_router(diagnostic_router, tags=["Neural Admin"])
 api_router.include_router(scenes_router, tags=["Production"])
 api_router.include_router(sessions_router, tags=["Production"])

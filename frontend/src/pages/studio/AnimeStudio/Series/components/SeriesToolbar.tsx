@@ -40,7 +40,7 @@ export const SeriesToolbar: React.FC<SeriesToolbarProps> = ({
     generatedWorldFactions,
     generatedWorldAtlas,
     generatedWorldSystems,
-    castList,
+    characterList,
     selectedModel,
     contentType,
     prompt
@@ -89,7 +89,7 @@ export const SeriesToolbar: React.FC<SeriesToolbarProps> = ({
                     (generatedWorldSystems?.length || 0);
 
   const isWorldSynced = worldChars > 0;
-  const isCastSynced = castList?.length > 0;
+  const isCastSynced = characterList?.length > 0;
 
   const handleViewPrompt = () => {
     const mockPrompt = `
@@ -111,57 +111,56 @@ export const SeriesToolbar: React.FC<SeriesToolbarProps> = ({
     <TooltipProvider>
       <div className={s.toolbar.container}>
         <div className={s.toolbar.header}>
-          {/* Identity */}
-          <div className={s.toolbar.statusBox}>
-            <div className={s.toolbar.statusIcon}>
-              <Layers className={cn("w-5 h-5 transition-all duration-500", status === 'active' ? s.toolbar.statusActive : s.toolbar.statusInactive)} />
-            </div>
-            <div className="flex flex-col gap-1">
-              <span className={s.toolbar.statusTitle}>
-                Series Nexus {status === 'active' ? 'Active' : 'Standby'}
-              </span>
-              <span className={s.toolbar.statusSubtitle}>
-                System Status: Optimal // Series_Sync_01
-              </span>
-            </div>
-          </div>
-
-          {/* Studio Intelligence Diagnostics */}
-          <div className="flex items-center gap-6 px-8 border-x border-white/5 mx-auto">
-            <div className="flex items-center gap-3 group/diag">
-               <Database className={cn("w-4 h-4 transition-colors", isWorldSynced ? "text-studio" : "text-zinc-700")} />
-               <div className="flex flex-col">
-                 <span className="text-[9px] font-black text-zinc-500 uppercase tracking-widest">World Lore Sync</span>
-                 <span className={cn("text-[10px] font-mono", isWorldSynced ? "text-studio" : "text-zinc-700")}>
-                   {isWorldSynced ? `${worldChars} Chars | ACTIVE ✅` : 'INACTIVE ❌'}
-                 </span>
-               </div>
+          <div className="flex items-center gap-6">
+            {/* Identity */}
+            <div className={s.toolbar.statusBox}>
+              <div className={s.toolbar.statusIcon}>
+                <Layers className={cn("w-5 h-5 transition-all duration-500", status === 'active' ? s.toolbar.statusActive : s.toolbar.statusInactive)} />
+              </div>
+              <div className="flex flex-col justify-center">
+                <span className={s.toolbar.statusTitle}>
+                  Series Nexus <br /> {status === 'active' ? 'Active' : 'Standby'}
+                </span>
+              </div>
             </div>
 
-            <div className="flex items-center gap-3 group/diag">
-               <Users className={cn("w-4 h-4 transition-colors", isCastSynced ? "text-studio" : "text-zinc-700")} />
-               <div className="flex flex-col">
-                 <span className="text-[9px] font-black text-zinc-500 uppercase tracking-widest">Cast DNA Sync</span>
-                 <span className={cn("text-[10px] font-mono", isCastSynced ? "text-studio" : "text-zinc-700")}>
-                   {isCastSynced ? `${castList.length} Entities | ACTIVE ✅` : 'INACTIVE ❌'}
-                 </span>
-               </div>
-            </div>
+            {/* Studio Intelligence Diagnostics */}
+            <div className="flex items-center gap-6 pl-8 border-l border-white/5">
+              <div className="flex items-center gap-3 group/diag">
+                 <Database className={cn("w-4 h-4 transition-colors", isWorldSynced ? "text-[#007BFF]" : "text-zinc-700")} />
+                 <div className="flex flex-col">
+                   <span className="text-[9px] font-black text-zinc-500 uppercase tracking-widest leading-tight">World Lore Sync</span>
+                   <span className={cn("text-[10px] font-bold tracking-wider", isWorldSynced ? "text-[#007BFF]" : "text-zinc-600")}>
+                     {isWorldSynced ? `${worldChars} Chars | ACTIVE ✅` : 'INACTIVE ❌'}
+                   </span>
+                 </div>
+              </div>
 
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button 
-                  onClick={handleViewPrompt}
-                  className="flex items-center gap-2 p-2 rounded-lg bg-white/[0.03] border border-white/5 hover:border-studio/30 transition-all group/prompt"
-                >
-                  <BrainCircuit className="w-3.5 h-3.5 text-zinc-500 group-hover/prompt:text-studio transition-colors" />
-                  <span className="text-[9px] font-black text-zinc-600 uppercase tracking-widest group-hover/prompt:text-zinc-400">Neural Prompt</span>
-                </button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p className="text-[10px] font-black uppercase tracking-widest">View System Instructions</p>
-              </TooltipContent>
-            </Tooltip>
+              <div className="flex items-center gap-3 group/diag">
+                 <Users className={cn("w-4 h-4 transition-colors", isCastSynced ? "text-[#007BFF]" : "text-zinc-700")} />
+                 <div className="flex flex-col">
+                   <span className="text-[9px] font-black text-zinc-500 uppercase tracking-widest leading-tight">Cast DNA Sync</span>
+                   <span className={cn("text-[10px] font-bold tracking-wider", isCastSynced ? "text-[#007BFF]" : "text-zinc-600")}>
+                     {isCastSynced ? `${characterList.length} Entities | ACTIVE ✅` : 'INACTIVE ❌'}
+                   </span>
+                 </div>
+              </div>
+
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button 
+                    onClick={handleViewPrompt}
+                    className="flex items-center gap-2 px-5 py-2.5 ml-4 rounded-full bg-white/[0.03] border border-white/5 hover:bg-white/[0.06] transition-all group/prompt"
+                  >
+                    <BrainCircuit className="w-3.5 h-3.5 text-zinc-500 group-hover/prompt:text-white transition-colors" />
+                    <span className="text-[9px] font-black text-zinc-500 uppercase tracking-widest group-hover/prompt:text-white transition-colors">Neural Prompt</span>
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className="text-[10px] font-black uppercase tracking-widest">View System Instructions</p>
+                </TooltipContent>
+              </Tooltip>
+            </div>
           </div>
 
           <div className={s.toolbar.actionGroup}>
@@ -218,20 +217,20 @@ export const SeriesToolbar: React.FC<SeriesToolbarProps> = ({
             </div>
 
             {/* Action Buttons */}
-            <div className="flex items-center gap-4 border-l border-white/5 pl-8">
+            <div className="flex items-center gap-3">
               <Button
                 variant="outline"
-                className="h-11 px-5 border-white/10 bg-black/40 text-zinc-500 hover:text-studio hover:border-studio/40 rounded-xl font-black uppercase tracking-widest text-[10px] transition-all duration-300"
+                className="h-8 px-5 border-white/10 bg-transparent text-zinc-400 hover:text-white hover:bg-white/5 rounded-full font-black uppercase tracking-widest text-[9px] transition-all duration-300"
                 onClick={onFilterArchive}
               >
-                <ListFilter className="w-4 h-4 mr-3" /> Filter Archive
+                <ListFilter className="w-3 h-3 mr-2" /> Filter Archive
               </Button>
 
               <Button
-                className="h-11 px-8 bg-studio text-black font-black uppercase tracking-widest text-[10px] hover:bg-studio/80 shadow-[0_0_30px_rgba(6,182,212,0.3)] rounded-xl transition-all duration-300"
+                className="h-8 px-5 bg-[#007BFF] text-white hover:bg-[#0056b3] font-black uppercase tracking-widest text-[9px] shadow-[0_0_20px_rgba(0,123,255,0.4)] rounded-full transition-all duration-300 border-none"
                 onClick={onAddEpisode}
               >
-                <Plus className="w-5 h-5 mr-3" /> New Episode
+                <Plus className="w-3 h-3 mr-2" /> New Episode
               </Button>
             </div>
           </div>

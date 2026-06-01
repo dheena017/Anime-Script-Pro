@@ -1,7 +1,7 @@
 import { useState, useEffect, startTransition } from 'react';
 import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { studioLog, reportTabChange } from '@/lib/studio-logger';
+import { studioLog, reportTabChange } from '@/lib/dev-console-logs';
 import { 
   Bell, 
   AlertCircle, 

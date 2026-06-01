@@ -2,6 +2,8 @@ import { ALL_IMAGE_MODELS } from './aiModels/imageModels';
 import { TEXT_MODELS } from './aiModels/textModels';
 import { VIDEO_MODELS } from './aiModels/videoModels';
 import { AGENT_MODELS } from './aiModels/agentModels';
+import { AUDIO_MODELS } from './aiModels/audioModels';
+import { MUSIC_MODELS } from './aiModels/musicModels';
 
 export type AIModel = {
   id: string;
@@ -16,18 +18,10 @@ export const AI_MODELS: AIModel[] = [
   ...TEXT_MODELS,
 
   // --- Audio / TTS Models ---
-  { id: 'gemini-2.5-flash-tts', name: 'Gemini 2.5 Flash TTS', category: 'tts', capabilities: ['multi-modal','tts'], description: 'Gemini 2.5 with TTS capabilities', isFree: true },
-  { id: 'gemini-2.5-pro-tts', name: 'Gemini 2.5 Pro TTS', category: 'tts', capabilities: ['multi-modal','tts'], description: 'Gemini 2.5 Pro TTS capabilities', isFree: false },
-  { id: 'gemini-3.1-flash-tts', name: 'Gemini 3.1 Flash TTS', category: 'tts', capabilities: ['multi-modal','tts'], description: 'High-fidelity voice synthesis', isFree: true },
-  { id: 'gemini-2.5-flash-native-audio', name: 'Gemini 2.5 Flash Native Audio Dialog', category: 'tts', capabilities: ['multi-modal','tts'], description: 'Native live audio dialog feedback', isFree: true },
-  { id: 'gemini-3-flash-live', name: 'Gemini 3 Flash Live', category: 'tts', capabilities: ['multi-modal','tts'], description: 'Gemini 3 Live Real-Time voice API', isFree: true },
-  { id: 'whisper-1', name: 'Whisper (OpenAI)', category: 'tts', capabilities: ['multi-modal','tts'], description: 'OpenAI Whisper speech-to-text model', isFree: true },
-  { id: 'fish-speech', name: 'Fish Speech', category: 'tts', capabilities: ['multi-modal','tts'], description: 'Free speech synthesis and conversion model', isFree: true },
-  { id: 'gpt-sovits', name: 'GPT-SoVITS', category: 'tts', capabilities: ['multi-modal','tts'], description: 'Voice cloning and speech synthesis model', isFree: true },
-  { id: 'chattts', name: 'ChatTTS', category: 'tts', capabilities: ['multi-modal','tts'], description: 'Conversational text-to-speech model', isFree: true },
-  { id: 'stable-audio-open', name: 'Stable Audio Open', category: 'tts', capabilities: ['multi-modal','tts'], description: 'Open audio generation model', isFree: true },
-  { id: 'musicgen', name: 'MusicGen (Meta)', category: 'tts', capabilities: ['multi-modal','tts'], description: 'Meta music generation model', isFree: true },
-  { id: 'bark', name: 'Bark (by Suno)', category: 'tts', capabilities: ['multi-modal','tts'], description: 'Suno Bark expressive speech model', isFree: true },
+  ...AUDIO_MODELS,
+
+  // --- Music Models ---
+  ...MUSIC_MODELS,
 
   ...ALL_IMAGE_MODELS.map((model) => ({
     id: model.id,
@@ -53,3 +47,4 @@ export const AI_MODELS: AIModel[] = [
   ...AGENT_MODELS,
   { id: 'default', name: 'Default', category: 'text', capabilities: ['text-out'], description: 'Default system fallback model', isFree: true },
 ];
+

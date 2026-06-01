@@ -10,7 +10,7 @@ import TextareaAutosize from 'react-textarea-autosize';
 type SaveStatus = 'idle' | 'saving' | 'success' | 'error' | 'warning';
 
 export const SaveProjectDialog = React.memo(() => {
-  const { prompt, isSaving, generatedScript, castList, generatedWorld } = useGeneratorState();
+  const { prompt, isSaving, generatedScript, characterList, generatedWorld } = useGeneratorState();
   const { setPrompt, syncCore } = useGeneratorDispatch();
   const [open, setOpen] = useState(false);
   const [projectName, setProjectName] = useState('New Anime Project');
@@ -18,7 +18,7 @@ export const SaveProjectDialog = React.memo(() => {
   const [status, setStatus] = useState<SaveStatus>('idle');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const hasAnyContent = !!(generatedScript || (castList && castList.length > 0) || generatedWorld);
+  const hasAnyContent = !!(generatedScript || (characterList && characterList.length > 0) || generatedWorld);
 
   // Reset status when dialog opens/closes
   useEffect(() => {

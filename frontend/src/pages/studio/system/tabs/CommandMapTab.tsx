@@ -31,7 +31,7 @@ const MODULES: ModuleGroup[] = [
     pages: [
       { label: "Engine", path: "/anime/engine", icon: Zap, desc: "Core production orchestration" },
       { label: "World", path: "/anime/world", icon: Globe, desc: "Lore & geography architecture" },
-      { label: "Cast", path: "/anime/cast", icon: Users, desc: "Character profiles & relationships" },
+      { label: "Cast", path: "/anime/characters", icon: Users, desc: "Character profiles & relationships" },
       { label: "Series", path: "/anime/series", icon: Layers, desc: "Episodic management" },
       { label: "Script", path: "/anime/script", icon: ScrollText, desc: "Beat-by-beat generation" },
       { label: "Storyboard", path: "/anime/storyboard", icon: Layout, desc: "Visual scene mapping" },

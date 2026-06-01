@@ -375,7 +375,7 @@ export class ProductionOrchestrator {
     const scriptPrompt = `PILOT_PILOT: ${this.context.prompt}\n\nEPISODE_GOAL: ${firstEpisode.title} - ${firstEpisode.summary || firstEpisode.hook}`;
 
     // Convert cast to string if it's an array
-    const castProfiles = Array.isArray(cast)
+    const characterProfiles = Array.isArray(cast)
       ? cast.map(c => `${c.name} (${c.role}): ${c.personality}`).join('\n')
       : JSON.stringify(cast);
 
@@ -397,7 +397,7 @@ export class ProductionOrchestrator {
       "SHOGUN_AI",
       relationshipProfiles,
       world,
-      castProfiles,
+      characterProfiles,
       episodePlan
     );
 

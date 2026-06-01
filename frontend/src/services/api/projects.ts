@@ -87,6 +87,8 @@ export const projectService = {
   }
 };
 
+export const projectApi = projectService;
+
 
 
 

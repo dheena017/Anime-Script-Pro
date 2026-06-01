@@ -1,14 +1,14 @@
-import React from 'react';
-import { Timer } from 'lucide-react';
+import React from "react";
+import { Timer } from "lucide-react";
 
 interface TimelineHeaderProps {
   totalDuration: number;
   seriesPlan?: string;
 }
 
-export const TimelineHeader: React.FC<TimelineHeaderProps> = ({ 
-  totalDuration, 
-  seriesPlan = "60 Episode Series Plan" 
+export const TimelineHeader: React.FC<TimelineHeaderProps> = ({
+  totalDuration,
+  seriesPlan = "60 Episode Series Plan",
 }) => {
   return (
     <div className="flex items-center justify-between">
@@ -17,9 +17,9 @@ export const TimelineHeader: React.FC<TimelineHeaderProps> = ({
         Production Timeline
       </h3>
       <div className="flex items-center gap-4 text-xs font-bold text-studio/60 uppercase tracking-widest">
-         <span>{totalDuration}s Estimated</span>
-         <div className="w-[1px] h-3 bg-zinc-800" />
-         <span>{seriesPlan}</span>
+        <span>{totalDuration}s Estimated</span>
+        <div className="w-[1px] h-3 bg-zinc-800" />
+        <span>{seriesPlan}</span>
       </div>
     </div>
   );

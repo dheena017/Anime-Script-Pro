@@ -1041,9 +1041,9 @@ def compile_dashboard() -> None:
         print(f"Warning: Main template file not found at: {template_path}")
 
     # 2. Compile Standalone Folder Management Map
-    flow_path = os.path.join(script_dir, "folder_management.html")
+    flow_path = os.path.join(script_dir, "Flow.html")
     if not os.path.exists(flow_path):
-        flow_path = "folder_management.html"
+        flow_path = "Flow.html"
         
     if os.path.exists(flow_path):
         with open(flow_path, "r", encoding="utf-8") as f:

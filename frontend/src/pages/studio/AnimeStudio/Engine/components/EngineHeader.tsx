@@ -35,8 +35,8 @@ export const EngineHeader: React.FC<EngineHeaderProps> = ({
       <div className={s.header.wrapper}>
         <div className={s.header.glow} />
         <div className={s.header.container}>
-          <div className="flex flex-col sm:flex-row items-center justify-between w-full gap-4 sm:gap-8 z-10">
-            <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-8">
+          <div className="flex flex-row flex-wrap lg:flex-nowrap items-center justify-between w-full gap-4 lg:gap-8 z-10">
+            <div className="flex flex-row flex-wrap sm:flex-nowrap items-center gap-4 sm:gap-8 min-w-0">
               <div className="relative shrink-0">
                 <div className={s.header.iconBox}>
                   <div className={s.header.iconGlow} />
@@ -45,19 +45,16 @@ export const EngineHeader: React.FC<EngineHeaderProps> = ({
                 </div>
               </div>
 
-              <div className="flex flex-col items-center sm:items-start text-center sm:text-left">
+              <div className="flex flex-row items-center sm:items-start text-center sm:text-left">
                 <div className="flex items-center gap-3">
                   <h1 className={s.header.title}>
                     Engine Settings
                   </h1>
                 </div>
-                <div className="flex items-center gap-2 mt-2">
-                  <Cpu className="w-3.5 h-3.5 text-studio/40 shrink-0" />
-                  <p className={s.header.subtitle}>S{session} // EP{episode} // AI Core V5.1</p>
-                </div>
+
               </div>
             </div>
-            <div className="flex flex-col sm:flex-row items-center gap-4 z-10">
+            <div className="flex flex-row flex-wrap sm:flex-nowrap items-center gap-3 sm:gap-4 z-10 w-full lg:w-auto justify-center lg:justify-end">
               {onNext && (
                 <Tooltip>
                   <TooltipTrigger >

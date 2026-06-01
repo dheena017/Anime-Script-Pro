@@ -30,8 +30,8 @@ from sqlalchemy import select, update
 # ==============================================================================
 from backend.ai_engine import generate_ai_text
 from backend.database import async_session
-from backend.database.models import Project, Scene
-from backend.database.models.world import CastManifest, WorldLore
+from backend.database.models import Project, Scene, Episode
+from backend.database.models.world import CharacterManifest, WorldLore
 from backend.lib.defaults import DEFAULT_SCENE_BATCH_LIMIT, DEFAULT_SCRIPT_MODEL
 from backend.utils.telemetry import telemetry_manager
 
@@ -105,20 +105,27 @@ async def manifest_scene(
             logger.error(f"AI MANIFEST: Project blueprint #{scene.project_id} not resolved for Scene {scene_id}.")
             return False
             
-        # 3. Fetch Lore & Cast Manifest
+        # 3. Fetch Lore & Character Manifest
         world_lore_stmt = select(WorldLore).where(WorldLore.project_id == project.id).order_by(WorldLore.created_at.desc())
-        cast_manifest_stmt = select(CastManifest).where(CastManifest.project_id == project.id).order_by(CastManifest.created_at.desc())
+        character_manifest_stmt = select(CharacterManifest).where(CharacterManifest.project_id == project.id).order_by(CharacterManifest.created_at.desc())
         
         lore_res = await session.execute(world_lore_stmt)
-        cast_res = await session.execute(cast_manifest_stmt)
+        character_res = await session.execute(character_manifest_stmt)
         
         world_lore = lore_res.scalars().first()
-        cast_manifest = cast_res.scalars().first()
+        character_manifest = character_res.scalars().first()
         
         world_lore_text = world_lore.full_lore_blob if world_lore else ""
-        cast_text = cast_manifest.cast_list_blob if cast_manifest else ""
-        session_index = ((scene.scene_number - 1) // 16) + 1 if scene.scene_number and scene.scene_number > 0 else 1
-        scene_index = ((scene.scene_number - 1) % 16) + 1 if scene.scene_number and scene.scene_number > 0 else 1
+        cast_text = character_manifest.character_list_blob if character_manifest else ""
+        
+        # Fetch Episode to determine custom scene counts per episode
+        episode = await session.get(Episode, scene.episode_id)
+        scenes_per_episode = 16
+        if episode and episode.asset_matrix:
+            scenes_per_episode = int(episode.asset_matrix.get("scene_count", 16))
+
+        session_index = ((scene.scene_number - 1) // scenes_per_episode) + 1 if scene.scene_number and scene.scene_number > 0 else 1
+        scene_index = ((scene.scene_number - 1) % scenes_per_episode) + 1 if scene.scene_number and scene.scene_number > 0 else 1
         
         source_sections = []
         if world_lore_text: 

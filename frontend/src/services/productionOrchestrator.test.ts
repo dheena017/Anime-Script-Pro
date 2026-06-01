@@ -3,6 +3,7 @@ import { ProductionOrchestrator } from './productionOrchestrator';
 import { apiRequest } from '@/lib/api-utils';
 
 vi.mock('@/lib/api-utils', () => ({
+  API_BASE_URL: '',
   apiRequest: vi.fn(),
 }));
 

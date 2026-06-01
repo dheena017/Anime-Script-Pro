@@ -8,15 +8,15 @@ export const engineStyles = {
   header: {
     wrapper: "relative group",
     glow: "absolute -inset-0.5 rounded-3xl bg-gradient-to-r from-[#08162a] via-[#041428] to-[#000814] opacity-60 blur-xl pointer-events-none",
-    container: "relative header-container px-6 py-5 flex items-center justify-between gap-6 rounded-3xl bg-gradient-to-r from-[#071426]/80 to-[#071022]/60 border border-blue-900/30 shadow-[0_10px_30px_rgba(2,6,23,0.6)]",
-    iconBox: "header-icon-box group/icon rounded-2xl p-3 !bg-gradient-to-br !from-studio/10 !to-studio/6 !border-studio/30",
+    container: "relative header-container px-4 sm:px-6 py-4 sm:py-5 flex items-center justify-between gap-4 sm:gap-6 rounded-3xl bg-gradient-to-r from-[#071426]/80 to-[#071022]/60 border border-blue-900/30 shadow-[0_10px_30px_rgba(2,6,23,0.6)]",
+    iconBox: "header-icon-box group/icon rounded-2xl p-2.5 sm:p-3 !bg-gradient-to-br !from-studio/10 !to-studio/6 !border-studio/30",
     iconGlow: "absolute inset-0 bg-gradient-to-br from-studio/20 to-transparent opacity-0 group-hover/icon:opacity-100 transition-opacity duration-500 rounded-2xl",
-    icon: "w-7 h-7 text-studio relative z-10 drop-shadow-[0_6px_20px_rgba(6,182,212,0.2)]",
-    title: "header-title text-white font-extrabold uppercase tracking-widest text-lg",
-    subtitle: "header-subtitle text-sm text-studio/60",
-    actionButton: "relative w-full sm:w-auto h-10 px-6 rounded-full border border-white/10 bg-white/5 text-zinc-400 hover:bg-white/10 hover:border-studio/50 hover:text-studio font-black uppercase tracking-widest text-xs transition-all duration-300 group/back shadow-lg",
-    actionButtonDanger: "relative w-full sm:w-auto h-10 px-6 rounded-full border border-red-500/30 bg-red-500/10 text-red-400 hover:bg-red-500/15 hover:border-red-500/60 hover:text-red-300 font-black uppercase tracking-widest text-xs transition-all duration-300 group/stop shadow-lg",
-    actionButtonPrimary: "relative w-full sm:w-auto h-10 px-8 rounded-full border border-studio/30 bg-studio/5 text-studio hover:bg-studio/10 hover:border-studio/60 hover:text-studio-light font-black uppercase tracking-widest text-xs transition-all duration-300 group/btn shadow-lg",
+    icon: "w-6 h-6 sm:w-7 sm:h-7 text-studio relative z-10 drop-shadow-[0_6px_20px_rgba(6,182,212,0.2)]",
+    title: "header-title text-white font-extrabold uppercase tracking-[0.28em] sm:tracking-widest text-sm sm:text-lg",
+    subtitle: "header-subtitle text-[10px] sm:text-sm text-studio/60 tracking-[0.2em] sm:tracking-normal uppercase sm:normal-case",
+    actionButton: "relative w-full sm:w-auto h-9 sm:h-10 px-4 sm:px-6 rounded-full border border-white/10 bg-white/5 text-zinc-400 hover:bg-white/10 hover:border-studio/50 hover:text-studio font-black uppercase tracking-widest text-[10px] sm:text-xs transition-all duration-300 group/back shadow-lg",
+    actionButtonDanger: "relative w-full sm:w-auto h-9 sm:h-10 px-4 sm:px-6 rounded-full border border-red-500/30 bg-red-500/10 text-red-400 hover:bg-red-500/15 hover:border-red-500/60 hover:text-red-300 font-black uppercase tracking-widest text-[10px] sm:text-xs transition-all duration-300 group/stop shadow-lg",
+    actionButtonPrimary: "relative w-full sm:w-auto h-9 sm:h-10 px-5 sm:px-8 rounded-full border border-studio/30 bg-studio/5 text-studio hover:bg-studio/10 hover:border-studio/60 hover:text-studio-light font-black uppercase tracking-widest text-[10px] sm:text-xs transition-all duration-300 group/btn shadow-lg",
   },
 
   // --- TOOLBAR SECTION ---
@@ -36,21 +36,21 @@ export const engineStyles = {
 
   // --- TABS SECTION ---
   tabs: {
-    tabsBar: "studio-tabs-bar sticky top-0 z-40 flex items-center justify-center p-3 md:p-4 bg-[#050505]/95 backdrop-blur-md border border-white/10 rounded-[2rem] shadow-2xl mb-8 relative group overflow-hidden",
+    tabsBar: "studio-tabs-bar sticky top-0 z-40 flex items-center justify-center px-2 sm:px-3 md:px-4 py-2 sm:py-3 bg-[#050505]/95 backdrop-blur-md border border-white/10 rounded-[1.5rem] sm:rounded-[2rem] shadow-2xl mb-6 sm:mb-8 relative group overflow-hidden",
     tabsBarGlow: "absolute inset-0 bg-gradient-to-r from-transparent via-studio/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000",
-    tabsBarInner: "relative z-10 w-full flex justify-center",
+    tabsBarInner: "relative z-10 w-full overflow-x-auto hide-scrollbar",
     
     // Internal Tab styles (from engineTabsStyles)
-    container: 'flex items-center justify-center gap-10 p-2 relative overflow-x-auto hide-scrollbar',
+    container: 'inline-flex min-w-max items-center justify-start gap-2 sm:gap-3 md:gap-4 p-1 sm:p-2 relative mx-auto',
     overlay: 'absolute inset-0 bg-gradient-to-r from-studio/5 via-transparent to-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000',
-    button: 'relative flex items-center gap-2.5 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-[0.2em] transition-all duration-300 shrink-0 whitespace-nowrap',
-    buttonActive: 'bg-white/[0.03] shadow-[0_0_20px_rgba(255,255,255,0.02)]',
+    button: 'relative flex min-w-fit items-center justify-center gap-2 px-4 py-2.5 sm:px-5 sm:py-3 rounded-full text-[10px] sm:text-xs font-black uppercase tracking-[0.16em] sm:tracking-[0.2em] transition-all duration-300 shrink-0 border border-transparent whitespace-nowrap',
+    buttonActive: 'border border-zinc-800/80 bg-[#070709]/80 shadow-[0_0_20px_rgba(255,255,255,0.01)] text-current',
     buttonInactive: 'text-zinc-500 hover:text-zinc-300 hover:bg-white/[0.01]',
-    glow: 'absolute inset-0 border border-white/10 rounded-xl shadow-[0_0_30px_rgba(255,255,255,0.02)]',
-    icon: 'w-3.5 h-3.5 transition-all duration-500',
-    iconActive: 'opacity-100 scale-110 rotate-[360deg]',
+    glow: 'absolute inset-0 rounded-full pointer-events-none bg-studio/5',
+    icon: 'w-3.5 h-3.5 sm:w-4 sm:h-4 transition-all duration-500',
+    iconActive: 'opacity-100 scale-110',
     iconInactive: 'opacity-40',
-    underline: 'absolute -bottom-1 left-4 right-4 h-0.5 bg-current rounded-full opacity-50 blur-[1px]',
+    underline: 'absolute bottom-1.5 left-6 right-6 h-[2px] bg-current rounded-full',
   },
 
   // --- PAGE LAYOUT ---

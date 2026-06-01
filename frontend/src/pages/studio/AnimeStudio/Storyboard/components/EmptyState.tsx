@@ -1,6 +1,6 @@
-import React from 'react';
-import { Layout, Sparkles, Zap, Box } from 'lucide-react';
-import { StudioEmptyState } from '@/pages/studio/components/studio/shared/StudioEmptyState';
+import React from "react";
+import { Layout, Sparkles, Zap, Box } from "lucide-react";
+import { StudioEmptyState } from "@/pages/studio/components/studio/shared/StudioEmptyState";
 
 interface EmptyStateProps {
   onLaunch: () => void;
@@ -8,11 +8,27 @@ interface EmptyStateProps {
   isGenerating?: boolean;
 }
 
-export const EmptyState: React.FC<EmptyStateProps> = ({ onLaunch, onLoadDemo, isGenerating = false }) => {
+export const EmptyState: React.FC<EmptyStateProps> = ({
+  onLaunch,
+  onLoadDemo,
+  isGenerating = false,
+}) => {
   const features = [
-    { icon: Sparkles, title: 'Visual Synthesis', description: 'AI maps script sequences to cinematic videos' },
-    { icon: Zap, title: 'Scene Flow', description: 'Ensures visual continuity across sequences' },
-    { icon: Box, title: 'Asset Injection', description: 'Seamlessly integrates custom visual assets' }
+    {
+      icon: Sparkles,
+      title: "Visual Synthesis",
+      description: "AI maps script sequences to cinematic videos",
+    },
+    {
+      icon: Zap,
+      title: "Scene Flow",
+      description: "Ensures visual continuity across sequences",
+    },
+    {
+      icon: Box,
+      title: "Asset Injection",
+      description: "Seamlessly integrates custom visual assets",
+    },
   ];
 
   return (
@@ -27,7 +43,3 @@ export const EmptyState: React.FC<EmptyStateProps> = ({ onLaunch, onLoadDemo, is
     />
   );
 };
-
-
-
-

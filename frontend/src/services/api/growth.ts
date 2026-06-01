@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { TEXT_MODELS } from '@/lib/aiModels/textModels';
 
 export interface GrowthStrategy {
   id: number;
@@ -17,7 +18,7 @@ export const growthApi = {
     return response.data;
   },
 
-  generateStrategy: async (strategyId: number, scriptContent: string, model: string = "gemini-1.5-flash-latest") => {
+  generateStrategy: async (strategyId: number, scriptContent: string, model: string = TEXT_MODELS[0].id) => {
     const response = await axios.post('/api/growth/generate/' + strategyId, {
       script_content: scriptContent,
       model: model

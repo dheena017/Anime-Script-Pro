@@ -38,7 +38,7 @@ export const AssetsHeader: React.FC<AssetsHeaderProps> = ({
             </div>
             <div>
               <h1 className={s.header.title}>Asset Laboratory</h1>
-              <p className={s.header.subtitle}>Multi-Format Asset Generator</p>
+
             </div>
           </div>
 

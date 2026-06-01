@@ -41,7 +41,7 @@ export const PromptsHeader: React.FC<PromptsHeaderProps> = ({
       <div className={s.header.wrapper}>
         <div className={s.header.glow} />
         <div className={s.header.container}>
-          <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-8 z-10 w-full lg:w-auto">
+          <div className="flex flex-row flex-wrap sm:flex-nowrap items-center gap-4 sm:gap-8 z-10 w-full lg:w-auto">
             <div className="relative shrink-0">
               <div className={s.header.iconBox}>
                 <div className={s.header.iconGlow} />
@@ -50,20 +50,17 @@ export const PromptsHeader: React.FC<PromptsHeaderProps> = ({
               </div>
             </div>
 
-            <div className="flex flex-col items-center sm:items-start text-center sm:text-left">
+            <div className="flex flex-row items-center sm:items-start text-center sm:text-left">
               <div className="flex items-center gap-3">
                 <h1 className={s.header.title}>
                   System Prompts
                 </h1>
               </div>
-              <div className="flex items-center gap-2 mt-2">
-                <Terminal className="w-3.5 h-3.5 text-red-300/50 shrink-0" />
-                <p className={s.header.subtitle}>S{session} // EP{episode} // Global Context</p>
-              </div>
+
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-center gap-4 z-10 w-full lg:w-auto">
+          <div className="flex flex-row flex-wrap sm:flex-nowrap items-center gap-4 z-10 w-full lg:w-auto justify-center sm:justify-start">
             {onPrev && (
               <Tooltip>
                 <TooltipTrigger>
@@ -81,7 +78,7 @@ export const PromptsHeader: React.FC<PromptsHeaderProps> = ({
               </Tooltip>
             )}
 
-            <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
+            <div className="flex flex-row items-center gap-4 w-full sm:w-auto justify-center sm:justify-start">
               <Tooltip>
                 <TooltipTrigger>
                   {isGenerating ? (
