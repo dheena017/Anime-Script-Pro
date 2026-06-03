@@ -2,7 +2,6 @@
 // Prompt Library — barrel re-exports & PROMPT_REGISTRY
 // ─────────────────────────────────────────────────────────────────────────────
 
-import * as scriptPrompts from './scriptPrompts';
 import * as worldPrompts from './worldPrompts';
 import * as characterPrompts from './characterPrompts';
 import * as imagePrompts from './imagePrompts';
@@ -15,7 +14,6 @@ import * as youtubeStrategyPrompts from './youtubeStrategyPrompts';
 import * as musicPrompts from './musicPrompts';
 import * as audioPrompts from './audioPrompts';
 
-export * from './scriptPrompts';
 export * from './worldPrompts';
 export * from './characterPrompts';
 export * from './imagePrompts';
@@ -29,7 +27,6 @@ export * from './musicPrompts';
 export * from './audioPrompts';
 
 export const PROMPT_REGISTRY = {
-	scriptPrompts,
 	worldPrompts,
 	characterPrompts,
 	imagePrompts,

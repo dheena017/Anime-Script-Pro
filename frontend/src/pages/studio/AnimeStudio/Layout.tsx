@@ -177,19 +177,19 @@ export default function AnimeLayout() {
 
       // PHASE 3: Series Structure
       setGenerationProgress(40);
-      addGeneratorLog("SERIES", "STARTING", `Designing Series Overall Structure (${numEpisodes || 12} Episodes)... [Target: series_blueprint.json]`, selectedModel);
+      addGeneratorLog("SERIES", "STARTING", `Designing Series Overall Structure (${numEpisodes || 'unknown'} Episodes)... [Target: series_blueprint.json]`, selectedModel);
       const seriesPlan = await generateSeriesPlan(
         prompt,
         selectedModel,
         'Anime',
-        numEpisodes || 12,
+        numEpisodes,
         world,
         typeof castResult === 'string' ? castResult : castResult.markdown,
-        true, // expandSequentially - Enable to generate detailed acts/scenes
+        false, // expandSequentially - Disabled: single-pass series generation prevents repeated per-episode AI calls.
         {
-          session: session || '1',
+          session: session || undefined,
           episode: episode || '1',
-          numScenes: numScenes ? parseInt(numScenes, 10) : 18,
+          numScenes: numScenes ? parseInt(numScenes, 10) : undefined,
           temperature,
           maxTokens,
           topP,

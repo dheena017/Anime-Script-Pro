@@ -178,7 +178,7 @@ export const SeriesToolbar: React.FC<SeriesToolbarProps> = ({
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="top">
-                  <p className="font-black uppercase tracking-widest text-xs">Copy JSON</p>
+                  <p className="font-black uppercase tracking-widest text-xs">Copy Manifest</p>
                 </TooltipContent>
               </Tooltip>
 

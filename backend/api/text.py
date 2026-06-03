@@ -121,8 +121,18 @@ async def generate_text(
     attempted_fallbacks = []
     request_id = str(uuid.uuid4())[:8]
 
+    prompt_chars = len(request.prompt or "")
+    prompt_tokens = estimate_token_count(request.prompt or "")
+    system_chars = len(request.systemInstruction or "")
+    system_tokens = estimate_token_count(request.systemInstruction or "")
+    total_chars = prompt_chars + system_chars
+    total_tokens = prompt_tokens + system_tokens
+    page_name = request.pageName or "UNKNOWN"
+
     logger.opt(colors=True).info(
-        f"TEXT SYNTHESIS [#{request_id}]: Starting neural orchestration. Target: <cyan>{target_model}</cyan>"
+        f"<yellow>[TELEMETRY]</yellow> <magenta>[AI INPUT ]</magenta> "
+        f"Model: <cyan>{target_model}</cyan> | Chars: <light-blue>{total_chars}</light-blue> | "
+        f"Tokens (est): <light-blue>{total_tokens}</light-blue> | Page: <green>{page_name}</green> | ID: <yellow>{request_id}</yellow>"
     )
 
     last_error = None
@@ -231,7 +241,14 @@ async def generate_text(
 
             latency_ms = (time.perf_counter() - start_time) * 1000
 
-            logger.success("TEXT COMPLETED: [✅] Neural Synthesis Successful")
+            out_chars = len(output_text or "")
+            out_tokens = usage_dict.get("candidates_tokens", 0) or estimate_token_count(output_text or "")
+
+            logger.opt(colors=True).success(
+                f"<yellow>[TELEMETRY]</yellow> <green>[AI OUTPUT]</green> "
+                f"Model: <cyan>{current_model}</cyan> | Chars: <light-blue>{out_chars}</light-blue> | "
+                f"Tokens: <light-blue>{out_tokens}</light-blue> | Latency: <light-blue>{latency_ms:.2f}ms</light-blue> | ID: <yellow>{request_id}</yellow>"
+            )
             health_registry.report_success(current_model)
 
             from backend.utils.notifications import notify_user
@@ -368,12 +385,25 @@ async def stream_text_response(
     """
     target_model = resolve_engine_model(request.model)
     request_id = str(uuid.uuid4())[:8]
-
     # Resolve custom params with camelCase fallback
     temperature = request.temperature
     max_tokens = request.maxTokens if request.maxTokens is not None else request.max_tokens
     top_p = request.topP if request.topP is not None else request.top_p
     top_k = request.topK if request.topK is not None else request.top_k
+
+    prompt_chars = len(request.prompt or "")
+    prompt_tokens = estimate_token_count(request.prompt or "")
+    system_chars = len(request.systemInstruction or "")
+    system_tokens = estimate_token_count(request.systemInstruction or "")
+    total_chars = prompt_chars + system_chars
+    total_tokens = prompt_tokens + system_tokens
+    page_name = request.pageName or "UNKNOWN"
+
+    logger.opt(colors=True).info(
+        f"<yellow>[TELEMETRY]</yellow> <magenta>[AI INPUT ]</magenta> "
+        f"Model: <cyan>{target_model}</cyan> | Chars: <light-blue>{total_chars}</light-blue> | "
+        f"Tokens (est): <light-blue>{total_tokens}</light-blue> | Page: <green>{page_name}</green> | Streaming: <light-blue>True</light-blue> | ID: <yellow>{request_id}</yellow>"
+    )
 
     async def event_generator():
         FALLBACKS = [target_model] + DEFAULT_TEXT_MODELS
@@ -429,7 +459,10 @@ async def stream_text_response(
                 ):
                     yield f"data: {json.dumps({'text': chunk, 'done': False})}\n\n"
 
-                logger.success(f"TEXT STREAM [#{request_id}]: Stream finalized successfully.")
+                logger.opt(colors=True).success(
+                    f"<yellow>[TELEMETRY]</yellow> <green>[AI OUTPUT]</green> "
+                    f"Model: <cyan>{current_model}</cyan> | Streaming: <light-blue>Completed</light-blue> | ID: <yellow>{request_id}</yellow>"
+                )
                 health_registry.report_success(current_model)
                 yield "data: [DONE]\n\n"
                 return

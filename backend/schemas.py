@@ -39,6 +39,7 @@ class GenerationRequest(BaseModel):
     topP: Optional[float] = None
     top_k: Optional[int] = None
     topK: Optional[int] = None
+    pageName: Optional[str] = None
 
 
 class GenerationResponse(BaseModel):

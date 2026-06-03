@@ -45,7 +45,9 @@ export default function SeriesLayout() {
     temperature,
     maxTokens,
     topP,
-    topK
+    topK,
+    numEpisodes,
+    numScenes
   } = useGeneratorState();
 
   const {
@@ -57,7 +59,8 @@ export default function SeriesLayout() {
     syncCore,
     showNotification,
     addLog: addGeneratorLog,
-    setGenerationProgress
+    setGenerationProgress,
+    stopGeneration
   } = useGeneratorDispatch();
 
   const [generationError, setGenerationError] = React.useState<string | null>(null);
@@ -77,15 +80,55 @@ export default function SeriesLayout() {
     currentScriptId ? `/projects/${currentScriptId}` : '/studio'
   );
 
-  const handleGenerate = React.useCallback(async (episodesToGenerate: number, numScenes: number, sessionsToGenerate: number) => {
+  const MAX_TOTAL_EPISODES = 24;
+
+  type GenerateSeriesArgs = {
+    episodesPerSession: number;
+    sessions: number;
+    scenes: number;
+  };
+
+  const handleGenerate = React.useCallback(async (params: GenerateSeriesArgs) => {
+    const { episodesPerSession, scenes: resolvedScenes, sessions: resolvedSessions } = params;
+
+    const episodesCount = Number(episodesPerSession);
+    const sceneCount = Number(resolvedScenes);
+    const sessionsCount = Number(resolvedSessions);
+
+    console.log('🎬 [handleGenerate] CALLED with:', { episodesPerSession: episodesCount, scenes: sceneCount, sessions: sessionsCount });
+
+    const missingFields: string[] = [];
+    if (!Number.isFinite(sessionsCount)) missingFields.push('Session Count');
+    if (!Number.isFinite(episodesCount)) missingFields.push('Episodes Per Session');
+    if (!Number.isFinite(sceneCount)) missingFields.push('Scenes Per Episode');
+
+    if (missingFields.length > 0) {
+      const message = `Please enter valid values for: ${missingFields.join(', ')}.`;
+      console.error('❌ [handleGenerate] Missing or invalid generation fields:', { missingFields, episodesPerSession, resolvedScenes, resolvedSessions });
+      showNotification?.(message, 'error');
+      setGenerationError(message);
+      return;
+    }
+    
+    const totalEpisodes = episodesCount * sessionsCount;
+    if (totalEpisodes > MAX_TOTAL_EPISODES) {
+      console.warn(`Requested ${totalEpisodes} total episodes exceeds the safe generation cap of ${MAX_TOTAL_EPISODES}.`);
+      showNotification?.(`Total episodes (${totalEpisodes}) is too high for a single AI generation pass. Reduce sessions or episodes to ${MAX_TOTAL_EPISODES} total or fewer.`, 'warning');
+      setGenerationError(`Too many episodes requested: ${totalEpisodes}. Reduce sessions or episodes.`);
+      return;
+    }
+
     if (!prompt) {
+      console.error('❌ [handleGenerate] Missing prompt:', prompt);
       showNotification?.('Project prompt is missing. Please define your series core logline.', 'warning');
       return;
     }
+    
+    console.log('🎬 [handleGenerate] Prompt validated, starting generation');
     setGenerationError(null);
     setIsGeneratingSeries(true);
     setGenerationProgress(5);
-    addGeneratorLog?.("SERIES", "STARTING", `Synthesizing full series roadmap across ${sessionsToGenerate} sessions and ${episodesToGenerate} episode beats...`);
+    addGeneratorLog?.("SERIES", "STARTING", `Synthesizing full series roadmap across ${sessionsCount} sessions and ${episodesCount} episode beats...`);
 
     try {
       // We only reset the Series Plan, not the World or Cast. 
@@ -95,7 +138,7 @@ export default function SeriesLayout() {
       setGeneratedImagePrompts(null);
       setGeneratedMetadata(null);
 
-      const totalEpisodes = episodesToGenerate * sessionsToGenerate;
+      const totalEpisodes = episodesCount * sessionsCount;
 
       // BUILD THE SOURCE OF TRUTH (WORLD BIBLE)
       const worldBible = [
@@ -124,16 +167,16 @@ export default function SeriesLayout() {
         totalEpisodes,
         worldBible,
         castContext,
-        true, // expandSequentially - Enable this to generate detailed scenes for each episode
+        false, // expandSequentially - Disabled: single-pass generation. Per-episode expansion spawned repeated AI calls.
         {
-          session: String(sessionsToGenerate), // Pass custom sessions to the API as a string
-          episodesPerSession: episodesToGenerate,
+          session: String(sessionsCount),
+          episodesPerSession: episodesCount,
           episode,
           temperature,
           maxTokens,
           topP,
           topK,
-          numScenes
+          numScenes: sceneCount
         }
       );
 
@@ -221,18 +264,27 @@ export default function SeriesLayout() {
 
   React.useEffect(() => {
     const handleGlobalGenerate = (e: any) => {
+      console.log('🎬 [SeriesLayout EVENT LISTENER] Received studio-generate-series event:', e?.detail);
       studioLog("SERIES", 'Global series generation event received.', 'anime');
       const hasDetail = e && e.detail;
       const customSessions = hasDetail ? e.detail.sessions : undefined;
-      const customEpisodes = hasDetail ? e.detail.episodes : undefined;
+      const customEpisodes = hasDetail ? (e.detail.episodesPerSession ?? e.detail.episodes) : undefined;
       const customScenes = hasDetail ? e.detail.scenes : undefined;
 
+      console.log('🎬 [SeriesLayout EVENT LISTENER] Parsed values:', { customSessions, customEpisodes, customScenes });
+
       if (customSessions === undefined || customEpisodes === undefined || customScenes === undefined) {
+        console.error('❌ [SeriesLayout EVENT LISTENER] Missing required values');
         showNotification?.('Generation event must include explicit sessions, episodes and scenes counts.', 'warning');
         return;
       }
 
-      handleGenerate(Number(customEpisodes), Number(customScenes), Number(customSessions));
+      console.log('🎬 [SeriesLayout EVENT LISTENER] Calling handleGenerate with:', { episodesPerSession: customEpisodes, scenes: customScenes, sessions: customSessions });
+      handleGenerate({
+        episodesPerSession: Number(customEpisodes),
+        scenes: Number(customScenes),
+        sessions: Number(customSessions)
+      });
     };
     window.addEventListener('studio-generate-series', handleGlobalGenerate);
     return () => window.removeEventListener('studio-generate-series', handleGlobalGenerate);
@@ -256,7 +308,20 @@ export default function SeriesLayout() {
           onManifest={() => handleTabChange('blueprint')}
           isManifestActive={activeTab === 'blueprint'}
           onSave={handleSave}
+          onGenerate={() => {
+            if (isGeneratingSeries) {
+              stopGeneration?.();
+              return;
+            }
+
+            handleGenerate({
+              episodesPerSession: numEpisodes,
+              sessions: Number(session),
+              scenes: Number(numScenes)
+            });
+          }}
           isSaving={isSaving}
+          isGenerating={isGeneratingSeries}
           hasContent={Boolean(generatedSeriesPlan && generatedSeriesPlan.length > 0)}
           session={session}
           episode={episode}
@@ -331,7 +396,7 @@ export default function SeriesLayout() {
                   description="Orchestrating Roadmap, Episodes, and Assets..."
                 />
               ) : (
-                <Outlet context={{ showScaffolder, setShowScaffolder, activeTab }} />
+                <Outlet context={{ showScaffolder, setShowScaffolder, activeTab, onGenerateSeries: handleGenerate }} />
               )}
             </Suspense>
           </motion.div>

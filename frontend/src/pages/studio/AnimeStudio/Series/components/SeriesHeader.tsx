@@ -6,7 +6,7 @@ import {
   TooltipTrigger
 } from '@/components/ui/tooltip';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight, Cpu, Layout, Save, Box } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Cpu, Layout, Save, Box, Square, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { seriesStyles as s } from '../seriesStyles';
 
@@ -15,9 +15,11 @@ interface SeriesHeaderProps {
   onPrev?: () => void;
   onSave?: () => void;
   onManifest?: () => void;
+  onGenerate?: () => void;
 
   isManifestActive?: boolean;
   isSaving?: boolean;
+  isGenerating?: boolean;
   hasContent?: boolean;
   session: string;
   episode: string;
@@ -30,9 +32,10 @@ export const SeriesHeader: React.FC<SeriesHeaderProps> = ({
   onPrev,
   onSave,
   onManifest,
-
+  onGenerate,
   isManifestActive,
   isSaving,
+  isGenerating,
   hasContent,
   session,
   episode,
@@ -113,6 +116,38 @@ export const SeriesHeader: React.FC<SeriesHeaderProps> = ({
                   <p className="font-black uppercase tracking-widest text-[10px] text-emerald-500/80">Production Blueprint</p>
                 </TooltipContent>
               </Tooltip>
+
+              {onGenerate && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      className={cn(
+                        isGenerating ? s.header.actionButtonDanger : s.header.actionButtonPrimary,
+                        "relative group/generate overflow-hidden"
+                      )}
+                      onClick={onGenerate}
+                    >
+                      <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-transparent opacity-0 group-hover/generate:opacity-100 transition-opacity" />
+                      <span className="relative z-10 flex items-center gap-2">
+                        {isGenerating ? (
+                          <>
+                            STOP <Square className="w-4 h-4 transition-transform" />
+                          </>
+                        ) : (
+                          <>
+                            GENERATE <Sparkles className="w-4 h-4 transition-transform" />
+                          </>
+                        )}
+                      </span>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom" className="bg-black/90 border-white/10 backdrop-blur-xl">
+                    <p className="font-black uppercase tracking-widest text-[10px] text-emerald-400">
+                      {isGenerating ? 'Stop Generation' : 'Generate Series Blueprint'}
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              )}
 
               <Tooltip>
                 <TooltipTrigger asChild>

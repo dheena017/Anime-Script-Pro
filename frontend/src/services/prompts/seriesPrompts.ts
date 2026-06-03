@@ -196,9 +196,9 @@ NON-NEGOTIABLE RULES:
 - Estimate runtime as a premium long-form episode.
 - The runtime must reflect a full-scale, cinematic production.
 - Scene count MUST be exactly ${numScenes} scenes per episode to strictly match the production scaffolding. Each scene should have a distinct scene_index in the JSON.
+- Each scene seed must include a scene_name alongside scene_index.
 - The roadmap must span exactly ${episodeCount} episodes.
 - Each episode must include a readable episode label.
-- Each scene seed must include a scene_name alongside scene_index.
 
 ### 9. Output Quality Standards
 - Titles must be evocative and specific.
@@ -243,6 +243,11 @@ REQUIRED JSON SCHEMA (You MUST output an array containing EXACTLY ${episodeCount
       "audio_leitmotif": "...",
       "foley_focus": "..."
     },
+    "episode_image_prompt": "Episode-level visual identity prompt describing the overall cinematic palette, staging, and image style.",
+    "episode_video_prompt": "Episode-level motion prompt summarizing the episode pacing, camera moves, and stylistic transitions.",
+    "episode_audio_prompt": "Episode-level audio prompt describing the ambient soundscape, foley palette, and sonic identity.",
+    "episode_music_prompt": "Episode-level music prompt describing tempo, instrumentation, and emotional score progression.",
+    "episode_system_rules": "Rules for consistent scene-to-scene continuity, tone, and AI safety.",
     "detailed_episode_spec": {
       "cold_open": "...",
       "script_opening_line": "...",
@@ -264,13 +269,17 @@ REQUIRED JSON SCHEMA (You MUST output an array containing EXACTLY ${episodeCount
               "dialogue_tone": "...",
               "shot_list_preview": ["..."],
               "transition": "...",
-              "ai_prompts": {
-                "image_prompt": "Ultra-detailed prompt for generative image models (e.g. Midjourney) describing the exact visual framing, lighting, and aesthetic of this scene.",
-                "video_prompt": "Cinematic motion prompt for generative video models (e.g. Runway/Sora) describing the camera movement and subject action.",
-                "audio_prompt": "Foley and SFX prompt for generative audio models detailing environmental sounds, impacts, and ambient noise.",
-                "music_prompt": "Music generation prompt detailing the tempo, instrumentation, and emotional score for this scene.",
-                "system_rules": "Strict downstream directives and logic rules to pass to other AI agents processing this scene."
-              },
+              "frames": [
+                {
+                  "frame_id": "E01_A1_S01_F01",
+                  "frame_description": "Key storyboard frame description for the opening visual beat.",
+                  "image_prompt": "Ultra-specific frame-level image prompt describing composition, lighting, character pose, and visual style.",
+                  "video_prompt": "Frame-level motion prompt describing camera move, subject action, and timing for this beat.",
+                  "audio_prompt": "Frame-level audio prompt describing the ambient texture, foley hits, and any transition sound design.",
+                  "music_prompt": "Frame-level music prompt describing tempo, instrumentation, and emotional cue for this beat.",
+                  "system_rules": "Frame-level rules for consistency, continuity, and model-safe generation."
+                }
+              ],
               "production_stats": {
                 "cast_count": 0,
                 "extra_count": 0,

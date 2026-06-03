@@ -345,7 +345,7 @@ const normalizeModelId = (id: string | undefined): string => {
   if (!id) return "gemini-3.1-flash-lite";
   let normalized = id.toLowerCase().trim().replace(/^models\//, "");
   // Common aliases mapping to most capable modern models
-  if (normalized === "gemini-flash" || normalized === "gemini-1.5-flash") return "gemini-3.1-flash";
+  if (normalized === "gemini-flash" || normalized === "gemini-1.5-flash") return "gemini-1.5-flash";
   if (normalized === "gemini-pro" || normalized === "gemini-1.5-pro") return "gemini-3.1-pro";
   // Allow gemini-3.x and gemini-2.x modern models to pass through natively
   return normalized;
@@ -447,7 +447,6 @@ export async function generateText(
       primaryModel,
       ...[
         "gemini-3.1-flash-lite",  // Standard default, massive daily quota
-        "gemini-3.1-flash",       // Highly recommended
         "gemini-3.5-flash",       // Advanced flash
         "gemini-2.5-flash",       // Primary real model — fast & capable
         "gemini-2.5-flash-lite",  // Lightweight fallback

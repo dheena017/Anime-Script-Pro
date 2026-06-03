@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { ProductionUnit, generateProductionSequences } from '@/lib/sequence-utils';
 import { useAuth } from '@/hooks/useAuth';
-import { useApp } from '@/contexts/AppContext';
+import { useAppSafe } from '@/contexts/AppContext';
 import { WorldLore } from '../services/api/world';
 import { useLogDispatch } from '@/contexts/LogContext';
 import {
@@ -251,7 +251,8 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
   const queryClient = useQueryClient();
   const location = useLocation();
   const { user } = useAuth();
-  const { showNotification: rawShowNotification } = useApp();
+  const appContext = useAppSafe();
+  const rawShowNotification = appContext?.showNotification;
   const [prompt, setPromptInternal] = useState('');
   const [promptLore, setPromptLore] = useState('');
   const [promptPowers, setPromptPowers] = useState('');
@@ -341,7 +342,7 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
   }, [abortController]);
 
   const showNotification = useCallback((message: string, type?: 'error' | 'success' | 'info' | 'warning') => {
-    rawShowNotification(message, type);
+    rawShowNotification?.(message, type);
   }, [rawShowNotification]);
 
   const stopGeneration = useCallback(() => {
@@ -367,9 +368,9 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     setAbortController(new AbortController());
   }, [abortController, showNotification]);
 
-  const [episode, setEpisode] = useState('1');
-  const [session, setSession] = useState('1');
-  const [numScenes, setNumScenes] = useState('12');
+  const [episode, setEpisode] = useState('');
+  const [session, setSession] = useState('');
+  const [numScenes, setNumScenes] = useState('');
   const [recapperPersona, setRecapperPersona] = useState('');
   const [contentType, setContentType] = useState('Anime');
   const [isLoading, setIsLoading] = useState(false);
@@ -393,7 +394,7 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
   const [maxTokens, setMaxTokens] = useState(2048);
   const [topP, setTopP] = useState(0.95);
   const [topK, setTopK] = useState(40);
-  const [selectedModel, setSelectedModel] = useState<string>('gemini-3.1-flash-lite');
+  const [selectedModel, setSelectedModel] = useState<string>('gemini-2.5-flash');
   const [tone, setTone] = useState('Analytical');
   const [audience, setAudience] = useState('Developers');
   const [genre, setGenre] = useState('');
@@ -411,7 +412,7 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
   const [characterIntegrity, setCharacterIntegrity] = useState<any | null>(null);
   const [isAnalyzingCharacters, setIsAnalyzingCharacters] = useState(false);
   const [numCharacters, setNumCharacters] = useState<number>(8);
-  const [numEpisodes, setNumEpisodes] = useState<number>(12);
+  const [numEpisodes, setNumEpisodes] = useState<number>(0);
 
   useEffect(() => {
     if (currentScriptId) {

@@ -102,7 +102,12 @@ def configure_logging() -> None:
         sys.stdout,
         level="DEBUG",
         colorize=True,
-        format="<green>{time:HH:mm:ss}</green> | <level>{level: <8}</level> | <level>{message}</level>",
+        format=(
+            "<level>{level: <5}</level>  "
+            "<cyan><b>FASTAPI_APP</b></cyan> "
+            "[<green>{time:hh:mm:ss a}</green>] "
+            "<level>{message}</level>"
+        ),
     )
 
     # File sink — plain-text for auditing and production logs.
@@ -229,7 +234,7 @@ class LogRequestsMiddleware:
         if not is_health:
             try:
                 logger.opt(colors=True).info(
-                    f"<magenta>[SIGNAL IN]</magenta>  <cyan><b>{method: <6}</b></cyan> {path}{'?' + query if query else ''} | ID: <yellow>{signal_id}</yellow>"
+                    f"<yellow>[TELEMETRY]</yellow> <magenta>[SIGNAL IN ]</magenta>  <cyan><b>{method: <6}</b></cyan> {path}{'?' + query if query else ''} | ID: <yellow>{signal_id}</yellow>"
                 )
             except Exception:
                 pass
@@ -253,7 +258,7 @@ class LogRequestsMiddleware:
                     )
                     try:
                         logger.opt(colors=True).info(
-                            f"<magenta>[SIGNAL OUT]</magenta> <cyan><b>{method: <6}</b></cyan> {path} | "
+                            f"<yellow>[TELEMETRY]</yellow> <magenta>[SIGNAL OUT]</magenta> <cyan><b>{method: <6}</b></cyan> {path} | "
                             f"Status: <{status_color_tag}><b>{status_code}</b></{status_color_tag}> | "
                             f"Latency: <light-blue>{latency:.2f}ms</light-blue> | ID: <yellow>{signal_id}</yellow>"
                         )

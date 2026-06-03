@@ -23,7 +23,7 @@ export function SeriesPage() {
   const [isSyncing, setIsSyncing] = React.useState(false);
   const [lastSyncDate, setLastSyncDate] = React.useState<string | null>(null);
   const [searchParams, setSearchParams] = useSearchParams();
-  const context = useOutletContext<{ activeTab?: SeriesTab }>();
+  const context = useOutletContext<{ activeTab?: SeriesTab; onGenerateSeries?: (params: { episodesPerSession: number; sessions: number; scenes: number }) => void }>();
   const activeTab = context?.activeTab || 'episodes';
 
   const {
@@ -119,15 +119,20 @@ export function SeriesPage() {
     navigate(`${studioBase}/storyboard/scenes/${sceneIndex}`);
   };
 
-  const handleManifestContinue = async (config: { episodes: number; sessions?: number; scenes?: number }) => {
+  const handleManifestContinue = async (config: { episodes: number; sessions?: number; scenes?: number; persist?: boolean }) => {
+    console.log('🎬 [handleManifestContinue] Called with config:', config);
+    
     // Require explicit sessions and scenes — do not silently default values.
     if (config.sessions === undefined || config.scenes === undefined) {
+      const error = 'Missing sessions or scenes in config';
+      console.error('❌ [handleManifestContinue]', error);
       showNotification?.('Please provide explicit session and scene counts before continuing.', 'warning');
-      return;
+      throw new Error(error);
     }
 
     const resolvedSessions = config.sessions;
     const resolvedScenes = config.scenes;
+    const shouldPersist = config.persist ?? false;
 
     const sequence = generateProductionSequences(
       resolvedSessions,
@@ -142,15 +147,32 @@ export function SeriesPage() {
       setSession?.(String(resolvedSessions));
     } catch (e) {
       // ignore if not available
+      console.warn('[handleManifestContinue] Warning setting state values:', e);
     }
-    if (!user) return;
+    
+    if (!user) {
+      const error = 'User not authenticated';
+      console.warn('⚠️ [handleManifestContinue]', error, '- Skipping database sync but will continue with AI generation');
+      // Don't throw - allow series generation to proceed via event dispatch
+      showNotification?.('Skipping database sync (not authenticated) - AI generation will proceed', 'info');
+      return;
+    }
+
+    if (!shouldPersist) {
+      console.info('🎬 [handleManifestContinue] Temporary generation requested; skipping database persistence.');
+      return;
+    }
+    
+    console.log('🎬 [handleManifestContinue] User authenticated, syncing scenes to database');
     setIsSyncing(true);
 
     try {
       let activeProjectId = projectId;
 
       if (!activeProjectId) {
-        showNotification?.('Project must be saved to establish database link. Please save manually to continue.', 'warning');
+        const error = 'No active project ID';
+        console.warn('⚠️ [handleManifestContinue]', error, '- Skipping database sync');
+        showNotification?.('Project not yet saved - skipping database sync (will still generate series)', 'info');
         return;
       }
 
@@ -164,6 +186,8 @@ export function SeriesPage() {
         };
       });
 
+      console.log('🎬 [handleManifestContinue] Calling API to create scenes:', { project_id: activeProjectId, sceneCount: scenesPayload.length });
+      
       const resJson = await apiRequest<{ episodes?: Array<any>; scenes?: Array<any> }>('/api/scenes', {
         method: 'POST',
         label: 'Bulk Scene Sync',
@@ -176,11 +200,14 @@ export function SeriesPage() {
 
       const createdEpisodesCount = (resJson.episodes || []).length;
       const createdScenesCount = (resJson.scenes || []).length;
+      console.log('🎬 [handleManifestContinue] Scenes created successfully:', { createdEpisodesCount, createdScenesCount });
+      
       showNotification?.(`Successfully materialized ${createdScenesCount} scenes across ${createdEpisodesCount} episodes`, 'success');
       setLastSyncDate(new Date().toLocaleTimeString());
     } catch (error) {
-      console.error('Production Matrix Sync Failed:', error);
-      showNotification?.('Failed to sync production roadmap: ' + (error as Error).message, 'error');
+      console.error('⚠️ [handleManifestContinue] Production Matrix Sync failed:', error);
+      showNotification?.('Database sync failed: ' + (error as Error).message + ' (will continue with AI generation)', 'warning');
+      // Don't rethrow - allow series generation to proceed via event dispatch
     } finally {
       setIsSyncing(false);
     }
@@ -228,6 +255,7 @@ export function SeriesPage() {
           <BlueprintTab
             showScaffolder={true}
             onManifestContinue={handleManifestContinue}
+            onGenerateSeries={context?.onGenerateSeries}
             isSyncing={isSyncing}
             lastSyncDate={lastSyncDate}
             productionSequence={productionSequence}

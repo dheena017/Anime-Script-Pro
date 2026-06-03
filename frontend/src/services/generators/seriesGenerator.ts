@@ -1,33 +1,69 @@
 import { generateText } from "./core";
 import { SERIES_PLAN_GENERATION_PROMPT } from "../prompts";
 import { TEXT_MODELS } from "@/lib/aiModels/textModels";
-import JSON5 from "json5";
+import * as JSON5 from "json5";
 import { cleanJson } from "../../lib/api-utils";
 
 type SeriesPromptOptions = {
   episode?: string;
   numScenes?: number;
+  session?: string | number;
+  episodesPerSession?: number;
 };
 
-function validateTextInput(value: unknown, fieldName: string, minimumLength = 1): string {
-  if (typeof value !== 'string') {
+type ExpandEpisodeDetailsOptions = {
+  temperature?: number;
+  maxTokens?: number;
+  topP?: number;
+  topK?: number;
+};
+
+type GenerateSeriesPlanOptions = {
+  session?: string;
+  episodesPerSession?: number;
+  episode?: string;
+  numScenes?: number;
+  temperature?: number;
+  maxTokens?: number;
+  topP?: number;
+  topK?: number;
+};
+
+type AdjacentScenesContext = {
+  prevScene?: any;
+  nextScene?: any;
+};
+
+// Validation helpers
+function validateTextInput(
+  value: unknown,
+  fieldName: string,
+  minimumLength = 1,
+  ): string {
+  if (typeof value !== "string") {
     throw new Error(`${fieldName} must be a string.`);
   }
 
   const trimmed = value.trim();
   if (trimmed.length < minimumLength) {
-    throw new Error(`${fieldName} must be at least ${minimumLength} characters long.`);
+    throw new Error(
+      `${fieldName} must be at least ${minimumLength} characters long.`,
+    );
   }
 
   return trimmed;
 }
 
-function validatePositiveInteger(value: unknown, fieldName: string, maximumValue?: number): number {
+function validatePositiveInteger(
+  value: unknown,
+  fieldName: string,
+  maximumValue?: number,
+  ): number {
   if (!Number.isInteger(value) || (value as number) <= 0) {
     throw new Error(`${fieldName} must be a positive integer.`);
   }
 
-  if (typeof maximumValue === 'number' && (value as number) > maximumValue) {
+  if (typeof maximumValue === "number" && (value as number) > maximumValue) {
     throw new Error(`${fieldName} must be ${maximumValue} or fewer.`);
   }
 
@@ -35,18 +71,44 @@ function validatePositiveInteger(value: unknown, fieldName: string, maximumValue
 }
 
 function validateSeriesPromptInput(prompt: string): void {
-  validateTextInput(prompt, 'Series prompt', 20);
+  validateTextInput(prompt, "Series prompt", 20);
 }
 
 function validateSeriesContentTypeInput(contentType: string): void {
-  validateTextInput(contentType, 'Content type', 2);
+  validateTextInput(contentType, "Content type", 2);
 }
 
 function validateSeriesEpisodeCountInput(episodeCount: number): void {
-  validatePositiveInteger(episodeCount, 'Episode count', 100);
+  validatePositiveInteger(episodeCount, "Episode count");
 }
 
-function extractJsonBlock(text: string, openChar: '{' | '[', closeChar: '}' | ']'): string | null {
+function validateSeriesScaffoldingOptions(opts?: GenerateSeriesPlanOptions) {
+  if (!opts) {
+    throw new Error(
+      "Series generation requires explicit Session Count, Episodes Per Session, and Scenes Per Episode.",
+    );
+  }
+
+  const sessionCount = opts.session !== undefined ? Number(opts.session) : Number.NaN;
+  const episodesPerSession = Number(opts.episodesPerSession);
+  const sceneCount = Number(opts.numScenes);
+
+  if (!Number.isFinite(sessionCount) || sessionCount <= 0) {
+    throw new Error("Session Count is required and must be a positive integer.");
+  }
+  if (!Number.isFinite(episodesPerSession) || episodesPerSession <= 0) {
+    throw new Error("Episodes Per Session is required and must be a positive integer.");
+  }
+  if (!Number.isFinite(sceneCount) || sceneCount <= 0) {
+    throw new Error("Scenes Per Episode is required and must be a positive integer.");
+  }
+}
+
+function extractJsonBlock(
+  text: string,
+  openChar: "{" | "[",
+  closeChar: "}" | "]",
+  ): string | null {
   const startIndex = text.indexOf(openChar);
   if (startIndex < 0) {
     return null;
@@ -66,7 +128,7 @@ function extractJsonBlock(text: string, openChar: '{' | '[', closeChar: '}' | ']
         continue;
       }
 
-      if (character === '\\') {
+      if (character === "\\") {
         escaped = true;
         continue;
       }
@@ -102,15 +164,50 @@ function extractJsonBlock(text: string, openChar: '{' | '[', closeChar: '}' | ']
 }
 
 function stripMarkdownFences(text: string): string {
-  return text.replace(/```(?:json)?/gi, '').replace(/```/g, '').trim();
+  return text
+    .replace(/```(?:json)?/gi, "")
+    .replace(/```/g, "")
+    .trim();
 }
 
-function findWrappedArrayCandidate(value: unknown): unknown[] | null {
-  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+function findWrappedObjectCandidate(
+  value: unknown,
+  ): Record<string, unknown> | null {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
     return null;
   }
 
-  const candidateKeys = ['series', 'episodes', 'plan', 'data', 'items', 'results'];
+  const candidateKeys = [
+    "detailed_episode_spec",
+    "result",
+    "data",
+    "payload",
+    "output",
+  ];
+  for (const key of candidateKeys) {
+    const candidate = (value as Record<string, unknown>)[key];
+    if (
+      candidate &&
+      typeof candidate === "object" &&
+      !Array.isArray(candidate)
+    ) {
+      return candidate as Record<string, unknown>;
+    }
+  }
+
+  return value as Record<string, unknown>;
+}
+
+function findWrappedArrayCandidate(value: unknown): unknown[] | null {
+  if (!value || typeof value !== "object") {
+    return null;
+  }
+
+  if (Array.isArray(value)) {
+    return value;
+  }
+
+  const candidateKeys = ["result", "data", "payload", "output", "items"];
   for (const key of candidateKeys) {
     const candidate = (value as Record<string, unknown>)[key];
     if (Array.isArray(candidate)) {
@@ -121,23 +218,110 @@ function findWrappedArrayCandidate(value: unknown): unknown[] | null {
   return null;
 }
 
-function findWrappedObjectCandidate(value: unknown): Record<string, unknown> | null {
-  if (!value || typeof value !== 'object' || Array.isArray(value)) {
-    return null;
+// JSON / AI response parsing helpers
+function escapeJsonStringNewlines(value: string | null | undefined): string {
+  if (typeof value !== "string") {
+    return typeof value === "object" && value !== null ? JSON.stringify(value) : "";
   }
 
-  const candidateKeys = ['detailed_episode_spec', 'result', 'data', 'payload', 'output'];
-  for (const key of candidateKeys) {
-    const candidate = (value as Record<string, unknown>)[key];
-    if (candidate && typeof candidate === 'object' && !Array.isArray(candidate)) {
-      return candidate as Record<string, unknown>;
+  let inString = false;
+  let escaped = false;
+  let result = "";
+
+  for (let i = 0; i < value.length; i += 1) {
+    const char = value[i];
+    if (escaped) {
+      result += char;
+      escaped = false;
+      continue;
+    }
+    if (char === "\\") {
+      result += char;
+      escaped = true;
+      continue;
+    }
+    if (char === '"') {
+      inString = !inString;
+      result += char;
+      continue;
+    }
+    if (inString && (char === "\n" || char === "\r")) {
+      result += "\\n";
+      if (char === "\r" && value[i + 1] === "\n") {
+        i += 1;
+      }
+      continue;
+    }
+    result += char;
+  }
+
+  return result;
+}
+
+function repairTruncatedJsonText(raw: string): string {
+  if (!raw) return "";
+
+  let content = raw.replace(/\r\n/g, "\n");
+  let inString = false;
+  let escaped = false;
+  const stack: string[] = [];
+
+  for (let i = 0; i < content.length; i += 1) {
+    const char = content[i];
+
+    if (escaped) {
+      escaped = false;
+      continue;
+    }
+
+    if (char === "\\") {
+      escaped = true;
+      continue;
+    }
+
+    if (char === '"') {
+      inString = !inString;
+      continue;
+    }
+
+    if (inString) continue;
+
+    if (char === "{" || char === "[") {
+      stack.push(char);
+      continue;
+    }
+
+    if (char === "}" || char === "]") {
+      if (stack.length > 0) {
+        const last = stack[stack.length - 1];
+        if ((char === "}" && last === "{") || (char === "]" && last === "[")) {
+          stack.pop();
+        }
+      }
     }
   }
 
-  return value as Record<string, unknown>;
+  if (escaped) {
+    content = content.slice(0, -1);
+  }
+
+  if (inString) {
+    content += '"';
+  }
+
+  content = content.trimEnd().replace(/[,:]\s*$/, "");
+
+  for (let i = stack.length - 1; i >= 0; i -= 1) {
+    content += stack[i] === "{" ? "}" : "]";
+  }
+
+  return content;
 }
 
-function parseStructuredJson<T>(text: string, expectedShape: 'array' | 'object'): T | null {
+function parseStructuredJson<T>(
+  text: string,
+  expectedShape: "array" | "object",
+  ): T | null {
   const tryParse = (value: string): any | null => {
     try {
       return JSON.parse(value);
@@ -150,66 +334,99 @@ function parseStructuredJson<T>(text: string, expectedShape: 'array' | 'object')
     }
   };
 
-  // Strategy 1: Use extractBalancedJsonBlock to grab only the valid JSON portion
-  // This robustly handles cases where the AI appends explanatory text after the closing bracket
+  const normalizeContent = (source: string): string => {
+    const stripped = stripMarkdownFences(source);
+    const extracted = extractJsonBlock(
+      stripped,
+      expectedShape === "array" ? "[" : "{",
+      expectedShape === "array" ? "]" : "}",
+    );
+    const target = extracted ?? stripped;
+    const cleaned = cleanJson(target);
+    return escapeJsonStringNewlines(typeof cleaned === "string" ? cleaned : JSON.stringify(cleaned));
+  };
+
+  const parseCandidate = (candidate: string): any | null => {
+    const parsed = tryParse(candidate);
+    if (parsed) return parsed;
+
+    try {
+      const cleaned = cleanJson(candidate);
+      const candidateString = typeof cleaned === "string" ? cleaned : JSON.stringify(cleaned);
+      const cleanedParsed = tryParse(candidateString);
+      if (cleanedParsed) return cleanedParsed;
+    } catch {
+      // fall through to repair fallback
+    }
+
+    const repaired = repairTruncatedJsonText(candidate);
+    return tryParse(repaired);
+  };
+
   try {
-    const openChar = expectedShape === 'array' ? '[' : '{';
-    const closeChar = expectedShape === 'array' ? ']' : '}';
+    const openChar = expectedShape === "array" ? "[" : "{";
+    const closeChar = expectedShape === "array" ? "]" : "}";
     const stripped = stripMarkdownFences(text);
-    const extracted = extractJsonBlock(stripped, openChar as '[' | '{', closeChar as ']' | '}');
+    const extracted = extractJsonBlock(stripped, openChar as "[" | "{", closeChar as "]" | "}");
+
     if (extracted) {
-      const parsed = tryParse(extracted);
+      const candidate = escapeJsonStringNewlines(cleanJson(extracted));
+      const parsed = parseCandidate(candidate);
       if (parsed) {
-        if (expectedShape === 'array' && Array.isArray(parsed)) return parsed as unknown as T;
-        if (expectedShape === 'object' && parsed && typeof parsed === 'object' && !Array.isArray(parsed)) return parsed as unknown as T;
-        if (expectedShape === 'array') {
+        if (expectedShape === "array" && Array.isArray(parsed)) return parsed as unknown as T;
+        if (expectedShape === "object" && parsed && typeof parsed === "object" && !Array.isArray(parsed)) return parsed as unknown as T;
+        if (expectedShape === "array") {
           const wrappedArray = findWrappedArrayCandidate(parsed);
           if (wrappedArray) return wrappedArray as unknown as T;
         }
-        if (expectedShape === 'object') {
+        if (expectedShape === "object") {
           const wrappedObject = findWrappedObjectCandidate(parsed);
           if (wrappedObject) return wrappedObject as unknown as T;
         }
       }
     }
   } catch {
-    // Fall through
+    // Fall through to broader repair
   }
 
-  // Strategy 2: cleanJson with repair
   try {
-    const parsed = cleanJson(text);
-    if (expectedShape === 'array') {
+    const normalized = normalizeContent(text);
+    const parsed = parseCandidate(normalized);
+    if (expectedShape === "array") {
       if (Array.isArray(parsed)) return parsed as unknown as T;
       const potentialArray = findWrappedArrayCandidate(parsed);
       if (potentialArray) return potentialArray as unknown as T;
-      if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+      if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
         const nestedObject = findWrappedObjectCandidate(parsed);
         if (nestedObject && Array.isArray((nestedObject as any).items)) {
           return (nestedObject as any).items as unknown as T;
         }
       }
     } else {
-      if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+      if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
         const nestedObject = findWrappedObjectCandidate(parsed);
         if (nestedObject) return nestedObject as unknown as T;
       }
     }
     return parsed as unknown as T;
   } catch (err) {
-    console.error('parseLooseJson failed:', err);
+    console.error("parseLooseJson failed:", err);
     return null;
   }
 }
 
 function normalizeEpisodeDetailSpec(value: any): any | null {
-  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
     return null;
   }
 
   // 1. Check nested detailed_episode_spec
   const nestedSpec = value.detailed_episode_spec;
-  if (nestedSpec && typeof nestedSpec === 'object' && !Array.isArray(nestedSpec)) {
+  if (
+    nestedSpec &&
+    typeof nestedSpec === "object" &&
+    !Array.isArray(nestedSpec)
+  ) {
     const normalizedNested = normalizeEpisodeDetailSpec(nestedSpec);
     if (normalizedNested) return normalizedNested;
   }
@@ -222,7 +439,11 @@ function normalizeEpisodeDetailSpec(value: any): any | null {
   // 3. Fallback: search keys for any object containing 'acts' array
   for (const key of Object.keys(value)) {
     const candidate = value[key];
-    if (candidate && typeof candidate === 'object' && !Array.isArray(candidate)) {
+    if (
+      candidate &&
+      typeof candidate === "object" &&
+      !Array.isArray(candidate)
+    ) {
       if (Array.isArray(candidate.acts) && candidate.acts.length > 0) {
         return candidate;
       }
@@ -237,11 +458,13 @@ function normalizeEpisodeDetailSpec(value: any): any | null {
   return null;
 }
 
+// Prompt requirement builders
 function createImagePromptRequirements(): string {
   return `
-IMAGE PROMPT REQUIREMENTS:
-- Every episode object and every scene object must include an "image_prompt" field.
-- The image prompt must describe, in order:
+  IMAGE PROMPT REQUIREMENTS:
+  - Every session object, every episode object, every scene object, and every frame object (if present) must include an "image_prompt" field.
+  - If a scene includes a "frames" array, do not duplicate image_prompt at the scene root; place image_prompt only inside each frame object.
+  - The image prompt must describe, in order:
   - subject and action
   - environment and set dressing
   - camera framing and lens choice
@@ -249,84 +472,87 @@ IMAGE PROMPT REQUIREMENTS:
   - lighting design and contrast direction
   - palette, texture, and material cues
   - mood, genre, and style references
-- For scene-level prompts, tie the image directly to the scene’s dramatic beat and blocking.
-- For episode-level prompts, describe the visual identity of the episode as a whole, not just one frame.
-- Mention aspect ratio, depth of field, and shot scale when they matter to the composition.
-- Include negative constraints to avoid extra limbs, unreadable text, wrong costumes, off-model characters, or stray objects.
-- Prefer concrete cinematic nouns and verbs over broad aesthetic adjectives.
-- If the frame is intended as a thumbnail, call that out explicitly.
+  - For scene-level prompts, tie the image directly to the scene’s dramatic beat and blocking.
+  - For episode-level prompts, describe the visual identity of the episode as a whole, not just one frame.
+  - Mention aspect ratio, depth of field, and shot scale when they matter to the composition.
+  - Include negative constraints to avoid extra limbs, unreadable text, wrong costumes, off-model characters, or stray objects.
+  - Prefer concrete cinematic nouns and verbs over broad aesthetic adjectives.
+  - If the frame is intended as a thumbnail, call that out explicitly.
 `;
 }
 
 function createVideoPromptRequirements(): string {
   return `
-VIDEO PROMPT REQUIREMENTS:
-- Every episode object and every scene object must include a "video_prompt" field.
-- The video prompt must describe, in order:
+  VIDEO PROMPT REQUIREMENTS:
+  - Every session object, every episode object, every scene object, and every frame object (if present) must include a "video_prompt" field.
+  - If a scene includes a "frames" array, do not duplicate video_prompt at the scene root; place video_prompt only inside each frame object.
+  - The video prompt must describe, in order:
   - opening motion or initial state
   - subject movement and blocking
   - camera movement and shot evolution
   - pacing, rhythm, and transition language
   - continuity between beats or shots
   - any loop, hold, or ending motion
-- State whether the camera is static, handheld, dolly, crane, pan, tilt, tracking, push-in, pull-out, or rack-focus when relevant.
-- Explicitly note what must stay constant across frames: character wardrobe, prop placement, weather, lighting, and spatial geography.
-- For action scenes, define the beat-by-beat motion and impact timing.
-- For quiet scenes, define the stillness, restraint, and micro-movements that should remain visible.
-- If the shot is meant to stitch into a neighboring scene, describe the transition bridge.
-- Keep the prompt production-oriented rather than poetic.
+  - State whether the camera is static, handheld, dolly, crane, pan, tilt, tracking, push-in, pull-out, or rack-focus when relevant.
+  - Explicitly note what must stay constant across frames: character wardrobe, prop placement, weather, lighting, and spatial geography.
+  - For action scenes, define the beat-by-beat motion and impact timing.
+  - For quiet scenes, define the stillness, restraint, and micro-movements that should remain visible.
+  - If the shot is meant to stitch into a neighboring scene, describe the transition bridge.
+  - Keep the prompt production-oriented rather than poetic.
 `;
 }
 
 function createAudioPromptRequirements(): string {
   return `
-AUDIO PROMPT REQUIREMENTS:
-- Every episode object and every scene object must include an "audio_prompt" field.
-- Every episode object and every scene object must include a "music_prompt" field.
-- Every ai_prompts object must include a "system_rules" field for downstream enforcement.
-- The audio prompt must describe, in order:
+  AUDIO PROMPT REQUIREMENTS:
+  - Every session object, every episode object, every scene object, and every frame object (if present) must include an "audio_prompt" field.
+  - If a scene includes a "frames" array, do not duplicate audio_prompt at the scene root; place audio_prompt only inside each frame object.
+  - Every session object, every episode object, every scene object, and every frame object (if present) must include a "music_prompt" field.
+  - If a scene includes a "frames" array, do not duplicate music_prompt at the scene root; place music_prompt only inside each frame object.
+  - Every ai_prompts object and every session/episode/frame prompt group must include a "system_rules" field for downstream enforcement.
+  - The audio prompt must describe, in order:
   - ambient bed and room tone
   - environmental texture and weather sound
   - foreground foley and movement detail
   - transitional hits, stingers, or risers
   - dialogue mix placement and intelligibility notes
   - silence, decay, or low-frequency tension when relevant
-- The music prompt must describe:
+  - The music prompt must describe:
   - tempo or BPM range
   - instrumentation and timbral palette
   - emotional purpose
   - motif usage and recurrence
   - cue length or density when relevant
-- For scene-level prompts, the audio must be specific to the scene’s geography, action, and emotional beat.
-- For episode-level prompts, the audio must describe the full sonic identity of the episode, including recurring motifs and progression across acts.
-- The prompt should distinguish between diegetic sound, non-diegetic music, and hybrid layers whenever appropriate.
-- Mention spatial placement, distance, reverb, and mix depth when a sound source has narrative importance.
-- Include continuity cues so adjacent scenes can share or evolve the same sonic motif without contradiction.
-- Prefer concrete sound nouns and mix instructions over vague adjectives.
-- Do not use generic phrases like "epic sound" or "dramatic audio" unless they are immediately followed by precise implementation details.
-- If a scene is quiet or restrained, explicitly say so and explain what sonic elements are intentionally absent.
-- If the scene has action, explicitly call out impacts, transient peaks, cloth movement, footstep texture, and machine detail.
-- If the scene contains dialogue, the audio prompt must state how the dialogue sits against the ambient and musical layers.
-- If the scene includes a reveal, the audio prompt must specify how the sound design supports the reveal moment.
-- If the scene includes a transition, the audio prompt must describe the audio bridge into the next scene.
-- If the episode has recurring motifs, describe how those motifs evolve across acts or scenes.
-- If the music swells or drops out, state the exact dramatic purpose of the change.
-- The resulting audio direction must be immediately usable by sound design, music, and mix teams.
+  - For scene-level prompts, the audio must be specific to the scene’s geography, action, and emotional beat.
+  - For episode-level prompts, the audio must describe the full sonic identity of the episode, including recurring motifs and progression across acts.
+  - The prompt should distinguish between diegetic sound, non-diegetic music, and hybrid layers whenever appropriate.
+  - Mention spatial placement, distance, reverb, and mix depth when a sound source has narrative importance.
+  - Include continuity cues so adjacent scenes can share or evolve the same sonic motif without contradiction.
+  - Prefer concrete sound nouns and mix instructions over vague adjectives.
+  - Do not use generic phrases like "epic sound" or "dramatic audio" unless they are immediately followed by precise implementation details.
+  - If a scene is quiet or restrained, explicitly say so and explain what sonic elements are intentionally absent.
+  - If the scene has action, explicitly call out impacts, transient peaks, cloth movement, footstep texture, and machine detail.
+  - If the scene contains dialogue, the audio prompt must state how the dialogue sits against the ambient and musical layers.
+  - If the scene includes a reveal, the audio prompt must specify how the sound design supports the reveal moment.
+  - If the scene includes a transition, the audio prompt must describe the audio bridge into the next scene.
+  - If the episode has recurring motifs, describe how those motifs evolve across acts or scenes.
+  - If the music swells or drops out, state the exact dramatic purpose of the change.
+  - The resulting audio direction must be immediately usable by sound design, music, and mix teams.
 `;
 }
 
-function createSceneResponseContract(): string {
+function createSceneResponseContract(sceneCount: number = 18): string {
   return `
-SCENE GENERATOR RESPONSE CONTRACT:
-- detailed_episode_spec must be a single JSON object.
-- detailed_episode_spec.cold_open must be present and contain 2-4 cinematic sentences.
-- detailed_episode_spec.acts must be a JSON array of exactly 3 act objects.
-- The act order must be Act 1, Act 2, Act 3 with no gaps, duplicates, or reordering.
-- Each act must contain a scenes array with at least one scene.
-- The total scene count across all acts must match the episode-level scene target declared in the prompt.
-- The user-entered scene count is authoritative: if the blueprint says 18 scenes, the combined act scenes must equal 18 exactly.
-- Each scene object must be a self-contained production unit with deterministic IDs and explicit narrative continuity.
-- Each scene object must include:
+  SCENE GENERATOR RESPONSE CONTRACT:
+  - detailed_episode_spec must be a single JSON object.
+  - detailed_episode_spec.cold_open must be present and contain 2-4 cinematic sentences.
+  - detailed_episode_spec.acts must be a JSON array of exactly 3 act objects.
+  - The act order must be Act 1, Act 2, Act 3 with no gaps, duplicates, or reordering.
+  - Each act must contain a scenes array with at least one scene.
+  - The total scene count across all acts must match the episode-level scene target declared in the prompt.
+  - The user-entered scene count is authoritative: if the blueprint says ${sceneCount} scenes, the combined act scenes must equal ${sceneCount} exactly.
+  - Each scene object must be a self-contained production unit with deterministic IDs and explicit narrative continuity.
+  - Each scene object must include:
   - scene_id
   - scene_name
   - location
@@ -345,149 +571,192 @@ SCENE GENERATOR RESPONSE CONTRACT:
   - transition
   - ai_prompts
   - production_stats
-- scene_id values must be deterministic, readable, and sequence-safe across the full episode.
-- scene_name must be short, cinematic, and distinct from the episode title.
-- summary must be specific enough to reveal scene purpose, action, subtext, and consequence.
-- character_focus must list the active characters and describe the function each one serves in the scene.
-- key_props must highlight objects that drive plot, blocking, symbolism, or continuity.
-- visual_direction must include camera language, lens guidance, framing style, lighting, and color notes.
-- particle_effects must describe environmental texture, motion debris, weather, or digital artifacts.
-- audio_direction must describe ambience, foley, transitional sound cues, and musical layering.
-- voice_acting_notes must specify emotional texture, rhythm, pacing, and restraint or intensity.
-- shot_list_preview must contain 5-7 concrete shot ideas in execution order.
-- transition must be one of Smash-cut, Cross-fade, Dissolve, Match-cut, or Jump-cut.
-- ai_prompts must include separate fields:
+  - scene_id values must be deterministic, readable, and sequence-safe across the full episode.
+  - If a scene contains a "frames" array, do not duplicate prompt fields at the scene level; every frame object must include its own image_prompt, video_prompt, audio_prompt, music_prompt, and system_rules.
+  - scene_name must be short, cinematic, and distinct from the episode title.
+  - summary must be specific enough to reveal scene purpose, action, subtext, and consequence.
+  - character_focus must list the active characters and describe the function each one serves in the scene.
+  - key_props must highlight objects that drive plot, blocking, symbolism, or continuity.
+  - visual_direction must include camera language, lens guidance, framing style, lighting, and color notes.
+  - particle_effects must describe environmental texture, motion debris, weather, or digital artifacts.
+  - audio_direction must describe ambience, foley, transitional sound cues, and musical layering.
+  - voice_acting_notes must specify emotional texture, rhythm, pacing, and restraint or intensity.
+  - shot_list_preview must contain 5-7 concrete shot ideas in execution order.
+  - transition must be one of Smash-cut, Cross-fade, Dissolve, Match-cut, or Jump-cut.
+  - ai_prompts must include separate fields:
   - image_prompt
   - video_prompt
   - audio_prompt
   - music_prompt
   - system_rules
-- production_stats must include:
+  - If a scene contains a "frames" array, do not duplicate scene-level prompt fields; every frame object must include its own image_prompt, video_prompt, audio_prompt, music_prompt, and system_rules.
+  - production_stats must include:
   - cast_count
   - extra_count
   - stunt_required
   - vfx_heavy
   - animation_difficulty_score
   - estimated_minutes
-- Every ai_prompts field must be direct, model-ready, and free of filler language.
-- Every scene must preserve continuity with the episode hook, emotional arc, theme mapping, and act progression.
-- The final act must either resolve the immediate scene objective or end on a deliberate cliffhanger.
-- Do not allow generic filler scenes, repeated beats, or non-causal scene ordering.
-- Keep the tone cinematic, production-ready, and grounded in the provided story logic.
+  - Every ai_prompts field must be direct, model-ready, and free of filler language.
+  - Every scene must preserve continuity with the episode hook, emotional arc, theme mapping, and act progression.
+  - The final act must either resolve the immediate scene objective or end on a deliberate cliffhanger.
+  - Do not allow generic filler scenes, repeated beats, or non-causal scene ordering.
+  - Keep the tone cinematic, production-ready, and grounded in the provided story logic.
 `;
 }
 
-function createEpisodeResponseContract(episodeCount: number, sceneCount: number): string {
+function createEpisodeResponseContract(
+  episodeCount: number,
+  sceneCount?: number,
+  ): string {
   return `
-EPISODE SCHEMA (Your array MUST contain exactly ${episodeCount} episode objects. Do not return fewer or more objects.):
-Each episode object must include the following top-level fields:
-- episode: zero-padded episode number such as "01"
-- session: session number as an integer (e.g., 1)
-- title: evocative episode title
-- hook: 2-3 sentence cinematic hook
-- summary: 120-180 word narrative synopsis
-- setting: primary location name
-- runtime: always "30m"
-- focus_characters: array of key characters
-- session_name: short cinematic arc name
-- emotional_arc: internal character shift
-- arc_progression: narrative momentum object
-- theme_mapping: core theme and subtext goals object
-- engagement_matrix: pacing and hook object
-- production_palette: color, lighting, audio, and foley object
-- detailed_episode_spec: cold open, acts, scenes, and continuity structure
-- asset_matrix: sound, image, video, vfx, render priority, and scene count object
-- risk_matrix: continuity, production, and content risk object
-- neural_audit: logic, lore, and pacing validation object
+  EPISODE SCHEMA (Your array MUST contain exactly ${episodeCount} episode objects. Do not return fewer or more objects.):
+  Each episode object must include the following top-level fields:
+  - episode: zero-padded episode number such as "01"
+  - session: session number as an integer (e.g., 1)
+  - title: evocative episode title
+  - hook: 2-3 sentence cinematic hook
+  - summary: 120-180 word narrative synopsis
+  - setting: primary location name
+  - runtime: always "30m"
+  - focus_characters: array of key characters
+  - session_name: short cinematic arc name
+  - emotional_arc: internal character shift
+  - arc_progression: narrative momentum object
+  - theme_mapping: core theme and subtext goals object
+  - engagement_matrix: pacing and hook object
+  - production_palette: color, lighting, audio, and foley object
+  - detailed_episode_spec: cold open, acts, scenes, and continuity structure
+  - asset_matrix: sound, image, video, vfx, render priority, and scene count object
+  - risk_matrix: continuity, production, and content risk object
+  - neural_audit: logic, lore, and pacing validation object
 
-Episode hierarchy rules:
-- Episode count is the only top-level series count.
-- Every episode must carry the requested internal scene count through asset_matrix.scene_count.
-- Every episode should behave like one self-contained production unit in the season.
+  Episode hierarchy rules:
+  - Episode count is the only top-level series count.
+  - Every episode must carry the requested internal scene count through asset_matrix.scene_count.
+  - Every episode should behave like one self-contained production unit in the season.
 
-Every scene inside detailed_episode_spec must include dedicated AI prompt fields:
-- image_prompt
-- video_prompt
-- audio_prompt
-- music_prompt
-- system_rules
+  Each episode object must include dedicated episode-level prompt fields:
+  - episode_image_prompt
+  - episode_video_prompt
+  - episode_audio_prompt
+  - episode_music_prompt
+  - episode_system_rules
 
-Every episode object must also include these separate AI prompt fields:
-- episode_image_prompt
-- episode_video_prompt
-- episode_audio_prompt
-- episode_music_prompt
-- episode_system_rules
+  Every scene inside detailed_episode_spec must include dedicated AI prompt fields:
+  - image_prompt
+  - video_prompt
+  - audio_prompt
+  - music_prompt
+  - system_rules
+  - If a scene includes a "frames" array, do not duplicate scene-level prompt fields; every frame object must include its own image_prompt, video_prompt, audio_prompt, music_prompt, and system_rules.
 
-${createSceneResponseContract()}
+  ${createSceneResponseContract(sceneCount)}
 `;
 }
 
+function createSessionResponseContract(
+  sessionCount?: number,
+  episodesPerSession?: number,
+  sceneCount?: number,
+  ): string {
+  return `
+  SESSION GENERATION CONTRACT:
+  - Total sessions requested: ${Number.isFinite(sessionCount as number) && sessionCount! > 0 ? sessionCount : "MISSING_SESSION_COUNT"}.
+  - Episodes per session requested: ${Number.isFinite(episodesPerSession as number) && episodesPerSession! > 0 ? episodesPerSession : "MISSING_EPISODES_PER_SESSION"}.
+  - Scenes per episode requested: ${Number.isFinite(sceneCount as number) && sceneCount! > 0 ? sceneCount : "MISSING_SCENES_PER_EPISODE"}.
+  - Each returned episode MUST include a top-level "session" integer field and a "session_name" string field.
+  - Episodes must be grouped into sessions conceptually; if the AI outputs a flat list, still populate "session" reliably.
+  - Each session should feel like a coherent production arc with a distinct visual, audio, and narrative palette.
+  - Do not output fewer than ${Number.isFinite(sessionCount as number) && Number.isFinite(episodesPerSession as number) ? sessionCount! * episodesPerSession! : "requested"} total episode objects when session scaffolding is requested.
+  - Ensure session ordering is sequential and episode numbers remain zero-padded and unique across the full set.
+`;
+}
+
+// Prompt generation helpers
 function createSeriesGenerationPrompt(
   prompt: string,
   contentType: string,
   episodeCount: number,
   worldLore?: string,
   characterProfiles?: string,
-  opts?: SeriesPromptOptions
-) {
-  const worldContext = worldLore || 'Standard genre rules.';
-  const castContext = characterProfiles || 'Generic archetypes.';
-  const resolvedSceneCount = opts?.numScenes || 18;
+  opts?: SeriesPromptOptions,
+  ): string {
+  const worldContext = worldLore || "Standard genre rules.";
+  const castContext = characterProfiles || "Generic archetypes.";
+  const resolvedSceneCount = Number(opts?.numScenes);
+  const sessionCount = opts?.session !== undefined ? Number(opts.session) : Number.NaN;
+  const episodesPerSession = Number(opts?.episodesPerSession);
+  const normalizedSessionCount = Number.isFinite(sessionCount) && sessionCount > 0 ? sessionCount : undefined;
+  const normalizedEpisodesPerSession = Number.isFinite(episodesPerSession) && episodesPerSession > 0 ? episodesPerSession : undefined;
+  const scenesText = Number.isFinite(resolvedSceneCount) && resolvedSceneCount > 0 ? resolvedSceneCount : "MISSING_SCENES_PER_EPISODE";
+  const sessionsText = normalizedSessionCount ?? "MISSING_SESSION_COUNT";
+  const episodesPerSessionText = normalizedEpisodesPerSession ?? "MISSING_EPISODES_PER_SESSION";
 
   return `
-CONTENT TYPE: ${contentType}
-PROJECT PROMPT: ${prompt}
-WORLD BIBLE CONTEXT: ${worldContext}
-CAST DNA REGISTRY: ${castContext}
+  CONTENT TYPE: ${contentType}
+  PROJECT PROMPT: ${prompt}
+  WORLD BIBLE CONTEXT: ${worldContext}
+  CAST DNA REGISTRY: ${castContext}
 
-BLUEPRINT COUNT RULES:
-- Episode count = ${episodeCount}.
-- Treat episodeCount as the exact number of episode objects to return.
-- Keep internal scene structure consistent, but do not let it change the total episode count.
+  PRODUCTION SCAFFOLDING:
+  - Total sessions requested: ${sessionsText}.
+  - Episodes per session requested: ${episodesPerSessionText}.
+  - Total episodes requested: ${episodeCount}.
+  - Scenes per episode requested: ${scenesText}.
 
-SEASON ORCHESTRATION RULES:
-1. PACE: Build a ${episodeCount}-episode arc with a 30-minute cinematic pacing per episode.
-2. CONTINUITY: Every scene must strictly obey the World Bible and Cast DNA.
-3. COMPLEXITY: Each episode must contain 3 Acts. The episode will be expanded to have exactly ${resolvedSceneCount} scenes. Please set "scene_count" in "asset_matrix" to exactly ${resolvedSceneCount}.
-4. DEPTH: Scene summaries must be dense (40-60 words), detailing character motivations, emotional subtext, and visual/audio cues.
-5. NAMING: Include a readable episode label and a scene_name for every scene so the series page can surface episode and scene labels clearly.
+  BLUEPRINT COUNT RULES:
+  - Episode count = ${episodeCount}.
+  - Treat episodeCount as the exact number of episode objects to return.
+  - Keep internal scene structure consistent, but do not let it change the total episode count.
 
-REQUIRED OUTPUT CONTRACT:
-- Return ONLY a JSON array containing EXACTLY ${episodeCount} episode objects.
-- Do NOT include markdown code fences, backticks, or commentary.
-- Ensure all IDs are deterministic (e.g., E01_A1_S01).
-- Every episode object must include dedicated AI prompt fields for image, video, and audio generation.
-- Every scene object inside detailed_episode_spec must also include separate image, video, and audio prompt fields.
-- Every episode object must reflect the resolved scene count in asset_matrix.scene_count.
+  SESSION RULES:
+  - Each episode MUST declare a top-level "session" integer and a "session_name" string.
+  - If the response is flat, still populate session fields so the UI can group episodes by session.
+  - Session ordering must be sequential and stable.
+  - Each session should maintain a coherent production arc and distinct palette.
 
-${createEpisodeResponseContract(episodeCount, resolvedSceneCount)}
-${createImagePromptRequirements()}
-${createVideoPromptRequirements()}
-${createAudioPromptRequirements()}
+  SEASON ORCHESTRATION RULES:
+  1. PACE: Build a ${episodeCount}-episode arc with a 30-minute cinematic pacing per episode.
+  2. CONTINUITY: Every scene must strictly obey the World Bible and Cast DNA.
+  3. COMPLEXITY: Each episode must contain 3 Acts. The episode will be expanded to have exactly ${scenesText} scenes. Please set "scene_count" in "asset_matrix" to exactly ${scenesText}.
+  4. DEPTH: Scene summaries must be dense (40-60 words), detailing character motivations, emotional subtext, and visual/audio cues.
+  5. NAMING: Include a readable episode label and a scene_name for every scene so the series page can surface episode and scene labels clearly.
 
-AI PROMPT FIELD CONTRACT:
-- image_prompt: a highly specific visual prompt for still-image generation.
-- video_prompt: a motion-aware prompt for animated/video generation.
-- audio_prompt: a layered sound design prompt covering ambience and foley.
-- music_prompt: a music composition prompt with tempo and instrumentation.
-- system_rules: strict downstream instructions for consistency and safety.
+  REQUIRED OUTPUT CONTRACT:
+  - Return ONLY a JSON array containing EXACTLY ${episodeCount} episode objects.
+  - Do NOT include markdown code fences, backticks, or commentary.
+  - Ensure all IDs are deterministic (e.g., E01_A1_S01).
+  - Every episode object must include dedicated AI prompt fields for image, video, and audio generation.
+  - Every scene object inside detailed_episode_spec must also include separate image, video, and audio prompt fields.
+  - Every episode object must reflect the resolved scene count in asset_matrix.scene_count.
 
+  ${createSessionResponseContract(normalizedSessionCount, normalizedEpisodesPerSession, Number.isFinite(resolvedSceneCount) ? resolvedSceneCount : undefined)}
+  ${createEpisodeResponseContract(episodeCount, Number.isFinite(resolvedSceneCount) ? resolvedSceneCount : undefined)}
+  ${createImagePromptRequirements()}
+  ${createVideoPromptRequirements()}
+  ${createAudioPromptRequirements()}
 
+  AI PROMPT FIELD CONTRACT:
+  - image_prompt: a highly specific visual prompt for still-image generation.
+  - video_prompt: a motion-aware prompt for animated/video generation.
+  - audio_prompt: a layered sound design prompt covering ambience and foley.
+  - music_prompt: a music composition prompt with tempo and instrumentation.
+  - system_rules: strict downstream instructions for consistency and safety.
 
-NEURAL LOGIC AUDIT INSTRUCTION:
-- Before finalizing the JSON, you must perform a "Neural Audit":
-- Ensure every character's motivation matches their Cast DNA.
-- Verify that no powers or locations contradict the World Bible.
-- Ensure the 30-minute pacing is mathematically consistent across the scene estimates.
+  NEURAL LOGIC AUDIT INSTRUCTION:
+  - Before finalizing the JSON, you must perform a "Neural Audit":
+  - Ensure every character's motivation matches their Cast DNA.
+  - Verify that no powers or locations contradict the World Bible.
+  - Ensure the 30-minute pacing is mathematically consistent across the scene estimates.
 
-OPTIONAL SESSION CONTEXT:
-- episode: ${opts?.episode || 'N/A'}
-- target_scenes: ${opts?.numScenes || 'N/A'}
+  OPTIONAL SESSION CONTEXT:
+  - episode: ${opts?.episode || "N/A"}
+  - target_scenes: ${opts?.numScenes || "N/A"}
 `;
 }
 
-
+// Exported generator services
 export async function expandEpisodeDetails(
   episodeSummary: any,
   model: string,
@@ -500,35 +769,37 @@ export async function expandEpisodeDetails(
     maxTokens?: number;
     topP?: number;
     topK?: number;
-  }
-): Promise<any> {
-  const epId = episodeSummary?.episode || episodeSummary?.episode_number || '01';
-  
+  },
+  ): Promise<any> {
+  const epId =
+    episodeSummary?.episode || episodeSummary?.episode_number || "01";
+
   // Mathematically enforce the scene distribution to prevent hallucination
   const act1Scenes = Math.max(1, Math.floor(numScenes * 0.25));
   const act3Scenes = Math.max(1, Math.floor(numScenes * 0.25));
   const act2Scenes = Math.max(1, numScenes - act1Scenes - act3Scenes);
-  const maxTokens = opts?.maxTokens ?? Math.min(24000, Math.max(8192, 9000 + numScenes * 350));
+  const maxTokens =
+    opts?.maxTokens ?? Math.min(24000, Math.max(8192, 9000 + numScenes * 350));
 
   const prompt = `
-EXPAND_EPISODE_DETAIL:
-Produce a JSON object named "detailed_episode_spec" for the following episode summary.
-You MUST base all generated scenes EXCLUSIVELY and EXHAUSTIVELY on the narrative, setting, plot points, emotional arc, and characters detailed in the provided Episode Summary below. Every scene must be a direct, high-fidelity dramatization of a specific segment of this exact episode's story. Do not invent generic, placeholder, or unrelated scenes.
-Return only the JSON object for "detailed_episode_spec" (no markdown, no commentary).
+  EXPAND_EPISODE_DETAIL:
+  Produce a JSON object named "detailed_episode_spec" for the following episode summary.
+  You MUST base all generated scenes EXCLUSIVELY and EXHAUSTIVELY on the narrative, setting, plot points, emotional arc, and characters detailed in the provided Episode Summary below. Every scene must be a direct, high-fidelity dramatization of a specific segment of this exact episode's story. Do not invent generic, placeholder, or unrelated scenes.
+  Return only the JSON object for "detailed_episode_spec" (no markdown, no commentary).
 
-Episode Summary:
-${JSON.stringify(episodeSummary, null, 2)}
+  Episode Summary:
+  ${JSON.stringify(episodeSummary, null, 2)}
 
-PRODUCTION REQUIREMENTS:
-1. PACE: Target a high-fidelity 30-minute episode duration with complex narrative layering.
-2. STRUCTURE: Provide "cold_open" (2-4 cinematic sentences) and 3 "acts".
-3. DENSITY: The episode MUST contain EXACTLY ${numScenes} scenes in total. 
+  PRODUCTION REQUIREMENTS:
+  1. PACE: Target a high-fidelity 30-minute episode duration with complex narrative layering.
+  2. STRUCTURE: Provide "cold_open" (2-4 cinematic sentences) and 3 "acts".
+  3. DENSITY: The episode MUST contain EXACTLY ${numScenes} scenes in total. 
    You must distribute them EXACTLY as follows:
    - Act 1: Exactly ${act1Scenes} scenes.
    - Act 2: Exactly ${act2Scenes} scenes.
    - Act 3: Exactly ${act3Scenes} scenes.
    Total must perfectly equal ${numScenes}. Do not deviate.
-4. SCENE SCHEMA:
+  4. SCENE SCHEMA:
    - scene_id: E${epId}_A[ACT]_S[SCENE]
    - scene_name: A short cinematic title for the scene.
    - location: Specific setting with architectural and atmospheric notes.
@@ -548,20 +819,20 @@ PRODUCTION REQUIREMENTS:
    - ai_prompts: { image_prompt: "...", video_prompt: "...", audio_prompt: "...", music_prompt: "...", system_rules: "..." } (Provide highly descriptive prompts to feed directly into downstream generative AI models)
    - production_stats: { cast_count, extra_count, stunt_required, vfx_heavy, animation_difficulty_score: "1-5", estimated_minutes: 2-4 }
 
-5. NARRATIVE LOGIC & CONTINUITY: 
+  5. NARRATIVE LOGIC & CONTINUITY: 
    - Scenes MUST NOT BE RANDOM. Each scene MUST logically cause or lead into the next scene.
    - The overall progression of scenes MUST perfectly match the provided Episode Summary.
    - Act 1 must Setup the conflict, Act 2 must Escalate it, Act 3 must Resolve or Cliffhanger it.
    - Character actions MUST be strictly based on their Cast DNA and relationships. Do not invent out-of-character behavior.
    - Location jumps must make spatial and temporal sense.
 
-6. METADATA: Provide ultra-detailed continuity_dependencies, foreshadowing (long-term payoffs), payoffs (from previous beats), thumbnail_prompts, and video_prompts.
+  6. METADATA: Provide ultra-detailed continuity_dependencies, foreshadowing (long-term payoffs), payoffs (from previous beats), thumbnail_prompts, and video_prompts.
 
-NEURAL LOGIC AUDIT:
-- Verify that every scene advances the plot OR the character arc.
-- Ensure no dialogue contradicts the Cast DNA's primary motivation.
-- Confirm atmospheric notes match the World Bible's tone.
-`;
+  7. NEURAL LOGIC AUDIT:
+  - Verify that every scene advances the plot OR the character arc.
+  - Ensure no dialogue contradicts the Cast DNA's primary motivation.
+  - Confirm atmospheric notes match the World Bible's tone.
+  `;
 
   try {
     const res = await generateText(
@@ -574,12 +845,12 @@ NEURAL LOGIC AUDIT:
       opts?.topK ?? 20,
       120000,
       worldLore,
-      characterProfiles
+      characterProfiles,
     );
 
     if (!res) return episodeSummary;
 
-    const parsed = parseStructuredJson<any>(res, 'object');
+    const parsed = parseStructuredJson<any>(res, "object");
 
     const normalized = normalizeEpisodeDetailSpec(parsed);
     if (normalized) {
@@ -587,167 +858,8 @@ NEURAL LOGIC AUDIT:
     }
     return episodeSummary;
   } catch (err) {
-    console.error('expandEpisodeDetails failed:', err);
+    console.error("expandEpisodeDetails failed:", err);
     return episodeSummary;
-  }
-}
-
-// Max episodes to request in a single AI call before batching
-// Reduced to 4 to reduce likelihood of large malformed outputs and rate limits
-const SERIES_BATCH_SIZE = 4;
-
-function extractRetryDelay(error: any): number {
-  const errStr = typeof error === 'string' ? error : JSON.stringify(error) || String(error);
-  
-  // 1. Try to find a pattern like "retry in X.Y s" or "retry in Xs" or "retryDelay': 'Xs'"
-  const matchSeconds = errStr.match(/retry(?:ing|)\s+(?:in\s+|Delay['"]?:\s*['"]?)(\d+(?:\.\d+)?)\s*s/i);
-  if (matchSeconds) {
-    const seconds = parseFloat(matchSeconds[1]);
-    if (Number.isFinite(seconds) && seconds > 0) {
-      return Math.ceil(seconds * 1000);
-    }
-  }
-  
-  // 2. Fallback to generic 429 delay of 15 seconds
-  if (errStr.toLowerCase().includes('429') || errStr.toLowerCase().includes('quota') || errStr.toLowerCase().includes('resource_exhausted') || errStr.toLowerCase().includes('rate limit')) {
-    return 15000;
-  }
-  
-  return 0;
-}
-
-/**
- * Generates a single batch of episodes (batchSize episodes starting at episodeOffset).
- * Uses a compact schema without full scene specs to keep output small and reliable.
- */
-async function generateEpisodeBatch(
-  prompt: string,
-  model: string,
-  contentType: string,
-  batchStart: number,      // 1-indexed start
-  batchEnd: number,        // 1-indexed end (inclusive)
-  totalEpisodes: number,
-  worldLore?: string,
-  characterProfiles?: string,
-  opts?: { session?: string; episodesPerSession?: number; numScenes?: number; temperature?: number; maxTokens?: number; topP?: number; topK?: number; }
-  , attempt: number = 0
-): Promise<any[]> {
-  const batchSize = batchEnd - batchStart + 1;
-  const batchTimeoutMs = Math.min(300000, 120000 + batchSize * 15000);
-
-  const epsPerSession = opts?.episodesPerSession || (opts?.session ? Math.ceil(totalEpisodes / Number(opts.session)) : totalEpisodes);
-
-  const episodeSessionMapping = Array.from({ length: batchSize }, (_, i) => {
-    const epIdx = batchStart + i;
-    const sessionNum = Math.floor((epIdx - 1) / epsPerSession) + 1;
-    const epNumInSession = ((epIdx - 1) % epsPerSession) + 1;
-    return `- Episode ${String(epIdx).padStart(2, '0')} belongs to Session ${sessionNum} (Episode ${epNumInSession} of Session ${sessionNum}). Ensure top-level "session" field is set to ${sessionNum}.`;
-  }).join('\n');
-
-  const systemInstruction = `You are an expert anime series planner. Your ONLY job is to return a valid JSON array.
-Do NOT add any text, explanation, or commentary before or after the JSON.
-Do NOT truncate the output or add notes explaining what you omitted.
-Return ALL ${batchSize} episodes fully formed. No partial output is acceptable.`;
-
-  const userPrompt = `
-CONTENT TYPE: ${contentType}
-PROJECT PROMPT: ${prompt}
-WORLD BIBLE: ${(worldLore || 'Standard genre rules.').slice(0, 3000)}
-CAST DNA: ${(characterProfiles || 'Generic archetypes.').slice(0, 2000)}
-
-INSTRUCTION: Generate episodes ${batchStart} through ${batchEnd} (of a ${totalEpisodes}-episode season).
-Return ONLY a JSON array with EXACTLY ${batchSize} episode objects.
-Do not include markdown fences, backticks, or any text outside the JSON array.
-
-EACH episode object MUST have these fields:
-- "episode": zero-padded number e.g. "${String(batchStart).padStart(2, '0')}"
-- "session": session index as integer (e.g. 1)
-- "title": evocative episode title
-- "hook": 2-3 sentence cinematic hook
-- "summary": 120-180 word narrative synopsis
-- "setting": primary location name
-- "runtime": "30m"
-- "focus_characters": ["Character A", "Character B"]
-- "session_name": short cinematic arc name
-- "emotional_arc": internal character shift
-- "arc_progression": { "narrative_momentum": "description" }
-- "theme_mapping": { "core_theme": "...", "subtext_goals": "..." }
-- "engagement_matrix": { "pacing_intensity": "High/Medium/Low", "tension_peak": "...", "marketing_hooks": ["..."] }
-- "production_palette": { "dominant_colors": ["..."], "lighting_setup": "...", "audio_leitmotif": "...", "foley_focus": "..." }
-- "detailed_episode_spec": { "cold_open": "...", "script_opening_line": "...", "acts": [] }
-- "asset_matrix": { "sound": "...", "image": "...", "video": "...", "vfx_complexity": "High/Medium/Low", "render_priority": "Critical/Normal", "scene_count": ${opts?.numScenes || 18} }
-- "risk_matrix": { "continuity_risks": [], "production_risks": [], "content_risks": [] }
-- "neural_audit": { "logic_check": "...", "lore_validation": "...", "pacing_score": "High/Medium/Low" }
-
-SESSION & EPISODE BINDING DETAILS:
-${episodeSessionMapping}
-
-Return the JSON array now. Start with [ and end with ]. Nothing else.`;
-
-  // Wrap generateText with retries and exponential backoff to handle transient rate limits / empty responses
-  let text: string | null = null;
-  const MAX_TEXT_ATTEMPTS = 3;
-  for (let t = 0; t < MAX_TEXT_ATTEMPTS; t++) {
-    try {
-      text = await generateText(
-        model,
-        userPrompt,
-        systemInstruction,
-        opts?.temperature ?? 0.82,
-        opts?.maxTokens ?? 8192,
-        opts?.topP ?? 0.92,
-        opts?.topK ?? 35,
-        batchTimeoutMs,
-        worldLore,
-        characterProfiles
-      );
-
-      if (text && text.trim().length > 0) break;
-      console.warn(`[Series Lab] generateText returned empty for batch ${batchStart}-${batchEnd} attempt ${t}`);
-    } catch (e: any) {
-      console.warn(`[Series Lab] generateText error for batch ${batchStart}-${batchEnd} attempt ${t}:`, e?.message || e);
-      const delayMs = extractRetryDelay(e);
-      if (delayMs > 0 && t < MAX_TEXT_ATTEMPTS - 1) {
-        console.warn(`[Series Lab] Rate limit detected. Waiting for ${(delayMs / 1000).toFixed(1)}s before retry...`);
-        await new Promise(res => setTimeout(res, delayMs + 1000));
-        continue;
-      }
-    }
-    // backoff
-    const backoffMs = 500 * Math.pow(2, t);
-    await new Promise(res => setTimeout(res, backoffMs));
-  }
-
-  if (!text) throw new Error(`Batch ${batchStart}-${batchEnd} returned empty response after retries.`);
-
-  try {
-    const parsed = parseStructuredJson<any[]>(text, 'array');
-    if (!Array.isArray(parsed) || parsed.length === 0) {
-      console.error(`[Series Lab] Batch ${batchStart}-${batchEnd} failed. Raw:`, text.slice(0, 300));
-      throw new Error(`Batch ${batchStart}-${batchEnd} did not return a valid episode array.`);
-    }
-    return parsed;
-  } catch (err) {
-    console.warn(`[Series Lab] Parsing batch ${batchStart}-${batchEnd} failed on attempt ${attempt}:`, (err as any)?.message || err);
-    try {
-      // Persist raw AI response to localStorage for debugging (dev only)
-      const key = `ai_failed_batch_${batchStart}_${batchEnd}_${Date.now()}`;
-      try { localStorage.setItem(key, text as string); console.info(`[Series Lab] Saved failed batch response to localStorage key: ${key}`); } catch(e) { /* ignore storage errors */ }
-    } catch (e) {
-      /* ignore */
-    }
-    // Retry strategy: if batch size > 1 and attempts left, split into two smaller batches
-    if (batchSize > 1 && attempt < 2) {
-      const mid = Math.floor((batchStart + batchEnd) / 2);
-      console.info(`[Series Lab] Retrying by splitting batch ${batchStart}-${batchEnd} into ${batchStart}-${mid} and ${mid + 1}-${batchEnd}`);
-      const left = await generateEpisodeBatch(prompt, model, contentType, batchStart, mid, totalEpisodes, worldLore, characterProfiles, opts, attempt + 1).catch(e => [] as any[]);
-      const right = await generateEpisodeBatch(prompt, model, contentType, mid + 1, batchEnd, totalEpisodes, worldLore, characterProfiles, opts, attempt + 1).catch(e => [] as any[]);
-      return [...left, ...right];
-    }
-
-    // No more retries, surface the error
-    console.error(`[Series Lab] Batch ${batchStart}-${batchEnd} failed after retries.`);
-    throw err;
   }
 }
 
@@ -768,152 +880,128 @@ export async function generateSeriesPlan(
     maxTokens?: number;
     topP?: number;
     topK?: number;
-  }
-) {
+  },
+  ) {
   validateSeriesPromptInput(prompt);
   validateSeriesContentTypeInput(contentType);
   validateSeriesEpisodeCountInput(episodeCount);
+  validateSeriesScaffoldingOptions(opts);
 
-  let parsed: any[];
+  const resolvedSceneCount = opts?.numScenes as number;
+  const systemInstruction = SERIES_PLAN_GENERATION_PROMPT(
+    contentType,
+    episodeCount,
+    worldLore ?? "",
+    characterProfiles ?? "",
+    resolvedSceneCount,
+  );
+  const userPrompt = createSeriesGenerationPrompt(
+    prompt,
+    contentType,
+    episodeCount,
+    worldLore,
+    characterProfiles,
+    opts,
+  );
 
-  const resolvedSceneCount = opts?.numScenes || 18;
-  const shouldExpand = expandSequentially || (resolvedSceneCount * episodeCount > 20);
-  const finalExpand = expandSequentially || shouldExpand;
+  // Scaled max tokens for larger generation targets
+  const maxTokens =
+    opts?.maxTokens ??
+    Math.min(24000, Math.max(8192, 4000 + episodeCount * 1500));
 
-  if (episodeCount <= SERIES_BATCH_SIZE && !shouldExpand) {
-    // ── Small series: single call with full schema ────────────────────────────
-    const systemInstruction = SERIES_PLAN_GENERATION_PROMPT(
-      contentType,
-      episodeCount,
-      worldLore ?? '',
-      characterProfiles ?? '',
-      opts?.numScenes || 18
+  const text = await generateText(
+    model,
+    userPrompt,
+    systemInstruction,
+    opts?.temperature ?? 0.85,
+    maxTokens,
+    opts?.topP ?? 0.95,
+    opts?.topK ?? 40,
+    Math.min(600000, 300000 + episodeCount * 15000),
+    worldLore,
+    characterProfiles,
+  );
+
+  if (!text) throw new Error("Series generation returned an empty response.");
+  const result = parseStructuredJson<any[]>(text, "array");
+  if (!Array.isArray(result)) {
+    console.error(
+      "[Series Lab] AI response was not an array. Raw start:",
+      text.slice(0, 500),
     );
-    const userPrompt = createSeriesGenerationPrompt(prompt, contentType, episodeCount, worldLore, characterProfiles, opts);
+    throw new Error(
+      "Series synthesis did not return a JSON array. Check browser console for raw output.",
+    );
+  }
 
-    const text = await generateText(
-      model,
-      userPrompt,
-      systemInstruction,
-      opts?.temperature ?? 0.85,
-      opts?.maxTokens ?? 8192,
-      opts?.topP ?? 0.95,
-      opts?.topK ?? 40,
-      Math.min(600000, 300000 + episodeCount * 15000),
-      worldLore,
-      characterProfiles
+  // If the model returned fewer episodes than requested, attempt a chunked fallback
+  if (result.length !== episodeCount) {
+    console.warn(
+      `[Series Lab] Expected ${episodeCount} episodes but received ${result.length}. Attempting chunked fallback generation.`,
     );
 
-    if (!text) throw new Error('Series generation returned an empty response.');
-    const result = parseStructuredJson<any[]>(text, 'array');
-    if (!Array.isArray(result)) {
-      console.error('[Series Lab] AI response was not an array. Raw start:', text.slice(0, 500));
-      throw new Error('Series synthesis did not return a JSON array. Check browser console for raw output.');
+    // If we were already using the sequential expansion mode, return whatever we got
+    if (expandSequentially) {
+      console.warn(
+        "[Series Lab] expandSequentially already enabled; returning partial result.",
+      );
+      return result;
     }
-    parsed = result;
-  } else {
-    // ── Large series: batch into groups ──────────────────────────────────────
-    console.info(`[Series Lab] ${episodeCount} episodes — batching into groups of ${SERIES_BATCH_SIZE}.`);
-    parsed = [];
 
-    // Run batches with a small concurrency limit (2 at a time) to avoid rate limits
-    const CONCURRENCY = 2;
-    for (let start = 1; start <= episodeCount; start += SERIES_BATCH_SIZE * CONCURRENCY) {
-      const chunkPromises: Promise<any[]>[] = [];
-      for (let c = 0; c < CONCURRENCY; c++) {
-        const batchStart = start + c * SERIES_BATCH_SIZE;
-        if (batchStart > episodeCount) break;
-        const batchEnd = Math.min(batchStart + SERIES_BATCH_SIZE - 1, episodeCount);
-        chunkPromises.push(
-          generateEpisodeBatch(prompt, model, contentType, batchStart, batchEnd, episodeCount, worldLore, characterProfiles, opts)
+    // Try generating in smaller chunks to avoid truncation/token limits
+    const chunkSize = Math.min(12, Math.max(1, episodeCount));
+    const pieces: any[] = [];
+    for (let i = 0; i < episodeCount; i += chunkSize) {
+      const remaining = Math.min(chunkSize, episodeCount - i);
+      try {
+        // Request a focused chunk, mark expandSequentially to avoid recursive fallback
+        // Pass an `episode` offset so the model can label episodes deterministically
+        const chunk = await generateSeriesPlan(
+          prompt,
+          model,
+          contentType,
+          remaining,
+          worldLore,
+          characterProfiles,
+          true,
+          {
+            ...(opts || {}),
+            episode: String(i + 1),
+            numScenes: opts?.numScenes,
+          },
+        );
+        if (Array.isArray(chunk) && chunk.length > 0) {
+          pieces.push(...chunk);
+        }
+      } catch (err) {
+        console.error(
+          `[Series Lab] Chunk generation failed for range ${i + 1}-${i + chunkSize}:`,
+          err,
         );
       }
+    }
 
-      const results = await Promise.all(
-        chunkPromises.map(p =>
-          p.catch((err: any) => {
-            console.warn('[Series Lab] Batch failed, will use empty episodes as placeholder:', err?.message);
-            return [] as any[];
-          })
-        )
+    if (pieces.length === episodeCount) {
+      console.info(
+        "[Series Lab] Chunked generation succeeded with full episode set.",
       );
-
-      for (const batch of results) {
-        parsed.push(...batch);
-      }
-
-      // Add a small cool-down delay between chunks to let the rate limit window clear
-      if (start + SERIES_BATCH_SIZE * CONCURRENCY <= episodeCount) {
-        console.info(`[Series Lab] Batch chunk complete. Cooling down for 2.5s to avoid rate limits...`);
-        await new Promise(res => setTimeout(res, 2500));
-      }
+      return pieces;
     }
 
-    // Ensure we have at least 1 episode
-    if (parsed.length === 0) {
-      throw new Error('All episode batches failed. Series synthesis returned no data.');
-    }
-
-    // Sort by episode number and re-index to fill gaps from failed batches
-    parsed.sort((a, b) => {
-      const numA = parseInt(String(a.episode || a.episode_number || 0), 10);
-      const numB = parseInt(String(b.episode || b.episode_number || 0), 10);
-      return numA - numB;
-    });
-  }
-
-  // ── Optional parallel expansion of scene specs ─────────────────────────
-  if (finalExpand) {
-    const expanded: any[] = [];
-    const CONCURRENCY = 4;
-    
-    for (let i = 0; i < parsed.length; i += CONCURRENCY) {
-      const chunk = parsed.slice(i, i + CONCURRENCY);
-      const results = await Promise.all(
-        chunk.map(async (ep) => {
-          try {
-            if (!ep.detailed_episode_spec?.acts?.length) {
-              return await expandEpisodeDetails(
-                ep, model, contentType,
-                worldLore as any, characterProfiles as any,
-                opts?.numScenes || 18, opts
-              );
-            }
-            return ep;
-          } catch (e) {
-            console.warn(`Episode ${ep.episode} expansion failed, using summary:`, e);
-            return ep;
-          }
-        })
+    if (pieces.length > 0) {
+      console.warn(
+        `[Series Lab] Chunked generation produced ${pieces.length} episodes (requested ${episodeCount}). Returning best-effort result without further retries.`,
       );
-      expanded.push(...results);
+      return pieces;
     }
-    return expanded;
-  }
-  return parsed;
-}
 
-function parseLooseJson<T>(text: string, expectedShape: 'array' | 'object'): T | null {
-  const parsed = parseStructuredJson<T>(text, expectedShape);
-  if (parsed) {
-    return parsed;
+    console.warn(
+      `[Series Lab] Chunked generation produced no usable episodes for ${episodeCount} requested. Returning the original partial result.`,
+    );
+    return result;
   }
 
-  try {
-    const cleaned = cleanJson(text);
-    if (expectedShape === 'array') {
-      if (Array.isArray(cleaned)) return cleaned as T;
-      const wrappedArray = findWrappedArrayCandidate(cleaned);
-      if (wrappedArray) return wrappedArray as T;
-    } else if (cleaned && typeof cleaned === 'object' && !Array.isArray(cleaned)) {
-      const wrappedObject = findWrappedObjectCandidate(cleaned);
-      if (wrappedObject) return wrappedObject as T;
-    }
-  } catch (error) {
-    console.error('parseLooseJson fallback failed:', error);
-  }
-
-  return null;
+  return result;
 }
 
 export async function regenerateSingleScene(
@@ -923,39 +1011,39 @@ export async function regenerateSingleScene(
   contentType: string,
   worldLore: string,
   characterProfiles: string,
-  adjacentScenesContext?: { prevScene?: any; nextScene?: any }
+  adjacentScenesContext?: { prevScene?: any; nextScene?: any },
 ): Promise<any> {
   const prompt = `
-REGENERATE_SINGLE_SCENE:
-You are an expert anime director and showrunner. Regenerate the following scene unit to make it more cinematic, detailed, and production-ready.
-You MUST strictly follow the world rules (World Bible) and character psychology (Cast DNA) provided.
-Ensure the scene maintains perfect continuity with its adjacent scenes.
+  REGENERATE_SINGLE_SCENE:
+  You are an expert anime director and showrunner. Regenerate the following scene unit to make it more cinematic, detailed, and production-ready.
+  You MUST strictly follow the world rules (World Bible) and character psychology (Cast DNA) provided.
+  Ensure the scene maintains perfect continuity with its adjacent scenes.
 
-World Bible:
-${worldLore}
+  World Bible:
+  ${worldLore}
 
-Cast DNA:
-${characterProfiles}
+  Cast DNA:
+  ${characterProfiles}
 
-Episode Summary:
-${JSON.stringify(episodeSummary, null, 2)}
+  Episode Summary:
+  ${JSON.stringify(episodeSummary, null, 2)}
 
-Adjacent Scenes for Continuity:
-- Previous Scene: ${adjacentScenesContext?.prevScene ? JSON.stringify(adjacentScenesContext.prevScene, null, 2) : 'None (Start of Episode/Act)'}
-- Next Scene: ${adjacentScenesContext?.nextScene ? JSON.stringify(adjacentScenesContext.nextScene, null, 2) : 'None (End of Episode/Act)'}
+  Adjacent Scenes for Continuity:
+  - Previous Scene: ${adjacentScenesContext?.prevScene ? JSON.stringify(adjacentScenesContext.prevScene, null, 2) : "None (Start of Episode/Act)"}
+  - Next Scene: ${adjacentScenesContext?.nextScene ? JSON.stringify(adjacentScenesContext.nextScene, null, 2) : "None (End of Episode/Act)"}
 
-Current Scene to Regenerate:
-${JSON.stringify(scene, null, 2)}
+  Current Scene to Regenerate:
+  ${JSON.stringify(scene, null, 2)}
 
-PRODUCTION AESTHETIC REQUIREMENTS:
-1. NARRATIVE DENSITY: The scene breakdown must be extremely descriptive, detailing character motivations, emotional tension, and subtle facial/body expressions.
-2. VISUALS: Provide precise camera lensing (e.g., 35mm wide, 85mm close-up), lighting (e.g., chiaroscuro, golden hour, neon highlights), camera motion, and color grading notes.
-3. AUDIO: Provide detailed sound cues (ambient tracks, foley, and score/leitmotifs).
-4. SCRIPT DIALOGUE TEASER: Include 3-5 lines of sample dialogue capturing the character voices and subtext.
-5. GENERATIVE AI PROMPTS: Provide detailed prompts for image, video, audio, and music generator models.
+  PRODUCTION AESTHETIC REQUIREMENTS:
+  1. NARRATIVE DENSITY: The scene breakdown must be extremely descriptive, detailing character motivations, emotional tension, and subtle facial/body expressions.
+  2. VISUALS: Provide precise camera lensing (e.g., 35mm wide, 85mm close-up), lighting (e.g., chiaroscuro, golden hour, neon highlights), camera motion, and color grading notes.
+  3. AUDIO: Provide detailed sound cues (ambient tracks, foley, and score/leitmotifs).  
+  4. SCRIPT DIALOGUE TEASER: Include 3-5 lines of sample dialogue capturing the character voices and subtext.
+  5. GENERATIVE AI PROMPTS: Provide detailed prompts for image, video, audio, and music generator models.
 
-Return ONLY a valid JSON object matching the scene schema below (no markdown code blocks, no backticks, no extra text):
-{
+  Return ONLY a valid JSON object matching the scene schema below (no markdown code blocks, no backticks, no extra text):
+  {
   "scene_id": "${scene.scene_id}",
   "scene_name": "Evocative, cinematic scene title",
   "location": "Detailed specific setting",
@@ -987,8 +1075,8 @@ Return ONLY a valid JSON object matching the scene schema below (no markdown cod
     "animation_difficulty_score": "1-5",
     "estimated_minutes": 2
   }
-}
-`;
+  }
+  `;
 
   try {
     const res = await generateText(
@@ -1001,14 +1089,14 @@ Return ONLY a valid JSON object matching the scene schema below (no markdown cod
       20,
       60000,
       worldLore,
-      characterProfiles
+      characterProfiles,
     );
 
     if (!res) return scene;
-    const parsed = parseStructuredJson<any>(res, 'object');
+    const parsed = parseStructuredJson<any>(res, "object");
     return normalizeEpisodeDetailSpec(parsed) || parsed || scene;
   } catch (err) {
-    console.error('regenerateSingleScene failed:', err);
+    console.error("regenerateSingleScene failed:", err);
     return scene;
   }
 }

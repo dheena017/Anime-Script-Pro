@@ -500,6 +500,22 @@ export function StoryboardPage() {
     [scenes, selectedModel, storyboardDispatch, characterList, addLog],
   );
 
+    // Create an initial frame (visualData entry) for a scene index
+    const createInitialFrameForScene = React.useCallback(
+      (sceneIndex: number) => {
+        try {
+          const placeholder = `https://picsum.photos/seed/scene-${sceneIndex}-frame/800/450`;
+          storyboardDispatch({
+            type: "UPDATE_VISUAL_ITEM",
+            payload: { id: sceneIndex, data: [placeholder] },
+          });
+        } catch (err) {
+          console.warn("createInitialFrameForScene failed", err);
+        }
+      },
+      [storyboardDispatch],
+    );
+
   const handleGenerateAll = React.useCallback(async () => {
     addLog(
       "STORYBOARD",
@@ -846,6 +862,8 @@ export function StoryboardPage() {
         "MODIFIED",
         `Inserted new production unit at index ${nextIndex}.`,
       );
+      // create an initial frame for the new scene
+      createInitialFrameForScene(nextIndex);
       return;
     }
 
@@ -932,6 +950,8 @@ export function StoryboardPage() {
         "COMPLETED",
         `Generated and inserted Scene ${nextIndex + 1}.`,
       );
+      // create an initial frame for the newly generated scene
+      createInitialFrameForScene(nextIndex);
     } catch (error) {
       console.error("Failed to create scene:", error);
       const updatedScenes = [...scenes, fallbackScene];
@@ -942,6 +962,8 @@ export function StoryboardPage() {
         "ERROR",
         `Scene generation failed; inserted fallback scene ${nextIndex + 1}.`,
       );
+      // ensure a frame exists even when generation fails
+      createInitialFrameForScene(nextIndex);
     } finally {
       setIsManifestingSceneId(null);
     }
@@ -965,6 +987,7 @@ export function StoryboardPage() {
     updateScriptMarkdown,
     addLog,
     storyboardDispatch,
+    createInitialFrameForScene,
   ]);
 
   const startEditing = React.useCallback((scene: Scene) => {

@@ -10,6 +10,7 @@ import { cn } from '@/lib/utils';
 interface BlueprintTabProps {
   showScaffolder: boolean;
   onManifestContinue: (config: any) => Promise<void>;
+  onGenerateSeries?: (params: { episodesPerSession: number; sessions: number; scenes: number }) => void;
   isSyncing: boolean;
   lastSyncDate: string | null;
   productionSequence: any[];
@@ -20,6 +21,7 @@ interface BlueprintTabProps {
 
 export const BlueprintTab: React.FC<BlueprintTabProps> = ({
   onManifestContinue,
+  onGenerateSeries,
   isSyncing,
   lastSyncDate,
   productionSequence,
@@ -107,78 +109,128 @@ export const BlueprintTab: React.FC<BlueprintTabProps> = ({
   }, [localConfig]);
 
   const [localErrors, setLocalErrors] = React.useState<{ sessions?: string; episodes?: string; scenes?: string }>({});
+  const [isSyncingScaffold, setIsSyncingScaffold] = React.useState(false);
+
   const totalSceneBudget = React.useMemo(
     () => calculateTotalScenes(localConfig.sessions, localConfig.episodes, localConfig.scenes),
     [calculateTotalScenes, localConfig.sessions, localConfig.episodes, localConfig.scenes],
   );
 
   const totalScaffoldingEpisodes = React.useMemo(() => {
-    const s = parseInt(String(localConfig.sessions)) || parseInt(String(globalSession)) || 0;
-    const e = parseInt(String(localConfig.episodes)) || globalEpisodes || 0;
+    const sParsed = parseInt(String(localConfig.sessions));
+    const eParsed = parseInt(String(localConfig.episodes));
+
+    // Require explicit values for sessions + episodes (no fallback defaults)
+    const s = Number.isFinite(sParsed) ? sParsed : 0;
+    const e = Number.isFinite(eParsed) ? eParsed : 0;
+
     return s * e;
-  }, [localConfig.sessions, localConfig.episodes, globalSession, globalEpisodes]);
+  }, [localConfig.sessions, localConfig.episodes]);
 
 
-  // Real-time validation
-  React.useEffect(() => {
+
+  const validateScaffoldingInputs = () => {
     const errors: typeof localErrors = {};
     const finalSessions = parseInt(String(localConfig.sessions));
     const finalEpisodes = parseInt(String(localConfig.episodes));
     const finalScenes = parseInt(String(localConfig.scenes));
-    
-    if (localConfig.sessions !== '' && (!Number.isFinite(finalSessions) || finalSessions < 1 || finalSessions > 5)) {
+
+    if (localConfig.sessions === '' || !Number.isFinite(finalSessions)) {
+      errors.sessions = 'Session Count is required.';
+    } else if (finalSessions < 1 || finalSessions > 5) {
       errors.sessions = 'Sessions must be between 1 and 5';
     }
-    if (localConfig.episodes !== '' && (!Number.isFinite(finalEpisodes) || finalEpisodes < 1 || finalEpisodes > 24)) {
+
+    if (localConfig.episodes === '' || !Number.isFinite(finalEpisodes)) {
+      errors.episodes = 'Episodes Per Session is required.';
+    } else if (finalEpisodes < 1 || finalEpisodes > 24) {
       errors.episodes = 'Episodes must be between 1 and 24';
     }
-    if (localConfig.scenes !== '' && (!Number.isFinite(finalScenes) || finalScenes < 1 || finalScenes > 40)) {
+
+    if (localConfig.scenes === '' || !Number.isFinite(finalScenes)) {
+      errors.scenes = 'Scenes Per Episode is required.';
+    } else if (finalScenes < 1 || finalScenes > 40) {
       errors.scenes = 'Scenes must be between 1 and 40';
     }
+
+    const totalEpisodes = finalSessions * finalEpisodes;
+    const totalSceneBudget = totalEpisodes * finalScenes;
+    const MAX_SAFE_TOTAL_EPISODES = 24;
+    const MAX_SAFE_TOTAL_SCENE_BUDGET = 720;
+
+    if (totalEpisodes > MAX_SAFE_TOTAL_EPISODES) {
+      errors.episodes = `Total episodes (${totalEpisodes}) exceeds the safe limit of ${MAX_SAFE_TOTAL_EPISODES}. Reduce sessions or episodes.`;
+    }
+
+    if (totalSceneBudget > MAX_SAFE_TOTAL_SCENE_BUDGET) {
+      errors.scenes = `Total scene budget (${totalSceneBudget}) is too large. Reduce sessions, episodes, or scenes.`;
+    }
+
+    return { errors, finalSessions, finalEpisodes, finalScenes, totalEpisodes, totalSceneBudget };
+  };
+
+  React.useEffect(() => {
+    const { errors } = validateScaffoldingInputs();
     setLocalErrors(errors);
   }, [localConfig]);
+
 
   // Note: we intentionally do NOT auto-populate scaffolding from the loaded plan.
   // Users must explicitly enter sessions/episodes/scenes before synthesizing.
 
-  const handleSynthesizeBlueprint = async () => {
-    // Validate before manifesting
-    const errors: typeof localErrors = {};
-    const finalSessions = parseInt(String(localConfig.sessions));
-    const finalEpisodes = parseInt(String(localConfig.episodes));
-    const finalScenes = parseInt(String(localConfig.scenes));
-    
-    // Match validation to input min/max attributes
-    if (localConfig.sessions === '' || !Number.isFinite(finalSessions) || finalSessions < 1 || finalSessions > 5) {
-      errors.sessions = 'Sessions must be between 1 and 5';
-    }
-    if (localConfig.episodes === '' || !Number.isFinite(finalEpisodes) || finalEpisodes < 1 || finalEpisodes > 24) {
-      errors.episodes = 'Episodes must be between 1 and 24';
-    }
-    if (localConfig.scenes === '' || !Number.isFinite(finalScenes) || finalScenes < 1 || finalScenes > 40) {
-      errors.scenes = 'Scenes must be between 1 and 40';
-    }
-
-    setLocalErrors(errors);
+  const handleGenerateBlueprint = async () => {
+    const { errors, finalSessions, finalEpisodes, finalScenes } = validateScaffoldingInputs();
     if (Object.keys(errors).length > 0) {
       showNotification?.('Please fix scaffolding errors before generating the blueprint.', 'error');
       return;
     }
 
-    // Consolidated Action: Initialize Structure + Synthesize AI Content
     try {
-      // Pass explicit values for sessions, episodes and scenes. Do not rely on any defaults.
-      await onManifestContinue({ episodes: finalEpisodes, sessions: finalSessions, scenes: finalScenes });
-      window.dispatchEvent(new CustomEvent('studio-generate-series', { 
-        detail: { 
-          episodes: finalEpisodes,
-          sessions: finalSessions,
-          scenes: finalScenes
-        } 
-      }));
+      console.log('🎬 [RE-SYNTHESIZE] Dispatching blueprint generation request:', { finalSessions, finalEpisodes, finalScenes });
+      showNotification?.('Generating series blueprint from AI...', 'info');
+
+      if (onGenerateSeries) {
+        onGenerateSeries({ episodesPerSession: finalEpisodes, sessions: finalSessions, scenes: finalScenes });
+        console.log('🎬 [RE-SYNTHESIZE] Direct generation callback invoked');
+      } else {
+        window.dispatchEvent(new CustomEvent('studio-generate-series', {
+          detail: {
+            episodesPerSession: finalEpisodes,
+            sessions: finalSessions,
+            scenes: finalScenes
+          }
+        }));
+        console.log('🎬 [RE-SYNTHESIZE] Event dispatched successfully - check browser console for generation progress');
+      }
     } catch (err) {
-      console.error("Synergy Failed:", err);
+      console.error("❌ Blueprint generation failed:", err);
       showNotification?.('Failed to generate blueprint: ' + ((err as any)?.message || String(err)), 'error');
+    }
+  };
+
+  const handleSyncScaffold = async () => {
+    const { errors, finalSessions, finalEpisodes, finalScenes } = validateScaffoldingInputs();
+    if (Object.keys(errors).length > 0) {
+      showNotification?.('Please fix scaffolding errors before syncing the scaffold.', 'error');
+      return;
+    }
+
+    if (!onManifestContinue) {
+      showNotification?.('Scaffold sync is unavailable in this context.', 'warning');
+      return;
+    }
+
+    setIsSyncingScaffold(true);
+    try {
+      showNotification?.('Syncing production scaffold to database...', 'info');
+      await onManifestContinue({ episodes: finalEpisodes, sessions: finalSessions, scenes: finalScenes, persist: false });
+      console.log('🎬 [SCAFFOLD SYNC] onManifestContinue completed successfully');
+      showNotification?.('Scaffold synchronized to database.', 'success');
+    } catch (err) {
+      console.error('❌ Scaffold sync failed:', err);
+      showNotification?.('Failed to sync scaffold: ' + ((err as any)?.message || String(err)), 'error');
+    } finally {
+      setIsSyncingScaffold(false);
     }
   };
 
@@ -310,7 +362,8 @@ export const BlueprintTab: React.FC<BlueprintTabProps> = ({
                     <div className="flex flex-wrap items-center gap-3 p-4 rounded-2xl bg-black/40 border border-white/5">
                       <span className="text-[10px] font-black text-studio uppercase tracking-[0.3em]">Blueprint Math</span>
                       <span className="text-xs font-mono text-zinc-300 uppercase tracking-widest">
-                        {String(localConfig.scenes || 0)} scenes × {totalScaffoldingEpisodes.toLocaleString()} episodes ({String(localConfig.sessions || 1)} sessions) = {totalSceneBudget.toLocaleString()} total scenes
+                        {localConfig.scenes !== '' ? String(localConfig.scenes) : '0'} scenes × {totalScaffoldingEpisodes.toLocaleString()} episodes ({localConfig.sessions !== '' ? String(localConfig.sessions) : '0'} sessions) = {totalSceneBudget.toLocaleString()} total scenes
+
                       </span>
                     </div>
                   )}
@@ -363,9 +416,9 @@ export const BlueprintTab: React.FC<BlueprintTabProps> = ({
               </div>
 
               {/* AI Synthesis Command Center */}
-              <div className="p-1">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {isGeneratingSeries ? (
-                  <div className="flex flex-col gap-4 p-6 bg-studio/5 border border-studio/20 rounded-2xl shadow-[0_0_30px_rgba(6,182,212,0.1)]">
+                  <div className="flex flex-col gap-4 p-6 col-span-2 bg-studio/5 border border-studio/20 rounded-2xl shadow-[0_0_30px_rgba(6,182,212,0.1)]">
                     <div className="flex items-center gap-4">
                       <Loader2 className="w-6 h-6 text-studio animate-spin" />
                       <div>
@@ -383,22 +436,41 @@ export const BlueprintTab: React.FC<BlueprintTabProps> = ({
                     </div>
                   </div>
                 ) : (
-                  <button
-                    onClick={handleSynthesizeBlueprint}
-                    disabled={isSyncing || isGeneratingSeries}
-                    className={cn(
-                      "w-full group relative flex items-center justify-center gap-3 p-5 rounded-2xl transition-all duration-500 shadow-[0_0_40px_rgba(6,182,212,0.15)]",
-                      isSyncing || isGeneratingSeries
-                        ? "bg-white/[0.02] border border-white/5 opacity-50 cursor-not-allowed"
-                        : "bg-studio/10 hover:bg-studio/20 border border-studio/30 hover:border-studio/50"
-                    )}
-                  >
-                    <div className="absolute inset-0 bg-gradient-to-r from-studio/0 via-studio/10 to-studio/0 opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl pointer-events-none" />
-                    {isSyncing ? <Loader2 className="w-5 h-5 text-studio animate-spin" /> : <Sparkles className="w-5 h-5 text-studio group-hover:animate-pulse" />}
-                    <span className="text-xs font-black text-white uppercase tracking-[0.3em]">
-                      {isSyncing ? "Materializing Roadmap..." : plan && plan.length > 0 ? "RE-SYNTHESIZE PRODUCTION BLUEPRINT" : "SYNERGIZE & GENERATE BLUEPRINT"}
-                    </span>
-                  </button>
+                  <>
+                    <button
+                      onClick={handleGenerateBlueprint}
+                      disabled={isSyncing || isGeneratingSeries || isSyncingScaffold}
+                      className={cn(
+                        "w-full group relative flex items-center justify-center gap-3 p-5 rounded-2xl transition-all duration-500 shadow-[0_0_40px_rgba(6,182,212,0.15)]",
+                        isSyncing || isGeneratingSeries || isSyncingScaffold
+                          ? "bg-white/[0.02] border border-white/5 opacity-50 cursor-not-allowed"
+                          : "bg-studio/10 hover:bg-studio/20 border border-studio/30 hover:border-studio/50"
+                      )}
+                    >
+                      <div className="absolute inset-0 bg-gradient-to-r from-studio/0 via-studio/10 to-studio/0 opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl pointer-events-none" />
+                      <Sparkles className="w-5 h-5 text-studio group-hover:animate-pulse" />
+                      <span className="text-xs font-black text-white uppercase tracking-[0.3em]">
+                        {plan && plan.length > 0 ? "Regenerate Blueprint" : "Generate Blueprint"}
+                      </span>
+                    </button>
+
+                    <button
+                      onClick={handleSyncScaffold}
+                      disabled={isSyncing || isGeneratingSeries || isSyncingScaffold}
+                      className={cn(
+                        "w-full group relative flex items-center justify-center gap-3 p-5 rounded-2xl transition-all duration-500 shadow-[0_0_40px_rgba(6,182,212,0.15)] border border-white/10",
+                        isSyncing || isGeneratingSeries || isSyncingScaffold
+                          ? "bg-white/[0.02] opacity-50 cursor-not-allowed"
+                          : "bg-zinc-900/80 hover:bg-zinc-800 border-white/10"
+                      )}
+                    >
+                      <div className="absolute inset-0 bg-gradient-to-r from-zinc-800/0 via-zinc-800/10 to-zinc-800/0 opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl pointer-events-none" />
+                      {isSyncing || isSyncingScaffold ? <Loader2 className="w-5 h-5 text-zinc-400 animate-spin" /> : <Database className="w-5 h-5 text-zinc-300" />}
+                      <span className="text-xs font-black text-white uppercase tracking-[0.3em]">
+                        {isSyncing || isSyncingScaffold ? "Materializing Roadmap..." : "Sync DB Scaffold"}
+                      </span>
+                    </button>
+                  </>
                 )}
               </div>
 

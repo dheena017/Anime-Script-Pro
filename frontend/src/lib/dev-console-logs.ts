@@ -308,19 +308,50 @@ export const studioLog = (module: string, message: string, level: LogLevel = 'in
   pushLogHistory(entry);
 
   // Print to the actual browser developer console
-  const consoleMessage = `[${timestamp}] [${module.toUpperCase()}] ${arrow} ${message}`;
+  const levelLabel = level.toUpperCase();
+  const moduleBadge = module.toUpperCase();
+
+  const levelBg =
+    level === 'success' ? '#059669' :
+    level === 'anime' || level === 'manhwa' || level === 'comic' || level === 'info' ? '#0891b2' :
+    level === 'warn' ? '#d97706' :
+    level === 'error' ? '#dc2626' :
+    level === 'system' ? '#7c3aed' : '#374151';
+
   if (level === 'error') {
-    console.error(consoleMessage, data || '');
-  } else if (level === 'warn') {
-    console.warn(consoleMessage, data || '');
-  } else {
-    const badgeStyle = STYLES[level] || STYLES.info;
-    console.log(
-      `%c[${timestamp}]%c %c ${module.toUpperCase()} %c ${arrow} ${message}`,
+    console.error(
+      `%c ${levelLabel} %c%c ${moduleBadge} %c%c[${timestamp}]%c%c ${arrow} ${message}`,
+      `color: #ffffff; background: #dc2626; padding: 2px 6px; border-radius: 4px; font-weight: bold;`,
+      '',
+      'color: #ffffff; background: #1e1b4b; padding: 2px 6px; border-radius: 4px; font-weight: bold;',
+      '',
       'color: #6b7280; font-family: monospace;',
       '',
-      badgeStyle,
       'color: inherit;',
+      data || ''
+    );
+  } else if (level === 'warn') {
+    console.warn(
+      `%c ${levelLabel} %c%c ${moduleBadge} %c%c[${timestamp}]%c%c ${arrow} ${message}`,
+      `color: #ffffff; background: #d97706; padding: 2px 6px; border-radius: 4px; font-weight: bold;`,
+      '',
+      'color: #ffffff; background: #1e1b4b; padding: 2px 6px; border-radius: 4px; font-weight: bold;',
+      '',
+      'color: #6b7280; font-family: monospace;',
+      '',
+      'color: inherit;',
+      data || ''
+    );
+  } else {
+    console.log(
+      `%c ${levelLabel} %c%c ${moduleBadge} %c%c[${timestamp}]%c%c ${arrow} ${message}`,
+      `color: #ffffff; background: ${levelBg}; padding: 2px 6px; border-radius: 4px; font-weight: bold;`,
+      '',
+      'color: #ffffff; background: #1e1b4b; padding: 2px 6px; border-radius: 4px; font-weight: bold;',
+      '',
+      'color: #6b7280; font-family: monospace;',
+      '',
+      STYLES[level] || 'color: inherit;',
       data || ''
     );
   }
