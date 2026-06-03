@@ -148,12 +148,8 @@ export default function AssetsLayout() {
             transition={{ duration: 0.2, ease: "easeOut" }}
             className="flex-1 flex flex-col"
           >
-            <Suspense fallback={<div className="flex-1 flex items-center justify-center p-20"><AssetsLoadingPage progress={generationProgress} /></div>}>
-              {(isGeneratingMetadata || isGeneratingDescription || isGeneratingImagePrompts) ? (
-                <AssetsLoadingPage progress={generationProgress} />
-              ) : (
-                <Outlet context={{ onLaunch: handleGenerateAll }} />
-              )}
+            <Suspense fallback={<div className="flex-1 flex items-center justify-center p-20 text-xs font-black uppercase tracking-[0.2em] text-cyan-500/40 animate-pulse">Loading...</div>}>
+              <Outlet context={{ onLaunch: handleGenerateAll }} />
             </Suspense>
           </motion.div>
         </AnimatePresence>

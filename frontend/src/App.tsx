@@ -48,34 +48,32 @@ const LibraryModule = lazy(() => import('@/pages/studio/Library/LibraryPage'));
 const AnimeLayout = lazy(() => import('@/pages/studio/AnimeStudio/Layout'));
 
 // Anime Studio Pages
-const AnimeScript = lazy(() => import('@/pages/studio/AnimeStudio/Script/ScriptPage').then(m => ({ default: m.ScriptPage })));
-const AnimeSeries = lazy(() => import('@/pages/studio/AnimeStudio/Series/SeriesPage').then(m => ({ default: m.SeriesPage })));
+const AnimeSeries = lazy(() => import('@/pages/studio/AnimeStudio/Series/SeriesPage').then(m => ({ default: (m as any).default || (m as any).SeriesPage })));
 const AnimeStoryboard = lazy(() => import('@/pages/studio/AnimeStudio/Storyboard/StoryboardPage').then(m => ({ default: m.StoryboardPage })));
 const SEOPage = lazy(() => import('@/pages/studio/AnimeStudio/SEO/SEOPage').then(m => ({ default: m.SEOPage })));
 const PromptsPage = lazy(() => import('@/pages/studio/AnimeStudio/Prompts/PromptsPage').then(m => ({ default: m.PromptsPage })));
 const AnimeScreening = lazy(() => import('@/pages/studio/AnimeStudio/Screening/ScreeningRoom').then(m => ({ default: m.ScreeningRoom })));
 const AnimeEngine = lazy(() => import('@/pages/studio/AnimeStudio/Engine/EnginePage').then(m => ({ default: m.EnginePage })));
 const AnimeWorld = lazy(() => import('@/pages/studio/AnimeStudio/World/WorldPage').then(m => ({ default: m.WorldPage })));
+const AnimeConsole = lazy(() => import('@/pages/studio/AnimeStudio/Console/ConsolePage').then(m => ({ default: m.ConsolePage })));
 
 // Production System Layouts (Shared/Contextual)
 const WorldLayout = lazy(() => import('@/pages/studio/AnimeStudio/World/WorldLayout'));
-const CastLayout = lazy(() => import('@/pages/studio/AnimeStudio/Cast/CastLayout'));
-const RegistryTab = lazy(() => import('@/pages/studio/AnimeStudio/Cast/Tabs/RegistryTab').then(m => ({ default: m.RegistryTab })));
-const VoiceTab = lazy(() => import('@/pages/studio/AnimeStudio/Cast/Tabs/VoiceTab').then(m => ({ default: m.VoiceTab })));
-const CombatTab = lazy(() => import('@/pages/studio/AnimeStudio/Cast/Tabs/CombatTab').then(m => ({ default: m.CombatTab })));
-const ArcsTab = lazy(() => import('@/pages/studio/AnimeStudio/Cast/Tabs/ArcsTab').then(m => ({ default: m.ArcsTab })));
-const DynamicsTab = lazy(() => import('@/pages/studio/AnimeStudio/Cast/Tabs/DynamicsTab').then(m => ({ default: m.DynamicsTab })));
-const RelationshipsPage = lazy(() => import('@/pages/studio/AnimeStudio/Cast/Tabs/Relationships/RelationshipsPage'));
-const RelationshipViewPage = lazy(() => import('@/pages/studio/AnimeStudio/Cast/Tabs/Relationships/RelationshipViewPage'));
-const RelationshipEditPage = lazy(() => import('@/pages/studio/AnimeStudio/Cast/Tabs/Relationships/RelationshipEditPage'));
-const TechnicalTab = lazy(() => import('@/pages/studio/AnimeStudio/Cast/Tabs/TechnicalTab').then(m => ({ default: m.TechnicalTab })));
-const CharacterViewPage = lazy(() => import('@/pages/studio/AnimeStudio/Cast/Tabs/Characters/CharacterViewPage'));
-const CharacterEditPage = lazy(() => import('@/pages/studio/AnimeStudio/Cast/Tabs/Characters/CharacterEditPage'));
+const CharactersLayout = lazy(() => import('@/pages/studio/AnimeStudio/Characters/CharactersLayout'));
+const VoiceTab = lazy(() => import('@/pages/studio/AnimeStudio/Characters/Tabs/VoiceTab').then(m => ({ default: m.VoiceTab })));
+const CombatTab = lazy(() => import('@/pages/studio/AnimeStudio/Characters/Tabs/CombatTab').then(m => ({ default: m.CombatTab })));
+const ArcsTab = lazy(() => import('@/pages/studio/AnimeStudio/Characters/Tabs/ArcsTab').then(m => ({ default: m.ArcsTab })));
+const DynamicsTab = lazy(() => import('@/pages/studio/AnimeStudio/Characters/Tabs/DynamicsTab').then(m => ({ default: m.DynamicsTab })));
+const RelationshipsPage = lazy(() => import('@/pages/studio/AnimeStudio/Characters/Tabs/RelationshipsPage'));
+const RelationshipViewPage = lazy(() => import('@/pages/studio/AnimeStudio/Characters/Tabs/RelationshipViewPage'));
+const RelationshipEditPage = lazy(() => import('@/pages/studio/AnimeStudio/Characters/components/EditPage').then(m => ({ default: m.RelationshipEditPage })));
+const TechnicalTab = lazy(() => import('@/pages/studio/AnimeStudio/Characters/Tabs/TechnicalTab').then(m => ({ default: m.TechnicalTab })));
+const CharacterViewPage = lazy(() => import('@/pages/studio/AnimeStudio/Characters/components/CharacterViewPage'));
+const CharacterEditPage = lazy(() => import('@/pages/studio/AnimeStudio/Characters/components/EditPage').then(m => ({ default: m.CharacterEditPage })));
 
 const SeriesLayout = lazy(() => import('@/pages/studio/AnimeStudio/Series/SeriesLayout'));
-const ScriptLayout = lazy(() => import('@/pages/studio/AnimeStudio/Script/ScriptLayout'));
+// Script page removed
 const StoryboardLayout = lazy(() => import('@/pages/studio/AnimeStudio/Storyboard/StoryboardLayout'));
-const SceneViewPage = lazy(() => import('@/pages/studio/AnimeStudio/Storyboard/SceneViewPage').then(m => ({ default: m.SceneViewPage })));
 
 const FramesTab = lazy(() => import('@/pages/studio/AnimeStudio/Storyboard/Tabs/FramesTab').then(m => ({ default: m.FramesTab })));
 const AnglesTab = lazy(() => import('@/pages/studio/AnimeStudio/Storyboard/Tabs/AnglesTab').then(m => ({ default: m.AnglesTab })));
@@ -88,6 +86,7 @@ const ScreeningLayout = lazy(() => import('@/pages/studio/AnimeStudio/Screening/
 const EngineLayout = lazy(() => import('@/pages/studio/AnimeStudio/Engine/EngineLayout'));
 const AssetsLayout = lazy(() => import('@/pages/studio/AnimeStudio/Assets/AssetsLayout'));
 const AssetsPage = lazy(() => import('@/pages/studio/AnimeStudio/Assets/AssetsPage').then(m => ({ default: m.AssetsPage })));
+const ModelsManagementLayout = lazy(() => import('@/pages/studio/AnimeStudio/ModelsManagement/ModelsManagementLayout').then(m => ({ default: m.ModelsManagementLayout })));
 
 // (Manhwa and Comic studios removed)
 
@@ -101,6 +100,7 @@ function AppRoutes() {
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
         {/* Public Routes */}
+        <Route path="/series" element={<Navigate to="/studio/series" replace />} />
         <Route path="/" element={<PageTransition><LandingPage /></PageTransition>} />
         <Route path="/auth" element={<PageTransition><AuthPage /></PageTransition>} />
         <Route path="/login" element={<PageTransition><LoginPage /></PageTransition>} />
@@ -111,7 +111,6 @@ function AppRoutes() {
         <Route path="/contact" element={<PageTransition><ContactPage /></PageTransition>} />
         <Route path="/terms" element={<PageTransition><TermsPage /></PageTransition>} />
 
-        {/* Studio Global Layout */}
         {/* Studio Global Layout */}
         <Route element={<AuthRoute><StudioLayout /></AuthRoute>}>
           <Route path="/dashboard" element={<PageTransition><Dashboard /></PageTransition>} />
@@ -125,7 +124,7 @@ function AppRoutes() {
           <Route path="/tutorials/*" element={<PageTransition><AcademyModule /></PageTransition>} />
           <Route path="/settings/*" element={<PageTransition><SettingsModule /></PageTransition>} />
           <Route path="/library/*" element={<PageTransition><LibraryModule /></PageTransition>} />
-          
+
           {/* Projects Management */}
           <Route path="/projects">
             <Route index element={<Navigate to="all" replace />} />
@@ -151,14 +150,15 @@ function AppRoutes() {
               </AuthRoute>
             }
           >
-            <Route index element={<Navigate to="engine" replace />} />
+            <Route index element={<Navigate to="console" replace />} />
+            <Route path="console" element={<PageTransition><AnimeConsole /></PageTransition>} />
             <Route path="engine" element={<EngineLayout />}>
               <Route index element={<PageTransition><AnimeEngine /></PageTransition>} />
             </Route>
             <Route path="world" element={<WorldLayout />}>
               <Route index element={<PageTransition><AnimeWorld /></PageTransition>} />
             </Route>
-            <Route path="cast" element={<CastLayout />} />
+            <Route path="cast" element={<CharactersLayout />} />
             <Route path="cast/characters/:characterName" element={<PageTransition><CharacterViewPage /></PageTransition>} />
             <Route path="cast/characters/:characterName/edit" element={<PageTransition><CharacterEditPage /></PageTransition>} />
             <Route path="series" element={<SeriesLayout />}>
@@ -166,26 +166,24 @@ function AppRoutes() {
               <Route path="roadmap" element={<PageTransition><AnimeSeries /></PageTransition>} />
               <Route path="arcs" element={<PageTransition><AnimeSeries /></PageTransition>} />
               <Route path="blueprint" element={<PageTransition><AnimeSeries /></PageTransition>} />
+              <Route path="ai-output" element={<PageTransition><AnimeSeries /></PageTransition>} />
               <Route path="assets" element={<PageTransition><AnimeSeries /></PageTransition>} />
               <Route path="timeline" element={<PageTransition><AnimeSeries /></PageTransition>} />
               <Route path="episodes" element={<PageTransition><AnimeSeries /></PageTransition>} />
               <Route path="episodes/:id" element={<PageTransition><EpisodeViewPage /></PageTransition>} />
               <Route path="episodes/:id/edit" element={<PageTransition><EpisodeEditPage /></PageTransition>} />
             </Route>
-            <Route path="script" element={<ScriptLayout />}>
-              <Route index element={<PageTransition><AnimeScript /></PageTransition>} />
-            </Route>
+            {/* Script page removed */}
             <Route path="storyboard" element={<StoryboardLayout />}>
               <Route element={<AnimeStoryboard />}>
-                <Route index element={<Navigate to="frames" replace />} />
-                <Route path="frames" element={<PageTransition><FramesTab /></PageTransition>} />
+                <Route index element={<Navigate to="video" replace />} />
+                <Route path="video" element={<PageTransition><FramesTab /></PageTransition>} />
                 <Route path="angles" element={<PageTransition><AnglesTab /></PageTransition>} />
                 <Route path="composition" element={<PageTransition><CompositionTab /></PageTransition>} />
                 <Route path="animatic" element={<PageTransition><AnimaticTab /></PageTransition>} />
                 <Route path="audio" element={<PageTransition><AudioTab /></PageTransition>} />
               </Route>
               <Route path="scenes" element={<PageTransition><AnimeStoryboard /></PageTransition>} />
-              <Route path="scenes/:id" element={<PageTransition><SceneViewPage /></PageTransition>} />
             </Route>
             <Route path="seo" element={<SEOLayout />}>
               <Route index element={<PageTransition><SEOPage /></PageTransition>} />

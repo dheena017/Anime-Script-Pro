@@ -18,6 +18,8 @@ import { Button } from '@/components/ui/button';
 import React from 'react';
 import { SceneCard } from '../components/SceneCard';
 import { TechnicalMatrixTable } from '../components/TechnicalMatrixTable';
+import SceneView from '../components/SceneView';
+import { expandEpisodeDetails, regenerateSingleScene } from '@/services/api/gemini';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
@@ -30,14 +32,38 @@ export default function EpisodeViewPage() {
   const { id: episodeId } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
-  const { generatedSeriesPlan, currentScriptId } = useGeneratorState();
-  const { setEpisode, showNotification } = useGeneratorDispatch();
+  
+  const { 
+    generatedSeriesPlan, 
+    currentScriptId,
+    generatedWorld,
+    generatedWorldLore,
+    generatedWorldPowers,
+    generatedWorldFactions,
+    generatedWorldArchitecture,
+    generatedWorldAtlas,
+    generatedWorldCulture,
+    generatedWorldSystems,
+    characterList,
+    characterDNA,
+    characterRelationships,
+    selectedModel,
+    contentType,
+    numScenes,
+    numEpisodes
+  } = useGeneratorState();
+
+  const { setEpisode, setSession, showNotification, setGeneratedSeriesPlan } = useGeneratorDispatch();
 
   const studioBase = currentScriptId ? `/projects/${currentScriptId}` : '/studio';
 
   const episode = generatedSeriesPlan?.find(ep =>
     String(ep.episode) === String(episodeId)
   );
+
+  const [viewMode, setViewMode] = React.useState<'artistic' | 'technical'>('technical');
+  const [isGenerating, setIsGenerating] = React.useState(false);
+  const [selectedSceneIndex, setSelectedSceneIndex] = React.useState<number | null>(null);
 
   // Auto-scroll to section if provided in query params
   React.useEffect(() => {
@@ -57,8 +83,6 @@ export default function EpisodeViewPage() {
     }
   };
 
-  const [viewMode, setViewMode] = React.useState<'artistic' | 'technical'>('technical');
-
   if (!episode) {
     return (
       <div className="flex flex-col items-center justify-center h-[600px] space-y-4">
@@ -77,11 +101,178 @@ export default function EpisodeViewPage() {
     ? generatedSeriesPlan[currentIndex + 1] : null;
 
   const handleFocus = () => {
-    setEpisode(episode.episode);
+    const epIndex = generatedSeriesPlan?.findIndex(ep => String(ep.episode) === String(episodeId)) ?? -1;
+    if (epIndex !== -1 && numEpisodes) {
+      const calculatedSession = Math.floor(epIndex / numEpisodes) + 1;
+      const calculatedEpInSession = (epIndex % numEpisodes) + 1;
+      setSession(String(calculatedSession));
+      setEpisode(String(calculatedEpInSession));
+    } else {
+      if (episode.session) setSession(String(episode.session));
+      setEpisode(episode.episode);
+    }
     navigate(`${studioBase}/script`);
   };
 
-  const scenes = episode.detailed_episode_spec?.acts?.flatMap((act: any) => act.scenes) || [];
+  // Compile scenes array injecting act and index properties for technical compliance
+  const scenes: any[] = [];
+  if (episode.detailed_episode_spec?.acts) {
+    episode.detailed_episode_spec.acts.forEach((act: any, ai: number) => {
+      (act.scenes || []).forEach((s: any) => {
+        scenes.push({ 
+          ...s, 
+          act: act.act || ai + 1, 
+          index: scenes.length + 1 
+        });
+      });
+    });
+  }
+
+  const totalScenes = scenes.length;
+  const currentScene = selectedSceneIndex !== null ? scenes[selectedSceneIndex] : null;
+
+  // Scene Generation / Materialization pipeline handler
+  const handleGenerateScenes = async () => {
+    if (isGenerating) return;
+    setIsGenerating(true);
+    showNotification?.('Generating production scenes...', 'info');
+
+    try {
+      // 1. Build world bible
+      const worldBible = [
+        `MANIFEST: ${generatedWorld || 'N/A'}`,
+        `HISTORY: ${generatedWorldLore || 'N/A'}`,
+        `POWERS: ${generatedWorldPowers || 'N/A'}`,
+        `FACTIONS: ${generatedWorldFactions || 'N/A'}`,
+        `ARCHITECTURE: ${generatedWorldArchitecture || 'N/A'}`,
+        `ATLAS: ${generatedWorldAtlas || 'N/A'}`,
+        `CULTURE: ${generatedWorldCulture || 'N/A'}`,
+        `SYSTEMS: ${generatedWorldSystems || 'N/A'}`
+      ].join('\n\n');
+
+      // 2. Build cast context
+      const castContext = [
+        `CHARACTERS: ${JSON.stringify(characterList || [])}`,
+        `RELATIONSHIPS: ${characterRelationships || 'N/A'}`,
+        `DNA METADATA: ${JSON.stringify(characterDNA || {})}`
+      ].join('\n\n');
+
+      const numScenesVal = parseInt(String(episode.asset_matrix?.scene_count)) || parseInt(numScenes) || 16;
+      
+      // 3. Call expandEpisodeDetails
+      const expandedEpisode = await expandEpisodeDetails(
+        episode,
+        selectedModel,
+        contentType || 'Anime',
+        worldBible,
+        castContext,
+        numScenesVal
+      );
+
+      // 4. Validate output
+      if (!expandedEpisode?.detailed_episode_spec?.acts?.length) {
+        throw new Error("AI did not return a valid scene blueprint.");
+      }
+
+      // 5. Update state
+      const updatedPlan = generatedSeriesPlan!.map(ep =>
+        String(ep.episode) === String(episode.episode) ? expandedEpisode : ep
+      );
+
+      setGeneratedSeriesPlan(updatedPlan);
+      showNotification?.('Scenes generated successfully!', 'success');
+    } catch (err: any) {
+      console.error('Failed to generate episode scenes:', err);
+      showNotification?.('Failed to generate scenes: ' + (err.message || String(err)), 'error');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  // Individual Scene Regeneration handler
+  const handleRegenerateScene = async (sceneIndex: number) => {
+    if (isGenerating) return;
+    setIsGenerating(true);
+    showNotification?.(`Regenerating scene ${sceneIndex + 1}...`, 'info');
+
+    try {
+      // 1. Build world bible
+      const worldBible = [
+        `MANIFEST: ${generatedWorld || 'N/A'}`,
+        `HISTORY: ${generatedWorldLore || 'N/A'}`,
+        `POWERS: ${generatedWorldPowers || 'N/A'}`,
+        `FACTIONS: ${generatedWorldFactions || 'N/A'}`,
+        `ARCHITECTURE: ${generatedWorldArchitecture || 'N/A'}`,
+        `ATLAS: ${generatedWorldAtlas || 'N/A'}`,
+        `CULTURE: ${generatedWorldCulture || 'N/A'}`,
+        `SYSTEMS: ${generatedWorldSystems || 'N/A'}`
+      ].join('\n\n');
+
+      // 2. Build cast context
+      const castContext = [
+        `CHARACTERS: ${JSON.stringify(characterList || [])}`,
+        `RELATIONSHIPS: ${characterRelationships || 'N/A'}`,
+        `DNA METADATA: ${JSON.stringify(characterDNA || {})}`
+      ].join('\n\n');
+
+      const targetScene = scenes[sceneIndex];
+      const prevScene = sceneIndex > 0 ? scenes[sceneIndex - 1] : undefined;
+      const nextScene = sceneIndex < scenes.length - 1 ? scenes[sceneIndex + 1] : undefined;
+
+      // 3. Call AI single scene generator
+      const regeneratedScene = await regenerateSingleScene(
+        targetScene,
+        episode,
+        selectedModel,
+        contentType || 'Anime',
+        worldBible,
+        castContext,
+        { prevScene, nextScene }
+      );
+
+      // 4. Update the detailed episode acts and scenes list
+      if (!regeneratedScene || !regeneratedScene.scene_id) {
+        throw new Error("AI did not return a valid regenerated scene.");
+      }
+
+      // Re-map the acts array with the new scene substituted
+      const updatedActs = episode.detailed_episode_spec.acts.map((act: any) => {
+        const hasScene = (act.scenes || []).some((s: any) => String(s.scene_id) === String(targetScene.scene_id));
+        if (hasScene) {
+          return {
+            ...act,
+            scenes: act.scenes.map((s: any) => 
+              String(s.scene_id) === String(targetScene.scene_id) ? regeneratedScene : s
+            )
+          };
+        }
+        return act;
+      });
+
+      const updatedEpisode = {
+        ...episode,
+        detailed_episode_spec: {
+          ...episode.detailed_episode_spec,
+          acts: updatedActs
+        }
+      };
+
+      const updatedPlan = generatedSeriesPlan!.map(ep =>
+        String(ep.episode) === String(episode.episode) ? updatedEpisode : ep
+      );
+
+      setGeneratedSeriesPlan(updatedPlan);
+      showNotification?.(`Scene ${sceneIndex + 1} regenerated successfully!`, 'success');
+      
+      // Auto-focus the newly regenerated scene index
+      setSelectedSceneIndex(sceneIndex);
+    } catch (err: any) {
+      console.error('Failed to regenerate single scene:', err);
+      showNotification?.('Failed to regenerate scene: ' + (err.message || String(err)), 'error');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
 
   return (
     <div className="w-full max-w-5xl mx-auto space-y-24 pb-32">
@@ -135,6 +326,28 @@ export default function EpisodeViewPage() {
                 <Zap className="w-4 h-4 mr-2 group-hover:animate-pulse" /> Technical Matrix
               </Button>
               <Button
+                disabled={isGenerating}
+                onClick={handleGenerateScenes}
+                className={cn(
+                  "h-12 rounded-2xl px-6 font-black uppercase tracking-widest text-xs transition-all group",
+                  scenes.length > 0 
+                    ? "bg-white/5 border border-white/10 text-zinc-400 hover:text-white hover:bg-white/10 hover:border-white/20"
+                    : "bg-studio text-black hover:bg-studio/80 shadow-[0_0_20px_rgba(6,182,212,0.2)]"
+                )}
+              >
+                {isGenerating ? (
+                  <span className="flex items-center gap-2">
+                    <span className="w-4 h-4 rounded-full border-2 border-current border-t-transparent animate-spin mr-2" />
+                    Materializing...
+                  </span>
+                ) : (
+                  <>
+                    <Sparkles className="w-4 h-4 mr-2 text-studio" />
+                    {scenes.length > 0 ? "Regenerate Scenes" : "Generate Scenes"}
+                  </>
+                )}
+              </Button>
+              <Button
                 onClick={() => navigate(`${studioBase}/series/episodes/${episodeId}/edit`)}
                 className="h-12 bg-white/5 border border-white/10 text-zinc-400 hover:text-white hover:bg-white/10 hover:border-white/20 rounded-2xl px-6 font-black uppercase tracking-widest text-xs transition-all"
               >
@@ -156,7 +369,9 @@ export default function EpisodeViewPage() {
           <div className="flex items-center gap-4">
             <div className="w-1.5 h-12 bg-studio shadow-[0_0_15px_rgba(6,182,212,0.5)] rounded-full" />
             <div className="flex flex-col gap-0.5">
-              <span className="text-[10px] font-black text-studio uppercase tracking-[0.4em]">Milestone Sequence Node</span>
+              <span className="text-[10px] font-black text-studio uppercase tracking-[0.4em]">
+                Session {episode.session || '1'} • {episode.session_name || 'Main Arc'} • Milestone Sequence Node
+              </span>
               <span className="text-zinc-500 font-black text-[9px] uppercase tracking-[0.2em] flex items-center gap-2">
                 <Clock className="w-3 h-3 text-zinc-600" /> {episode.runtime || '24:00'} Target Runtime
               </span>
@@ -272,52 +487,92 @@ export default function EpisodeViewPage() {
           viewMode === 'technical' ? (
             <TechnicalMatrixTable scenes={scenes} />
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {scenes.map((scene: any, idx: number) => (
-                <SceneCard 
-                  key={scene.scene_id || idx}
-                  index={idx + 1}
-                  scene={scene}
-                  onSelect={() => navigate(`${studioBase}/storyboard/scene/${scene.id || idx}`)}
-                  onRegenerate={() => showNotification?.('Regenerating scene unit...', 'info')}
-                />
-              ))}
+            <div className="flex gap-10 items-start">
+              {/* Dynamic Grid Column */}
+              <div className="flex-1 min-w-0 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {scenes.map((scene: any, idx: number) => (
+                  <SceneCard 
+                    key={scene.scene_id || idx}
+                    index={idx + 1}
+                    scene={scene}
+                    isActive={selectedSceneIndex === idx}
+                    onSelect={(idx1) => setSelectedSceneIndex(idx1 - 1)}
+                    onRegenerate={(idx1) => handleRegenerateScene((idx1 ?? idx + 1) - 1)}
+                  />
+                ))}
+              </div>
+
+              {/* Desktop Sidebar Scene Details Inspector */}
+              {selectedSceneIndex !== null && (
+                <div className="w-96 shrink-0 sticky top-24 hidden lg:block">
+                  <SceneView 
+                    scene={currentScene}
+                    index={selectedSceneIndex + 1}
+                    totalScenes={totalScenes}
+                    onClose={() => setSelectedSceneIndex(null)}
+                    onPrev={() => {
+                      if (selectedSceneIndex > 0) setSelectedSceneIndex(selectedSceneIndex - 1);
+                    }}
+                    onNext={() => {
+                      if (selectedSceneIndex < scenes.length - 1) setSelectedSceneIndex(selectedSceneIndex + 1);
+                    }}
+                    onRegenerate={(idx1) => handleRegenerateScene((idx1 ?? selectedSceneIndex + 1) - 1)}
+                  />
+                </div>
+              )}
+
+              {/* Mobile overlay modal for Scene Details */}
+              {selectedSceneIndex !== null && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm lg:hidden">
+                  <div className="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-[3rem]">
+                    <SceneView 
+                      scene={currentScene}
+                      index={selectedSceneIndex + 1}
+                      totalScenes={totalScenes}
+                      onClose={() => setSelectedSceneIndex(null)}
+                      onPrev={() => {
+                        if (selectedSceneIndex > 0) setSelectedSceneIndex(selectedSceneIndex - 1);
+                      }}
+                      onNext={() => {
+                        if (selectedSceneIndex < scenes.length - 1) setSelectedSceneIndex(selectedSceneIndex + 1);
+                      }}
+                      onRegenerate={(idx1) => handleRegenerateScene((idx1 ?? selectedSceneIndex + 1) - 1)}
+                    />
+                  </div>
+                </div>
+              )}
             </div>
           )
         ) : (
-          <div className="p-20 bg-black/40 border border-dashed border-white/5 rounded-[3rem] text-center">
-            <p className="text-xs font-black text-zinc-600 uppercase tracking-widest">
-              No production units materialized for this sequence.
-            </p>
+          <div className="p-20 bg-black/40 border border-dashed border-white/5 rounded-[3rem] text-center flex flex-col items-center justify-center space-y-6">
+            <div className="w-16 h-16 rounded-[1.5rem] bg-studio/5 border border-studio/20 flex items-center justify-center">
+              <Sparkles className="w-8 h-8 text-studio animate-pulse" />
+            </div>
+            <div className="space-y-2 max-w-sm">
+              <p className="text-sm font-black text-white uppercase tracking-widest">Generate Scene Blueprint</p>
+              <p className="text-xs text-zinc-500 font-medium leading-relaxed">
+                Generate a granular technical and artistic sequence breakdown for this episode using the AI Engine.
+              </p>
+            </div>
+            <Button 
+              disabled={isGenerating}
+              onClick={handleGenerateScenes}
+              className="h-12 bg-studio text-black font-black uppercase tracking-widest text-xs rounded-2xl px-8 hover:bg-studio/80 shadow-[0_0_30px_rgba(6,182,212,0.3)] transition-all"
+            >
+              {isGenerating ? (
+                <span className="flex items-center gap-2">
+                  <span className="w-4 h-4 rounded-full border-2 border-black border-t-transparent animate-spin mr-2" />
+                  Generating Scenes...
+                </span>
+              ) : (
+                <>
+                  <Zap className="w-4 h-4 mr-2" />
+                  Generate Scenes
+                </>
+              )}
+            </Button>
           </div>
         )}
-      </div>
-
-      {/* Production Control Dock */}
-      <div className="p-10 border border-white/5 bg-black/40 rounded-[3rem] text-center space-y-6 max-w-3xl mx-auto backdrop-blur-xl shadow-2xl">
-        <div className="flex flex-col items-center gap-2">
-           <h5 className="text-xs font-black text-studio uppercase tracking-widest">Sequence Controller</h5>
-           <p className="text-xs text-zinc-500 font-medium">
-             Resource matrices and global blueprints are available in the project modules.
-           </p>
-        </div>
-        <div className="flex items-center justify-center gap-6">
-          <Button 
-            variant="ghost" 
-            onClick={() => navigate(`${studioBase}/series?tab=assets`)}
-            className="h-12 px-8 text-xs font-black text-studio uppercase tracking-widest hover:bg-studio/10 border border-studio/10 rounded-2xl"
-          >
-            Review Asset Matrix
-          </Button>
-          <div className="w-1.5 h-1.5 rounded-full bg-zinc-800" />
-          <Button 
-            variant="ghost" 
-            onClick={() => navigate(`${studioBase}/series?tab=blueprint`)}
-            className="h-12 px-8 text-xs font-black text-studio uppercase tracking-widest hover:bg-studio/10 border border-studio/10 rounded-2xl"
-          >
-            Synthesize Blueprint
-          </Button>
-        </div>
       </div>
     </div>
   );

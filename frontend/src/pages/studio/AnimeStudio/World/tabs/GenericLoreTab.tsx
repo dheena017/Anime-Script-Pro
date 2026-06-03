@@ -1,7 +1,7 @@
-import React from 'react';
-import { WorldOutputViewer } from '../components/WorldOutputViewer';
-import { LucideIcon } from 'lucide-react';
-import { worldStyles as s } from '../worldStyles';
+import React from "react";
+import { WorldOutputViewer } from "../components/WorldOutputViewer";
+import { LucideIcon } from "lucide-react";
+import { worldStyles as s } from "../worldStyles";
 
 interface GenericLoreTabProps {
   isEditing: boolean;
@@ -25,22 +25,38 @@ export const GenericLoreTab: React.FC<GenericLoreTabProps> = ({
   onContentChange,
   icon: Icon,
   label,
-  accentColor = '#06b6d4' // Default studio cyan
+  accentColor = "#06b6d4", // Default studio cyan
 }) => {
   return (
     <div className={s.content.container}>
       {/* Dynamic Header */}
       <div className={s.content.header}>
         <div className="space-y-3">
-          <div className={s.content.badge} style={{ backgroundColor: `${accentColor}10`, borderColor: `${accentColor}20` }}>
-            <Icon className="w-3 h-3 child-path-fill" style={{ color: accentColor }} />
-            <span className={s.content.badgeText} style={{ color: accentColor }}>{label} Domain</span>
+          <div
+            className={s.content.badge}
+            style={{
+              backgroundColor: `${accentColor}10`,
+              borderColor: `${accentColor}20`,
+            }}
+          >
+            <Icon
+              className="w-3 h-3 child-path-fill"
+              style={{ color: accentColor }}
+            />
+            <span
+              className={s.content.badgeText}
+              style={{ color: accentColor }}
+            >
+              {label} Domain
+            </span>
           </div>
           <h1 className={s.content.headerTitle}>
             {label.toUpperCase()} <br />
-            <span 
-              className="text-transparent bg-clip-text" 
-              style={{ backgroundImage: `linear-gradient(to right, ${accentColor}, #ffffff, ${accentColor})` }}
+            <span
+              className="text-transparent bg-clip-text"
+              style={{
+                backgroundImage: `linear-gradient(to right, ${accentColor}, #ffffff, ${accentColor})`,
+              }}
             >
               MODULE
             </span>
@@ -49,7 +65,9 @@ export const GenericLoreTab: React.FC<GenericLoreTabProps> = ({
       </div>
 
       {/* Shared Output Viewer */}
-      <div style={{ '--prose-accent-color': accentColor } as React.CSSProperties}>
+      <div
+        style={{ "--prose-accent-color": accentColor } as React.CSSProperties}
+      >
         <WorldOutputViewer
           isEditing={isEditing}
           content={content}

@@ -2,16 +2,16 @@
 Anime Script Pro — Narrative World Lore & Character Models
 
 This module defines SQLModel database tables mapping narrative world guides, faction details,
-speaking styles, active cast rosters, relationship lattices, and modular group dynamics manifests.
+speaking styles, active character rosters, relationship lattices, and modular group dynamics manifests.
 
 Sections (in order):
   1. Standard Library Imports
   2. Third-Party Imports
   3. Master World Lore & Timelines
-  4. Cast Member Profiles
+  4. Character Profiles
   5. Narrative Beats & Story Outlines
   6. Reusable Characters & Relationship Matrices
-  7. Compiled Cast Manifest Archives
+  7. Compiled Character Manifest Archives
 """
 
 # ==============================================================================
@@ -72,12 +72,12 @@ class WorldLore(SQLModel, table=True):
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 
 # ==============================================================================
-# 4. CAST MEMBER PROFILES
+# 4. CHARACTER PROFILES
 # ==============================================================================
 
-class CastMember(SQLModel, table=True):
+class Character(SQLModel, table=True):
     """Holds individual character bio, core flaws, visual styling traits, and speech logic."""
-    __tablename__ = "cast_members"
+    __tablename__ = "characters"
 
     id: Optional[int] = Field(default=None, primary_key=True)
     series_id: Optional[int] = Field(default=None, index=True)
@@ -162,27 +162,27 @@ class CharacterRelationship(SQLModel, table=True):
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 
 # ==============================================================================
-# 7. COMPILED CAST MANIFEST ARCHIVES
+# 7. COMPILED CHARACTER MANIFEST ARCHIVES
 # ==============================================================================
 
-class CastManifest(SQLModel, table=True):
-    """Consolidated JSON blobs mapping active cast and group dynamics reports."""
-    __tablename__ = "cast_manifests"
+class CharacterManifest(SQLModel, table=True):
+    """Consolidated JSON blobs mapping active characters and group dynamics reports."""
+    __tablename__ = "character_manifests"
 
     id: Optional[int] = Field(default=None, primary_key=True)
     user_id: str = Field(index=True)
     project_id: Optional[int] = Field(default=None, index=True)
 
-    # Core cast data (JSON blobs)
-    cast_list_blob: Optional[str] = Field(default=None)      # Full character JSON array
-    relationships_blob: Optional[str] = Field(default=None)  # Relationship graph JSON
-    dna_config_blob: Optional[str] = Field(default=None)     # DNA analysis JSON
-    dynamics_blob: Optional[str] = Field(default=None)       # Group dynamics analysis
-    integrity_blob: Optional[str] = Field(default=None)      # Narrative integrity report
+    # Core character data (JSON blobs)
+    character_list_blob: Optional[str] = Field(default=None)  # Full character JSON array
+    relationships_blob: Optional[str] = Field(default=None)   # Relationship graph JSON
+    dna_config_blob: Optional[str] = Field(default=None)      # DNA analysis JSON
+    dynamics_blob: Optional[str] = Field(default=None)        # Group dynamics analysis
+    integrity_blob: Optional[str] = Field(default=None)       # Narrative integrity report
 
     # Neural Seeds (prompts used)
     num_characters: int = Field(default=8)
-    prompt_cast: Optional[str] = Field(default=None)
+    prompt_characters: Optional[str] = Field(default=None)
     prompt_relationships: Optional[str] = Field(default=None)
 
     # Timestamps

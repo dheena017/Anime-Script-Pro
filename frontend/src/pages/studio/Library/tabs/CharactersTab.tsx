@@ -37,9 +37,9 @@ export const CharactersTab: React.FC<CharactersTabProps> = ({ searchTerm, viewMo
     if (!user?.id) return;
     setLoading(true);
     try {
-      const cast = await characterApi.getCast(user.id);
-      if (cast && cast.cast_list_blob) {
-        const parsedList = JSON.parse(cast.cast_list_blob);
+      const cast = await characterApi.getCharacters(user.id);
+      if (cast && cast.character_list_blob) {
+        const parsedList = JSON.parse(cast.character_list_blob);
         setCharacters(parsedList.map((c: any) => ({
           id: c.id || Math.random().toString(36).substr(2, 9),
           name: c.name || 'Unknown Unit',

@@ -2,7 +2,7 @@ import { apiRequest } from '@/lib/api-utils';
 import { fetchTemplates, ProductionTemplate } from './templates';
 import { projectService, Project } from './projects';
 import { settingsService, MediaAsset } from './settings';
-import { characterApi, CharacterCast } from './characters';
+import { characterApi, CharacterManifest } from './characters';
 import { worldApi, WorldLore } from './world';
 import { engineApi } from './engine';
 import { logsApi, SystemLog } from './logs';
@@ -48,7 +48,7 @@ export interface LibraryOverviewData {
   logs: SystemLog[];
   telemetry: any[];
   worldLore: WorldLore | null;
-  cast: CharacterCast | null;
+  cast: CharacterManifest | null;
 }
 
 const getTextPreview = (value?: string | null, fallback = 'Untitled') => {
@@ -121,7 +121,7 @@ export const libraryApi = {
       logsApi.getLogs(12),
       engineApi.getRecentTelemetry(12),
       userId ? worldApi.getLore(userId).catch(() => null) : Promise.resolve(null),
-      userId ? characterApi.getCast(userId).catch(() => null) : Promise.resolve(null),
+      userId ? characterApi.getCharacters(userId).catch(() => null) : Promise.resolve(null),
     ]);
 
     return {

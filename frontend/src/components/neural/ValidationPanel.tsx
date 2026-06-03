@@ -59,7 +59,7 @@ export default function ValidationPanel() {
       {trace ? (
         <div>
           <div><strong>World Lore:</strong> {trace.trace.worldLorePresent ? `${trace.trace.worldLoreLength} chars` : 'NONE'}</div>
-          <div><strong>Cast DNA:</strong> {trace.trace.castDNAPresent ? `${trace.trace.castDNALength} chars` : 'NONE'}</div>
+          <div><strong>Cast DNA:</strong> {trace.trace.characterDNAPresent ? `${trace.trace.characterDNALength} chars` : 'NONE'}</div>
           <div><strong>Episode Plan:</strong> {trace.trace.episodePlanPresent ? `${trace.trace.episodePlanLength} chars` : 'NONE'}</div>
         </div>
       ) : (

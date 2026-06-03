@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { X, ShieldAlert, RefreshCw } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { signalBus } from '@/lib/api-utils';
+import { signalBus } from '@/lib/dev-console-logs';
 
 export function NeuralErrorSentinel() {
   const [activeError, setActiveError] = useState<{ message: string, signalId: string, status: number } | null>(null);

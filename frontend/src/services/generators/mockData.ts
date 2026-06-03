@@ -259,7 +259,7 @@ export const MOCK_CAST_DATA: any = {
         archetype: c.archetype,
         personality: c.psychology,
         appearance: c.visuals,
-        visualPrompt: `Anime character design, ${c.name}, ${c.visuals}, high detail, professional concept art.`,
+        visualPrompt: `Anime character design key visual, full body portrait of ${c.name}, ${c.visuals}, wielding custom weaponry, dynamic character stance, high contrast rim lighting with volumetric glows, neon accents reflecting on tactical fabrics, cyberpunk setting, masterpiece anime render, gorgeous details, sharp focus, 8k, ray-traced shadows, hyper-realistic anime shading, key visual, highly detailed concept art.`,
         conflict: "Balancing personal morals with survival in a high-stakes world.",
         goal: "Uncover the truth behind the Chronos Corp conspiracy.",
         flaw: "Tendency to push others away during times of high stress.",

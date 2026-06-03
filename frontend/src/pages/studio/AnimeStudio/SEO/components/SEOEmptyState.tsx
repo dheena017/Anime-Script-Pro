@@ -1,6 +1,6 @@
-import React from 'react';
-import { Search, BarChart, Globe, Zap } from 'lucide-react';
-import { StudioEmptyState } from '@/pages/studio/components/studio/shared/StudioEmptyState';
+import React from "react";
+import { Search, BarChart, Globe, Zap } from "lucide-react";
+import { StudioEmptyState } from "@/pages/studio/components/studio/shared/StudioEmptyState";
 
 interface SEOEmptyStateProps {
   onLaunch: () => void;
@@ -11,12 +11,24 @@ interface SEOEmptyStateProps {
 export const SEOEmptyState: React.FC<SEOEmptyStateProps> = ({
   onLaunch,
   onLoadDemo,
-  isGenerating
+  isGenerating,
 }) => {
   const features = [
-    { icon: BarChart, title: 'Retention Analysis', description: 'AI predicts engagement based on meta-structure' },
-    { icon: Globe, title: 'Global Reach', description: 'Auto-translates metadata for international visibility' },
-    { icon: Zap, title: 'Speed Sync', description: 'Optimizes resource loading for crawl performance' }
+    {
+      icon: BarChart,
+      title: "Retention Analysis",
+      description: "AI predicts engagement based on meta-structure",
+    },
+    {
+      icon: Globe,
+      title: "Global Reach",
+      description: "Auto-translates metadata for international visibility",
+    },
+    {
+      icon: Zap,
+      title: "Speed Sync",
+      description: "Optimizes resource loading for crawl performance",
+    },
   ];
 
   return (
@@ -31,7 +43,3 @@ export const SEOEmptyState: React.FC<SEOEmptyStateProps> = ({
     />
   );
 };
-
-
-
-

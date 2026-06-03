@@ -25,9 +25,9 @@ const TAB_META: Record<string, { title: string; description: string; icon: any; 
 
 const LoadingDots = ({ color }: { color: string }) => (
   <div className="flex items-center gap-1">
-    <div className={`h-1.5 w-1.5 rounded-full ${color} animate-bounce`} style={{ animationDelay: '0s' }} />
-    <div className={`h-1.5 w-1.5 rounded-full ${color} animate-bounce`} style={{ animationDelay: '0.2s' }} />
-    <div className={`h-1.5 w-1.5 rounded-full ${color} animate-bounce`} style={{ animationDelay: '0.4s' }} />
+    <div className={`h-1.5 w-1.5 rounded-full ${color}`} />
+    <div className={`h-1.5 w-1.5 rounded-full ${color}`} />
+    <div className={`h-1.5 w-1.5 rounded-full ${color}`} />
   </div>
 );
 
@@ -77,7 +77,7 @@ export function SeriesLoadingPage({ tab, title, description, progress, error }: 
         {/* Icon Container with Pulse */}
         <div className="mx-auto mb-8 relative">
           <div className="absolute inset-0 flex items-center justify-center">
-            <div className={`h-20 w-20 rounded-3xl ${meta.bgColor} border ${meta.borderColor} animate-pulse`} />
+            <div className={`h-20 w-20 rounded-3xl ${meta.bgColor} border ${meta.borderColor}`} />
           </div>
           <div className={`relative flex h-20 w-20 items-center justify-center rounded-3xl border ${meta.borderColor} ${meta.bgColor}`}>
             <Icon className={`h-10 w-10 ${meta.color}`} />
@@ -89,7 +89,7 @@ export function SeriesLoadingPage({ tab, title, description, progress, error }: 
           {error ? (
             <div className="flex flex-col items-center gap-4">
               <div className="flex items-center gap-3">
-                <div className="h-2 w-2 rounded-full bg-red-500 animate-pulse" />
+                <div className="h-2 w-2 rounded-full bg-red-500" />
                 <p className="text-[12px] font-black uppercase tracking-[0.28em] text-red-500">
                   Generation Error
                 </p>
@@ -100,7 +100,7 @@ export function SeriesLoadingPage({ tab, title, description, progress, error }: 
             </div>
           ) : (
             <>
-              <Loader2 className={`h-5 w-5 animate-spin ${meta.accentColor}`} />
+              <Loader2 className={`h-5 w-5 ${meta.accentColor}`} />
               <p className={`text-[12px] font-black uppercase tracking-[0.28em] text-white ${meta.accentColor}`}>
                 {meta.title}
               </p>
@@ -116,7 +116,7 @@ export function SeriesLoadingPage({ tab, title, description, progress, error }: 
         {/* Progress Bar */}
         <div className="mx-auto mb-6 h-1.5 w-full max-w-md overflow-hidden rounded-full bg-white/5 border border-white/10">
           <div
-            className={`${meta.bgColor} rounded-full transition-all duration-300`}
+            className={`${meta.bgColor} rounded-full`}
             style={{ height: '100%', width: `${typeof progress === 'number' ? progress : localProgress}%` }}
           />
         </div>
@@ -128,7 +128,7 @@ export function SeriesLoadingPage({ tab, title, description, progress, error }: 
 
         {/* Status Text */}
         <div className={`flex items-center justify-center gap-2 text-xs font-black uppercase tracking-[0.2em] ${error ? 'text-red-400' : meta.color}`}>
-          {!error && <div className={`h-2 w-2 rounded-full ${meta.accentColor} animate-pulse`} />}
+          {!error && <div className={`h-2 w-2 rounded-full ${meta.accentColor}`} />}
           {error ? 'Production process halted' : 'AI is planning your series'}
           {!error && <span className="ml-2 text-xs font-black text-zinc-400">{Math.round(typeof progress === 'number' ? progress : localProgress)}%</span>}
         </div>

@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { useLogs } from '@/contexts/LogContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Activity, Clock } from 'lucide-react';
-import { studioLog } from '@/lib/studio-logger';
+import { studioLog } from '@/lib/dev-console-logs';
 
 export function NavigationMonitor() {
   const location = useLocation();

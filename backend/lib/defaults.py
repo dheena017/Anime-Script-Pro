@@ -18,7 +18,7 @@ Sections (in order):
 from backend.lib.agent_models import DEFAULT_AGENT_MODELS
 from backend.lib.audio_models import DEFAULT_AUDIO_MODELS
 from backend.lib.image_models import DEFAULT_IMAGE_MODELS
-from backend.lib.text_models import DEFAULT_TEXT_MODELS
+from backend.lib.text_models import DEFAULT_TEXT_MODELS, SUPPORTED_TEXT_MODEL_IDS
 from backend.lib.video_models import DEFAULT_VIDEO_MODELS
 
 # ==============================================================================
@@ -42,7 +42,8 @@ MODEL_MAP = {
 }
 
 STABLE_MODELS = list(dict.fromkeys(
-    DEFAULT_TEXT_MODELS
+    SUPPORTED_TEXT_MODEL_IDS
+    + DEFAULT_TEXT_MODELS
     + DEFAULT_IMAGE_MODELS
     + DEFAULT_VIDEO_MODELS
     + DEFAULT_AGENT_MODELS

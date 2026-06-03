@@ -1,5 +1,4 @@
 import React from 'react';
-import { motion } from 'framer-motion';
 import { SeriesEmptyTab } from '../components/SeriesEmptyTab';
 import { SceneCard } from '../components/SceneCard';
 import SceneView from '../components/SceneView';
@@ -21,7 +20,7 @@ interface ScenesTabProps {
   isEditing: boolean;
   onUpdateEpisode: (index: number, updates: any) => void;
   onUpdateAssetMatrix: (index: number, updates: any) => void;
-  onFocusEpisode: (epNum: string) => void;
+  onFocusEpisode: (epNum: string, sessionNum?: string) => void;
 }
 
 export const ScenesTab: React.FC<ScenesTabProps> = ({
@@ -145,11 +144,17 @@ export const ScenesTab: React.FC<ScenesTabProps> = ({
                       </div>
                       <div className="space-y-0.5">
                         <h4 className="text-2xl font-black text-white uppercase tracking-tight">{ep.title}</h4>
-                        <p className="text-xs text-zinc-500 font-black uppercase tracking-[0.3em]">{epScenes.length} Production Units Identified</p>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="text-[10px] font-black text-studio uppercase tracking-widest">
+                            Session {ep.session || '1'}: {ep.session_name || 'Unassigned'}
+                          </span>
+                          <span className="text-xs text-zinc-700 font-black">•</span>
+                          <p className="text-xs text-zinc-500 font-black uppercase tracking-[0.3em]">{epScenes.length} Production Units Identified</p>
+                        </div>
                       </div>
                    </div>
                    <Button 
-                    onClick={() => onFocusEpisode(ep.episode)}
+                    onClick={() => onFocusEpisode(ep.episode, String(ep.session || '1'))}
                     className="h-10 bg-white/5 border border-white/10 text-studio hover:bg-studio/10 rounded-xl px-6 text-xs font-black uppercase tracking-widest transition-all"
                    >
                      Load Script

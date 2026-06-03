@@ -23,6 +23,7 @@ async def batch_create_scenes(payload: dict, user_id: str = Depends(get_auth_use
     project_id = payload.get("project_id")
     scenes_data = payload.get("scenes", [])
     episode_id = payload.get("episode_id")
+    scenes_per_episode = int(payload.get("scenes_per_episode", 16) or 16)
     if project_id is None or str(project_id).strip() == "":
         raise HTTPException(status_code=400, detail="project_id is required")
 
@@ -62,7 +63,8 @@ async def batch_create_scenes(payload: dict, user_id: str = Depends(get_auth_use
                 project_id=project_pk,
                 episode_number=ep_num,
                 user_id=user_id,
-                title=f"Episode {ep_num}"
+                title=f"Episode {ep_num}",
+                asset_matrix={"scene_count": scenes_per_episode}
             )
             session.add(db_episode)
             await session.flush() # Flush instead of commit to keep session active and avoid N+1 commit overhead
@@ -79,7 +81,7 @@ async def batch_create_scenes(payload: dict, user_id: str = Depends(get_auth_use
             else:
                 scene_number = s.get("scene_number") or 0
                 try:
-                    ep_num = ((int(scene_number) - 1) // 16) + 1 if int(scene_number) > 0 else 1
+                    ep_num = ((int(scene_number) - 1) // scenes_per_episode) + 1 if int(scene_number) > 0 else 1
                 except Exception:
                     ep_num = 1
                 ep_id = await ensure_episode(ep_num)

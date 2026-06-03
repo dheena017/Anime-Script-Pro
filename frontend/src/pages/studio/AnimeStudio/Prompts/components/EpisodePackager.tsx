@@ -22,14 +22,18 @@ export default function EpisodePackager() {
     generatedWorldCulture,
     generatedWorldSystems,
     generatedCharacters,
-    castDNA,
-    castDynamics,
-    castIntegrity,
+    characterDNA,
+    characterDynamics,
+    characterIntegrity,
     characterRelationships,
+    numScenes,
   } = useGeneratorState();
   const {
     setGeneratedImagePrompts,
     setGeneratedScript,
+    setSession,
+    setEpisode,
+    setNumScenes,
   } = useGeneratorDispatch();
 
   const [isLoading, setIsLoading] = React.useState(false);
@@ -123,13 +127,35 @@ export default function EpisodePackager() {
   const handleGenerate = async () => {
     setIsLoading(true);
     try {
+      // Compile unified World and Cast DNA context dynamically
+      const worldSections: string[] = [];
+      if (generatedWorld) worldSections.push(`=== WORLD MANIFEST ===\n${generatedWorld}`);
+      if (generatedWorldLore) worldSections.push(`=== HISTORY & ERAS ===\n${generatedWorldLore}`);
+      if (generatedWorldFactions) worldSections.push(`=== FACTIONS & POWER BALANCE ===\n${generatedWorldFactions}`);
+      if (generatedWorldPowers) worldSections.push(`=== SYSTEMS & MECHANICS ===\n${generatedWorldPowers}`);
+      if (generatedWorldArchitecture) worldSections.push(`=== VISUAL STYLE & ARCHITECTURE ===\n${generatedWorldArchitecture}`);
+      if (generatedWorldAtlas) worldSections.push(`=== GEOGRAPHY & ENVIRONMENT ===\n${generatedWorldAtlas}`);
+      if (generatedWorldCulture) worldSections.push(`=== CUSTOMS & ETHOS ===\n${generatedWorldCulture}`);
+      if (generatedWorldSystems) worldSections.push(`=== TECHNOLOGICAL INFRASTRUCTURE ===\n${generatedWorldSystems}`);
+      const compiledWorldLore = worldSections.length > 0 ? worldSections.join("\n\n") : null;
+
+      const castSections: string[] = [];
+      if (generatedCharacters) castSections.push(`=== CAST SUMMARY ===\n${generatedCharacters}`);
+      if (characterDNA) castSections.push(`=== IDENTITY & VOICE DNA ===\n${characterDNA}`);
+      if (characterDynamics) castSections.push(`=== RELATIONSHIP DYNAMICS ===\n${characterDynamics}`);
+      if (characterIntegrity) castSections.push(`=== TECHNICAL DESIGN RULES ===\n${characterIntegrity}`);
+      if (characterRelationships) castSections.push(`=== INTERPERSONAL NETWORKS ===\n${characterRelationships}`);
+      const compiledCastDNA = castSections.length > 0 ? castSections.join("\n\n") : null;
+
       const assets = await generateEpisodeAssets({
         prompt: prompt || generatedScript || '',
         script: generatedScript || undefined,
         episode,
         session,
-        numScenes: '6',
+        numScenes: numScenes || '12',
         model: selectedModel,
+        worldLore: compiledWorldLore,
+        characterProfiles: compiledCastDNA,
       });
 
       setPackageJson(assets);
@@ -169,9 +195,9 @@ export default function EpisodePackager() {
 
       const castSections: string[] = [];
       if (generatedCharacters) castSections.push(`=== CAST SUMMARY ===\n${generatedCharacters}`);
-      if (castDNA) castSections.push(`=== IDENTITY & VOICE DNA ===\n${castDNA}`);
-      if (castDynamics) castSections.push(`=== RELATIONSHIP DYNAMICS ===\n${castDynamics}`);
-      if (castIntegrity) castSections.push(`=== TECHNICAL DESIGN RULES ===\n${castIntegrity}`);
+      if (characterDNA) castSections.push(`=== IDENTITY & VOICE DNA ===\n${characterDNA}`);
+      if (characterDynamics) castSections.push(`=== RELATIONSHIP DYNAMICS ===\n${characterDynamics}`);
+      if (characterIntegrity) castSections.push(`=== TECHNICAL DESIGN RULES ===\n${characterIntegrity}`);
       if (characterRelationships) castSections.push(`=== INTERPERSONAL NETWORKS ===\n${characterRelationships}`);
       const compiledCastDNA = castSections.length > 0 ? castSections.join("\n\n") : null;
 
@@ -375,11 +401,54 @@ export default function EpisodePackager() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-bold">Episode Packager</h3>
-        <Button onClick={handleGenerate} disabled={isLoading}>
-          {isLoading ? 'Generating...' : 'Generate Episode Package'}
-        </Button>
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-5 rounded-2xl bg-zinc-900/60 border border-white/10 backdrop-blur-md">
+        <div className="space-y-1">
+          <h3 className="text-xl font-bold tracking-tight text-white flex items-center gap-2">
+            Episode Packager
+          </h3>
+          <p className="text-xs text-zinc-400">Configure parameters and package high-fidelity scene assets.</p>
+        </div>
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-col gap-1">
+            <span className="text-[10px] uppercase font-bold tracking-wider text-zinc-500">Session</span>
+            <select
+              value={session || '1'}
+              onChange={(e) => setSession?.(e.target.value)}
+              className="bg-black/80 border border-white/15 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-studio min-w-[70px]"
+            >
+              {Array.from({ length: 8 }, (_, idx) => (
+                <option key={idx + 1} value={String(idx + 1)}>S{idx + 1}</option>
+              ))}
+            </select>
+          </div>
+          <div className="flex flex-col gap-1">
+            <span className="text-[10px] uppercase font-bold tracking-wider text-zinc-500">Episode</span>
+            <select
+              value={episode || '1'}
+              onChange={(e) => setEpisode?.(e.target.value)}
+              className="bg-black/80 border border-white/15 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-studio min-w-[70px]"
+            >
+              {Array.from({ length: 12 }, (_, idx) => (
+                <option key={idx + 1} value={String(idx + 1)}>E{idx + 1}</option>
+              ))}
+            </select>
+          </div>
+          <div className="flex flex-col gap-1">
+            <span className="text-[10px] uppercase font-bold tracking-wider text-zinc-500">Scenes Count</span>
+            <select
+              value={numScenes || '12'}
+              onChange={(e) => setNumScenes?.(e.target.value)}
+              className="bg-black/80 border border-white/15 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-studio min-w-[90px]"
+            >
+              {['8', '10', '12', '16', '18', '24', '30'].map((val) => (
+                <option key={val} value={val}>{val} Scenes</option>
+              ))}
+            </select>
+          </div>
+          <Button onClick={handleGenerate} disabled={isLoading} className="mt-4 md:mt-0 bg-studio hover:bg-studio-hover text-black font-semibold text-xs px-4 py-2 rounded-lg">
+            {isLoading ? 'Generating...' : 'Generate Episode Package'}
+          </Button>
+        </div>
       </div>
 
       {!packageJson && (

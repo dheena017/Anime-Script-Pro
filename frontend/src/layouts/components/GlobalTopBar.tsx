@@ -19,6 +19,7 @@ export const GlobalTopBar: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
 
   const isStudioMode = location.pathname.startsWith('/projects/') && !location.pathname.endsWith('/new') && !location.pathname.endsWith('/projects');
+  const isInStudio = location.pathname.startsWith('/studio');
 
   // Keyboard shortcut for search focus (Cmd/Ctrl + K)
   useEffect(() => {
@@ -42,7 +43,7 @@ export const GlobalTopBar: React.FC = () => {
     }
   };
 
-  if (isFullscreen || isStudioMode) return null;
+  if (isFullscreen || isStudioMode || isInStudio) return null;
 
   return (
     <header className="sticky top-0 z-[400] w-full border-b border-white/5 bg-black/60 backdrop-blur-xl transition-all duration-300">

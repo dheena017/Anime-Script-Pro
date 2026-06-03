@@ -34,6 +34,8 @@ System instructions:
 - Output format RULES: First output MUST be a single JSON object that exactly follows the "SeriesPlan" schema described below. Do NOT output any surrounding commentary before the JSON. After the JSON block, output a human-readable markdown outline that mirrors the JSON and expands creative notes.
 - If the request is underspecified, generate 2 variants (A/B) and place them under metadata.alternatives.
 - Produce long-form treatment: season- and episode-level material should be richly detailed (thousands of words across the season when appropriate) and include scene seeds, act breakdowns, and production notes.
+- Every scene in every episode must include a frames array with at least 2 frame objects. Each frame must contain frame_number, frame_id, frame_description, image_prompt, video_prompt, audio_prompt, music_prompt, and system_rules.
+- If a scene uses frames, the scene-level prompt fields may be omitted only if every frame contains its own prompt set.
 
 Inputs:
 - ${placeholderNames.world}: comprehensive world object (locations, factions, timeline, rules, tones, major events). Use IDs for cross-references.
@@ -68,7 +70,7 @@ Required Output Schema (SeriesPlan) — JSON keys (required):
           "teaserLogline": string,
           "fullSynopsis": string,
           "actBreakdown": [ {"actNumber": number, "durationPercent": number, "beats": [{"beatId": string, "description": string, "linkedCharacterIds": string[], "locationId": string, "visualNotes": string}]} ],
-          "sceneSeeds": [ {"sceneIndex": number, "locationId": string, "primaryCharacters": string[], "conflict": string, "objective": string, "keyProps": string[], "visualMood": string, "estimatedPages": number} ],
+          "sceneSeeds": [ {"sceneIndex": number, "locationId": string, "primaryCharacters": string[], "conflict": string, "objective": string, "keyProps": string[], "visualMood": string, "estimatedPages": number, "frames": [{"frameNumber": number, "frameId": string, "frameDescription": string, "imagePrompt": string, "videoPrompt": string, "audioPrompt": string, "musicPrompt": string, "systemRules": string}] } ],
           "keyBeats": [ {"beatId": string, "description": string, "importance": string} ],
           "productionNotes": { "vfx": string[], "locations": [{"id": string, "description": string}], "stunts": string[], "musicCueIdeas": string[], "estimatedBudgetTier": string },
           "hooksForNextEpisode": string[]
@@ -111,7 +113,7 @@ function validateSeriesPlanInputs(
   contentType: string,
   episodeCount: number,
   worldLore: string,
-  castProfiles: string
+  characterProfiles: string
 ): void {
   if (!contentType || typeof contentType !== 'string' || contentType.trim().length < 2) {
     throw new Error('Content type must be a non-empty string with at least 2 characters.');
@@ -125,7 +127,7 @@ function validateSeriesPlanInputs(
     throw new Error('World lore must be a detailed string with at least 20 characters.');
   }
 
-  if (!castProfiles || typeof castProfiles !== 'string' || castProfiles.trim().length < 20) {
+  if (!characterProfiles || typeof characterProfiles !== 'string' || characterProfiles.trim().length < 20) {
     throw new Error('Cast profiles must be a detailed string with at least 20 characters.');
   }
 
@@ -141,9 +143,8 @@ function buildSeriesPlanPrompt(
   contentType: string,
   episodeCount: number,
   worldLore: string,
-  castProfiles: string,
+  characterProfiles: string,
   numScenes: number = 18,
-  totalSessions: number = 1
 ): string {
   return `
 You are an elite Showrunner, Cinematic Director, and Master Story Architect specializing in high-end ${contentType} productions.
@@ -151,11 +152,7 @@ You are an elite Showrunner, Cinematic Director, and Master Story Architect spec
 MISSION:
 Design a cohesive ${episodeCount}-episode season plan that is emotionally escalating, narratively rigorous, and production-ready.
 
-SOURCE OF TRUTH:
-- CONTENT TYPE: ${contentType}
-- WORLD BIBLE: ${worldLore}
-- CAST DNA: ${castProfiles}
-- PRODUCTION SCAFFOLDING: ${totalSessions} Session(s), ${episodeCount} Episode(s) total, target ${numScenes} Scenes per episode.
+- PRODUCTION SCAFFOLDING: ${episodeCount} Episode(s) total, target ${numScenes} Scenes per episode.
 
 NON-NEGOTIABLE RULES:
 1. Continuity first: every episode must obey the world logic, character psychology, and established stakes.
@@ -164,9 +161,6 @@ NON-NEGOTIABLE RULES:
 4. No filler: every episode must have a distinct narrative purpose and a strong hook into the next episode.
 5. Long-form realism: runtime estimates should reflect premium serialized storytelling, not short-form summaries.
 
-SEASON DESIGN FRAMEWORK:
-### 1. Overall Season Spine
-- Define the central premise, season objective, and emotional destination.
 - Explain how the season begins, turns, and ends.
 - Identify the mid-season reversal and the penultimate escalation.
 
@@ -204,9 +198,9 @@ SEASON DESIGN FRAMEWORK:
 - Estimate runtime as a premium long-form episode.
 - The runtime must reflect a full-scale, cinematic production.
 - Scene count MUST be exactly ${numScenes} scenes per episode to strictly match the production scaffolding. Each scene should have a distinct scene_index in the JSON.
-- The roadmap must span exactly ${episodeCount} episodes across ${totalSessions} sessions.
-- Each episode must include a readable session_name.
 - Each scene seed must include a scene_name alongside scene_index.
+- The roadmap must span exactly ${episodeCount} episodes.
+- Each episode must include a readable episode label.
 
 ### 9. Output Quality Standards
 - Titles must be evocative and specific.
@@ -223,33 +217,100 @@ REQUIRED JSON SCHEMA (You MUST output an array containing EXACTLY ${episodeCount
 [
   {
     "episode": "01",
-    "title": "A cinematic episode title with strong imagery",
-    "hook": "2-3 sentence synopsis that introduces the conflict and ends on a sharp hook.",
-    "setting": "Primary location(s) for this episode",
-    "runtime": "Estimated runtime such as 1h 15m or 1h 45m",
-    "focus_characters": ["Character Name 1", "Character Name 2"],
-    "emotional_arc": "The core emotional shift or theme of the episode",
-    "asset_matrix": {
-      "sound": "Specific audio direction including instruments, texture, and mix style",
-      "image": "Visual style including grading, lensing, and lighting direction",
-      "video": "Camera movement, blocking, and motion language",
-      "scene_count": "Estimated core scene count for a long-form episode"
-    }
-  },
-  {
-          "sessionName": string,
-    "episode": "02",
-    "title": "...",
-    "hook": "...",
-          "actBreakdown": [ {"actNumber": number, "durationPercent": number, "beats": [{"beatId": string, "description": string, "linkedCharacterIds": string[], "locationId": string, "visualNotes": string}]} ],
-          "sceneSeeds": [ {"sceneIndex": number, "sceneName": string, "locationId": string, "primaryCharacters": string[], "conflict": string, "objective": string, "keyProps": string[], "visualMood": string, "estimatedPages": number} ],
-    "focus_characters": ["..."],
-    "emotional_arc": "...",
+    "session": 1,
+    "title": "Evocative Title",
+    "hook": "2-3 sentence cinematic hook",
+    "summary": "150-200 word narrative synopsis",
+    "setting": "Primary location",
+    "runtime": "30m",
+    "focus_characters": ["Character A", "Character B"],
+    "session_name": "A short cinematic name for the session/arc",
+    "emotional_arc": "Deep internal character shift",
+    "arc_progression": {
+      "character_id": "progression_percentage",
+      "narrative_momentum": "Description"
+    },
+    "theme_mapping": {
+      "core_theme": "...",
+      "subtext_goals": "..."
+    },
+    "engagement_matrix": {
+      "pacing_intensity": "rating",
+      "tension_peak": "...",
+      "marketing_hooks": ["..."]
+    },
+    "production_palette": {
+      "dominant_colors": ["..."],
+      "lighting_setup": "...",
+      "audio_leitmotif": "...",
+      "foley_focus": "..."
+    },
+      "detailed_episode_spec": {
+      "cold_open": "...",
+      "script_opening_line": "...",
+      "acts": [
+        {
+          "act": 1,
+          "purpose": "...",
+          "key_turn": "...",
+          "scenes": [
+            {
+              "scene_id": "E01_A1_S01",
+              "scene_name": "A concise cinematic scene title",
+              "location": "...",
+              "summary": "...",
+              "conflict": "...",
+              "character_focus": ["..."],
+              "visual_direction": "...",
+              "audio_direction": "...",
+              "dialogue_tone": "...",
+              "shot_list_preview": ["..."],
+              "transition": "...",
+              "frames": [
+                {
+                  "frame_id": "E01_A1_S01_F01",
+                  "frame_description": "Key storyboard frame description for the opening visual beat.",
+                  "image_prompt": "Ultra-specific frame-level image prompt describing composition, lighting, character pose, and visual style.",
+                  "video_prompt": "Frame-level motion prompt describing camera move, subject action, and timing for this beat.",
+                  "audio_prompt": "Frame-level audio prompt describing the ambient texture, foley hits, and any transition sound design.",
+                  "music_prompt": "Frame-level music prompt describing tempo, instrumentation, and emotional cue for this beat.",
+                  "system_rules": "Frame-level rules for consistency, continuity, and model-safe generation."
+                }
+              ],
+              "production_stats": {
+                "cast_count": 0,
+                "extra_count": 0,
+                "stunt_required": false,
+                "vfx_heavy": false
+              },
+              "estimated_minutes": 0
+            }
+          ]
+        }
+      ],
+      "continuity_dependencies": [],
+      "foreshadowing": [],
+      "payoffs": [],
+      "thumbnail_prompts": [],
+      "video_prompts": []
+    },
     "asset_matrix": {
       "sound": "...",
       "image": "...",
       "video": "...",
-      "scene_count": "..."
+      "vfx_complexity": "...",
+      "render_priority": "...",
+      "scene_count": ${numScenes}
+    },
+    "risk_matrix": {
+      "continuity_risks": [],
+      "production_risks": [],
+      "content_risks": []
+    },
+    "neural_audit": {
+      "logic_check": "...",
+      "lore_validation": "...",
+      "pacing_score": "..."
     }
   }
 ]
@@ -269,13 +330,12 @@ function safeSeriesPlanGeneration(
   contentType: string,
   episodeCount: number,
   worldLore: string,
-  castProfiles: string,
-  numScenes: number = 18,
-  totalSessions: number = 1
+  characterProfiles: string,
+  numScenes: number = 18
 ): string {
   try {
-    validateSeriesPlanInputs(contentType, episodeCount, worldLore, castProfiles);
-    return buildSeriesPlanPrompt(contentType, episodeCount, worldLore, castProfiles, numScenes, totalSessions);
+    validateSeriesPlanInputs(contentType, episodeCount, worldLore, characterProfiles);
+    return buildSeriesPlanPrompt(contentType, episodeCount, worldLore, characterProfiles, numScenes);
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     return `ERROR: ${message}`;
@@ -286,7 +346,6 @@ export const SERIES_PLAN_GENERATION_PROMPT = (
   contentType: string,
   episodeCount: number,
   worldLore: string,
-  castProfiles: string,
-  numScenes: number = 18,
-  totalSessions: number = 1
-) => safeSeriesPlanGeneration(contentType, episodeCount, worldLore, castProfiles, numScenes, totalSessions);
+  characterProfiles: string,
+  numScenes: number = 18
+) => safeSeriesPlanGeneration(contentType, episodeCount, worldLore, characterProfiles, numScenes);

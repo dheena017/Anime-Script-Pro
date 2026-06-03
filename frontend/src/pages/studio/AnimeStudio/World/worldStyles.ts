@@ -80,20 +80,23 @@ export const worldStyles = {
 
   // --- TABS SECTION ---
   tabs: {
-    container: "flex items-center gap-1.5 bg-black/60 border border-white/10 p-1.5 rounded-full backdrop-blur-3xl shadow-[0_20px_50px_rgba(0,0,0,0.4)] relative group overflow-hidden",
+    tabsBar: "studio-tabs-bar sticky top-0 z-40 flex items-center justify-center px-2 sm:px-3 md:px-4 py-2 sm:py-3 bg-[#050505]/95 backdrop-blur-md border border-white/10 rounded-[1.5rem] sm:rounded-[2rem] shadow-2xl mb-6 sm:mb-8 relative group overflow-hidden",
+    tabsBarGlow: "absolute inset-0 bg-gradient-to-r from-transparent via-studio/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000",
+    tabsBarInner: "relative z-10 w-full overflow-x-auto hide-scrollbar",
+    
+    // Internal Tab styles
+    container: 'inline-flex min-w-max items-center justify-start gap-2 sm:gap-3 md:gap-4 p-1 sm:p-2 relative mx-auto',
     overlay: "absolute inset-0 bg-gradient-to-r from-studio/5 via-transparent to-studio/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000 pointer-events-none",
-    button: "relative z-10 px-6 py-2.5 text-[10px] font-black tracking-[0.25em] transition-all duration-500 uppercase flex items-center gap-3",
-    buttonActive: "text-white drop-shadow-[0_0_10px_rgba(6,182,212,0.4)]",
-    buttonInactive: "text-zinc-500 hover:text-zinc-300",
-    pill: "absolute inset-0 bg-studio border border-studio/40 rounded-full z-0 shadow-[0_0_20px_rgba(6,182,212,0.3)]",
-    icon: "w-3.5 h-3.5 transition-all duration-500",
-    iconActive: "opacity-100 scale-110 text-white",
-    iconInactive: "opacity-40 group-hover:opacity-70",
+    button: 'relative flex min-w-fit items-center justify-center gap-2 px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl text-[10px] sm:text-xs font-black uppercase tracking-[0.16em] sm:tracking-[0.2em] transition-all duration-300 shrink-0 whitespace-nowrap',
+    buttonActive: 'bg-white/[0.04] shadow-[0_0_20px_rgba(255,255,255,0.03)] text-white drop-shadow-[0_0_12px_rgba(6,182,212,0.45)]',
+    buttonInactive: 'text-zinc-500 hover:text-zinc-300 hover:bg-white/[0.02]',
+    glow: 'absolute inset-0 border border-white/10 rounded-xl shadow-[0_0_30px_rgba(255,255,255,0.02)] pointer-events-none',
+    icon: 'w-3.5 h-3.5 sm:w-4 sm:h-4 transition-all duration-500',
+    iconActive: 'opacity-100 scale-110 rotate-[360deg] text-white',
+    iconInactive: 'opacity-40 group-hover:opacity-70',
+    underline: 'absolute -bottom-1 left-4 right-4 h-0.5 bg-current rounded-full opacity-50 blur-[1px] pointer-events-none',
     spinner: "w-3.5 h-3.5 border-2 border-transparent border-t-current rounded-full animate-spin",
     label: "inline",
-    tabsBar: "studio-tabs-bar sticky top-4 z-40 flex items-center justify-center p-3 md:p-4 bg-[#050505]/40 backdrop-blur-2xl border border-white/5 rounded-[3rem] shadow-2xl mb-12 relative group overflow-hidden mx-auto max-w-fit",
-    tabsBarGlow: "absolute inset-0 bg-gradient-to-r from-transparent via-studio/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000",
-    tabsBarInner: "relative z-10 w-full flex justify-center",
   },
   
   // --- FLAT ALIASES FOR BACKWARD COMPATIBILITY ---

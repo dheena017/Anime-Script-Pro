@@ -19,7 +19,6 @@ const PHASES = [
   { id: 'world', label: 'World', path: '/world', icon: Globe },
   { id: 'cast', label: 'Cast', path: '/cast', icon: UserPlus },
   { id: 'series', label: 'Series', path: '/series', icon: Layers },
-  { id: 'script', label: 'Script', path: '/script', icon: ScrollText },
   { id: 'storyboard', label: 'Storyboard', path: '/storyboard', icon: ImageIcon },
   { id: 'seo', label: 'SEO', path: '/seo', icon: Search },
   { id: 'screening', label: 'Screening', path: '/screening', icon: Play },
@@ -29,7 +28,7 @@ export function ProductionFlowBar({ basePath = '/anime' }: { basePath?: string }
   const location = useLocation();
   const { 
     generatedWorld, 
-    castList, 
+    characterList, 
     generatedSeriesPlan, 
     generatedScript, 
     storyboardPrompts, 
@@ -50,9 +49,8 @@ export function ProductionFlowBar({ basePath = '/anime' }: { basePath?: string }
     switch(id) {
       case 'engine': return true; // Engine is the starting point
       case 'world': return !!generatedWorld;
-      case 'cast': return !!castList?.length;
+      case 'cast': return !!characterList?.length;
       case 'series': return !!generatedSeriesPlan?.length;
-      case 'script': return !!generatedScript;
       case 'storyboard': return !!storyboardPrompts;
       case 'seo': return !!generatedMetadata;
       case 'screening': return false; // Screening is the final result
@@ -147,3 +145,20 @@ export function ProductionFlowBar({ basePath = '/anime' }: { basePath?: string }
     </div>
   );
 }
+
+// Mobile compact flow bar: sticky bottom icon rail for small screens
+export function ProductionFlowBarMobile({ basePath = '/anime' }: { basePath?: string }) {
+  return (
+    <div className="sm:hidden fixed bottom-3 left-1/2 -translate-x-1/2 z-[310] bg-[#050505]/95 backdrop-blur-md px-3 py-2 rounded-3xl shadow-2xl flex items-center gap-2">
+      {PHASES.map(phase => {
+        const Icon = phase.icon;
+        return (
+          <a key={phase.id} href={`${basePath}${phase.path}`} className="w-10 h-10 rounded-lg flex items-center justify-center text-zinc-300 bg-transparent">
+            <Icon className="w-5 h-5" />
+          </a>
+        );
+      })}
+    </div>
+  );
+}
+

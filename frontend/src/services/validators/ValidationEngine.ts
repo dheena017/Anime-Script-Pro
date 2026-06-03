@@ -10,13 +10,93 @@ export interface ValidationResult {
   violations: ValidationViolation[];
 }
 
+function extractBalancedJsonBlock(text: string, openChar: '{' | '[', closeChar: '}' | ']'): string | null {
+  const startIndex = text.indexOf(openChar);
+  if (startIndex < 0) {
+    return null;
+  }
+
+  let depth = 0;
+  let inString = false;
+  let escaped = false;
+  let stringDelimiter: '"' | "'" | null = null;
+
+  for (let index = startIndex; index < text.length; index += 1) {
+    const character = text[index];
+
+    if (inString) {
+      if (escaped) {
+        escaped = false;
+        continue;
+      }
+
+      if (character === '\\') {
+        escaped = true;
+        continue;
+      }
+
+      if (character === stringDelimiter) {
+        inString = false;
+        stringDelimiter = null;
+      }
+
+      continue;
+    }
+
+    if (character === '"' || character === "'") {
+      inString = true;
+      stringDelimiter = character;
+      continue;
+    }
+
+    if (character === openChar) {
+      depth += 1;
+      continue;
+    }
+
+    if (character === closeChar) {
+      depth -= 1;
+      if (depth === 0) {
+        return text.slice(startIndex, index + 1);
+      }
+    }
+  }
+
+  return null;
+}
+
+function parseLooseJson<T>(text: string, expectedShape: 'array' | 'object'): T | null {
+  const normalized = (text || '').replace(/```(?:json)?/gi, '').replace(/```/g, '').trim();
+  const openChar = expectedShape === 'array' ? '[' : '{';
+  const closeChar = expectedShape === 'array' ? ']' : '}';
+  const extracted = extractBalancedJsonBlock(normalized, openChar, closeChar);
+  const candidateText = extracted || normalized;
+
+  try {
+    const parsed = JSON.parse(candidateText);
+    if (expectedShape === 'array' && Array.isArray(parsed)) return parsed as T;
+    if (expectedShape === 'object' && parsed && typeof parsed === 'object' && !Array.isArray(parsed)) return parsed as T;
+  } catch {
+    try {
+      const parsed = JSON.parse(candidateText.replace(/,\s*([}\]])/g, '$1'));
+      if (expectedShape === 'array' && Array.isArray(parsed)) return parsed as T;
+      if (expectedShape === 'object' && parsed && typeof parsed === 'object' && !Array.isArray(parsed)) return parsed as T;
+    } catch {
+      return null;
+    }
+  }
+
+  return null;
+}
+
 /**
  * Simple, early-stage validation engine.
  * Focuses on format checks for metadata and scene outputs.
  */
 export class ValidationEngine {
-  determineType(systemInstruction: string): 'metadata' | 'scene' | 'series' | 'generic' {
+  determineType(systemInstruction: string): 'metadata' | 'scene' | 'series' | 'episodeDetail' | 'generic' {
     const s = (systemInstruction || '').toLowerCase();
+    if (s.includes('detailed_episode_spec') || s.includes('cold_open') || s.includes('script_dialogue_teaser')) return 'episodeDetail';
     if (s.includes('episode') && s.includes('runtime')) return 'series';
     if (s.includes('title options') || s.includes('metadata') || s.includes('seo tags')) return 'metadata';
     if (s.includes('scene') && s.includes('narration')) return 'scene';
@@ -28,15 +108,15 @@ export class ValidationEngine {
     if (type === 'metadata') return this.validateMetadata(text);
     if (type === 'scene') return this.validateScene(text);
     if (type === 'series') return this.validateSeries(text);
+    if (type === 'episodeDetail') return this.validateEpisodeDetail(text);
     return this.validateGeneric(text);
   }
 
   validateSeries(text: string): ValidationResult {
     const violations: ValidationViolation[] = [];
-    let parsed: any = null;
-    try {
-      parsed = JSON.parse(text.replace(/```json|```/g, '').trim());
-    } catch {
+    const parsed = parseLooseJson<any[]>(text, 'array');
+
+    if (!parsed) {
       violations.push({ rule: 'JSON_PARSE_ERROR', severity: 'error', message: 'Failed to parse Series JSON array.' });
     }
 
@@ -49,6 +129,48 @@ export class ValidationEngine {
     }
 
     const score = violations.length === 0 ? 100 : Math.max(0, 100 - violations.length * 30);
+    return { isValid: violations.length === 0, score, violations };
+  }
+
+  validateEpisodeDetail(text: string): ValidationResult {
+    const violations: ValidationViolation[] = [];
+    const parsed = parseLooseJson<any>(text, 'object');
+
+    if (!parsed) {
+      violations.push({ rule: 'JSON_PARSE_ERROR', severity: 'error', message: 'Failed to parse episode detail JSON object.' });
+      return { isValid: false, score: 0, violations };
+    }
+
+    const episodeRoot = parsed.detailed_episode_spec && typeof parsed.detailed_episode_spec === 'object'
+      ? parsed.detailed_episode_spec
+      : parsed;
+
+    if (!episodeRoot || typeof episodeRoot !== 'object' || Array.isArray(episodeRoot)) {
+      violations.push({ rule: 'NOT_AN_OBJECT', severity: 'error', message: 'Episode detail output should be a JSON object.' });
+      return { isValid: false, score: 0, violations };
+    }
+
+    const requiredKeys = ['cold_open', 'acts'];
+    for (const key of requiredKeys) {
+      if (!(key in episodeRoot)) {
+        violations.push({ rule: 'EPISODE_DETAIL_KEY_MISSING', severity: 'error', message: `Missing JSON key: ${key}` });
+      }
+    }
+
+    if (Array.isArray(episodeRoot.acts)) {
+      if (episodeRoot.acts.length !== 3) {
+        violations.push({ rule: 'ACT_COUNT', severity: 'warning', message: 'Episode detail should contain exactly 3 acts.' });
+      }
+
+      const actWithScenes = episodeRoot.acts.find((act: any) => !Array.isArray(act?.scenes) || act.scenes.length === 0);
+      if (actWithScenes) {
+        violations.push({ rule: 'EMPTY_ACT_SCENES', severity: 'warning', message: 'One or more acts are missing scenes.' });
+      }
+    } else {
+      violations.push({ rule: 'ACTS_NOT_ARRAY', severity: 'error', message: 'Episode detail acts must be a JSON array.' });
+    }
+
+    const score = Math.max(0, 100 - violations.length * 20);
     return { isValid: violations.length === 0, score, violations };
   }
 
@@ -100,17 +222,7 @@ export class ValidationEngine {
 
   validateScene(text: string): ValidationResult {
     const violations: ValidationViolation[] = [];
-    // Prefer JSON scene output
-    let parsed = null;
-    try {
-      parsed = JSON.parse(text);
-    } catch {
-      // try to extract JSON block
-      const fenced = text.match(/```(?:json)?\s*([\s\S]*?)\s*```/i)?.[1];
-      if (fenced) {
-        try { parsed = JSON.parse(fenced); } catch {}
-      }
-    }
+    const parsed = parseLooseJson<any>(text, 'object');
 
     if (!parsed || typeof parsed !== 'object') {
       // look for field keywords

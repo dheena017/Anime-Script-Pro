@@ -38,7 +38,7 @@ const WIZARD_OPTIONS = [
     description: 'Design a character DNA with unique visual and personality traits.',
     icon: Users,
     color: 'text-fuchsia-500',
-    path: '/anime/cast'
+    path: '/anime/characters'
   },
   {
     id: 'scene',

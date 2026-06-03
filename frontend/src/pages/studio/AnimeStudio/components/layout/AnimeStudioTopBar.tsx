@@ -4,7 +4,6 @@ import {
   ChevronRight,
   Maximize2,
   Minimize2,
-  SlidersHorizontal,
   Bell,
   Cpu,
   Menu,
@@ -14,11 +13,9 @@ import {
   Zap,
   Volume2,
   VolumeX,
-  Check,
-  Globe
+  Check
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
 import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNotifications } from '@/contexts/NotificationContext';
@@ -272,34 +269,65 @@ export const AnimeStudioTopBar = React.memo<AnimeStudioTopBarProps>(({
     return 'Orchestrating script files';
   };
 
-  const currentPath = location.pathname.split('/').pop() || 'world';
-  const displayTitle = prompt && prompt.length > 0 ? prompt : "New Production";
-  
-  const phaseMap: { [key: string]: { phase: string; label: string } } = {
-    'engine': { phase: 'PHASE 1: FOUNDATION', label: 'Creative Engine' },
-    'world': { phase: 'PHASE 1: FOUNDATION', label: 'World Builder' },
-    'protocols': { phase: 'PHASE 1: FOUNDATION', label: 'Directives Hub' },
-    'cast': { phase: 'PHASE 2: STRUCTURE', label: 'Cast' },
-    'series': { phase: 'PHASE 2: STRUCTURE', label: 'Series' },
-    'script': { phase: 'PHASE 3: PRODUCTION', label: 'Script' },
-    'storyboard': { phase: 'PHASE 3: PRODUCTION', label: 'Storyboard' },
-    'assets': { phase: 'PHASE 3: PRODUCTION', label: 'Assets' },
-    'seo': { phase: 'PHASE 4: DISTRIBUTION', label: 'SEO' },
-    'prompts': { phase: 'PHASE 4: DISTRIBUTION', label: 'Prompts' },
-    'screening': { phase: 'PHASE 4: DISTRIBUTION', label: 'Screening Room' }
-  };
-  
-  const phaseInfo = phaseMap[currentPath] || { phase: 'PHASE 1: FOUNDATION', label: currentPath.charAt(0).toUpperCase() + currentPath.slice(1) };
-
   return (
     <div className="sticky top-0 z-[300] flex flex-col w-full">
+      {/* Mobile compact header (icon-first) */}
+      <div className="sm:hidden w-full bg-[#050505]/95 border-b border-white/5 flex items-center justify-between px-3 py-2">
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => {
+              playNeonSound('click');
+              if (onToggleSidebar) onToggleSidebar();
+            }}
+            className="w-9 h-9 rounded-lg flex items-center justify-center text-zinc-300 bg-transparent border border-transparent"
+            title={isSidebarCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+          >
+            <Menu className="w-5 h-5" />
+          </button>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => {
+              playNeonSound('click');
+              onToggleEngine();
+            }}
+            className="w-9 h-9 rounded-lg flex items-center justify-center text-zinc-300 bg-transparent border border-transparent"
+            title="Toggle Engine"
+          >
+            <Maximize2 className="w-5 h-5" />
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setIsIntelligenceOpen(!isIntelligenceOpen)}
+            className="w-9 h-9 rounded-lg flex items-center justify-center text-zinc-300 bg-transparent border border-transparent"
+            title="Open Intelligence"
+          >
+            <Brain className="w-5 h-5" />
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setShowNotifications(!showNotifications)}
+            className="w-9 h-9 rounded-lg flex items-center justify-center text-zinc-300 bg-transparent border border-transparent relative"
+            title="Notifications"
+          >
+            <Bell className="w-5 h-5" />
+            {unreadCount > 0 && <span className="absolute -top-1 -right-1 inline-flex items-center justify-center px-1.5 py-0.5 text-[9px] font-black bg-rose-500 rounded-full text-white">{unreadCount}</span>}
+          </button>
+        </div>
+      </div>
       <header className={cn(
-        "h-[70px] bg-black/60 border-b border-zinc-800/50 flex items-center justify-between px-4 md:px-8 transition-all duration-500 relative",
+        "hidden sm:flex min-h-[72px] bg-gradient-to-r from-black/90 via-zinc-950/80 to-black/90 border-b border-cyan-500/10 backdrop-blur-xl shadow-[0_1px_0_rgba(255,255,255,0.03),0_10px_30px_rgba(0,0,0,0.35)] sm:flex-wrap md:flex-nowrap items-center justify-between gap-y-3 px-4 py-3 md:py-0 md:px-8 transition-all duration-500 relative",
         isEngineOpen ? "border-studio/20" : ""
       )}>
         {/* Left: Branding & Sidebars Toggle */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 sm:gap-3 lg:gap-4 min-w-0 flex-none">
           <button
+            type="button"
             onClick={() => {
               playNeonSound('click');
               if (onToggleSidebar) onToggleSidebar();
@@ -314,78 +342,10 @@ export const AnimeStudioTopBar = React.memo<AnimeStudioTopBarProps>(({
           >
             <Menu className={cn("w-5 h-5 transition-transform duration-500", isSidebarCollapsed && "rotate-90")} />
           </button>
-
-          {onToggleGlobalSidebar && (
-            <button
-              onClick={() => {
-                playNeonSound('click');
-                onToggleGlobalSidebar();
-              }}
-              className={cn(
-                "w-10 h-10 flex items-center justify-center rounded-xl transition-all duration-300 cursor-pointer border",
-                isGlobalSidebarOpen
-                  ? "text-cyan-400 bg-cyan-500/5 border-cyan-500/10 shadow-[0_0_15px_rgba(6,182,212,0.15)]"
-                  : "text-zinc-500 hover:text-white hover:bg-white/5 border-transparent"
-              )}
-              title={isGlobalSidebarOpen ? "Close Global Sidebar" : "Open Global Sidebar"}
-            >
-              <Globe className={cn("w-5 h-5 transition-transform duration-500", isGlobalSidebarOpen && "scale-110")} />
-            </button>
-          )}
-
-          <div className="h-8 w-px bg-zinc-800/50 hidden lg:block" />
-
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 px-3 py-1.5 bg-black rounded-xl border border-cyan-500/80 shadow-[0_0_15px_rgba(6,182,212,0.2)] select-none">
-              <Cpu className="w-4 h-4 text-cyan-500" />
-              <span className="text-xs font-black uppercase tracking-[0.2em] text-cyan-500">Anime Studio</span>
-            </div>
-            <ChevronRight className="w-4 h-4 text-zinc-700 hidden sm:block" />
-            <div className="flex flex-col text-left">
-              <h1 className="text-xs md:text-[12px] font-black uppercase tracking-[0.2em] text-white leading-none truncate max-w-[200px]">{displayTitle}</h1>
-              <div className="flex flex-wrap items-center gap-2 mt-1">
-                {isAnyGenerating ? (
-                  <div className="flex items-center gap-1.5 animate-pulse select-none">
-                    <Loader2 className="w-3 h-3 text-cyan-400 animate-spin" />
-                    <span className="text-[10px] font-black uppercase tracking-[0.25em] text-cyan-400">
-                      {getActiveGeneratingLabel()}
-                    </span>
-                    <span className="text-[10px] font-bold text-cyan-500 font-mono">({generationProgress}%)</span>
-                  </div>
-                ) : (
-                  <>
-                    <span className="text-xs font-black uppercase tracking-[0.28em] text-cyan-400">
-                      {phaseInfo.phase}
-                    </span>
-                    <span className="text-xs font-black uppercase tracking-[0.2em] text-zinc-700">•</span>
-                    <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest">
-                      {phaseInfo.label}
-                    </span>
-                  </>
-                )}
-              </div>
-            </div>
-          </div>
         </div>
 
         {/* Right: Actions */}
-        <div className="flex items-center gap-3">
-          {/* Autosave Sync Status indicator */}
-          <div 
-            className={cn(
-              "flex items-center gap-1.5 px-2.5 py-1.5 bg-black border rounded-xl shrink-0 select-none",
-              isSaving 
-                ? "border-amber-500/30 text-amber-400 shadow-[0_0_12px_rgba(245,158,11,0.15)]" 
-                : "border-zinc-800/80 text-zinc-500"
-            )}
-            title={isSaving ? "Saving production state..." : "Workspace synchronized"}
-          >
-            <div className={cn("w-1.5 h-1.5 rounded-full shrink-0", isSaving ? "bg-amber-400 animate-pulse" : "bg-emerald-500 animate-pulse")} />
-            <span className="text-[8px] font-black uppercase tracking-widest font-mono">
-              {isSaving ? "Syncing" : "Synced"}
-            </span>
-          </div>
-
+        <div className="flex items-center justify-end gap-2 md:gap-3 shrink-0 w-auto md:w-auto flex-nowrap">
           {/* Sound waves toggle */}
           <button
             type="button"
@@ -412,7 +372,7 @@ export const AnimeStudioTopBar = React.memo<AnimeStudioTopBarProps>(({
               }
             }}
             className={cn(
-              "w-10 h-10 flex items-center justify-center rounded-xl border transition-all cursor-pointer",
+              "w-10 h-10 flex items-center justify-center rounded-xl border transition-all cursor-pointer backdrop-blur-sm",
               soundEnabled 
                 ? "text-cyan-400 bg-cyan-950/10 border-cyan-500/20 shadow-[0_0_12px_rgba(6,182,212,0.1)]" 
                 : "text-zinc-600 bg-zinc-950/20 border-zinc-900/40"
@@ -422,45 +382,25 @@ export const AnimeStudioTopBar = React.memo<AnimeStudioTopBarProps>(({
             {soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
           </button>
 
-          {/* AI parameters quick drawer */}
-          <button
-            type="button"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              playNeonSound('click');
-              setIsParamsDrawerOpen(!isParamsDrawerOpen);
-            }}
-            className={cn(
-              "w-10 h-10 flex items-center justify-center rounded-xl transition-all duration-300 border cursor-pointer",
-              isParamsDrawerOpen
-                ? "text-cyan-400 bg-cyan-950/20 border-cyan-500/30 shadow-[0_0_15px_rgba(6,182,212,0.15)]"
-                : "text-zinc-500 hover:text-white hover:bg-white/5 border-transparent"
-            )}
-            title="AI Orchestration Config"
-          >
-            <SlidersHorizontal className="w-4 h-4" />
-          </button>
-
           {/* Fullscreen Immersion toggler */}
           <button
             type="button"
             onClick={toggleFullscreen}
-            className="w-10 h-10 flex items-center justify-center rounded-xl transition-all duration-300 border border-transparent text-zinc-500 hover:text-white hover:bg-white/5 cursor-pointer animate-none"
+            className="w-10 h-10 flex items-center justify-center rounded-xl transition-all duration-300 border border-transparent text-zinc-500 hover:text-white hover:bg-white/5 cursor-pointer animate-none backdrop-blur-sm"
             title={isFullscreen ? "Exit Cinema Mode" : "Cinema Immersion Mode"}
           >
             {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4.5 h-4.5" />}
           </button>
 
           {/* Notifications Popover */}
-          <div ref={notificationsWrapperRef} className="flex items-center gap-3 relative">
+          <div ref={notificationsWrapperRef} className="hidden sm:flex items-center gap-3 relative">
             <button 
               onClick={() => {
                 playNeonSound('click');
                 setShowNotifications(!showNotifications);
               }} 
               className={cn(
-                "w-10 h-10 flex items-center justify-center rounded-xl border transition-all duration-300 relative cursor-pointer",
+                "w-10 h-10 flex items-center justify-center rounded-xl border transition-all duration-300 relative cursor-pointer backdrop-blur-sm",
                 showNotifications 
                   ? "text-white bg-zinc-800 border-zinc-700 shadow-lg" 
                   : "text-zinc-500 hover:text-white hover:bg-white/5 border-transparent hover:border-zinc-800/60"
@@ -594,10 +534,10 @@ export const AnimeStudioTopBar = React.memo<AnimeStudioTopBarProps>(({
                 playNeonSound('click');
                 clearProject();
               }}
-              className="flex items-center gap-2 px-3.5 py-2 text-[10px] font-black text-red-400 bg-red-500/10 border border-red-500/20 rounded-xl hover:bg-red-500/20 transition-all uppercase tracking-widest cursor-pointer"
+              className="flex items-center gap-2 px-3.5 py-2 text-[10px] font-black text-white bg-red-500/10 border border-red-500/20 rounded-xl hover:bg-red-500/20 transition-all uppercase tracking-widest cursor-pointer"
             >
               <XCircle className="w-3.5 h-3.5" />
-              Exit Demo
+              <span className="hidden sm:inline">Exit Demo</span>
             </button>
           )}
 
@@ -610,7 +550,7 @@ export const AnimeStudioTopBar = React.memo<AnimeStudioTopBarProps>(({
               setIsIntelligenceOpen(!isIntelligenceOpen);
             }}
             className={cn(
-              "w-10 h-10 flex items-center justify-center rounded-xl transition-all duration-300 border relative z-50 cursor-pointer",
+              "w-10 h-10 flex items-center justify-center rounded-xl transition-all duration-300 border relative z-50 cursor-pointer backdrop-blur-sm",
               isIntelligenceOpen
                 ? "text-studio bg-studio/10 border-studio/20 shadow-[0_0_15px_rgba(6,182,212,0.3)]"
                 : "text-zinc-500 hover:text-white hover:bg-white/5 border-transparent"

@@ -197,10 +197,10 @@ class ProjectContent(SQLModel, table=True):
     user_id: str = Field(index=True)
     project_id: Optional[int] = Field(default=None, index=True)
     
-    # Cast & Character Data
-    cast_profiles: Optional[str] = Field(default=None)
-    cast_data: Dict[str, Any] = Field(sa_column=Column(JSON), default_factory=dict)
-    cast_relationships: Optional[str] = Field(default=None)
+    # Character Data
+    character_profiles: Optional[str] = Field(default=None)
+    character_data: Dict[str, Any] = Field(sa_column=Column(JSON), default_factory=dict)
+    character_relationships: Optional[str] = Field(default=None)
     
     # Narrative Data
     scenes: List[Dict[str, Any]] = Field(sa_column=Column(JSON), default_factory=list)

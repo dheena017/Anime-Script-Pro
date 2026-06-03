@@ -1,5 +1,4 @@
 import React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -176,14 +175,13 @@ export const SceneView: React.FC<SceneViewProps> = ({ scene, index, onClose, onR
                     <div className="flex gap-4 pb-4">
                         {Array.isArray(thumbnails) && thumbnails.length > 0 ? (
                             thumbnails.map((t: string, i: number) => (
-                                <motion.div 
+                                <div 
                                     key={i} 
-                                    whileHover={{ scale: 1.05 }}
                                     className="w-48 h-28 bg-black/60 border border-white/5 rounded-2xl overflow-hidden flex items-center justify-center group/thumb relative shrink-0"
                                 >
                                     <div className="absolute inset-0 bg-studio/10 opacity-0 group-hover/thumb:opacity-100 transition-opacity" />
                                     <ImageIcon className="w-8 h-8 text-zinc-800 group-hover:text-studio/40 transition-colors" />
-                                </motion.div>
+                                </div>
                             ))
                         ) : (
                             <div className="w-full h-28 bg-white/[0.01] border border-dashed border-white/10 rounded-2xl flex items-center justify-center text-xs font-black text-zinc-700 uppercase tracking-widest">

@@ -37,8 +37,27 @@ export const OPEN_WEIGHT_IMAGE_MODELS: ImageModelOption[] = [
 
 export const FREE_API_IMAGE_MODELS: ImageModelOption[] = [
   { id: 'hugging-face-inference', name: 'Hugging Face API', desc: 'Access 1000s of custom fine-tunes & models.', price: 'Generous Free', isFree: true },
+  { id: 'prism-ml/bonsai-image-ternary-4B-gemlite-2bit', name: 'Bonsai Image Ternary 4B', desc: 'Low-bit FLUX.2-style text-to-image model for NVIDIA GPUs via Hugging Face router.', price: 'Generous Free', isFree: true },
+  { id: 'hugging-face-flux-schnell', name: 'Hugging Face Flux Schnell', desc: 'Fast anime-ready open-weights image generation.', price: 'Generous Free', isFree: true },
+  { id: 'hugging-face-flux-dev', name: 'Hugging Face Flux Dev', desc: 'Higher-quality FLUX render on Hugging Face.', price: 'Generous Free', isFree: true },
+  { id: 'hugging-face-sdxl', name: 'Hugging Face SDXL', desc: 'Stable Diffusion XL via Hugging Face inference.', price: 'Generous Free', isFree: true },
+  { id: 'hugging-face-sdxl-turbo', name: 'Hugging Face SDXL Turbo', desc: 'Fast low-latency SDXL Turbo on Hugging Face.', price: 'Generous Free', isFree: true },
+  { id: 'hugging-face-sd35', name: 'Hugging Face SD 3.5', desc: 'Stable Diffusion 3.5 style rendering on HF.', price: 'Generous Free', isFree: true },
+  { id: 'hugging-face-pixart', name: 'Hugging Face PixArt', desc: 'Semantic text-to-image generation on HF.', price: 'Generous Free', isFree: true },
   { id: 'deepai', name: 'DeepAI REST API', desc: 'Fast, straightforward developers integration API.', price: 'Generous Free', isFree: true },
   { id: 'together-ai-replicate', name: 'Together & Replicate Proxy', desc: 'Routing open-source API endpoints.', price: 'Pay per use', isFree: false },
+];
+
+export const ANIME_HF_IMAGE_MODELS: ImageModelOption[] = [
+  { id: 'hugging-face-anime', name: 'Hugging Face Anime', desc: 'Anime illustration preset with crisp line art.', price: 'Generous Free', isFree: true },
+  { id: 'hugging-face-anime-xl', name: 'Hugging Face Anime XL', desc: 'Higher-detail anime line art and color depth.', price: 'Generous Free', isFree: true },
+  { id: 'hugging-face-anime-dark', name: 'Hugging Face Anime Dark', desc: 'Moody anime cinematic preset.', price: 'Generous Free', isFree: true },
+];
+
+export const PORTRAIT_HF_IMAGE_MODELS: ImageModelOption[] = [
+  { id: 'hugging-face-realvis', name: 'Hugging Face RealVis', desc: 'Photoreal character and portrait preset.', price: 'Generous Free', isFree: true },
+  { id: 'hugging-face-juggernaut', name: 'Hugging Face Juggernaut', desc: 'Cinematic all-rounder with strong detail.', price: 'Generous Free', isFree: true },
+  { id: 'hugging-face-portrait-plus', name: 'Hugging Face Portrait Plus', desc: 'Portrait-centric image generation on HF.', price: 'Generous Free', isFree: true },
 ];
 
 export const WEB_IMAGE_MODELS: ImageModelOption[] = [
@@ -67,6 +86,8 @@ export const IMAGE_MODEL_GROUPS = {
   googleVertex: GOOGLE_VERTEX_IMAGE_MODELS,
   openWeights: OPEN_WEIGHT_IMAGE_MODELS,
   freeApi: FREE_API_IMAGE_MODELS,
+  animeHF: ANIME_HF_IMAGE_MODELS,
+  portraitHF: PORTRAIT_HF_IMAGE_MODELS,
   web: WEB_IMAGE_MODELS,
   premium: PREMIUM_IMAGE_MODELS,
   niche: NICHE_IMAGE_MODELS,
@@ -74,10 +95,12 @@ export const IMAGE_MODEL_GROUPS = {
 };
 
 export const ALL_IMAGE_MODELS: ImageModelOption[] = [
+  ...FREE_API_IMAGE_MODELS,
+  ...ANIME_HF_IMAGE_MODELS,
+  ...PORTRAIT_HF_IMAGE_MODELS,
   ...GOOGLE_STUDIO_IMAGE_MODELS,
   ...GOOGLE_VERTEX_IMAGE_MODELS,
   ...OPEN_WEIGHT_IMAGE_MODELS,
-  ...FREE_API_IMAGE_MODELS,
   ...WEB_IMAGE_MODELS,
   ...PREMIUM_IMAGE_MODELS,
   ...NICHE_IMAGE_MODELS,

@@ -153,5 +153,9 @@ export function useApp() {
   return context;
 }
 
+export function useAppSafe() {
+  return useContext(AppContext);
+}
+
 
 

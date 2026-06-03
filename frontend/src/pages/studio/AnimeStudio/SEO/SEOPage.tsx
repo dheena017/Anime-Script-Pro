@@ -1,35 +1,39 @@
-import { useContext, useEffect } from 'react';
-import { useOutletContext } from 'react-router-dom';
-import { Card } from '@/components/ui/card';
-import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
-import { useSEOState, useSEODispatch, useEngineState } from '@/contexts/generator';
+import { useContext, useEffect } from "react";
+import { useOutletContext } from "react-router-dom";
+import { Card } from "@/components/ui/card";
+import { useGeneratorState, useGeneratorDispatch } from "@/hooks/useGenerator";
+import {
+  useSEOState,
+  useSEODispatch,
+  useEngineState,
+} from "@/contexts/generator";
 import {
   generateMetadata,
   generateYouTubeDescription,
   generateAltTexts,
-  generateDistributionStrategy
-} from '@/services/api/gemini';
-import { GrowthTab } from './Tabs/GrowthTab';
-import { cn } from '@/lib/utils';
-import { growthApi } from '@/services/api/growth';
-import { MOCK_STORY_BIBLE } from '@/services/generators/mockData';
-import { Sparkles, Globe2, Film } from 'lucide-react';
+  generateDistributionStrategy,
+} from "@/services/api/gemini";
+import { GrowthTab } from "./Tabs/GrowthTab";
+import { cn } from "@/lib/utils";
+import { growthApi } from "@/services/api/growth";
+import { MOCK_STORY_BIBLE } from "@/services/generators/mockData";
+import { Sparkles, Globe2, Film } from "lucide-react";
 
 // Context
-import { SEOContext } from './SEOLayout';
+import { SEOContext } from "./SEOLayout";
 
 // Tabs
-import { SEOTab } from './Tabs/SEOTabs';
-import { KeywordsTab } from './Tabs/KeywordsTab';
-import { DescriptionTab } from './Tabs/DescriptionTab';
-import { AltTextTab } from './Tabs/AltTextTab';
-import { TagsTab } from './Tabs/TagsTab';
-import { DistributionTab } from './Tabs/DistributionTab';
-import { SEOLoadingPage } from './components/SEOLoadingPage';
-import { SEOEmptyState } from './components/SEOEmptyState';
-import { AIPromptViewer } from './components/AIPromptViewer';
+import { SEOTab } from "./Tabs/SEOTabs";
+import { KeywordsTab } from "./Tabs/KeywordsTab";
+import { DescriptionTab } from "./Tabs/DescriptionTab";
+import { AltTextTab } from "./Tabs/AltTextTab";
+import { TagsTab } from "./Tabs/TagsTab";
+import { DistributionTab } from "./Tabs/DistributionTab";
+import { SEOLoadingPage } from "./components/SEOLoadingPage";
+import { SEOEmptyState } from "./components/SEOEmptyState";
+import { AIPromptViewer } from "./components/AIPromptViewer";
 
-import { seoStyles as s } from './seoStyles';
+import { seoStyles as s } from "./seoStyles";
 
 export function SEOPage() {
   const { activeTab } = useOutletContext<{ activeTab: SEOTab }>();
@@ -39,34 +43,52 @@ export function SEOPage() {
   const { showNotification, loadDemoProject } = useGeneratorDispatch();
 
   const {
-    generatedMetadata, generatedDescription, generatedAltText,
-    generatedGrowthStrategy, generatedDistributionPlan,
-    isGeneratingMetadata, isGeneratingDescription, isGeneratingAltText,
-    isGeneratingGrowthStrategy, isGeneratingDistribution
+    generatedMetadata,
+    generatedDescription,
+    generatedAltText,
+    generatedGrowthStrategy,
+    generatedDistributionPlan,
+    isGeneratingMetadata,
+    isGeneratingDescription,
+    isGeneratingAltText,
+    isGeneratingGrowthStrategy,
+    isGeneratingDistribution,
   } = useSEOState();
 
   const {
-    setGeneratedMetadata, setGeneratedDescription, setGeneratedAltText,
-    setGeneratedGrowthStrategy, setGeneratedDistributionPlan,
-    setIsGeneratingMetadata, setIsGeneratingDescription, setIsGeneratingAltText,
-    setIsGeneratingGrowthStrategy, setIsGeneratingDistribution
+    setGeneratedMetadata,
+    setGeneratedDescription,
+    setGeneratedAltText,
+    setGeneratedGrowthStrategy,
+    setGeneratedDistributionPlan,
+    setIsGeneratingMetadata,
+    setIsGeneratingDescription,
+    setIsGeneratingAltText,
+    setIsGeneratingGrowthStrategy,
+    setIsGeneratingDistribution,
   } = useSEODispatch();
 
   const { selectedModel } = useEngineState();
 
   const handleGenerateMetadata = async () => {
     if (!generatedScript) {
-      showNotification?.('Please write a script first before generating metadata.', 'error');
+      showNotification?.(
+        "Please write a script first before generating metadata.",
+        "error",
+      );
       return;
     }
     setIsGeneratingMetadata(true);
     try {
       const metadata = await generateMetadata(generatedScript, selectedModel);
       setGeneratedMetadata(metadata);
-      showNotification?.('Keywords generated successfully!', 'success');
+      showNotification?.("Keywords generated successfully!", "success");
     } catch (error: any) {
       console.error(error);
-      showNotification?.('Failed to generate keywords: ' + (error.message || 'Unknown error'), 'error');
+      showNotification?.(
+        "Failed to generate keywords: " + (error.message || "Unknown error"),
+        "error",
+      );
     } finally {
       setIsGeneratingMetadata(false);
     }
@@ -74,17 +96,26 @@ export function SEOPage() {
 
   const handleGenerateDescription = async () => {
     if (!generatedScript) {
-      showNotification?.('Please write a script first before generating a description.', 'error');
+      showNotification?.(
+        "Please write a script first before generating a description.",
+        "error",
+      );
       return;
     }
     setIsGeneratingDescription(true);
     try {
-      const description = await generateYouTubeDescription(generatedScript, selectedModel);
+      const description = await generateYouTubeDescription(
+        generatedScript,
+        selectedModel,
+      );
       setGeneratedDescription(description);
-      showNotification?.('Description generated successfully!', 'success');
+      showNotification?.("Description generated successfully!", "success");
     } catch (error: any) {
       console.error(error);
-      showNotification?.('Failed to generate description: ' + (error.message || 'Unknown error'), 'error');
+      showNotification?.(
+        "Failed to generate description: " + (error.message || "Unknown error"),
+        "error",
+      );
     } finally {
       setIsGeneratingDescription(false);
     }
@@ -92,17 +123,23 @@ export function SEOPage() {
 
   const handleGenerateAltText = async () => {
     if (!generatedScript) {
-      showNotification?.('Please write a script first before generating alt texts.', 'error');
+      showNotification?.(
+        "Please write a script first before generating alt texts.",
+        "error",
+      );
       return;
     }
     setIsGeneratingAltText(true);
     try {
       const altText = await generateAltTexts(generatedScript, selectedModel);
       setGeneratedAltText(altText);
-      showNotification?.('Alt texts generated successfully!', 'success');
+      showNotification?.("Alt texts generated successfully!", "success");
     } catch (error: any) {
       console.error(error);
-      showNotification?.('Failed to generate alt texts: ' + (error.message || 'Unknown error'), 'error');
+      showNotification?.(
+        "Failed to generate alt texts: " + (error.message || "Unknown error"),
+        "error",
+      );
     } finally {
       setIsGeneratingAltText(false);
     }
@@ -110,7 +147,10 @@ export function SEOPage() {
 
   const handleGenerateGrowthStrategy = async (strategyId?: number) => {
     if (!generatedScript) {
-      showNotification?.('Please write a script first before generating a growth strategy.', 'error');
+      showNotification?.(
+        "Please write a script first before generating a growth strategy.",
+        "error",
+      );
       return;
     }
 
@@ -121,12 +161,23 @@ export function SEOPage() {
 
     setIsGeneratingGrowthStrategy(true);
     try {
-      const result = await growthApi.generateStrategy(strategyId, generatedScript, selectedModel);
+      const result = await growthApi.generateStrategy(
+        strategyId,
+        generatedScript,
+        selectedModel,
+      );
       setGeneratedGrowthStrategy(result.content);
-      showNotification?.('YouTube growth strategy created successfully!', 'success');
+      showNotification?.(
+        "YouTube growth strategy created successfully!",
+        "success",
+      );
     } catch (error: any) {
       console.error(error);
-      showNotification?.('Failed to generate growth strategy: ' + (error.response?.data?.detail || error.message || 'Unknown error'), 'error');
+      showNotification?.(
+        "Failed to generate growth strategy: " +
+          (error.response?.data?.detail || error.message || "Unknown error"),
+        "error",
+      );
     } finally {
       setIsGeneratingGrowthStrategy(false);
     }
@@ -134,17 +185,27 @@ export function SEOPage() {
 
   const handleGenerateDistribution = async () => {
     if (!generatedScript) {
-      showNotification?.('Please write a script first before generating a distribution plan.', 'error');
+      showNotification?.(
+        "Please write a script first before generating a distribution plan.",
+        "error",
+      );
       return;
     }
     setIsGeneratingDistribution(true);
     try {
-      const plan = await generateDistributionStrategy(generatedScript, selectedModel);
+      const plan = await generateDistributionStrategy(
+        generatedScript,
+        selectedModel,
+      );
       setGeneratedDistributionPlan(plan);
-      showNotification?.('Distribution plan created successfully!', 'success');
+      showNotification?.("Distribution plan created successfully!", "success");
     } catch (error: any) {
       console.error(error);
-      showNotification?.('Failed to generate distribution plan: ' + (error.message || 'Unknown error'), 'error');
+      showNotification?.(
+        "Failed to generate distribution plan: " +
+          (error.message || "Unknown error"),
+        "error",
+      );
     } finally {
       setIsGeneratingDistribution(false);
     }
@@ -156,40 +217,42 @@ export function SEOPage() {
       handleGenerateDescription,
       handleGenerateAltText,
       handleGenerateGrowthStrategy,
-      handleGenerateDistribution
+      handleGenerateDistribution,
     });
   }, [generatedScript, selectedModel]);
 
   const getLoadingMessage = () => {
     switch (activeTab) {
-      case 'keywords': return "Synthesizing Keyword Atlas...";
-      case 'description': return "Crafting Narrative Descriptions...";
-      case 'alt': return "Generating Visual Meta-Data...";
-      case 'tags': return "Mapping Production Tags...";
-      case 'distribution': return "Architecting Distribution Plan...";
-      case 'growth': return "Formulating Growth Strategy...";
-      default: return "Computing SEO Analytics...";
+      case "keywords":
+        return "Synthesizing Keyword Atlas...";
+      case "description":
+        return "Crafting Narrative Descriptions...";
+      case "alt":
+        return "Generating Visual Meta-Data...";
+      case "tags":
+        return "Mapping Production Tags...";
+      case "distribution":
+        return "Architecting Distribution Plan...";
+      case "growth":
+        return "Formulating Growth Strategy...";
+      default:
+        return "Computing SEO Analytics...";
     }
   };
 
   const renderTabContent = () => {
-    const isAnyGenerating = isGeneratingMetadata || isGeneratingDescription || isGeneratingAltText || isGeneratingGrowthStrategy || isGeneratingDistribution;
-
-    if (isAnyGenerating) {
-      return (
-        <SEOLoadingPage
-          message={getLoadingMessage()}
-          subtext="AI model is optimizing episodic reach"
-        />
-      );
-    }
-
+    const isAnyGenerating =
+      isGeneratingMetadata ||
+      isGeneratingDescription ||
+      isGeneratingAltText ||
+      isGeneratingGrowthStrategy ||
+      isGeneratingDistribution;
     if (!generatedScript) {
       return (
         <SEOEmptyState
           onLoadDemo={loadDemoProject}
           onLaunch={() => {
-            window.dispatchEvent(new CustomEvent('studio-generate-seo'));
+            window.dispatchEvent(new CustomEvent("studio-generate-seo"));
           }}
           isGenerating={isAnyGenerating}
         />
@@ -197,7 +260,7 @@ export function SEOPage() {
     }
 
     switch (activeTab) {
-      case 'keywords':
+      case "keywords":
         return (
           <KeywordsTab
             content={generatedMetadata}
@@ -205,7 +268,7 @@ export function SEOPage() {
             onGenerate={handleGenerateMetadata}
           />
         );
-      case 'description':
+      case "description":
         return (
           <DescriptionTab
             content={generatedDescription}
@@ -213,7 +276,7 @@ export function SEOPage() {
             onGenerate={handleGenerateDescription}
           />
         );
-      case 'alt':
+      case "alt":
         return (
           <AltTextTab
             content={generatedAltText}
@@ -221,7 +284,7 @@ export function SEOPage() {
             onGenerate={handleGenerateAltText}
           />
         );
-      case 'tags':
+      case "tags":
         return (
           <TagsTab
             content={generatedMetadata}
@@ -229,7 +292,7 @@ export function SEOPage() {
             onGenerate={handleGenerateMetadata}
           />
         );
-      case 'distribution':
+      case "distribution":
         return (
           <DistributionTab
             content={generatedDistributionPlan}
@@ -237,7 +300,7 @@ export function SEOPage() {
             onGenerate={handleGenerateDistribution}
           />
         );
-      case 'growth':
+      case "growth":
         return (
           <GrowthTab
             content={generatedGrowthStrategy}
@@ -262,21 +325,15 @@ export function SEOPage() {
         <div className={s.page.innerBorder} />
 
         <div className={s.page.contentWrapper}>
-          <div className={s.page.contentArea}>
-            {renderTabContent()}
-          </div>
+          <div className={s.page.contentArea}>{renderTabContent()}</div>
         </div>
       </Card>
 
       <AIPromptViewer
         activeTab={activeTab}
         script={generatedScript}
-        contentType={contentType || 'Anime'}
+        contentType={contentType || "Anime"}
       />
     </div>
   );
 }
-
-
-
-

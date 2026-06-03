@@ -16,6 +16,7 @@ interface ScreeningViewportProps {
   sceneCount: number;
   videoPrompts: string | null;
   generatedScript?: string | null;
+  renderError?: string | null;
 }
 
 export const ScreeningViewport: React.FC<ScreeningViewportProps> = ({
@@ -26,7 +27,8 @@ export const ScreeningViewport: React.FC<ScreeningViewportProps> = ({
   activeSession,
   sceneCount,
   videoPrompts,
-  generatedScript
+  generatedScript,
+  renderError
 }) => {
   const [currentSubtitle, setCurrentSubtitle] = useState<string>("");
   const [subIndex, setSubIndex] = useState(0);
@@ -91,6 +93,16 @@ export const ScreeningViewport: React.FC<ScreeningViewportProps> = ({
                 <span className="text-xs font-black text-white uppercase tracking-widest leading-none">Video Unit-01</span>
                 <span className="text-xs font-bold text-studio/60 uppercase tracking-widest mt-1">Status: Masterpiece Premiere</span>
               </div>
+            </div>
+          </div>
+        ) : renderError ? (
+          <div className="absolute inset-0 flex items-center justify-center px-8">
+            <div className="max-w-lg text-center space-y-4">
+              <div className="w-20 h-20 mx-auto rounded-full border border-red-500/30 bg-red-500/10 flex items-center justify-center">
+                <Hash className="w-8 h-8 text-red-400" />
+              </div>
+              <p className="text-red-300 font-black uppercase tracking-[0.3em] text-xs">Render Failed</p>
+              <p className="text-zinc-400 text-sm leading-relaxed">{renderError}</p>
             </div>
           </div>
         ) : (

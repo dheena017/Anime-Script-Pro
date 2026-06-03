@@ -17,6 +17,7 @@ Sections (in order):
 # ==============================================================================
 from datetime import datetime, timedelta, timezone
 import os
+from typing import Optional
 
 # ==============================================================================
 # 2. THIRD-PARTY IMPORTS
@@ -34,6 +35,13 @@ ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 15
 REFRESH_TOKEN_EXPIRE_DAYS = 7
 
+# Production safety warning audit
+if os.getenv("ENV", "development").lower() == "production" and SECRET_KEY == "your-super-secret-key":
+    logger.opt(colors=True).error(
+        "<red><b>[SECURITY CAUTION]</b></red> The default fallback JWT SECRET_KEY is active in a Production environment! "
+        "Please configure an explicit JWT_SECRET_KEY in your .env file to protect user credentials."
+    )
+
 # ==============================================================================
 # 4. HASHING FUNCTIONS
 # ==============================================================================
@@ -48,12 +56,12 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     Returns:
         bool: True if the passwords match, False otherwise.
     """
-    logger.debug("AUTH CRYPTO: Verifying user password hash...")
+    logger.opt(colors=True).debug("<magenta>[AUTH CRYPTO]</magenta> Verifying user password hash...")
     result = pwd_context.verify(plain_password, hashed_password)
     if result:
-        logger.debug("AUTH CRYPTO: Password verified successfully.")
+        logger.opt(colors=True).debug("<magenta>[AUTH CRYPTO]</magenta> Password verified <green>successfully</green>.")
     else:
-        logger.warning("AUTH CRYPTO: Password verification failed.")
+        logger.opt(colors=True).warning("<magenta>[AUTH CRYPTO]</magenta> <red><b>Password verification failed</b></red>.")
     return result
 
 
@@ -66,9 +74,9 @@ def get_password_hash(password: str) -> str:
     Returns:
         str: Hashed string representation.
     """
-    logger.debug("AUTH CRYPTO: Generating password hash context...")
+    logger.opt(colors=True).debug("<magenta>[AUTH CRYPTO]</magenta> Generating password hash context...")
     hashed = pwd_context.hash(password)
-    logger.debug("AUTH CRYPTO: Password hash generated successfully.")
+    logger.opt(colors=True).debug("<magenta>[AUTH CRYPTO]</magenta> Password hash generated <green>successfully</green>.")
     return hashed
 
 # ==============================================================================
@@ -84,12 +92,12 @@ def create_access_token(data: dict) -> str:
     Returns:
         str: Encoded JWT token string.
     """
-    logger.debug(f"AUTH JWT: Compiling access token for subject: {data.get('sub')}")
+    logger.opt(colors=True).debug(f"<magenta>[AUTH JWT]</magenta> Compiling access token for subject: <yellow>{data.get('sub')}</yellow>")
     to_encode = data.copy()
     expire = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     to_encode.update({"exp": expire})
     token = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-    logger.info(f"AUTH JWT: Created access token (expires in {ACCESS_TOKEN_EXPIRE_MINUTES}m).")
+    logger.opt(colors=True).info(f"<magenta>[AUTH JWT]</magenta> Created access token (expires in <cyan>{ACCESS_TOKEN_EXPIRE_MINUTES}m</cyan>).")
     return token
 
 
@@ -102,10 +110,31 @@ def create_refresh_token(data: dict) -> str:
     Returns:
         str: Encoded JWT token string.
     """
-    logger.debug(f"AUTH JWT: Compiling refresh token for subject: {data.get('sub')}")
+    logger.opt(colors=True).debug(f"<magenta>[AUTH JWT]</magenta> Compiling refresh token for subject: <yellow>{data.get('sub')}</yellow>")
     to_encode = data.copy()
     expire = datetime.now(timezone.utc) + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
     to_encode.update({"exp": expire})
     token = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-    logger.info(f"AUTH JWT: Created refresh token (expires in {REFRESH_TOKEN_EXPIRE_DAYS} days).")
+    logger.opt(colors=True).info(f"<magenta>[AUTH JWT]</magenta> Created refresh token (expires in <cyan>{REFRESH_TOKEN_EXPIRE_DAYS} days</cyan>).")
     return token
+
+
+def decode_and_verify_token(token: str) -> Optional[dict]:
+    """Decode and verify a JWT token signature and expiration context.
+
+    Args:
+        token: The encoded JWT token string.
+
+    Returns:
+        Optional[dict]: The verified payload claims mapping, or None if invalid/expired.
+    """
+    try:
+        # Decodes token and automatically validates 'exp' expiration claim
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        return payload
+    except jwt.ExpiredSignatureError:
+        logger.opt(colors=True).warning("<magenta>[AUTH JWT]</magenta> Token signature has <yellow>expired</yellow>.")
+        return None
+    except jwt.JWTError as e:
+        logger.opt(colors=True).warning(f"<magenta>[AUTH JWT]</magenta> Token signature is <red>invalid</red>: {e}")
+        return None

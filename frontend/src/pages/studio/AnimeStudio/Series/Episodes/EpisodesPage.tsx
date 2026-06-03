@@ -11,9 +11,10 @@ export default function EpisodesPage() {
     generatedSeriesPlan,
     isEditing,
     contentType,
-    currentScriptId
+    currentScriptId,
+    numEpisodes
   } = useGeneratorState();
-  const { setGeneratedSeriesPlan, setEpisode } = useGeneratorDispatch();
+  const { setGeneratedSeriesPlan, setEpisode, setSession } = useGeneratorDispatch();
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('list');
 
   const studioBase = currentScriptId ? `/projects/${currentScriptId}` : '/studio';
@@ -74,8 +75,17 @@ export default function EpisodesPage() {
             onViewEpisode={(epNum: string, section?: string) => {
               navigate(`${studioBase}/series/episodes/${epNum}${section ? `?section=${section}` : ''}`);
             }}
-            onFocusEpisode={(epNum: string) => {
-              setEpisode(epNum);
+            onFocusEpisode={(epNum: string, sessionNum?: string) => {
+              const epIndex = generatedSeriesPlan?.findIndex(e => String(e.episode) === String(epNum)) ?? -1;
+              if (epIndex !== -1 && numEpisodes) {
+                const calculatedSession = Math.floor(epIndex / numEpisodes) + 1;
+                const calculatedEpInSession = (epIndex % numEpisodes) + 1;
+                setSession(String(calculatedSession));
+                setEpisode(String(calculatedEpInSession));
+              } else {
+                if (sessionNum) setSession(sessionNum);
+                setEpisode(epNum);
+              }
               navigate(`${studioBase}/script`);
             }}
           />

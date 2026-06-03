@@ -42,6 +42,7 @@ export function ScreeningRoom() {
   const [isRendering, setIsRendering] = useState(false);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [videoPrompts, setVideoPrompts] = useState<string | null>(null);
+  const [renderError, setRenderError] = useState<string | null>(null);
   const [renderPhases, setRenderPhases] = useState<RenderPhase[]>([
     { id: 'lore', label: 'Lore Vault Integration', status: 'pending' },
     { id: 'cast', label: 'Character Profile Sync', status: 'pending' },
@@ -103,6 +104,7 @@ export function ScreeningRoom() {
     }
     setIsRendering(true);
     setVideoUrl(null);
+    setRenderError(null);
     setRenderPhases(prev => prev.map(p => ({ ...p, status: 'pending' })));
 
     try {
@@ -120,14 +122,18 @@ export function ScreeningRoom() {
       setVideoPrompts(prompts);
 
       const result: any = await simulateVideoRender(prompts);
-      if (result.success) {
+      if (result?.success && result.videoUrl) {
         setVideoUrl(result.videoUrl);
         setRenderPhases(prev => prev.map(p => ({ ...p, status: 'done' })));
         showNotification?.('Preview rendered successfully!', 'success');
+      } else {
+        throw new Error(result?.error || result?.detail || 'Video rendering is unavailable because the fallback clip has been removed.');
       }
     } catch (error: any) {
-      console.error("Production synthesis failed:", error);
-      showNotification?.('Failed to render preview: ' + (error.message || 'Unknown error'), 'error');
+      const message = error?.message || 'Unknown error';
+      console.error("Production synthesis failed:", message);
+      setRenderError(message);
+      showNotification?.('Failed to render preview: ' + message, 'error');
     } finally {
       setIsRendering(false);
     }
@@ -152,17 +158,7 @@ export function ScreeningRoom() {
       default: return "Preparing Screening Room...";
     }
   };
-
   const renderTabContent = () => {
-    if (isLoading || isRendering) {
-      return (
-        <ScreeningLoadingPage 
-          message={getLoadingMessage()} 
-          subtext="AI model is synthesizing production manifests"
-        />
-      );
-    }
-
     if (activeTab === 'preview') {
       return (
         <AnimatePresence mode="wait">
@@ -189,6 +185,7 @@ export function ScreeningRoom() {
                     sceneCount={scenes.length}
                     videoPrompts={videoPrompts}
                     generatedScript={generatedScript}
+                    renderError={renderError}
                   />
                 </div>
                 <div className="lg:col-span-1">
@@ -235,14 +232,7 @@ export function ScreeningRoom() {
 
 // Neural Simulation Helpers
 async function simulateVideoRender(_prompts: string) {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({
-        success: true,
-        videoUrl: "https://vjs.zencdn.net/v/oceans.mp4"
-      });
-    }, 2000);
-  });
+  throw new Error('Video rendering is unavailable because the fallback demo clip has been removed and no live renderer is configured.');
 }
 
 

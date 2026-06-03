@@ -39,6 +39,9 @@ export const LogProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const addDbLog = React.useCallback((log: LogEntry) => {
     setDbLogs(prev => [log, ...prev].slice(0, 100));
+
+    // TELEMETRY NO-OP: suppress noisy websocket telemetry logs in the browser console.
+    // (We still store them in dbLogs for the in-app console.)
   }, []);
 
   React.useEffect(() => {
@@ -75,10 +78,8 @@ export const LogProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           timeout = window.setTimeout(connect, 5000);
         };
         ws.onerror = (err) => {
-          if (!cancelled) {
-            console.error('Telemetry WebSocket Error:', err);
-          }
-          ws?.close();
+          if (!cancelled) console.error('Telemetry WebSocket Error:', err);
+          timeout = window.setTimeout(connect, 5000);
         };
       } catch (e) {
         if (!cancelled) {
@@ -91,7 +92,15 @@ export const LogProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     connect();
     return () => {
       cancelled = true;
-      if (ws) ws.close();
+      if (ws) {
+        ws.onopen = null;
+        ws.onmessage = null;
+        ws.onerror = null;
+        ws.onclose = null;
+        if (ws.readyState === WebSocket.OPEN) {
+          ws.close();
+        }
+      }
       if (timeout) clearTimeout(timeout);
     };
   }, [addDbLog]);
@@ -107,6 +116,24 @@ export const LogProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
     
     setMasterLogs(prev => [newLog, ...prev].slice(0, 50));
+
+    // Print local frontend logs beautifully styled in actual browser console
+    const timeStr = new Date().toLocaleTimeString();
+    const badgeBg = 
+      status === 'COMPLETED' || status === 'SUCCESS' || status === 'READY' || status === 'SYNCED' ? '#059669' :
+      status === 'STARTING' || status === 'INITIALIZED' || status === 'GENERATING' || status === 'SYNTHESIZING' || status === 'PROCESSED' || status === 'SYNCING' ? '#0891b2' :
+      status === 'RETRYING' || status === 'WARNING' ? '#d97706' : '#dc2626';
+
+    const modelPart = model_used ? ` (Engine: ${model_used})` : '';
+    console.log(
+      `%c ${status} %c%c ${module} %c%c[${timeStr}]%c ${message || ''}${modelPart}`,
+      `color: #ffffff; background: ${badgeBg}; padding: 2px 6px; border-radius: 4px; font-weight: bold;`,
+      '',
+      'color: #ffffff; background: #1e1b4b; padding: 2px 6px; border-radius: 4px; font-weight: bold;',
+      '',
+      'color: #6b7280; font-family: monospace;',
+      model_used ? 'color: #a78bfa; font-weight: 500;' : 'color: inherit;'
+    );
   }, []);
 
   const clearLogs = useCallback(() => {
@@ -140,11 +167,17 @@ export const useLogs = () => {
 /**
  * Hook to access ONLY the log dispatch functions.
  * Components using this will NOT re-render when logs change.
+ * Returns no-op functions if called outside a LogProvider to prevent crashes.
  */
 export const useLogDispatch = () => {
   const context = useContext(LogDispatchContext);
   if (context === undefined) {
-    throw new Error('useLogDispatch must be used within a LogProvider');
+    // Return no-op functions instead of crashing — handles cases where
+    // GeneratorProvider renders before LogProvider is mounted (e.g. HMR re-order)
+    return {
+      addLog: () => {},
+      clearLogs: () => {},
+    };
   }
   return context;
 };

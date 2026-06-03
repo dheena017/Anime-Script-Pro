@@ -17,9 +17,23 @@ AGENT_MODEL_IDS = [
     "computer-use-preview",
 ]
 
+FREE_AGENT_MODEL_IDS = [
+    "antigravity",
+    "computer-use-preview",
+]
+
+PAID_AGENT_MODEL_IDS = [
+    "deep-research-pro",
+]
+
 # ==============================================================================
 # 2. FALLBACK ASSIGNMENTS
 # ==============================================================================
-DEFAULT_AGENT_MODELS = AGENT_MODEL_IDS
+DEFAULT_AGENT_MODELS = FREE_AGENT_MODEL_IDS
 
-__all__ = ["AGENT_MODEL_IDS", "DEFAULT_AGENT_MODELS"]
+__all__ = [
+    "AGENT_MODEL_IDS",
+    "FREE_AGENT_MODEL_IDS",
+    "PAID_AGENT_MODEL_IDS",
+    "DEFAULT_AGENT_MODELS",
+]

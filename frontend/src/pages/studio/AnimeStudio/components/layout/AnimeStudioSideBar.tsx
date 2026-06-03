@@ -42,6 +42,10 @@ export const AnimeStudioSideBar = React.memo<AnimeStudioSideBarProps>(({
 }) => {
   const location = useLocation();
 
+  const coreItems = [
+    { icon: Cpu, label: 'Master Console', path: '/console' },
+  ];
+
   const foundationItems = [
     { icon: Zap, label: 'Creative Engine', path: '/engine' },
     { icon: Globe, label: 'World Builder', path: '/world' },
@@ -53,7 +57,6 @@ export const AnimeStudioSideBar = React.memo<AnimeStudioSideBarProps>(({
   ];
 
   const generationItems = [
-    { icon: ScrollText, label: 'Script', path: '/script' },
     { icon: LayoutIcon, label: 'Storyboard', path: '/storyboard' },
     { icon: Layers, label: 'Assets', path: '/assets' },
   ];
@@ -130,7 +133,7 @@ export const AnimeStudioSideBar = React.memo<AnimeStudioSideBarProps>(({
       }}
       transition={{ duration: 0 }}
       className={cn(
-        "fixed top-0 left-0 h-full bg-black flex flex-col z-[500] overflow-hidden transition-all duration-300",
+        "fixed top-0 left-0 bottom-0 h-screen bg-black flex flex-col z-[520] overflow-hidden transition-all duration-300",
         collapsed ? "cursor-pointer hover:bg-cyan-500/10" : "cursor-default"
       )}
       onClick={() => collapsed && onToggleCollapse?.()}
@@ -154,6 +157,7 @@ export const AnimeStudioSideBar = React.memo<AnimeStudioSideBarProps>(({
               </div>
             </Link>
             <button
+              type="button"
               onClick={(e) => {
                 e.stopPropagation();
                 onToggleCollapse?.();
@@ -183,6 +187,7 @@ export const AnimeStudioSideBar = React.memo<AnimeStudioSideBarProps>(({
               </div>
             )}
 
+            {renderNavGroup(coreItems, "MASTER WORKSPACE")}
             {renderNavGroup(foundationItems, "PHASE 1: FOUNDATION")}
             {renderNavGroup(architectureItems, "PHASE 2: STRUCTURE")}
             {renderNavGroup(generationItems, "PHASE 3: PRODUCTION")}

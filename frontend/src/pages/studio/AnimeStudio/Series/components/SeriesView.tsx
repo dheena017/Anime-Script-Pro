@@ -1,4 +1,3 @@
-import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { SeriesCard, SeriesEpisode, SeriesAssetMatrix } from './SeriesCard';
 
@@ -26,18 +25,7 @@ export function SeriesView({
       {/* Master Timeline Connector with Neural Pulse */}
       {viewMode === 'list' && (
         <div className="absolute left-[38px] md:left-[5.5rem] top-0 bottom-0 w-px bg-white/5 pointer-events-none hidden sm:block overflow-hidden">
-          <motion.div 
-            animate={{ 
-              top: ["-50%", "150%"],
-              opacity: [0, 1, 0]
-            }}
-            transition={{ 
-              duration: 3, 
-              repeat: Infinity, 
-              ease: "linear" 
-            }}
-            className="absolute w-full h-[500px] bg-gradient-to-b from-transparent via-studio to-transparent shadow-[0_0_20px_rgba(6,182,212,0.8)]"
-          />
+          <div className="absolute w-full h-[500px] bg-gradient-to-b from-transparent via-studio to-transparent shadow-[0_0_20px_rgba(6,182,212,0.8)]" />
           <div className="absolute inset-0 bg-gradient-to-b from-studio/20 via-transparent to-studio/20 opacity-30" />
         </div>
       )}

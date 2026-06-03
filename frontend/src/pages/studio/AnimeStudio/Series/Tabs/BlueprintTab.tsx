@@ -4,27 +4,58 @@ import { CheckCircle2, Table, ChevronRight, Activity, Sparkles, Database, BrainC
 import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
 import { useLogs } from '@/contexts/LogContext';
 import { manifestScenes } from '@/services/api/scenes';
+import { generateBlueprintMarkdown, downloadBlueprintMarkdown } from '@/services/api/blueprintMarkdownGenerator';
 import { seriesStyles as s } from '../seriesStyles';
 import { cn } from '@/lib/utils';
 
 interface BlueprintTabProps {
   showScaffolder: boolean;
   onManifestContinue: (config: any) => Promise<void>;
+  onGenerateSeries?: (params: { episodesPerSession: number; sessions: number; scenes: number; frames?: number }) => void;
   isSyncing: boolean;
   lastSyncDate: string | null;
   productionSequence: any[];
   applySequenceItem: (sess: number, ep: number, scen: number) => void;
   plan?: any[];
+  onViewEpisode?: (episodeNum: string, section?: string) => void;
 }
 
 export const BlueprintTab: React.FC<BlueprintTabProps> = ({
   onManifestContinue,
+  onGenerateSeries,
   isSyncing,
   lastSyncDate,
   productionSequence,
   applySequenceItem,
-  plan = []
+  plan = [],
+  onViewEpisode
 }) => {
+  const calculateTotalScenes = React.useCallback((sessions: number | string | undefined, episodesPerSession: number | string | undefined, scenesPerEpisode: number | string | undefined) => {
+    // Require explicit values for all three dimensions. If any are missing, return 0.
+    if (
+      sessions === undefined || sessions === '' ||
+      episodesPerSession === undefined || episodesPerSession === '' ||
+      scenesPerEpisode === undefined || scenesPerEpisode === ''
+    ) {
+      return 0;
+    }
+
+    const parsedSessions = Number.parseInt(String(sessions), 10);
+    const parsedEpisodesPerSession = Number.parseInt(String(episodesPerSession), 10);
+    const parsedScenesPerEpisode = Number.parseInt(String(scenesPerEpisode), 10);
+
+    if (
+      !Number.isFinite(parsedSessions) ||
+      !Number.isFinite(parsedEpisodesPerSession) ||
+      !Number.isFinite(parsedScenesPerEpisode)
+    ) {
+      return 0;
+    }
+
+    const totalEpisodes = parsedSessions * parsedEpisodesPerSession;
+    return totalEpisodes * parsedScenesPerEpisode;
+  }, []);
+
   const {
     isGeneratingSeries,
     generationProgress,
@@ -34,10 +65,10 @@ export const BlueprintTab: React.FC<BlueprintTabProps> = ({
     generatedWorldFactions,
     generatedWorldAtlas,
     generatedWorldSystems,
-    castList,
-    castDNA,
-    castDynamics,
-    castIntegrity,
+    characterList,
+    characterDNA,
+    characterDynamics,
+    characterIntegrity,
     characterRelationships,
     temperature,
     maxTokens,
@@ -48,44 +79,290 @@ export const BlueprintTab: React.FC<BlueprintTabProps> = ({
     genre,
     artStyle,
     selectedModel,
-    plan: contextPlan,
-    currentScriptId
+    seriesPlan: contextPlan,
+    currentScriptId,
+    session: globalSession,
+    numEpisodes: globalEpisodes,
+    numScenes: globalScenes
   } = useGeneratorState();
 
   const { showNotification } = useGeneratorDispatch();
+  const { setNumEpisodes, setNumScenes, setSession } = useGeneratorDispatch();
   const { manifestationProgress } = useLogs();
 
   const [isManifesting, setIsManifesting] = React.useState(false);
+  const [pendingExportOnGenerate, setPendingExportOnGenerate] = React.useState(false);
 
-  const [localConfig, setLocalConfig] = React.useState({
-    sessions: 1,
-    episodes: plan?.length || contextPlan?.length || 12,
-    scenes: plan?.[0]?.asset_matrix?.scene_count || 16
+  // Start with empty inputs — do not auto-populate defaults from plan or global state.
+  const [localConfig, setLocalConfig] = React.useState<{sessions: number|string, episodes: number|string, scenes: number|string, frames: number|string}>(() => {
+    try {
+      const saved = localStorage.getItem('blueprint_scaffolding');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed && typeof parsed === 'object') {
+          return {
+            sessions: parsed.sessions ?? '',
+            episodes: parsed.episodes ?? '',
+            scenes: parsed.scenes ?? ''
+            , frames: parsed.frames ?? ''
+          };
+        }
+      }
+    } catch (e) {
+      console.error('Failed to restore blueprint config from localStorage:', e);
+    }
+
+    return { sessions: '', episodes: '', scenes: '', frames: '' };
   });
 
-  // Sync local configuration when a new plan (like the demo) is loaded
+  // Persist scaffolding inputs to localStorage whenever they change
   React.useEffect(() => {
-    if (plan && plan.length > 0) {
-      setLocalConfig({
-        sessions: 1,
-        episodes: plan.length,
-        scenes: plan[0]?.asset_matrix?.scene_count || 16
-      });
-    }
-  }, [plan]);
+    localStorage.setItem('blueprint_scaffolding', JSON.stringify(localConfig));
+  }, [localConfig]);
 
-  const handleSynthesizeBlueprint = async () => {
-    // Consolidated Action: Initialize Structure + Synthesize AI Content
+  const [localErrors, setLocalErrors] = React.useState<{ sessions?: string; episodes?: string; scenes?: string; frames?: string }>({});
+  const [isSyncingScaffold, setIsSyncingScaffold] = React.useState(false);
+
+  const totalSceneBudget = React.useMemo(
+    () => calculateTotalScenes(localConfig.sessions, localConfig.episodes, localConfig.scenes),
+    [calculateTotalScenes, localConfig.sessions, localConfig.episodes, localConfig.scenes],
+  );
+
+  const totalFrameBudget = React.useMemo(() => {
+    const sceneBudget = totalSceneBudget;
+    const framesPerScene = Number.parseInt(String(localConfig.frames), 10);
+    if (!Number.isFinite(sceneBudget) || !Number.isFinite(framesPerScene) || framesPerScene <= 0) {
+      return 0;
+    }
+
+    return sceneBudget * framesPerScene;
+  }, [localConfig.frames, totalSceneBudget]);
+
+  const totalScaffoldingEpisodes = React.useMemo(() => {
+    const sParsed = parseInt(String(localConfig.sessions));
+    const eParsed = parseInt(String(localConfig.episodes));
+
+    // Require explicit values for sessions + episodes (no fallback defaults)
+    const s = Number.isFinite(sParsed) ? sParsed : 0;
+    const e = Number.isFinite(eParsed) ? eParsed : 0;
+
+    return s * e;
+  }, [localConfig.sessions, localConfig.episodes]);
+
+
+
+  const validateScaffoldingInputs = () => {
+    const errors: typeof localErrors = {};
+    const finalSessions = parseInt(String(localConfig.sessions));
+    const finalEpisodes = parseInt(String(localConfig.episodes));
+    const finalScenes = parseInt(String(localConfig.scenes));
+    const finalFrames = parseInt(String(localConfig.frames));
+
+    if (localConfig.sessions === '' || !Number.isFinite(finalSessions)) {
+      errors.sessions = 'Session Count is required.';
+    } else if (finalSessions < 1 || finalSessions > 20) {
+      errors.sessions = 'Sessions must be between 1 and 20';
+    }
+
+    if (localConfig.episodes === '' || !Number.isFinite(finalEpisodes)) {
+      errors.episodes = 'Episodes Per Session is required.';
+    } else if (finalEpisodes < 1 || finalEpisodes > 100) {
+      errors.episodes = 'Episodes must be between 1 and 100';
+    }
+
+    if (localConfig.scenes === '' || !Number.isFinite(finalScenes)) {
+      errors.scenes = 'Scenes Per Episode is required.';
+    } else if (finalScenes < 1 || finalScenes > 200) {
+      errors.scenes = 'Scenes must be between 1 and 200';
+    }
+
+    if (localConfig.frames !== '' && !Number.isFinite(finalFrames)) {
+      errors.frames = 'Frames Per Scene must be a number.';
+    } else if (localConfig.frames !== '' && (finalFrames < 1 || finalFrames > 100)) {
+      errors.frames = 'Frames must be between 1 and 100';
+    }
+
+    const totalEpisodes = finalSessions * finalEpisodes;
+    const totalSceneBudget = totalEpisodes * finalScenes;
+    const MAX_SAFE_TOTAL_EPISODES = 120;
+    const MAX_SAFE_TOTAL_SCENE_BUDGET = 24000;
+
+    if (totalEpisodes > MAX_SAFE_TOTAL_EPISODES) {
+      errors.episodes = `Total episodes (${totalEpisodes}) exceeds the safe limit of ${MAX_SAFE_TOTAL_EPISODES}. Reduce sessions or episodes.`;
+    }
+
+    if (totalSceneBudget > MAX_SAFE_TOTAL_SCENE_BUDGET) {
+      errors.scenes = `Total scene budget (${totalSceneBudget}) is too large. Reduce sessions, episodes, or scenes.`;
+    }
+
+    return { errors, finalSessions, finalEpisodes, finalScenes, totalEpisodes, totalSceneBudget };
+  };
+
+  React.useEffect(() => {
+    const { errors } = validateScaffoldingInputs();
+    setLocalErrors(errors);
+  }, [localConfig]);
+
+
+  // Note: we intentionally do NOT auto-populate scaffolding from the loaded plan.
+  // Users must explicitly enter sessions/episodes/scenes before synthesizing.
+
+  const handleGenerateBlueprint = async () => {
+    const { errors, finalSessions, finalEpisodes, finalScenes } = validateScaffoldingInputs();
+    if (Object.keys(errors).length > 0) {
+      showNotification?.('Please fix scaffolding errors before generating the blueprint.', 'error');
+      return;
+    }
+
     try {
-      await onManifestContinue(localConfig);
-      window.dispatchEvent(new CustomEvent('studio-generate-series', { 
-        detail: { 
-          episodes: localConfig.episodes,
-          scenes: localConfig.scenes
-        } 
-      }));
+      // If a plan already exists, do not re-run generation which may overwrite it.
+      // Instead, trigger the export flow using the current generated plan.
+      if (plan && plan.length > 0) {
+        setPendingExportOnGenerate(true);
+        showNotification?.('Using existing generated blueprint — exporting markdown.', 'info');
+        return;
+      }
+      console.log('🎬 [RE-SYNTHESIZE] Dispatching blueprint generation request:', { finalSessions, finalEpisodes, finalScenes });
+      showNotification?.('Generating series blueprint from AI...', 'info');
+      setSession?.(String(finalSessions));
+      setNumEpisodes?.(finalEpisodes);
+      setNumScenes?.(String(finalScenes));
+
+      if (onGenerateSeries) {
+        onGenerateSeries({
+          episodesPerSession: finalEpisodes,
+          sessions: finalSessions,
+          scenes: finalScenes,
+          frames: Number(localConfig.frames) || undefined,
+        });
+        console.log('🎬 [RE-SYNTHESIZE] Direct generation callback invoked');
+      } else {
+        window.dispatchEvent(new CustomEvent('studio-generate-series', {
+          detail: {
+            episodesPerSession: finalEpisodes,
+            sessions: finalSessions,
+            scenes: finalScenes,
+            frames: Number(localConfig.frames) || undefined,
+          }
+        }));
+        console.log('🎬 [RE-SYNTHESIZE] Event dispatched successfully - check browser console for generation progress');
+      }
     } catch (err) {
-      console.error("Synergy Failed:", err);
+      console.error("❌ Blueprint generation failed:", err);
+      showNotification?.('Failed to generate blueprint: ' + ((err as any)?.message || String(err)), 'error');
+      setPendingExportOnGenerate(false);
+    }
+  };
+
+  const handleDownloadBlueprint = async () => {
+    if (!plan || plan.length === 0) {
+      showNotification?.('No generated blueprint available to export.', 'warning');
+      return;
+    }
+
+    const markdown = await generateBlueprintMarkdown({
+      plan,
+      sessions: Number(localConfig.sessions),
+      episodesPerSession: Number(localConfig.episodes),
+      scenesPerEpisode: Number(localConfig.scenes),
+      framesPerScene: Number(localConfig.frames) || undefined,
+      worldManifest: generatedWorld,
+      worldLore: generatedWorldLore,
+      worldPowers: generatedWorldPowers,
+      worldFactions: generatedWorldFactions,
+      worldAtlas: generatedWorldAtlas,
+      worldSystems: generatedWorldSystems,
+      characterList,
+      characterDNA,
+      characterDynamics,
+      characterIntegrity,
+      characterRelationships,
+      model: selectedModel,
+      tone,
+      audience,
+      genre,
+      artStyle,
+      temperature,
+      maxTokens,
+      topP,
+      topK,
+    });
+
+    downloadBlueprintMarkdown(markdown);
+    showNotification?.('Blueprint markdown downloaded.', 'success');
+  };
+
+  React.useEffect(() => {
+    if (!pendingExportOnGenerate || !plan || plan.length === 0) {
+      return;
+    }
+
+    const doExport = async () => {
+      try {
+        const markdown = await generateBlueprintMarkdown({
+          plan,
+          sessions: Number(localConfig.sessions),
+          episodesPerSession: Number(localConfig.episodes),
+          scenesPerEpisode: Number(localConfig.scenes),
+          framesPerScene: Number(localConfig.frames) || undefined,
+          worldManifest: generatedWorld,
+          worldLore: generatedWorldLore,
+          worldPowers: generatedWorldPowers,
+          worldFactions: generatedWorldFactions,
+          worldAtlas: generatedWorldAtlas,
+          worldSystems: generatedWorldSystems,
+          characterList,
+          characterDNA,
+          characterDynamics,
+          characterIntegrity,
+          characterRelationships,
+          model: selectedModel,
+          tone,
+          audience,
+          genre,
+          artStyle,
+          temperature,
+          maxTokens,
+          topP,
+          topK,
+        });
+
+        downloadBlueprintMarkdown(markdown);
+        showNotification?.('Blueprint markdown downloaded.', 'success');
+      } catch (error) {
+        console.error('❌ Failed to create markdown blueprint:', error);
+        showNotification?.('Failed to export blueprint markdown.', 'error');
+      } finally {
+        setPendingExportOnGenerate(false);
+      }
+    };
+
+    doExport();
+  }, [pendingExportOnGenerate, plan, localConfig.sessions, localConfig.episodes, localConfig.scenes, generatedWorld, generatedWorldLore, generatedWorldPowers, generatedWorldFactions, generatedWorldAtlas, generatedWorldSystems, characterList, characterDNA, characterDynamics, characterIntegrity, characterRelationships, selectedModel, tone, audience, genre, artStyle, temperature, maxTokens, topP, topK, showNotification]);
+
+  const handleSyncScaffold = async () => {
+    const { errors, finalSessions, finalEpisodes, finalScenes } = validateScaffoldingInputs();
+    if (Object.keys(errors).length > 0) {
+      showNotification?.('Please fix scaffolding errors before syncing the scaffold.', 'error');
+      return;
+    }
+
+    if (!onManifestContinue) {
+      showNotification?.('Scaffold sync is unavailable in this context.', 'warning');
+      return;
+    }
+
+    setIsSyncingScaffold(true);
+    try {
+      showNotification?.('Syncing production scaffold to database...', 'info');
+      await onManifestContinue({ episodes: finalEpisodes, sessions: finalSessions, scenes: finalScenes, persist: false });
+      console.log('🎬 [SCAFFOLD SYNC] onManifestContinue completed successfully');
+      showNotification?.('Scaffold synchronized to database.', 'success');
+    } catch (err) {
+      console.error('❌ Scaffold sync failed:', err);
+      showNotification?.('Failed to sync scaffold: ' + ((err as any)?.message || String(err)), 'error');
+    } finally {
+      setIsSyncingScaffold(false);
     }
   };
 
@@ -129,46 +406,127 @@ export const BlueprintTab: React.FC<BlueprintTabProps> = ({
                     <Settings2 className="w-3.5 h-3.5 text-zinc-700" />
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    {/* Sessions */}
-                    <div className="space-y-3">
-                      <label className="text-[9px] font-black text-zinc-500 uppercase tracking-widest block opacity-60">Session Count</label>
-                      <input 
-                        type="number" 
-                        min="1" 
-                        max="5"
-                        value={localConfig.sessions}
-                        onChange={(e) => setLocalConfig({...localConfig, sessions: parseInt(e.target.value) || 1})}
-                        className="w-full bg-white/[0.03] border border-white/10 rounded-xl px-4 py-2.5 text-xs font-mono text-studio focus:border-studio/50 focus:bg-studio/5 transition-all outline-none"
-                      />
-                    </div>
-                    
-                    {/* Episodes */}
-                    <div className="space-y-3">
-                      <label className="text-[9px] font-black text-zinc-500 uppercase tracking-widest block opacity-60">Episodes Per Session</label>
-                      <input 
-                        type="number" 
-                        min="1" 
-                        max="24"
-                        value={localConfig.episodes}
-                        onChange={(e) => setLocalConfig({...localConfig, episodes: parseInt(e.target.value) || 1})}
-                        className="w-full bg-white/[0.03] border border-white/10 rounded-xl px-4 py-2.5 text-xs font-mono text-studio focus:border-studio/50 focus:bg-studio/5 transition-all outline-none"
-                      />
-                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                      {/* Sessions */}
+                      <div className="space-y-3">
+                        <label className="text-[9px] font-black text-zinc-500 uppercase tracking-widest block opacity-60">Session Count</label>
+                        <input 
+                          type="number" 
+                          min="1" 
+                          max="20"
+                          placeholder="1-20"
+                          value={localConfig.sessions}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            const v = val === '' ? '' : parseInt(val) || '';
+                            setLocalConfig({...localConfig, sessions: v});
+                            try { if (v !== '') setSession?.(String(v)); } catch(e){}
+                          }}
+                          className={cn("w-full bg-white/[0.03] rounded-xl px-4 py-2.5 text-xs font-mono text-studio focus:bg-studio/5 transition-all outline-none",
+                            localErrors.sessions ? 'border border-red-500' : 'border border-white/10')}
+                        />
+                        {localErrors.sessions && <p className="text-[10px] text-red-400 mt-1 block whitespace-normal break-words">{localErrors.sessions}</p>}
+                      </div>
+                      
+                      {/* Episodes */}
+                      <div className="space-y-3">
+                        <label className="text-[9px] font-black text-zinc-500 uppercase tracking-widest block opacity-60">Episodes Per Session</label>
+                        <input 
+                          type="number" 
+                          min="1" 
+                          max="100"
+                          placeholder="1-100"
+                          value={localConfig.episodes}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            const v = val === '' ? '' : parseInt(val) || '';
+                            setLocalConfig({...localConfig, episodes: v});
+                            try { if (v !== '') setNumEpisodes?.(v as number); } catch(e){}
+                          }}
+                          className={cn("w-full bg-white/[0.03] rounded-xl px-4 py-2.5 text-xs font-mono text-studio focus:bg-studio/5 transition-all outline-none",
+                            localErrors.episodes ? 'border border-red-500' : 'border border-white/10')}
+                        />
+                        {localErrors.episodes && <p className="text-[10px] text-red-400 mt-1 block whitespace-normal break-words">{localErrors.episodes}</p>}
+                      </div>
 
-                    {/* Scenes */}
-                    <div className="space-y-3">
-                      <label className="text-[9px] font-black text-zinc-500 uppercase tracking-widest block opacity-60">Scenes Per Episode</label>
-                      <input 
-                        type="number" 
-                        min="1" 
-                        max="40"
-                        value={localConfig.scenes}
-                        onChange={(e) => setLocalConfig({...localConfig, scenes: parseInt(e.target.value) || 1})}
-                        className="w-full bg-white/[0.03] border border-white/10 rounded-xl px-4 py-2.5 text-xs font-mono text-studio focus:border-studio/50 focus:bg-studio/5 transition-all outline-none"
-                      />
+                      {/* Scenes */}
+                      <div className="space-y-3">
+                        <label className="text-[9px] font-black text-zinc-500 uppercase tracking-widest block opacity-60">Scenes Per Episode</label>
+                        <input 
+                          type="number" 
+                          min="1" 
+                          max="200"
+                          placeholder="1-200"
+                          value={localConfig.scenes}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            const v = val === '' ? '' : parseInt(val) || '';
+                            setLocalConfig({...localConfig, scenes: v});
+                            try { if (v !== '') setNumScenes?.(String(v)); } catch(e){}
+                          }}
+                          className={cn("w-full bg-white/[0.03] rounded-xl px-4 py-2.5 text-xs font-mono text-studio focus:bg-studio/5 transition-all outline-none",
+                            localErrors.scenes ? 'border border-red-500' : 'border border-white/10')}
+                        />
+                        {localErrors.scenes && <p className="text-[10px] text-red-400 mt-1 block whitespace-normal break-words">{localErrors.scenes}</p>}
+                      </div>
+
+                      {/* Frames */}
+                      <div className="space-y-3">
+                        <label className="text-[9px] font-black text-zinc-500 uppercase tracking-widest block opacity-60">Frames Per Scene</label>
+                        <input 
+                          type="number" 
+                          min="1" 
+                          max="100"
+                          placeholder="Optional"
+                          value={localConfig.frames}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            const v = val === '' ? '' : parseInt(val) || '';
+                            setLocalConfig({...localConfig, frames: v});
+                          }}
+                          className={cn("w-full bg-white/[0.03] rounded-xl px-4 py-2.5 text-xs font-mono text-studio focus:bg-studio/5 transition-all outline-none",
+                            localErrors.frames ? 'border border-red-500' : 'border border-white/10')}
+                        />
+                        {localErrors.frames && <p className="text-[10px] text-red-400 mt-1 block whitespace-normal break-words">{localErrors.frames}</p>}
                     </div>
                   </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+                    <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/5">
+                      <p className="text-[9px] font-black text-zinc-500 uppercase tracking-widest mb-1">Session Count</p>
+                      <p className="text-lg font-black text-white">{localConfig.sessions || 'N/A'}</p>
+                    </div>
+                    <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/5">
+                      <p className="text-[9px] font-black text-zinc-500 uppercase tracking-widest mb-1">Episodes Per Session</p>
+                      <p className="text-lg font-black text-white">{localConfig.episodes || 'N/A'}</p>
+                    </div>
+                    <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/5">
+                      <p className="text-[9px] font-black text-zinc-500 uppercase tracking-widest mb-1">Scenes Per Episode</p>
+                      <p className="text-lg font-black text-white">{localConfig.scenes || 'N/A'}</p>
+                    </div>
+                    <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/5">
+                      <p className="text-[9px] font-black text-zinc-500 uppercase tracking-widest mb-1">Frames Per Scene</p>
+                      <p className="text-lg font-black text-white">{localConfig.frames || 'N/A'}</p>
+                    </div>
+                    <div className="p-4 rounded-2xl bg-studio/10 border border-studio/20">
+                      <p className="text-[9px] font-black text-studio uppercase tracking-widest mb-1">Total Scene Budget</p>
+                      <p className="text-lg font-black text-white">{totalSceneBudget > 0 ? totalSceneBudget.toLocaleString() : 'N/A'}</p>
+                    </div>
+                    <div className="p-4 rounded-2xl bg-studio/10 border border-studio/20">
+                      <p className="text-[9px] font-black text-studio uppercase tracking-widest mb-1">Total Frame Budget</p>
+                      <p className="text-lg font-black text-white">{totalFrameBudget > 0 ? totalFrameBudget.toLocaleString() : 'N/A'}</p>
+                    </div>
+                  </div>
+
+                  {totalSceneBudget > 0 && (
+                    <div className="flex flex-wrap items-center gap-3 p-4 rounded-2xl bg-black/40 border border-white/5">
+                      <span className="text-[10px] font-black text-studio uppercase tracking-[0.3em]">Blueprint Math</span>
+                      <span className="text-xs font-mono text-zinc-300 uppercase tracking-widest">
+                        {localConfig.scenes !== '' ? String(localConfig.scenes) : '0'} scenes × {totalScaffoldingEpisodes.toLocaleString()} episodes ({localConfig.sessions !== '' ? String(localConfig.sessions) : '0'} sessions) = {totalSceneBudget.toLocaleString()} total scenes
+
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -197,8 +555,8 @@ export const BlueprintTab: React.FC<BlueprintTabProps> = ({
                         <Users className="w-3.5 h-3.5 text-zinc-600" />
                         <span className="text-xs text-zinc-400 font-mono">Cast DNA Registry</span>
                       </div>
-                      <span className={cn("text-[10px] font-black uppercase tracking-widest", castList?.length > 0 ? "text-studio drop-shadow-[0_0_8px_rgba(6,182,212,0.4)]" : "text-zinc-700")}>
-                        {castList?.length > 0 ? `${castList.length}_ENTITIES | ACTIVE ✅` : "INACTIVE ❌"}
+                      <span className={cn("text-[10px] font-black uppercase tracking-widest", characterList?.length > 0 ? "text-studio drop-shadow-[0_0_8px_rgba(6,182,212,0.4)]" : "text-zinc-700")}>
+                        {characterList?.length > 0 ? `${characterList.length}_ENTITIES | ACTIVE ✅` : "INACTIVE ❌"}
                       </span>
                     </div>
 
@@ -208,9 +566,18 @@ export const BlueprintTab: React.FC<BlueprintTabProps> = ({
                           <Sparkles className="w-3.5 h-3.5 text-studio" />
                           <span className="text-xs text-studio font-mono">Production Series Plan</span>
                         </div>
-                        <span className="text-[10px] font-black uppercase tracking-widest text-studio">
-                          {plan.length} EPISODES_READY
-                        </span>
+                        <div className="text-right">
+                          <span className="text-[10px] font-black uppercase tracking-widest text-studio block">
+                            {totalScaffoldingEpisodes > 0
+                              ? `${totalScaffoldingEpisodes} EPISODES_READY (${localConfig.sessions}×${localConfig.episodes})`
+                              : `${plan.length} EPISODES_READY`}
+                          </span>
+                          {totalScaffoldingEpisodes > 0 && plan.length !== totalScaffoldingEpisodes && (
+                            <span className="text-[9px] font-semibold uppercase tracking-[0.25em] text-zinc-400 block mt-1">
+                              Requested: {localConfig.sessions}×{localConfig.episodes} = {totalScaffoldingEpisodes}
+                            </span>
+                          )}
+                        </div>
                       </div>
                     )}
                   </div>
@@ -218,9 +585,9 @@ export const BlueprintTab: React.FC<BlueprintTabProps> = ({
               </div>
 
               {/* AI Synthesis Command Center */}
-              <div className="p-1">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {isGeneratingSeries ? (
-                  <div className="flex flex-col gap-4 p-6 bg-studio/5 border border-studio/20 rounded-2xl shadow-[0_0_30px_rgba(6,182,212,0.1)]">
+                  <div className="flex flex-col gap-4 p-6 col-span-2 bg-studio/5 border border-studio/20 rounded-2xl shadow-[0_0_30px_rgba(6,182,212,0.1)]">
                     <div className="flex items-center gap-4">
                       <Loader2 className="w-6 h-6 text-studio animate-spin" />
                       <div>
@@ -233,27 +600,65 @@ export const BlueprintTab: React.FC<BlueprintTabProps> = ({
                         className="h-full bg-studio"
                         initial={{ width: "0%" }}
                         animate={{ width: `${generationProgress || 10}%` }}
-                        transition={{ duration: 0.5 }}
+                        transition={{ duration: 1.5, ease: 'easeInOut' }}
                       />
                     </div>
                   </div>
                 ) : (
-                  <button
-                    onClick={handleSynthesizeBlueprint}
-                    disabled={isSyncing || isGeneratingSeries}
-                    className={cn(
-                      "w-full group relative flex items-center justify-center gap-3 p-5 rounded-2xl transition-all duration-500 shadow-[0_0_40px_rgba(6,182,212,0.15)]",
-                      isSyncing || isGeneratingSeries
-                        ? "bg-white/[0.02] border border-white/5 opacity-50 cursor-not-allowed"
-                        : "bg-studio/10 hover:bg-studio/20 border border-studio/30 hover:border-studio/50"
+                  <>
+                    <button
+                      onClick={handleGenerateBlueprint}
+                      disabled={isSyncing || isGeneratingSeries || isSyncingScaffold}
+                      className={cn(
+                        "w-full group relative flex items-center justify-center gap-3 p-5 rounded-2xl transition-all duration-500 shadow-[0_0_40px_rgba(6,182,212,0.15)]",
+                        isSyncing || isGeneratingSeries || isSyncingScaffold
+                          ? "bg-white/[0.02] border border-white/5 opacity-50 cursor-not-allowed"
+                          : "bg-studio/10 hover:bg-studio/20 border border-studio/30 hover:border-studio/50"
+                      )}
+                    >
+                      <div className="absolute inset-0 bg-gradient-to-r from-studio/0 via-studio/10 to-studio/0 opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl pointer-events-none" />
+                      <Sparkles className="w-5 h-5 text-studio group-hover:animate-pulse" />
+                      <span className="text-xs font-black text-white uppercase tracking-[0.3em]">
+                        {plan && plan.length > 0 ? "Regenerate Blueprint" : "Generate Blueprint"}
+                      </span>
+                    </button>
+
+                    <button
+                      onClick={handleSyncScaffold}
+                      disabled={isSyncing || isGeneratingSeries || isSyncingScaffold}
+                      className={cn(
+                        "w-full group relative flex items-center justify-center gap-3 p-5 rounded-2xl transition-all duration-500 shadow-[0_0_40px_rgba(6,182,212,0.15)] border border-white/10",
+                        isSyncing || isGeneratingSeries || isSyncingScaffold
+                          ? "bg-white/[0.02] opacity-50 cursor-not-allowed"
+                          : "bg-zinc-900/80 hover:bg-zinc-800 border-white/10"
+                      )}
+                    >
+                      <div className="absolute inset-0 bg-gradient-to-r from-zinc-800/0 via-zinc-800/10 to-zinc-800/0 opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl pointer-events-none" />
+                      {isSyncing || isSyncingScaffold ? <Loader2 className="w-5 h-5 text-zinc-400 animate-spin" /> : <Database className="w-5 h-5 text-zinc-300" />}
+                      <span className="text-xs font-black text-white uppercase tracking-[0.3em]">
+                        {isSyncing || isSyncingScaffold ? "Materializing Roadmap..." : "Sync DB Scaffold"}
+                      </span>
+                    </button>
+
+                    {plan && plan.length > 0 && (
+                      <button
+                        onClick={handleDownloadBlueprint}
+                        disabled={isSyncing || isGeneratingSeries || isSyncingScaffold}
+                        className={cn(
+                          "w-full group relative flex items-center justify-center gap-3 p-5 rounded-2xl transition-all duration-500 shadow-[0_0_40px_rgba(6,182,212,0.15)] border border-white/10",
+                          isSyncing || isGeneratingSeries || isSyncingScaffold
+                            ? "bg-white/[0.02] opacity-50 cursor-not-allowed"
+                            : "bg-studio/10 hover:bg-studio/20 border border-studio/30 hover:border-studio/50"
+                        )}
+                      >
+                        <div className="absolute inset-0 bg-gradient-to-r from-studio/0 via-studio/10 to-studio/0 opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl pointer-events-none" />
+                        <Table className="w-5 h-5 text-studio group-hover:animate-pulse" />
+                        <span className="text-xs font-black text-white uppercase tracking-[0.3em]">
+                          Export Blueprint MD
+                        </span>
+                      </button>
                     )}
-                  >
-                    <div className="absolute inset-0 bg-gradient-to-r from-studio/0 via-studio/10 to-studio/0 opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl pointer-events-none" />
-                    {isSyncing ? <Loader2 className="w-5 h-5 text-studio animate-spin" /> : <Sparkles className="w-5 h-5 text-studio group-hover:animate-pulse" />}
-                    <span className="text-xs font-black text-white uppercase tracking-[0.3em]">
-                      {isSyncing ? "Materializing Roadmap..." : plan && plan.length > 0 ? "RE-SYNTHESIZE PRODUCTION BLUEPRINT" : "SYNERGIZE & GENERATE BLUEPRINT"}
-                    </span>
-                  </button>
+                  </>
                 )}
               </div>
 
@@ -270,82 +675,7 @@ export const BlueprintTab: React.FC<BlueprintTabProps> = ({
                 </span>
               </div>
 
-              {/* Bulk Manifestation Trigger */}
-              <div className="relative group/manifest">
-                <div className="p-6 bg-studio/5 border border-studio/20 rounded-[2rem] space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 bg-studio/10 rounded-xl">
-                        <Zap className="w-4 h-4 text-studio" />
-                      </div>
-                      <div>
-                        <h5 className="text-[10px] font-black text-white uppercase tracking-[0.2em]">Neural Manifestation</h5>
-                        <p className="text-[8px] text-zinc-500 font-mono uppercase mt-0.5">Hydrate Scaffolding with AI Data</p>
-                      </div>
-                    </div>
-                    {isManifesting && (
-                      <Loader2 className="w-3 h-3 text-studio animate-spin" />
-                    )}
-                  </div>
-                  
-                  <p className="text-[10px] text-zinc-500 leading-relaxed px-1">
-                    Triggers a background neural cycle to populate {localConfig.episodes * localConfig.scenes} scenes with high-fidelity narration, visuals, and sound direction.
-                  </p>
 
-                  <button
-                    onClick={async () => {
-                      if (!currentScriptId) return;
-                      setIsManifesting(true);
-                      try {
-                        await manifestScenes({
-                          project_id: parseInt(currentScriptId),
-                          limit: 32, // One production session (2 episodes)
-                          model: selectedModel || 'gemini-2.0-flash'
-                        });
-                        showNotification?.('Manifestation cycle initialized in background', 'success');
-                      } catch (err: any) {
-                        showNotification?.(err.message || 'Manifestation failed', 'error');
-                      } finally {
-                        setIsManifesting(false);
-                      }
-                    }}
-                    disabled={isManifesting || !lastSyncDate}
-                    className={cn(
-                      "w-full py-3 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all border",
-                      isManifesting || !lastSyncDate
-                        ? "bg-zinc-900/50 border-white/5 text-zinc-700 cursor-not-allowed"
-                        : "bg-studio/20 border-studio/30 text-studio hover:bg-studio/30 hover:border-studio/50"
-                    )}
-                  >
-                    {isManifesting ? "Orchestrating..." : !lastSyncDate ? "Sync Required First" : "IGNITE NEURAL MANIFESTATION"}
-                  </button>
-
-                  {/* Real-time Progress Bar */}
-                  {manifestationProgress && manifestationProgress.project_id === parseInt(currentScriptId || '0') && manifestationProgress.progress < 100 && (
-                    <div className="space-y-3 pt-2">
-                      <div className="flex justify-between items-center px-1">
-                        <span className="text-[9px] font-mono text-studio uppercase tracking-widest animate-pulse">
-                          {manifestationProgress.message}
-                        </span>
-                        <span className="text-[9px] font-mono text-zinc-500">
-                          {Math.round(manifestationProgress.progress)}%
-                        </span>
-                      </div>
-                      <div className="h-1.5 bg-black/40 rounded-full overflow-hidden border border-white/5">
-                        <motion.div
-                          initial={{ width: 0 }}
-                          animate={{ width: `${manifestationProgress.progress}%` }}
-                          className="h-full bg-studio shadow-[0_0_10px_rgba(6,182,212,0.5)]"
-                        />
-                      </div>
-                      <div className="flex justify-between text-[8px] font-mono text-zinc-600 uppercase tracking-tighter px-1">
-                        <span>Unit {manifestationProgress.current}</span>
-                        <span>Total {manifestationProgress.total}</span>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
             </div>
           </div>
         </div>
@@ -385,7 +715,7 @@ export const BlueprintTab: React.FC<BlueprintTabProps> = ({
                     </div>
                   </div>
                   <div className="flex flex-col items-end gap-1">
-                    <span className="text-[10px] font-black text-zinc-700 uppercase tracking-[0.2em]">Synthesis Engine v{Math.max(4, (plan?.length || 0) % 5 + 1)}.{Math.max(2, (castList?.length || 0) % 9)}.0</span>
+                    <span className="text-[10px] font-black text-zinc-700 uppercase tracking-[0.2em]">Synthesis Engine v{Math.max(4, (plan?.length || 0) % 5 + 1)}.{Math.max(2, (characterList?.length || 0) % 9)}.0</span>
                     <div className="flex gap-1">
                       {[1, 2, 3, 4, 5].map(i => (
                         <div key={i} className={cn("w-2 h-0.5 rounded-full", i <= (plan?.length || 0) % 5 + 1 ? "bg-studio/40" : "bg-zinc-800")} />
@@ -402,7 +732,7 @@ export const BlueprintTab: React.FC<BlueprintTabProps> = ({
                       <p className="text-xs font-black text-zinc-600 uppercase tracking-widest">Story Bible & Cast DNA (Input)</p>
                       <div className="flex gap-1">
                         <div className={cn("w-1 h-1 rounded-full", generatedWorldLore ? "bg-studio" : "bg-zinc-800")} />
-                        <div className={cn("w-1 h-1 rounded-full", castList?.length > 0 ? "bg-studio" : "bg-zinc-800")} />
+                        <div className={cn("w-1 h-1 rounded-full", characterList?.length > 0 ? "bg-studio" : "bg-zinc-800")} />
                       </div>
                     </div>
                     <div className="p-6 bg-[#060606]/80 backdrop-blur-xl border border-white/10 rounded-[2rem] max-h-[260px] overflow-auto relative group/input shadow-2xl custom-scrollbar selection:bg-studio/20"
@@ -438,10 +768,10 @@ export const BlueprintTab: React.FC<BlueprintTabProps> = ({
                             <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">ENTITY_DNA_REGISTRY</span>
                           </div>
                           {[
-                            { label: 'REGISTRY', active: castList?.length > 0, val: castList?.length ? `${castList.length}_ENTITIES` : 'EMPTY' },
-                            { label: 'DNA_PROFILES', active: !!castDNA, val: castDNA ? 'MATERIALIZED' : 'EMPTY' },
-                            { label: 'PSYCH_DYNAMICS', active: !!castDynamics, val: castDynamics ? 'SYNCED' : 'EMPTY' },
-                            { label: 'LORE_INTEGRITY', active: !!castIntegrity, val: castIntegrity ? 'VERIFIED' : 'EMPTY' },
+                            { label: 'REGISTRY', active: characterList?.length > 0, val: characterList?.length ? `${characterList.length}_ENTITIES` : 'EMPTY' },
+                            { label: 'DNA_PROFILES', active: !!characterDNA, val: characterDNA ? 'MATERIALIZED' : 'EMPTY' },
+                            { label: 'PSYCH_DYNAMICS', active: !!characterDynamics, val: characterDynamics ? 'SYNCED' : 'EMPTY' },
+                            { label: 'LORE_INTEGRITY', active: !!characterIntegrity, val: characterIntegrity ? 'VERIFIED' : 'EMPTY' },
                             { label: 'SOCIAL_WEB', active: !!characterRelationships && characterRelationships !== '[]' && characterRelationships !== '{}', val: characterRelationships ? 'MAPPED' : 'EMPTY' }
                           ].map((module, i) => (
                             <div key={i} className="flex items-center justify-between text-[10px] font-mono">
@@ -568,24 +898,82 @@ export const BlueprintTab: React.FC<BlueprintTabProps> = ({
                         <span className="text-[9px] font-black text-studio uppercase tracking-widest">Live Output Stream</span>
                       </div>
                     </div>
-                    {plan && plan.length > 0 ? (
+                    {isGeneratingSeries && plan && plan.length > 0 ? (
+                      <div className="relative group/output rounded-[2rem] overflow-hidden border border-studio/30 bg-studio/5 shadow-[0_0_50px_rgba(6,182,212,0.15)]">
+                        <div className="p-6 border-b border-white/10 flex flex-col gap-3">
+                          <div className="flex items-center justify-between gap-4">
+                            <div>
+                              <h3 className="text-sm font-black text-white uppercase tracking-widest mb-1">Streaming Neural Blueprint</h3>
+                              <p className="text-xs text-zinc-400 font-mono max-w-xl">
+                                Showing generated episodes as they arrive from the AI. Each episode is revealed one by one while synthesis continues.
+                              </p>
+                            </div>
+                            <div className="text-right text-[10px] uppercase font-black tracking-[0.3em] text-studio">
+                              {plan.length} received
+                              <span className="block text-zinc-400 text-[9px] tracking-[0.2em]">
+                                {Number(localConfig.sessions) > 0 && Number(localConfig.episodes) > 0 ? `${plan.length}/${Number(localConfig.sessions) * Number(localConfig.episodes)} episodes` : `Episode ${plan.length}`}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="h-1 bg-black/40 rounded-full overflow-hidden">
+                            <motion.div
+                              className="h-full bg-studio shadow-[0_0_10px_rgba(6,182,212,0.8)]"
+                              initial={{ width: "0%" }}
+                              animate={{ width: `${Math.min(100, ((plan.length / (Number(localConfig.sessions) * Number(localConfig.episodes) || 1)) * 100) || generationProgress || 15)}%` }}
+                              transition={{ duration: 1.5, ease: 'easeInOut' }}
+                            />
+                          </div>
+                        </div>
+                        <div className="p-6 max-h-[520px] overflow-auto custom-scrollbar space-y-3">
+                          {plan.map((episode: any, episodeIndex: number) => (
+                            <div key={episode?.episode || episodeIndex} className="rounded-3xl border border-white/10 bg-black/60 p-4 backdrop-blur-xl">
+                              <div className="flex items-center justify-between gap-4">
+                                <div>
+                                  <p className="text-[11px] font-black uppercase tracking-[0.3em] text-studio">Episode {episode?.episode || String(episodeIndex + 1).padStart(2, '0')}</p>
+                                  <h4 className="text-sm font-black text-white mt-1">{episode?.title || 'Untitled Episode'}</h4>
+                                </div>
+                                <span className="text-[10px] font-mono text-zinc-400 uppercase tracking-[0.2em]">Scene Count {((episode?.asset_matrix?.scene_count ?? localConfig.scenes) || 'N/A')}</span>
+                              </div>
+                              <p className="mt-3 text-[11px] leading-6 text-zinc-300 line-clamp-3">{episode?.summary || episode?.hook || 'No summary available yet.'}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ) : isGeneratingSeries ? (
+                      <div className="relative group/output rounded-[2rem] overflow-hidden border border-studio/30 bg-studio/5 shadow-[0_0_50px_rgba(6,182,212,0.15)]">
+                        <div className="p-16 flex flex-col items-center justify-center min-h-[400px]">
+                          <BrainCircuit className="w-12 h-12 text-studio animate-pulse mb-6" />
+                          <h3 className="text-sm font-black text-white uppercase tracking-widest mb-2">Synthesizing Neural Blueprint</h3>
+                          <p className="text-xs text-zinc-400 font-mono text-center max-w-sm mb-8">
+                            Processing {localConfig.episodes} episodes across {localConfig.scenes} scenes per episode. Cross-referencing world lore and cast DNA...
+                          </p>
+                          <div className="w-full max-w-md h-1.5 bg-black/60 rounded-full overflow-hidden">
+                            <motion.div
+                              className="h-full bg-studio shadow-[0_0_10px_rgba(6,182,212,0.8)]"
+                              initial={{ width: "0%" }}
+                              animate={{ width: `${generationProgress || 15}%` }}
+                              transition={{ duration: 1.5, ease: 'easeInOut' }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    ) : plan && plan.length > 0 ? (
                       <div className="relative group/output rounded-[2rem] overflow-hidden border border-white/5 bg-[#080808] shadow-2xl">
                         <div className="absolute inset-0 bg-gradient-to-br from-studio/5 via-transparent to-transparent opacity-0 group-hover/output:opacity-100 transition-opacity duration-700" />
                         <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-studio/30 to-transparent" />
                         <div className="p-8 overflow-auto max-h-[600px] custom-scrollbar selection:bg-studio/20 relative z-10">
-
-
                           <pre className="text-[11px] font-mono leading-relaxed">
                             {JSON.stringify(plan, null, 2).split('\n').map((line, i) => {
-                              const isKey = line.includes('":');
+                              const splitIndex = line.indexOf('":');
+                              const isKey = splitIndex !== -1;
                               return (
                                 <div key={i} className="group/line hover:bg-white/[0.02] -mx-5 px-5 transition-colors">
                                   <span className="opacity-20 mr-4 select-none inline-block w-4 text-right">{(i + 1)}</span>
                                   {isKey ? (
                                     <>
-                                      <span className="text-studio/80">{line.split('":')[0]}"</span>
+                                      <span className="text-studio/80">{line.slice(0, splitIndex)}"</span>
                                       <span className="text-zinc-600">:</span>
-                                      <span className="text-emerald-400/90">{line.split('":')[1]}</span>
+                                      <span className="text-emerald-400/90">{line.slice(splitIndex + 2)}</span>
                                     </>
                                   ) : (
                                     <span className="text-zinc-500">{line}</span>
@@ -608,10 +996,46 @@ export const BlueprintTab: React.FC<BlueprintTabProps> = ({
                         </div>
                       </div>
                     ) : (
-                      <div className="p-8 bg-black/20 border border-dashed border-white/5 rounded-2xl flex items-center justify-center">
-                        <div className="flex flex-col items-center gap-3">
-                          <BrainCircuit className="w-8 h-8 text-zinc-800 animate-pulse" />
-                          <span className="text-xs text-zinc-700 font-mono uppercase tracking-widest">Waiting for neural output materialization...</span>
+                      <div className="relative group/output rounded-[2rem] overflow-hidden border border-white/5 bg-[#080808]/50 shadow-2xl">
+                        <div className="p-8 overflow-auto max-h-[600px] custom-scrollbar relative z-10 opacity-30 select-none">
+                          <pre className="text-[11px] font-mono leading-relaxed">
+                            {JSON.stringify([
+                              {
+                                episode: 1,
+                                title: "PENDING_SYNTHESIS",
+                                synopsis: "Neural engine will structure narrative acts and establish scene matrix based on world constraints...",
+                                asset_matrix: { scene_count: "pending", runtime: "pending" },
+                                acts: [
+                                  { name: "Act I", scenes: [] },
+                                  { name: "Act II", scenes: [] }
+                                ],
+                                production_stats: { vfx_heavy: false, cast_count: 0 }
+                              }
+                            ], null, 2).split('\n').map((line, i) => {
+                              const splitIndex = line.indexOf('":');
+                              const isKey = splitIndex !== -1;
+                              return (
+                                <div key={i} className="group/line -mx-5 px-5">
+                                  <span className="opacity-10 mr-4 inline-block w-4 text-right">{(i + 1)}</span>
+                                  {isKey ? (
+                                    <>
+                                      <span className="text-zinc-600">{line.slice(0, splitIndex)}"</span>
+                                      <span className="text-zinc-700">:</span>
+                                      <span className="text-zinc-600">{line.slice(splitIndex + 2)}</span>
+                                    </>
+                                  ) : (
+                                    <span className="text-zinc-700">{line}</span>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </pre>
+                        </div>
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/60 backdrop-blur-[2px] z-20">
+                           <div className="flex flex-col items-center gap-3">
+                             <BrainCircuit className="w-8 h-8 text-zinc-700 animate-pulse" />
+                             <span className="text-[10px] text-zinc-500 font-mono uppercase tracking-widest">Awaiting Neural Synthesis</span>
+                           </div>
                         </div>
                       </div>
                     )}
@@ -693,9 +1117,10 @@ export const BlueprintTab: React.FC<BlueprintTabProps> = ({
               </h5>
               <div className="flex flex-col gap-2">
                  {plan.map((ep: any, i: number) => (
-                   <div 
+                   <button 
                      key={i}
-                     className="w-full flex items-center justify-between p-3 bg-white/[0.02] border border-white/5 rounded-xl hover:bg-white/[0.04] transition-all group"
+                     onClick={() => onViewEpisode?.(ep.episode)}
+                     className="w-full flex items-center justify-between p-3 bg-white/[0.02] border border-white/5 rounded-xl hover:bg-white/[0.04] transition-all group outline-none text-left"
                    >
                       <div className="flex items-center gap-3">
                          <div className="w-6 h-6 rounded-lg bg-zinc-900 flex items-center justify-center border border-white/5 text-[10px] font-black text-zinc-600 group-hover:text-emerald-400 transition-colors">
@@ -706,7 +1131,7 @@ export const BlueprintTab: React.FC<BlueprintTabProps> = ({
                          </span>
                       </div>
                       <ChevronRight className="w-3 h-3 text-zinc-800 group-hover:text-emerald-500" />
-                   </div>
+                   </button>
                  ))}
               </div>
            </div>
@@ -719,13 +1144,17 @@ export const BlueprintTab: React.FC<BlueprintTabProps> = ({
                </div>
                <div className="space-y-2 max-h-48 overflow-auto pr-1 custom-scrollbar">
                  {productionSequence.slice(0, 6).map((unit, idx) => (
-                   <div key={`${unit.sess}-${unit.ep}-${unit.scen}-${idx}`} className="flex items-center justify-between text-[10px] font-mono uppercase tracking-tight text-zinc-500">
+                   <button 
+                     key={`${unit.sess}-${unit.ep}-${unit.scen}-${idx}`} 
+                     onClick={() => applySequenceItem(unit.sess, unit.ep, unit.scen)}
+                     className="w-full flex items-center justify-between text-[10px] font-mono uppercase tracking-tight text-zinc-500 hover:text-white transition-colors bg-transparent border-none p-0 outline-none text-left"
+                   >
                      <span className="text-studio/80">{unit.sessionName}</span>
                      <span className="text-zinc-700">/</span>
                      <span>{`E${unit.ep}`}</span>
                      <span className="text-zinc-700">/</span>
-                     <span className="text-amber-400">{unit.sceneName}</span>
-                   </div>
+                     <span className="text-amber-400 hover:underline">{unit.sceneName}</span>
+                   </button>
                  ))}
                </div>
              </div>

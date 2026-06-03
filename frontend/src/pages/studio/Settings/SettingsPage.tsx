@@ -1,6 +1,6 @@
 import { useState, useEffect, startTransition } from 'react';
 import { useLocation, useSearchParams } from 'react-router-dom';
-import { studioLog, reportTabChange } from '@/lib/studio-logger';
+import { studioLog, reportTabChange } from '@/lib/dev-console-logs';
 import { 
   User, 
   Shield, 
@@ -32,7 +32,7 @@ import NotificationsTab from './tabs/NotificationsTab';
 import GlobalTab from './tabs/GlobalTab';
 import AppearanceTab from './tabs/AppearanceTab';
 
-type SettingsTab = 'profile' | 'security' | 'gemini' | 'openai' | 'groq' | 'nvidia' | 'stablediffusion' | 'notifications' | 'global' | 'appearance';
+type SettingsTab = 'profile' | 'security' | 'gemini' | 'openai' | 'groq' | 'nvidia' | 'stablediffusion' | 'quotas' | 'notifications' | 'global' | 'appearance';
 
 const tabs: { id: SettingsTab; label: string; icon: any; desc: string }[] = [
   { id: 'profile', label: 'Architect Profile', icon: User, desc: 'Identity & Neural Bio' },

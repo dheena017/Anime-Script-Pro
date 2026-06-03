@@ -392,7 +392,7 @@ You MUST return a JSON object with this EXACT structure:
         "bodyType": "<body description>",
         "movementQuality": "<how they move>"
       },
-      "visualPrompt": "Detailed Image Generation Prompt: [Full Body/Portrait], [Character Description], [Clothing Materials], [Lighting Setup (e.g. rim lighting, cinematic shadows)], [VFX/Particle Effects Signature], [Lens Type: 35mm/85mm], [Art Style: High Fidelity ${contentType}]",
+      "visualPrompt": "An ultra-detailed, highly descriptive, exhaustive image generation prompt optimized for Midjourney v6 / Stable Diffusion XL. You MUST synthesize and embed specific character visual features, hair styling (layering, glowing tips, texture), eye specifics (heterochromia, pupil shapes, ambient glow), exact custom tech-apparel or traditional fabrics with clothing materials (e.g. weathered carbon-fiber weave, matte leather, iridescent silk with glowing micro-circuits), custom active weapons or props, ambient and dramatic lighting setups (e.g., rim lighting, heavy volumetric shadows, 5500K warm cybernetic sunlight, cyber-neon lens flares), background setting environment, camera parameters (e.g., shot from low angle, 85mm portrait lens, shallow depth of field), VFX signatures (e.g. blue plasma arcs, floating data shards), and render quality parameters to guarantee visual consistency. Add styling modifiers: \"highly detailed key visual, masterpiece anime render, dynamic composition, 8k, ray-traced shadows, sharp focus, --style raw --v 6.0\". It must be at least 3-4 sentences of vivid, dense visual instructions.",
       "speakingStyle": {
         "sentence_structure": "<how they construct sentences>",
         "vocabulary": "<formal/informal/slang/academic?>",
@@ -750,12 +750,12 @@ Return ONLY the complete JSON array with all required fields populated for each 
 `;
 
 
-export const CAST_DNA_PROMPT = (castData: string, worldContext: string) => `
+export const CAST_DNA_PROMPT = (characterData: string, worldContext: string) => `
 You are a Narrative Geneticist and Character Architect. 
 Analyze the following cast and world context to provide a deep "DNA Analysis" of the characters.
 This analysis should focus on archetypal resonance, psychological complexity, and narrative weight.
 
-CAST DATA: ${castData}
+CAST DATA: ${characterData}
 WORLD CONTEXT: ${worldContext}
 
 Your output must be a JSON object with the following structure:

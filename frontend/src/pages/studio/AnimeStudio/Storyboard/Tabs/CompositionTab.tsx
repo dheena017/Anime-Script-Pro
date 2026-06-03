@@ -1,12 +1,12 @@
-import React from 'react';
-import { Layers } from 'lucide-react';
-import { SceneTimeline } from '../components/SceneTimeline';
-import { Moodboard } from '../../components/Moodboard/Moodboard';
-import { SoundscapeLibrary } from '../../components/Audio/SoundscapeLibrary';
-import { storyboardStyles as s } from '../storyboardStyles';
-import { cn } from '@/lib/utils';
+import React from "react";
+import { Layers } from "lucide-react";
+import { SceneTimeline } from "../components/SceneTimeline";
+import { Moodboard } from "../../components/Moodboard/Moodboard";
+import { SoundscapeLibrary } from "../../components/Audio/SoundscapeLibrary";
+import { storyboardStyles as s } from "../storyboardStyles";
+import { cn } from "@/lib/utils";
 
-import { StoryboardPageContext } from '../StoryboardPage';
+import { StoryboardPageContext } from "../StoryboardPage";
 
 interface Scene {
   id: string;
@@ -29,14 +29,21 @@ interface CompositionTabProps {
   scenes?: Scene[];
 }
 
-export const CompositionTab: React.FC<CompositionTabProps> = ({ scenes: propsScenes }) => {
+export const CompositionTab: React.FC<CompositionTabProps> = ({
+  scenes: propsScenes,
+}) => {
   const context = React.useContext(StoryboardPageContext);
   const scenes = propsScenes || context?.scenes || [];
   return (
     <div className={s.tabContent + " animate-in fade-in duration-700"}>
       {/* Header */}
       <div className={s.tabSectionHeader}>
-        <div className={cn(s.tabHeaderIconBox, "bg-amber-500/10 border-amber-500/20 shadow-[0_0_40px_rgba(245,158,11,0.15)]")}>
+        <div
+          className={cn(
+            s.tabHeaderIconBox,
+            "bg-amber-500/10 border-amber-500/20 shadow-[0_0_40px_rgba(245,158,11,0.15)]",
+          )}
+        >
           <Layers className="w-8 h-8 text-amber-400 animate-pulse" />
         </div>
         <div className="text-left">

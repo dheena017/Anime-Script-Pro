@@ -1,15 +1,27 @@
-import React from 'react';
+import React from "react";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
-  TooltipTrigger
-} from '@/components/ui/tooltip';
-import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight, Cpu, Search, Sparkles, Save, Square, Box, Globe, RefreshCw, ShieldCheck } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { useGeneratorDispatch } from '@/hooks/useGenerator';
-import { seoStyles as s } from '../seoStyles';
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Button } from "@/components/ui/button";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Cpu,
+  Search,
+  Sparkles,
+  Save,
+  Square,
+  Box,
+  Globe,
+  RefreshCw,
+  ShieldCheck,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { useGeneratorDispatch } from "@/hooks/useGenerator";
+import { seoStyles as s } from "../seoStyles";
 
 interface SEOHeaderProps {
   onRegenerate: () => void;
@@ -22,7 +34,7 @@ interface SEOHeaderProps {
   session: string;
   episode: string;
   content?: string | null;
-  status?: 'active' | 'draft' | 'empty';
+  status?: "active" | "draft" | "empty";
 }
 
 export const SEOHeader: React.FC<SEOHeaderProps> = ({
@@ -34,14 +46,14 @@ export const SEOHeader: React.FC<SEOHeaderProps> = ({
   hasContent,
   isGenerating,
   session,
-  episode
+  episode,
 }) => {
   return (
     <TooltipProvider>
       <div className={s.header.wrapper}>
         <div className={s.header.glow} />
         <div className={s.header.container}>
-          <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-8 z-10 w-full lg:w-auto">
+          <div className="flex flex-row flex-wrap sm:flex-nowrap items-center gap-4 sm:gap-8 z-10 w-full lg:w-auto">
             <div className="relative shrink-0">
               <div className={s.header.iconBox}>
                 <div className={s.header.iconGlow} />
@@ -50,20 +62,15 @@ export const SEOHeader: React.FC<SEOHeaderProps> = ({
               </div>
             </div>
 
-            <div className="flex flex-col items-center sm:items-start text-center sm:text-left">
+            <div className="flex flex-row items-center sm:items-start text-center sm:text-left">
               <div className="flex items-center gap-3">
-                <h1 className={s.header.title}>
-                  SEO Master
-                </h1>
+                <h1 className={s.header.title}>SEO Master</h1>
               </div>
-              <div className="flex items-center gap-2 mt-2">
-                <ShieldCheck className="w-3.5 h-3.5 text-emerald-300/50 shrink-0" />
-                <p className={s.header.subtitle}>S{session} // EP{episode} // Distribution Protocol</p>
-              </div>
+
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-center gap-4 z-10 w-full lg:w-auto">
+          <div className="flex flex-row flex-wrap sm:flex-nowrap items-center gap-4 z-10 w-full lg:w-auto justify-center sm:justify-start">
             {onPrev && (
               <Tooltip>
                 <TooltipTrigger>
@@ -77,18 +84,18 @@ export const SEOHeader: React.FC<SEOHeaderProps> = ({
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="top">
-                  <p className="font-black uppercase tracking-widest text-xs">Return to Script Engine</p>
+                  <p className="font-black uppercase tracking-widest text-xs">
+                    Return to Script Engine
+                  </p>
                 </TooltipContent>
               </Tooltip>
             )}
 
-            <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
+            <div className="flex flex-row items-center gap-4 w-full sm:w-auto justify-center sm:justify-start">
               <Tooltip>
                 <TooltipTrigger>
                   {isGenerating ? (
-                    <Button
-                      className={s.header.actionButtonDanger}
-                    >
+                    <Button className={s.header.actionButtonDanger}>
                       <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
                       <span className="relative z-10">ANALYZING...</span>
                     </Button>
@@ -104,7 +111,9 @@ export const SEOHeader: React.FC<SEOHeaderProps> = ({
                 </TooltipTrigger>
                 <TooltipContent side="top">
                   <p className="font-black uppercase tracking-widest text-xs">
-                    {isGenerating ? "Optimization in progress" : "Launch full metadata optimization"}
+                    {isGenerating
+                      ? "Optimization in progress"
+                      : "Launch full metadata optimization"}
                   </p>
                 </TooltipContent>
               </Tooltip>
@@ -116,12 +125,15 @@ export const SEOHeader: React.FC<SEOHeaderProps> = ({
                     onClick={onNext}
                   >
                     <span className="relative z-10 flex items-center gap-2">
-                      NEXT <ChevronRight className="w-4 h-4 group-hover/next:translate-x-1 transition-transform" />
+                      NEXT{" "}
+                      <ChevronRight className="w-4 h-4 group-hover/next:translate-x-1 transition-transform" />
                     </span>
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="top">
-                  <p className="font-black uppercase tracking-widest text-xs">Proceed to Global Prompts</p>
+                  <p className="font-black uppercase tracking-widest text-xs">
+                    Proceed to Global Prompts
+                  </p>
                 </TooltipContent>
               </Tooltip>
             </div>
@@ -131,8 +143,3 @@ export const SEOHeader: React.FC<SEOHeaderProps> = ({
     </TooltipProvider>
   );
 };
-
-
-
-
-

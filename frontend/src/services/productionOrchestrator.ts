@@ -2,9 +2,8 @@ import { generateWorld } from "./generators/worldGenerator";
 import { generateCharacters } from "./generators/characterGenerator";
 import { generateRelationships } from "./generators/characterGenerator";
 import { generateSeriesPlan } from "./generators/seriesGenerator";
-import { generateScript } from "./generators/scriptGenerator";
+import { generateScript, generateImagePrompts } from "./generators/legacyAI";
 import { generateMetadata, generateYouTubeDescription, generateAltTexts, generateGrowthStrategy, generateDistributionStrategy } from "./generators/seoGenerator";
-import { generateImagePrompts } from "./generators/imageGenerator";
 import { generateProductionSequences, ProductionUnit } from "@/lib/sequence-utils";
 import { apiRequest } from "@/lib/api-utils";
 import { seoApi } from "@/services/api/seo";
@@ -375,7 +374,7 @@ export class ProductionOrchestrator {
     const scriptPrompt = `PILOT_PILOT: ${this.context.prompt}\n\nEPISODE_GOAL: ${firstEpisode.title} - ${firstEpisode.summary || firstEpisode.hook}`;
 
     // Convert cast to string if it's an array
-    const castProfiles = Array.isArray(cast)
+    const characterProfiles = Array.isArray(cast)
       ? cast.map(c => `${c.name} (${c.role}): ${c.personality}`).join('\n')
       : JSON.stringify(cast);
 
@@ -397,7 +396,7 @@ export class ProductionOrchestrator {
       "SHOGUN_AI",
       relationshipProfiles,
       world,
-      castProfiles,
+      characterProfiles,
       episodePlan
     );
 

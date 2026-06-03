@@ -69,14 +69,14 @@ export async function generateMetadata(
   script: string,
   model: string = "gemini-3.1-pro",
   worldLore?: string,
-  castDNA?: string
+  characterDNA?: string
 ) {
   const systemInstruction = METADATA_GENERATION_PROMPT(script);
 
   try {
     const text = await generateText(
       model,
-      `Generate YouTube metadata for this script: ${script}`,
+      `Generate YouTube metadata for this script: ${script}\n\nCRITICAL DIRECTIVE:\nEnsure the metadata is highly accurate, logically structured, and deeply detailed. Provide the absolute best, most effective SEO output to maximize engagement and discoverability.`,
       systemInstruction,
       0.85, // temperature
       2048, // maxTokens
@@ -84,7 +84,7 @@ export async function generateMetadata(
       40,   // topK
       180000, // timeoutMs
       worldLore,
-      castDNA
+      characterDNA
     );
     return text || buildFallbackMetadata(script);
   } catch (error) {
@@ -98,14 +98,14 @@ export async function generateYouTubeDescription(
   model: string = "gemini-3.1-pro",
   contentType: string = "Anime",
   worldLore?: string,
-  castDNA?: string
+  characterDNA?: string
 ) {
   const systemInstruction = YOUTUBE_DESCRIPTION_GENERATION_PROMPT(contentType, script);
 
   try {
     const text = await generateText(
       model,
-      `Generate a YouTube description for this script: ${script}`,
+      `Generate a YouTube description for this script: ${script}\n\nCRITICAL DIRECTIVE:\nEnsure the description is highly accurate, compelling, and deeply detailed. Provide the absolute best, most engaging description to hook viewers.`,
       systemInstruction,
       0.85,
       2048,
@@ -113,7 +113,7 @@ export async function generateYouTubeDescription(
       40,
       180000,
       worldLore,
-      castDNA
+      characterDNA
     );
     return text || buildFallbackDescription(contentType, script);
   } catch (error) {
@@ -126,14 +126,14 @@ export async function generateAltTexts(
   script: string,
   model: string = "gemini-3.1-pro",
   worldLore?: string,
-  castDNA?: string
+  characterDNA?: string
 ) {
   const systemInstruction = ALT_TEXT_GENERATION_PROMPT(script);
 
   try {
     const text = await generateText(
       model,
-      `Generate alt text captions for this script: ${script}`,
+      `Generate alt text captions for this script: ${script}\n\nCRITICAL DIRECTIVE:\nEnsure the alt text is highly accurate, descriptive, and deeply detailed. Provide the absolute best, most accessible image descriptions possible.`,
       systemInstruction,
       0.85,
       2048,
@@ -141,7 +141,7 @@ export async function generateAltTexts(
       40,
       180000,
       worldLore,
-      castDNA
+      characterDNA
     );
     return text || buildFallbackAltText(script);
   } catch (error) {
@@ -155,7 +155,7 @@ export async function generateGrowthStrategy(
   model: string = "gemini-3.1-pro",
   contentType: string = "Anime",
   worldLore?: string,
-  castDNA?: string
+  characterDNA?: string
 ) {
   const { GROWTH_STRATEGY_PROMPT } = await import("../prompts/seoPrompts");
   const systemInstruction = GROWTH_STRATEGY_PROMPT(contentType, script);
@@ -163,7 +163,7 @@ export async function generateGrowthStrategy(
   try {
     const text = await generateText(
       model,
-      `Develop a comprehensive YouTube growth strategy for this script: ${script}`,
+      `Develop a comprehensive YouTube growth strategy for this script: ${script}\n\nCRITICAL DIRECTIVE:\nEnsure the strategy is highly accurate, logical, and deeply detailed. Provide the absolute best, most actionable growth plan possible.`,
       systemInstruction,
       0.85,
       2048,
@@ -171,7 +171,7 @@ export async function generateGrowthStrategy(
       40,
       180000,
       worldLore,
-      castDNA
+      characterDNA
     );
     return text || buildFallbackGrowthStrategy(script);
   } catch (error) {
@@ -184,7 +184,7 @@ export async function generateDistributionStrategy(
   script: string,
   model: string = "gemini-3.1-pro",
   worldLore?: string,
-  castDNA?: string
+  characterDNA?: string
 ) {
   const { REPURPOSE_MATRIX_PROMPT } = await import("../prompts/youtubeStrategyPrompts");
   const systemInstruction = REPURPOSE_MATRIX_PROMPT(script);
@@ -192,7 +192,7 @@ export async function generateDistributionStrategy(
   try {
     const text = await generateText(
       model,
-      `Develop a cross-platform distribution matrix for this script: ${script}`,
+      `Develop a cross-platform distribution matrix for this script: ${script}\n\nCRITICAL DIRECTIVE:\nEnsure the distribution matrix is highly accurate, logical, and deeply detailed. Provide the absolute best, most comprehensive distribution strategy possible.`,
       systemInstruction,
       0.85,
       2048,
@@ -200,7 +200,7 @@ export async function generateDistributionStrategy(
       40,
       180000,
       worldLore,
-      castDNA
+      characterDNA
     );
     return text || buildFallbackDistribution(script);
   } catch (error) {

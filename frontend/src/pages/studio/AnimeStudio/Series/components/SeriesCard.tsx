@@ -1,5 +1,4 @@
 import React from 'react';
-import { motion } from 'framer-motion';
 import { 
   Milestone, 
   Activity, 
@@ -26,6 +25,7 @@ export interface SeriesAssetMatrix {
 export interface SeriesEpisode {
   detailed_episode_spec: any;
   episode: string;
+  session?: number | string;
   session_name?: string;
   title: string;
   hook: string;
@@ -76,22 +76,14 @@ export const SeriesCard = React.memo<SeriesCardProps>(({
   const firstSceneName = ep.detailed_episode_spec?.acts?.[0]?.scenes?.[0]?.scene_name;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.98 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.5, delay: idx * 0.05 }}
-      className="group relative h-full"
-    >
+    <div className="group relative h-full">
+
       {/* Main Command Slate */}
       <div className="relative h-full flex flex-col overflow-hidden rounded-[2.5rem] bg-[#050505]/60 backdrop-blur-2xl border border-white/5 group-hover:border-studio/40 transition-all duration-700 shadow-2xl hover:shadow-studio/20">
         
         {/* Neural Sync Bar (Side Accent) */}
         <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-studio/40 via-studio/10 to-transparent group-hover:w-1.5 transition-all duration-500 overflow-hidden">
-           <motion.div 
-             animate={{ top: ["-100%", "100%"] }}
-             transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-             className="absolute w-full h-32 bg-gradient-to-b from-transparent via-studio to-transparent shadow-[0_0_10px_#06b6d4]"
-           />
+           <div className="absolute w-full h-32 bg-gradient-to-b from-transparent via-studio to-transparent shadow-[0_0_10px_#06b6d4]" />
         </div>
 
         {/* Diagnostic Background Effects */}
@@ -114,12 +106,7 @@ export const SeriesCard = React.memo<SeriesCardProps>(({
                 <div className="space-y-3">
                    <div className="flex items-center gap-4">
                       <div className="flex items-center gap-2 px-3 py-1 bg-studio/10 border border-studio/30 rounded-lg">
-                        <motion.div
-                          animate={{ opacity: [0.4, 1, 0.4] }}
-                          transition={{ duration: 2, repeat: Infinity }}
-                        >
-                          <Activity className="w-3 h-3 text-studio" />
-                        </motion.div>
+                            <Activity className="w-3 h-3 text-studio" />
                         <span className="text-[10px] font-black text-studio uppercase tracking-widest">Node Linked</span>
                       </div>
                       <span className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] flex items-center gap-2">
@@ -130,9 +117,9 @@ export const SeriesCard = React.memo<SeriesCardProps>(({
                      {ep.title}
                    </h3>
                    <div className="flex flex-wrap items-center gap-2 pt-1">
-                     <span className="text-[10px] font-black uppercase tracking-[0.25em] text-zinc-500">
-                       Session: {ep.session_name || 'Unassigned'}
-                     </span>
+                      <span className="text-[10px] font-black uppercase tracking-[0.25em] text-zinc-500">
+                        Session {ep.session || '1'}: {ep.session_name || 'Unassigned'}
+                      </span>
                      <span className="text-[10px] font-black uppercase tracking-[0.25em] text-zinc-700">|</span>
                      <span className="text-[10px] font-black uppercase tracking-[0.25em] text-zinc-500 truncate max-w-[16rem]">
                        Scene: {firstSceneName || 'Unassigned'}
@@ -203,15 +190,18 @@ export const SeriesCard = React.memo<SeriesCardProps>(({
                   {ep.theme_mapping?.core_theme || 'Locked'}
                 </p>
              </div>
-             <div className="p-5 bg-black/40 border border-white/5 rounded-3xl hover:border-studio/30 transition-all duration-500 group/badge shadow-sm">
-                <div className="flex items-center gap-3 mb-2">
-                   <Database className="w-4 h-4 text-studio/40 group-hover/badge:text-studio transition-colors" />
-                   <span className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.2em]">Scene Units</span>
-                </div>
-                <p className="text-xs font-black text-zinc-100 group-hover:text-white uppercase tracking-wide">
-                  {sceneCount} Production Units
-                </p>
-             </div>
+              <div 
+                onClick={() => onViewEpisode?.(ep.episode, 'scenes')}
+                className="p-5 bg-black/40 border border-white/5 rounded-3xl hover:border-studio/30 transition-all duration-500 group/badge shadow-sm cursor-pointer hover:bg-studio/[0.02]"
+              >
+                 <div className="flex items-center gap-3 mb-2">
+                    <Database className="w-4 h-4 text-studio/40 group-hover/badge:text-studio transition-colors" />
+                    <span className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.2em]">Scene Units</span>
+                 </div>
+                 <p className="text-xs font-black text-zinc-100 group-hover:text-white uppercase tracking-wide">
+                   {sceneCount} Production Units
+                 </p>
+              </div>
           </div>
         </div>
 
@@ -237,6 +227,6 @@ export const SeriesCard = React.memo<SeriesCardProps>(({
         <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.02),rgba(0,255,0,0.01),rgba(0,0,255,0.02))] z-0 pointer-events-none bg-[length:100%_2px,3px_100%] opacity-20" />
 
       </div>
-    </motion.div>
+    </div>
   );
 });

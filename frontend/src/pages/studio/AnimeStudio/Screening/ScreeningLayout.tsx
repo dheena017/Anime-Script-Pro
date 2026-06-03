@@ -116,12 +116,8 @@ export default function ScreeningLayout() {
               transition={{ duration: 0.2, ease: "easeOut" }}
               className="flex-1 flex flex-col"
             >
-              <Suspense fallback={<div className="flex-1 flex items-center justify-center p-20"><ScreeningLoadingPage tab={activeTab} progress={generationProgress} /></div>}>
-                {handlers.isRendering ? (
-                  <ScreeningLoadingPage tab={activeTab} progress={generationProgress} />
-                ) : (
-                  <Outlet context={{ activeTab }} />
-                )}
+              <Suspense fallback={<div className="flex-1 flex items-center justify-center p-20 text-xs font-black uppercase tracking-[0.2em] text-cyan-500/40 animate-pulse">Loading...</div>}>
+                <Outlet context={{ activeTab }} />
               </Suspense>
             </motion.div>
           </AnimatePresence>

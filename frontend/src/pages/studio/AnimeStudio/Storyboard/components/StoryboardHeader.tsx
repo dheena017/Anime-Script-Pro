@@ -1,14 +1,23 @@
-import { ImageIcon, ChevronRight, ChevronLeft, Cpu, Save, Sparkles, Square, Box } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import {
+  ImageIcon,
+  ChevronRight,
+  ChevronLeft,
+  Cpu,
+  Save,
+  Sparkles,
+  Square,
+  Box,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
-  TooltipTrigger
-} from '@/components/ui/tooltip';
-import { cn } from '@/lib/utils';
-import { storyboardStyles as s } from '../storyboardStyles';
-import { useGeneratorDispatch } from '@/hooks/useGenerator';
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
+import { storyboardStyles as s } from "../storyboardStyles";
+import { useGeneratorDispatch } from "@/hooks/useGenerator";
 
 interface StoryboardHeaderProps {
   isLiked?: boolean;
@@ -28,7 +37,7 @@ interface StoryboardHeaderProps {
   session: string;
   episode: string;
   content?: string | null;
-  status?: 'active' | 'draft' | 'empty';
+  status?: "active" | "draft" | "empty";
   progress?: number;
 }
 
@@ -42,8 +51,8 @@ export const StoryboardHeader: React.FC<StoryboardHeaderProps> = ({
   isGenerating,
   session,
   episode,
-  status = 'empty',
-  progress = 0
+  status = "empty",
+  progress = 0,
 }) => {
   const { stopGeneration } = useGeneratorDispatch();
 
@@ -52,7 +61,7 @@ export const StoryboardHeader: React.FC<StoryboardHeaderProps> = ({
       <div className={s.header.wrapper}>
         <div className={s.header.glow} />
         <div className={s.header.container}>
-          <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-8 z-10 w-full lg:w-auto">
+          <div className="flex flex-row flex-wrap sm:flex-nowrap items-center gap-4 sm:gap-8 z-10 w-full lg:w-auto">
             <div className="relative shrink-0">
               <div className={s.header.iconBox}>
                 <div className={s.header.iconGlow} />
@@ -61,40 +70,34 @@ export const StoryboardHeader: React.FC<StoryboardHeaderProps> = ({
               </div>
             </div>
 
-            <div className="flex flex-col items-center sm:items-start text-center sm:text-left">
-              <div className="flex items-center gap-3">
-                <h1 className={s.header.title}>
-                  Visual Storyboard
-                </h1>
-              </div>
-              <div className="flex items-center gap-2 mt-2">
-                <Cpu className="w-3.5 h-3.5 text-orange-300/50 shrink-0" />
-                <p className={s.header.subtitle}>S{session} // EP{episode} // AI Image Prompt Generator</p>
+            <div className="flex flex-row items-center sm:items-start text-center sm:text-left">
+              <div className="flex flex-col items-start gap-1">
+                <h1 className={s.header.title}>Storyboard Studio</h1>
+
               </div>
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-center gap-4 z-10 w-full lg:w-auto">
+          <div className="flex flex-row flex-wrap sm:flex-nowrap items-center gap-4 z-10 w-full lg:w-auto justify-center sm:justify-start">
             {onPrev && (
               <Tooltip>
-                <TooltipTrigger  >
-                  <Button
-                    className={s.header.actionButton}
-                    onClick={onPrev}
-                  >
+                <TooltipTrigger>
+                  <Button className={s.header.actionButton} onClick={onPrev}>
                     <ChevronLeft className="w-4 h-4 mr-2 group-hover/back:-translate-x-1 transition-transform" />
                     PREVIOUS
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="top">
-                  <p className="font-black uppercase tracking-widest text-xs">Return to Script Editor</p>
+                  <p className="font-black uppercase tracking-widest text-xs">
+                    Return to Script Editor
+                  </p>
                 </TooltipContent>
               </Tooltip>
             )}
 
-            <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
+            <div className="flex flex-row items-center gap-4 w-full sm:w-auto justify-center sm:justify-start">
               <Tooltip>
-                <TooltipTrigger  >
+                <TooltipTrigger>
                   {isGenerating ? (
                     <Button
                       className={s.header.actionButtonDanger}
@@ -116,25 +119,27 @@ export const StoryboardHeader: React.FC<StoryboardHeaderProps> = ({
                 </TooltipTrigger>
                 <TooltipContent side="top">
                   <p className="font-black uppercase tracking-widest text-xs">
-                    {isGenerating ? "Terminate Active Process" : "Synthesize AI Storyboard"}
+                    {isGenerating
+                      ? "Terminate Active Process"
+                      : "Synthesize AI Storyboard"}
                   </p>
                 </TooltipContent>
               </Tooltip>
 
               <Tooltip>
-                <TooltipTrigger  >
-                  <Button
-                    className={s.header.actionButton}
-                    onClick={onNext}
-                  >
+                <TooltipTrigger>
+                  <Button className={s.header.actionButton} onClick={onNext}>
                     <span className="relative z-10 flex items-center gap-2">
-                      NEXT <ChevronRight className="w-4 h-4 group-hover/next:translate-x-1 transition-transform" />
+                      NEXT{" "}
+                      <ChevronRight className="w-4 h-4 group-hover/next:translate-x-1 transition-transform" />
                     </span>
                     <div className="absolute inset-0 bg-orange-500/5 opacity-0 group-hover/next:opacity-100 transition-opacity duration-500 rounded-full" />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="top">
-                  <p className="font-black uppercase tracking-widest text-xs">Proceed to SEO Studio</p>
+                  <p className="font-black uppercase tracking-widest text-xs">
+                    Proceed to SEO Studio
+                  </p>
                 </TooltipContent>
               </Tooltip>
             </div>
@@ -143,9 +148,9 @@ export const StoryboardHeader: React.FC<StoryboardHeaderProps> = ({
 
         {isGenerating && progress > 0 && (
           <div className={s.progress.container}>
-            <div 
-              className={s.progress.fill} 
-              style={{ width: `${progress}%` }} 
+            <div
+              className={s.progress.fill}
+              style={{ width: `${progress}%` }}
             />
           </div>
         )}

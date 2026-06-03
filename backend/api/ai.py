@@ -19,6 +19,8 @@ Sections (in order):
 # ==============================================================================
 # 1. STANDARD LIBRARY IMPORTS
 # ==============================================================================
+from anthropic.types.beta import beta_request_document_block_param
+from anthropic.types.beta import beta_request_document_block_param
 from datetime import datetime
 import json
 import os
@@ -65,6 +67,15 @@ class ImageRequest(BaseModel):
     """Pydantic schema for backward-compatible image generation requests."""
     prompt: str
     model: str = "stable-image/generate/core"
+
+
+class VideoRequest(BaseModel):
+    """Pydantic schema for backward-compatible video generation requests."""
+    prompt: str
+    model: str = "veo-2.0-generate-001"
+    duration: int = 6
+    provider: Optional[str] = None
+    image_url: Optional[str] = None
 
 
 class NeuralHealthRegistry:
@@ -129,7 +140,7 @@ router = APIRouter(prefix="/api", tags=["AI Engine"])
 
 async def get_api_key(user_id: str, target_model: str) -> str:
     """Resolve the API key from user settings or environment based on provider and mode.
-
+    
     Dynamically classifies model tier (Free vs. Paid/Premium) and handles
     billing deduction or custom keys verification.
 
@@ -338,6 +349,137 @@ async def generate_image_endpoint(
         request=ImageGenerationRequest(model=request.model, prompt=request.prompt),
         user_id=user_id,
     )
+
+
+@router.post("/video")
+async def generate_video_endpoint(
+    request: VideoRequest,
+    user_id: str = Depends(get_auth_user_id),
+):
+    """Backward compatibility video endpoint used by the storyboard scene render UI.
+
+    Orchestrates live cloud rendering via Veo 3.1 Fast Generate on Google GenAI,
+    falling back to a premium local rendering compiler when cloud providers are unconfigured.
+    """
+    logger.info(
+        "VIDEO COMPAT: render requested by %s | model=%s | provider=%s | duration=%s | has_image=%s",
+        user_id,
+        request.model,
+        request.provider or "default",
+        request.duration,
+        bool(request.image_url),
+    )
+
+    # 1. Attempt Live Cloud Veo Generation
+    api_key = None
+    try:
+        api_key = await get_api_key(user_id, "veo-3.1-fast-generate-preview")
+    except Exception as key_err:
+        logger.info(f"VIDEO ENDPOINT: Could not resolve cloud API key for Veo: {key_err}. Falling back to local rendering.")
+
+    if api_key and ("veo" in request.model.lower() or request.provider in ("gemini", "google")):
+        logger.info("VIDEO ENDPOINT: Dispatching live cloud Veo generation via Google GenAI...")
+        try:
+            import asyncio
+            from google import genai
+            from google.genai import types
+            from pathlib import Path
+
+            client = genai.Client(
+                http_options={"api_version": "v1beta"},
+                api_key=api_key,
+            )
+
+            veo_model = request.model
+            # Map legacy or unset models to Veo 3.1 Fast Generate Preview
+            if not veo_model or veo_model in ("veo-2.0-generate-001", "default"):
+                veo_model = "veo-3.1-fast-generate-preview"
+
+            video_config = types.GenerateVideosConfig(
+                person_generation="dont_allow",
+                aspect_ratio="16:9",
+                number_of_videos=1,
+                duration_seconds=request.duration or 6,
+                resolution="720p",
+            )
+
+            # Offload blocking client request to background worker thread
+            def _start_operation():
+                return client.models.generate_videos(
+                    model=veo_model,
+                    source=types.VideoGenerationSource(
+                        prompt=request.prompt,
+                    ),
+                    config=video_config,
+                )
+
+            operation = await asyncio.to_thread(_start_operation)
+
+            # Async polling loop keeps server responsive
+            poll_count = 0
+            while not operation.done:
+                poll_count += 1
+                logger.info(f"VIDEO ENDPOINT: Veo video is generating. Polling again in 10s (attempt {poll_count})...")
+                await asyncio.sleep(10)
+                
+                def _get_operation():
+                    return client.operations.get(operation)
+                operation = await asyncio.to_thread(_get_operation)
+
+            result = operation.result
+            if not result or not result.generated_videos:
+                raise ValueError("Veo service returned empty generation results.")
+
+            generated_video = result.generated_videos[0]
+            
+            # Save downloaded video file into backend outputs folder
+            backend_root = Path(__file__).parent.resolve().parent
+            out_dir = backend_root / "outputs" / "video"
+            out_dir.mkdir(parents=True, exist_ok=True)
+            
+            filename = f"veo-compile-{int(time.time())}-{hash(request.prompt) % 10000}.mp4"
+            dest = out_dir / filename
+
+            def _download_video():
+                try:
+                    client.files.download(file=generated_video.video)
+                    generated_video.video.save(str(dest))
+                except Exception:
+                    # Fallback to direct bytes writing if custom save() fails
+                    content = client.files.download(file=generated_video.video)
+                    with open(dest, "wb") as f:
+                        f.write(content)
+
+            await asyncio.to_thread(_download_video)
+            
+            logger.success(f"VIDEO ENDPOINT: Live Veo video generated successfully: /outputs/video/{filename}")
+            return {
+                "success": True,
+                "videoUrl": f"/outputs/video/{filename}",
+                "message": f"Veo video generated successfully via model {veo_model}."
+            }
+        except Exception as cloud_err:
+            logger.warning(f"VIDEO ENDPOINT: Cloud Veo generation encountered an error: {cloud_err}. Failing over to local renderer...")
+
+    # 2. Local Rendering Fallback (Pillow + NumPy + MoviePy)
+    try:
+        from backend.utils.video_generator import compile_local_scene_video
+        video_url = await compile_local_scene_video(
+            prompt=request.prompt,
+            image_url=request.image_url,
+            duration=request.duration or 4
+        )
+        return {
+            "success": True,
+            "videoUrl": video_url,
+            "message": "Local neural video compiled successfully."
+        }
+    except Exception as e:
+        logger.error(f"LOCAL VIDEO: Local compilation failed: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Local neural video engine failed: {str(e)}"
+        )
 
 
 @router.post("/generate/stream")

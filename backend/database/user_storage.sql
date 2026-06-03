@@ -83,7 +83,7 @@ CREATE TABLE IF NOT EXISTS series (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
--- 3. World Lore & Cast Registry
+-- 3. World Lore & Character Registry
 CREATE TABLE IF NOT EXISTS world_lore (
     id SERIAL PRIMARY KEY,
     user_id VARCHAR(255) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -99,7 +99,7 @@ CREATE TABLE IF NOT EXISTS world_lore (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS cast_members (
+CREATE TABLE IF NOT EXISTS characters (
     id SERIAL PRIMARY KEY,
     series_id INTEGER REFERENCES series(id) ON DELETE SET NULL,
     project_id INTEGER REFERENCES projects(id) ON DELETE SET NULL,
@@ -123,8 +123,8 @@ CREATE TABLE IF NOT EXISTS character_relationships (
     id SERIAL PRIMARY KEY,
     project_id INTEGER REFERENCES projects(id) ON DELETE CASCADE,
     user_id VARCHAR(255) REFERENCES users(id) ON DELETE SET NULL,
-    source_character_id INTEGER REFERENCES cast_members(id) ON DELETE CASCADE,
-    target_character_id INTEGER REFERENCES cast_members(id) ON DELETE CASCADE,
+    source_character_id INTEGER REFERENCES characters(id) ON DELETE CASCADE,
+    target_character_id INTEGER REFERENCES characters(id) ON DELETE CASCADE,
     source_name VARCHAR(255),
     target_name VARCHAR(255),
     type VARCHAR(50) DEFAULT 'Ally',
@@ -220,9 +220,9 @@ CREATE TABLE IF NOT EXISTS project_content (
     id SERIAL PRIMARY KEY,
     user_id VARCHAR(255) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     project_id INTEGER REFERENCES projects(id) ON DELETE SET NULL,
-    cast_profiles TEXT,
-    cast_data JSONB DEFAULT '{}',
-    cast_relationships TEXT,
+    character_profiles TEXT,
+    character_data JSONB DEFAULT '{}',
+    character_relationships TEXT,
     scenes JSONB DEFAULT '[]',
     script_content TEXT,
     series_plan JSONB DEFAULT '[]',

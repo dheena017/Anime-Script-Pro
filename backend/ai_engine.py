@@ -3,7 +3,7 @@ AI Engine — Core Multi-Provider Inference Engine
 
 This module is the central neural execution layer for Anime Script Pro.
 It handles model resolution, client management, content generation (batch + streaming),
-and image synthesis across Gemini, Anthropic, OpenAI, Groq, and NVIDIA providers.
+and image synthesis across Gemini, Anthropic, OpenAI, Hugging Face, Groq, and NVIDIA providers.
 
 Sections (in order):
   1. Standard Library Imports
@@ -76,9 +76,20 @@ CLIENT_CACHE: dict = {
     "gemini":    {},  # api_key → genai.Client
     "anthropic": {},  # api_key → anthropic.AsyncAnthropic
     "openai":    {},  # api_key → openai.AsyncOpenAI
+    "huggingface": {},  # api_key → openai.AsyncOpenAI (router.huggingface.co)
     "groq":      {},  # api_key → groq.AsyncGroq
     "nvidia":    {},  # api_key → openai.AsyncOpenAI (NVIDIA NIM endpoint)
 }
+
+
+def is_huggingface_router_model(model_name: str) -> bool:
+    """Return True when the model name is an explicit Hugging Face router ID.
+
+    Hugging Face router model IDs are passed through to the router unchanged,
+    for example: deepseek-ai/DeepSeek-V4-Pro:novita.
+    """
+    normalized = model_name.strip()
+    return ":" in normalized and "/" in normalized and not normalized.lower().startswith(("meta/", "nvidia/"))
 
 # ==============================================================================
 # 5. MODEL RESOLUTION & ERROR CLASSIFICATION
@@ -104,21 +115,26 @@ def resolve_engine_model(requested_model: str) -> str:
     Raises:
         HTTPException(400): If an Imagen model is passed to a text endpoint.
     """
-    raw_model = requested_model.lower().strip().replace(" ", "-")
+    raw_model = requested_model.strip().replace(" ", "-")
+    raw_model_lower = raw_model.lower()
+
+    if is_huggingface_router_model(raw_model):
+        return raw_model
 
     # Step 1 — Downgrade futuristic/preview Gemini versions to stable 2.0 engines
-    match = re.match(r"^gemini-(\d+(?:\.\d+)?)-(.*)$", raw_model)
+    match = re.match(r"^gemini-(\d+(?:\.\d+)?)-(.*)$", raw_model_lower)
     if match:
         try:
             version = float(match.group(1))
             suffix = match.group(2)
-            if version >= 2.5:
+            # Only downgrade to 2.0 if the requested model is not explicitly registered in our stable registry
+            if version >= 2.5 and raw_model_lower not in STABLE_MODELS:
                 raw_model = f"gemini-2.0-{suffix.replace('-preview', '')}"
         except ValueError:
             pass
 
     # Step 2 — Guard against Imagen on text endpoints
-    if "imagen" in raw_model:
+    if "imagen" in raw_model_lower:
         raise HTTPException(
             status_code=400,
             detail=(
@@ -128,7 +144,7 @@ def resolve_engine_model(requested_model: str) -> str:
         )
 
     # Step 3 — Resolve via MODEL_MAP (supports double-hop aliases)
-    target_model = MODEL_MAP.get(raw_model, raw_model)
+    target_model = MODEL_MAP.get(raw_model.lower(), raw_model.lower())
     if target_model in MODEL_MAP:
         target_model = MODEL_MAP[target_model]
 
@@ -136,11 +152,17 @@ def resolve_engine_model(requested_model: str) -> str:
     if target_model not in STABLE_MODELS and not any(
         target_model.startswith(m) for m in STABLE_MODELS
     ):
-        logger.warning(
-            f"Resolved model '{target_model}' not in stable registry. "
-            f"Falling back to {DEFAULT_SCRIPT_MODEL}."
-        )
-        target_model = DEFAULT_SCRIPT_MODEL
+        if is_huggingface_router_model(raw_model):
+            logger.info(
+                f"AI ENGINE: Preserving Hugging Face router model '{raw_model}' outside the stable registry."
+            )
+            target_model = raw_model
+        else:
+            logger.warning(
+                f"Resolved model '{target_model}' not in stable registry. "
+                f"Falling back to {DEFAULT_SCRIPT_MODEL}."
+            )
+            target_model = DEFAULT_SCRIPT_MODEL
 
     return target_model.replace("models/", "")
 
@@ -451,6 +473,52 @@ class AIEngine:
 
         return CLIENT_CACHE["openai"][api_key]
 
+    async def _get_huggingface_client(self, user_id: Optional[str] = None):
+        """Retrieve an OpenAI-compatible Hugging Face router client.
+
+        Resolves the API key from user settings first, then falls back
+        to HF_API_TOKEN and HF_TOKEN environment variables.
+
+        Args:
+            user_id: Optional user ID for per-user key resolution.
+
+        Returns:
+            An authenticated openai.AsyncOpenAI instance pointed at
+            https://router.huggingface.co/v1 (cached by API key).
+
+        Raises:
+            ImportError: If the openai package is not installed.
+            ValueError:  If no Hugging Face API key is found.
+        """
+        if not openai:
+            raise ImportError("OpenAI library not installed. Run: pip install openai")
+
+        api_key = None
+        if user_id:
+            try:
+                async with async_session() as session:
+                    statement = select(UserSettings).where(UserSettings.user_id == user_id)
+                    res = await session.execute(statement)
+                    settings = res.scalars().first()
+                    if settings and settings.ai_models:
+                        api_key = settings.ai_models.get("hf_api_token") or settings.ai_models.get("huggingface_api_key")
+            except Exception as e:
+                logger.warning(f"AI ENGINE: Failed to fetch Hugging Face key for {user_id}: {e}")
+
+        if not api_key:
+            api_key = os.getenv("HF_API_TOKEN") or os.getenv("HF_TOKEN")
+
+        if not api_key:
+            raise ValueError("No Hugging Face API key found in settings or environment.")
+
+        if api_key not in CLIENT_CACHE["huggingface"]:
+            CLIENT_CACHE["huggingface"][api_key] = openai.AsyncOpenAI(
+                api_key=api_key,
+                base_url="https://router.huggingface.co/v1",
+            )
+
+        return CLIENT_CACHE["huggingface"][api_key]
+
     async def _get_groq_client(self, user_id: Optional[str] = None):
         """Retrieve a Groq AsyncGroq client for LLaMA, Mixtral, and DeepSeek models.
 
@@ -544,6 +612,10 @@ class AIEngine:
         prompt: str,
         system_instruction: Optional[str] = None,
         user_id: Optional[str] = None,
+        temperature: Optional[float] = None,
+        max_tokens: Optional[int] = None,
+        top_p: Optional[float] = None,
+        top_k: Optional[int] = None,
     ) -> str:
         """Run a full (non-streaming) inference and return the complete text response.
 
@@ -564,6 +636,10 @@ class AIEngine:
             prompt:             The user message / generation instruction.
             system_instruction: Optional system-level prompt context.
             user_id:            Optional user ID for per-user API key resolution.
+            temperature:        Optional temperature setting.
+            max_tokens:         Optional max output tokens.
+            top_p:              Optional top_p constraint.
+            top_k:              Optional top_k constraint.
 
         Returns:
             The complete generated text string from the model.
@@ -581,7 +657,8 @@ class AIEngine:
             client = await self._get_anthropic_client(user_id)
             response = await client.messages.create(
                 model=self.model_name,
-                max_tokens=4096,
+                max_tokens=max_tokens or 4096,
+                temperature=temperature if temperature is not None else 0.85,
                 system=system_instruction or "",
                 messages=[{"role": "user", "content": prompt}],
             )
@@ -594,10 +671,16 @@ class AIEngine:
             if system_instruction:
                 messages.append({"role": "system", "content": system_instruction})
             messages.append({"role": "user", "content": prompt})
-            response = await client.chat.completions.create(
-                model=self.model_name,
-                messages=messages,
-            )
+            
+            payload_args = {"model": self.model_name, "messages": messages}
+            if temperature is not None:
+                payload_args["temperature"] = temperature
+            if max_tokens is not None:
+                payload_args["max_tokens"] = max_tokens
+            if top_p is not None:
+                payload_args["top_p"] = top_p
+                
+            response = await client.chat.completions.create(**payload_args)
             text = response.choices[0].message.content
 
         # ── NVIDIA NIM (Nemotron / LLaMA via meta/) ─────────────────────────
@@ -611,11 +694,17 @@ class AIEngine:
             if system_instruction:
                 messages.append({"role": "system", "content": system_instruction})
             messages.append({"role": "user", "content": prompt})
-            response = await client.chat.completions.create(
-                model=self.model_name,
-                messages=messages,
-                response_format={"type": "json_object"} if "json" in prompt.lower() else None,
-            )
+            
+            payload_args = {"model": self.model_name, "messages": messages}
+            if temperature is not None:
+                payload_args["temperature"] = temperature
+            if max_tokens is not None:
+                payload_args["max_tokens"] = max_tokens
+            if top_p is not None:
+                payload_args["top_p"] = top_p
+            payload_args["response_format"] = {"type": "json_object"} if "json" in prompt.lower() else None
+            
+            response = await client.chat.completions.create(**payload_args)
             text = response.choices[0].message.content
 
         # ── Groq (LLaMA / Mixtral / DeepSeek) ──────────────────────────────
@@ -628,19 +717,56 @@ class AIEngine:
             if system_instruction:
                 messages.append({"role": "system", "content": system_instruction})
             messages.append({"role": "user", "content": prompt})
-            response = await client.chat.completions.create(
-                model=self.model_name,
-                messages=messages,
-            )
+            
+            payload_args = {"model": self.model_name, "messages": messages}
+            if temperature is not None:
+                payload_args["temperature"] = temperature
+            if max_tokens is not None:
+                payload_args["max_tokens"] = max_tokens
+            if top_p is not None:
+                payload_args["top_p"] = top_p
+                
+            response = await client.chat.completions.create(**payload_args)
+            text = response.choices[0].message.content
+
+        # ── Hugging Face Router (OpenAI-compatible) ───────────────────────
+        elif is_huggingface_router_model(self.model_name):
+            client = await self._get_huggingface_client(user_id)
+            messages = []
+            if system_instruction:
+                messages.append({"role": "system", "content": system_instruction})
+            messages.append({"role": "user", "content": prompt})
+
+            payload_args = {"model": self.model_name, "messages": messages}
+            if temperature is not None:
+                payload_args["temperature"] = temperature
+            if max_tokens is not None:
+                payload_args["max_tokens"] = max_tokens
+            if top_p is not None:
+                payload_args["top_p"] = top_p
+
+            response = await client.chat.completions.create(**payload_args)
             text = response.choices[0].message.content
 
         # ── Google Gemini (default, with auto-retry) ────────────────────────
         else:
             client = await self._get_gemini_client(user_id)
-            config = types.GenerateContentConfig(
-                system_instruction=system_instruction,
-                max_output_tokens=8192,
-            ) if system_instruction else types.GenerateContentConfig(max_output_tokens=8192)
+            
+            config_args = {}
+            if system_instruction:
+                config_args["system_instruction"] = system_instruction
+            if temperature is not None:
+                config_args["temperature"] = temperature
+            if max_tokens is not None:
+                config_args["max_output_tokens"] = max_tokens
+            else:
+                config_args["max_output_tokens"] = 8192
+            if top_p is not None:
+                config_args["top_p"] = top_p
+            if top_k is not None:
+                config_args["top_k"] = top_k
+                
+            config = types.GenerateContentConfig(**config_args)
 
             response = None
             last_error = None
@@ -648,18 +774,23 @@ class AIEngine:
 
             for attempt in range(1, max_attempts + 1):
                 try:
-                    response = await client.aio.models.generate_content(
-                        model=self.model_name,
-                        contents=prompt,
-                        config=config,
+                    response = await asyncio.wait_for(
+                        client.aio.models.generate_content(
+                            model=self.model_name,
+                            contents=prompt,
+                            config=config,
+                        ),
+                        timeout=180.0  # Safe 180-second limit to accommodate dense script and cast synthesis
                     )
                     break
                 except Exception as exc:
                     last_error = exc
-                    if attempt < max_attempts and is_retryable_gemini_error(exc):
-                        delay_seconds = 2 ** (attempt - 1)
+                    # Timeout is treated as a transient connection issue to trigger failover/retry
+                    is_timeout = isinstance(exc, asyncio.TimeoutError)
+                    if attempt < max_attempts and (is_timeout or is_retryable_gemini_error(exc)):
+                        delay_seconds = 1.0  # Reduced sleep delay for lightning-fast recovery
                         logger.warning(
-                            f"AI ENGINE: Gemini transient error on attempt {attempt}/{max_attempts}; "
+                            f"AI ENGINE: Gemini error or timeout on attempt {attempt}/{max_attempts}; "
                             f"retrying in {delay_seconds}s: {exc}"
                         )
                         await asyncio.sleep(delay_seconds)
@@ -671,8 +802,10 @@ class AIEngine:
 
             text = response.text
 
-            # Auto-repair truncated JSON responses
-            if text.strip().startswith("{") and not text.strip().endswith("}"):
+            # Auto-repair truncated JSON responses (handles both objects and arrays)
+            starts_with_json = text.strip().startswith(("{", "["))
+            ends_with_json = text.strip().endswith("}") if text.strip().startswith("{") else text.strip().endswith("]")
+            if starts_with_json and not ends_with_json:
                 logger.warning("AI ENGINE: Detected truncated JSON. Attempting neural repair...")
                 text = self.repair_truncated_json(text)
 
@@ -685,6 +818,10 @@ class AIEngine:
         prompt: str,
         system_instruction: Optional[str] = None,
         user_id: Optional[str] = None,
+        temperature: Optional[float] = None,
+        max_tokens: Optional[int] = None,
+        top_p: Optional[float] = None,
+        top_k: Optional[int] = None,
     ) -> AsyncGenerator[str, None]:
         """Stream generated text in real-time, yielding chunks as they arrive.
 
@@ -697,6 +834,10 @@ class AIEngine:
             prompt:             The user message / generation instruction.
             system_instruction: Optional system-level prompt context.
             user_id:            Optional user ID for per-user API key resolution.
+            temperature:        Optional temperature setting.
+            max_tokens:         Optional max output tokens.
+            top_p:              Optional top_p constraint.
+            top_k:              Optional top_k constraint.
 
         Yields:
             str: Successive text chunks from the model as they are produced.
@@ -708,7 +849,8 @@ class AIEngine:
             client = await self._get_anthropic_client(user_id)
             async with client.messages.stream(
                 model=self.model_name,
-                max_tokens=4096,
+                max_tokens=max_tokens or 4096,
+                temperature=temperature if temperature is not None else 0.85,
                 system=system_instruction or "",
                 messages=[{"role": "user", "content": prompt}],
             ) as stream:
@@ -722,11 +864,20 @@ class AIEngine:
             if system_instruction:
                 messages.append({"role": "system", "content": system_instruction})
             messages.append({"role": "user", "content": prompt})
-            stream = await client.chat.completions.create(
-                model=self.model_name,
-                messages=messages,
-                stream=True,
-            )
+            
+            payload_args = {
+                "model": self.model_name,
+                "messages": messages,
+                "stream": True,
+            }
+            if temperature is not None:
+                payload_args["temperature"] = temperature
+            if max_tokens is not None:
+                payload_args["max_tokens"] = max_tokens
+            if top_p is not None:
+                payload_args["top_p"] = top_p
+                
+            stream = await client.chat.completions.create(**payload_args)
             async for chunk in stream:
                 if chunk.choices[0].delta.content:
                     yield chunk.choices[0].delta.content
@@ -742,11 +893,20 @@ class AIEngine:
             if system_instruction:
                 messages.append({"role": "system", "content": system_instruction})
             messages.append({"role": "user", "content": prompt})
-            stream = await client.chat.completions.create(
-                model=self.model_name,
-                messages=messages,
-                stream=True,
-            )
+            
+            payload_args = {
+                "model": self.model_name,
+                "messages": messages,
+                "stream": True,
+            }
+            if temperature is not None:
+                payload_args["temperature"] = temperature
+            if max_tokens is not None:
+                payload_args["max_tokens"] = max_tokens
+            if top_p is not None:
+                payload_args["top_p"] = top_p
+                
+            stream = await client.chat.completions.create(**payload_args)
             async for chunk in stream:
                 if chunk.choices[0].delta.content:
                     yield chunk.choices[0].delta.content
@@ -761,11 +921,45 @@ class AIEngine:
             if system_instruction:
                 messages.append({"role": "system", "content": system_instruction})
             messages.append({"role": "user", "content": prompt})
-            stream = await client.chat.completions.create(
-                model=self.model_name,
-                messages=messages,
-                stream=True,
-            )
+            
+            payload_args = {
+                "model": self.model_name,
+                "messages": messages,
+                "stream": True,
+            }
+            if temperature is not None:
+                payload_args["temperature"] = temperature
+            if max_tokens is not None:
+                payload_args["max_tokens"] = max_tokens
+            if top_p is not None:
+                payload_args["top_p"] = top_p
+                
+            stream = await client.chat.completions.create(**payload_args)
+            async for chunk in stream:
+                if chunk.choices[0].delta.content:
+                    yield chunk.choices[0].delta.content
+
+        # ── Hugging Face Router (OpenAI-compatible) ───────────────────────
+        elif is_huggingface_router_model(self.model_name):
+            client = await self._get_huggingface_client(user_id)
+            messages = []
+            if system_instruction:
+                messages.append({"role": "system", "content": system_instruction})
+            messages.append({"role": "user", "content": prompt})
+
+            payload_args = {
+                "model": self.model_name,
+                "messages": messages,
+                "stream": True,
+            }
+            if temperature is not None:
+                payload_args["temperature"] = temperature
+            if max_tokens is not None:
+                payload_args["max_tokens"] = max_tokens
+            if top_p is not None:
+                payload_args["top_p"] = top_p
+
+            stream = await client.chat.completions.create(**payload_args)
             async for chunk in stream:
                 if chunk.choices[0].delta.content:
                     yield chunk.choices[0].delta.content
@@ -773,11 +967,22 @@ class AIEngine:
         # ── Google Gemini (default) ─────────────────────────────────────────
         else:
             client = await self._get_gemini_client(user_id)
-            config = (
-                types.GenerateContentConfig(system_instruction=system_instruction)
-                if system_instruction
-                else types.GenerateContentConfig(max_output_tokens=8192)
-            )
+            
+            config_args = {}
+            if system_instruction:
+                config_args["system_instruction"] = system_instruction
+            if temperature is not None:
+                config_args["temperature"] = temperature
+            if max_tokens is not None:
+                config_args["max_output_tokens"] = max_tokens
+            else:
+                config_args["max_output_tokens"] = 8192
+            if top_p is not None:
+                config_args["top_p"] = top_p
+            if top_k is not None:
+                config_args["top_k"] = top_k
+                
+            config = types.GenerateContentConfig(**config_args)
             async for chunk in await client.aio.models.generate_content_stream(
                 model=self.model_name,
                 contents=prompt,
@@ -833,7 +1038,8 @@ class AIEngine:
                     last_separator_index = i
 
         # If mid-string or mid-key/value, backtrack to last stable separator
-        if in_string or (s and s[-1] not in ("}", "]", " ")):
+        is_mid_token = s and (s[-1].isalpha() or s[-1] in (':', '-'))
+        if in_string or is_mid_token:
             if last_separator_index != -1:
                 logger.debug(f"AI ENGINE: JSON Repair - Backtracking to index {last_separator_index}")
                 s = s[:last_separator_index + 1]
@@ -865,6 +1071,10 @@ async def generate_ai_text(
     prompt: str,
     system_instruction: Optional[str] = None,
     user_id: Optional[str] = None,
+    temperature: Optional[float] = None,
+    max_tokens: Optional[int] = None,
+    top_p: Optional[float] = None,
+    top_k: Optional[int] = None,
 ) -> str:
     """Convenience wrapper — create a per-request AIEngine and run a single inference.
 
@@ -876,12 +1086,24 @@ async def generate_ai_text(
         prompt:             The user message / generation instruction.
         system_instruction: Optional system-level prompt context.
         user_id:            Optional user ID for per-user API key resolution.
+        temperature:        Optional temperature setting.
+        max_tokens:         Optional max output tokens.
+        top_p:              Optional top_p constraint.
+        top_k:              Optional top_k constraint.
 
     Returns:
         The complete generated text string.
     """
     engine = AIEngine(model_name=model)
-    return await engine.generate_text(prompt, system_instruction, user_id)
+    return await engine.generate_text(
+        prompt,
+        system_instruction,
+        user_id,
+        temperature=temperature,
+        max_tokens=max_tokens,
+        top_p=top_p,
+        top_k=top_k,
+    )
 
 
 async def stream_ai_text(
@@ -889,6 +1111,10 @@ async def stream_ai_text(
     prompt: str,
     system_instruction: Optional[str] = None,
     user_id: Optional[str] = None,
+    temperature: Optional[float] = None,
+    max_tokens: Optional[int] = None,
+    top_p: Optional[float] = None,
+    top_k: Optional[int] = None,
 ) -> AsyncGenerator[str, None]:
     """Convenience wrapper — create a per-request AIEngine and stream the inference.
 
@@ -900,10 +1126,22 @@ async def stream_ai_text(
         prompt:             The user message / generation instruction.
         system_instruction: Optional system-level prompt context.
         user_id:            Optional user ID for per-user API key resolution.
+        temperature:        Optional temperature setting.
+        max_tokens:         Optional max output tokens.
+        top_p:              Optional top_p constraint.
+        top_k:              Optional top_k constraint.
 
     Yields:
         str: Successive text chunks from the model as they are produced.
     """
     engine = AIEngine(model_name=model)
-    async for chunk in engine.stream_text(prompt, system_instruction, user_id):
+    async for chunk in engine.stream_text(
+        prompt,
+        system_instruction,
+        user_id,
+        temperature=temperature,
+        max_tokens=max_tokens,
+        top_p=top_p,
+        top_k=top_k,
+    ):
         yield chunk

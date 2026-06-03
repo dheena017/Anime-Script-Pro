@@ -18,7 +18,7 @@ export function StudioIntelligenceHUD() {
   const { 
     isIntelligenceOpen: isOpen,
     generatedWorld, generatedWorldLore, generatedWorldPowers, generatedWorldFactions, generatedWorldArchitecture, generatedWorldAtlas, generatedWorldCulture, generatedWorldSystems,
-    castList, generatedSeriesPlan, generatedScript, prompt, selectedModel,
+    characterList, generatedSeriesPlan, generatedScript, prompt, selectedModel,
     isGeneratingWorld, isGeneratingCharacters, isGeneratingSeries,
     worldGenerationLatency, temperature, maxTokens, topP, topK, isSaving,
     activeModelAttempt, fallbackHistory, tone, audience, genre, artStyle,
@@ -28,7 +28,7 @@ export function StudioIntelligenceHUD() {
     isGeneratingGrowthStrategy, isGeneratingDistribution, seoMetadata, generatedGrowthStrategy, generatedDistributionPlan,
     history,
     isContinuingScript, isGeneratingMetadata, isGeneratingImagePrompts, isGeneratingAltText,
-    castDNA, castDynamics, castIntegrity, characterRelationships, isAnalyzingCast,
+    characterDNA, characterDynamics, characterIntegrity, characterRelationships, isAnalyzingCharacters,
     worldGenerationStatus, worldGenerationError
   } = useGeneratorState();
 
@@ -73,14 +73,14 @@ export function StudioIntelligenceHUD() {
     const blobs = [
       generatedWorld, generatedWorldLore, generatedWorldPowers, generatedWorldFactions,
       generatedWorldArchitecture, generatedWorldAtlas, generatedWorldCulture, generatedWorldSystems,
-      generatedScript, JSON.stringify(castList), JSON.stringify(generatedSeriesPlan)
+      generatedScript, JSON.stringify(characterList), JSON.stringify(generatedSeriesPlan)
     ];
     const totalBytes = blobs.reduce((acc, b) => acc + (b?.length || 0), 0);
     return (totalBytes / 1024).toFixed(1);
   }, [
     generatedWorld, generatedWorldLore, generatedWorldPowers, generatedWorldFactions,
     generatedWorldArchitecture, generatedWorldAtlas, generatedWorldCulture, generatedWorldSystems,
-    generatedScript, castList, generatedSeriesPlan
+    generatedScript, characterList, generatedSeriesPlan
   ]);
 
   const tokenLoadEstimate = useMemo(() => {
@@ -90,11 +90,11 @@ export function StudioIntelligenceHUD() {
 
   const moduleMatrix = [
     { label: 'World Lore', icon: Globe, status: isGeneratingWorld ? 'warning' : (generatedWorld ? 'success' : 'info') },
-    { label: 'Cast DNA', icon: Users, status: isGeneratingCharacters ? 'warning' : (castList?.length ? 'success' : 'info') },
+    { label: 'Cast DNA', icon: Users, status: isGeneratingCharacters ? 'warning' : (characterList?.length ? 'success' : 'info') },
     { label: 'Series Plan', icon: Database, status: isGeneratingSeries ? 'warning' : (generatedSeriesPlan?.length ? 'success' : 'info') },
     { label: 'Script Sync', icon: MessageSquare, status: generatedScript ? 'success' : 'info' },
     { label: 'Storyboard', icon: Film, status: (storyboardScenes && storyboardScenes.length > 0) ? 'success' : 'info' },
-    { label: 'VFX & Audio', icon: Sparkles, status: (generatedSeriesPlan?.some((ep: any) => ep.detailed_episode_spec?.acts?.some((act: any) => act.scenes?.some((s: any) => s.production_stats?.vfx_heavy)))) ? 'success' : 'info' },
+    { label: 'VFX & Audio', icon: Sparkles, status: (generatedSeriesPlan && Array.isArray(generatedSeriesPlan) && generatedSeriesPlan.some((ep: any) => ep.detailed_episode_spec && Array.isArray(ep.detailed_episode_spec.acts) && ep.detailed_episode_spec.acts.some((act: any) => Array.isArray(act.scenes) && act.scenes.some((s: any) => s.production_stats?.vfx_heavy)))) ? 'success' : 'info' },
   ];
 
   const synthesisThreads = [
@@ -123,7 +123,7 @@ export function StudioIntelligenceHUD() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setIsIntelligenceOpen(false)}
-            className="absolute inset-0 bg-black/70 backdrop-blur-md z-[90]"
+            className="absolute inset-0 bg-black/70 backdrop-blur-md z-[390]"
           />
 
           <motion.div
@@ -132,7 +132,7 @@ export function StudioIntelligenceHUD() {
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="absolute right-0 top-0 bottom-0 w-[500px] bg-black/95 backdrop-blur-3xl border-l border-white/10 shadow-[-60px_0_120px_rgba(0,0,0,0.95)] flex flex-col z-[100] overflow-hidden"
+            className="absolute right-0 top-0 bottom-0 w-[500px] bg-black/95 backdrop-blur-3xl border-l border-white/10 shadow-[-60px_0_120px_rgba(0,0,0,0.95)] flex flex-col z-[400] overflow-hidden"
           >
             {/* Ambient Background */}
             <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg%20viewBox=%220%200%20200%20200%22%20xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter%20id=%22noiseFilter%22%3E%3CfeTurbulence%20type=%22fractalNoise%22%20baseFrequency=%220.65%22%20numOctaves=%223%22%20stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect%20width=%22100%25%22%20height=%22100%25%22%20filter=%22url(%23noiseFilter)%22/%3E%3C/svg%3E')] opacity-40 mix-blend-overlay pointer-events-none" />
@@ -150,7 +150,7 @@ export function StudioIntelligenceHUD() {
                     <div className="absolute -inset-2 bg-studio/20 blur-xl rounded-2xl animate-pulse" />
                   </div>
                   <div className="flex flex-col gap-1">
-                    <h3 className="text-[16px] font-black uppercase tracking-[0.5em] text-white text-shadow-glow">Aetheria Nexus v2.{generatedSeriesPlan?.length || 0}.{castList?.length || 0}</h3>
+                    <h3 className="text-[16px] font-black uppercase tracking-[0.5em] text-white text-shadow-glow">Aetheria Nexus v2.{generatedSeriesPlan?.length || 0}.{characterList?.length || 0}</h3>
                     <div className="flex items-center gap-3">
                       <div className="flex items-center gap-1.5">
                         <div className="w-1.5 h-1.5 rounded-full bg-studio animate-ping shadow-[0_0_12px_rgba(6,182,212,1)]" />
@@ -240,23 +240,23 @@ export function StudioIntelligenceHUD() {
                 <div className="grid grid-cols-5 gap-2">
                   <div className="p-3 rounded-lg bg-zinc-900/40 border border-white/5 flex flex-col gap-1 items-center justify-center">
                     <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">Sessions</span>
-                    <span className="text-[10px] font-black text-white">{session || '001'}</span>
+                    <span className="text-[10px] font-black text-white">{(session && session !== '') ? session : '0'}</span>
                   </div>
                   <div className="p-3 rounded-lg bg-zinc-900/40 border border-white/5 flex flex-col gap-1 items-center justify-center">
                     <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">Episodes</span>
-                    <span className="text-[10px] font-black text-white">{numEpisodes || 'N/A'}</span>
+                    <span className="text-[10px] font-black text-white">{(numEpisodes || numEpisodes === 0) ? String(numEpisodes) : '0'}</span>
                   </div>
                   <div className="p-3 rounded-lg bg-zinc-900/40 border border-white/5 flex flex-col gap-1 items-center justify-center">
                     <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">Scenes/Ep</span>
-                    <span className="text-[10px] font-black text-white">{numScenes || '18'}</span>
+                    <span className="text-[10px] font-black text-white">{(numScenes && numScenes !== '') ? numScenes : '0'}</span>
                   </div>
                   <div className="p-3 rounded-lg bg-zinc-900/40 border border-white/5 flex flex-col gap-1 items-center justify-center">
                     <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">Cast Target</span>
-                    <span className="text-[10px] font-black text-white">{numCharacters || 'N/A'}</span>
+                    <span className="text-[10px] font-black text-white">{(numCharacters || numCharacters === 0) ? String(numCharacters) : '0'}</span>
                   </div>
                   <div className="p-3 rounded-lg bg-zinc-900/40 border border-white/5 flex flex-col gap-1 items-center justify-center">
                     <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">Type</span>
-                    <span className="text-[10px] font-black text-white truncate max-w-full uppercase">{contentType || 'ANIME'}</span>
+                    <span className="text-[10px] font-black text-white truncate max-w-full uppercase">{contentType ? String(contentType).toUpperCase() : '0'}</span>
                   </div>
                 </div>
               </div>
@@ -367,24 +367,24 @@ export function StudioIntelligenceHUD() {
                     <Users className="w-3.5 h-3.5 text-zinc-500" />
                     <span className="text-xs font-black uppercase tracking-[0.3em] text-zinc-500">Cast Infrastructure</span>
                   </div>
-                  {isAnalyzingCast && <div className="w-1.5 h-1.5 rounded-full bg-studio animate-ping" />}
+                  {isAnalyzingCharacters && <div className="w-1.5 h-1.5 rounded-full bg-studio animate-ping" />}
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                  <div className={cn("px-4 py-3 rounded-xl border flex flex-col gap-1 transition-colors", castList?.length > 0 ? "bg-studio/10 border-studio/30" : "bg-black border-white/5")}>
+                  <div className={cn("px-4 py-3 rounded-xl border flex flex-col gap-1 transition-colors", characterList?.length > 0 ? "bg-studio/10 border-studio/30" : "bg-black border-white/5")}>
                      <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">DNA Registry</span>
-                     <span className={cn("text-[10px] font-black uppercase tracking-widest", castList?.length > 0 ? "text-studio" : "text-zinc-600")}>{castList?.length > 0 ? `${castList.length}_ENTITIES` : 'Empty'}</span>
+                     <span className={cn("text-[10px] font-black uppercase tracking-widest", characterList?.length > 0 ? "text-studio" : "text-zinc-600")}>{characterList?.length > 0 ? `${characterList.length}_ENTITIES` : 'Empty'}</span>
                   </div>
-                  <div className={cn("px-4 py-3 rounded-xl border flex flex-col gap-1 transition-colors", castDNA ? "bg-studio/10 border-studio/30" : "bg-black border-white/5")}>
+                  <div className={cn("px-4 py-3 rounded-xl border flex flex-col gap-1 transition-colors", characterDNA ? "bg-studio/10 border-studio/30" : "bg-black border-white/5")}>
                      <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">DNA Profiles</span>
-                     <span className={cn("text-[10px] font-black uppercase tracking-widest", castDNA ? "text-studio" : "text-zinc-600")}>{castDNA ? 'Materialized' : 'Empty'}</span>
+                     <span className={cn("text-[10px] font-black uppercase tracking-widest", characterDNA ? "text-studio" : "text-zinc-600")}>{characterDNA ? 'Materialized' : 'Empty'}</span>
                   </div>
-                  <div className={cn("px-4 py-3 rounded-xl border flex flex-col gap-1 transition-colors", castDynamics ? "bg-studio/10 border-studio/30" : "bg-black border-white/5")}>
+                  <div className={cn("px-4 py-3 rounded-xl border flex flex-col gap-1 transition-colors", characterDynamics ? "bg-studio/10 border-studio/30" : "bg-black border-white/5")}>
                      <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">Psych Dynamics</span>
-                     <span className={cn("text-[10px] font-black uppercase tracking-widest", castDynamics ? "text-studio" : "text-zinc-600")}>{castDynamics ? 'Synced' : 'Empty'}</span>
+                     <span className={cn("text-[10px] font-black uppercase tracking-widest", characterDynamics ? "text-studio" : "text-zinc-600")}>{characterDynamics ? 'Synced' : 'Empty'}</span>
                   </div>
-                  <div className={cn("px-4 py-3 rounded-xl border flex flex-col gap-1 transition-colors", castIntegrity ? "bg-studio/10 border-studio/30" : "bg-black border-white/5")}>
+                  <div className={cn("px-4 py-3 rounded-xl border flex flex-col gap-1 transition-colors", characterIntegrity ? "bg-studio/10 border-studio/30" : "bg-black border-white/5")}>
                      <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">Lore Integrity</span>
-                     <span className={cn("text-[10px] font-black uppercase tracking-widest", castIntegrity ? "text-studio" : "text-zinc-600")}>{castIntegrity ? 'Verified' : 'Unverified'}</span>
+                     <span className={cn("text-[10px] font-black uppercase tracking-widest", characterIntegrity ? "text-studio" : "text-zinc-600")}>{characterIntegrity ? 'Verified' : 'Unverified'}</span>
                   </div>
                   <div className={cn("px-4 py-3 rounded-xl border flex flex-col gap-1 transition-colors", characterRelationships && characterRelationships !== '[]' && characterRelationships !== '{}' ? "bg-studio/10 border-studio/30" : "bg-black border-white/5")}>
                      <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">Social Web</span>

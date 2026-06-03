@@ -22,13 +22,12 @@ from typing import Optional
 # ==============================================================================
 from fastapi import Depends, HTTPException, Request
 import httpx
-from jose import jwt
 from loguru import logger
 
 # ==============================================================================
 # 3. LOCAL IMPORTS
 # ==============================================================================
-from backend.utils.auth_utils import ALGORITHM, SECRET_KEY
+from backend.utils.auth_utils import decode_and_verify_token
 
 # ==============================================================================
 # 4. CORE AUTHORIZATION DEPENDENCIES
@@ -51,35 +50,43 @@ async def get_auth_user_id(request: Request) -> str:
     """
     auth_header = request.headers.get("Authorization")
     
+    masked_header = auth_header
+    if auth_header and auth_header.startswith("Bearer "):
+        token_parts = auth_header.split(" ")
+        if len(token_parts) == 2 and len(token_parts[1]) > 20:
+            masked_header = f"Bearer {token_parts[1][:10]}...{token_parts[1][-10:]}"
+            
     try:
-        logger.debug(f"AUTH DEP: Authorization={auth_header} x-bypass-auth={request.headers.get('x-bypass-auth')}")
+        logger.opt(colors=True).debug(
+            f"<magenta>[AUTH DEP]</magenta> Authorization: <yellow>{masked_header}</yellow> | x-bypass-auth: <cyan>{request.headers.get('x-bypass-auth')}</cyan>"
+        )
     except Exception:
         pass
     
     # Handle development/bypass mode
     # Allow bypass via env or proxy header during development
     if os.getenv("BYPASS_AUTH") == "true" or request.headers.get('x-bypass-auth') == 'true':
-        logger.debug("AUTH DEP: bypass active via env/header")
+        logger.opt(colors=True).debug("<magenta>[AUTH DEP]</magenta> <cyan><b>Bypass Auth Active</b></cyan> via env/header")
         return "local-dev-architect-id"
         
     if not auth_header:
         if os.getenv("ENV") == "development":
-            logger.debug("AUTH DEP: Missing header, defaulting to dev user ID.")
+            logger.opt(colors=True).debug("<magenta>[AUTH DEP]</magenta> Missing header, defaulting to dev ID: <yellow>local-dev-architect-id</yellow>")
             return "local-dev-architect-id"
         raise HTTPException(status_code=401, detail="Missing authorization header")
     
     if auth_header.startswith("Bearer "):
         token = auth_header.split(" ")[1]
         
-        try:
-            # First, try to decode as a local JWT
-            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        # First, try to decode as a local JWT
+        payload = decode_and_verify_token(token)
+        if payload:
             user_id = payload.get("sub")
             if user_id:
-                logger.info(f"AUTH DEP: Decoded user ID successfully: {user_id}")
+                logger.opt(colors=True).info(f"<magenta>[AUTH DEP]</magenta> Decoded user ID <green>successfully</green>: <yellow>{user_id}</yellow>")
                 return str(user_id)
-        except Exception as jwt_err:
-            logger.warning(f"AUTH DEP: Local JWT decoding failed ({jwt_err}), attempting Supabase fallback...")
+        else:
+            logger.opt(colors=True).warning(f"<magenta>[AUTH DEP]</magenta> Local JWT verification returned empty payload, attempting Supabase fallback...")
             # If local decoding fails, try Supabase (for transition period/compatibility)
             supabase_url = os.getenv('VITE_SUPABASE_URL')
             supabase_key = os.getenv('VITE_SUPABASE_ANON_KEY')
@@ -96,15 +103,15 @@ async def get_auth_user_id(request: Request) -> str:
                         if response.status_code == 200:
                             user_data = response.json()
                             resolved_id = str(user_data["id"])
-                            logger.info(f"AUTH DEP: Resolved user ID via Supabase service: {resolved_id}")
+                            logger.opt(colors=True).info(f"<magenta>[AUTH DEP]</magenta> Resolved user ID via <cyan>Supabase</cyan> service: <yellow>{resolved_id}</yellow>")
                             return resolved_id
                 except Exception as e:
-                    logger.error(f"Supabase auth check failed: {e}")
-
+                    logger.opt(colors=True).error(f"<magenta>[AUTH DEP]</magenta> Supabase auth check <red>failed</red>: {e}")
+ 
     # Final fallback for local development
     if os.getenv("ENV") == "development":
-         logger.debug("AUTH DEP: Token validation failed, falling back to local dev credentials.")
+         logger.opt(colors=True).debug("<magenta>[AUTH DEP]</magenta> Token validation failed, falling back to local dev credentials.")
          return "local-dev-architect-id"
          
-    logger.error("AUTH DEP: No valid authentication schemes found in request context.")
+    logger.opt(colors=True).error("<magenta>[AUTH DEP]</magenta> <red><b>No valid authentication schemes found</b></red> in request context.")
     raise HTTPException(status_code=401, detail="Invalid authentication credentials")

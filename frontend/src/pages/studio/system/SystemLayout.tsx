@@ -45,7 +45,7 @@ interface SystemLayoutProps {
   children: React.ReactNode;
 }
 
-import { studioLog, reportTabChange } from '@/lib/studio-logger';
+import { studioLog, reportTabChange } from '@/lib/dev-console-logs';
 
 export const SystemLayout: React.FC<SystemLayoutProps> = ({
   title, subtitle, brandIcon: BrandIcon, version = "4.2.0", status = "SYSTEM ONLINE",

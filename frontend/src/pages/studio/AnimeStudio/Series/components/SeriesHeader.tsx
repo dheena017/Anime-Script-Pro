@@ -6,7 +6,7 @@ import {
   TooltipTrigger
 } from '@/components/ui/tooltip';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight, Cpu, Layout, Save, Box } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Cpu, Layout, Save, Box, Square, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { seriesStyles as s } from '../seriesStyles';
 
@@ -15,9 +15,11 @@ interface SeriesHeaderProps {
   onPrev?: () => void;
   onSave?: () => void;
   onManifest?: () => void;
+  onGenerate?: () => void;
 
   isManifestActive?: boolean;
   isSaving?: boolean;
+  isGenerating?: boolean;
   hasContent?: boolean;
   session: string;
   episode: string;
@@ -30,9 +32,10 @@ export const SeriesHeader: React.FC<SeriesHeaderProps> = ({
   onPrev,
   onSave,
   onManifest,
-
+  onGenerate,
   isManifestActive,
   isSaving,
+  isGenerating,
   hasContent,
   session,
   episode,
@@ -47,42 +50,33 @@ export const SeriesHeader: React.FC<SeriesHeaderProps> = ({
           {/* Subtle Background Circuit Pattern */}
           <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] mix-blend-overlay" />
           
-          <div className="flex flex-col sm:flex-row items-center gap-6 md:gap-10 z-10 w-full lg:w-auto">
+          <div className="flex flex-row flex-wrap sm:flex-nowrap items-center gap-6 md:gap-10 z-10 w-full lg:w-auto">
             <div className="relative shrink-0 group/icon">
               <div className={s.header.iconBox}>
                 <div className={s.header.iconGlow} />
                 <Layout className={s.header.icon} />
               </div>
               {/* Outer Pulsing Ring */}
-              <div className="absolute -inset-2 border border-emerald-500/20 rounded-[2rem] animate-[ping_3s_infinite] opacity-0 group-hover/icon:opacity-100 transition-opacity" />
+              <div className="absolute -inset-2 border border-emerald-500/20 rounded-[2rem] opacity-0 group-hover/icon:opacity-100 transition-opacity" />
             </div>
 
-            <div className="flex flex-col items-center sm:items-start text-center sm:text-left space-y-1">
+            <div className="flex flex-row items-center sm:items-start text-center sm:text-left space-y-1">
               <div className="flex items-center gap-4">
                  <h1 className={s.header.title}>
                    Series Roadmap
                  </h1>
                  {hasContent && (
-                   <div className="hidden md:flex items-center gap-2 px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full animate-in fade-in slide-in-from-left-2 duration-500">
-                     <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                   <div className="hidden md:flex items-center gap-2 px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full">
+                     <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
                      <span className="text-[8px] font-black text-emerald-400 uppercase tracking-widest">Production Active</span>
                    </div>
                  )}
               </div>
-              <div className="flex items-center gap-3">
-                <Cpu className="w-3.5 h-3.5 text-emerald-500/40 shrink-0" />
-                <p className={s.header.subtitle}>
-                  <span className="text-emerald-400/60">SESSION_{session}</span>
-                  <span className="mx-2 text-white/10">//</span>
-                  <span className="text-emerald-400/60">UNIT_EP{episode}</span>
-                  <span className="mx-2 text-white/10">//</span>
-                  <span className="text-zinc-500">NEURAL_ORCHESTRATION_v2.4</span>
-                </p>
-              </div>
+
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-center gap-5 z-10 w-full lg:w-auto">
+          <div className="flex flex-row flex-wrap sm:flex-nowrap items-center gap-5 z-10 w-full lg:w-auto justify-center sm:justify-start">
             {onPrev && (
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -100,7 +94,7 @@ export const SeriesHeader: React.FC<SeriesHeaderProps> = ({
               </Tooltip>
             )}
 
-            <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
+            <div className="flex flex-row items-center gap-4 w-full sm:w-auto justify-center sm:justify-start">
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button

@@ -61,8 +61,8 @@ interface ProductionCoreProps {
   setCharacterRelationships?: (r: string | null) => void;
   worldBuilding?: string;
   setWorldBuilding?: (w: string | null) => void;
-  castProfiles?: string;
-  setCastProfiles?: (c: string | null) => void;
+  characterProfiles?: string;
+  setCharacterProfiles?: (c: string | null) => void;
   handleGenerate?: () => void;
   handleMasterGenerate?: () => void;
   basePath?: string;
