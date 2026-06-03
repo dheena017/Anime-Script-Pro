@@ -35,6 +35,7 @@ from .system import (
 
 # AI Models & Performance Metrics
 from .engine import EngineConfig, AITelemetry, AIModel
+from .models_registry import AIModelRegistry
 
 # Narrative Lore & Character Blueprints
 from .world import WorldLore, Character, NarrativeBeat, ReusableCharacter, CharacterRelationship, CharacterManifest
@@ -53,6 +54,6 @@ __all__ = [
     "Template", "MediaAsset", "UserFavorite", "SavedPrompt", "PromptLibrary", "Prompt", "GrowthStrategy",
     "Category", "Tutorial", "Notification", "SEOEntry", "HelpCategory", "FAQ",
     "DocSection", "DocArticle", "ScreeningRoomEntry", "CommunityPost", "SiteConfig",
-    "EngineConfig", "AITelemetry", "AIModel",
+    "EngineConfig", "AITelemetry", "AIModel", "AIModelRegistry",
     "SystemLog", "GenerationLog"
 ]

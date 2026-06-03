@@ -16,12 +16,7 @@ export {
 } from "../generators/seoGenerator";
 
 // ── Visual & Media Generators ────────────────────────────────────────────────
-export * from "../generators/imageGenerator";
-export * from "../generators/videoSceneGenerator";
-
-// ── Audio & Music Generators ─────────────────────────────────────────────────
-export * from "../generators/audioGenerator";
-export * from "../generators/musicGenerator";
+export * from "../generators/legacyAI";
 
 // ── Story & World Generators ─────────────────────────────────────────────────
 export * from "../generators/seriesGenerator";
@@ -29,4 +24,4 @@ export * from "../generators/characterGenerator";
 export * from "../generators/worldGenerator";
 
 // ── Utilities ────────────────────────────────────────────────────────────────
-export * from "../generators/utilsGenerator";
+export * from "../generators/legacyAI";

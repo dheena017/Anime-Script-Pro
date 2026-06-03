@@ -1,6 +1,5 @@
 import React, { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { useNavigate, useMatch } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useStudioBasePath } from "@/hooks/useStudioBasePath";
 import { useGeneratorState, useGeneratorDispatch } from "@/hooks/useGenerator";
 import {
@@ -194,12 +193,8 @@ export const CharacterCard = React.memo<CharacterCardProps>(
     };
 
     return (
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: index * 0.05, duration: 0.8 }}
-        className="group relative bg-[#060606] border border-white/5 rounded-[3rem] overflow-hidden hover:border-studio/30 transition-all duration-700 hover:shadow-[0_0_80px_rgba(var(--studio-rgb),0.1)] flex flex-col"
-      >
+      <div className="group relative bg-[#060606] border border-white/5 rounded-[3rem] overflow-hidden hover:border-studio/30 hover:shadow-[0_0_80px_rgba(var(--studio-rgb),0.1)] flex flex-col">
+
         {/* Neural Header */}
         <div className="h-28 bg-zinc-950 relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-r from-studio/20 via-transparent to-fuchsia-500/10 opacity-30" />
@@ -208,30 +203,19 @@ export const CharacterCard = React.memo<CharacterCardProps>(
             viewBox="0 0 100 100"
             preserveAspectRatio="none"
           >
-            <motion.path
+            <path
               d="M0 20 L20 20 L30 40 L50 40 L60 10 L80 10 L100 30"
               fill="none"
               stroke="currentColor"
               strokeWidth="0.5"
               className="text-studio"
-              initial={{ pathLength: 0 }}
-              animate={{ pathLength: 1 }}
-              transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
             />
-            <motion.path
+            <path
               d="M0 80 L10 80 L25 60 L40 60 L55 90 L70 90 L100 70"
               fill="none"
               stroke="currentColor"
               strokeWidth="0.5"
               className="text-fuchsia-500"
-              initial={{ pathLength: 0 }}
-              animate={{ pathLength: 1 }}
-              transition={{
-                duration: 6,
-                repeat: Infinity,
-                ease: "linear",
-                delay: 1,
-              }}
             />
           </svg>
           <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
@@ -248,34 +232,26 @@ export const CharacterCard = React.memo<CharacterCardProps>(
           <div className="flex flex-col md:flex-row gap-8 items-end mb-8">
             {/* Avatar Core */}
             <div className="relative group/avatar shrink-0">
-              <div className="absolute -inset-2 bg-gradient-to-tr from-studio to-fuchsia-500 rounded-[2.5rem] blur-xl opacity-0 group-hover/avatar:opacity-30 transition-opacity duration-700" />
-              <div className="w-36 h-36 rounded-[2.2rem] bg-zinc-950 border border-white/10 flex items-center justify-center overflow-hidden relative z-10 shadow-[0_20px_50px_rgba(0,0,0,0.5)] group-hover/avatar:border-studio/50 transition-all duration-700">
-                <AnimatePresence mode="wait">
-                  {isGeneratingImage ? (
-                    <motion.div
-                      key="loading"
-                      className="flex flex-col items-center gap-3"
-                    >
-                      <Loader2 className="w-10 h-10 text-studio animate-spin" />
-                      <span className="text-[10px] font-black text-studio uppercase tracking-widest animate-pulse">
-                        Scanning DNA
-                      </span>
-                    </motion.div>
-                  ) : character.imageUrl ? (
-                    <motion.img
-                      key="image"
-                      src={character.imageUrl}
-                      className="w-full h-full object-cover group-hover/avatar:scale-110 transition-transform duration-1000"
-                    />
-                  ) : (
-                    <motion.div
-                      key="placeholder"
-                      className="text-zinc-800 group-hover/avatar:text-studio transition-colors"
-                    >
-                      <User className="w-16 h-16" />
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+              <div className="absolute -inset-2 bg-gradient-to-tr from-studio to-fuchsia-500 rounded-[2.5rem] blur-xl opacity-0 group-hover/avatar:opacity-30" />
+              <div className="w-36 h-36 rounded-[2.2rem] bg-zinc-950 border border-white/10 flex items-center justify-center overflow-hidden relative z-10 shadow-[0_20px_50px_rgba(0,0,0,0.5)] group-hover/avatar:border-studio/50">
+                {isGeneratingImage ? (
+                  <div className="flex flex-col items-center gap-3">
+                    <Loader2 className="w-10 h-10 text-studio" />
+                    <span className="text-[10px] font-black text-studio uppercase tracking-widest">
+                      Scanning DNA
+                    </span>
+                  </div>
+                ) : character.imageUrl ? (
+                  <img
+                    src={character.imageUrl}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="text-zinc-800">
+                    <User className="w-16 h-16" />
+                  </div>
+                )}
+              </div>
 
                 {/* Generate button removed from character card; moved to scene view */}
               </div>
@@ -284,12 +260,12 @@ export const CharacterCard = React.memo<CharacterCardProps>(
             {/* Identity & Archetype Info */}
             <div className="flex-1 pb-2">
               <div>
-                <h3 className="text-3xl font-black text-white tracking-tighter uppercase mb-3 drop-shadow-[0_10px_30px_rgba(0,0,0,0.8)] group-hover:text-studio transition-colors duration-500">
+                <h3 className="text-3xl font-black text-white tracking-tighter uppercase mb-3 drop-shadow-[0_10px_30px_rgba(0,0,0,0.8)]">
                   {character.name}
                 </h3>
                 <div className="flex flex-wrap items-center gap-3">
                   <div className="px-5 py-2 bg-studio/5 border border-studio/20 rounded-2xl flex items-center gap-3">
-                    <div className="w-2 h-2 rounded-full bg-studio shadow-[0_0_10px_rgba(6,182,212,0.8)] animate-pulse" />
+                    <div className="w-2 h-2 rounded-full bg-studio shadow-[0_0_10px_rgba(6,182,212,0.8)]" />
                     <span className="text-[10px] font-black uppercase tracking-widest text-studio">
                       {archetypeText}
                     </span>
@@ -361,10 +337,8 @@ export const CharacterCard = React.memo<CharacterCardProps>(
               </span>
             </div>
             <div className="h-1.5 w-full bg-zinc-900 rounded-full overflow-hidden">
-              <motion.div
-                initial={{ width: 0 }}
-                animate={{ width: `${readiness}%` }}
-                transition={{ duration: 2, ease: "easeOut" }}
+              <div
+                style={{ width: `${readiness}%` }}
                 className="h-full bg-gradient-to-r from-studio/40 to-studio shadow-[0_0_15px_rgba(6,182,212,0.5)]"
               />
             </div>
@@ -373,7 +347,7 @@ export const CharacterCard = React.memo<CharacterCardProps>(
           {/* Telemetry Core Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
             {/* Combat Systems Telemetry */}
-            <div className="p-6 bg-zinc-950/40 rounded-[2rem] border border-white/5 hover:border-studio/25 hover:bg-zinc-900/20 transition-all duration-500 space-y-3 flex flex-col justify-between">
+            <div className="p-6 bg-zinc-950/40 rounded-[2rem] border border-white/5 hover:border-studio/25 hover:bg-zinc-900/20 space-y-3 flex flex-col justify-between">
               <div className="flex items-center justify-between border-b border-white/5 pb-2">
                 <div className="flex items-center gap-2 text-studio">
                   <Swords className="w-4 h-4" />
@@ -387,10 +361,7 @@ export const CharacterCard = React.memo<CharacterCardProps>(
               </div>
               <div className="space-y-2">
                 <div className="text-[11px] font-black text-white uppercase tracking-wider">
-                  ABILITY:{" "}
-                  <span className="text-studio font-black">
-                    {getCombatAbility()}
-                  </span>
+                  ABILITY: <span className="text-studio font-black">{getCombatAbility()}</span>
                 </div>
                 <div className="text-[10px] text-zinc-500 font-medium leading-relaxed italic">
                   {getCombatDetails()}
@@ -399,18 +370,8 @@ export const CharacterCard = React.memo<CharacterCardProps>(
               {/* Dynamic Reactor Charge indicator */}
               <div className="flex gap-1.5 mt-2">
                 {[...Array(5)].map((_, i) => (
-                  <motion.div
+                  <div
                     key={i}
-                    animate={{
-                      opacity: [0.3, 1, 0.3],
-                      scale: [0.95, 1.05, 0.95],
-                    }}
-                    transition={{
-                      duration: 1.5,
-                      repeat: Infinity,
-                      delay: i * 0.2,
-                      ease: "easeInOut",
-                    }}
                     className="h-1 flex-1 bg-studio rounded-full shadow-[0_0_8px_rgba(6,182,212,0.4)]"
                   />
                 ))}
@@ -418,7 +379,7 @@ export const CharacterCard = React.memo<CharacterCardProps>(
             </div>
 
             {/* Speech & Voice Engine */}
-            <div className="p-6 bg-zinc-950/40 rounded-[2rem] border border-white/5 hover:border-fuchsia-500/25 hover:bg-zinc-900/20 transition-all duration-500 space-y-3 flex flex-col justify-between">
+            <div className="p-6 bg-zinc-950/40 rounded-[2rem] border border-white/5 hover:border-fuchsia-500/25 hover:bg-zinc-900/20 space-y-3 flex flex-col justify-between">
               <div className="flex items-center justify-between border-b border-white/5 pb-2">
                 <div className="flex items-center gap-2 text-fuchsia-500">
                   <Mic className="w-4 h-4" />
@@ -444,27 +405,19 @@ export const CharacterCard = React.memo<CharacterCardProps>(
               {/* Voice Waves Visualizer */}
               <div className="flex items-end gap-1 h-5 mt-2 px-1">
                 {[...Array(6)].map((_, i) => (
-                  <motion.div
+                  <div
                     key={i}
-                    animate={{
-                      height: [4, i % 2 === 0 ? 12 : 18, 4],
-                    }}
-                    transition={{
-                      duration: 1.0 + i * 0.12,
-                      repeat: Infinity,
-                      ease: "easeInOut",
-                    }}
-                    className="w-1 bg-fuchsia-500 rounded-full shadow-[0_0_8px_rgba(217,70,239,0.4)]"
+                    className="w-1 h-4 bg-fuchsia-500 rounded-full shadow-[0_0_8px_rgba(217,70,239,0.4)]"
                   />
                 ))}
-                <span className="text-[8px] font-black text-fuchsia-500/50 uppercase tracking-widest ml-auto animate-pulse">
+                <span className="text-[8px] font-black text-fuchsia-500/50 uppercase tracking-widest ml-auto">
                   VOX PULSE
                 </span>
               </div>
             </div>
 
             {/* Technical Style Models */}
-            <div className="p-6 bg-zinc-950/40 rounded-[2rem] border border-white/5 hover:border-cyan-500/25 hover:bg-zinc-900/20 transition-all duration-500 space-y-3 flex flex-col justify-between">
+            <div className="p-6 bg-zinc-950/40 rounded-[2rem] border border-white/5 hover:border-cyan-500/25 hover:bg-zinc-900/20 space-y-3 flex flex-col justify-between">
               <div className="flex items-center justify-between border-b border-white/5 pb-2">
                 <div className="flex items-center gap-2 text-cyan-400">
                   <Cpu className="w-4 h-4" />
@@ -489,33 +442,15 @@ export const CharacterCard = React.memo<CharacterCardProps>(
               </div>
               {/* Dynamic Oscilloscope Scanner */}
               <div className="relative mt-2 h-7 bg-zinc-950/90 rounded-xl border border-white/5 overflow-hidden flex items-center px-3">
-                <motion.div
-                  animate={{
-                    left: ["-10%", "110%"],
-                  }}
-                  transition={{
-                    duration: 2.5,
-                    repeat: Infinity,
-                    ease: "linear",
-                  }}
-                  className="absolute top-0 bottom-0 w-6 bg-gradient-to-r from-transparent via-cyan-400/20 to-transparent shadow-[0_0_15px_rgba(34,211,238,0.3)] z-0"
-                />
+                <div className="absolute top-0 bottom-0 w-6 bg-gradient-to-r from-transparent via-cyan-400/20 to-transparent shadow-[0_0_15px_rgba(34,211,238,0.3)] z-0" />
                 <div className="flex items-center gap-1 relative z-10 w-full">
                   {[...Array(9)].map((_, i) => (
-                    <motion.div
+                    <div
                       key={i}
-                      animate={{
-                        height: [3, 14, 6, 18, 3],
-                      }}
-                      transition={{
-                        duration: 1.4 + i * 0.08,
-                        repeat: Infinity,
-                        ease: "easeInOut",
-                      }}
-                      className="w-[2.5px] bg-cyan-400 rounded-full shadow-[0_0_8px_rgba(34,211,238,0.5)]"
+                      className="w-[2.5px] h-7 bg-cyan-400 rounded-full shadow-[0_0_8px_rgba(34,211,238,0.5)]"
                     />
                   ))}
-                  <span className="text-[8px] font-black text-cyan-400 uppercase tracking-widest ml-auto animate-pulse">
+                  <span className="text-[8px] font-black text-cyan-400 uppercase tracking-widest ml-auto">
                     VFX OSCILLOSCOPE ACTIVE
                   </span>
                 </div>
@@ -523,7 +458,7 @@ export const CharacterCard = React.memo<CharacterCardProps>(
             </div>
 
             {/* Psychological Profile */}
-            <div className="p-6 bg-zinc-950/40 rounded-[2rem] border border-white/5 hover:border-orange-500/25 hover:bg-zinc-900/20 transition-all duration-500 space-y-3 flex flex-col justify-between">
+            <div className="p-6 bg-zinc-950/40 rounded-[2rem] border border-white/5 hover:border-orange-500/25 hover:bg-zinc-900/20 space-y-3 flex flex-col justify-between">
               <div className="flex items-center justify-between border-b border-white/5 pb-2">
                 <div className="flex items-center gap-2 text-orange-500">
                   <Sparkles className="w-4 h-4" />
@@ -550,27 +485,13 @@ export const CharacterCard = React.memo<CharacterCardProps>(
               <div className="flex items-center gap-1 mt-2">
                 <div className="flex gap-1 flex-1">
                   {[...Array(5)].map((_, i) => (
-                    <motion.div
+                    <div
                       key={i}
-                      animate={{
-                        scaleY: [1, 1.6, 1],
-                        backgroundColor: [
-                          "rgba(249,115,22,0.3)",
-                          "rgba(249,115,22,1)",
-                          "rgba(249,115,22,0.3)",
-                        ],
-                      }}
-                      transition={{
-                        duration: 1.8,
-                        repeat: Infinity,
-                        delay: i * 0.25,
-                        ease: "easeInOut",
-                      }}
                       className="w-1.5 h-3 bg-orange-500 rounded-full shadow-[0_0_8px_rgba(249,115,22,0.4)]"
                     />
                   ))}
                 </div>
-                <span className="text-[8px] font-black text-orange-500/50 uppercase tracking-widest ml-auto animate-pulse">
+                <span className="text-[8px] font-black text-orange-500/50 uppercase tracking-widest ml-auto">
                   COGNITIVE CORE
                 </span>
               </div>
@@ -585,7 +506,7 @@ export const CharacterCard = React.memo<CharacterCardProps>(
                 Main Objective
               </span>
             </div>
-            <div className="relative overflow-hidden bg-studio/5 border border-studio/20 rounded-2xl p-5 group/objective transition-all duration-500 hover:border-studio/50">
+            <div className="relative overflow-hidden bg-studio/5 border border-studio/20 rounded-2xl p-5 group/objective hover:border-studio/50">
               {/* Corner Cyber Brackets */}
               <div className="absolute top-2 left-2 w-2 h-2 border-t border-l border-studio/60" />
               <div className="absolute top-2 right-2 w-2 h-2 border-t border-r border-studio/60" />
@@ -593,20 +514,10 @@ export const CharacterCard = React.memo<CharacterCardProps>(
               <div className="absolute bottom-2 right-2 w-2 h-2 border-b border-r border-studio/60" />
 
               {/* Scanning Laser Line */}
-              <motion.div
-                animate={{
-                  top: ["0%", "100%", "0%"],
-                }}
-                transition={{
-                  duration: 4,
-                  repeat: Infinity,
-                  ease: "linear",
-                }}
-                className="absolute left-0 right-0 h-[1.5px] bg-studio/40 shadow-[0_0_10px_rgba(6,182,212,0.8)] pointer-events-none z-0"
-              />
+              <div className="absolute left-0 right-0 top-0 h-[1.5px] bg-studio/40 shadow-[0_0_10px_rgba(6,182,212,0.8)] pointer-events-none z-0" />
 
               <div className="flex items-center justify-between mb-3 relative z-10">
-                <span className="text-[8px] font-black px-2.5 py-0.5 bg-studio/10 text-studio border border-studio/25 rounded-full tracking-widest uppercase animate-pulse">
+                <span className="text-[8px] font-black px-2.5 py-0.5 bg-studio/10 text-studio border border-studio/25 rounded-full tracking-widest uppercase">
                   SYSTEM DIRECTIVE: ACTIVE
                 </span>
                 <span className="text-[8px] font-black text-zinc-500 uppercase tracking-widest">
@@ -630,7 +541,7 @@ export const CharacterCard = React.memo<CharacterCardProps>(
                 Neural Secret (Hover to De-Encrypt)
               </span>
             </div>
-            <div className="bg-orange-500/5 p-4 rounded-xl blur-[5px] hover:blur-none transition-all duration-700 cursor-help">
+            <div className="bg-orange-500/5 p-4 rounded-xl cursor-help">
               <p className="text-xs text-orange-400/90 font-black uppercase italic tracking-wide">
                 {secretText}
               </p>
@@ -656,13 +567,13 @@ export const CharacterCard = React.memo<CharacterCardProps>(
           <div className="flex items-center gap-3">
             <Button
               onClick={() => onViewCharacter?.(character.name)}
-              className="px-8 py-2 bg-studio/10 hover:bg-studio text-studio hover:text-black font-black uppercase text-xs tracking-widest rounded-2xl border border-studio/20 transition-all shadow-[0_0_30px_rgba(6,182,212,0.1)]"
+              className="px-8 py-2 bg-studio/10 hover:bg-studio text-studio hover:text-black font-black uppercase text-xs tracking-widest rounded-2xl border border-studio/20 shadow-[0_0_30px_rgba(6,182,212,0.1)]"
             >
               Access Full Profile
             </Button>
           </div>
         </div>
-      </motion.div>
+      </div>
     );
   },
 );

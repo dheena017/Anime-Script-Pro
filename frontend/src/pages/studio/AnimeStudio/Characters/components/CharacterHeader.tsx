@@ -88,10 +88,6 @@ export const CharacterHeader: React.FC<CharacterHeaderProps> = ({
             <div className="flex flex-row items-center gap-4 w-full sm:w-auto justify-center sm:justify-start">
               {/* Squad Scale Selector */}
               <div className={s.header.scaleSelector}>
-                <div className={s.header.scaleLabelBox}>
-                  <Users className="w-3 h-3 text-fuchsia-500/50" />
-                  <span className={s.header.scaleLabel}>Scale</span>
-                </div>
                 <select
                   value={numCharacters}
                   onChange={(e) => setNumCharacters(Number(e.target.value))}

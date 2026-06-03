@@ -1,11 +1,9 @@
+import { generateImagePrompts, generateVideoPrompts, generateMusicPrompts } from '@/services/api/gemini';
+
 /**
  * Blueprint Markdown Generator
  * Converts AI-generated plan data + world/character context into a comprehensive markdown document
  */
-
-import { generateImagePrompts } from '@/services/generators/imageGenerator';
-import { generateVideoPrompts } from '@/services/generators/videoSceneGenerator';
-import { generateMusicPrompts } from '@/services/generators/musicGenerator';
 
 interface BlueprintMarkdownParams {
   plan: any[];

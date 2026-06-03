@@ -86,6 +86,7 @@ const ScreeningLayout = lazy(() => import('@/pages/studio/AnimeStudio/Screening/
 const EngineLayout = lazy(() => import('@/pages/studio/AnimeStudio/Engine/EngineLayout'));
 const AssetsLayout = lazy(() => import('@/pages/studio/AnimeStudio/Assets/AssetsLayout'));
 const AssetsPage = lazy(() => import('@/pages/studio/AnimeStudio/Assets/AssetsPage').then(m => ({ default: m.AssetsPage })));
+const ModelsManagementLayout = lazy(() => import('@/pages/studio/AnimeStudio/ModelsManagement/ModelsManagementLayout').then(m => ({ default: m.ModelsManagementLayout })));
 
 // (Manhwa and Comic studios removed)
 

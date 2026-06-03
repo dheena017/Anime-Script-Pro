@@ -108,7 +108,7 @@ export function ConsolePage() {
 
   // Inner-state tabs for specific accordion panels
   const [activeWorldSubTab, setActiveWorldSubTab] = useState<'lore' | 'powers' | 'factions' | 'systems'>('lore');
-  const [activePromptSubTab, setActivePromptSubTab] = useState<keyof typeof PROMPT_REGISTRY>('scriptPrompts');
+  const [activePromptSubTab, setActivePromptSubTab] = useState<keyof typeof PROMPT_REGISTRY>('worldPrompts');
 
   // Direct editing states
   const [promptInput, setPromptInput] = useState(prompt);
