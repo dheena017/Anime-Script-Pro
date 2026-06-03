@@ -40,6 +40,7 @@ out/
 .next/
 .nuxt/
 .svelte-kit/
+<<<<<<< HEAD
 *.egg-info/
 .installed.cfg
 *.egg
@@ -47,6 +48,11 @@ MANIFEST
 develop-eggs/
 sdist/
 wheels/
+=======
+dist-electron/
+build-backend/
+*.spec
+>>>>>>> feature/desktop-app-conversion
 
 # --- Python ---
 __pycache__/

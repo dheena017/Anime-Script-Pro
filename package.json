@@ -3,15 +3,25 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
+  "main": "desktop/electron/main.ts",
   "scripts": {
     "dev": "tsx server.ts",
     "serve": "vite --host 0.0.0.0 --port 5173 --config frontend/vite.config.ts",
+<<<<<<< HEAD
     "server": "concurrently --silent -n \"FRONTEND,BACKEND\" -c \"cyan,magenta\" -p \"[{name}]\" \"tsx server.ts\" \"node scripts/run-python.mjs -m uvicorn backend.fastapi_app:app --port 3050 --reload --reload-dir backend --reload-exclude \\\"backend/logs\\\" --reload-exclude \\\"backend/outputs\\\" --reload-exclude \\\"backend/database\\\" --reload-exclude \\\"backend/venv\\\"\"",
     "backend": "node scripts/run-python.mjs -m uvicorn backend.fastapi_app:app --port 3050 --reload --reload-dir backend --reload-exclude \"backend/logs\" --reload-exclude \"backend/outputs\" --reload-exclude \"backend/database\" --reload-exclude \"backend/venv\"",
+=======
+    "studio": "concurrently \"npm run dev\" \"npm run backend\"",
+    "electron:dev": "electron --import=tsx desktop/electron/main.ts",
+    "desktop": "concurrently \"npm run backend\" \"npm run electron:dev\"",
+    "backend": "node scripts/run-python.mjs -m uvicorn backend.fastapi_app:app --port 3050 --reload",
+>>>>>>> feature/desktop-app-conversion
     "setup:backend": "node scripts/setup-backend.mjs",
     "db:seed": "node scripts/run-python.mjs backend/folder_management/seeds/seed_all.py",
     "db:reset": "node scripts/run-python.mjs -c \"import os; os.remove('backend/database/anime_script_pro.db') if os.path.exists('backend/database/anime_script_pro.db') else None\" && npm run db:seed",
     "build": "vite build --config frontend/vite.config.ts && esbuild server.ts --platform=node --outfile=dist/server.cjs --format=cjs --bundle --external:pg --external:express",
+    "dist": "npm run build && electron-builder",
+    "dist:portable": "npm run build && electron-builder --dir",
     "preview": "vite preview --config frontend/vite.config.ts",
     "clean": "rm -rf dist",
     "start": "node dist/server.cjs",
@@ -77,8 +87,41 @@
     "@types/supertest": "^7.2.0",
     "autoprefixer": "^10.4.21",
     "concurrently": "^9.2.1",
+    "electron": "^42.0.1",
+    "electron-builder": "^26.8.1",
     "lighthouse": "^12.1.0",
+    "ts-node": "^10.9.2",
     "tsx": "^4.21.0",
-    "vitest": "^4.1.5"
+    "vitest": "^4.1.5",
+    "xvfb-maybe": "^0.2.1"
+  },
+  "build": {
+    "appId": "com.animescriptpro.studio",
+    "productName": "Anime Script Pro",
+    "directories": {
+      "output": "dist-electron"
+    },
+    "files": [
+      "dist/**/*",
+      "desktop/electron/**/*",
+      "package.json",
+      "server.ts"
+    ],
+    "win": {
+      "target": "nsis"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    },
+    "extraResources": [
+      {
+        "from": "build-backend/backend_entry",
+        "to": "backend",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ]
   }
 }

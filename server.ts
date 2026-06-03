@@ -510,7 +510,9 @@ async function startServer() {
   process.on('SIGTERM', shutdown);
 }
 
-// Only start the server automatically if we are not in a test environment
-if (process.env.NODE_ENV !== 'test') {
+// Only start the server automatically if we are not in a test environment and this is the main module
+if (process.env.NODE_ENV !== 'test' && import.meta.url === `file://${path.resolve(process.argv[1])}`) {
   startServer();
 }
+
+export { startServer };
