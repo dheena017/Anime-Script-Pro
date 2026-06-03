@@ -39,8 +39,8 @@ export default function AnimeLayout() {
   const [leftSidebarCollapsed, setLeftSidebarCollapsed] = React.useState(true);
   const [globalSidebarCollapsed, setGlobalSidebarCollapsed] = React.useState(true); // Default closed
 
-  const toggleLeftSidebar = () => setLeftSidebarCollapsed(!leftSidebarCollapsed);
-  const toggleGlobalSidebar = () => setGlobalSidebarCollapsed(!globalSidebarCollapsed);
+  const toggleLeftSidebar = () => setLeftSidebarCollapsed((prev) => !prev);
+  const toggleGlobalSidebar = () => setGlobalSidebarCollapsed((prev) => !prev);
 
   // Disable scroll when sidebar is open
   useEffect(() => {
@@ -56,15 +56,17 @@ export default function AnimeLayout() {
 
   // Update URL when sidebar state changes
   const toggleEngine = () => {
-    const newState = !sidebarOpen;
-    setSidebarOpen(newState);
-    const newParams = new URLSearchParams(location.search);
-    if (newState) {
-      newParams.set('engine', 'open');
-    } else {
-      newParams.delete('engine');
-    }
-    navigate({ search: newParams.toString() }, { replace: true });
+    setSidebarOpen((prev) => {
+      const newState = !prev;
+      const newParams = new URLSearchParams(location.search);
+      if (newState) {
+        newParams.set('engine', 'open');
+      } else {
+        newParams.delete('engine');
+      }
+      navigate({ search: newParams.toString() }, { replace: true });
+      return newState;
+    });
   };
 
   const {
@@ -150,7 +152,7 @@ export default function AnimeLayout() {
       const { generateWorld } = await import('@/services/generators/worldGenerator');
       const { generateCharacters } = await import('@/services/generators/characterGenerator');
       const { generateSeriesPlan } = await import('@/services/generators/seriesGenerator');
-      const { generateScript, generateImagePrompts, generateMetadata } = await import('@/services/api/gemini');
+      const { generateImagePrompts, generateMetadata } = await import('@/services/api/gemini');
 
       // PHASE 1: WORLD Architecture
       setGenerationProgress(5);
@@ -198,29 +200,11 @@ export default function AnimeLayout() {
       );
       setGeneratedSeriesPlan(seriesPlan);
       addGeneratorLog("SERIES", "COMPLETED", "Series structure and beats mapped. [Saved to: series_blueprint.json]", selectedModel);
-
-      // PHASE 4: Script Writing
-      setGenerationProgress(55);
-      addGeneratorLog("SCRIPT", "STARTING", `Generating Episode ${episode || '1'} Script (Streaming)... [Target: screenplay.md]`, selectedModel);
-      const currentEpPlan = seriesPlan?.find((ep: any) => parseInt(ep.episode) === parseInt(episode || "1"));
-      
-      const { generateScriptStream } = await import('@/services/generators/scriptGenerator');
-      
-      const script = await generateScriptStream(
-        prompt, tone, audience, session || "1", episode || "1", numScenes, selectedModel, 'Anime',
-        recapperPersona, characterRelationships, world, typeof castResult === 'string' ? castResult : castResult.markdown, currentEpPlan ? JSON.stringify(currentEpPlan) : null,
-        (partial) => {
-          setGeneratedScript(partial);
-          // Optional: we could update progress based on chunk count, but simpler to just keep trickling
-        }
-      );
-      setGeneratedScript(script);
-      addGeneratorLog("SCRIPT", "COMPLETED", `Script generated successfully (${script.length} characters). [Saved to: screenplay.md]`, selectedModel);
-
+     
       // PHASE 5: Visual Planning (Storyboard)
       setGenerationProgress(75);
       addGeneratorLog("STORYBOARD", "STARTING", "Creating Visual Descriptions for Scenes... [Target: visual_prompts.json]", selectedModel);
-      const visualPrompts = await generateImagePrompts(script, selectedModel);
+      const visualPrompts = await generateImagePrompts(selectedModel);
       setGeneratedImagePrompts(visualPrompts);
       setVisualData({ 0: ["pending"] });
       addGeneratorLog("STORYBOARD", "COMPLETED", "Visual prompts created. [Saved to: visual_prompts.json]", selectedModel);
@@ -228,7 +212,7 @@ export default function AnimeLayout() {
       // PHASE 6: Content Metadata
       setGenerationProgress(90);
       addGeneratorLog("SEO", "STARTING", "Generating Content Metadata and Tags... [Target: seo_metadata.json]", selectedModel);
-      const seo = await generateMetadata(script, selectedModel);
+      const seo = await generateMetadata(selectedModel);
       setGeneratedMetadata(seo);
       addGeneratorLog("SEO", "COMPLETED", "Metadata generation complete. [Saved to: seo_metadata.json]", selectedModel);
       setGenerationProgress(100);
@@ -298,16 +282,7 @@ export default function AnimeLayout() {
     navigate(`${basePath}/script`);
 
     try {
-      const { generateScriptStream } = await import('@/services/generators/scriptGenerator');
       const currentEpisodePlan = generatedSeriesPlan?.find((ep: any) => parseInt(ep.episode) === parseInt(episode));
-      const script = await generateScriptStream(
-        prompt, tone, audience, session, episode, numScenes, selectedModel, 'Anime', recapperPersona, characterRelationships, generatedWorld, generatedCharacters, 
-        currentEpisodePlan ? JSON.stringify(currentEpisodePlan) : null,
-        (partial) => {
-          setGeneratedScript(partial);
-        }
-      );
-      setGeneratedScript(script);
       setGenerationProgress(100);
       setCurrentScriptId(null);
       showNotification?.('Script written successfully!', 'success');

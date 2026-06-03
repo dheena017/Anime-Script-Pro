@@ -195,10 +195,8 @@ export default function PromptsLayout() {
               transition={{ duration: 0.2, ease: "easeOut" }}
               className="flex-1 flex flex-col"
             >
-              <Suspense fallback={<div className="flex-1 flex items-center justify-center p-20"><PromptsLoadingPage tab={activeTab} progress={generationProgress} /></div>}>
-                {(handlers.isGenerating || isLoading) ? (
-                  <PromptsLoadingPage tab={activeTab} progress={generationProgress} />
-                ) : (!generatedImagePrompts && !videoData) ? (
+              <Suspense fallback={<div className="flex-1 flex items-center justify-center p-20 text-xs font-black uppercase tracking-[0.2em] text-cyan-500/40 animate-pulse">Loading...</div>}>
+                {(!generatedImagePrompts && !videoData) ? (
                   <PromptsEmptyState 
                     onLaunch={handleGenerateAll}
                     onLoadDemo={loadDemoProject}

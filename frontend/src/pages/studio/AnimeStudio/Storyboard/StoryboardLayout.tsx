@@ -313,20 +313,12 @@ export default function StoryboardLayout() {
             >
               <Suspense
                 fallback={
-                  <div className="flex-1 flex items-center justify-center p-20">
-                    <StoryboardLoadingPage
-                      tab={activeTab}
-                      progress={generationProgress}
-                    />
+                  <div className="flex-1 flex items-center justify-center p-20 text-xs font-black uppercase tracking-[0.2em] text-cyan-500/40 animate-pulse">
+                    Loading...
                   </div>
                 }
               >
-                {handlers.isGenerating || isGeneratingImagePrompts ? (
-                  <StoryboardLoadingPage
-                    tab={activeTab}
-                    progress={generationProgress}
-                  />
-                ) : !generatedImagePrompts ? (
+                {!generatedImagePrompts ? (
                   <StoryboardEmptyState
                     onLaunch={handleGenerate}
                     onLoadDemo={loadDemoProject}

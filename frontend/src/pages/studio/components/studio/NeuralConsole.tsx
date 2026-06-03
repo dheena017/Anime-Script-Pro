@@ -2,7 +2,7 @@ import React from 'react';
 import { Terminal, X, ChevronDown, Activity, Cpu, Zap, Database, Globe, Trash2, Filter, Download, Search, Play, Pause, ArrowUpDown, Copy, Sparkles, Pin, PinOff } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { clearLogHistory, describeLog, formatLogLabel, getLogCounts, getLogHistory, getLogDigest, persistLogHistory, restoreLogHistory, signalBus, NeuralSignalEvent, StudioLogEvent } from '@/lib/dev-console-logs';
+import { clearLogHistory, describeLog, formatLogLabel, getLogCounts, getLogHistory, getLogDigest, restoreLogHistory, signalBus, NeuralSignalEvent, StudioLogEvent } from '@/lib/dev-console-logs';
 
 interface EnhancedLog extends StudioLogEvent {
   type: 'neural' | 'studio';
@@ -144,8 +144,15 @@ export function NeuralConsole() {
     ));
   };
 
+  const isOpenRef = React.useRef(isOpen);
+
+  React.useEffect(() => {
+    isOpenRef.current = isOpen;
+  }, [isOpen]);
+
   React.useEffect(() => {
     const handleSignal = (e: any) => {
+      if (!isOpenRef.current) return;
       const { signalId, method, url, status, duration, source, category, summary, tags } = e.detail as NeuralSignalEvent;
       const cleanUrl = url.split('?')[0].slice(0, 30);
       
@@ -164,10 +171,10 @@ export function NeuralConsole() {
       };
 
       setLogs(prev => [...prev.slice(-49), newLog]);
-      persistLogHistory();
     };
 
     const handleStudioLog = (e: any) => {
+      if (!isOpenRef.current) return;
       const detail = e.detail as StudioLogEvent;
       const newLog: EnhancedLog = {
         ...detail,
@@ -175,7 +182,6 @@ export function NeuralConsole() {
         type: 'studio'
       };
       setLogs(prev => [...prev.slice(-49), newLog]);
-      persistLogHistory();
     };
 
     signalBus.addEventListener('neural_signal', handleSignal);
@@ -186,6 +192,12 @@ export function NeuralConsole() {
       signalBus.removeEventListener('studio_log', handleStudioLog);
     };
   }, []);
+
+  React.useEffect(() => {
+    if (isOpen) {
+      setLogs(getLogHistory(200).map((log) => ({ ...log, type: 'studio' as const })));
+    }
+  }, [isOpen]);
 
   const getLevelColor = (level: string) => {
     switch (level) {

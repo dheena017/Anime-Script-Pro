@@ -57,7 +57,7 @@ export const SeriesHeader: React.FC<SeriesHeaderProps> = ({
                 <Layout className={s.header.icon} />
               </div>
               {/* Outer Pulsing Ring */}
-              <div className="absolute -inset-2 border border-emerald-500/20 rounded-[2rem] animate-[ping_3s_infinite] opacity-0 group-hover/icon:opacity-100 transition-opacity" />
+              <div className="absolute -inset-2 border border-emerald-500/20 rounded-[2rem] opacity-0 group-hover/icon:opacity-100 transition-opacity" />
             </div>
 
             <div className="flex flex-row items-center sm:items-start text-center sm:text-left space-y-1">
@@ -66,8 +66,8 @@ export const SeriesHeader: React.FC<SeriesHeaderProps> = ({
                    Series Roadmap
                  </h1>
                  {hasContent && (
-                   <div className="hidden md:flex items-center gap-2 px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full animate-in fade-in slide-in-from-left-2 duration-500">
-                     <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                   <div className="hidden md:flex items-center gap-2 px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full">
+                     <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
                      <span className="text-[8px] font-black text-emerald-400 uppercase tracking-widest">Production Active</span>
                    </div>
                  )}
@@ -116,38 +116,6 @@ export const SeriesHeader: React.FC<SeriesHeaderProps> = ({
                   <p className="font-black uppercase tracking-widest text-[10px] text-emerald-500/80">Production Blueprint</p>
                 </TooltipContent>
               </Tooltip>
-
-              {onGenerate && (
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      className={cn(
-                        isGenerating ? s.header.actionButtonDanger : s.header.actionButtonPrimary,
-                        "relative group/generate overflow-hidden"
-                      )}
-                      onClick={onGenerate}
-                    >
-                      <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-transparent opacity-0 group-hover/generate:opacity-100 transition-opacity" />
-                      <span className="relative z-10 flex items-center gap-2">
-                        {isGenerating ? (
-                          <>
-                            STOP <Square className="w-4 h-4 transition-transform" />
-                          </>
-                        ) : (
-                          <>
-                            GENERATE <Sparkles className="w-4 h-4 transition-transform" />
-                          </>
-                        )}
-                      </span>
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent side="bottom" className="bg-black/90 border-white/10 backdrop-blur-xl">
-                    <p className="font-black uppercase tracking-widest text-[10px] text-emerald-400">
-                      {isGenerating ? 'Stop Generation' : 'Generate Series Blueprint'}
-                    </p>
-                  </TooltipContent>
-                </Tooltip>
-              )}
 
               <Tooltip>
                 <TooltipTrigger asChild>

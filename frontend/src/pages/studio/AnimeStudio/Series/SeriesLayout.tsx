@@ -1,17 +1,15 @@
 import React, { startTransition, Suspense } from 'react';
 import { Outlet, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
 import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
 import { useAuth } from '@/hooks/useAuth';
-import { generateSeriesPlan } from '@/services/api/gemini';
 import { SeriesHeader } from './components/SeriesHeader';
 import { SeriesToolbar } from './components/SeriesToolbar';
 import { SeriesTabs, SeriesTab } from './Tabs/SeriesTabs';
-import { SeriesLoadingPage } from './components/SeriesLoadingPage';
 import { cn } from '@/lib/utils';
 import { StudioTabsProgressBar } from '@/pages/studio/components/studio/layout/StudioTabsProgressBar';
 import { seriesStyles as s } from './seriesStyles';
 import { studioLog } from '@/lib/dev-console-logs';
+import { generateSeriesPlan } from '@/services/generators/seriesGenerator';
 
 export default function SeriesLayout() {
   const navigate = useNavigate();
@@ -41,6 +39,7 @@ export default function SeriesLayout() {
     isSaving,
     isGeneratingSeries,
     generatedSeriesPlan,
+    generatedScript,
     generationProgress,
     temperature,
     maxTokens,
@@ -56,6 +55,9 @@ export default function SeriesLayout() {
     setGeneratedScript,
     setGeneratedImagePrompts,
     setGeneratedMetadata,
+    setSession: setGlobalSession,
+    setNumEpisodes: setGlobalNumEpisodes,
+    setNumScenes: setGlobalNumScenes,
     syncCore,
     showNotification,
     addLog: addGeneratorLog,
@@ -80,31 +82,41 @@ export default function SeriesLayout() {
     currentScriptId ? `/projects/${currentScriptId}` : '/studio'
   );
 
-  const MAX_TOTAL_EPISODES = 24;
+  const MAX_TOTAL_EPISODES = 120;
 
   type GenerateSeriesArgs = {
     episodesPerSession: number;
     sessions: number;
     scenes: number;
+    frames?: number;
   };
 
   const handleGenerate = React.useCallback(async (params: GenerateSeriesArgs) => {
-    const { episodesPerSession, scenes: resolvedScenes, sessions: resolvedSessions } = params;
+    const { episodesPerSession, scenes: resolvedScenes, sessions: resolvedSessions, frames: resolvedFrames } = params;
 
     const episodesCount = Number(episodesPerSession);
     const sceneCount = Number(resolvedScenes);
     const sessionsCount = Number(resolvedSessions);
+    const framesCount = resolvedFrames !== undefined ? Number(resolvedFrames) : undefined;
 
     console.log('🎬 [handleGenerate] CALLED with:', { episodesPerSession: episodesCount, scenes: sceneCount, sessions: sessionsCount });
 
     const missingFields: string[] = [];
-    if (!Number.isFinite(sessionsCount)) missingFields.push('Session Count');
-    if (!Number.isFinite(episodesCount)) missingFields.push('Episodes Per Session');
-    if (!Number.isFinite(sceneCount)) missingFields.push('Scenes Per Episode');
+    if (!Number.isFinite(sessionsCount) || sessionsCount <= 0) missingFields.push('Session Count');
+    if (!Number.isFinite(episodesCount) || episodesCount <= 0) missingFields.push('Episodes Per Session');
+    if (!Number.isFinite(sceneCount) || sceneCount <= 0) missingFields.push('Scenes Per Episode');
 
     if (missingFields.length > 0) {
       const message = `Please enter valid values for: ${missingFields.join(', ')}.`;
-      console.error('❌ [handleGenerate] Missing or invalid generation fields:', { missingFields, episodesPerSession, resolvedScenes, resolvedSessions });
+      console.error('❌ [handleGenerate] Missing or invalid generation fields:', { missingFields, episodesPerSession, resolvedScenes, resolvedSessions, resolvedFrames });
+      showNotification?.(message, 'error');
+      setGenerationError(message);
+      return;
+    }
+
+    if (framesCount !== undefined && (!Number.isFinite(framesCount) || framesCount <= 0)) {
+      const message = `Frames Per Scene must be a positive number.`;
+      console.error('❌ [handleGenerate] Invalid frames count:', { framesCount });
       showNotification?.(message, 'error');
       setGenerationError(message);
       return;
@@ -126,6 +138,12 @@ export default function SeriesLayout() {
     
     console.log('🎬 [handleGenerate] Prompt validated, starting generation');
     setGenerationError(null);
+    setGlobalSession(String(sessionsCount));
+    setGlobalNumEpisodes(episodesCount);
+    setGlobalNumScenes(String(sceneCount));
+    startTransition(() => {
+      setSearchParams({ tab: 'blueprint' });
+    });
     setIsGeneratingSeries(true);
     setGenerationProgress(5);
     addGeneratorLog?.("SERIES", "STARTING", `Synthesizing full series roadmap across ${sessionsCount} sessions and ${episodesCount} episode beats...`);
@@ -160,29 +178,59 @@ export default function SeriesLayout() {
       ].join('\n\n');
 
       studioLog("SERIES", `Requesting series plan generation for ${totalEpisodes} episodes using full story bible...`, 'anime');
-      const rawPlan = await generateSeriesPlan(
-        prompt,
-        selectedModel,
-        contentType,
-        totalEpisodes,
-        worldBible,
-        castContext,
-        false, // expandSequentially - Disabled: single-pass generation. Per-episode expansion spawned repeated AI calls.
-        {
-          session: String(sessionsCount),
-          episodesPerSession: episodesCount,
-          episode,
-          temperature,
-          maxTokens,
-          topP,
-          topK,
-          numScenes: sceneCount
-        }
-      );
 
-      // Ensure we have a valid array
-      const plan = Array.isArray(rawPlan) ? rawPlan : [];
-      setGeneratedSeriesPlan(plan);
+      const plan: any[] = [];
+      for (let episodeIndex = 0; episodeIndex < totalEpisodes; episodeIndex += 1) {
+        const episodeNumber = episodeIndex + 1;
+        studioLog("SERIES", `Generating episode ${episodeNumber} of ${totalEpisodes}...`, 'info');
+        setGenerationProgress(Math.round((episodeIndex / totalEpisodes) * 80) + 10);
+
+        try {
+          const batch = await generateSeriesPlan(
+            prompt,
+            selectedModel,
+            contentType,
+            1,
+            worldBible,
+            castContext,
+            true,
+            {
+              session: String(sessionsCount),
+              episodesPerSession: episodesCount,
+              totalEpisodes,
+              episode: String(episodeNumber),
+              episodeOffset: episodeIndex,
+              temperature,
+              maxTokens,
+              topP,
+              topK,
+              numScenes: sceneCount,
+              numFrames: Number.isFinite(framesCount as number) ? framesCount : undefined,
+            }
+          );
+
+          const nextEpisode = Array.isArray(batch) && batch.length > 0 ? batch[0] : null;
+          if (nextEpisode) {
+            plan.push(nextEpisode);
+            setGeneratedSeriesPlan([...plan]);
+            addGeneratorLog?.("SERIES", "PROGRESS", `Episode ${episodeNumber}/${totalEpisodes} generated.`);
+            setGenerationProgress(Math.round(((episodeNumber) / totalEpisodes) * 90) + 5);
+          } else {
+            console.warn(`Episode ${episodeNumber} returned no usable data.`);
+          }
+        } catch (episodeError: any) {
+          const episodeMsg = episodeError?.message || `Episode ${episodeNumber} generation failed.`;
+          console.error(`[SeriesLayout] ${episodeMsg}`, episodeError);
+          addGeneratorLog?.("SERIES", "WARNING", `Episode ${episodeNumber} failed: ${episodeMsg}`);
+          setGenerationError(episodeMsg);
+          showNotification?.(`Episode ${episodeNumber} failed; partial plan is available.`, 'warning');
+          break;
+        }
+      }
+
+      const rawPlan = plan;
+      const finalPlan = Array.isArray(rawPlan) ? rawPlan : [];
+      setGeneratedSeriesPlan(finalPlan);
       studioLog("SERIES", `Series plan synthesized. Count: ${plan.length} episodes.`, 'success');
       addGeneratorLog?.("SERIES", "SUCCESS", `Series roadmap ready with ${plan.length} episodes.`);
       setGenerationProgress(100);
@@ -241,7 +289,13 @@ export default function SeriesLayout() {
     episode
   ]);
 
-  const VALID_TABS: SeriesTab[] = ['episodes', 'assets', 'blueprint'];
+  const hasSeriesOutput = Boolean(
+    (generatedSeriesPlan && generatedSeriesPlan.length > 0) ||
+    (generatedScript && generatedScript.trim().length > 0)
+  );
+  const VALID_TABS: SeriesTab[] = hasSeriesOutput
+    ? ['episodes', 'assets', 'blueprint', 'ai-output']
+    : ['blueprint'];
   const pathname = location.pathname;
   const pathTab = pathname.split('/').pop() as SeriesTab;
   const queryTab = searchParams.get('tab') as SeriesTab | null;
@@ -270,8 +324,9 @@ export default function SeriesLayout() {
       const customSessions = hasDetail ? e.detail.sessions : undefined;
       const customEpisodes = hasDetail ? (e.detail.episodesPerSession ?? e.detail.episodes) : undefined;
       const customScenes = hasDetail ? e.detail.scenes : undefined;
+      const customFrames = hasDetail ? e.detail.frames : undefined;
 
-      console.log('🎬 [SeriesLayout EVENT LISTENER] Parsed values:', { customSessions, customEpisodes, customScenes });
+      console.log('🎬 [SeriesLayout EVENT LISTENER] Parsed values:', { customSessions, customEpisodes, customScenes, customFrames });
 
       if (customSessions === undefined || customEpisodes === undefined || customScenes === undefined) {
         console.error('❌ [SeriesLayout EVENT LISTENER] Missing required values');
@@ -279,11 +334,12 @@ export default function SeriesLayout() {
         return;
       }
 
-      console.log('🎬 [SeriesLayout EVENT LISTENER] Calling handleGenerate with:', { episodesPerSession: customEpisodes, scenes: customScenes, sessions: customSessions });
+      console.log('🎬 [SeriesLayout EVENT LISTENER] Calling handleGenerate with:', { episodesPerSession: customEpisodes, scenes: customScenes, sessions: customSessions, frames: customFrames });
       handleGenerate({
         episodesPerSession: Number(customEpisodes),
         scenes: Number(customScenes),
-        sessions: Number(customSessions)
+        sessions: Number(customSessions),
+        frames: customFrames !== undefined ? Number(customFrames) : undefined,
       });
     };
     window.addEventListener('studio-generate-series', handleGlobalGenerate);
@@ -291,7 +347,7 @@ export default function SeriesLayout() {
   }, [handleGenerate]);
 
   return (
-    <div className={cn("transition-all duration-700", generatedSeriesPlan && generatedSeriesPlan.length > 0 ? "space-y-6" : "space-y-0")}>
+    <div className={cn(generatedSeriesPlan && generatedSeriesPlan.length > 0 ? "space-y-6" : "space-y-0")}>
       {/* Global Header - Always visible for context and navigation */}
       <div className="studio-module-header">
         <SeriesHeader
@@ -377,30 +433,11 @@ export default function SeriesLayout() {
       </div>
 
       <div className="flex-1 flex flex-col min-h-[500px]">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={location.pathname + location.search}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.2, ease: "easeOut" }}
-            className="flex-1 flex flex-col"
-          >
-            <Suspense fallback={<div className="flex-1 flex items-center justify-center p-20"><SeriesLoadingPage tab={activeTab} progress={generationProgress} /></div>}>
-              {isGeneratingSeries ? (
-                <SeriesLoadingPage
-                  tab={activeTab}
-                  progress={generationProgress}
-                  error={generationError}
-                  title="Generating All Series Tabs"
-                  description="Orchestrating Roadmap, Episodes, and Assets..."
-                />
-              ) : (
-                <Outlet context={{ showScaffolder, setShowScaffolder, activeTab, onGenerateSeries: handleGenerate }} />
-              )}
+          <div className="flex-1 flex flex-col">
+            <Suspense fallback={<div className="flex-1" />}>
+              <Outlet context={{ showScaffolder, setShowScaffolder, activeTab, onGenerateSeries: handleGenerate }} />
             </Suspense>
-          </motion.div>
-        </AnimatePresence>
+          </div>
       </div>
     </div>
   );

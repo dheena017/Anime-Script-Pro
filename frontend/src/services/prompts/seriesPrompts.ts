@@ -34,6 +34,8 @@ System instructions:
 - Output format RULES: First output MUST be a single JSON object that exactly follows the "SeriesPlan" schema described below. Do NOT output any surrounding commentary before the JSON. After the JSON block, output a human-readable markdown outline that mirrors the JSON and expands creative notes.
 - If the request is underspecified, generate 2 variants (A/B) and place them under metadata.alternatives.
 - Produce long-form treatment: season- and episode-level material should be richly detailed (thousands of words across the season when appropriate) and include scene seeds, act breakdowns, and production notes.
+- Every scene in every episode must include a frames array with at least 2 frame objects. Each frame must contain frame_number, frame_id, frame_description, image_prompt, video_prompt, audio_prompt, music_prompt, and system_rules.
+- If a scene uses frames, the scene-level prompt fields may be omitted only if every frame contains its own prompt set.
 
 Inputs:
 - ${placeholderNames.world}: comprehensive world object (locations, factions, timeline, rules, tones, major events). Use IDs for cross-references.
@@ -68,7 +70,7 @@ Required Output Schema (SeriesPlan) — JSON keys (required):
           "teaserLogline": string,
           "fullSynopsis": string,
           "actBreakdown": [ {"actNumber": number, "durationPercent": number, "beats": [{"beatId": string, "description": string, "linkedCharacterIds": string[], "locationId": string, "visualNotes": string}]} ],
-          "sceneSeeds": [ {"sceneIndex": number, "locationId": string, "primaryCharacters": string[], "conflict": string, "objective": string, "keyProps": string[], "visualMood": string, "estimatedPages": number} ],
+          "sceneSeeds": [ {"sceneIndex": number, "locationId": string, "primaryCharacters": string[], "conflict": string, "objective": string, "keyProps": string[], "visualMood": string, "estimatedPages": number, "frames": [{"frameNumber": number, "frameId": string, "frameDescription": string, "imagePrompt": string, "videoPrompt": string, "audioPrompt": string, "musicPrompt": string, "systemRules": string}] } ],
           "keyBeats": [ {"beatId": string, "description": string, "importance": string} ],
           "productionNotes": { "vfx": string[], "locations": [{"id": string, "description": string}], "stunts": string[], "musicCueIdeas": string[], "estimatedBudgetTier": string },
           "hooksForNextEpisode": string[]
@@ -243,12 +245,7 @@ REQUIRED JSON SCHEMA (You MUST output an array containing EXACTLY ${episodeCount
       "audio_leitmotif": "...",
       "foley_focus": "..."
     },
-    "episode_image_prompt": "Episode-level visual identity prompt describing the overall cinematic palette, staging, and image style.",
-    "episode_video_prompt": "Episode-level motion prompt summarizing the episode pacing, camera moves, and stylistic transitions.",
-    "episode_audio_prompt": "Episode-level audio prompt describing the ambient soundscape, foley palette, and sonic identity.",
-    "episode_music_prompt": "Episode-level music prompt describing tempo, instrumentation, and emotional score progression.",
-    "episode_system_rules": "Rules for consistent scene-to-scene continuity, tone, and AI safety.",
-    "detailed_episode_spec": {
+      "detailed_episode_spec": {
       "cold_open": "...",
       "script_opening_line": "...",
       "acts": [

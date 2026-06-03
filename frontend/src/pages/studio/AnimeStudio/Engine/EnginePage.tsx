@@ -144,21 +144,6 @@ export function EnginePage() {
   const selectedTemplate = templates.find((t: Template) => t.id === selectedTemplateId);
 
   const renderTabContent = () => {
-    if (isGeneratingScript) {
-      return (
-        <div className="flex flex-col items-center justify-center h-[600px] space-y-8">
-          <div className="relative">
-            <div className="w-20 h-20 border-2 border-studio/20 border-t-studio rounded-full animate-spin shadow-[0_0_50px_rgba(6,182,212,0.3)]" />
-            <Cpu className="absolute inset-0 m-auto w-8 h-8 text-studio animate-pulse" />
-          </div>
-          <div className="text-center space-y-3">
-            <p className="font-black tracking-[0.4em] text-xs uppercase text-studio animate-pulse">AI Generation in Progress</p>
-            <p className="text-xs font-bold text-zinc-600 uppercase tracking-widest">Building your cinematic narrative...</p>
-          </div>
-        </div>
-      );
-    }
-
     switch (activeTab) {
       case 'status':
         const handleGenerate = () => {

@@ -504,7 +504,6 @@ export async function apiRequest<T>(
         summary: `${method} ${displayLabel}`,
         tags: [signalId, method],
       });
-      persistLogHistory();
 
       if (!response.ok) {
         studioLog(
@@ -549,7 +548,6 @@ export async function apiRequest<T>(
           summary: `${method} ${displayLabel} completed successfully`,
         },
       );
-      persistLogHistory();
       return await response.json();
     } catch (error: any) {
       if (error instanceof ApiError) throw error;
@@ -579,7 +577,6 @@ export async function apiRequest<T>(
           summary: `${method} ${displayLabel} threw a network error`,
         },
       );
-      persistLogHistory();
       throw new ApiError(errorMessage || "Network error");
     } finally {
       clearTimeout(id);

@@ -202,10 +202,6 @@ export function WorldPage() {
   };
 
   const renderContent = (genStatus: Record<string, boolean>) => {
-    if (genStatus[activeTab]) {
-      return <WorldLoadingTab type={activeTab} />;
-    }
-
     switch (activeTab) {
       case "manifest":
         return generatedWorld ? (

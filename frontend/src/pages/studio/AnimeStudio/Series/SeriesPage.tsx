@@ -8,12 +8,11 @@ import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
 import { SeriesTab } from './Tabs/SeriesTabs';
 import { BlueprintTab } from './Tabs/BlueprintTab';
+import { AIOutputTab } from './Tabs/AIOutputTab';
 
 import { AssetsTab } from './Tabs/AssetsTab';
 import { SeriesEmptyState } from './components/SeriesEmptyState';
 import EpisodesPage from './Episodes/EpisodesPage';
-
-import { SeriesLoadingPage } from './components/SeriesLoadingPage';
 
 import { seriesStyles as s } from './seriesStyles';
 
@@ -23,7 +22,7 @@ export function SeriesPage() {
   const [isSyncing, setIsSyncing] = React.useState(false);
   const [lastSyncDate, setLastSyncDate] = React.useState<string | null>(null);
   const [searchParams, setSearchParams] = useSearchParams();
-  const context = useOutletContext<{ activeTab?: SeriesTab; onGenerateSeries?: (params: { episodesPerSession: number; sessions: number; scenes: number }) => void }>();
+  const context = useOutletContext<{ activeTab?: SeriesTab; onGenerateSeries?: (params: { episodesPerSession: number; sessions: number; scenes: number; frames?: number }) => void }>();
   const activeTab = context?.activeTab || 'episodes';
 
   const {
@@ -226,17 +225,6 @@ export function SeriesPage() {
   };
 
   const renderTabContent = () => {
-    // Only show global loading if NOT on the blueprint tab (which has its own HUD)
-    // Keep BlueprintTab mounted during synthesis so localConfig values are preserved
-    if (isGeneratingSeries && activeTab !== 'blueprint') {
-      return (
-        <SeriesLoadingPage
-          message={getLoadingMessage()}
-          subtext="AI model is processing episodic metadata"
-        />
-      );
-    }
-
     if ((!generatedSeriesPlan || generatedSeriesPlan.length === 0) && activeTab !== 'blueprint') {
       return (
         <SeriesEmptyState
@@ -248,6 +236,8 @@ export function SeriesPage() {
     }
 
     switch (activeTab) {
+      case 'ai-output':
+        return <AIOutputTab plan={generatedSeriesPlan || []} script={generatedScript} />;
       case 'episodes':
         return <EpisodesPage />;
       case 'blueprint':

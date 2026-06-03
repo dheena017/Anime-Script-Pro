@@ -5,7 +5,6 @@
 
 // ── Core & Script ────────────────────────────────────────────────────────────
 export * from "../generators/core";
-export * from "../generators/scriptGenerator";
 
 // ── SEO (named exports to avoid collisions) ──────────────────────────────────
 export {

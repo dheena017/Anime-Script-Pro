@@ -1,6 +1,6 @@
 import React from 'react';
-import { Clock, Timer, Activity, Zap, Calendar } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { Clock, Timer, Activity, Zap, Calendar } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { SeriesEmptyTab } from '../components/SeriesEmptyTab';
 
@@ -73,13 +73,9 @@ export const TimelineTab: React.FC<TimelineTabProps> = ({ plan }) => {
   return (
     <div className="py-8 space-y-12">
       <div className="text-center space-y-4 max-w-2xl mx-auto">
-         <motion.div 
-            initial={{ y: -20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            className="w-20 h-20 rounded-[2.5rem] bg-blue-500/10 border border-blue-500/20 flex items-center justify-center mx-auto shadow-[0_0_50px_rgba(59,130,246,0.15)]"
-         >
+         <div className="w-20 h-20 rounded-[2.5rem] bg-blue-500/10 border border-blue-500/20 flex items-center justify-center mx-auto shadow-[0_0_50px_rgba(59,130,246,0.15)]">
             <Clock className="w-10 h-10 text-blue-400" />
-         </motion.div>
+         </div>
          <h2 className="text-2xl font-black text-white uppercase tracking-tighter">Production <span className="text-blue-500">Timeline</span></h2>
          <p className="text-zinc-500 text-xs font-bold uppercase tracking-[0.4em]">Automated synthesis schedule and rendering milestones</p>
       </div>
@@ -94,11 +90,7 @@ export const TimelineTab: React.FC<TimelineTabProps> = ({ plan }) => {
                     <p className="text-4xl font-black text-white uppercase tracking-tighter">{readinessScore}% SYNC</p>
                 </div>
                 <div className="w-64 h-2 bg-white/5 rounded-full overflow-hidden">
-                    <motion.div 
-                        initial={{ width: 0 }}
-                        animate={{ width: `${readinessScore}%` }}
-                        className="h-full bg-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.5)]"
-                    />
+                    <div className="h-full bg-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.5)]" style={{ width: `${readinessScore}%` }} />
                 </div>
             </div>
             <div className="flex gap-2 relative z-10">
@@ -123,9 +115,6 @@ export const TimelineTab: React.FC<TimelineTabProps> = ({ plan }) => {
          {phases.map((phase, i) => (
            <motion.div 
              key={i} 
-             initial={{ opacity: 0, x: -20 }}
-             animate={{ opacity: 1, x: 0 }}
-             transition={{ delay: i * 0.1 }}
              className="flex flex-col md:flex-row md:items-center justify-between p-8 bg-[#080808] border border-white/5 rounded-[2.5rem] hover:bg-white/[0.04] transition-all group relative overflow-hidden"
            >
               <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-transparent via-blue-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />

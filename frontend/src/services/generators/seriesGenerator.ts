@@ -7,8 +7,10 @@ import { cleanJson } from "../../lib/api-utils";
 type SeriesPromptOptions = {
   episode?: string;
   numScenes?: number;
+  numFrames?: number;
   session?: string | number;
   episodesPerSession?: number;
+  totalEpisodes?: number;
 };
 
 type ExpandEpisodeDetailsOptions = {
@@ -21,8 +23,11 @@ type ExpandEpisodeDetailsOptions = {
 type GenerateSeriesPlanOptions = {
   session?: string;
   episodesPerSession?: number;
+  totalEpisodes?: number;
   episode?: string;
+  episodeOffset?: number;
   numScenes?: number;
+  numFrames?: number;
   temperature?: number;
   maxTokens?: number;
   topP?: number;
@@ -92,6 +97,7 @@ function validateSeriesScaffoldingOptions(opts?: GenerateSeriesPlanOptions) {
   const sessionCount = opts.session !== undefined ? Number(opts.session) : Number.NaN;
   const episodesPerSession = Number(opts.episodesPerSession);
   const sceneCount = Number(opts.numScenes);
+  const frameCount = opts.numFrames !== undefined ? Number(opts.numFrames) : undefined;
 
   if (!Number.isFinite(sessionCount) || sessionCount <= 0) {
     throw new Error("Session Count is required and must be a positive integer.");
@@ -101,6 +107,9 @@ function validateSeriesScaffoldingOptions(opts?: GenerateSeriesPlanOptions) {
   }
   if (!Number.isFinite(sceneCount) || sceneCount <= 0) {
     throw new Error("Scenes Per Episode is required and must be a positive integer.");
+  }
+  if (frameCount !== undefined && (!Number.isFinite(frameCount) || frameCount <= 0)) {
+    throw new Error("Frames Per Scene must be a positive integer when provided.");
   }
 }
 
@@ -386,7 +395,6 @@ function parseStructuredJson<T>(
       }
     }
   } catch {
-    // Fall through to broader repair
   }
 
   try {
@@ -541,63 +549,79 @@ function createAudioPromptRequirements(): string {
 `;
 }
 
-function createSceneResponseContract(sceneCount: number = 18): string {
+function createSceneResponseContract(sceneCount?: number, frameCount?: number): string {
   return `
   SCENE GENERATOR RESPONSE CONTRACT:
-  - detailed_episode_spec must be a single JSON object.
+  - Return only a single JSON object for detailed_episode_spec. Do not include markdown fences, commentary, or extra top-level wrappers.
   - detailed_episode_spec.cold_open must be present and contain 2-4 cinematic sentences.
   - detailed_episode_spec.acts must be a JSON array of exactly 3 act objects.
   - The act order must be Act 1, Act 2, Act 3 with no gaps, duplicates, or reordering.
+  - Each act object must include:
+    - act_number
+    - act_name
+    - act_summary
+    - scenes
   - Each act must contain a scenes array with at least one scene.
   - The total scene count across all acts must match the episode-level scene target declared in the prompt.
-  - The user-entered scene count is authoritative: if the blueprint says ${sceneCount} scenes, the combined act scenes must equal ${sceneCount} exactly.
-  - Each scene object must be a self-contained production unit with deterministic IDs and explicit narrative continuity.
-  - Each scene object must include:
-  - scene_id
-  - scene_name
-  - location
-  - summary
-  - script_dialogue_teaser
-  - conflict
-  - psychological_stakes
-  - character_focus
-  - key_props
-  - visual_direction
-  - particle_effects
-  - audio_direction
-  - voice_acting_notes
-  - dialogue_tone
-  - shot_list_preview
-  - transition
-  - ai_prompts
-  - production_stats
-  - scene_id values must be deterministic, readable, and sequence-safe across the full episode.
-  - If a scene contains a "frames" array, do not duplicate prompt fields at the scene level; every frame object must include its own image_prompt, video_prompt, audio_prompt, music_prompt, and system_rules.
+  - The user-entered scene count is authoritative: if the prompt requests ${sceneCount} scenes, the combined act scenes must equal ${sceneCount} exactly.
+  - Each scene object must be a self-contained production unit with deterministic, sequential IDs and explicit narrative continuity.
+  - Every scene object must include all of the following fields:
+    - scene_id
+    - scene_name
+    - location
+    - summary
+    - script_dialogue_teaser
+    - conflict
+    - psychological_stakes
+    - character_focus
+    - key_props
+    - visual_direction
+    - particle_effects
+    - audio_direction
+    - voice_acting_notes
+    - dialogue_tone
+    - shot_list_preview
+    - transition
+    - ai_prompts
+    - production_stats
+  - scene_id values must be deterministic, readable, zero-padded, and sequence-safe across the full episode.
   - scene_name must be short, cinematic, and distinct from the episode title.
-  - summary must be specific enough to reveal scene purpose, action, subtext, and consequence.
-  - character_focus must list the active characters and describe the function each one serves in the scene.
+  - summary must reveal scene purpose, action, subtext, and consequence in concrete terms.
+  - character_focus must name the active characters and explain the function each one serves in the scene.
   - key_props must highlight objects that drive plot, blocking, symbolism, or continuity.
   - visual_direction must include camera language, lens guidance, framing style, lighting, and color notes.
   - particle_effects must describe environmental texture, motion debris, weather, or digital artifacts.
   - audio_direction must describe ambience, foley, transitional sound cues, and musical layering.
-  - voice_acting_notes must specify emotional texture, rhythm, pacing, and restraint or intensity.
+  - voice_acting_notes must specify emotional texture, rhythm, pacing, and intensity or restraint.
   - shot_list_preview must contain 5-7 concrete shot ideas in execution order.
-  - transition must be one of Smash-cut, Cross-fade, Dissolve, Match-cut, or Jump-cut.
-  - ai_prompts must include separate fields:
-  - image_prompt
-  - video_prompt
-  - audio_prompt
-  - music_prompt
-  - system_rules
-  - If a scene contains a "frames" array, do not duplicate scene-level prompt fields; every frame object must include its own image_prompt, video_prompt, audio_prompt, music_prompt, and system_rules.
-  - production_stats must include:
-  - cast_count
-  - extra_count
-  - stunt_required
-  - vfx_heavy
-  - animation_difficulty_score
-  - estimated_minutes
+  - transition must be one of Smash-cut, Cross-fade, Dissolve, Match-cut, Jump-cut.
+  - ai_prompts must be an object containing separate fields:
+    - image_prompt
+    - video_prompt
+    - audio_prompt
+    - music_prompt
+    - system_rules
   - Every ai_prompts field must be direct, model-ready, and free of filler language.
+  - production_stats must be an object containing:
+    - cast_count
+    - extra_count
+    - stunt_required
+    - vfx_heavy
+    - animation_difficulty_score
+    - estimated_minutes
+  - If a scene includes a "frames" array, do not include scene-level image_prompt, video_prompt, audio_prompt, music_prompt, or system_rules.
+    - Every frame object must include its own image_prompt, video_prompt, audio_prompt, music_prompt, and system_rules.
+  ${Number.isFinite(frameCount as number) ? `- Every scene MUST include a "frames" array containing exactly ${frameCount} frame objects.
+    - Each frame object must include:
+      - frame_number
+      - frame_id
+      - frame_description
+      - image_prompt
+      - video_prompt
+      - audio_prompt
+      - music_prompt
+      - system_rules
+    - Frame prompts must be production-ready, deterministic, and aligned to the scene’s cinematic action.` : ''}
   - Every scene must preserve continuity with the episode hook, emotional arc, theme mapping, and act progression.
   - The final act must either resolve the immediate scene objective or end on a deliberate cliffhanger.
   - Do not allow generic filler scenes, repeated beats, or non-causal scene ordering.
@@ -608,6 +632,7 @@ function createSceneResponseContract(sceneCount: number = 18): string {
 function createEpisodeResponseContract(
   episodeCount: number,
   sceneCount?: number,
+  frameCount?: number,
   ): string {
   return `
   EPISODE SCHEMA (Your array MUST contain exactly ${episodeCount} episode objects. Do not return fewer or more objects.):
@@ -643,16 +668,18 @@ function createEpisodeResponseContract(
   - episode_music_prompt
   - episode_system_rules
 
-  Every scene inside detailed_episode_spec must include dedicated AI prompt fields:
-  - image_prompt
-  - video_prompt
-  - audio_prompt
-  - music_prompt
-  - system_rules
-  - If a scene includes a "frames" array, do not duplicate scene-level prompt fields; every frame object must include its own image_prompt, video_prompt, audio_prompt, music_prompt, and system_rules.
+  Every scene inside detailed_episode_spec must include dedicated AI prompt fields unless that scene includes a "frames" array.
+  - If a scene does not include a "frames" array, the scene must include:
+    - image_prompt
+    - video_prompt
+    - audio_prompt
+    - music_prompt
+    - system_rules
+  - If a scene includes a "frames" array, do not include scene-level image_prompt, video_prompt, audio_prompt, music_prompt, or system_rules.
+    - Every frame object must include its own image_prompt, video_prompt, audio_prompt, music_prompt, and system_rules.
 
   ${createSceneResponseContract(sceneCount)}
-`;
+  `;
 }
 
 function createSessionResponseContract(
@@ -685,13 +712,19 @@ function createSeriesGenerationPrompt(
   const worldContext = worldLore || "Standard genre rules.";
   const castContext = characterProfiles || "Generic archetypes.";
   const resolvedSceneCount = Number(opts?.numScenes);
+  const resolvedFrameCount = Number(opts?.numFrames);
   const sessionCount = opts?.session !== undefined ? Number(opts.session) : Number.NaN;
   const episodesPerSession = Number(opts?.episodesPerSession);
+  const resolvedTotalEpisodes = Number(opts?.totalEpisodes);
   const normalizedSessionCount = Number.isFinite(sessionCount) && sessionCount > 0 ? sessionCount : undefined;
   const normalizedEpisodesPerSession = Number.isFinite(episodesPerSession) && episodesPerSession > 0 ? episodesPerSession : undefined;
+  const normalizedTotalEpisodes = Number.isFinite(resolvedTotalEpisodes) && resolvedTotalEpisodes > 0 ? resolvedTotalEpisodes : undefined;
   const scenesText = Number.isFinite(resolvedSceneCount) && resolvedSceneCount > 0 ? resolvedSceneCount : "MISSING_SCENES_PER_EPISODE";
+  const framesText = Number.isFinite(resolvedFrameCount) && resolvedFrameCount > 0 ? resolvedFrameCount : "OPTIONAL";
   const sessionsText = normalizedSessionCount ?? "MISSING_SESSION_COUNT";
   const episodesPerSessionText = normalizedEpisodesPerSession ?? "MISSING_EPISODES_PER_SESSION";
+  const totalEpisodesText = normalizedTotalEpisodes ?? episodeCount;
+  const isPartialRequest = normalizedTotalEpisodes !== undefined && normalizedTotalEpisodes !== episodeCount;
 
   return `
   CONTENT TYPE: ${contentType}
@@ -702,13 +735,15 @@ function createSeriesGenerationPrompt(
   PRODUCTION SCAFFOLDING:
   - Total sessions requested: ${sessionsText}.
   - Episodes per session requested: ${episodesPerSessionText}.
-  - Total episodes requested: ${episodeCount}.
+  - Total episodes requested: ${totalEpisodesText}.
   - Scenes per episode requested: ${scenesText}.
+  - Frames per scene requested: ${framesText}.
 
   BLUEPRINT COUNT RULES:
   - Episode count = ${episodeCount}.
   - Treat episodeCount as the exact number of episode objects to return.
   - Keep internal scene structure consistent, but do not let it change the total episode count.
+  ${isPartialRequest ? `- NOTE: This is a partial generation request within a ${totalEpisodesText}-episode roadmap.` : ''}
 
   SESSION RULES:
   - Each episode MUST declare a top-level "session" integer and a "session_name" string.
@@ -729,10 +764,11 @@ function createSeriesGenerationPrompt(
   - Ensure all IDs are deterministic (e.g., E01_A1_S01).
   - Every episode object must include dedicated AI prompt fields for image, video, and audio generation.
   - Every scene object inside detailed_episode_spec must also include separate image, video, and audio prompt fields.
+  ${Number.isFinite(resolvedFrameCount) && resolvedFrameCount > 0 ? `- Every scene object must include a "frames" array with exactly ${resolvedFrameCount} frames when frames per scene is requested.` : ''}
   - Every episode object must reflect the resolved scene count in asset_matrix.scene_count.
 
   ${createSessionResponseContract(normalizedSessionCount, normalizedEpisodesPerSession, Number.isFinite(resolvedSceneCount) ? resolvedSceneCount : undefined)}
-  ${createEpisodeResponseContract(episodeCount, Number.isFinite(resolvedSceneCount) ? resolvedSceneCount : undefined)}
+  ${createEpisodeResponseContract(episodeCount, Number.isFinite(resolvedSceneCount) ? resolvedSceneCount : undefined, Number.isFinite(resolvedFrameCount) ? resolvedFrameCount : undefined)}
   ${createImagePromptRequirements()}
   ${createVideoPromptRequirements()}
   ${createAudioPromptRequirements()}
@@ -871,21 +907,69 @@ export async function generateSeriesPlan(
   worldLore?: string,
   characterProfiles?: string,
   expandSequentially: boolean = false,
-  opts?: {
-    session?: string;
-    episodesPerSession?: number;
-    episode?: string;
-    numScenes?: number;
-    temperature?: number;
-    maxTokens?: number;
-    topP?: number;
-    topK?: number;
-  },
+  opts?: GenerateSeriesPlanOptions,
   ) {
   validateSeriesPromptInput(prompt);
   validateSeriesContentTypeInput(contentType);
   validateSeriesEpisodeCountInput(episodeCount);
   validateSeriesScaffoldingOptions(opts);
+
+  // PRE-BATCH for large episode counts to avoid overwhelming the model
+  // If requesting more than 15 episodes and not already in sequential mode, batch from the start
+  const BATCH_THRESHOLD = 15;
+  if (episodeCount > BATCH_THRESHOLD && !expandSequentially) {
+    console.info(
+      `[Series Lab] Pre-batching: ${episodeCount} episodes requested. Splitting into batches of ${BATCH_THRESHOLD} to avoid truncation.`
+    );
+    const batchSize = BATCH_THRESHOLD;
+    const batches: any[] = [];
+    
+    for (let i = 0; i < episodeCount; i += batchSize) {
+      const remaining = Math.min(batchSize, episodeCount - i);
+      try {
+        console.info(`[Series Lab] Generating batch: episodes ${i + 1}-${i + remaining} of ${episodeCount}`);
+        const batch = await generateSeriesPlan(
+          prompt,
+          model,
+          contentType,
+          remaining,
+          worldLore,
+          characterProfiles,
+          true, // expandSequentially to prevent recursive batching
+          {
+            ...(opts || {}),
+            episode: String(i + 1),
+            episodeOffset: (opts?.episodeOffset ?? 0) + i,
+            numScenes: opts?.numScenes,
+            numFrames: opts?.numFrames,
+          },
+        );
+        if (Array.isArray(batch) && batch.length > 0) {
+          batches.push(...batch);
+        }
+      } catch (err) {
+        console.error(
+          `[Series Lab] Batch generation failed for episodes ${i + 1}-${i + remaining}:`,
+          err,
+        );
+      }
+    }
+    
+    if (batches.length === episodeCount) {
+      console.info(`[Series Lab] Pre-batching succeeded: generated all ${episodeCount} episodes.`);
+      return normalizeEpisodeArray(batches, opts?.episodeOffset ?? 0, opts?.numFrames);
+    } else if (batches.length > 0) {
+      console.warn(
+        `[Series Lab] Pre-batching partial: generated ${batches.length} of ${episodeCount} episodes.`
+      );
+      return normalizeEpisodeArray(batches, opts?.episodeOffset ?? 0, opts?.numFrames);
+    } else {
+      console.error(
+        `[Series Lab] Pre-batching failed: generated 0 episodes. Returning empty array.`
+      );
+      return [];
+    }
+  }
 
   const resolvedSceneCount = opts?.numScenes as number;
   const systemInstruction = SERIES_PLAN_GENERATION_PROMPT(
@@ -949,7 +1033,10 @@ export async function generateSeriesPlan(
     }
 
     // Try generating in smaller chunks to avoid truncation/token limits
-    const chunkSize = Math.min(12, Math.max(1, episodeCount));
+    // For smaller episodeCounts, ensure we split into smaller batches instead of retrying the same size.
+    const chunkSize = episodeCount > 12
+      ? 12
+      : Math.max(1, Math.floor(episodeCount / 2));
     const pieces: any[] = [];
     for (let i = 0; i < episodeCount; i += chunkSize) {
       const remaining = Math.min(chunkSize, episodeCount - i);
@@ -967,7 +1054,9 @@ export async function generateSeriesPlan(
           {
             ...(opts || {}),
             episode: String(i + 1),
+            episodeOffset: (opts?.episodeOffset ?? 0) + i,
             numScenes: opts?.numScenes,
+            numFrames: opts?.numFrames,
           },
         );
         if (Array.isArray(chunk) && chunk.length > 0) {
@@ -985,23 +1074,160 @@ export async function generateSeriesPlan(
       console.info(
         "[Series Lab] Chunked generation succeeded with full episode set.",
       );
-      return pieces;
+      return normalizeEpisodeArray(pieces, opts?.episodeOffset ?? 0, opts?.numFrames);
     }
 
     if (pieces.length > 0) {
       console.warn(
         `[Series Lab] Chunked generation produced ${pieces.length} episodes (requested ${episodeCount}). Returning best-effort result without further retries.`,
       );
-      return pieces;
+      return normalizeEpisodeArray(pieces, opts?.episodeOffset ?? 0, opts?.numFrames);
     }
 
     console.warn(
       `[Series Lab] Chunked generation produced no usable episodes for ${episodeCount} requested. Returning the original partial result.`,
     );
-    return result;
+    return normalizeEpisodeArray(result, opts?.episodeOffset ?? 0, opts?.numFrames);
   }
 
-  return result;
+  return normalizeEpisodeArray(result, opts?.episodeOffset ?? 0);
+}
+
+/**
+ * Normalizes episode array to fix:
+ * 1. Global episode numbering (ensures sequential 01, 02, 03...)
+ * 2. Missing frames in scenes (creates default frames if not present)
+ * 3. Proper scene/frame IDs with global episode offset
+ */
+
+
+function normalizeEpisodeArray(
+  episodes: any[],
+  episodeOffset: number = 0,
+  framesPerScene?: number,
+): any[] {
+  if (!Array.isArray(episodes) || episodes.length === 0) {
+    return episodes;
+  }
+
+  return episodes.map((ep: any, batchIndex: number) => {
+    const globalEpisodeNum = episodeOffset + batchIndex + 1;
+    const episodeNumStr = String(globalEpisodeNum).padStart(2, '0');
+
+    // Ensure episode number fields are correct
+    const normalized: any = {
+      ...ep,
+      episode: episodeNumStr,
+      episode_number: globalEpisodeNum,
+      __displayEpisodeNumber: episodeNumStr,
+    };
+
+    // Normalize detailed_episode_spec with proper scene/frame structure
+    if (normalized.detailed_episode_spec) {
+      const spec = normalized.detailed_episode_spec;
+
+      // Ensure acts array exists
+      if (!Array.isArray(spec.acts)) {
+        spec.acts = [];
+      }
+
+      // Process each act
+      spec.acts = spec.acts.map((act: any, actIdx: number) => {
+        if (!Array.isArray(act.scenes)) {
+          act.scenes = [];
+        }
+
+        // Process each scene
+        act.scenes = act.scenes.map((scene: any, sceneIdx: number) => {
+          const sceneNum = actIdx + 1;
+          const sceneIdPrefix = `E${episodeNumStr}_A${sceneNum}_S${String(sceneIdx + 1).padStart(2, '0')}`;
+
+          const normalizedScene: any = {
+            ...scene,
+            scene_id: scene.scene_id || `${sceneIdPrefix}`,
+            scene_name: scene.scene_name || scene.name || `Scene ${sceneIdx + 1}`,
+          };
+
+          // Create proper frames with beat structure
+          const createFramesFromScene = (sceneData: any, frameIdPrefix: string): any[] => {
+            const frames: any[] = [];
+
+            // Determine desired frame count: prefer explicit framesPerScene, then sceneData.frame_count, then default
+            const defaultFrameCount = 3;
+            const requested = typeof framesPerScene === 'number' && framesPerScene > 0 ? framesPerScene : (sceneData.frame_count || defaultFrameCount);
+            const frameCount = Math.max(2, Number(requested) || defaultFrameCount);
+
+            // Break scene into beats: opening, development, climax/resolution
+            const beats = [
+              {
+                name: 'Opening Beat',
+                type: 'establishment',
+                description: sceneData.summary?.split('.')[0] || sceneData.cold_open || 'Scene opens',
+              },
+              {
+                name: 'Development',
+                type: 'action',
+                description: sceneData.conflict || 'Main action unfolds',
+              },
+              {
+                name: 'Resolution',
+                type: 'climax',
+                description: sceneData.transition || 'Scene concludes',
+              },
+            ];
+
+            for (let f = 0; f < frameCount; f += 1) {
+              const beat = beats[Math.min(f, beats.length - 1)];
+              const frameNum = String(f + 1).padStart(2, '0');
+              const frameId = `${frameIdPrefix}_F${frameNum}`;
+
+              // Extract or generate prompts from scene data
+              const baseDescription = beat.description || `${beat.name} - Frame ${frameNum}`;
+              const visualDir = sceneData.visual_direction || sceneData.shot_list_preview?.[f] || 'Cinematic shot';
+              const audioDir = sceneData.audio_direction || sceneData.dialogue_tone || 'Ambient background';
+
+              frames.push({
+                frame_id: frameId,
+                frame_description: baseDescription,
+                beat_type: beat.type,
+                beat_name: beat.name,
+                image_prompt: sceneData.image_prompt || 
+                  sceneData.ai_prompts?.image_prompt || 
+                  `${visualDir}. Frame ${frameNum} of scene: ${baseDescription}`,
+                video_prompt: sceneData.video_prompt || 
+                  sceneData.ai_prompts?.video_prompt || 
+                  `Camera: ${visualDir}. Motion: ${beat.type} beat with ${beat.name.toLowerCase()}`,
+                audio_prompt: sceneData.audio_prompt || 
+                  sceneData.ai_prompts?.audio_prompt || 
+                  `${audioDir}. Foley and ambient design for ${beat.name.toLowerCase()}: ${baseDescription}`,
+                music_prompt: sceneData.music_prompt || 
+                  sceneData.ai_prompts?.music_prompt || 
+                  `Underscore for ${beat.name.toLowerCase()} beat. Emotional tone: ${sceneData.emotional_arc || 'dramatic'}`,
+                system_rules: sceneData.system_rules || 
+                  sceneData.ai_prompts?.system_rules || 
+                  `Character continuity. Maintain established world rules. Frame ${frameNum}/${frameCount}`,
+              });
+            }
+
+            return frames;
+          };
+
+          // Apply frames to the normalized scene
+          if (framesPerScene || scene.frame_count) {
+            normalizedScene.frames = createFramesFromScene(normalizedScene, sceneIdPrefix);
+          }
+
+          return normalizedScene;
+        });
+
+        return act;
+      });
+
+      normalized.detailed_episode_spec = spec;
+    }
+
+    return normalized;
+  });
 }
 
 export async function regenerateSingleScene(
@@ -1075,7 +1301,6 @@ export async function regenerateSingleScene(
     "animation_difficulty_score": "1-5",
     "estimated_minutes": 2
   }
-  }
   `;
 
   try {
@@ -1091,12 +1316,11 @@ export async function regenerateSingleScene(
       worldLore,
       characterProfiles,
     );
-
     if (!res) return scene;
     const parsed = parseStructuredJson<any>(res, "object");
     return normalizeEpisodeDetailSpec(parsed) || parsed || scene;
   } catch (err) {
     console.error("regenerateSingleScene failed:", err);
-    return scene;
+    return scene; 
   }
 }

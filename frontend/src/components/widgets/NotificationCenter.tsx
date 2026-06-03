@@ -37,7 +37,8 @@ export function NotificationCenter() {
     <div className="relative" ref={dropdownRef}>
       <button 
         onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2 text-zinc-400 hover:text-white transition-colors cursor-pointer outline-none"
+        aria-expanded={isOpen}
+        className="relative p-2 text-zinc-400 hover:text-white transition-all duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] transform-gpu hover:-translate-y-0.5 active:scale-[0.97] cursor-pointer outline-none"
         aria-label="Notifications"
       >
         <Bell className="w-5 h-5" />
@@ -52,8 +53,8 @@ export function NotificationCenter() {
             initial={{ opacity: 0, y: 10, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
-            transition={{ duration: 0.2 }}
-            className="absolute right-0 mt-2 w-80 sm:w-96 bg-[#0a0a0a] border border-zinc-800 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden z-[100]"
+            transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+            className="absolute right-0 mt-2 w-80 sm:w-96 bg-[#0a0a0a] border border-zinc-800 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden z-[100] will-change-transform will-change-opacity"
           >
             <div className="p-4 border-b border-zinc-800 flex items-center justify-between">
               <div className="flex items-center gap-2">

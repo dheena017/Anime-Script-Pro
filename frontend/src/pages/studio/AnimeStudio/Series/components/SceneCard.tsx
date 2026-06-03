@@ -1,5 +1,4 @@
 import React from 'react';
-import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Play, RefreshCw, Clock, Users, Activity, Layers } from 'lucide-react';
@@ -24,12 +23,8 @@ export const SceneCard: React.FC<SceneCardProps> = ({ scene, index, onSelect, on
   const mins = scene?.estimated_minutes || scene?.sceneOutput?.estimated_minutes || '';
 
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.98 }}
-      animate={{ opacity: 1, scale: 1 }}
-      whileHover={{ y: -6 }}
-      className="h-full"
-    >
+    <div className="h-full">
+
       <Card className={cn(
         "p-6 bg-[#050505]/60 backdrop-blur-xl border transition-all duration-700 rounded-[2.5rem] group h-full flex flex-col justify-between relative overflow-hidden",
         isActive 
@@ -129,7 +124,7 @@ export const SceneCard: React.FC<SceneCardProps> = ({ scene, index, onSelect, on
           </Button>
         </div>
       </Card>
-    </motion.div>
+    </div>
   );
 };
 

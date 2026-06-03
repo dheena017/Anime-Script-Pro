@@ -1,5 +1,4 @@
 import React from 'react';
-import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { 
   Zap, 
@@ -86,11 +85,8 @@ export const TechnicalMatrixTable: React.FC<TechnicalMatrixTableProps> = ({ scen
             {scenes.filter(Boolean).map((scene, idx) => {
               const safeScene = scene as SceneData;
               return (
-              <motion.tr 
+              <tr 
                 key={idx}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: idx * 0.05 }}
                 className="group hover:bg-white/[0.02] transition-colors"
               >
                 <td className="p-6 text-sm font-black text-white">{safeScene.scene || idx + 1}</td>
@@ -121,7 +117,7 @@ export const TechnicalMatrixTable: React.FC<TechnicalMatrixTableProps> = ({ scen
                     {safeScene.emotionalKey || 'Stable'}
                   </span>
                 </td>
-              </motion.tr>
+              </tr>
               );
             })}
           </tbody>

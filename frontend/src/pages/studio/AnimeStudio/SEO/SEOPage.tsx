@@ -247,16 +247,6 @@ export function SEOPage() {
       isGeneratingAltText ||
       isGeneratingGrowthStrategy ||
       isGeneratingDistribution;
-
-    if (isAnyGenerating) {
-      return (
-        <SEOLoadingPage
-          message={getLoadingMessage()}
-          subtext="AI model is optimizing episodic reach"
-        />
-      );
-    }
-
     if (!generatedScript) {
       return (
         <SEOEmptyState

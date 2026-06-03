@@ -567,20 +567,12 @@ export default function CharactersLayout() {
               >
                 <Suspense
                   fallback={
-                    <div className="flex-1 flex items-center justify-center p-20">
-                      <CharactersLoadingPage
-                        tab={activeTab}
-                        progress={generationProgress}
-                      />
+                    <div className="flex-1 flex items-center justify-center p-20 text-xs font-black uppercase tracking-[0.2em] text-cyan-500/40 animate-pulse">
+                      Loading...
                     </div>
                   }
                 >
-                  {isGeneratingCharacters || isAnalyzingCharacters ? (
-                    <CharactersLoadingPage
-                      tab={activeTab}
-                      progress={generationProgress}
-                    />
-                  ) : !hasContent ? (
+                  {!hasContent ? (
                     <CharacterEmptyState
                       onLaunch={handleGenerateAll}
                       onLoadDemo={handleLoadDemo}

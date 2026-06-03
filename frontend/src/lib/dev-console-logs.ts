@@ -78,6 +78,17 @@ const logLevelCounts: Record<LogLevel, number> = {
 const logModuleCounts = new Map<string, number>();
 const historyLimit = 200;
 let logSequence = 0;
+let persistTimer: number | null = null;
+
+const schedulePersistLogHistory = (delay = 500) => {
+  if (persistTimer !== null) {
+    window.clearTimeout(persistTimer);
+  }
+  persistTimer = window.setTimeout(() => {
+    persistLogHistory();
+    persistTimer = null;
+  }, delay);
+};
 
 export interface DevConsoleSnapshot {
   total: number;
@@ -124,6 +135,7 @@ const pushLogHistory = (entry: StudioLogEvent) => {
 
   logLevelCounts[entry.level] += 1;
   logModuleCounts.set(entry.module, (logModuleCounts.get(entry.module) || 0) + 1);
+  schedulePersistLogHistory();
 };
 
 export const getLogHistory = (limit = 50) => logHistory.slice(-limit);

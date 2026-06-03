@@ -158,17 +158,7 @@ export function ScreeningRoom() {
       default: return "Preparing Screening Room...";
     }
   };
-
   const renderTabContent = () => {
-    if (isLoading || isRendering) {
-      return (
-        <ScreeningLoadingPage 
-          message={getLoadingMessage()} 
-          subtext="AI model is synthesizing production manifests"
-        />
-      );
-    }
-
     if (activeTab === 'preview') {
       return (
         <AnimatePresence mode="wait">

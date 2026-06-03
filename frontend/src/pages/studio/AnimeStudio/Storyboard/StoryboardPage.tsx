@@ -1067,15 +1067,6 @@ export function StoryboardPage() {
   };
 
   const renderTabContent = () => {
-    if (isGeneratingVisuals) {
-      return (
-        <StoryboardLoadingPage
-          message={getLoadingMessage()}
-          subtext="AI model is rendering cinematic manifests"
-        />
-      );
-    }
-
     if (scenes.length === 0 && activeTab !== "animatic") {
       return (
         <StoryboardEmptyState
@@ -1300,12 +1291,7 @@ export function StoryboardPage() {
                 </div>
               }
             >
-                {isGeneratingVisuals ? (
-                  <StoryboardLoadingPage
-                    message={getLoadingMessage()}
-                    subtext="AI model is rendering cinematic manifests"
-                  />
-                ) : scenes.length === 0 && activeTab !== "animatic" && activeTab !== "composition" ? (
+                {scenes.length === 0 && activeTab !== "animatic" && activeTab !== "composition" ? (
                   <StoryboardEmptyState
                     onLoadDemo={loadDemoProject}
                     onLaunch={handleAddScene}

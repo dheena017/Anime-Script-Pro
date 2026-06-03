@@ -347,22 +347,12 @@ export default function SEOLayout() {
             >
               <Suspense
                 fallback={
-                  <div className="flex-1 flex items-center justify-center p-20">
-                    <SEOLoadingPage
-                      tab={activeTab}
-                      progress={generationProgress}
-                    />
+                  <div className="flex-1 flex items-center justify-center p-20 text-xs font-black uppercase tracking-[0.2em] text-cyan-500/40 animate-pulse">
+                    Loading...
                   </div>
                 }
               >
-                {isLoading ? (
-                  <SEOLoadingPage
-                    tab={activeTab}
-                    progress={generationProgress}
-                  />
-                ) : (
-                  <Outlet context={{ activeTab }} />
-                )}
+                <Outlet context={{ activeTab }} />
               </Suspense>
             </motion.div>
           </AnimatePresence>

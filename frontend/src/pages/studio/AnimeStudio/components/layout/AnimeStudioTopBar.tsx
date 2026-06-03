@@ -296,6 +296,7 @@ export const AnimeStudioTopBar = React.memo<AnimeStudioTopBarProps>(({
       <div className="sm:hidden w-full bg-[#050505]/95 border-b border-white/5 flex items-center justify-between px-3 py-2">
         <div className="flex items-center gap-2">
           <button
+            type="button"
             onClick={() => {
               playNeonSound('click');
               if (onToggleSidebar) onToggleSidebar();
@@ -313,6 +314,7 @@ export const AnimeStudioTopBar = React.memo<AnimeStudioTopBarProps>(({
 
         <div className="flex items-center gap-2">
           <button
+            type="button"
             onClick={() => {
               playNeonSound('click');
               onToggleEngine();
@@ -324,6 +326,7 @@ export const AnimeStudioTopBar = React.memo<AnimeStudioTopBarProps>(({
           </button>
 
           <button
+            type="button"
             onClick={() => setIsIntelligenceOpen(!isIntelligenceOpen)}
             className="w-9 h-9 rounded-lg flex items-center justify-center text-zinc-300 bg-transparent border border-transparent"
             title="Open Intelligence"
@@ -332,6 +335,7 @@ export const AnimeStudioTopBar = React.memo<AnimeStudioTopBarProps>(({
           </button>
 
           <button
+            type="button"
             onClick={() => setShowNotifications(!showNotifications)}
             className="w-9 h-9 rounded-lg flex items-center justify-center text-zinc-300 bg-transparent border border-transparent relative"
             title="Notifications"
@@ -348,6 +352,7 @@ export const AnimeStudioTopBar = React.memo<AnimeStudioTopBarProps>(({
         {/* Left: Branding & Sidebars Toggle */}
         <div className="flex items-center gap-2 sm:gap-3 lg:gap-4 min-w-0 flex-1 md:flex-none">
           <button
+            type="button"
             onClick={() => {
               playNeonSound('click');
               if (onToggleSidebar) onToggleSidebar();
@@ -365,6 +370,7 @@ export const AnimeStudioTopBar = React.memo<AnimeStudioTopBarProps>(({
 
           {onToggleGlobalSidebar && (
             <button
+              type="button"
               onClick={() => {
                 playNeonSound('click');
                 onToggleGlobalSidebar();

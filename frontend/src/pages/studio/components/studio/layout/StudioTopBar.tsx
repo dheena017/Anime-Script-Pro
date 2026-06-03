@@ -231,11 +231,18 @@ export const StudioTopBar: React.FC<{
     fetchUserProfile();
   }, [user]);
 
+  const lastPingUpdateRef = React.useRef<number>(0);
+
   // Listen to signalBus for REAL API Request Latencies
   React.useEffect(() => {
     const handleSignal = (e: Event) => {
       const customEvent = e as CustomEvent;
       if (customEvent.detail && customEvent.detail.duration !== undefined) {
+        const now = Date.now();
+        if (now - lastPingUpdateRef.current < 300) {
+          return;
+        }
+        lastPingUpdateRef.current = now;
         // Map actual fetch duration to real latency ping indicator
         setPing(Math.round(customEvent.detail.duration));
       }

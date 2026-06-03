@@ -1,5 +1,4 @@
 import React from 'react';
-import { motion } from 'framer-motion';
 import { SeriesEmptyTab } from '../components/SeriesEmptyTab';
 import { SceneCard } from '../components/SceneCard';
 import SceneView from '../components/SceneView';

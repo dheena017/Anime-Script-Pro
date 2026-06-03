@@ -4,13 +4,14 @@ import { CheckCircle2, Table, ChevronRight, Activity, Sparkles, Database, BrainC
 import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
 import { useLogs } from '@/contexts/LogContext';
 import { manifestScenes } from '@/services/api/scenes';
+import { generateBlueprintMarkdown, downloadBlueprintMarkdown } from '@/services/api/blueprintMarkdownGenerator';
 import { seriesStyles as s } from '../seriesStyles';
 import { cn } from '@/lib/utils';
 
 interface BlueprintTabProps {
   showScaffolder: boolean;
   onManifestContinue: (config: any) => Promise<void>;
-  onGenerateSeries?: (params: { episodesPerSession: number; sessions: number; scenes: number }) => void;
+  onGenerateSeries?: (params: { episodesPerSession: number; sessions: number; scenes: number; frames?: number }) => void;
   isSyncing: boolean;
   lastSyncDate: string | null;
   productionSequence: any[];
@@ -29,21 +30,30 @@ export const BlueprintTab: React.FC<BlueprintTabProps> = ({
   plan = [],
   onViewEpisode
 }) => {
-  const calculateTotalScenes = React.useCallback((sessions: number | string | undefined, episodes: number | string | undefined, scenes: number | string | undefined) => {
+  const calculateTotalScenes = React.useCallback((sessions: number | string | undefined, episodesPerSession: number | string | undefined, scenesPerEpisode: number | string | undefined) => {
     // Require explicit values for all three dimensions. If any are missing, return 0.
-    if (sessions === undefined || sessions === '' || episodes === undefined || episodes === '' || scenes === undefined || scenes === '') {
+    if (
+      sessions === undefined || sessions === '' ||
+      episodesPerSession === undefined || episodesPerSession === '' ||
+      scenesPerEpisode === undefined || scenesPerEpisode === ''
+    ) {
       return 0;
     }
 
     const parsedSessions = Number.parseInt(String(sessions), 10);
-    const parsedEpisodes = Number.parseInt(String(episodes), 10);
-    const parsedScenes = Number.parseInt(String(scenes), 10);
+    const parsedEpisodesPerSession = Number.parseInt(String(episodesPerSession), 10);
+    const parsedScenesPerEpisode = Number.parseInt(String(scenesPerEpisode), 10);
 
-    if (!Number.isFinite(parsedSessions) || !Number.isFinite(parsedEpisodes) || !Number.isFinite(parsedScenes)) {
+    if (
+      !Number.isFinite(parsedSessions) ||
+      !Number.isFinite(parsedEpisodesPerSession) ||
+      !Number.isFinite(parsedScenesPerEpisode)
+    ) {
       return 0;
     }
 
-    return parsedSessions * parsedEpisodes * parsedScenes;
+    const totalEpisodes = parsedSessions * parsedEpisodesPerSession;
+    return totalEpisodes * parsedScenesPerEpisode;
   }, []);
 
   const {
@@ -81,9 +91,10 @@ export const BlueprintTab: React.FC<BlueprintTabProps> = ({
   const { manifestationProgress } = useLogs();
 
   const [isManifesting, setIsManifesting] = React.useState(false);
+  const [pendingExportOnGenerate, setPendingExportOnGenerate] = React.useState(false);
 
   // Start with empty inputs — do not auto-populate defaults from plan or global state.
-  const [localConfig, setLocalConfig] = React.useState<{sessions: number|string, episodes: number|string, scenes: number|string}>(() => {
+  const [localConfig, setLocalConfig] = React.useState<{sessions: number|string, episodes: number|string, scenes: number|string, frames: number|string}>(() => {
     try {
       const saved = localStorage.getItem('blueprint_scaffolding');
       if (saved) {
@@ -93,6 +104,7 @@ export const BlueprintTab: React.FC<BlueprintTabProps> = ({
             sessions: parsed.sessions ?? '',
             episodes: parsed.episodes ?? '',
             scenes: parsed.scenes ?? ''
+            , frames: parsed.frames ?? ''
           };
         }
       }
@@ -100,7 +112,7 @@ export const BlueprintTab: React.FC<BlueprintTabProps> = ({
       console.error('Failed to restore blueprint config from localStorage:', e);
     }
 
-    return { sessions: '', episodes: '', scenes: '' };
+    return { sessions: '', episodes: '', scenes: '', frames: '' };
   });
 
   // Persist scaffolding inputs to localStorage whenever they change
@@ -108,13 +120,23 @@ export const BlueprintTab: React.FC<BlueprintTabProps> = ({
     localStorage.setItem('blueprint_scaffolding', JSON.stringify(localConfig));
   }, [localConfig]);
 
-  const [localErrors, setLocalErrors] = React.useState<{ sessions?: string; episodes?: string; scenes?: string }>({});
+  const [localErrors, setLocalErrors] = React.useState<{ sessions?: string; episodes?: string; scenes?: string; frames?: string }>({});
   const [isSyncingScaffold, setIsSyncingScaffold] = React.useState(false);
 
   const totalSceneBudget = React.useMemo(
     () => calculateTotalScenes(localConfig.sessions, localConfig.episodes, localConfig.scenes),
     [calculateTotalScenes, localConfig.sessions, localConfig.episodes, localConfig.scenes],
   );
+
+  const totalFrameBudget = React.useMemo(() => {
+    const sceneBudget = totalSceneBudget;
+    const framesPerScene = Number.parseInt(String(localConfig.frames), 10);
+    if (!Number.isFinite(sceneBudget) || !Number.isFinite(framesPerScene) || framesPerScene <= 0) {
+      return 0;
+    }
+
+    return sceneBudget * framesPerScene;
+  }, [localConfig.frames, totalSceneBudget]);
 
   const totalScaffoldingEpisodes = React.useMemo(() => {
     const sParsed = parseInt(String(localConfig.sessions));
@@ -134,29 +156,36 @@ export const BlueprintTab: React.FC<BlueprintTabProps> = ({
     const finalSessions = parseInt(String(localConfig.sessions));
     const finalEpisodes = parseInt(String(localConfig.episodes));
     const finalScenes = parseInt(String(localConfig.scenes));
+    const finalFrames = parseInt(String(localConfig.frames));
 
     if (localConfig.sessions === '' || !Number.isFinite(finalSessions)) {
       errors.sessions = 'Session Count is required.';
-    } else if (finalSessions < 1 || finalSessions > 5) {
-      errors.sessions = 'Sessions must be between 1 and 5';
+    } else if (finalSessions < 1 || finalSessions > 20) {
+      errors.sessions = 'Sessions must be between 1 and 20';
     }
 
     if (localConfig.episodes === '' || !Number.isFinite(finalEpisodes)) {
       errors.episodes = 'Episodes Per Session is required.';
-    } else if (finalEpisodes < 1 || finalEpisodes > 24) {
-      errors.episodes = 'Episodes must be between 1 and 24';
+    } else if (finalEpisodes < 1 || finalEpisodes > 100) {
+      errors.episodes = 'Episodes must be between 1 and 100';
     }
 
     if (localConfig.scenes === '' || !Number.isFinite(finalScenes)) {
       errors.scenes = 'Scenes Per Episode is required.';
-    } else if (finalScenes < 1 || finalScenes > 40) {
-      errors.scenes = 'Scenes must be between 1 and 40';
+    } else if (finalScenes < 1 || finalScenes > 200) {
+      errors.scenes = 'Scenes must be between 1 and 200';
+    }
+
+    if (localConfig.frames !== '' && !Number.isFinite(finalFrames)) {
+      errors.frames = 'Frames Per Scene must be a number.';
+    } else if (localConfig.frames !== '' && (finalFrames < 1 || finalFrames > 100)) {
+      errors.frames = 'Frames must be between 1 and 100';
     }
 
     const totalEpisodes = finalSessions * finalEpisodes;
     const totalSceneBudget = totalEpisodes * finalScenes;
-    const MAX_SAFE_TOTAL_EPISODES = 24;
-    const MAX_SAFE_TOTAL_SCENE_BUDGET = 720;
+    const MAX_SAFE_TOTAL_EPISODES = 120;
+    const MAX_SAFE_TOTAL_SCENE_BUDGET = 24000;
 
     if (totalEpisodes > MAX_SAFE_TOTAL_EPISODES) {
       errors.episodes = `Total episodes (${totalEpisodes}) exceeds the safe limit of ${MAX_SAFE_TOTAL_EPISODES}. Reduce sessions or episodes.`;
@@ -186,18 +215,34 @@ export const BlueprintTab: React.FC<BlueprintTabProps> = ({
     }
 
     try {
+      // If a plan already exists, do not re-run generation which may overwrite it.
+      // Instead, trigger the export flow using the current generated plan.
+      if (plan && plan.length > 0) {
+        setPendingExportOnGenerate(true);
+        showNotification?.('Using existing generated blueprint — exporting markdown.', 'info');
+        return;
+      }
       console.log('🎬 [RE-SYNTHESIZE] Dispatching blueprint generation request:', { finalSessions, finalEpisodes, finalScenes });
       showNotification?.('Generating series blueprint from AI...', 'info');
+      setSession?.(String(finalSessions));
+      setNumEpisodes?.(finalEpisodes);
+      setNumScenes?.(String(finalScenes));
 
       if (onGenerateSeries) {
-        onGenerateSeries({ episodesPerSession: finalEpisodes, sessions: finalSessions, scenes: finalScenes });
+        onGenerateSeries({
+          episodesPerSession: finalEpisodes,
+          sessions: finalSessions,
+          scenes: finalScenes,
+          frames: Number(localConfig.frames) || undefined,
+        });
         console.log('🎬 [RE-SYNTHESIZE] Direct generation callback invoked');
       } else {
         window.dispatchEvent(new CustomEvent('studio-generate-series', {
           detail: {
             episodesPerSession: finalEpisodes,
             sessions: finalSessions,
-            scenes: finalScenes
+            scenes: finalScenes,
+            frames: Number(localConfig.frames) || undefined,
           }
         }));
         console.log('🎬 [RE-SYNTHESIZE] Event dispatched successfully - check browser console for generation progress');
@@ -205,8 +250,95 @@ export const BlueprintTab: React.FC<BlueprintTabProps> = ({
     } catch (err) {
       console.error("❌ Blueprint generation failed:", err);
       showNotification?.('Failed to generate blueprint: ' + ((err as any)?.message || String(err)), 'error');
+      setPendingExportOnGenerate(false);
     }
   };
+
+  const handleDownloadBlueprint = async () => {
+    if (!plan || plan.length === 0) {
+      showNotification?.('No generated blueprint available to export.', 'warning');
+      return;
+    }
+
+    const markdown = await generateBlueprintMarkdown({
+      plan,
+      sessions: Number(localConfig.sessions),
+      episodesPerSession: Number(localConfig.episodes),
+      scenesPerEpisode: Number(localConfig.scenes),
+      framesPerScene: Number(localConfig.frames) || undefined,
+      worldManifest: generatedWorld,
+      worldLore: generatedWorldLore,
+      worldPowers: generatedWorldPowers,
+      worldFactions: generatedWorldFactions,
+      worldAtlas: generatedWorldAtlas,
+      worldSystems: generatedWorldSystems,
+      characterList,
+      characterDNA,
+      characterDynamics,
+      characterIntegrity,
+      characterRelationships,
+      model: selectedModel,
+      tone,
+      audience,
+      genre,
+      artStyle,
+      temperature,
+      maxTokens,
+      topP,
+      topK,
+    });
+
+    downloadBlueprintMarkdown(markdown);
+    showNotification?.('Blueprint markdown downloaded.', 'success');
+  };
+
+  React.useEffect(() => {
+    if (!pendingExportOnGenerate || !plan || plan.length === 0) {
+      return;
+    }
+
+    const doExport = async () => {
+      try {
+        const markdown = await generateBlueprintMarkdown({
+          plan,
+          sessions: Number(localConfig.sessions),
+          episodesPerSession: Number(localConfig.episodes),
+          scenesPerEpisode: Number(localConfig.scenes),
+          framesPerScene: Number(localConfig.frames) || undefined,
+          worldManifest: generatedWorld,
+          worldLore: generatedWorldLore,
+          worldPowers: generatedWorldPowers,
+          worldFactions: generatedWorldFactions,
+          worldAtlas: generatedWorldAtlas,
+          worldSystems: generatedWorldSystems,
+          characterList,
+          characterDNA,
+          characterDynamics,
+          characterIntegrity,
+          characterRelationships,
+          model: selectedModel,
+          tone,
+          audience,
+          genre,
+          artStyle,
+          temperature,
+          maxTokens,
+          topP,
+          topK,
+        });
+
+        downloadBlueprintMarkdown(markdown);
+        showNotification?.('Blueprint markdown downloaded.', 'success');
+      } catch (error) {
+        console.error('❌ Failed to create markdown blueprint:', error);
+        showNotification?.('Failed to export blueprint markdown.', 'error');
+      } finally {
+        setPendingExportOnGenerate(false);
+      }
+    };
+
+    doExport();
+  }, [pendingExportOnGenerate, plan, localConfig.sessions, localConfig.episodes, localConfig.scenes, generatedWorld, generatedWorldLore, generatedWorldPowers, generatedWorldFactions, generatedWorldAtlas, generatedWorldSystems, characterList, characterDNA, characterDynamics, characterIntegrity, characterRelationships, selectedModel, tone, audience, genre, artStyle, temperature, maxTokens, topP, topK, showNotification]);
 
   const handleSyncScaffold = async () => {
     const { errors, finalSessions, finalEpisodes, finalScenes } = validateScaffoldingInputs();
@@ -274,68 +406,88 @@ export const BlueprintTab: React.FC<BlueprintTabProps> = ({
                     <Settings2 className="w-3.5 h-3.5 text-zinc-700" />
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    {/* Sessions */}
-                    <div className="space-y-3">
-                      <label className="text-[9px] font-black text-zinc-500 uppercase tracking-widest block opacity-60">Session Count</label>
-                      <input 
-                        type="number" 
-                        min="1" 
-                        max="5"
-                        placeholder="1-5"
-                        value={localConfig.sessions}
-                        onChange={(e) => {
-                          const val = e.target.value;
-                          const v = val === '' ? '' : parseInt(val) || '';
-                          setLocalConfig({...localConfig, sessions: v});
-                          try { if (v !== '') setSession?.(String(v)); } catch(e){}
-                        }}
-                        className={cn("w-full bg-white/[0.03] rounded-xl px-4 py-2.5 text-xs font-mono text-studio focus:bg-studio/5 transition-all outline-none",
-                          localErrors.sessions ? 'border border-red-500' : 'border border-white/10')}
-                      />
-                      {localErrors.sessions && <p className="text-[10px] text-red-400 mt-1">{localErrors.sessions}</p>}
-                    </div>
-                    
-                    {/* Episodes */}
-                    <div className="space-y-3">
-                      <label className="text-[9px] font-black text-zinc-500 uppercase tracking-widest block opacity-60">Episodes Per Session</label>
-                      <input 
-                        type="number" 
-                        min="1" 
-                        max="24"
-                        placeholder="1-24"
-                        value={localConfig.episodes}
-                        onChange={(e) => {
-                          const val = e.target.value;
-                          const v = val === '' ? '' : parseInt(val) || '';
-                          setLocalConfig({...localConfig, episodes: v});
-                          try { if (v !== '') setNumEpisodes?.(v as number); } catch(e){}
-                        }}
-                        className={cn("w-full bg-white/[0.03] rounded-xl px-4 py-2.5 text-xs font-mono text-studio focus:bg-studio/5 transition-all outline-none",
-                          localErrors.episodes ? 'border border-red-500' : 'border border-white/10')}
-                      />
-                      {localErrors.episodes && <p className="text-[10px] text-red-400 mt-1">{localErrors.episodes}</p>}
-                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                      {/* Sessions */}
+                      <div className="space-y-3">
+                        <label className="text-[9px] font-black text-zinc-500 uppercase tracking-widest block opacity-60">Session Count</label>
+                        <input 
+                          type="number" 
+                          min="1" 
+                          max="20"
+                          placeholder="1-20"
+                          value={localConfig.sessions}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            const v = val === '' ? '' : parseInt(val) || '';
+                            setLocalConfig({...localConfig, sessions: v});
+                            try { if (v !== '') setSession?.(String(v)); } catch(e){}
+                          }}
+                          className={cn("w-full bg-white/[0.03] rounded-xl px-4 py-2.5 text-xs font-mono text-studio focus:bg-studio/5 transition-all outline-none",
+                            localErrors.sessions ? 'border border-red-500' : 'border border-white/10')}
+                        />
+                        {localErrors.sessions && <p className="text-[10px] text-red-400 mt-1 block whitespace-normal break-words">{localErrors.sessions}</p>}
+                      </div>
+                      
+                      {/* Episodes */}
+                      <div className="space-y-3">
+                        <label className="text-[9px] font-black text-zinc-500 uppercase tracking-widest block opacity-60">Episodes Per Session</label>
+                        <input 
+                          type="number" 
+                          min="1" 
+                          max="100"
+                          placeholder="1-100"
+                          value={localConfig.episodes}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            const v = val === '' ? '' : parseInt(val) || '';
+                            setLocalConfig({...localConfig, episodes: v});
+                            try { if (v !== '') setNumEpisodes?.(v as number); } catch(e){}
+                          }}
+                          className={cn("w-full bg-white/[0.03] rounded-xl px-4 py-2.5 text-xs font-mono text-studio focus:bg-studio/5 transition-all outline-none",
+                            localErrors.episodes ? 'border border-red-500' : 'border border-white/10')}
+                        />
+                        {localErrors.episodes && <p className="text-[10px] text-red-400 mt-1 block whitespace-normal break-words">{localErrors.episodes}</p>}
+                      </div>
 
-                    {/* Scenes */}
-                    <div className="space-y-3">
-                      <label className="text-[9px] font-black text-zinc-500 uppercase tracking-widest block opacity-60">Scenes Per Episode</label>
-                      <input 
-                        type="number" 
-                        min="1" 
-                        max="40"
-                        placeholder="1-40"
-                        value={localConfig.scenes}
-                        onChange={(e) => {
-                          const val = e.target.value;
-                          const v = val === '' ? '' : parseInt(val) || '';
-                          setLocalConfig({...localConfig, scenes: v});
-                          try { if (v !== '') setNumScenes?.(String(v)); } catch(e){}
-                        }}
-                        className={cn("w-full bg-white/[0.03] rounded-xl px-4 py-2.5 text-xs font-mono text-studio focus:bg-studio/5 transition-all outline-none",
-                          localErrors.scenes ? 'border border-red-500' : 'border border-white/10')}
-                      />
-                      {localErrors.scenes && <p className="text-[10px] text-red-400 mt-1">{localErrors.scenes}</p>}
+                      {/* Scenes */}
+                      <div className="space-y-3">
+                        <label className="text-[9px] font-black text-zinc-500 uppercase tracking-widest block opacity-60">Scenes Per Episode</label>
+                        <input 
+                          type="number" 
+                          min="1" 
+                          max="200"
+                          placeholder="1-200"
+                          value={localConfig.scenes}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            const v = val === '' ? '' : parseInt(val) || '';
+                            setLocalConfig({...localConfig, scenes: v});
+                            try { if (v !== '') setNumScenes?.(String(v)); } catch(e){}
+                          }}
+                          className={cn("w-full bg-white/[0.03] rounded-xl px-4 py-2.5 text-xs font-mono text-studio focus:bg-studio/5 transition-all outline-none",
+                            localErrors.scenes ? 'border border-red-500' : 'border border-white/10')}
+                        />
+                        {localErrors.scenes && <p className="text-[10px] text-red-400 mt-1 block whitespace-normal break-words">{localErrors.scenes}</p>}
+                      </div>
+
+                      {/* Frames */}
+                      <div className="space-y-3">
+                        <label className="text-[9px] font-black text-zinc-500 uppercase tracking-widest block opacity-60">Frames Per Scene</label>
+                        <input 
+                          type="number" 
+                          min="1" 
+                          max="100"
+                          placeholder="Optional"
+                          value={localConfig.frames}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            const v = val === '' ? '' : parseInt(val) || '';
+                            setLocalConfig({...localConfig, frames: v});
+                          }}
+                          className={cn("w-full bg-white/[0.03] rounded-xl px-4 py-2.5 text-xs font-mono text-studio focus:bg-studio/5 transition-all outline-none",
+                            localErrors.frames ? 'border border-red-500' : 'border border-white/10')}
+                        />
+                        {localErrors.frames && <p className="text-[10px] text-red-400 mt-1 block whitespace-normal break-words">{localErrors.frames}</p>}
                     </div>
                   </div>
 
@@ -352,9 +504,17 @@ export const BlueprintTab: React.FC<BlueprintTabProps> = ({
                       <p className="text-[9px] font-black text-zinc-500 uppercase tracking-widest mb-1">Scenes Per Episode</p>
                       <p className="text-lg font-black text-white">{localConfig.scenes || 'N/A'}</p>
                     </div>
+                    <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/5">
+                      <p className="text-[9px] font-black text-zinc-500 uppercase tracking-widest mb-1">Frames Per Scene</p>
+                      <p className="text-lg font-black text-white">{localConfig.frames || 'N/A'}</p>
+                    </div>
                     <div className="p-4 rounded-2xl bg-studio/10 border border-studio/20">
                       <p className="text-[9px] font-black text-studio uppercase tracking-widest mb-1">Total Scene Budget</p>
                       <p className="text-lg font-black text-white">{totalSceneBudget > 0 ? totalSceneBudget.toLocaleString() : 'N/A'}</p>
+                    </div>
+                    <div className="p-4 rounded-2xl bg-studio/10 border border-studio/20">
+                      <p className="text-[9px] font-black text-studio uppercase tracking-widest mb-1">Total Frame Budget</p>
+                      <p className="text-lg font-black text-white">{totalFrameBudget > 0 ? totalFrameBudget.toLocaleString() : 'N/A'}</p>
                     </div>
                   </div>
 
@@ -406,9 +566,18 @@ export const BlueprintTab: React.FC<BlueprintTabProps> = ({
                           <Sparkles className="w-3.5 h-3.5 text-studio" />
                           <span className="text-xs text-studio font-mono">Production Series Plan</span>
                         </div>
-                        <span className="text-[10px] font-black uppercase tracking-widest text-studio">
-                          {totalScaffoldingEpisodes || plan.length} EPISODES_READY
-                        </span>
+                        <div className="text-right">
+                          <span className="text-[10px] font-black uppercase tracking-widest text-studio block">
+                            {totalScaffoldingEpisodes > 0
+                              ? `${totalScaffoldingEpisodes} EPISODES_READY (${localConfig.sessions}×${localConfig.episodes})`
+                              : `${plan.length} EPISODES_READY`}
+                          </span>
+                          {totalScaffoldingEpisodes > 0 && plan.length !== totalScaffoldingEpisodes && (
+                            <span className="text-[9px] font-semibold uppercase tracking-[0.25em] text-zinc-400 block mt-1">
+                              Requested: {localConfig.sessions}×{localConfig.episodes} = {totalScaffoldingEpisodes}
+                            </span>
+                          )}
+                        </div>
                       </div>
                     )}
                   </div>
@@ -431,7 +600,7 @@ export const BlueprintTab: React.FC<BlueprintTabProps> = ({
                         className="h-full bg-studio"
                         initial={{ width: "0%" }}
                         animate={{ width: `${generationProgress || 10}%` }}
-                        transition={{ duration: 0.5 }}
+                        transition={{ duration: 1.5, ease: 'easeInOut' }}
                       />
                     </div>
                   </div>
@@ -470,6 +639,25 @@ export const BlueprintTab: React.FC<BlueprintTabProps> = ({
                         {isSyncing || isSyncingScaffold ? "Materializing Roadmap..." : "Sync DB Scaffold"}
                       </span>
                     </button>
+
+                    {plan && plan.length > 0 && (
+                      <button
+                        onClick={handleDownloadBlueprint}
+                        disabled={isSyncing || isGeneratingSeries || isSyncingScaffold}
+                        className={cn(
+                          "w-full group relative flex items-center justify-center gap-3 p-5 rounded-2xl transition-all duration-500 shadow-[0_0_40px_rgba(6,182,212,0.15)] border border-white/10",
+                          isSyncing || isGeneratingSeries || isSyncingScaffold
+                            ? "bg-white/[0.02] opacity-50 cursor-not-allowed"
+                            : "bg-studio/10 hover:bg-studio/20 border border-studio/30 hover:border-studio/50"
+                        )}
+                      >
+                        <div className="absolute inset-0 bg-gradient-to-r from-studio/0 via-studio/10 to-studio/0 opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl pointer-events-none" />
+                        <Table className="w-5 h-5 text-studio group-hover:animate-pulse" />
+                        <span className="text-xs font-black text-white uppercase tracking-[0.3em]">
+                          Export Blueprint MD
+                        </span>
+                      </button>
+                    )}
                   </>
                 )}
               </div>
@@ -710,7 +898,48 @@ export const BlueprintTab: React.FC<BlueprintTabProps> = ({
                         <span className="text-[9px] font-black text-studio uppercase tracking-widest">Live Output Stream</span>
                       </div>
                     </div>
-                    {isGeneratingSeries ? (
+                    {isGeneratingSeries && plan && plan.length > 0 ? (
+                      <div className="relative group/output rounded-[2rem] overflow-hidden border border-studio/30 bg-studio/5 shadow-[0_0_50px_rgba(6,182,212,0.15)]">
+                        <div className="p-6 border-b border-white/10 flex flex-col gap-3">
+                          <div className="flex items-center justify-between gap-4">
+                            <div>
+                              <h3 className="text-sm font-black text-white uppercase tracking-widest mb-1">Streaming Neural Blueprint</h3>
+                              <p className="text-xs text-zinc-400 font-mono max-w-xl">
+                                Showing generated episodes as they arrive from the AI. Each episode is revealed one by one while synthesis continues.
+                              </p>
+                            </div>
+                            <div className="text-right text-[10px] uppercase font-black tracking-[0.3em] text-studio">
+                              {plan.length} received
+                              <span className="block text-zinc-400 text-[9px] tracking-[0.2em]">
+                                {Number(localConfig.sessions) > 0 && Number(localConfig.episodes) > 0 ? `${plan.length}/${Number(localConfig.sessions) * Number(localConfig.episodes)} episodes` : `Episode ${plan.length}`}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="h-1 bg-black/40 rounded-full overflow-hidden">
+                            <motion.div
+                              className="h-full bg-studio shadow-[0_0_10px_rgba(6,182,212,0.8)]"
+                              initial={{ width: "0%" }}
+                              animate={{ width: `${Math.min(100, ((plan.length / (Number(localConfig.sessions) * Number(localConfig.episodes) || 1)) * 100) || generationProgress || 15)}%` }}
+                              transition={{ duration: 1.5, ease: 'easeInOut' }}
+                            />
+                          </div>
+                        </div>
+                        <div className="p-6 max-h-[520px] overflow-auto custom-scrollbar space-y-3">
+                          {plan.map((episode: any, episodeIndex: number) => (
+                            <div key={episode?.episode || episodeIndex} className="rounded-3xl border border-white/10 bg-black/60 p-4 backdrop-blur-xl">
+                              <div className="flex items-center justify-between gap-4">
+                                <div>
+                                  <p className="text-[11px] font-black uppercase tracking-[0.3em] text-studio">Episode {episode?.episode || String(episodeIndex + 1).padStart(2, '0')}</p>
+                                  <h4 className="text-sm font-black text-white mt-1">{episode?.title || 'Untitled Episode'}</h4>
+                                </div>
+                                <span className="text-[10px] font-mono text-zinc-400 uppercase tracking-[0.2em]">Scene Count {((episode?.asset_matrix?.scene_count ?? localConfig.scenes) || 'N/A')}</span>
+                              </div>
+                              <p className="mt-3 text-[11px] leading-6 text-zinc-300 line-clamp-3">{episode?.summary || episode?.hook || 'No summary available yet.'}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ) : isGeneratingSeries ? (
                       <div className="relative group/output rounded-[2rem] overflow-hidden border border-studio/30 bg-studio/5 shadow-[0_0_50px_rgba(6,182,212,0.15)]">
                         <div className="p-16 flex flex-col items-center justify-center min-h-[400px]">
                           <BrainCircuit className="w-12 h-12 text-studio animate-pulse mb-6" />
@@ -723,7 +952,7 @@ export const BlueprintTab: React.FC<BlueprintTabProps> = ({
                               className="h-full bg-studio shadow-[0_0_10px_rgba(6,182,212,0.8)]"
                               initial={{ width: "0%" }}
                               animate={{ width: `${generationProgress || 15}%` }}
-                              transition={{ duration: 0.5 }}
+                              transition={{ duration: 1.5, ease: 'easeInOut' }}
                             />
                           </div>
                         </div>

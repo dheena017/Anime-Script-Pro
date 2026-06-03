@@ -165,6 +165,7 @@ function AppRoutes() {
               <Route path="roadmap" element={<PageTransition><AnimeSeries /></PageTransition>} />
               <Route path="arcs" element={<PageTransition><AnimeSeries /></PageTransition>} />
               <Route path="blueprint" element={<PageTransition><AnimeSeries /></PageTransition>} />
+              <Route path="ai-output" element={<PageTransition><AnimeSeries /></PageTransition>} />
               <Route path="assets" element={<PageTransition><AnimeSeries /></PageTransition>} />
               <Route path="timeline" element={<PageTransition><AnimeSeries /></PageTransition>} />
               <Route path="episodes" element={<PageTransition><AnimeSeries /></PageTransition>} />
