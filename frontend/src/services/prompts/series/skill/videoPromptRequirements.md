@@ -1,0 +1,16 @@
+VIDEO PROMPT REQUIREMENTS:
+- Every session object, every episode object, every scene object, and every frame object (if present) must include a "video_prompt" field.
+- If a scene includes a "frames" array, do not duplicate video_prompt at the scene root; place video_prompt only inside each frame object.
+- The video prompt must describe, in order:
+- opening motion or initial state
+- subject movement and blocking
+- camera movement and shot evolution
+- pacing, rhythm, and transition language
+- continuity between beats or shots
+- any loop, hold, or ending motion
+- State whether the camera is static, handheld, dolly, crane, pan, tilt, tracking, push-in, pull-out, or rack-focus when relevant.
+- Explicitly note what must stay constant across frames: character wardrobe, prop placement, weather, lighting, and spatial geography.
+- For action scenes, define the beat-by-beat motion and impact timing.
+- For quiet scenes, define the stillness, restraint, and micro-movements that should remain visible.
+- If the shot is meant to stitch into a neighboring scene, describe the transition bridge.
+- Keep the prompt production-oriented rather than poetic.

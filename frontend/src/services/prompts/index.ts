@@ -2,27 +2,21 @@
 // Prompt Library — barrel re-exports & PROMPT_REGISTRY
 // ─────────────────────────────────────────────────────────────────────────────
 
-import * as worldPrompts from './worldPrompts';
-import * as characterPrompts from './characterPrompts';
-import * as seriesPrompts from './seriesPrompts';
-import * as seoPromptsModule from './seoPrompts';
-import * as uiPrompts from './uiPrompts';
-import * as youtubeStrategyPrompts from './youtubeStrategyPrompts';
+import * as worldPrompts from './world/worldGenerator';
+import * as characterPrompts from './character/characterGenerator';
+import * as seriesPrompts from './series/seriesGenerator';
+import * as seoPromptsModule from './seo/seoGenerator';
 
-export * from './worldPrompts';
-export * from './characterPrompts';
-export * from './seriesPrompts';
-export * from './seoPrompts';
-export * from './uiPrompts';
-export * from './youtubeStrategyPrompts';
+export * from './world/worldGenerator';
+export * from './character/characterGenerator';
+export * from './series/seriesGenerator';
+export * from './seo/seoGenerator';
 
 export const PROMPT_REGISTRY = {
 	worldPrompts,
 	characterPrompts,
 	seriesPrompts,
 	seoPrompts: seoPromptsModule,
-	uiPrompts,
-	youtubeStrategyPrompts,
 } as const;
 
 export const PROMPT_MODULE_NAMES = Object.keys(PROMPT_REGISTRY) as Array<keyof typeof PROMPT_REGISTRY>;

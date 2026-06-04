@@ -2,9 +2,9 @@ import { apiRequest } from '@/lib/api-utils';
 import { fetchTemplates, ProductionTemplate } from './templates';
 import { projectService, Project } from './projects';
 import { settingsService, MediaAsset } from './settings';
-import { characterApi, CharacterManifest } from './characters';
-import { worldApi, WorldLore } from './world';
-import { engineApi } from './engine';
+import { characterApi, CharacterManifest } from './studio/characters';
+import { worldApi, WorldLore } from './studio/world';
+import { engineApi } from './studio/engine';
 import { logsApi, SystemLog } from './logs';
 
 export interface ScriptRecord {

@@ -149,8 +149,8 @@ export default function AnimeLayout() {
 
     try {
       // Dynamic imports to optimize initial bundle
-      const { generateWorld } = await import('@/services/generators/worldGenerator');
-      const { generateCharacters } = await import('@/services/generators/characterGenerator');
+      const { generateWorld } = await import('@/services/prompts/world/worldGenerator');
+      const { generateCharacters } = await import('@/services/prompts/character/characterGenerator');
       const { generateSeriesPlan } = await import('@/services/generators/seriesGenerator');
       const { generateImagePrompts, generateMetadata } = await import('@/services/api/gemini');
 
@@ -241,7 +241,7 @@ export default function AnimeLayout() {
     addGeneratorLog("WORLD", "INITIALIZED", "Generating World Foundation... [Target: world_bible.json]", selectedModel);
 
     try {
-      const { generateWorld } = await import('@/services/generators/worldGenerator');
+      const { generateWorld } = await import('@/services/prompts/world/worldGenerator');
       const world = await generateWorld(prompt, selectedModel, 'Anime');
       setGeneratedWorld(world);
       addGeneratorLog("WORLD", "COMPLETED", "Lore synchronized to core. [Saved to: world_bible.json]", selectedModel);

@@ -1,0 +1,63 @@
+SCENE GENERATOR RESPONSE CONTRACT:
+- Return only a single JSON object for detailed_episode_spec. Do not include markdown fences, commentary, or extra top-level wrappers.
+- detailed_episode_spec.cold_open must be present and contain 2-4 cinematic sentences.
+- detailed_episode_spec.acts must be a JSON array of exactly 3 act objects.
+- The act order must be Act 1, Act 2, Act 3 with no gaps, duplicates, or reordering.
+- Each act object must include:
+  - act_number
+  - act_name
+  - act_summary
+  - scenes
+- Each act must contain a scenes array with at least one scene.
+- The total scene count across all acts must match the episode-level scene target declared in the prompt.
+- The user-entered scene count is authoritative: if the prompt requests {{SCENE_COUNT}} scenes, the combined act scenes must equal {{SCENE_COUNT}} exactly.
+- Each scene object must be a self-contained production unit with deterministic, sequential IDs and explicit narrative continuity.
+- Every scene object must include all of the following fields:
+  - scene_id
+  - scene_name
+  - location
+  - summary
+  - script_dialogue_teaser
+  - conflict
+  - psychological_stakes
+  - character_focus
+  - key_props
+  - visual_direction
+  - particle_effects
+  - audio_direction
+  - voice_acting_notes
+  - dialogue_tone
+  - shot_list_preview
+  - transition
+  - image_prompt
+  - video_prompt
+  - audio_prompt
+  - music_prompt
+  - system_rules
+  - production_stats
+- scene_id values must be deterministic, readable, zero-padded, and sequence-safe across the full episode.
+- scene_name must be short, cinematic, and distinct from the episode title.
+- summary must reveal scene purpose, action, subtext, and consequence in concrete terms.
+- character_focus must name the active characters and explain the function each one serves in the scene.
+- key_props must highlight objects that drive plot, blocking, symbolism, or continuity.
+- visual_direction must include camera language, lens guidance, framing style, lighting, and color notes.
+- particle_effects must describe environmental texture, motion debris, weather, or digital artifacts.
+- audio_direction must describe ambience, foley, transitional sound cues, and musical layering.
+- voice_acting_notes must specify emotional texture, rhythm, pacing, and intensity or restraint.
+- shot_list_preview must contain 5-7 concrete shot ideas in execution order.
+- transition must be one of Smash-cut, Cross-fade, Dissolve, Match-cut, Jump-cut.
+- Every scene-level prompt field (image_prompt, video_prompt, audio_prompt, music_prompt, and system_rules) must be direct, model-ready, and free of filler language.
+- production_stats must be an object containing:
+  - cast_count
+  - extra_count
+  - stunt_required
+  - vfx_heavy
+  - animation_difficulty_score
+  - estimated_minutes
+- If a scene includes a "frames" array, do not include scene-level image_prompt, video_prompt, audio_prompt, music_prompt, or system_rules.
+  - Every frame object must include its own image_prompt, video_prompt, audio_prompt, music_prompt, and system_rules.
+{{FRAMES_RULE}}
+- Every scene must preserve continuity with the episode hook, emotional arc, theme mapping, and act progression.
+- The final act must either resolve the immediate scene objective or end on a deliberate cliffhanger.
+- Do not allow generic filler scenes, repeated beats, or non-causal scene ordering.
+- Keep the tone cinematic, production-ready, and grounded in the provided story logic.

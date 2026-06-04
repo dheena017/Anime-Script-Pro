@@ -1,0 +1,34 @@
+AUDIO PROMPT REQUIREMENTS:
+- Every session object, every episode object, every scene object, and every frame object (if present) must include an "audio_prompt" field.
+- If a scene includes a "frames" array, do not duplicate audio_prompt at the scene root; place audio_prompt only inside each frame object.
+- Every session object, every episode object, every scene object, and every frame object (if present) must include a "music_prompt" field.
+- If a scene includes a "frames" array, do not duplicate music_prompt at the scene root; place music_prompt only inside each frame object.
+- Every session, episode, scene, and frame prompt group must include a "system_rules" field for downstream enforcement.
+- The audio prompt must describe, in order:
+- ambient bed and room tone
+- environmental texture and weather sound
+- foreground foley and movement detail
+- transitional hits, stingers, or risers
+- dialogue mix placement and intelligibility notes
+- silence, decay, or low-frequency tension when relevant
+- The music prompt must describe:
+- tempo or BPM range
+- instrumentation and timbral palette
+- emotional purpose
+- motif usage and recurrence
+- cue length or density when relevant
+- For scene-level prompts, the audio must be specific to the scene’s geography, action, and emotional beat.
+- For episode-level prompts, the audio must describe the full sonic identity of the episode, including recurring motifs and progression across acts.
+- The prompt should distinguish between diegetic sound, non-diegetic music, and hybrid layers whenever appropriate.
+- Mention spatial placement, distance, reverb, and mix depth when a sound source has narrative importance.
+- Include continuity cues so adjacent scenes can share or evolve the same sonic motif without contradiction.
+- Prefer concrete sound nouns and mix instructions over vague adjectives.
+- Do not use generic phrases like "epic sound" or "dramatic audio" unless they are immediately followed by precise implementation details.
+- If a scene is quiet or restrained, explicitly say so and explain what sonic elements are intentionally absent.
+- If the scene has action, explicitly call out impacts, transient peaks, cloth movement, footstep texture, and machine detail.
+- If the scene contains dialogue, the audio prompt must state how the dialogue sits against the ambient and musical layers.
+- If the scene includes a reveal, the audio prompt must specify how the sound design supports the reveal moment.
+- If the scene includes a transition, the audio prompt must describe the audio bridge into the next scene.
+- If the episode has recurring motifs, describe how those motifs evolve across acts or scenes.
+- If the music swells or drops out, state the exact dramatic purpose of the change.
+- The resulting audio direction must be immediately usable by sound design, music, and mix teams.

@@ -1,6 +1,6 @@
-import { generateWorld } from "./generators/worldGenerator";
-import { generateCharacters } from "./generators/characterGenerator";
-import { generateRelationships } from "./generators/characterGenerator";
+import { generateWorld } from "./prompts/world/worldGenerator";
+import { generateCharacters } from "./prompts/character/characterGenerator";
+import { generateRelationships } from "./prompts/character/characterGenerator";
 import { generateSeriesPlan } from "./generators/seriesGenerator";
 import { generateScript, generateImagePrompts } from "./generators/legacyAI";
 import { generateMetadata, generateYouTubeDescription, generateAltTexts, generateGrowthStrategy, generateDistributionStrategy } from "./generators/seoGenerator";

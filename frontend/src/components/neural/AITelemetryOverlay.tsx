@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { AI_EVENTS, AIMetadata } from '@/services/generators/core';
+import { AI_EVENTS, AIMetadata } from '@/services/prompts/core';
 import { Zap, AlertCircle, Loader2, CheckCircle2, History } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 

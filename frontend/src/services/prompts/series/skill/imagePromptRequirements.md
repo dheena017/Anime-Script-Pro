@@ -1,0 +1,17 @@
+IMAGE PROMPT REQUIREMENTS:
+- Every session object, every episode object, every scene object, and every frame object (if present) must include an "image_prompt" field.
+- If a scene includes a "frames" array, do not duplicate image_prompt at the scene root; place image_prompt only inside each frame object.
+- The image prompt must describe, in order:
+- subject and action
+- environment and set dressing
+- camera framing and lens choice
+- composition and focal priority
+- lighting design and contrast direction
+- palette, texture, and material cues
+- mood, genre, and style references
+- For scene-level prompts, tie the image directly to the scene’s dramatic beat and blocking.
+- For episode-level prompts, describe the visual identity of the episode as a whole, not just one frame.
+- Mention aspect ratio, depth of field, and shot scale when they matter to the composition.
+- Include negative constraints to avoid extra limbs, unreadable text, wrong costumes, off-model characters, or stray objects.
+- Prefer concrete cinematic nouns and verbs over broad aesthetic adjectives.
+- If the frame is intended as a thumbnail, call that out explicitly.

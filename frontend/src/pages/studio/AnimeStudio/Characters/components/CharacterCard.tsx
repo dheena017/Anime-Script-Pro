@@ -15,7 +15,6 @@ import {
   MapPin,
   Sparkles,
 } from "lucide-react";
-import { generateSceneImage } from "@/services/api/gemini";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -165,32 +164,6 @@ export const CharacterCard = React.memo<CharacterCardProps>(
           character.visuals,
       ].filter(Boolean).length * 25;
 
-    const handleGenerateImage = async () => {
-      if (!character.visualPrompt) return;
-      setIsGeneratingImage(true);
-      try {
-        const imageUrl = await generateSceneImage(
-          character.visualPrompt,
-          undefined,
-          isDemoMode,
-        );
-        if (imageUrl) {
-          onUpdate({ imageUrl });
-          showNotification?.(
-            "Profile visualization compiled successfully!",
-            "success",
-          );
-        }
-      } catch (error: any) {
-        console.error("Failed to generate character image:", error);
-        showNotification?.(
-          `Visualization failed: ${error?.message || "Unknown issue"}`,
-          "error",
-        );
-      } finally {
-        setIsGeneratingImage(false);
-      }
-    };
 
     return (
       <div className="group relative bg-[#060606] border border-white/5 rounded-[3rem] overflow-hidden hover:border-studio/30 hover:shadow-[0_0_80px_rgba(var(--studio-rgb),0.1)] flex flex-col">
@@ -255,7 +228,6 @@ export const CharacterCard = React.memo<CharacterCardProps>(
 
                 {/* Generate button removed from character card; moved to scene view */}
               </div>
-            </div>
 
             {/* Identity & Archetype Info */}
             <div className="flex-1 pb-2">
