@@ -63,7 +63,7 @@ export const LandingTopBar: React.FC = () => {
   return (
     <header 
       className={cn(
-        "fixed top-0 left-0 right-0 z-[100] transition-[background-color,padding] duration-300",
+        "fixed top-0 left-0 right-0 z-[100] transition-[background-color,padding] duration-300 transform-gpu will-change-transform",
         isScrolled 
           ? "bg-black border-b border-white/5 pt-0 px-0" 
           : "pt-8 px-6 bg-transparent"

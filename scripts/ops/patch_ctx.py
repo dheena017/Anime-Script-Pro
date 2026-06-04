@@ -1,6 +1,6 @@
 import os
 
-ctx_file = r'f:\Project\Anime-Script-Pro\frontend\src\contexts\GeneratorContext.tsx'
+ctx_file = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "frontend", "src", "contexts", "GeneratorContext.tsx"))
 with open(ctx_file, 'r', encoding='utf-8') as f:
     content = f.read()
 

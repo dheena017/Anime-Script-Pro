@@ -1,6 +1,6 @@
 import os
 
-mock_file = r'f:\Project\Anime-Script-Pro\frontend\src\services\generators\mockData.ts'
+mock_file = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "frontend", "src", "services", "generators", "mockData.ts"))
 with open(mock_file, 'r', encoding='utf-8') as f:
     content = f.read()
 

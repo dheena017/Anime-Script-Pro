@@ -84,8 +84,7 @@ const SEOLayout = lazy(() => import('@/pages/studio/AnimeStudio/SEO/SEOLayout'))
 const PromptsLayout = lazy(() => import('@/pages/studio/AnimeStudio/Prompts/PromptsLayout'));
 const ScreeningLayout = lazy(() => import('@/pages/studio/AnimeStudio/Screening/ScreeningLayout'));
 const EngineLayout = lazy(() => import('@/pages/studio/AnimeStudio/Engine/EngineLayout'));
-const AssetsLayout = lazy(() => import('@/pages/studio/AnimeStudio/Assets/AssetsLayout'));
-const AssetsPage = lazy(() => import('@/pages/studio/AnimeStudio/Assets/AssetsPage').then(m => ({ default: m.AssetsPage })));
+
 const ModelsManagementLayout = lazy(() => import('@/pages/studio/AnimeStudio/ModelsManagement/ModelsManagementLayout').then(m => ({ default: m.ModelsManagementLayout })));
 
 // (Manhwa and Comic studios removed)
@@ -194,9 +193,7 @@ function AppRoutes() {
             <Route path="screening" element={<ScreeningLayout />}>
               <Route index element={<PageTransition><AnimeScreening /></PageTransition>} />
             </Route>
-            <Route path="assets" element={<AssetsLayout />}>
-              <Route index element={<PageTransition><AssetsPage /></PageTransition>} />
-            </Route>
+
             <Route path="api" element={<PageTransition><ApiReferencePage /></PageTransition>} />
             <Route path="lore" element={<PageTransition><LoreDatabasePage /></PageTransition>} />
           </Route>

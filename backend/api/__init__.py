@@ -31,6 +31,7 @@ from .diagnostic import router as diagnostic_router
 from .scenes import router as scenes_router
 from .sessions import router as sessions_router
 from .audio import router as audio_router
+# pyrefly: ignore [missing-import]
 from .models_management import router as models_management_router
 
 # Create the Master API Router

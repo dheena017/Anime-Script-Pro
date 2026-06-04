@@ -18,7 +18,7 @@ try {
   // 2. Build Python Backend
   console.log(`${yellow('[2/3]')} Bundling Python Backend (this may take a few minutes)...`);
   if (!fs.existsSync('build-backend')) {
-    execSync('node scripts/run-python.mjs -m PyInstaller --onedir --noconsole --add-data "backend/static;backend/static" --add-data "backend/templates;backend/templates" --distpath build-backend desktop/backend/entry.py', { stdio: 'inherit' });
+    execSync('node scripts/ops/run-python.mjs -m PyInstaller --onedir --noconsole --add-data "backend/static;backend/static" --add-data "backend/templates;backend/templates" --distpath build-backend backend/backend_entry.py', { stdio: 'inherit' });
   } else {
     console.log(cyan('! build-backend already exists, skipping PyInstaller build. Delete it to rebuild.'));
   }

@@ -294,7 +294,7 @@ export default function SeriesLayout() {
     (generatedScript && generatedScript.trim().length > 0)
   );
   const VALID_TABS: SeriesTab[] = hasSeriesOutput
-    ? ['episodes', 'assets', 'blueprint', 'ai-output']
+    ? ['episodes', 'blueprint', 'ai-output']
     : ['blueprint'];
   const pathname = location.pathname;
   const pathTab = pathname.split('/').pop() as SeriesTab;

@@ -1,10 +1,10 @@
 import React from 'react';
-import { Film, Box, LayoutGrid, Cpu } from 'lucide-react';
+import { Film, LayoutGrid, Cpu } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { seriesStyles as s } from '../seriesStyles';
 import { useGeneratorState } from '@/hooks/useGenerator';
 
-export type SeriesTab = 'episodes' | 'assets' | 'blueprint' | 'ai-output';
+export type SeriesTab = 'episodes' | 'blueprint' | 'ai-output';
 
 interface SeriesTabsProps {
   activeTab: SeriesTab;
@@ -16,7 +16,7 @@ const TABS: { id: SeriesTab; label: string; icon: React.FC<any>; color: string; 
   { id: 'blueprint', label: 'BLUEPRINT', icon: LayoutGrid, color: 'text-amber-400', glow: 'shadow-[0_0_15px_rgba(251,191,36,0.3)]' },
   { id: 'ai-output', label: 'AI OUTPUT', icon: Cpu, color: 'text-fuchsia-400', glow: 'shadow-[0_0_15px_rgba(236,72,153,0.3)]' },
   { id: 'episodes', label: 'EPISODES', icon: Film, color: 'text-cyan-400', glow: 'shadow-[0_0_15px_rgba(34,211,238,0.3)]' },
-  { id: 'assets', label: 'ASSETS', icon: Box, color: 'text-emerald-400', glow: 'shadow-[0_0_15px_rgba(52,211,153,0.3)]' },
+
 ];
 
 export const SeriesTabs: React.FC<SeriesTabsProps> = ({

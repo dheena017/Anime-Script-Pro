@@ -4,6 +4,7 @@
 import express from "express";
 import type { Request, Response, NextFunction } from "express";
 import path from "path";
+import { fileURLToPath } from "url";
 import os from "os";
 import fs from "fs";
 import OpenAI from "openai";
@@ -511,7 +512,7 @@ async function startServer() {
 }
 
 // Only start the server automatically if we are not in a test environment and this is the main module
-if (process.env.NODE_ENV !== 'test' && import.meta.url === `file://${path.resolve(process.argv[1])}`) {
+if (process.env.NODE_ENV !== 'test') {
   startServer();
 }
 

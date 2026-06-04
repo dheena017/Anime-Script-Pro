@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils';
 import {
   ScrollText,
   UserPlus,
-  Layers,
+
   Zap,
   Loader2,
   SlidersHorizontal,
@@ -17,7 +17,8 @@ import {
   LayoutDashboard,
   Layout as LayoutIcon,
   Cpu,
-  Globe
+  Globe,
+  Layers
 } from 'lucide-react';
 import React from 'react';
 
@@ -58,7 +59,6 @@ export const AnimeStudioSideBar = React.memo<AnimeStudioSideBarProps>(({
 
   const generationItems = [
     { icon: LayoutIcon, label: 'Storyboard', path: '/storyboard' },
-    { icon: Layers, label: 'Assets', path: '/assets' },
   ];
 
   const distributionItems = [

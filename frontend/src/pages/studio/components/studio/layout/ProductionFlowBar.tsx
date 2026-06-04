@@ -149,7 +149,7 @@ export function ProductionFlowBar({ basePath = '/anime' }: { basePath?: string }
 // Mobile compact flow bar: sticky bottom icon rail for small screens
 export function ProductionFlowBarMobile({ basePath = '/anime' }: { basePath?: string }) {
   return (
-    <div className="sm:hidden fixed bottom-3 left-1/2 -translate-x-1/2 z-[310] bg-[#050505]/95 backdrop-blur-md px-3 py-2 rounded-3xl shadow-2xl flex items-center gap-2">
+    <div className="sm:hidden fixed bottom-3 left-1/2 -translate-x-1/2 z-[310] bg-[#050505]/95 backdrop-blur-md px-3 py-2 rounded-3xl shadow-2xl flex items-center gap-2 transform-gpu will-change-transform">
       {PHASES.map(phase => {
         const Icon = phase.icon;
         return (

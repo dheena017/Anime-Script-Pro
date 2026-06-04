@@ -46,7 +46,7 @@ export const GlobalTopBar: React.FC = () => {
   if (isFullscreen || isStudioMode || isInStudio) return null;
 
   return (
-    <header className="sticky top-0 z-[400] w-full border-b border-white/5 bg-black/60 backdrop-blur-xl transition-all duration-300">
+    <header className="sticky top-0 z-[400] w-full border-b border-white/5 bg-black/60 backdrop-blur-xl transition-all duration-300 transform-gpu will-change-transform">
       <div className="max-w-full mx-auto px-6 h-[70px] flex items-center justify-between gap-8">
         
         {/* Left: Logo & Project Selector */}

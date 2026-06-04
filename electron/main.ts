@@ -1,7 +1,7 @@
 import { app, BrowserWindow, shell } from 'electron';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { createServer } from '../../server.ts';
+import { createServer } from '../server.ts';
 
 // Handle ES modules in Node
 const __filename = fileURLToPath(import.meta.url);

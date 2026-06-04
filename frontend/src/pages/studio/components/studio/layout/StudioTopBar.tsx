@@ -352,7 +352,7 @@ export const StudioTopBar: React.FC<{
   return (
     <>
       {/* Mobile compact header */}
-      <div className="sm:hidden fixed top-0 left-0 right-0 h-[56px] bg-[#050505]/95 border-b border-white/5 flex items-center justify-between px-3 z-[450]">
+      <div className="sm:hidden fixed top-0 left-0 right-0 h-[56px] bg-[#050505]/95 border-b border-white/5 flex items-center justify-between px-3 z-[450] transform-gpu will-change-transform">
         <div className="flex items-center gap-2">
           <button onClick={() => { playNeonSound('click'); setCollapsed(!collapsed); }} className="w-9 h-9 rounded-lg flex items-center justify-center text-zinc-300">
             <Menu className="w-5 h-5" />
@@ -377,7 +377,7 @@ export const StudioTopBar: React.FC<{
       </div>
 
       <header 
-      className="hidden sm:flex fixed top-0 left-0 right-0 h-[64px] border-b border-zinc-800/40 flex items-center justify-between px-6 bg-black/70 backdrop-blur-md z-[400] transition-all duration-300 ease-out shadow-[0_4px_30px_rgba(0,0,0,0.4)]"
+      className="hidden sm:flex fixed top-0 left-0 right-0 h-[64px] border-b border-zinc-800/40 flex items-center justify-between px-6 bg-black/70 backdrop-blur-md z-[400] transition-all duration-300 ease-out shadow-[0_4px_30px_rgba(0,0,0,0.4)] transform-gpu will-change-transform"
     >
       {/* Left: Branding & Core Navigation */}
       <div className="flex items-center gap-5">

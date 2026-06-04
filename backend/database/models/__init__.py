@@ -35,7 +35,17 @@ from .system import (
 
 # AI Models & Performance Metrics
 from .engine import EngineConfig, AITelemetry, AIModel
-from .models_registry import AIModelRegistry
+
+# NOTE:
+# Importing AIModelRegistry at package import time can hard-fail the entire
+# backend if the module path/dependency chain is temporarily inconsistent
+# (e.g., during dev reloads). Keep the backend resilient by making this a
+# best-effort optional import.
+try:
+    from .models_registry import AIModelRegistry  # type: ignore
+except Exception:  # pragma: no cover
+    AIModelRegistry = None  # type: ignore
+
 
 # Narrative Lore & Character Blueprints
 from .world import WorldLore, Character, NarrativeBeat, ReusableCharacter, CharacterRelationship, CharacterManifest

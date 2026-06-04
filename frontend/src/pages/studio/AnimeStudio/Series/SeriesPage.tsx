@@ -10,7 +10,7 @@ import { SeriesTab } from './Tabs/SeriesTabs';
 import { BlueprintTab } from './Tabs/BlueprintTab';
 import { AIOutputTab } from './Tabs/AIOutputTab';
 
-import { AssetsTab } from './Tabs/AssetsTab';
+
 import { SeriesEmptyState } from './components/SeriesEmptyState';
 import EpisodesPage from './Episodes/EpisodesPage';
 
@@ -70,15 +70,7 @@ export function SeriesPage() {
     setGeneratedSeriesPlan(newPlan);
   };
 
-  const handleUpdateAssetMatrix = (index: number, updates: any) => {
-    if (!generatedSeriesPlan) return;
-    const newPlan = [...generatedSeriesPlan];
-    newPlan[index] = {
-      ...newPlan[index],
-      asset_matrix: { ...newPlan[index].asset_matrix, ...updates }
-    };
-    setGeneratedSeriesPlan(newPlan);
-  };
+
 
   const applySequenceItem = (sess: number, ep: number, scen: number) => {
     setSession(sess.toString());
@@ -216,13 +208,7 @@ export function SeriesPage() {
     await syncCore(projectId);
   };
 
-  const getLoadingMessage = () => {
-    switch (activeTab) {
-      case 'assets': return "Calculating Resource Matrix...";
-      case 'episodes': return "Indexing Episodes Library...";
-      default: return "Mapping Production Roadmap...";
-    }
-  };
+
 
   const renderTabContent = () => {
     if ((!generatedSeriesPlan || generatedSeriesPlan.length === 0) && activeTab !== 'blueprint') {
@@ -255,8 +241,7 @@ export function SeriesPage() {
           />
         );
 
-      case 'assets':
-        return <AssetsTab plan={generatedSeriesPlan || []} />;
+
       default:
         return <EpisodesPage />;
     }

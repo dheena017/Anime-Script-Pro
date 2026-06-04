@@ -1,6 +1,5 @@
 import os
-
-base_dir = r"f:\Project\Anime-Script-Pro\frontend\src"
+base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "frontend", "src"))
 
 replacements = {
     "CastLayout": "CharactersLayout",

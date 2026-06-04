@@ -1,6 +1,6 @@
 import os, re
 
-base = r'f:\Project\Anime-Script-Pro\frontend\src\pages\studio\AnimeStudio'
+base = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "frontend", "src", "pages", "studio", "AnimeStudio"))
 modules = ['Storyboard', 'SEO', 'Prompts', 'Screening']
 
 for mod in modules:

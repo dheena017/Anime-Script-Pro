@@ -1,11 +1,23 @@
 import React from 'react';
 import { NavItem, DropdownLink } from './ui/NavComponents';
 import { HeroPromptBar } from './ui/HeroPromptBar';
-import { Gallery } from './ui/Gallery';
 import { landingStyles as s } from './landingStyles';
-import { Features } from './ui/Features';
-import FooterLanding from './FooterLanding';
 import LandingTopBar from './LandingTopBar';
+
+const Gallery = React.lazy(() => import('./ui/Gallery').then(m => ({ default: m.Gallery })));
+const Features = React.lazy(() => import('./ui/Features').then(m => ({ default: m.Features })));
+const FooterLanding = React.lazy(() => import('./FooterLanding'));
+
+const FallbackSkeleton = () => (
+  <div className="w-full animate-pulse space-y-8 py-20 px-6 max-w-7xl mx-auto">
+    <div className="h-8 bg-zinc-800/50 rounded w-1/4 mx-auto mb-12 transform-gpu will-change-transform"></div>
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div className="h-64 bg-zinc-800/50 rounded-2xl transform-gpu will-change-transform"></div>
+      <div className="h-64 bg-zinc-800/50 rounded-2xl transform-gpu will-change-transform"></div>
+      <div className="h-64 bg-zinc-800/50 rounded-2xl transform-gpu will-change-transform"></div>
+    </div>
+  </div>
+);
 import { GALLERY_DATA, PLACEHOLDER_PROMPTS } from './constants';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
@@ -49,7 +61,7 @@ export default function LandingPage() {
           <h1 className={s.heroTitle}>
             <span className="relative z-10">TURN YOUR IMAGINATION</span> <br />
             <span className={s.heroGradientText}>INTO STUDIO-QUALITY ANIME.</span>
-            <div className="absolute inset-0 -z-0 bg-studio/5 blur-[100px] rounded-full scale-110" />
+            <div className="absolute inset-0 -z-0 bg-studio/5 blur-[100px] rounded-full scale-110 transform-gpu will-change-transform" />
           </h1>
 
           <p className={s.heroSubtitle}>The fastest AI generator for anime, manga, and concept art. Type a prompt. Get perfect anime art in seconds. Start creating for free.</p>
@@ -74,7 +86,7 @@ export default function LandingPage() {
                 <Video className="w-4 h-4 text-studio" />
                 <span className={s.videoLabelText}>Live Demo</span>
               </div>
-              <video className="w-full h-auto aspect-video object-cover" controls poster="/cyberpunk_thumbnail_1776537282821.webp">
+              <video className="w-full h-auto aspect-video object-cover" controls muted loop autoPlay playsInline preload="metadata" poster="/cyberpunk_thumbnail_1776537282821.webp">
                 <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4" />
               </video>
               <div className={s.videoOverlay}>
@@ -114,9 +126,10 @@ export default function LandingPage() {
             </div>
           </section>
 
-          <Gallery images={galleryImages} setActivePrompt={setActivePrompt} activePrompt={activePrompt} onTryPrompt={() => navigate('/login')} />
-
-          <Features />
+          <React.Suspense fallback={<FallbackSkeleton />}>
+            <Gallery images={galleryImages} setActivePrompt={setActivePrompt} activePrompt={activePrompt} onTryPrompt={() => navigate('/login')} />
+            <Features />
+          </React.Suspense>
 
           <section className={s.sectionBlockCenter}>
             <h2 className={s.sectionTitle}>Pricing</h2>
@@ -147,7 +160,9 @@ export default function LandingPage() {
         </div>
       </main>
 
-      <FooterLanding />
+      <React.Suspense fallback={<div className="h-64 bg-zinc-900/40 animate-pulse transform-gpu will-change-transform"></div>}>
+        <FooterLanding />
+      </React.Suspense>
     </div>
   );
 }
