@@ -64,8 +64,17 @@ The following resource modules are proxied to the backend and handle the bulk of
 | **Media** | `/api/media` | Image and video asset management. |
 | **Production** | `/api/production` | Orchestration of the 10-state production cycle. |
 | **Library** | `/api/library` | Global asset and prompt template discovery. |
+| **Todos** | `/api/todos` | Production Queue management with uniqueness enforcement. |
 
 ---
+
+### 📋 Production Queue (Todos)
+| Endpoint | Method | Description |
+| :--- | :--- | :--- |
+| `/api/todos/{user_id}` | `GET` | List all tasks in the production queue for a specific user. |
+| `/api/todos/{user_id}` | `POST` | Create a new task. **Constraint**: Task text must be unique per user. Returns 400 if duplicate. |
+| `/api/todos/{todo_id}` | `PATCH` | Toggle task completion status. |
+| `/api/todos/{todo_id}` | `DELETE` | Remove a task from the queue. |
 
 ## 🛠️ 4. Proxy Configuration
 The Orchestrator uses `http-proxy-middleware` to route traffic to the Intelligence Layer.

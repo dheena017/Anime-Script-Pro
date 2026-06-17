@@ -12,6 +12,7 @@ export const TodoWidget: React.FC = () => {
   const { user } = useAuth();
   const [tasks, setTasks] = useState<Todo[]>([]);
   const [newTask, setNewTask] = useState('');
+  const [error, setError] = useState<string | null>(null);
   const [, setLoading] = useState(true);
 
   const fetchTasks = async () => {
@@ -35,13 +36,22 @@ export const TodoWidget: React.FC = () => {
 
   const addTask = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
     if (!newTask.trim() || !user) return;
+
+    // Client-side duplicate check
+    if (tasks.some(t => t.text.toLowerCase() === newTask.trim().toLowerCase())) {
+      setError("This task already exists in your queue.");
+      return;
+    }
+
     try {
-      const todo = await todoService.createTodo(user.id, newTask);
+      const todo = await todoService.createTodo(user.id, newTask.trim());
       setTasks([...tasks, todo]);
       setNewTask('');
-    } catch (e) {
+    } catch (e: any) {
       console.error("Failed to add task:", e);
+      setError(e.response?.data?.detail || "Failed to add task.");
     }
   };
 
@@ -66,25 +76,47 @@ export const TodoWidget: React.FC = () => {
   };
 
   return (
-    <Card className="bg-zinc-900/40 border-zinc-800 rounded-[2.5rem] p-8 space-y-6 shadow-2xl h-full flex flex-col">
-      <div className="flex items-center gap-3">
+    <Card className="bg-zinc-900/40 border-zinc-800 rounded-[2.5rem] p-8 space-y-6 shadow-2xl h-full flex flex-col relative overflow-hidden group/todo">
+      {/* Cinematic Shimmer Effect */}
+      <div className="absolute inset-0 pointer-events-none opacity-0 group-hover/todo:opacity-100 transition-opacity duration-700">
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full animate-[shimmer_3s_infinite]" />
+      </div>
+
+      <div className="flex items-center gap-3 relative z-10">
         <Zap className="w-5 h-5 text-[#bd4a4a] fill-current" />
         <h3 className="text-xs font-black uppercase tracking-[0.2em] text-zinc-100">Production Queue</h3>
       </div>
 
-      <form onSubmit={addTask} className="flex gap-2">
-        <Input
-          value={newTask}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewTask(e.target.value)}
-          placeholder="Add production task..."
-          className="bg-black/20 border-zinc-800 text-xs placeholder:text-zinc-600 rounded-xl"
-        />
-        <Button type="submit" size="icon" className="bg-white text-black hover:bg-zinc-200 rounded-xl shrink-0">
-          <Plus className="w-4 h-4" />
-        </Button>
+      <form onSubmit={addTask} className="space-y-2 relative z-10">
+        <div className="flex gap-2">
+          <Input
+            value={newTask}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+              setNewTask(e.target.value);
+              if (error) setError(null);
+            }}
+            placeholder="Add production task..."
+            className="bg-black/40 border-zinc-800 text-xs placeholder:text-zinc-600 rounded-xl focus:ring-1 focus:ring-studio/50 transition-all"
+          />
+          <Button type="submit" size="icon" className="bg-white text-black hover:bg-zinc-200 rounded-xl shrink-0 transition-transform active:scale-95">
+            <Plus className="w-4 h-4" />
+          </Button>
+        </div>
+        <AnimatePresence>
+          {error && (
+            <motion.p
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="text-[10px] text-red-400 font-medium px-2 overflow-hidden"
+            >
+              {error}
+            </motion.p>
+          )}
+        </AnimatePresence>
       </form>
 
-      <div className="space-y-2 overflow-y-auto max-h-[300px] flex-1">
+      <div className="space-y-2 overflow-y-auto max-h-[300px] flex-1 relative z-10">
         <AnimatePresence>
           {tasks.map((task) => (
             <motion.div
@@ -92,7 +124,7 @@ export const TodoWidget: React.FC = () => {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              className="group flex items-center justify-between p-3 bg-black/20 border border-zinc-800 rounded-xl hover:border-zinc-700 transition-all"
+              className="group flex items-center justify-between p-3 bg-black/40 border border-zinc-800/50 rounded-xl hover:border-zinc-700 transition-all"
             >
               <div className="flex items-center gap-3 overflow-hidden">
                 <button onClick={() => toggleTask(task.id, task.completed)} className="shrink-0">
@@ -102,8 +134,8 @@ export const TodoWidget: React.FC = () => {
                   {task.text}
                 </span>
               </div>
-              <button 
-                onClick={() => deleteTask(task.id)} 
+              <button
+                onClick={() => deleteTask(task.id)}
                 className="opacity-0 group-hover:opacity-100 p-1.5 hover:bg-red-500/10 hover:text-red-500 rounded-lg transition-all"
               >
                 <Trash2 className="w-3.5 h-3.5" />
@@ -115,6 +147,3 @@ export const TodoWidget: React.FC = () => {
     </Card>
   );
 };
-
-
-
