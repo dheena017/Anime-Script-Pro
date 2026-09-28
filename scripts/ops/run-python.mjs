@@ -79,7 +79,7 @@ async function startProcess() {
     const child = spawn(resolved.cmd, runArgs, {
       stdio: 'inherit',
       shell: false,
-      env: { ...process.env, PYTHONPATH: process.cwd() },
+      env: { ...process.env, PYTHONPATH: process.cwd(), PYTHONUTF8: '1' },
       ...(os.platform() === 'win32' ? { creationFlags: 0x00000200 } : {})
     });
     activeChild = child;
@@ -170,7 +170,7 @@ if (isReload) {
   const child = spawn(resolved.cmd, runArgs, {
     stdio: 'inherit',
     shell: false,
-    env: { ...process.env, PYTHONPATH: process.cwd() },
+    env: { ...process.env, PYTHONPATH: process.cwd(), PYTHONUTF8: '1' },
     ...(os.platform() === 'win32' ? { creationFlags: 0x00000200 } : {})
   });
   activeChild = child;

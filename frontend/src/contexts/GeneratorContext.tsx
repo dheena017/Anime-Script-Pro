@@ -29,7 +29,7 @@ import {
   MOCK_SEO_GROWTH,
   MOCK_IMAGE_PROMPTS,
   MOCK_VIDEO_PROMPTS
-} from '../services/generators/mockData';
+} from '../services/prompts/mockData';
 
 
 interface GeneratorState {

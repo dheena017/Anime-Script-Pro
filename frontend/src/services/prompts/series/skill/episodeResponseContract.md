@@ -24,13 +24,6 @@ Episode hierarchy rules:
 - Every episode must carry the requested internal scene count through asset_matrix.scene_count.
 - Every episode should behave like one self-contained production unit in the season.
 
-Each episode object must include dedicated episode-level prompt fields:
-- episode_image_prompt
-- episode_video_prompt
-- episode_audio_prompt
-- episode_music_prompt
-- episode_system_rules
-
 Every scene inside detailed_episode_spec must include dedicated AI prompt fields unless that scene includes a "frames" array.
 - If a scene does not include a "frames" array, the scene must include:
   - image_prompt
