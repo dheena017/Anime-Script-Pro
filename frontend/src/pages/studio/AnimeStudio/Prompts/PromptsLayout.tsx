@@ -5,7 +5,6 @@ import EpisodePackager from './components/EpisodePackager';
 import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
 import { useAuth } from '@/hooks/useAuth';
 import { useLogs } from '@/contexts/LogContext';
-import { generateImagePrompts, generateVideoPrompts } from '@/services/api/gemini';
 import { PromptsHeader } from './components/PromptsHeader';
 import { PromptsToolbar } from './components/PromptsToolbar';
 import { PromptsTabs, PromptsTab } from './Tabs/PromptsTabs';

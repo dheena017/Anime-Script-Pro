@@ -1,8 +1,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
-import { generateEpisodeAssets, generateScene, generateImagePrompts, generateVideoPrompts, generateSceneImage, generateVideo } from '@/services/api/gemini';
-import { seriesRenderService, type ServerRenderJobStatus } from '@/services/api/seriesRender';
+import { seriesRenderService, type ServerRenderJobStatus } from '@/services/api/studio/seriesRender';
 
 const TERMINAL_JOB_STATUSES = ['completed', 'failed', 'cancelled'];
 

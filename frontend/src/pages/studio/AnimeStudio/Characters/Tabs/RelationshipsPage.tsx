@@ -12,7 +12,7 @@ import {
 import { useGeneratorState, useGeneratorDispatch } from "@/hooks/useGenerator";
 import { useStudioBasePath } from "@/hooks/useStudioBasePath";
 import { Button } from "@/components/ui/button";
-import { generateRelationships } from "@/services/api/gemini";
+import { generateRelationships } from "@/services/prompts/character/characterGenerator";
 import { CharacterEmptyState } from "../components/CharacterEmptyState";
 import { StudioEmptyState } from "@/pages/studio/components/studio/shared/StudioEmptyState";
 import { CharacterPageContext } from "../CharactersLayout";

@@ -3,7 +3,6 @@ import { useOutletContext } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
-import { generateImagePrompts } from '@/services/api/gemini';
 import { cn } from '@/lib/utils';
 
 // Context

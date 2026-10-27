@@ -23,7 +23,7 @@ import { useStudioBasePath } from "@/hooks/useStudioBasePath";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useApp } from "@/contexts/AppContext";
-import { generateImage } from "@/services/generators/core";
+import { generateImage } from "@/services/prompts/core";
 import { cn } from "@/lib/utils";
 
 export default function CharacterViewPage() {

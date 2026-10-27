@@ -18,12 +18,9 @@ import RelationshipsPage from "./Tabs/RelationshipsPage";
 import CharactersPage from "./Tabs/CharactersPage";
 import { TechnicalTab } from "./Tabs/TechnicalTab";
 import { useStudioBasePath } from "@/hooks/useStudioBasePath";
-import {
-  generateCharacters,
-  generateSceneImage,
-} from "../../../../services/api/gemini";
+import { generateCharacters } from "@/services/prompts/character/characterGenerator";
 import { CharactersLoadingPage } from "./CharactersLoadingPage";
-import { MOCK_CAST_DATA } from "@/services/generators/mockData";
+import { MOCK_CAST_DATA } from "@/services/prompts/mockData";
 import {
   studioLog,
   reportTabChange,

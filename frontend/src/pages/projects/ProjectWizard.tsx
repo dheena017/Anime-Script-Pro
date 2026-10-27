@@ -18,7 +18,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '@/contexts/AppContext';
 import { projectService } from '@/services/api/projects';
-import { MOCK_STORY_BIBLE } from '@/services/generators/mockData';
+import { MOCK_STORY_BIBLE } from '@/services/prompts/mockData';
 import { cn } from '@/lib/utils';
 
 const WIZARD_OPTIONS = [

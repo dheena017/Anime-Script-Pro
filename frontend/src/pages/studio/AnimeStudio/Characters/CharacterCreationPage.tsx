@@ -13,7 +13,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useGeneratorState, useGeneratorDispatch } from "@/hooks/useGenerator";
 import { CharacterPageContext } from "./CharactersLayout";
-import { generateCharacters } from "@/services/api/gemini";
+import { generateCharacters } from "@/services/prompts/character/characterGenerator";
 import { cn } from "@/lib/utils";
 
 export function CharacterCreationPage() {

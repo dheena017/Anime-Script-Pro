@@ -2,7 +2,13 @@ import React, { useState } from 'react';
 import { Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
-import { UI_PROMPT_SUGGESTIONS } from '@/services/prompts';
+export const UI_PROMPT_SUGGESTIONS = [
+  { label: 'Cyberpunk Tokyo 2099', border: 'border-cyan-500/20', color: 'text-cyan-400' },
+  { label: 'Dark Fantasy Shonen', border: 'border-red-500/20', color: 'text-red-400' },
+  { label: 'Mecha Rebellion Space Opera', border: 'border-amber-500/20', color: 'text-amber-400' },
+  { label: 'Psychological Slice of Life', border: 'border-purple-500/20', color: 'text-purple-400' },
+  { label: 'Supernatural Detective Arc', border: 'border-emerald-500/20', color: 'text-emerald-400' },
+];
 
 interface OmniPromptProps {
   value?: string;

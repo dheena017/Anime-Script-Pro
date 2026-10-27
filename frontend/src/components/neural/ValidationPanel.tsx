@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { AI_EVENTS } from '@/services/generators/core';
+import { AI_EVENTS } from '@/services/prompts/core';
 
 type ValidationDetail = {
   model: string;

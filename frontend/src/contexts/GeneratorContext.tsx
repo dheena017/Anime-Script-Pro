@@ -12,7 +12,7 @@ import {
   useGeneratorSaveCore,
   useGeneratorTelemetryEffects,
 } from './generator/useGeneratorLifecycle';
-import { AI_EVENTS } from '../services/generators/core';
+import { AI_EVENTS } from '../services/prompts/core';
 import { AI_MODELS, AIModel } from '@/lib/aiModels';
 // ── Stable context refs ── must be imported at the top of the file, not mid-module ──
 import { GeneratorStateContext, GeneratorDispatchContext } from './GeneratorContextRefs';

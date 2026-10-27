@@ -1,15 +1,14 @@
 import { generateWorld } from "./prompts/world/worldGenerator";
 import { generateCharacters } from "./prompts/character/characterGenerator";
 import { generateRelationships } from "./prompts/character/characterGenerator";
-import { generateSeriesPlan } from "./generators/seriesGenerator";
-import { generateScript, generateImagePrompts } from "./generators/legacyAI";
-import { generateMetadata, generateYouTubeDescription, generateAltTexts, generateGrowthStrategy, generateDistributionStrategy } from "./generators/seoGenerator";
+import { generateSeriesPlan } from "./prompts/series/seriesGenerator";
+import { generateMetadata, generateYouTubeDescription, generateAltTexts, generateGrowthStrategy, generateDistributionStrategy } from "./prompts/seo/seoGenerator";
 import { generateProductionSequences, ProductionUnit } from "@/lib/sequence-utils";
 import { apiRequest } from "@/lib/api-utils";
-import { seoApi } from "@/services/api/seo";
+import { seoApi } from "@/services/api/studio";
 import { VIBE_LIBRARY } from "@/lib/vibe-presets";
 
-import { generateText } from "./generators/core";
+import { generateText } from "./prompts/core";
 
 export interface ProductionContext {
   prompt: string;

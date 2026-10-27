@@ -1,12 +1,9 @@
 import { Dispatch, MutableRefObject, SetStateAction, useCallback, useEffect } from 'react';
 import { QueryClient, useQuery } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/api-utils';
-import { engineApi } from '@/services/api/engine';
-import { worldApi } from '@/services/api/world';
-import { productionApi } from '@/services/api/production';
-import { characterApi } from '@/services/api/characters';
+import { engineApi, worldApi, productionApi, characterApi } from '@/services/api/studio';
 import { projectService } from '@/services/api/projects';
-import { AI_EVENTS } from '@/services/generators/core';
+import { AI_EVENTS } from '@/services/prompts/core';
 
 interface GeneratorQueriesParams {
   userId?: string;

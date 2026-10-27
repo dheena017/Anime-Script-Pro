@@ -9,7 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useGeneratorState, useGeneratorDispatch } from "@/hooks/useGenerator";
 import { StudioEmptyState } from "@/pages/studio/components/studio/shared/StudioEmptyState";
-import { generateCharacters } from "@/services/api/gemini";
+import { generateCharacters } from "@/services/prompts/character/characterGenerator";
 import { cn } from "@/lib/utils";
 
 export const AddLeadTab: React.FC = () => {

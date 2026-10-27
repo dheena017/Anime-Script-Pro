@@ -151,8 +151,7 @@ export default function AnimeLayout() {
       // Dynamic imports to optimize initial bundle
       const { generateWorld } = await import('@/services/prompts/world/worldGenerator');
       const { generateCharacters } = await import('@/services/prompts/character/characterGenerator');
-      const { generateSeriesPlan } = await import('@/services/generators/seriesGenerator');
-      const { generateImagePrompts, generateMetadata } = await import('@/services/api/gemini');
+      const { generateSeriesPlan } = await import('@/services/prompts/series/seriesGenerator');
 
       // PHASE 1: WORLD Architecture
       setGenerationProgress(5);

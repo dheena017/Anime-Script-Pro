@@ -143,8 +143,6 @@ function logAIUserHint(message: string) {
 
 import { GoogleGenAI } from "@google/genai";
 import { API_BASE_URL, cleanJson } from "@/lib/api-utils";
-import ValidationEngine from "@/services/validators/ValidationEngine";
-import { traceContextFromInstruction } from "@/services/validators/ContextTracer";
 
 
 /**
